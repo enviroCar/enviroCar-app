@@ -28,6 +28,7 @@ import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.widget.NestedScrollView;
@@ -163,7 +164,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
     @BindView(R.id.activity_track_details_expanded_map)
     protected MapView mMapViewExpanded;
     @BindView(R.id.activity_track_details_expanded_map_container)
-    protected RelativeLayout mMapViewExpandedContainer;
+    protected ConstraintLayout mMapViewExpandedContainer;
     @BindView(R.id.activity_track_details_appbar_layout)
     protected AppBarLayout mAppBarLayout;
     @BindView(R.id.activity_track_details_scrollview)
@@ -186,7 +187,6 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
     private LatLngBounds mTrackBoundingBox;
     private LatLngBounds mViewBoundingBox;
     private Track track;
-    ViewGroup.LayoutParams paramsOriginal;
 
     private boolean mIsCentredOnTrack;
 
@@ -382,14 +382,8 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
 
     //function which expands the mapview
     private void expandMapView(){
-        //mMapView.setVisibility(GONE);
-        //mAppBarLayout.setVisibility(GONE);
-        //mNestedScrollView.setVisibility(GONE);
-        //mFAB.setVisibility(GONE);
-        final LatLngBounds viewBbox = mViewBoundingBox;//trackMapOverlay.getViewBoundingBox();
-
-        mMapViewExpanded.setVisibility(View.VISIBLE);
         //mMapViewExpandedContainer.setVisibility(View.VISIBLE);
+        mMapViewExpanded.setVisibility(View.VISIBLE);
         animateShowView(mMapViewExpandedContainer,R.anim.translate_slide_in_top_fragment);
         animateHideView(mAppBarLayout,R.anim.translate_slide_out_top_fragment);
         animateHideView(mNestedScrollView,R.anim.translate_slide_out_bottom);
@@ -410,14 +404,12 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
         //mAppBarLayout.setVisibility(View.VISIBLE);
         //mNestedScrollView.setVisibility(View.VISIBLE);
         //mFAB.setVisibility(View.VISIBLE);
+        mMapViewExpanded.setVisibility(GONE);
+        mMapViewExpandedContainer.setVisibility(View.INVISIBLE);
         //animateHideView(mMapViewExpandedContainer,R.anim.translate_slide_out_top_fragment);
         animateShowView(mAppBarLayout,R.anim.translate_slide_in_top_fragment);
         animateShowView(mNestedScrollView,R.anim.translate_slide_in_bottom_fragment);
         animateShowView(mFAB,R.anim.fade_in);
-        //ViewGroup.LayoutParams params = mMapViewExpandedContainer.getLayoutParams();
-        //ViewGroup.LayoutParams params1 = mAppBarLayout.getLayoutParams();
-        //params.height = 0;
-        //mMapViewExpandedContainer.setLayoutParams(params);
         mapboxMap.moveCamera(CameraUpdateFactory.newLatLngBounds(mViewBoundingBox, 50), new MapboxMap.CancelableCallback() {
             @Override
             public void onCancel() {
@@ -429,8 +421,6 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
                 LOG.info("mMapView move camera finished.");
             }
         });
-        mMapViewExpandedContainer.setVisibility(View.INVISIBLE);
-        mMapViewExpanded.setVisibility(View.INVISIBLE);
         LOG.info("mMapViewExpanded visibility: " + mMapViewExpanded.getVisibility());
         LOG.info("mMapViewExpandedContainer visibility: " + mMapViewExpandedContainer.getVisibility());
         LOG.info("mMapView visibility: " + mMapView.getVisibility());

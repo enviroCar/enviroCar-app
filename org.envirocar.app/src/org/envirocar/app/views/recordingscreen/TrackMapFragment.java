@@ -18,11 +18,14 @@
  */
 package org.envirocar.app.views.recordingscreen;
 
+import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,6 +36,10 @@ import android.widget.Toast;
 import com.mapbox.android.core.location.LocationEngineRequest;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
+import com.mapbox.geojson.Feature;
+import com.mapbox.geojson.FeatureCollection;
+import com.mapbox.geojson.LineString;
+import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.location.LocationComponent;
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions;
@@ -43,6 +50,9 @@ import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
+import com.mapbox.mapboxsdk.style.layers.LineLayer;
+import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
+import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 import com.mapbox.mapboxsdk.style.sources.TileSet;
 import com.squareup.otto.Subscribe;
 
@@ -56,6 +66,7 @@ import org.envirocar.app.views.trackdetails.MapLayer;
 import org.envirocar.app.views.utils.MapUtils;
 import org.envirocar.core.logging.Logger;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -81,6 +92,7 @@ public class TrackMapFragment extends BaseInjectorFragment implements Permission
     protected FloatingActionButton mFollowFab;
 
     private MapLayer mPathOverlay;
+    private List<Point> points = new ArrayList<>();
 
     private final Scheduler.Worker mMainThreadWorker = AndroidSchedulers.mainThread()
             .createWorker();
@@ -116,10 +128,20 @@ public class TrackMapFragment extends BaseInjectorFragment implements Permission
                                 enableLocationComponent(style);
                                 mapStyle = style;
                                 // If the mPathOverlay has already been set, then add the overlay to the mapview.
-                                if (mPathOverlay != null) {
-                                    mapStyle.addSource(mPathOverlay.getGeoJsonSource());
-                                    mapStyle.addLayer(mPathOverlay.getLineLayer());
-                                }
+                                //if (mPathOverlay != null) {
+                                //    mapStyle.addSource(mPathOverlay.getGeoJsonSource());
+                                //    mapStyle.addLayer(mPathOverlay.getLineLayer());
+                                //}
+                                GeoJsonSource geoJsonSource = new GeoJsonSource("source-id", FeatureCollection.fromFeatures(new Feature[] {Feature.fromGeometry(
+                                        LineString.fromLngLats(points)
+                                )}));
+                                style.addSource(geoJsonSource);
+
+                                LineLayer lineLayer = new LineLayer("linelayer", "source-id").withSourceLayer("source-id").withProperties(
+                                        PropertyFactory.lineColor(Color.BLUE),
+                                        PropertyFactory.lineWidth(4f)
+                                );
+                                style.addLayer(lineLayer);
                             }
                         });
             }
@@ -227,17 +249,39 @@ public class TrackMapFragment extends BaseInjectorFragment implements Permission
     public void onReceivePathOverlayEvent(TrackPathOverlayEvent event) {
         mMainThreadWorker.schedule(() -> {
             mPathOverlay = event.mTrackOverlay;
+            points = mPathOverlay.getPoints();
+
             if (mMapView != null) {
-                if(mapStyle!=null){
-                    if(mapStyle.removeSource(MapLayer.SOURCE_NAME))
-                    {
-                        mapStyle.addSource(mPathOverlay.getGeoJsonSource());
-                    }
-                    if(mapStyle.removeLayer(MapLayer.LAYER_NAME))
-                    {
-                        mapStyle.addLayer(mPathOverlay.getLineLayer());
-                    }
-                }
+                mMapView.getMapAsync(
+                        new OnMapReadyCallback() {
+                            @Override
+                            public void onMapReady(@NonNull MapboxMap mapboxMap) {
+                                TrackMapFragment.this.mapboxMap = mapboxMap;
+                                mapboxMap.getStyle(new Style.OnStyleLoaded() {
+                                    @Override
+                                    public void onStyleLoaded(@NonNull Style style) {
+                                        style.removeLayer("linelayer");
+                                        if(style.removeSource("source-id"))
+                                        {
+                                            Log.i("Info","removeSource successfull");
+                                            GeoJsonSource geoJsonSource = new GeoJsonSource("source-id", FeatureCollection.fromFeatures(new Feature[] {Feature.fromGeometry(
+                                                    LineString.fromLngLats(points)
+                                            )}));
+                                            style.addSource(geoJsonSource);
+                                            LineLayer lineLayer = new LineLayer("linelayer", "source-id").withSourceLayer("source-id").withProperties(
+                                                    PropertyFactory.lineColor(Color.BLUE),
+                                                    PropertyFactory.lineWidth(4f)
+                                            );
+                                            style.addLayer(lineLayer);
+                                        } else{
+                                            Log.i("Info","removeSource failed");
+                                        }
+
+                                    }
+                                });
+                            }
+                        }
+                );
             }
         });
     }

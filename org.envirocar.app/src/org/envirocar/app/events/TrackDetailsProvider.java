@@ -124,6 +124,7 @@ public class TrackDetailsProvider {
 
     private void updatePathOverlay(Measurement measurement) {
         mMainThreadWorker.schedule(() -> {
+            LOGGER.info("Map being updated with new points: " + measurement.getLatitude() + measurement.getLongitude() );
             mTrackMapOverlay.addPoint(measurement.getLatitude(), measurement.getLongitude());
         });
     }

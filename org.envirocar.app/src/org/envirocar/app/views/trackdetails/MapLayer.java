@@ -9,6 +9,7 @@ import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.style.layers.LineLayer;
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
+import com.mapbox.mapboxsdk.style.layers.PropertyValue;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
 import org.envirocar.core.logging.Logger;
@@ -29,13 +30,13 @@ public class MapLayer {
     protected ArrayList<LatLng> latLngs = new ArrayList<>();
 
     public MapLayer(){
-        setGeoJsonSource();
-        setLineLayer();
+        //setGeoJsonSource();
+        //setLineLayer();
     }
 
 
     public void addPoint(double aLatitude, double aLongitude) {
-        mPoints.add(Point.fromLngLat(aLatitude, aLongitude));
+        mPoints.add(Point.fromLngLat(aLongitude,aLatitude));
         latLngs.add(new LatLng(aLatitude, aLongitude));
     }
 
@@ -60,8 +61,16 @@ public class MapLayer {
                 PropertyFactory.lineWidth(4f));
     }
 
+    public void changeLineProperties(PropertyValue<?> properties){
+        lineLayer.setProperties(properties);
+    }
+
     public GeoJsonSource getGeoJsonSource() {
         setGeoJsonSource();
         return geoJsonSource;
+    }
+
+    public ArrayList<Point> getPoints() {
+        return mPoints;
     }
 }
