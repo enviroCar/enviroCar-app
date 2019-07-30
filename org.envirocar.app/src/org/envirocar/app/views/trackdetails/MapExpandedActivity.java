@@ -4,13 +4,10 @@ package org.envirocar.app.views.trackdetails;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.os.Bundle;
 
 import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
@@ -19,18 +16,13 @@ import androidx.transition.TransitionManager;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.mapbox.geojson.Feature;
-import com.mapbox.geojson.FeatureCollection;
-import com.mapbox.geojson.LineString;
 import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
-import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
-import com.mapbox.mapboxsdk.style.layers.LineLayer;
-import com.mapbox.mapboxsdk.style.layers.Property;
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
@@ -40,7 +32,6 @@ import org.envirocar.app.R;
 import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.app.main.BaseApplicationComponent;
 import org.envirocar.app.views.utils.MapUtils;
-import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.storage.EnviroCarDB;
@@ -54,7 +45,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnTouch;
-import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 public class MapExpandedActivity extends BaseInjectorActivity {
@@ -65,9 +55,11 @@ public class MapExpandedActivity extends BaseInjectorActivity {
     private static final String EXTRA_TITLE = "org.envirocar.app.extraTitle";
 
 
-    @BindView(R.id.fragment_dashboard_frag_map_follow_fab)
+    @BindView(R.id.activity_map_follow_fab)
     protected FloatingActionButton mCentreFab;
 
+    @BindView(R.id.activity_map_visualise_fab)
+    protected FloatingActionButton mVisualiseFab;
     @BindView(R.id.activity_track_details_expanded_map_cancel)
     protected ImageView mMapViewExpandedCancel;
 
@@ -80,7 +72,7 @@ public class MapExpandedActivity extends BaseInjectorActivity {
     @Inject
     protected EnviroCarDB enviroCarDB;
     protected MapboxMap mapboxMapExpanded;
-    TrackSpeedMapOverlay trackMapOverlay;
+    protected TrackSpeedMapOverlay trackMapOverlay;
     private Track track;
     private Style style;
 
@@ -130,7 +122,7 @@ public class MapExpandedActivity extends BaseInjectorActivity {
         return false;
     }
 
-    @OnClick(R.id.fragment_dashboard_frag_map_follow_fab)
+    @OnClick(R.id.activity_map_follow_fab)
     protected void onClickFollowFab() {
         final LatLngBounds viewBbox = trackMapOverlay.getViewBoundingBox();
         if (!mIsCentredOnTrack) {
@@ -139,6 +131,11 @@ public class MapExpandedActivity extends BaseInjectorActivity {
             mCentreFab.setVisibility(View.GONE);
             mapboxMapExpanded.easeCamera(CameraUpdateFactory.newLatLngBounds(viewBbox, 50),2500);
         }
+    }
+
+    @OnClick(R.id.activity_map_visualise_fab)
+    protected void onClickVisuliseFab() {
+
     }
 
     @Override

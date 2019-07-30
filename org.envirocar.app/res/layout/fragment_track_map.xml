@@ -31,7 +31,7 @@
         android:layout_width="match_parent" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fragment_dashboard_frag_map_follow_fab"
+        android:id="@+id/activity_map_follow_fab"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"

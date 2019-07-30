@@ -53,7 +53,6 @@ import com.mapbox.mapboxsdk.maps.Style;
 import com.mapbox.mapboxsdk.style.layers.LineLayer;
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
-import com.mapbox.mapboxsdk.style.sources.TileSet;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.main.BaseApplicationComponent;
@@ -63,7 +62,6 @@ import org.envirocar.app.R;
 import org.envirocar.app.events.TrackPathOverlayEvent;
 import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.app.views.trackdetails.MapLayer;
-import org.envirocar.app.views.utils.MapUtils;
 import org.envirocar.core.logging.Logger;
 
 import java.util.ArrayList;
@@ -88,7 +86,7 @@ public class TrackMapFragment extends BaseInjectorFragment implements Permission
     private LocationComponent locationComponent;
     @BindView(R.id.fragment_dashboard_frag_map_mapview)
     protected MapView mMapView;
-    @BindView(R.id.fragment_dashboard_frag_map_follow_fab)
+    @BindView(R.id.activity_map_follow_fab)
     protected FloatingActionButton mFollowFab;
 
     private MapLayer mPathOverlay;
@@ -192,7 +190,7 @@ public class TrackMapFragment extends BaseInjectorFragment implements Permission
         return false;
     }
 
-    @OnClick(R.id.fragment_dashboard_frag_map_follow_fab)
+    @OnClick(R.id.activity_map_follow_fab)
     protected void onClickFollowFab() {
         if (!mIsFollowingLocation) {
             setCameraTrackingMode(CameraMode.TRACKING_GPS);

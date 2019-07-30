@@ -18,13 +18,32 @@
  */
 package org.envirocar.app.views.trackdetails;
 
+import android.animation.ArgbEvaluator;
+import android.graphics.Color;
+
 import com.mapbox.geojson.BoundingBox;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
+import com.mapbox.mapboxsdk.style.expressions.Expression;
+import com.mapbox.mapboxsdk.style.layers.LineLayer;
+import com.mapbox.mapboxsdk.style.layers.Property;
 
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.logging.Logger;
+
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+
+import static com.mapbox.mapboxsdk.style.expressions.Expression.interpolate;
+import static com.mapbox.mapboxsdk.style.expressions.Expression.lineProgress;
+import static com.mapbox.mapboxsdk.style.expressions.Expression.linear;
+import static com.mapbox.mapboxsdk.style.expressions.Expression.rgb;
+import static com.mapbox.mapboxsdk.style.expressions.Expression.stop;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineCap;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineGradient;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineJoin;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineWidth;
 
 /**
  * @author dewall
@@ -127,6 +146,31 @@ public class TrackSpeedMapOverlay extends MapLayer{
      */
     public LatLngBounds getScrollableLimitBox() {
         return mScrollableLimitBox;
+    }
+
+    public LineLayer getGradientLineLayer(Measurement.PropertyKey propertyKey){
+        List<Measurement> measurements = mTrack.getMeasurements();
+        List<Double> propertyValues = new ArrayList<>();
+        for(Measurement measurement : measurements)
+            propertyValues.add(measurement.getProperty(propertyKey));
+        Double min = Collections.min(propertyValues);
+        Double max = Collections.max(propertyValues);
+        int startColor = Color.parseColor("#01FF01");
+        int endColor = Color.parseColor("#810006");
+        ArgbEvaluator evaluator = new ArgbEvaluator();
+        List<Integer> gradientColors = new ArrayList<>();
+        for(Double value : propertyValues){
+            Double fraction = ( value - min ) / ( max - min );
+            gradientColors.add((Integer) evaluator.evaluate(fraction.floatValue(), startColor, endColor));
+        }
+        return new LineLayer("linelayer", "line-source").withProperties(
+                lineCap(Property.LINE_CAP_ROUND),
+                lineJoin(Property.LINE_JOIN_ROUND),
+                lineWidth(3f),
+                lineGradient(interpolate(
+                        linear(), lineProgress(),
+                        stop(0f, rgb(6, 1, 255)) // blue
+                )));
     }
 
 //    @Override
