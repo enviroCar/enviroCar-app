@@ -81,7 +81,6 @@ public abstract class AbstractRecordingService extends BaseInjectorService {
         super.onCreate();
 
 
-
         this.eventBusReceivers.add(this);
 //        this.eventBusReceivers.add(this.recordingNotification);
 //        this.eventBusReceivers.add(this.speechOutput);

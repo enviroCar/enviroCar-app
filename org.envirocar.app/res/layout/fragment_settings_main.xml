@@ -62,7 +62,7 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-medium"
                     android:text="@string/pref_general_settings"
-                    android:textColor="@color/black"
+                    android:textColor="@android:color/black"
                     android:textSize="17sp"/>
 
                 <TextView
@@ -99,7 +99,7 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-medium"
                     android:text="@string/autoconnect_settings"
-                    android:textColor="@color/black"
+                    android:textColor="@android:color/black"
                     android:textSize="17sp"/>
 
                 <TextView
@@ -137,7 +137,7 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-medium"
                     android:text="@string/pref_car_settings"
-                    android:textColor="@color/black"
+                    android:textColor="@android:color/black"
                     android:textSize="17sp"/>
 
                 <TextView
@@ -174,7 +174,7 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-medium"
                     android:text="@string/settings_optional"
-                    android:textColor="@color/black"
+                    android:textColor="@android:color/black"
                     android:textSize="17sp"/>
 
                 <TextView
@@ -211,8 +211,8 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-medium"
                     android:text="@string/settings_other"
-                    android:textColor="@color/black"
-                    android:textSize="17sp"/>
+                    android:textColor="@android:color/black"
+                    android:textSize="17sp" />
 
                 <TextView
                     android:layout_width="match_parent"

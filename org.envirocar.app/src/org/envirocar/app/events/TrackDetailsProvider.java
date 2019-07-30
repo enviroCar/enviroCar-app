@@ -18,16 +18,18 @@
  */
 package org.envirocar.app.events;
 
+import android.content.Context;
 import android.location.Location;
 import android.os.SystemClock;
 
-import com.mapbox.mapboxsdk.overlay.PathOverlay;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Produce;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.services.recording.GPSOnlyRecordingService;
 import org.envirocar.app.services.recording.OBDRecordingService;
+import org.envirocar.app.views.trackdetails.MapLayer;
+import org.envirocar.app.views.trackdetails.TrackSpeedMapOverlay;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.events.recording.RecordingNewMeasurementEvent;
 import org.envirocar.core.logging.Logger;
@@ -46,7 +48,7 @@ public class TrackDetailsProvider {
     private final Scheduler.Worker mMainThreadWorker = AndroidSchedulers
             .mainThread().createWorker();
 
-    private PathOverlay mTrackMapOverlay = new PathOverlay();
+    private MapLayer mTrackMapOverlay = new MapLayer();
 
     private int mNumMeasurements;
     private double mDistanceValue;
@@ -66,7 +68,7 @@ public class TrackDetailsProvider {
      *
      * @param bus
      */
-    public TrackDetailsProvider(Bus bus) {
+    public TrackDetailsProvider(Bus bus, Context context) {
         this.mBus = bus;
         // we do not need to register on the bus!
     }
@@ -122,6 +124,7 @@ public class TrackDetailsProvider {
 
     private void updatePathOverlay(Measurement measurement) {
         mMainThreadWorker.schedule(() -> {
+            LOGGER.info("Map being updated with new points: " + measurement.getLatitude() + measurement.getLongitude() );
             mTrackMapOverlay.addPoint(measurement.getLatitude(), measurement.getLongitude());
         });
     }

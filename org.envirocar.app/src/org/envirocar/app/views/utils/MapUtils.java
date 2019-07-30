@@ -18,7 +18,7 @@
  */
 package org.envirocar.app.views.utils;
 
-import com.mapbox.mapboxsdk.tileprovider.tilesource.WebSourceTileLayer;
+import com.mapbox.mapboxsdk.style.sources.TileSet;
 
 import org.envirocar.app.views.trackdetails.TrackSpeedMapOverlay;
 import org.envirocar.core.entity.Track;
@@ -32,16 +32,16 @@ import java.util.concurrent.ConcurrentHashMap;
 public class MapUtils {
 
     private static Map<Long, TrackSpeedMapOverlay> TRACKID_TO_OVERLAY_CACHE = new ConcurrentHashMap<>();
-    private static WebSourceTileLayer OSM_TILE_LAYER;
+    private static TileSet OSM_TILE_LAYER;
 
-    public static WebSourceTileLayer getOSMTileLayer() {
+    public static TileSet getOSMTileLayer() {
         if (OSM_TILE_LAYER == null) {
-            OSM_TILE_LAYER = new WebSourceTileLayer("openstreetmap", "http://tile" +
+            OSM_TILE_LAYER = new TileSet("openstreetmap", "http://tile" +
                     ".openstreetmap.org/{z}/{x}/{y}.png");
-            OSM_TILE_LAYER.setName("OpenStreetMap")
-                    .setAttribution("OpenStreetMap Contributors")
-                    .setMinimumZoomLevel(1)
-                    .setMaximumZoomLevel(18);
+            OSM_TILE_LAYER.setName("OpenStreetMap");
+            OSM_TILE_LAYER.setAttribution("OpenStreetMap Contributors");
+            OSM_TILE_LAYER.setMaxZoom(18);
+            OSM_TILE_LAYER.setMinZoom(1);
         }
         return OSM_TILE_LAYER;
     }
