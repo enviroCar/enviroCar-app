@@ -78,10 +78,8 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
             showText(R.drawable.img_logged_out,
                     R.string.track_list_bg_not_logged_in,
                     R.string.track_list_bg_not_logged_in_sub);
-
             mProgressView.setVisibility(View.INVISIBLE);
             mRecyclerView.setVisibility(View.GONE);
-            mRecyclerViewAdapter.setHasStableIds(true);
             mRecyclerViewAdapter.mTrackDataset.clear();
             mRecyclerViewAdapter.notifyDataSetChanged();
         }
