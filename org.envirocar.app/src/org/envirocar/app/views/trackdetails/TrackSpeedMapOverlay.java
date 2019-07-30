@@ -22,10 +22,15 @@ import android.animation.ArgbEvaluator;
 import android.graphics.Color;
 
 import com.mapbox.geojson.BoundingBox;
+import com.mapbox.geojson.Feature;
+import com.mapbox.geojson.FeatureCollection;
+import com.mapbox.geojson.LineString;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
 import com.mapbox.mapboxsdk.style.expressions.Expression;
 import com.mapbox.mapboxsdk.style.layers.LineLayer;
 import com.mapbox.mapboxsdk.style.layers.Property;
+import com.mapbox.mapboxsdk.style.sources.GeoJsonOptions;
+import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
@@ -50,13 +55,13 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineWidth;
  */
 public class TrackSpeedMapOverlay extends MapLayer{
     private static final Logger LOG = Logger.getLogger(TrackSpeedMapOverlay.class);
-
+    public static final String GRADIENT_LAYER = "gradient-layer";
+    public static final String GRADIENT_SOURCE = "source-layer";
     private final Track mTrack;
 
     protected LatLngBounds mTrackBoundingBox;
     protected LatLngBounds mViewBoundingBox;
     protected LatLngBounds mScrollableLimitBox;
-
     /**
      * Constructor.
      *
@@ -150,27 +155,51 @@ public class TrackSpeedMapOverlay extends MapLayer{
 
     public LineLayer getGradientLineLayer(Measurement.PropertyKey propertyKey){
         List<Measurement> measurements = mTrack.getMeasurements();
-        List<Double> propertyValues = new ArrayList<>();
-        for(Measurement measurement : measurements)
-            propertyValues.add(measurement.getProperty(propertyKey));
-        Double min = Collections.min(propertyValues);
-        Double max = Collections.max(propertyValues);
-        int startColor = Color.parseColor("#01FF01");
-        int endColor = Color.parseColor("#810006");
-        ArgbEvaluator evaluator = new ArgbEvaluator();
-        List<Integer> gradientColors = new ArrayList<>();
-        for(Double value : propertyValues){
-            Double fraction = ( value - min ) / ( max - min );
-            gradientColors.add((Integer) evaluator.evaluate(fraction.floatValue(), startColor, endColor));
+        Float size = (float)measurements.size(), i= 0f;
+        if(size>2)
+        {
+            List<Double> propertyValues = new ArrayList<>();
+            for(Measurement measurement : measurements)
+                propertyValues.add(measurement.getProperty(propertyKey));
+            Double min = Collections.min(propertyValues);
+            Double max = Collections.max(propertyValues);
+            int startColor = Color.parseColor("#00FF00");
+            int endColor = Color.parseColor("#FF0000");
+            ArgbEvaluator evaluator = new ArgbEvaluator();
+            List<Expression.Stop> stops  = new ArrayList<>();
+
+            for(Double value : propertyValues){
+                Double fraction = ( value - min ) / ( max - min );
+                Float stop = i / size;
+                Integer temp = (Integer) evaluator.evaluate(fraction.floatValue(), startColor, endColor);
+                stops.add(Expression.stop(stop, rgb(Color.red(temp), Color.green(temp), Color.blue(temp))));
+                i++;
+            }
+            return new LineLayer(GRADIENT_LAYER, GRADIENT_SOURCE).withProperties(
+                    lineCap(Property.LINE_CAP_ROUND),
+                    lineJoin(Property.LINE_JOIN_ROUND),
+                    lineWidth(3f),
+                    lineGradient(interpolate(
+                            linear(), lineProgress(),
+                            stops.toArray(new Expression.Stop[0])
+                    )));
+
+        } else{
+            return new LineLayer(GRADIENT_LAYER, GRADIENT_SOURCE).withProperties(
+                    lineCap(Property.LINE_CAP_ROUND),
+                    lineJoin(Property.LINE_JOIN_ROUND),
+                    lineWidth(3f),
+                    lineGradient(interpolate(
+                            linear(), lineProgress(),
+                            stop(0f, rgb(6, 1, 255)) 
+                    )));
         }
-        return new LineLayer("linelayer", "line-source").withProperties(
-                lineCap(Property.LINE_CAP_ROUND),
-                lineJoin(Property.LINE_JOIN_ROUND),
-                lineWidth(3f),
-                lineGradient(interpolate(
-                        linear(), lineProgress(),
-                        stop(0f, rgb(6, 1, 255)) // blue
-                )));
+    }
+
+    public GeoJsonSource getGradientGeoJSONSource(){
+        return new GeoJsonSource(GRADIENT_SOURCE, FeatureCollection.fromFeatures(new Feature[] {Feature.fromGeometry(
+                LineString.fromLngLats(mPoints)
+        )}), new GeoJsonOptions().withLineMetrics(true));
     }
 
 //    @Override

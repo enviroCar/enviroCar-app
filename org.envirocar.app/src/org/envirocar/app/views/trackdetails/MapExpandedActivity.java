@@ -32,6 +32,7 @@ import org.envirocar.app.R;
 import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.app.main.BaseApplicationComponent;
 import org.envirocar.app.views.utils.MapUtils;
+import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.storage.EnviroCarDB;
@@ -77,6 +78,7 @@ public class MapExpandedActivity extends BaseInjectorActivity {
     private Style style;
 
     private boolean mIsCentredOnTrack;
+    private boolean mIsGradientActive;
 
     public static void createInstance(Activity activity, int trackID) {
         Intent intent = new Intent(activity, MapExpandedActivity.class);
@@ -107,6 +109,7 @@ public class MapExpandedActivity extends BaseInjectorActivity {
         trackMapOverlay = new TrackSpeedMapOverlay(track);
         initMapView();
         mIsCentredOnTrack = true;
+        mIsGradientActive = false;
         mCentreFab.setVisibility(View.VISIBLE);
         mMapViewExpandedCancel.setOnClickListener(v-> finish());
 
@@ -134,8 +137,33 @@ public class MapExpandedActivity extends BaseInjectorActivity {
     }
 
     @OnClick(R.id.activity_map_visualise_fab)
-    protected void onClickVisuliseFab() {
-
+    protected void onClickVisualiseFab() {
+        final LatLngBounds viewBbox = trackMapOverlay.getViewBoundingBox();
+        if(mapboxMapExpanded != null)
+        {
+            if(!mIsGradientActive)
+            {
+                mIsGradientActive = true;
+                mapboxMapExpanded.getStyle(new Style.OnStyleLoaded() {
+                    @Override
+                    public void onStyleLoaded(@NonNull Style style) {
+                        style.addSource(trackMapOverlay.getGradientGeoJSONSource());
+                        style.addLayer(trackMapOverlay.getGradientLineLayer(Measurement.PropertyKey.SPEED));
+                    }
+                });
+            }
+            else{
+                mIsGradientActive = false;
+                mapboxMapExpanded.getStyle(new Style.OnStyleLoaded() {
+                    @Override
+                    public void onStyleLoaded(@NonNull Style style) {
+                        style.removeLayer(TrackSpeedMapOverlay.GRADIENT_LAYER);
+                        style.removeSource(TrackSpeedMapOverlay.GRADIENT_SOURCE);
+                    }
+                });
+            }
+            mapboxMapExpanded.easeCamera(CameraUpdateFactory.newLatLngBounds(viewBbox, 50));
+        }
     }
 
     @Override
