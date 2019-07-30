@@ -45,6 +45,9 @@
             android:name=".views.trackdetails.TrackDetailsActivity"
             android:screenOrientation="portrait" />
         <activity
+            android:name=".views.trackdetails.MapExpandedActivity"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".views.carselection.CarSelectionActivity"
             android:screenOrientation="portrait" />
         <activity

@@ -12,6 +12,7 @@ dependencies {
 
     implementation rootProject.ext.supportLifecycleExtension
     implementation rootProject.ext.supportLifecycleRuntime
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     annotationProcessor rootProject.ext.supportLifecycleCompiler
 
     // Dependency injection, view injection, event bus ...
@@ -49,7 +50,6 @@ dependencies {
 //    }
 
 
-
     // MapBox SDK
     implementation(rootProject.ext.mapbox) {
         transitive = true
@@ -82,7 +82,6 @@ dependencies {
     api project(path: ':org.envirocar.algorithm')
     implementation 'com.github.enviroCar:enviroCar-aidl:d67cfa49f3'
 }
-
 
 
 android {

@@ -45,6 +45,7 @@ import org.envirocar.app.views.preferences.Tempomat;
 import org.envirocar.app.views.preferences.TrackTrimDurationPreference;
 import org.envirocar.app.views.settings.AutoConnectSettingsFragment;
 import org.envirocar.app.views.settings.SettingsActivity;
+import org.envirocar.app.views.trackdetails.MapExpandedActivity;
 import org.envirocar.app.views.trackdetails.TrackDetailsActivity;
 import org.envirocar.app.views.trackdetails.TrackStatisticsActivity;
 import org.envirocar.core.dao.PrivacyStatementDAO;
@@ -96,6 +97,7 @@ public interface BaseApplicationComponent {
     void inject(SettingsActivity settingsActivity);
     void inject(TrackDetailsActivity trackDetailsActivity);
     void inject(TrackStatisticsActivity trackStatisticsActivity);
+    void inject(MapExpandedActivity mapExpandedActivity);
     void inject(LoginRegisterActivity loginRegisterActivity);
     void inject(DAOProvider daoProvider);
     void inject(OthersFragment othersFragment);
