@@ -20,6 +20,7 @@ package org.envirocar.app.views.trackdetails;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -55,7 +56,6 @@ import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
-import com.mapbox.mapboxsdk.location.modes.CameraMode;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
@@ -63,10 +63,9 @@ import com.mapbox.mapboxsdk.maps.Style;
 import com.mapbox.mapboxsdk.style.layers.LineLayer;
 import com.mapbox.mapboxsdk.style.layers.Property;
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
+import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 import com.mapbox.mapboxsdk.style.sources.TileSet;
-import static com.mapbox.mapboxsdk.style.layers.Property.NONE;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility;
 
 import org.envirocar.app.R;
 import org.envirocar.app.handler.PreferencesHandler;
@@ -101,7 +100,6 @@ import butterknife.OnClick;
 import butterknife.OnTouch;
 import rx.schedulers.Schedulers;
 
-import static android.view.View.GONE;
 
 /**
  * @author dewall
@@ -338,6 +336,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
                         );
                         style.addLayer(lineLayer);
                         tep.moveCamera(CameraUpdateFactory.newLatLngBounds(mViewBoundingBox, 50));
+                        setUpStartStopIcons(style, tep);
                         //style.addSource(trackMapOverlay.getGeoJsonSource());
                         //style.addLayer(trackMapOverlay.getLineLayer());
 
@@ -370,6 +369,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
                         );
                         style.addLayer(lineLayer);
                         mapboxMap1.moveCamera(CameraUpdateFactory.newLatLngBounds(mViewBoundingBox, 50));
+                        setUpStartStopIcons(style, mapboxMap1);
                     }
                 });
                 mapboxMapExpanded = mapboxMap1;
@@ -378,6 +378,49 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
                 //mapboxMapExpanded.getStyle().getLayer("linelayer").setProperties(visibility(Property.VISIBLE));
             }
         });
+    }
+
+    private void setUpStartStopIcons(@NonNull Style loadedMapStyle, @NonNull MapboxMap loadedMapBox) {
+        loadedMapStyle.addImage("stop-marker",
+                BitmapFactory.decodeResource(
+                        TrackDetailsActivity.this.getResources(), R.drawable.stop_marker));
+
+        loadedMapStyle.addImage("start-marker",
+                BitmapFactory.decodeResource(
+                        TrackDetailsActivity.this.getResources(), R.drawable.start_marker));
+
+        int size = track.getMeasurements().size();
+        List<Point> markerCoordinates = new ArrayList<>();
+        if(size>=2)
+        {
+            LOG.info("Point 1:"+track.getMeasurements().get(0).getLongitude() + track.getMeasurements().get(0).getLatitude());
+            LOG.info("Point 2:" + size + " "+track.getMeasurements().get(size-1).getLongitude() + track.getMeasurements().get(size-1).getLatitude());
+            markerCoordinates.add(Point.fromLngLat(track.getMeasurements().get(0).getLongitude(),track.getMeasurements().get(0).getLatitude()));
+            markerCoordinates.add(Point.fromLngLat(track.getMeasurements().get(size-1).getLongitude(),track.getMeasurements().get(size-1).getLatitude()));
+            GeoJsonSource geoJsonSource = new GeoJsonSource("marker-source1", Feature.fromGeometry(
+                    Point.fromLngLat(markerCoordinates.get(0).longitude(), markerCoordinates.get(0).latitude())));
+            loadedMapStyle.addSource(geoJsonSource);
+
+            SymbolLayer symbolLayer = new SymbolLayer("marker-layer1", "marker-source1");
+            symbolLayer.withProperties(
+                    PropertyFactory.iconImage("start-marker"),
+                    PropertyFactory.iconAllowOverlap(true),
+                    PropertyFactory.iconIgnorePlacement(true)
+            );
+            loadedMapStyle.addLayer(symbolLayer);
+            geoJsonSource = new GeoJsonSource("marker-source2", Feature.fromGeometry(
+                    Point.fromLngLat(markerCoordinates.get(1).longitude(), markerCoordinates.get(1).latitude())));
+            loadedMapStyle.addSource(geoJsonSource);
+
+            symbolLayer = new SymbolLayer("marker-layer2", "marker-source2");
+            symbolLayer.withProperties(
+                    PropertyFactory.iconImage("stop-marker"),
+                    PropertyFactory.iconAllowOverlap(true),
+                    PropertyFactory.iconIgnorePlacement(true)
+            );
+            loadedMapStyle.addLayer(symbolLayer);
+
+        }
     }
 
     //function which expands the mapview
