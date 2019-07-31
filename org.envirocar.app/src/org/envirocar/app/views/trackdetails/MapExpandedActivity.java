@@ -8,10 +8,13 @@ import android.os.Bundle;
 
 import android.view.Gravity;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.transition.TransitionManager;
 
@@ -38,6 +41,7 @@ import org.envirocar.core.entity.Track;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.storage.EnviroCarDB;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,6 +56,7 @@ import rx.schedulers.Schedulers;
 public class MapExpandedActivity extends BaseInjectorActivity {
 
     private static final Logger LOG = Logger.getLogger(MapExpandedActivity.class);
+    protected static final DecimalFormat DECIMAL_FORMATTER = new DecimalFormat("#.##");
 
     private static final String EXTRA_TRACKID = "org.envirocar.app.extraTrackID";
     private static final String EXTRA_TITLE = "org.envirocar.app.extraTitle";
@@ -72,8 +77,8 @@ public class MapExpandedActivity extends BaseInjectorActivity {
     @BindView(R.id.activity_track_details_expanded_map_container)
     protected ConstraintLayout mMapViewExpandedContainer;
 
-    @BindView(R.id.legend_layout)
-    protected ConstraintLayout legendLayout;
+    @BindView(R.id.legendCard)
+    protected CardView legendCard;
 
     @BindView(R.id.legend)
     protected ImageView legend;
@@ -90,12 +95,16 @@ public class MapExpandedActivity extends BaseInjectorActivity {
     @BindView(R.id.legend_unit)
     protected TextView legendUnit;
 
+    @BindView(R.id.spinner)
+    protected Spinner spinner;
+
     @Inject
     protected EnviroCarDB enviroCarDB;
     protected MapboxMap mapboxMapExpanded;
     protected TrackSpeedMapOverlay trackMapOverlay;
     private Track track;
     private Style style;
+    private String[] spinnerOptions = {"CO2", "Consumption", "Engine Load", "Rpm", "Speed"};
 
     private boolean mIsCentredOnTrack;
     private boolean mIsGradientActive;
@@ -127,6 +136,10 @@ public class MapExpandedActivity extends BaseInjectorActivity {
                 .first();
         this.track = track;
         trackMapOverlay = new TrackSpeedMapOverlay(track);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(MapExpandedActivity.this,
+                android.R.layout.simple_spinner_item, spinnerOptions);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
         initMapView();
         mIsCentredOnTrack = true;
         mIsGradientActive = false;
@@ -158,21 +171,34 @@ public class MapExpandedActivity extends BaseInjectorActivity {
 
     @OnClick(R.id.activity_map_visualise_fab)
     protected void onClickVisualiseFab() {
+        LOG.info("onClickVisualiseFab");
+        //spinner.setVisibility(View.VISIBLE);
+
+    }
+
+    private void makeMapChanges(){
         final LatLngBounds viewBbox = trackMapOverlay.getViewBoundingBox();
         if(mapboxMapExpanded != null)
         {
             if(!mIsGradientActive)
             {
+                legendCard.setVisibility(View.VISIBLE);
                 mIsGradientActive = true;
                 mapboxMapExpanded.getStyle(new Style.OnStyleLoaded() {
                     @Override
                     public void onStyleLoaded(@NonNull Style style) {
                         style.addSource(trackMapOverlay.getGradientGeoJSONSource());
-                        style.addLayer(trackMapOverlay.getGradientLineLayer(Measurement.PropertyKey.SPEED));
+                        style.addLayerBelow(trackMapOverlay.getGradientLineLayer(Measurement.PropertyKey.SPEED), "marker-layer1");
+                        legendStart.setText(DECIMAL_FORMATTER.format(trackMapOverlay.getGradMin()));
+                        legendEnd.setText(DECIMAL_FORMATTER.format(trackMapOverlay.getGradMax()));
+                        Float mid = (trackMapOverlay.getGradMin() + trackMapOverlay.getGradMax())/2;
+                        legendMid.setText(DECIMAL_FORMATTER.format(mid));
+                        legendUnit.setText("km/h");
                     }
                 });
             }
             else{
+                legendCard.setVisibility(View.GONE);
                 mIsGradientActive = false;
                 mapboxMapExpanded.getStyle(new Style.OnStyleLoaded() {
                     @Override
@@ -253,7 +279,7 @@ public class MapExpandedActivity extends BaseInjectorActivity {
                     PropertyFactory.iconAllowOverlap(true),
                     PropertyFactory.iconIgnorePlacement(true)
             );
-            loadedMapStyle.addLayer(symbolLayer);
+            loadedMapStyle.addLayerAbove(symbolLayer, "marker-layer1");
 
         }
     }

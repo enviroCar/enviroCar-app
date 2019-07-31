@@ -57,6 +57,7 @@ public class TrackSpeedMapOverlay extends MapLayer{
     private static final Logger LOG = Logger.getLogger(TrackSpeedMapOverlay.class);
     public static final String GRADIENT_LAYER = "gradient-layer";
     public static final String GRADIENT_SOURCE = "source-layer";
+    private Float gradMax, gradMin;
     private final Track mTrack;
 
     protected LatLngBounds mTrackBoundingBox;
@@ -159,17 +160,24 @@ public class TrackSpeedMapOverlay extends MapLayer{
         if(size>2)
         {
             List<Double> propertyValues = new ArrayList<>();
-            for(Measurement measurement : measurements)
-                propertyValues.add(measurement.getProperty(propertyKey));
-            Double min = Collections.min(propertyValues);
+            for(Measurement measurement : measurements){
+                if(measurement.hasProperty(propertyKey))
+                    propertyValues.add(measurement.getProperty(propertyKey));
+                else
+                    propertyValues.add(Double.valueOf(0));
+            }
+
+            Double min = Double.valueOf(0);
             Double max = Collections.max(propertyValues);
+            gradMax = max.floatValue();
+            gradMin = min.floatValue();
             int startColor = Color.parseColor("#00FF00");
             int endColor = Color.parseColor("#FF0000");
             ArgbEvaluator evaluator = new ArgbEvaluator();
             List<Expression.Stop> stops  = new ArrayList<>();
 
             for(Double value : propertyValues){
-                Double fraction = ( value - min ) / ( max - min );
+                Double fraction = value / max;
                 Float stop = i / size;
                 Integer temp = (Integer) evaluator.evaluate(fraction.floatValue(), startColor, endColor);
                 stops.add(Expression.stop(stop, rgb(Color.red(temp), Color.green(temp), Color.blue(temp))));
@@ -178,7 +186,7 @@ public class TrackSpeedMapOverlay extends MapLayer{
             return new LineLayer(GRADIENT_LAYER, GRADIENT_SOURCE).withProperties(
                     lineCap(Property.LINE_CAP_ROUND),
                     lineJoin(Property.LINE_JOIN_ROUND),
-                    lineWidth(3f),
+                    lineWidth(4f),
                     lineGradient(interpolate(
                             linear(), lineProgress(),
                             stops.toArray(new Expression.Stop[0])
@@ -188,7 +196,7 @@ public class TrackSpeedMapOverlay extends MapLayer{
             return new LineLayer(GRADIENT_LAYER, GRADIENT_SOURCE).withProperties(
                     lineCap(Property.LINE_CAP_ROUND),
                     lineJoin(Property.LINE_JOIN_ROUND),
-                    lineWidth(3f),
+                    lineWidth(4f),
                     lineGradient(interpolate(
                             linear(), lineProgress(),
                             stop(0f, rgb(6, 1, 255))
@@ -202,7 +210,15 @@ public class TrackSpeedMapOverlay extends MapLayer{
         )}), new GeoJsonOptions().withLineMetrics(true));
     }
 
-//    @Override
+    public Float getGradMax() {
+        return gradMax;
+    }
+
+    public Float getGradMin() {
+        return gradMin;
+    }
+
+    //    @Override
 //    public int getNumberOfPoints() {
 //        return mPoints.size();
 //    }
