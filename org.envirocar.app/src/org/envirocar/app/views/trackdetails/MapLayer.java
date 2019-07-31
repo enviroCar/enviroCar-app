@@ -8,6 +8,7 @@ import com.mapbox.geojson.LineString;
 import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.style.layers.LineLayer;
+import com.mapbox.mapboxsdk.style.layers.Property;
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
 import com.mapbox.mapboxsdk.style.layers.PropertyValue;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
@@ -57,8 +58,10 @@ public class MapLayer {
     }
 
     public void setLineLayer() {
-        lineLayer = new LineLayer(LAYER_NAME, SOURCE_NAME).withSourceLayer(SOURCE_NAME).withProperties(PropertyFactory.lineColor(Color.parseColor("#99DAF2")),
-                PropertyFactory.lineWidth(4f));
+        lineLayer = new LineLayer(LAYER_NAME, SOURCE_NAME).withSourceLayer(SOURCE_NAME).withProperties(
+                PropertyFactory.lineColor(Color.parseColor("#0065A0")),
+                PropertyFactory.lineWidth(4f),
+                PropertyFactory.lineCap(Property.LINE_CAP_ROUND));
     }
 
     public void changeLineProperties(PropertyValue<?> properties){

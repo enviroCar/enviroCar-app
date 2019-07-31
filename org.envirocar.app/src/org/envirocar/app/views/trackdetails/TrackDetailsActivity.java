@@ -20,6 +20,7 @@ package org.envirocar.app.views.trackdetails;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -55,7 +56,6 @@ import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
-import com.mapbox.mapboxsdk.location.modes.CameraMode;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
@@ -63,10 +63,9 @@ import com.mapbox.mapboxsdk.maps.Style;
 import com.mapbox.mapboxsdk.style.layers.LineLayer;
 import com.mapbox.mapboxsdk.style.layers.Property;
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
+import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 import com.mapbox.mapboxsdk.style.sources.TileSet;
-import static com.mapbox.mapboxsdk.style.layers.Property.NONE;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility;
 
 import org.envirocar.app.R;
 import org.envirocar.app.handler.PreferencesHandler;
@@ -101,7 +100,6 @@ import butterknife.OnClick;
 import butterknife.OnTouch;
 import rx.schedulers.Schedulers;
 
-import static android.view.View.GONE;
 
 /**
  * @author dewall
@@ -136,10 +134,12 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
     protected EnviroCarDB mEnvirocarDB;
 
     TrackSpeedMapOverlay trackMapOverlay;
+    protected MapboxMap mapboxMap;
+    protected Style mapStyle;
 
     @BindView(R.id.activity_track_details_fab)
     protected FloatingActionButton mFAB;
-    protected MapboxMap mapboxMap;
+
     @BindView(R.id.activity_track_details_header_map)
     protected MapView mMapView;
     @BindView(R.id.activity_track_details_header_toolbar)
@@ -160,17 +160,10 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
     protected TextView mEmissionText;
     @BindView(R.id.activity_track_details_attr_consumption_value)
     protected TextView mConsumptionText;
-    protected MapboxMap mapboxMapExpanded;
-    @BindView(R.id.activity_track_details_expanded_map)
-    protected MapView mMapViewExpanded;
-    @BindView(R.id.activity_track_details_expanded_map_container)
-    protected ConstraintLayout mMapViewExpandedContainer;
     @BindView(R.id.activity_track_details_appbar_layout)
     protected AppBarLayout mAppBarLayout;
     @BindView(R.id.activity_track_details_scrollview)
     protected NestedScrollView mNestedScrollView;
-    @BindView(R.id.activity_track_details_expanded_map_cancel)
-    protected ImageView mMapViewExpandedCancel;
     @BindView(R.id.activity_track_details_header_map_container)
     protected FrameLayout mMapViewContainer;
     @BindView(R.id.consumption_container)
@@ -179,16 +172,8 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
     protected RelativeLayout mCo2Container;
     @BindView(R.id.descriptionTv)
     protected TextView descriptionTv;
-    @BindView(R.id.fragment_dashboard_frag_map_follow_fab)
-    protected FloatingActionButton mCentreFab;
 
-    private List<Point> routeCoordinates = new ArrayList<>();
-    protected ArrayList<LatLng> latLngs = new ArrayList<>();
-    private LatLngBounds mTrackBoundingBox;
-    private LatLngBounds mViewBoundingBox;
     private Track track;
-
-    private boolean mIsCentredOnTrack;
 
     @Override
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
@@ -203,7 +188,6 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
         // Inject all annotated views.
         ButterKnife.bind(this);
         mMapView.onCreate(savedInstanceState);
-        mMapViewExpanded.onCreate(savedInstanceState);
         supportPostponeEnterTransition();
 
         // Set the toolbar as default actionbar.
@@ -236,16 +220,11 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
         initViewValues(track);
 
         updateStatusBarColor();
-        mIsCentredOnTrack = true;
-        mCentreFab.setVisibility(View.VISIBLE);
         mFAB.setOnClickListener(v -> {
            TrackStatisticsActivity.createInstance(TrackDetailsActivity.this, mTrackID);
         });
 
-        //closing the expanded mapview on "cancel" button clicked
-        mMapViewExpandedCancel.setOnClickListener(v-> closeExpandedMapView());
-        //expanding the expandable mapview on clicking the framelayout which is surrounded by header map view in collapsingtoolbarlayout
-        mMapViewContainer.setOnClickListener(v-> expandMapView());
+        mMapViewContainer.setOnClickListener(v-> MapExpandedActivity.createInstance(TrackDetailsActivity.this, mTrackID));
     }
 
     private void updateStatusBarColor() {
@@ -254,28 +233,6 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
             getWindow().setStatusBarColor(Color.parseColor("#3f3f3f3f"));
         }
     }
-
-    @OnTouch(R.id.activity_track_details_expanded_map)
-    protected boolean onTouchMapView() {
-        if (mIsCentredOnTrack) {
-            mIsCentredOnTrack = false;
-            TransitionManager.beginDelayedTransition((ViewGroup) mMapViewExpandedContainer,new androidx.transition.Slide(Gravity.RIGHT));
-            mCentreFab.setVisibility(View.VISIBLE);
-        }
-        return false;
-    }
-
-    @OnClick(R.id.fragment_dashboard_frag_map_follow_fab)
-    protected void onClickFollowFab() {
-        final LatLngBounds viewBbox = mViewBoundingBox;//trackMapOverlay.getViewBoundingBox();
-        if (!mIsCentredOnTrack) {
-            mIsCentredOnTrack = true;
-            TransitionManager.beginDelayedTransition((ViewGroup)mMapViewExpandedContainer,new androidx.transition.Slide(Gravity.LEFT));
-            mCentreFab.setVisibility(View.GONE);
-            mapboxMapExpanded.easeCamera(CameraUpdateFactory.newLatLngBounds(viewBbox, 50),2500);
-        }
-    }
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -287,12 +244,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
 
     @Override
     public void onBackPressed() {
-        //if the expandable mapview is expanded, then close it first
-        if(mMapViewExpandedContainer != null && mMapViewExpandedContainer.getVisibility() == View.VISIBLE){
-            closeExpandedMapView();
-        }else{
-            super.onBackPressed();
-        }
+        super.onBackPressed();
     }
 
     /**
@@ -315,7 +267,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
      * Initializes the MapView, its base layers and settings.
      */
     private void initMapView() {
-        final LatLngBounds viewBbox = mViewBoundingBox;//trackMapOverlay.getViewBoundingBox();
+        final LatLngBounds viewBbox = trackMapOverlay.getViewBoundingBox();
         TileSet layer = MapUtils.getOSMTileLayer();
         mMapView.getMapAsync(new OnMapReadyCallback() {
             @Override
@@ -326,132 +278,61 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
                 tep.setStyle(new Style.Builder().fromUrl("https://api.maptiler.com/maps/basic/style.json?key=YJCrA2NeKXX45f8pOV6c "), new Style.OnStyleLoaded() {
                     @Override
                     public void onStyleLoaded(@NonNull Style style) {
-                        initRouteCoordinates(track);
-                        GeoJsonSource geoJsonSource = new GeoJsonSource("source-id", FeatureCollection.fromFeatures(new Feature[] {Feature.fromGeometry(
-                                LineString.fromLngLats(routeCoordinates)
-                        )}));
-                        style.addSource(geoJsonSource);
-                        LineLayer lineLayer = new LineLayer("linelayer", "source-id").withSourceLayer("source-id").withProperties(
-                                PropertyFactory.lineColor(Color.parseColor("#0065A0")),
-                                PropertyFactory.lineWidth(3f),
-                                PropertyFactory.lineCap(Property.LINE_CAP_ROUND)
-                        );
-                        style.addLayer(lineLayer);
-                        tep.moveCamera(CameraUpdateFactory.newLatLngBounds(mViewBoundingBox, 50));
-                        //style.addSource(trackMapOverlay.getGeoJsonSource());
-                        //style.addLayer(trackMapOverlay.getLineLayer());
-
+                        mapStyle = style;
+                        style.addSource(trackMapOverlay.getGeoJsonSource());
+                        style.addLayer(trackMapOverlay.getLineLayer());
+                        tep.moveCamera(CameraUpdateFactory.newLatLngBounds(viewBbox, 50));
+                        setUpStartStopIcons(style, tep);
                     }
                 });
-                //tep.moveCamera(CameraUpdateFactory.newLatLngBounds(viewBbox, 50));
                 mapboxMap = tep;
                 mapboxMap.setMaxZoomPreference(layer.getMaxZoom());
                 mapboxMap.setMinZoomPreference(layer.getMinZoom());
             }
         });
-
-        mMapViewExpanded.getMapAsync(new OnMapReadyCallback() {
-            @Override
-            public void onMapReady(@NonNull MapboxMap mapboxMap1) {
-                mapboxMap1.getUiSettings().setLogoEnabled(false);
-                mapboxMap1.getUiSettings().setAttributionEnabled(false);
-                mapboxMap1.setStyle(new Style.Builder().fromUrl("https://api.maptiler.com/maps/basic/style.json?key=YJCrA2NeKXX45f8pOV6c "), new Style.OnStyleLoaded() {
-                    @Override
-                    public void onStyleLoaded(@NonNull Style style) {
-                        initRouteCoordinates(track);
-                        GeoJsonSource geoJsonSource = new GeoJsonSource("source-id", FeatureCollection.fromFeatures(new Feature[] {Feature.fromGeometry(
-                                LineString.fromLngLats(routeCoordinates)
-                        )}));
-                        style.addSource(geoJsonSource);
-                        LineLayer lineLayer = new LineLayer("linelayer", "source-id").withSourceLayer("source-id").withProperties(
-                                PropertyFactory.lineColor(Color.parseColor("#0065A0")),
-                                PropertyFactory.lineWidth(3f),
-                                PropertyFactory.lineCap(Property.LINE_CAP_ROUND)
-                        );
-                        style.addLayer(lineLayer);
-                        mapboxMap1.moveCamera(CameraUpdateFactory.newLatLngBounds(mViewBoundingBox, 50));
-                    }
-                });
-                mapboxMapExpanded = mapboxMap1;
-                mapboxMapExpanded.setMaxZoomPreference(18);
-                mapboxMapExpanded.setMinZoomPreference(1);
-                //mapboxMapExpanded.getStyle().getLayer("linelayer").setProperties(visibility(Property.VISIBLE));
-            }
-        });
     }
 
-    //function which expands the mapview
-    private void expandMapView(){
-        //mMapViewExpandedContainer.setVisibility(View.VISIBLE);
-        mMapViewExpanded.setVisibility(View.VISIBLE);
-        animateShowView(mMapViewExpandedContainer,R.anim.translate_slide_in_top_fragment);
-        animateHideView(mAppBarLayout,R.anim.translate_slide_out_top_fragment);
-        animateHideView(mNestedScrollView,R.anim.translate_slide_out_bottom);
-        animateHideView(mFAB,R.anim.fade_out);
-    }
+    private void setUpStartStopIcons(@NonNull Style loadedMapStyle, @NonNull MapboxMap loadedMapBox) {
+        loadedMapStyle.addImage("stop-marker",
+                BitmapFactory.decodeResource(
+                        TrackDetailsActivity.this.getResources(), R.drawable.stop_marker));
 
-    //function which closes the expanded mapview
-    private void closeExpandedMapView(){
-        final LatLngBounds viewBbox = mViewBoundingBox;//trackMapOverlay.getViewBoundingBox();
-        //mMapViewExpanded.setVisibility(GONE);
-        //mMapViewExpandedContainer.setVisibility(GONE);
-        //mMapView.setVisibility(View.VISIBLE);
-        //mAppBarLayout.setVisibility(View.VISIBLE);
-        //mNestedScrollView.setVisibility(View.VISIBLE);
-        //mFAB.setVisibility(View.VISIBLE);
-        //mMapViewExpandedContainer.setVisibility(GONE);
-        //mMapViewExpanded.setVisibility(View.INVISIBLE);
-        //mAppBarLayout.setVisibility(View.VISIBLE);
-        //mNestedScrollView.setVisibility(View.VISIBLE);
-        //mFAB.setVisibility(View.VISIBLE);
-        //mMapViewExpanded.setVisibility(GONE);
-        mMapViewExpandedContainer.setVisibility(View.GONE);
-        animateHideView(mMapViewExpandedContainer,R.anim.translate_slide_out_top_fragment);
-        animateShowView(mAppBarLayout,R.anim.translate_slide_in_top_fragment);
-        animateShowView(mNestedScrollView,R.anim.translate_slide_in_bottom_fragment);
-        animateShowView(mFAB,R.anim.fade_in);
-        mapboxMap.moveCamera(CameraUpdateFactory.newLatLngBounds(mViewBoundingBox, 50), new MapboxMap.CancelableCallback() {
-            @Override
-            public void onCancel() {
-                LOG.info("mMapView move camera was cancelled.");
-            }
+        loadedMapStyle.addImage("start-marker",
+                BitmapFactory.decodeResource(
+                        TrackDetailsActivity.this.getResources(), R.drawable.start_marker));
 
-            @Override
-            public void onFinish() {
-                LOG.info("mMapView move camera finished.");
-            }
-        });
-        LOG.info("mMapViewExpanded visibility: " + mMapViewExpanded.getVisibility());
-        LOG.info("mMapViewExpandedContainer visibility: " + mMapViewExpandedContainer.getVisibility());
-        LOG.info("mMapView visibility: " + mMapView.getVisibility());
-    }
-
-    private void initRouteCoordinates(Track track) {
-        // Create a list to store our line coordinates.
-        routeCoordinates.clear();
-
-        List<Measurement> temp = track.getMeasurements();
-        for(Measurement measurement : temp)
+        int size = track.getMeasurements().size();
+        List<Point> markerCoordinates = new ArrayList<>();
+        if(size>=2)
         {
-            routeCoordinates.add(Point.fromLngLat(measurement.getLongitude(),measurement.getLatitude()));
-        }
-        LOG.info("routeCoordinates of " + track.getName() +": " + routeCoordinates.size());
-        LOG.info(routeCoordinates.get(0).toString());
-        latLngs.clear();
-        for(int i = 0; i< routeCoordinates.size(); ++i){
-            latLngs.add(new LatLng(routeCoordinates.get(i).latitude(), routeCoordinates.get(i).longitude()));
-        }
+            LOG.info("Point 1:"+track.getMeasurements().get(0).getLongitude() + track.getMeasurements().get(0).getLatitude());
+            LOG.info("Point 2:" + size + " "+track.getMeasurements().get(size-1).getLongitude() + track.getMeasurements().get(size-1).getLatitude());
+            markerCoordinates.add(Point.fromLngLat(track.getMeasurements().get(0).getLongitude(),track.getMeasurements().get(0).getLatitude()));
+            markerCoordinates.add(Point.fromLngLat(track.getMeasurements().get(size-1).getLongitude(),track.getMeasurements().get(size-1).getLatitude()));
+            GeoJsonSource geoJsonSource = new GeoJsonSource("marker-source1", Feature.fromGeometry(
+                    Point.fromLngLat(markerCoordinates.get(0).longitude(), markerCoordinates.get(0).latitude())));
+            loadedMapStyle.addSource(geoJsonSource);
 
-        mTrackBoundingBox = new LatLngBounds.Builder()
-                .includes(latLngs)
-                .build();
+            SymbolLayer symbolLayer = new SymbolLayer("marker-layer1", "marker-source1");
+            symbolLayer.withProperties(
+                    PropertyFactory.iconImage("start-marker"),
+                    PropertyFactory.iconAllowOverlap(true),
+                    PropertyFactory.iconIgnorePlacement(true)
+            );
+            loadedMapStyle.addLayer(symbolLayer);
+            geoJsonSource = new GeoJsonSource("marker-source2", Feature.fromGeometry(
+                    Point.fromLngLat(markerCoordinates.get(1).longitude(), markerCoordinates.get(1).latitude())));
+            loadedMapStyle.addSource(geoJsonSource);
 
-        // The view bounding box of the pathoverlay
-        mViewBoundingBox = LatLngBounds.from(
-                mTrackBoundingBox.getLatNorth() + 0.01,
-                mTrackBoundingBox.getLonEast() + 0.01,
-                mTrackBoundingBox.getLatSouth() - 0.01,
-                mTrackBoundingBox.getLonWest() - 0.01);
+            symbolLayer = new SymbolLayer("marker-layer2", "marker-source2");
+            symbolLayer.withProperties(
+                    PropertyFactory.iconImage("stop-marker"),
+                    PropertyFactory.iconAllowOverlap(true),
+                    PropertyFactory.iconIgnorePlacement(true)
+            );
+            loadedMapStyle.addLayer(symbolLayer);
+
+        }
     }
 
     //general function to animate the view and hide it
@@ -521,7 +402,6 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
     public void onStart() {
         super.onStart();
         mMapView.onStart();
-        mMapViewExpanded.onStart();
     }
 
     @Override
@@ -529,41 +409,38 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
         super.onResume();
         supportStartPostponedEnterTransition();
         mMapView.onResume();
-        mMapViewExpanded.onResume();
     }
 
     @Override
     public void onPause() {
         super.onPause();
         mMapView.onPause();
-        mMapViewExpanded.onPause();
     }
 
     @Override
     public void onStop() {
         super.onStop();
         mMapView.onStop();
-        mMapViewExpanded.onStop();
     }
 
     @Override
     public void onLowMemory() {
         super.onLowMemory();
         mMapView.onLowMemory();
-        mMapViewExpanded.onLowMemory();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        mapStyle.removeLayer(MapLayer.LAYER_NAME);
+        mapStyle.removeLayer("marker-layer1");
+        mapStyle.removeLayer("marker-layer2");
         mMapView.onDestroy();
-        mMapViewExpanded.onDestroy();
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         mMapView.onSaveInstanceState(outState);
-        mMapViewExpanded.onSaveInstanceState(outState);
     }
 }
