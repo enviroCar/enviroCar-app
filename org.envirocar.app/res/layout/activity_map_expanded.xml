@@ -68,19 +68,6 @@
 
     </com.mapbox.mapboxsdk.maps.MapView>
 
-    <Spinner
-        android:id="@+id/spinner"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:background="#FFFFFF"
-        android:spinnerMode="dialog"
-        android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@+id/activity_track_details_expanded_map"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/activity_track_details_expanded_map" />
-
     <androidx.cardview.widget.CardView
         android:id="@+id/legendCard"
         android:layout_width="wrap_content"
@@ -95,7 +82,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
+            android:layout_width="75dp"
             android:layout_height="match_parent"
             android:background="#FFF2F2F2"
             android:visibility="visible">
@@ -104,12 +91,10 @@
                 android:id="@+id/legend"
                 android:layout_width="10dp"
                 android:layout_height="190dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginLeft="16dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginLeft="20dp"
                 android:layout_marginTop="16dp"
-                android:layout_marginBottom="16dp"
                 android:background="@drawable/map_gradient"
-                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -128,13 +113,16 @@
                 android:id="@+id/legend_mid"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginLeft="8dp"
+                android:layout_marginStart="12dp"
+                android:layout_marginLeft="12dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginRight="16dp"
                 android:fontFamily="@font/roboto"
                 android:gravity="start"
                 android:text="0"
                 android:textSize="11sp"
                 app:layout_constraintBottom_toBottomOf="@+id/legend"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/legend"
                 app:layout_constraintTop_toTopOf="@+id/legend" />
 
@@ -151,16 +139,18 @@
 
             <TextView
                 android:id="@+id/legend_unit"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="8dp"
                 android:fontFamily="@font/roboto"
-                android:rotation="-90"
+                android:gravity="center"
                 android:text="kmph"
                 android:textSize="10sp"
-                app:layout_constraintBottom_toBottomOf="@+id/legend_mid"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/legend_mid"
-                app:layout_constraintTop_toTopOf="@+id/legend_mid" />
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/legend" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>

@@ -2,20 +2,21 @@ package org.envirocar.app.views.trackdetails;
 
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 
 import android.view.Gravity;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.ImageView;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.transition.ChangeBounds;
 import androidx.transition.TransitionManager;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -52,6 +53,8 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnTouch;
 import rx.schedulers.Schedulers;
+
+import static android.view.View.GONE;
 
 public class MapExpandedActivity extends BaseInjectorActivity {
 
@@ -95,19 +98,15 @@ public class MapExpandedActivity extends BaseInjectorActivity {
     @BindView(R.id.legend_unit)
     protected TextView legendUnit;
 
-    @BindView(R.id.spinner)
-    protected Spinner spinner;
-
     @Inject
     protected EnviroCarDB enviroCarDB;
     protected MapboxMap mapboxMapExpanded;
     protected TrackSpeedMapOverlay trackMapOverlay;
     private Track track;
     private Style style;
-    private String[] spinnerOptions = {"CO2", "Consumption", "Engine Load", "Rpm", "Speed"};
-
+    private List<Measurement.PropertyKey> options = new ArrayList<>();
+    private List<String> spinnerStrings = new ArrayList<>();
     private boolean mIsCentredOnTrack;
-    private boolean mIsGradientActive;
 
     public static void createInstance(Activity activity, int trackID) {
         Intent intent = new Intent(activity, MapExpandedActivity.class);
@@ -136,13 +135,13 @@ public class MapExpandedActivity extends BaseInjectorActivity {
                 .first();
         this.track = track;
         trackMapOverlay = new TrackSpeedMapOverlay(track);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(MapExpandedActivity.this,
-                android.R.layout.simple_spinner_item, spinnerOptions);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(adapter);
+        options = track.getSupportedProperties();
+        for(Measurement.PropertyKey propertyKey : options){
+            spinnerStrings.add(propertyKey.toString());
+        }
+        spinnerStrings.add("None");
         initMapView();
         mIsCentredOnTrack = true;
-        mIsGradientActive = false;
         mCentreFab.setVisibility(View.VISIBLE);
         mMapViewExpandedCancel.setOnClickListener(v-> finish());
 
@@ -163,8 +162,8 @@ public class MapExpandedActivity extends BaseInjectorActivity {
         final LatLngBounds viewBbox = trackMapOverlay.getViewBoundingBox();
         if (!mIsCentredOnTrack) {
             mIsCentredOnTrack = true;
-            TransitionManager.beginDelayedTransition(mMapViewExpandedContainer,new androidx.transition.Slide(Gravity.LEFT));
-            mCentreFab.setVisibility(View.GONE);
+            TransitionManager.beginDelayedTransition(mMapViewExpandedContainer,new androidx.transition.Slide(Gravity.RIGHT));
+            mCentreFab.setVisibility(GONE);
             mapboxMapExpanded.easeCamera(CameraUpdateFactory.newLatLngBounds(viewBbox, 50),2500);
         }
     }
@@ -172,34 +171,53 @@ public class MapExpandedActivity extends BaseInjectorActivity {
     @OnClick(R.id.activity_map_visualise_fab)
     protected void onClickVisualiseFab() {
         LOG.info("onClickVisualiseFab");
-        makeMapChanges();
+        AlertDialog.Builder b = new AlertDialog.Builder(this);
+        b.setTitle("Phenomena to Visualise");
+        b.setItems(spinnerStrings.toArray(new String[0]), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+                LOG.info("Choice: " + i);
+                makeMapChanges(i);
+            }
+        });
+        b.show();
 
     }
 
-    private void makeMapChanges(){
+    private void makeMapChanges(int choice){
         final LatLngBounds viewBbox = trackMapOverlay.getViewBoundingBox();
         if(mapboxMapExpanded != null)
         {
-            if(!mIsGradientActive)
+            if(!spinnerStrings.get(choice).equalsIgnoreCase("None"))
             {
-                legendCard.setVisibility(View.VISIBLE);
-                mIsGradientActive = true;
+                if(legendCard.getVisibility() != View.VISIBLE)
+                {
+                    TransitionManager.beginDelayedTransition(legendCard,new androidx.transition.Slide(Gravity.LEFT));
+                    legendCard.setVisibility(View.VISIBLE);
+                } else{
+                    TransitionManager.beginDelayedTransition(legendCard,new ChangeBounds());
+                }
+
                 mapboxMapExpanded.getStyle(new Style.OnStyleLoaded() {
                     @Override
                     public void onStyleLoaded(@NonNull Style style) {
+                        style.removeLayer(TrackSpeedMapOverlay.GRADIENT_LAYER);
+                        style.removeSource(TrackSpeedMapOverlay.GRADIENT_SOURCE);
                         style.addSource(trackMapOverlay.getGradientGeoJSONSource());
-                        style.addLayerBelow(trackMapOverlay.getGradientLineLayer(Measurement.PropertyKey.SPEED), "marker-layer1");
+                        LOG.info(options.get(choice)+"");
+                        style.addLayerBelow(trackMapOverlay.getGradientLineLayer(options.get(choice)), "marker-layer1");
                         legendStart.setText(DECIMAL_FORMATTER.format(trackMapOverlay.getGradMin()));
                         legendEnd.setText(DECIMAL_FORMATTER.format(trackMapOverlay.getGradMax()));
                         Float mid = (trackMapOverlay.getGradMin() + trackMapOverlay.getGradMax())/2;
                         legendMid.setText(DECIMAL_FORMATTER.format(mid));
-                        legendUnit.setText("km/h");
+                        legendUnit.setText(options.get(choice).getStringResource());
                     }
                 });
             }
             else{
-                legendCard.setVisibility(View.GONE);
-                mIsGradientActive = false;
+                TransitionManager.beginDelayedTransition(legendCard,new androidx.transition.Slide(Gravity.LEFT));
+                legendCard.setVisibility(GONE);
                 mapboxMapExpanded.getStyle(new Style.OnStyleLoaded() {
                     @Override
                     public void onStyleLoaded(@NonNull Style style) {

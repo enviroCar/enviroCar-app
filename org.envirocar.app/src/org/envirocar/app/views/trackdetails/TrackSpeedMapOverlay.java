@@ -164,10 +164,17 @@ public class TrackSpeedMapOverlay extends MapLayer{
                 if(measurement.hasProperty(propertyKey))
                     propertyValues.add(measurement.getProperty(propertyKey));
                 else
+                {
                     propertyValues.add(Double.valueOf(0));
+                    LOG.info("Measurement doesnt have " + propertyKey.toString());
+                }
             }
 
-            Double min = Double.valueOf(0);
+            Double min ;
+            if(propertyKey.equals(Measurement.PropertyKey.SPEED))
+                min = Double.valueOf(0);
+            else
+                min = Collections.min(propertyValues);
             Double max = Collections.max(propertyValues);
             gradMax = max.floatValue();
             gradMin = min.floatValue();
