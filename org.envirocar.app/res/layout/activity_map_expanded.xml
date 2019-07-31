@@ -8,6 +8,70 @@
     android:background="@color/white"
     android:elevation="10dp">
 
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/legend_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="32dp"
+        app:layout_constraintBottom_toTopOf="@+id/activity_map_visualise_fab"
+        app:layout_constraintStart_toStartOf="@+id/activity_map_visualise_fab">
+
+        <TextView
+            android:id="@+id/legend_start"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0"
+            android:textSize="10sp"
+            app:layout_constraintBottom_toBottomOf="@+id/legend_mid"
+            app:layout_constraintStart_toStartOf="@+id/legend" />
+
+        <TextView
+            android:id="@+id/legend_mid"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="0"
+            android:textSize="10sp"
+            app:layout_constraintEnd_toEndOf="@+id/legend"
+            app:layout_constraintStart_toStartOf="@+id/legend"
+            app:layout_constraintTop_toBottomOf="@+id/legend" />
+
+        <TextView
+            android:id="@+id/legend_end"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0"
+            android:textSize="10sp"
+            app:layout_constraintBottom_toBottomOf="@+id/legend_mid"
+            app:layout_constraintEnd_toEndOf="@+id/legend" />
+
+        <TextView
+            android:id="@+id/legend_unit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="kmph"
+            android:textSize="10sp"
+            app:layout_constraintEnd_toEndOf="@+id/legend_mid"
+            app:layout_constraintStart_toStartOf="@+id/legend_mid"
+            app:layout_constraintTop_toBottomOf="@+id/legend_mid" />
+
+        <ImageView
+            android:id="@+id/legend"
+            android:layout_width="180dp"
+            android:layout_height="15dp"
+            android:layout_marginStart="2dp"
+            android:layout_marginLeft="2dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="2dp"
+            android:layout_marginRight="2dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@android:color/darker_gray" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/activity_map_visualise_fab"
         android:layout_width="wrap_content"
@@ -60,8 +124,10 @@
         android:scaleType="centerCrop"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" >
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0">
 
     </com.mapbox.mapboxsdk.maps.MapView>
 

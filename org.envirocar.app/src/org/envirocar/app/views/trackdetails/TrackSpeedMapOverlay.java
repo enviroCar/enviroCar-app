@@ -191,7 +191,7 @@ public class TrackSpeedMapOverlay extends MapLayer{
                     lineWidth(3f),
                     lineGradient(interpolate(
                             linear(), lineProgress(),
-                            stop(0f, rgb(6, 1, 255)) 
+                            stop(0f, rgb(6, 1, 255))
                     )));
         }
     }

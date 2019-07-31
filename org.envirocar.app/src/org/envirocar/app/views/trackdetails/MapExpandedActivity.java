@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -61,6 +62,7 @@ public class MapExpandedActivity extends BaseInjectorActivity {
 
     @BindView(R.id.activity_map_visualise_fab)
     protected FloatingActionButton mVisualiseFab;
+
     @BindView(R.id.activity_track_details_expanded_map_cancel)
     protected ImageView mMapViewExpandedCancel;
 
@@ -69,6 +71,24 @@ public class MapExpandedActivity extends BaseInjectorActivity {
 
     @BindView(R.id.activity_track_details_expanded_map_container)
     protected ConstraintLayout mMapViewExpandedContainer;
+
+    @BindView(R.id.legend_layout)
+    protected ConstraintLayout legendLayout;
+
+    @BindView(R.id.legend)
+    protected ImageView legend;
+
+    @BindView(R.id.legend_start)
+    protected TextView legendStart;
+
+    @BindView(R.id.legend_mid)
+    protected TextView legendMid;
+
+    @BindView(R.id.legend_end)
+    protected TextView legendEnd;
+
+    @BindView(R.id.legend_unit)
+    protected TextView legendUnit;
 
     @Inject
     protected EnviroCarDB enviroCarDB;
