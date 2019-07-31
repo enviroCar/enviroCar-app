@@ -172,7 +172,7 @@ public class MapExpandedActivity extends BaseInjectorActivity {
     @OnClick(R.id.activity_map_visualise_fab)
     protected void onClickVisualiseFab() {
         LOG.info("onClickVisualiseFab");
-        //spinner.setVisibility(View.VISIBLE);
+        makeMapChanges();
 
     }
 
