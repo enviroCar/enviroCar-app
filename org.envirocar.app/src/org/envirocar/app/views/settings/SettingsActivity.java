@@ -64,7 +64,7 @@ public class SettingsActivity extends BaseInjectorActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.fragment_settings_main);
+        setContentView(R.layout.fragment_settings_main_new);
         ButterKnife.bind(this);
 
         setSupportActionBar(mToolbar);
@@ -97,6 +97,8 @@ public class SettingsActivity extends BaseInjectorActivity {
             getSupportActionBar().setTitle(R.string.settings);
         } else {
             super.onBackPressed();
+
+            overridePendingTransition(R.anim.translate_slide_in_left_fragment,R.anim.fade_out);
         }
     }
 

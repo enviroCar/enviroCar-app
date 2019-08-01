@@ -174,9 +174,7 @@ public class SendLogFileActivity extends AppCompatActivity {
         } catch (IOException e) {
             LOG.warn(e.getMessage(), e);
         }
-
-
-
+        hideKeyboard(getCurrentFocus());
     }
 
     /**
@@ -196,7 +194,10 @@ public class SendLogFileActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if(item.getItemId() == android.R.id.home) onBackPressed();
+        if(item.getItemId() == android.R.id.home) {
+            onBackPressed();
+            overridePendingTransition(R.anim.translate_slide_in_left_fragment,R.anim.fade_out);
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -494,6 +495,7 @@ public class SendLogFileActivity extends AppCompatActivity {
         if(view != null){
             InputMethodManager inputMethodManager =(InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
             inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+            view.clearFocus();
         }
     }
 

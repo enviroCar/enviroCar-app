@@ -57,6 +57,7 @@ public class HelpActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             finish();
+            overridePendingTransition(R.anim.translate_slide_in_left_fragment,R.anim.fade_out);
             return true;
         }
         super.onOptionsItemSelected(item);

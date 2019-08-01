@@ -18,9 +18,12 @@
  */
 package org.envirocar.app.views.logbook;
 
+import android.app.Activity;
 import android.os.Bundle;
 import com.google.android.material.snackbar.Snackbar;
 import androidx.appcompat.widget.Toolbar;
+
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageView;
@@ -166,6 +169,15 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
     }
 
     @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
+            return true;
+        }
+        return false;
+    }
+
+    @Override
     public void onBackPressed() {
         LOG.info("onBackPressed()");
         if(addFuelingFragment != null && addFuelingFragment.isVisible()){
@@ -174,6 +186,7 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
             return;
         }
         super.onBackPressed();
+        overridePendingTransition(R.anim.translate_slide_in_left_fragment,R.anim.fade_out);
     }
 
     @OnClick(R.id.activity_logbook_toolbar_new_fueling_fab)

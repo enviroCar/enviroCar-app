@@ -113,18 +113,21 @@ public class OthersFragment extends BaseInjectorFragment {
     protected void onLogBookClicked() {
         Intent intent = new Intent(getActivity(), LogbookActivity.class);
         startActivity(intent);
+        ((Activity)getContext()).overridePendingTransition(R.anim.translate_slide_in_right_fragment,R.anim.fade_out);
     }
 
     @OnClick(R.id.othersSettings)
     protected void onSettingsClicked() {
         Intent intent = new Intent(getActivity(), SettingsActivity.class);
         startActivity(intent);
+        ((Activity)getContext()).overridePendingTransition(R.anim.translate_slide_in_right_fragment,R.anim.fade_out);
     }
 
     @OnClick(R.id.othersHelp)
     protected void onHelpClicked() {
         Intent intent = new Intent(getActivity(), HelpActivity.class);
         startActivity(intent);
+        ((Activity)getContext()).overridePendingTransition(R.anim.translate_slide_in_right_fragment,R.anim.fade_out);
     }
 
     @OnClick(R.id.othersReportIssue)
@@ -133,6 +136,7 @@ public class OthersFragment extends BaseInjectorFragment {
             //access granted
             Intent intent = new Intent(getActivity(), SendLogFileActivity.class);
             startActivity(intent);
+            ((Activity)getContext()).overridePendingTransition(R.anim.translate_slide_in_right_fragment,R.anim.fade_out);
         }else{
             requestPermissions();
         }
