@@ -76,8 +76,6 @@ public class OthersFragment extends BaseInjectorFragment {
 
     @BindView(R.id.othersLogOut)
     protected LinearLayout othersLogOut;
-    @BindView(R.id.othersLogOutDivider)
-    protected View othersLogOutDivider;
 
     private Scheduler.Worker mMainThreadWorker = AndroidSchedulers.mainThread().createWorker();
     private final Scheduler.Worker mBackgroundWorker = Schedulers.newThread().createWorker();
@@ -93,11 +91,9 @@ public class OthersFragment extends BaseInjectorFragment {
 
         if(mUserManager.isLoggedIn()){
             othersLogOut.setVisibility(View.VISIBLE);
-            othersLogOutDivider.setVisibility(View.VISIBLE);
         }
         else{
             othersLogOut.setVisibility(View.GONE);
-            othersLogOutDivider.setVisibility(View.GONE);
         }
 
         return view;
@@ -331,7 +327,6 @@ public class OthersFragment extends BaseInjectorFragment {
                             Snackbar.LENGTH_LONG).show();
                     //disable logout button
                     othersLogOut.setVisibility(View.GONE);
-                    othersLogOutDivider.setVisibility(View.GONE);
                 });
 
             });
