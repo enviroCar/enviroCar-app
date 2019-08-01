@@ -359,6 +359,7 @@
                     android:layout_marginStart="16dp"
                     android:layout_marginLeft="16dp"
                     android:layout_marginTop="12dp"
+                    android:fontFamily="sans-serif-medium"
                     android:text="@string/others_close_envirocar"
                     android:textColor="@android:color/holo_red_dark"
                     android:textSize="17sp"
@@ -372,6 +373,7 @@
                     android:layout_marginTop="4dp"
                     android:layout_marginBottom="4dp"
                     android:text="Shutdown all services"
+                    android:textColor="@android:color/holo_red_dark"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="@+id/textView13"
                     app:layout_constraintTop_toBottomOf="@+id/textView13" />

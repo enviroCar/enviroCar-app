@@ -20,6 +20,7 @@ package org.envirocar.app.views;
 
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -27,6 +28,8 @@ import android.os.Bundle;
 import android.provider.Settings;
 import androidx.annotation.NonNull;
 import com.google.android.material.snackbar.Snackbar;
+
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
@@ -75,7 +78,7 @@ public class OthersFragment extends BaseInjectorFragment {
     protected TrackDAOHandler mTrackDAOHandler;
 
     @BindView(R.id.othersLogOut)
-    protected LinearLayout othersLogOut;
+    protected ConstraintLayout othersLogOut;
 
     private Scheduler.Worker mMainThreadWorker = AndroidSchedulers.mainThread().createWorker();
     private final Scheduler.Worker mBackgroundWorker = Schedulers.newThread().createWorker();

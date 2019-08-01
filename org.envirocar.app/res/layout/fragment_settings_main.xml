@@ -115,7 +115,7 @@
         <RelativeLayout
             android:id="@+id/fragment_settings_main_car_settings"
             style="@style/enviroCar.Settings.General.ListLayout"
-            android:visibility="gone">
+            android:visibility="visible">
 
             <ImageView
                 android:layout_width="28dp"
@@ -123,7 +123,7 @@
                 android:layout_alignParentLeft="true"
                 android:layout_centerVertical="true"
                 android:alpha="0.54"
-                android:src="@drawable/ic_drive_eta_black_24dp"/>
+                android:src="@drawable/ic_drive_eta_black_24dp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -138,14 +138,14 @@
                     android:fontFamily="sans-serif-medium"
                     android:text="@string/pref_car_settings"
                     android:textColor="@android:color/black"
-                    android:textSize="17sp"/>
+                    android:textSize="17sp" />
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif"
                     android:text="Version, Licenses, etc."
-                    android:textSize="14sp"/>
+                    android:textSize="14sp" />
 
             </LinearLayout>
         </RelativeLayout>
@@ -229,5 +229,6 @@
         android:id="@+id/fragment_settings_main_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/fragment_settings_main_toolbar"/>
+        android:layout_below="@id/fragment_settings_main_toolbar"
+        android:visibility="visible" />
 </RelativeLayout>
