@@ -144,6 +144,7 @@ public class MapExpandedActivity extends BaseInjectorActivity {
         mIsCentredOnTrack = true;
         mCentreFab.setVisibility(View.VISIBLE);
         mMapViewExpandedCancel.setOnClickListener(v-> finish());
+        LOG.info("Index of Speed: " + options.indexOf(Measurement.PropertyKey.SPEED));
 
     }
 
@@ -189,6 +190,7 @@ public class MapExpandedActivity extends BaseInjectorActivity {
         final LatLngBounds viewBbox = trackMapOverlay.getViewBoundingBox();
         if(mapboxMapExpanded != null)
         {
+            LOG.info("Choice: " + choice);
             if(!spinnerStrings.get(choice).equalsIgnoreCase("None"))
             {
                 if(legendCard.getVisibility() != View.VISIBLE)
@@ -251,6 +253,7 @@ public class MapExpandedActivity extends BaseInjectorActivity {
                         style.addLayer(trackMapOverlay.getLineLayer());
                         mapboxMap1.moveCamera(CameraUpdateFactory.newLatLngBounds(viewBbox, 50));
                         setUpStartStopIcons(style, mapboxMap1);
+                        makeMapChanges(options.indexOf(Measurement.PropertyKey.SPEED));
                     }
                 });
                 mapboxMapExpanded = mapboxMap1;
