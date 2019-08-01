@@ -114,7 +114,6 @@ public class GPSOnlyTrackRecordingScreen extends BaseInjectorActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_obdplus_gpstrack_recording_screen);
-
         //if the track recording service is stopped then finish this activity and goback to bottombar main activity
         if(GPSOnlyRecordingService.CURRENT_SERVICE_STATE == BluetoothServiceState.SERVICE_STOPPED){
             startActivity(new Intent(GPSOnlyTrackRecordingScreen.this, BaseMainActivityBottomBar.class));

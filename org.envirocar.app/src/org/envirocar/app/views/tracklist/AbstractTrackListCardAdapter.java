@@ -17,11 +17,11 @@
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
 package org.envirocar.app.views.tracklist;
-
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.os.AsyncTask;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.Toolbar;
 import android.view.View;
@@ -29,13 +29,27 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.github.jorgecastilloprz.FABProgressCircle;
-import com.mapbox.mapboxsdk.geometry.BoundingBox;
-import com.mapbox.mapboxsdk.tileprovider.tilesource.WebSourceTileLayer;
-import com.mapbox.mapboxsdk.views.MapView;
+import com.mapbox.geojson.Feature;
+import com.mapbox.geojson.FeatureCollection;
+import com.mapbox.geojson.LineString;
+import com.mapbox.geojson.Point;
+import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
+import com.mapbox.mapboxsdk.geometry.LatLng;
+import com.mapbox.mapboxsdk.geometry.LatLngBounds;
+import com.mapbox.mapboxsdk.maps.MapView;
+import com.mapbox.mapboxsdk.maps.MapboxMap;
+import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
+import com.mapbox.mapboxsdk.maps.Style;
+import com.mapbox.mapboxsdk.style.layers.LineLayer;
+import com.mapbox.mapboxsdk.style.layers.Property;
+import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
+import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
+import com.mapbox.mapboxsdk.style.sources.TileSet;
 
 import org.envirocar.app.R;
 import org.envirocar.app.views.trackdetails.TrackSpeedMapOverlay;
 import org.envirocar.app.views.utils.MapUtils;
+import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.logging.Logger;
@@ -44,6 +58,7 @@ import org.envirocar.core.trackprocessing.statistics.TrackStatisticsProvider;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -75,10 +90,14 @@ public abstract class AbstractTrackListCardAdapter<E extends
     }
 
     protected final List<Track> mTrackDataset;
+    private List<Point> routeCoordinates = new ArrayList<>();
+    protected ArrayList<LatLng> latLngs = new ArrayList<>();
 
     protected Scheduler.Worker mMainThreadWorker = AndroidSchedulers.mainThread().createWorker();
 
     protected final OnTrackInteractionCallback mTrackInteractionCallback;
+    private LatLngBounds mTrackBoundingBox;
+    private LatLngBounds mViewBoundingBox;
 
     /**
      * Constructor.
@@ -94,6 +113,11 @@ public abstract class AbstractTrackListCardAdapter<E extends
     @Override
     public int getItemCount() {
         return mTrackDataset.size();
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return mTrackDataset.get(position).getTrackID().getId();
     }
 
     /**
@@ -122,7 +146,7 @@ public abstract class AbstractTrackListCardAdapter<E extends
     protected void bindLocalTrackViewHolder(TrackCardViewHolder holder, Track track) {
         holder.mDistance.setText("...");
         holder.mDuration.setText("...");
-
+        LOG.info("bindLocalTrackViewHolder()");
         // First, load the track from the dataset
         holder.mTitleTextView.setText(track.getName());
 
@@ -213,56 +237,80 @@ public abstract class AbstractTrackListCardAdapter<E extends
      */
     protected void initMapView(TrackCardViewHolder holder, Track track) {
         // First, clear the overlays in the MapView.
-        holder.mMapView.getOverlays().clear();
+        LOG.info("initMapView()");
+        TrackSpeedMapOverlay trackMapOverlay = new TrackSpeedMapOverlay(track);
+        final LatLngBounds viewBbox = trackMapOverlay.getViewBoundingBox();
+        TileSet layer = MapUtils.getOSMTileLayer();
+        holder.mMapView.addOnDidFailLoadingMapListener(holder.failLoadingMapListener);
+        holder.mMapView.getMapAsync(new OnMapReadyCallback() {
+            @Override
+            public void onMapReady(@NonNull MapboxMap tep) {
+                LOG.info("onMapReady()");
+                tep.getUiSettings().setLogoEnabled(false);
+                tep.getUiSettings().setAttributionEnabled(false);
+                tep.setStyle(new Style.Builder().fromUrl("https://api.maptiler.com/maps/basic/style.json?key=YJCrA2NeKXX45f8pOV6c "), new Style.OnStyleLoaded() {
+                    @Override
+                    public void onStyleLoaded(@NonNull Style style) {
+                        LOG.info("onStyleLoaded()");
+                        initRouteCoordinates(track);
+                        GeoJsonSource geoJsonSource = new GeoJsonSource("source-id", FeatureCollection.fromFeatures(new Feature[] {Feature.fromGeometry(
+                                LineString.fromLngLats(routeCoordinates)
+                        )}));
+                        style.addSource(geoJsonSource);
+                        LineLayer lineLayer = new LineLayer("linelayer", "source-id").withSourceLayer("source-id").withProperties(
+                                PropertyFactory.lineColor(Color.parseColor("#0065A0")),
+                                PropertyFactory.lineWidth(2f),
+                                PropertyFactory.lineCap(Property.LINE_CAP_ROUND)
+                        );
+                        style.addLayer(lineLayer);
+                        tep.moveCamera(CameraUpdateFactory.newLatLngBounds(mViewBoundingBox, 50));
+                    }
+                });
 
-        // Set the openstreetmap tile layer as baselayer of the map.
-        WebSourceTileLayer layer = MapUtils.getOSMTileLayer();
-        holder.mMapView.setTileSource(layer);
+            }
+        });
+    }
 
-        // set the bounding box and min and max zoom level accordingly.
-        BoundingBox box = layer.getBoundingBox();
-        holder.mMapView.setDiskCacheEnabled(true);
-        holder.mMapView.setScrollableAreaLimit(box);
-        holder.mMapView.setMinZoomLevel(holder.mMapView.getTileProvider().getMinimumZoomLevel());
-        holder.mMapView.setMaxZoomLevel(holder.mMapView.getTileProvider().getMaximumZoomLevel());
-//        holder.mMapView.setCenter(holder.mMapView.getTileProvider().getCenterCoordinate());
-        holder.mMapView.setZoom(0);
+    @Override
+    public void onViewAttachedToWindow(@NonNull E holder) {
+        super.onViewAttachedToWindow(holder);
+        holder.mMapView.onStart();
+        holder.mMapView.onResume();
 
-        if (track.getMeasurements().size() > 0) {
-            new AsyncTask<Void, Void, Void>() {
-                @Override
-                protected Void doInBackground(Void... params) {
-                    // Configure the line representation.
-                    Paint linePaint = new Paint();
-                    linePaint.setStyle(Paint.Style.STROKE);
-                    linePaint.setColor(Color.BLUE);
-                    linePaint.setStrokeWidth(5);
+    }
 
-                    TrackSpeedMapOverlay trackMapOverlay = new TrackSpeedMapOverlay(track);
-                    trackMapOverlay.setPaint(linePaint);
+    @Override
+    public void onViewDetachedFromWindow(@NonNull E holder) {
+        super.onViewDetachedFromWindow(holder);
+        holder.mMapView.onPause();
+        holder.mMapView.onStop();
+    }
 
-                    final BoundingBox bbox = trackMapOverlay.getTrackBoundingBox();
-                    final BoundingBox viewBbox = trackMapOverlay.getViewBoundingBox();
-                    final BoundingBox scrollableLimit = trackMapOverlay.getScrollableLimitBox();
-
-                    LOG.warn("trying to zoom to track bbox");
-                    mMainThreadWorker.schedule(new Action0() {
-                        @Override
-                        public void call() {
-                            holder.mMapView.getOverlays().add(trackMapOverlay);
-                            LOG.warn("bbox " + bbox);
-                            // Set the computed parameters on the main thread.
-                            holder.mMapView.setScrollableAreaLimit(scrollableLimit);
-                            LOG.warn("scrollable limit " + scrollableLimit.toString());
-                            holder.mMapView.setConstraintRegionFit(true);
-                            holder.mMapView.zoomToBoundingBox(viewBbox, true);
-                            LOG.warn("zooming to " + viewBbox.toString());
-                        }
-                    });
-                    return null;
-                }
-            }.execute();
+    private void initRouteCoordinates(Track track) {
+        // Create a list to store our line coordinates.
+        routeCoordinates.clear();
+        List<Measurement> temp = track.getMeasurements();
+        for(Measurement measurement : temp)
+        {
+            routeCoordinates.add(Point.fromLngLat(measurement.getLongitude(),measurement.getLatitude()));
         }
+        LOG.info("routeCoordinates of " + track.getName() +": " + routeCoordinates.size());
+        LOG.info(routeCoordinates.get(0).toString());
+        latLngs.clear();
+        for(int i = 0; i< routeCoordinates.size(); ++i){
+            latLngs.add(new LatLng(routeCoordinates.get(i).latitude(), routeCoordinates.get(i).longitude()));
+        }
+
+        mTrackBoundingBox = new LatLngBounds.Builder()
+                .includes(latLngs)
+                .build();
+
+        // The view bounding box of the pathoverlay
+        mViewBoundingBox = LatLngBounds.from(
+                mTrackBoundingBox.getLatNorth() + 0.01,
+                mTrackBoundingBox.getLonEast() + 0.01,
+                mTrackBoundingBox.getLatSouth() - 0.01,
+                mTrackBoundingBox.getLonWest() - 0.01);
     }
 
     /**
@@ -282,10 +330,13 @@ public abstract class AbstractTrackListCardAdapter<E extends
         protected TextView mDistance;
         @BindView(R.id.track_details_attributes_header_duration)
         protected TextView mDuration;
+        protected MapboxMap mapboxMap;
         @BindView(R.id.fragment_tracklist_cardlayout_map)
         protected MapView mMapView;
         @BindView(R.id.fragment_tracklist_cardlayout_invis_mapbutton)
         protected ImageButton mInvisMapButton;
+
+        protected MapView.OnDidFailLoadingMapListener failLoadingMapListener;
 
         /**
          * Constructor.
@@ -296,6 +347,12 @@ public abstract class AbstractTrackListCardAdapter<E extends
             super(itemView);
             this.mItemView = itemView;
             ButterKnife.bind(this, itemView);
+            failLoadingMapListener = new MapView.OnDidFailLoadingMapListener() {
+                @Override
+                public void onDidFailLoadingMap(String errorMessage) {
+                    LOG.info("Map loading failed : " + errorMessage);
+                }
+            };
         }
     }
 

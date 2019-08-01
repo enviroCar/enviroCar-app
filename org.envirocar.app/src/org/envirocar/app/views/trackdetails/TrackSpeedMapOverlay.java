@@ -18,55 +18,51 @@
  */
 package org.envirocar.app.views.trackdetails;
 
+import android.animation.ArgbEvaluator;
 import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Path;
-import android.graphics.PointF;
-import android.graphics.Rect;
 
-import com.mapbox.mapboxsdk.geometry.BoundingBox;
-import com.mapbox.mapboxsdk.overlay.PathOverlay;
+import com.mapbox.geojson.BoundingBox;
+import com.mapbox.geojson.Feature;
+import com.mapbox.geojson.FeatureCollection;
+import com.mapbox.geojson.LineString;
+import com.mapbox.mapboxsdk.geometry.LatLngBounds;
+import com.mapbox.mapboxsdk.style.expressions.Expression;
+import com.mapbox.mapboxsdk.style.layers.LineLayer;
+import com.mapbox.mapboxsdk.style.layers.Property;
+import com.mapbox.mapboxsdk.style.sources.GeoJsonOptions;
+import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.logging.Logger;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+
+import static com.mapbox.mapboxsdk.style.expressions.Expression.interpolate;
+import static com.mapbox.mapboxsdk.style.expressions.Expression.lineProgress;
+import static com.mapbox.mapboxsdk.style.expressions.Expression.linear;
+import static com.mapbox.mapboxsdk.style.expressions.Expression.rgb;
+import static com.mapbox.mapboxsdk.style.expressions.Expression.stop;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineCap;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineGradient;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineJoin;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineWidth;
 
 /**
  * @author dewall
  */
-public class TrackSpeedMapOverlay extends PathOverlay {
+public class TrackSpeedMapOverlay extends MapLayer{
     private static final Logger LOG = Logger.getLogger(TrackSpeedMapOverlay.class);
-
+    public static final String GRADIENT_LAYER = "gradient-layer";
+    public static final String GRADIENT_SOURCE = "source-layer";
+    private Float gradMax, gradMin;
     private final Track mTrack;
 
-    /**
-     * Paint settings.
-     */
-    private final Path mPath = new Path();
-    private Paint mLinePaint;
-
-    // bounding rectangle for the current line segment.
-    private final Rect mLineBounds = new Rect();
-
-    private BoundingBox mTrackBoundingBox;
-    private BoundingBox mViewBoundingBox;
-    private BoundingBox mScrollableLimitBox;
-
-    private int mPointsPrecomputed;
-    private ArrayList<PointF> mPoints;
-    private ArrayList<Double> mValues;
-
-    private boolean mOptimizePath = true;
-
-    private final PointF mTempPoint1 = new PointF();
-    private final PointF mTempPoint2 = new PointF();
-
-    private List<Path> mPaths = new ArrayList<>();
-    private List<Paint> mPaints = new ArrayList<>();
-
+    protected LatLngBounds mTrackBoundingBox;
+    protected LatLngBounds mViewBoundingBox;
+    protected LatLngBounds mScrollableLimitBox;
     /**
      * Constructor.
      *
@@ -75,23 +71,154 @@ public class TrackSpeedMapOverlay extends PathOverlay {
     public TrackSpeedMapOverlay(Track track) {
         super();
         mTrack = track;
-
-        // Configure the line representation.
-        Paint linePaint = new Paint();
-        linePaint.setStyle(Paint.Style.STROKE);
-        linePaint.setColor(Color.BLUE);
-        linePaint.setStrokeWidth(5);
-
-        initPath();
-        setOverlayIndex(1);
+        if(track.getMeasurements()!=null && track.getMeasurements().size() > 1)
+            initPath();
+        else
+        {
+            addPoint(7.635147738274369, 51.96057578167202);
+            addPoint(7.635078051137631, 51.96024289279303);
+            setBoundingBoxes();
+        }
     }
 
-//    @Override
-//    public void addPoint(double aLatitude, double aLongitude) {
-//        mPoints.add(new PointF((float) aLatitude, (float) aLongitude));
-//    }
-//
-//    @Override
+    /**
+     * Initializes the track path and the bounding boxes required by the mapviews.
+     */
+    private void initPath() {
+
+        List<Measurement> measurementList = mTrack.getMeasurements();
+
+        // For each measurement value add the longitude and latitude coordinates as a new
+        // mappoint to the point list. In addition, try to find out the maximum and minimum
+        // lon/lat coordinates for the zoom value of the mapview.
+        for (Measurement measurement : measurementList) {
+            double latitude = measurement.getLatitude();
+            double longitude = measurement.getLongitude();
+
+            if(latitude == 0.0 || longitude == 0.0) {
+                LOG.warn("An coordinate was 0.0");
+                continue;
+            }
+            addPoint(latitude, longitude);
+        }
+        setGeoJsonSource();
+        setBoundingBoxes();
+    }
+
+    protected void setBoundingBoxes(){
+        // The bounding box of the pathoverlay.
+        mTrackBoundingBox = new LatLngBounds.Builder()
+                .includes(latLngs)
+                .build();
+
+        // The view bounding box of the pathoverlay
+        mViewBoundingBox = LatLngBounds.from(
+                mTrackBoundingBox.getLatNorth() + 0.01,
+                mTrackBoundingBox.getLonEast() + 0.01,
+                mTrackBoundingBox.getLatSouth() - 0.01,
+                mTrackBoundingBox.getLonWest() - 0.01);
+
+        // The bounding box that limits the scrolling of the mapview.
+        mScrollableLimitBox = LatLngBounds.from(
+                mTrackBoundingBox.getLatNorth() + 0.05,
+                mTrackBoundingBox.getLonEast() + 0.05,
+                mTrackBoundingBox.getLatSouth() - 0.05,
+                mTrackBoundingBox.getLonWest() - 0.05);
+    }
+
+    /**
+     * Gets the {@link BoundingBox} of the track.
+     *
+     * @return the BoundingBox of the track.
+     */
+    public LatLngBounds getTrackBoundingBox() {
+        return mTrackBoundingBox;
+    }
+
+    /**
+     * Gets the view {@link BoundingBox} of the track, which is a slightly buffered bounding box
+     * for zoom purposes of the track.
+     *
+     * @return the BoundingBox of the track.
+     */
+    public LatLngBounds getViewBoundingBox() {
+        return mViewBoundingBox;
+    }
+
+    /**
+     * Gets the {@link BoundingBox} that is used as a scrollable limit of the track in the mapview.
+     *
+     * @return the BoundingBox of the track.
+     */
+    public LatLngBounds getScrollableLimitBox() {
+        return mScrollableLimitBox;
+    }
+
+    public LineLayer getGradientLineLayer(Measurement.PropertyKey propertyKey){
+        List<Measurement> measurements = mTrack.getMeasurements();
+        Float size = (float)measurements.size(), i= 0f;
+        if(size>2)
+        {
+            List<Double> propertyValues = new ArrayList<>();
+            for(Measurement measurement : measurements){
+                if(measurement.hasProperty(propertyKey))
+                    propertyValues.add(measurement.getProperty(propertyKey));
+                else
+                    propertyValues.add(Double.valueOf(0));
+            }
+
+            Double min = Double.valueOf(0);
+            Double max = Collections.max(propertyValues);
+            gradMax = max.floatValue();
+            gradMin = min.floatValue();
+            int startColor = Color.parseColor("#00FF00");
+            int endColor = Color.parseColor("#FF0000");
+            ArgbEvaluator evaluator = new ArgbEvaluator();
+            List<Expression.Stop> stops  = new ArrayList<>();
+
+            for(Double value : propertyValues){
+                Double fraction = value / max;
+                Float stop = i / size;
+                Integer temp = (Integer) evaluator.evaluate(fraction.floatValue(), startColor, endColor);
+                stops.add(Expression.stop(stop, rgb(Color.red(temp), Color.green(temp), Color.blue(temp))));
+                i++;
+            }
+            return new LineLayer(GRADIENT_LAYER, GRADIENT_SOURCE).withProperties(
+                    lineCap(Property.LINE_CAP_ROUND),
+                    lineJoin(Property.LINE_JOIN_ROUND),
+                    lineWidth(4f),
+                    lineGradient(interpolate(
+                            linear(), lineProgress(),
+                            stops.toArray(new Expression.Stop[0])
+                    )));
+
+        } else{
+            return new LineLayer(GRADIENT_LAYER, GRADIENT_SOURCE).withProperties(
+                    lineCap(Property.LINE_CAP_ROUND),
+                    lineJoin(Property.LINE_JOIN_ROUND),
+                    lineWidth(4f),
+                    lineGradient(interpolate(
+                            linear(), lineProgress(),
+                            stop(0f, rgb(6, 1, 255))
+                    )));
+        }
+    }
+
+    public GeoJsonSource getGradientGeoJSONSource(){
+        return new GeoJsonSource(GRADIENT_SOURCE, FeatureCollection.fromFeatures(new Feature[] {Feature.fromGeometry(
+                LineString.fromLngLats(mPoints)
+        )}), new GeoJsonOptions().withLineMetrics(true));
+    }
+
+    public Float getGradMax() {
+        return gradMax;
+    }
+
+    public Float getGradMin() {
+        return gradMin;
+    }
+
+    //    @Override
 //    public int getNumberOfPoints() {
 //        return mPoints.size();
 //    }
@@ -196,87 +323,4 @@ public class TrackSpeedMapOverlay extends PathOverlay {
 ////        }
 ////        return Color.RED;
 //    }
-
-    /**
-     * Initializes the track path and the bounding boxes required by the mapviews.
-     */
-    private void initPath() {
-        mPoints = new ArrayList<>();
-        mValues = new ArrayList<>();
-
-        List<Measurement> measurementList = mTrack.getMeasurements();
-
-        double maxLatitude = Double.MIN_VALUE;
-        double minLatitude = Double.MAX_VALUE;
-        double maxLongitude = Double.MIN_VALUE;
-        double minLongitude = Double.MAX_VALUE;
-
-        // For each measurement value add the longitude and latitude coordinates as a new
-        // mappoint to the overlay network. In addition, try to find out the maximum and minimum
-        // lon/lat coordinates for the zoom value of the mapview.
-        for (Measurement measurement : measurementList) {
-            double latitude = measurement.getLatitude();
-            double longitude = measurement.getLongitude();
-
-            if(latitude == 0.0 || longitude == 0.0) {
-                LOG.warn("An coordinate was 0.0");
-                continue;
-            }
-
-            addPoint(measurement.getLatitude(), measurement.getLongitude());
-            mValues.add(measurement.getProperty(Measurement.PropertyKey.SPEED));
-
-            maxLatitude = Math.max(maxLatitude, latitude);
-            minLatitude = Math.min(minLatitude, latitude);
-            maxLongitude = Math.max(maxLongitude, longitude);
-            minLongitude = Math.min(minLongitude, longitude);
-        }
-
-        LOG.warn("maxLongitude = " + maxLongitude);
-
-        // The bounding box of the pathoverlay.
-        mTrackBoundingBox = new BoundingBox(maxLatitude, maxLongitude, minLatitude, minLongitude);
-
-        // The view bounding box of the pathoverlay
-        mViewBoundingBox = new BoundingBox(
-                mTrackBoundingBox.getLatNorth() + 0.01,
-                mTrackBoundingBox.getLonEast() + 0.01,
-                mTrackBoundingBox.getLatSouth() - 0.01,
-                mTrackBoundingBox.getLonWest() - 0.01);
-
-        // The bounding box that limits the scrolling of the mapview.
-        mScrollableLimitBox = new BoundingBox(
-                mTrackBoundingBox.getLatNorth() + 0.05,
-                mTrackBoundingBox.getLonEast() + 0.05,
-                mTrackBoundingBox.getLatSouth() - 0.05,
-                mTrackBoundingBox.getLonWest() - 0.05);
-    }
-
-    /**
-     * Gets the {@link BoundingBox} of the track.
-     *
-     * @return the BoundingBox of the track.
-     */
-    public BoundingBox getTrackBoundingBox() {
-        return mTrackBoundingBox;
-    }
-
-    /**
-     * Gets the view {@link BoundingBox} of the track, which is a slightly buffered bounding box
-     * for zoom purposes of the track.
-     *
-     * @return the BoundingBox of the track.
-     */
-    public BoundingBox getViewBoundingBox() {
-        return mViewBoundingBox;
-    }
-
-    /**
-     * Gets the {@link BoundingBox} that is used as a scrollable limit of the track in the mapview.
-     *
-     * @return the BoundingBox of the track.
-     */
-    public BoundingBox getScrollableLimitBox() {
-        return mScrollableLimitBox;
-    }
 }
