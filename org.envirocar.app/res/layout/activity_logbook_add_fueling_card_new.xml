@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/logbook_layout_addfueling_toolbar3"
+        style="@style/ToolBarStyle"
+        android:layout_width="match_parent"
+        android:layout_height="?actionBarSize"
+        android:background="@color/blue_dark_cario"
+        android:elevation="@dimen/spacing_medium"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/raleway_semibold"
+            android:gravity="center"
+            android:text="@string/logbook_add_fueling"
+            android:textColor="@color/white_cario"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            tools:layout_editor_absoluteX="136dp"
+            tools:layout_editor_absoluteY="16dp" />
+
+    </androidx.appcompat.widget.Toolbar>
+
+    <TextView
+        android:id="@+id/activity_log_book_add_fueling_toolbar_exp1"
+        android:layout_width="411dp"
+        android:layout_height="30dp"
+        android:layout_alignParentBottom="true"
+        android:background="@color/blue_dark_cario"
+        android:gravity="bottom"
+        android:padding="10dp"
+        android:textColor="@color/white_cario"
+        android:textSize="14sp"
+        app:layout_constraintTop_toBottomOf="@+id/logbook_layout_addfueling_toolbar3"
+        tools:layout_editor_absoluteX="0dp" />
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="24dp"
+        android:fillViewport="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/activity_log_book_add_fueling_toolbar_exp1"
+        app:layout_constraintVertical_bias="1.0">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/activity_logbook_add_fueling_card_content1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/textView22"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginStart="24dp"
+                android:layout_marginLeft="24dp"
+                android:layout_marginTop="16dp"
+                android:fontFamily="@font/raleway_semibold"
+                android:text="@string/logbook_fueling_details_header"
+                android:textColor="@color/blue_dark_cario"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <AutoCompleteTextView
+                android:id="@+id/activity_logbook_add_fueling_car_selection2"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="24dp"
+                android:layout_marginLeft="24dp"
+                android:layout_marginTop="4dp"
+                android:layout_marginEnd="48dp"
+                android:layout_marginRight="48dp"
+                android:gravity="center_vertical|left"
+                android:paddingStart="0dp"
+                android:paddingLeft="0dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView30" />
+
+            <TextView
+                android:id="@+id/textView23"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="@dimen/spacing_medium"
+                android:fontFamily="@font/raleway_semibold"
+                android:text="@string/logbook_milage"
+                android:textColor="#000000"
+                android:textSize="14sp"
+                app:layout_constraintBottom_toBottomOf="@+id/textView26"
+                app:layout_constraintStart_toStartOf="@+id/logbook_add_fueling_volumetext2" />
+
+            <EditText
+                android:id="@+id/logbook_add_fueling_milagetext2"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="8dp"
+                android:height="40dp"
+                android:hint="0.00 km"
+                android:inputType="number"
+                android:textSize="18sp"
+                app:layout_constraintStart_toStartOf="@+id/textView23"
+                app:layout_constraintTop_toBottomOf="@+id/textView23" />
+
+            <TextView
+                android:id="@+id/textView24"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="@dimen/spacing_medium"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp"
+                android:fontFamily="@font/raleway_semibold"
+                android:text="@string/logbook_volume"
+                android:textColor="#000000"
+                android:textSize="14sp"
+                app:layout_constraintBottom_toTopOf="@+id/logbook_add_fueling_volumetext2"
+                app:layout_constraintStart_toStartOf="@+id/activity_logbook_add_fueling_car_selection2"
+                app:layout_constraintTop_toBottomOf="@+id/activity_logbook_add_fueling_car_selection2" />
+
+            <EditText
+                android:id="@+id/logbook_add_fueling_volumetext2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:height="40dp"
+                android:hint="0.00 l"
+                android:inputType="numberDecimal"
+                android:textSize="18sp"
+                app:layout_constraintStart_toStartOf="@+id/textView24"
+                tools:layout_editor_absoluteY="191dp" />
+
+            <TextView
+                android:id="@+id/textView25"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="@dimen/spacing_medium"
+                android:fontFamily="@font/raleway_semibold"
+                android:text="@string/logbook_priceperlitre"
+                android:textColor="#000000"
+                android:textSize="14sp"
+                app:layout_constraintBottom_toBottomOf="@+id/textView24"
+                app:layout_constraintEnd_toEndOf="@+id/activity_logbook_add_fueling_car_selection2"
+                app:layout_constraintTop_toTopOf="@+id/textView24" />
+
+            <EditText
+                android:id="@+id/logbook_add_fueling_priceperlitretext2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:height="40dp"
+                android:hint="0.00 €/l"
+                android:inputType="numberDecimal"
+                android:textSize="18sp"
+                app:layout_constraintStart_toStartOf="@+id/textView25"
+                tools:layout_editor_absoluteY="191dp" />
+
+            <TextView
+                android:id="@+id/textView26"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="@dimen/spacing_medium"
+                android:layout_marginTop="24dp"
+                android:fontFamily="@font/raleway_semibold"
+                android:text="@string/logbook_total_price"
+                android:textColor="#000000"
+                android:textSize="14sp"
+                app:layout_constraintStart_toStartOf="@+id/logbook_add_fueling_priceperlitretext2"
+                app:layout_constraintTop_toBottomOf="@+id/logbook_add_fueling_priceperlitretext2" />
+
+            <EditText
+                android:id="@+id/logbook_add_fueling_totalpricetext2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_weight="2"
+                android:height="40dp"
+                android:hint="0.00 €"
+                android:inputType="numberDecimal"
+                android:textSize="18sp"
+                app:layout_constraintStart_toStartOf="@+id/textView26"
+                app:layout_constraintTop_toBottomOf="@+id/textView26" />
+
+            <TextView
+                android:id="@+id/textView27"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="@dimen/spacing_medium"
+                android:layout_marginStart="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_weight="3"
+                android:text="@string/logbook_partial_fueling"
+                android:textSize="12sp"
+                app:layout_constraintBottom_toBottomOf="@+id/logbook_add_fueling_partialfueling_checkbox2"
+                app:layout_constraintEnd_toStartOf="@+id/logbook_add_fueling_partialfueling_checkbox2"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/logbook_add_fueling_partialfueling_checkbox2" />
+
+            <CheckBox
+                android:id="@+id/logbook_add_fueling_partialfueling_checkbox2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_gravity="center"
+                android:layout_marginEnd="24dp"
+                android:layout_marginRight="24dp"
+                android:gravity="center"
+                app:layout_constraintBottom_toBottomOf="@+id/textView28"
+                app:layout_constraintEnd_toStartOf="@+id/textView28"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/textView27"
+                app:layout_constraintTop_toTopOf="@+id/textView28" />
+
+            <TextView
+                android:id="@+id/textView28"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="@dimen/spacing_medium"
+                android:layout_marginStart="24dp"
+                android:layout_marginLeft="24dp"
+                android:layout_weight="3"
+                android:text="@string/logbook_missed_fueling"
+                android:textSize="12sp"
+                app:layout_constraintBottom_toBottomOf="@+id/logbook_add_fueling_missedfueling_checkbox2"
+                app:layout_constraintEnd_toStartOf="@+id/logbook_add_fueling_missedfueling_checkbox2"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/logbook_add_fueling_partialfueling_checkbox2"
+                app:layout_constraintTop_toTopOf="@+id/logbook_add_fueling_missedfueling_checkbox2" />
+
+            <CheckBox
+                android:id="@+id/logbook_add_fueling_missedfueling_checkbox2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_gravity="center"
+                android:layout_marginTop="24dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginRight="8dp"
+                android:gravity="center"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/textView28"
+                app:layout_constraintTop_toBottomOf="@+id/logbook_add_fueling_totalpricetext2" />
+
+            <TextView
+                android:id="@+id/textView29"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="48dp"
+                android:fontFamily="@font/raleway_semibold"
+                android:text="Kommentar"
+                android:textColor="#000000"
+                android:textSize="14sp"
+                app:layout_constraintStart_toStartOf="@+id/logbook_add_fueling_comment2"
+                app:layout_constraintTop_toBottomOf="@+id/logbook_add_fueling_partialfueling_checkbox2" />
+
+            <EditText
+                android:id="@+id/logbook_add_fueling_comment2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:layout_marginLeft="24dp"
+                android:layout_marginEnd="24dp"
+                android:layout_marginRight="24dp"
+                android:inputType="text"
+                android:maxLines="1"
+                android:singleLine="true"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                tools:layout_editor_absoluteY="502dp" />
+
+            <include
+                android:id="@+id/layout_general_info_background"
+                layout="@layout/layout_general_info_background"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/textView30"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:fontFamily="@font/raleway_semibold"
+                android:text="Car Name"
+                android:textColor="#000000"
+                app:layout_constraintStart_toStartOf="@+id/activity_logbook_add_fueling_car_selection2"
+                app:layout_constraintTop_toBottomOf="@+id/textView22" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

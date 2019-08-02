@@ -39,8 +39,8 @@
             android:gravity="center"
             android:text="@string/logbook_add_fueling"
             android:textColor="@color/white_cario"
-            android:textSize="18sp"
-            android:textStyle="bold"/>
+            android:textSize="20sp"
+            android:textStyle="bold" />
 
     </androidx.appcompat.widget.Toolbar>
 
@@ -59,12 +59,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
-                android:layout_marginBottom="@dimen/spacing_medium"
                 android:layout_marginLeft="@dimen/spacing_large"
+                android:layout_marginBottom="@dimen/spacing_medium"
                 android:gravity="bottom"
                 android:text="@string/logbook_enter_info"
                 android:textColor="@color/white_cario"
-                android:textSize="13sp"/>
+                android:textSize="14sp" />
         </RelativeLayout>
     </LinearLayout>
 
