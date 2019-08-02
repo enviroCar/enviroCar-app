@@ -19,6 +19,8 @@
 package org.envirocar.app.views.logbook;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import com.google.android.material.snackbar.Snackbar;
 import androidx.appcompat.widget.Toolbar;
@@ -122,10 +124,21 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
         ButterKnife.bind(this);
 
         // Initializes the Toolbar.
+        toolbar.inflateMenu(R.menu.menu_test);
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("Logbook");
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                AlertDialog.Builder b = new AlertDialog.Builder(LogbookActivity.this);
+                b.setMessage("Long press the card if you want to delete it.");
+                b.show();
+                return false;
+            }
+        });
 
         fuelingListAdapter = new LogbookListAdapter(this, fuelings);
         fuelingList.setAdapter(fuelingListAdapter);
@@ -225,6 +238,7 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
      */
     private void downloadFuelings() {
         LOG.info("downloadFuelings()");
+        showInfoBackground("Loading...", "Getting fuelings from the server");
         subscription.add(daoProvider.getFuelingDAO().getFuelingsObservable()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -324,6 +338,13 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
     private void showInfoBackground(int imgResource, int firstLine, int secondLine) {
         LOG.info("showInfoBackground()");
         infoBackgroundImg.setImageResource(imgResource);
+        infoBackgroundFirst.setText(firstLine);
+        infoBackgroundSecond.setText(secondLine);
+        ECAnimationUtils.animateShowView(this, infoBackground, R.anim.fade_in);
+    }
+
+    private void showInfoBackground(String firstLine, String secondLine) {
+        LOG.info("showInfoBackground()");
         infoBackgroundFirst.setText(firstLine);
         infoBackgroundSecond.setText(secondLine);
         ECAnimationUtils.animateShowView(this, infoBackground, R.anim.fade_in);

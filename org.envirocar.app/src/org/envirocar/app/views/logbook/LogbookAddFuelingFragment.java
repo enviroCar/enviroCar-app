@@ -29,6 +29,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -111,6 +112,8 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
     protected CheckBox missedFuelingCheckbox;
     @BindView(R.id.logbook_add_fueling_comment)
     protected EditText commentText;
+    @BindView(R.id.add_fueling_button)
+    protected Button addFuelingButton;
 
     @BindView(R.id.layout_general_info_background)
     protected View infoBackground;
@@ -135,19 +138,18 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
         super.onCreateView(inflater, container, savedInstanceState);
 
         // Inflate the view and inject the annotated view.
-        View view = inflater.inflate(R.layout.activity_logbook_add_fueling_card, container, false);
+        View view = inflater.inflate(R.layout.activity_logbook_add_fueling_card_new, container, false);
         ButterKnife.bind(this, view);
 
         addFuelingToolbar.setNavigationIcon(R.drawable.ic_close_white_24dp);
-        addFuelingToolbar.inflateMenu(R.menu.menu_logbook_add_fueling);
+        //addFuelingToolbar.inflateMenu(R.menu.menu_logbook_add_fueling);
       
         addFuelingToolbar.setNavigationOnClickListener(v ->
                             closeThisFragment());
 
-        addFuelingToolbar.setOnMenuItemClickListener(item -> {
+        addFuelingButton.setOnClickListener(item -> {
             onClickAddFueling();
             hideKeyboard(getView());
-            return true;
         });
 
         // initially we set the toolbar exp to gone

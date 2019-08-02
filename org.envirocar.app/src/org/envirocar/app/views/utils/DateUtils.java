@@ -50,7 +50,7 @@ public class DateUtils {
         } else if(now.get(Calendar.DATE) - time.get(Calendar.DATE) == 1){
             return context.getString(R.string.yesterday);
         } else {
-            return DateFormat.format("EE, MM yyyy", time).toString();
+            return DateFormat.format("EE, dd MMM yy", time).toString();
 //            return DateFormat.format("MMMM dd yyyy, h:mm aa", time).toString();
         }
     }

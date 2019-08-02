@@ -42,9 +42,10 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:alpha="0.54"
+            android:fontFamily="@font/raleway_semibold"
             android:text="NO FUELINGS"
             android:textSize="24sp"
-            android:textStyle="bold"/>
+            android:textStyle="bold" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -52,8 +53,9 @@
             android:layout_gravity="center"
             android:layout_margin="@dimen/spacing_large"
             android:alpha="0.54"
+            android:fontFamily="@font/raleway_semibold"
             android:gravity="center"
-            android:text="There are no fuelings assigned\nto the current user."/>
+            android:text="There are no fuelings assigned\nto the current user." />
 
     </LinearLayout>
 </RelativeLayout>

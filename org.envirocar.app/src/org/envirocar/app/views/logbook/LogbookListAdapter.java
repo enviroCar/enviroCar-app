@@ -73,7 +73,7 @@ public class LogbookListAdapter extends ArrayAdapter<Fueling> {
 
         FuelingViewHolder holder = null;
         if (convertView == null) {
-            convertView = inflater.inflate(R.layout.activity_logbook_listentry, parent, false);
+            convertView = inflater.inflate(R.layout.activity_logbook_listentry_new, parent, false);
             holder = new FuelingViewHolder(convertView);
             convertView.setTag(holder);
         } else {
@@ -93,8 +93,9 @@ public class LogbookListAdapter extends ArrayAdapter<Fueling> {
                 fueling.getMilage(), fueling.getVolume()));
 
         Car car = fueling.getCar();
-        holder.car.setText(String.format("%s %s (%s / %sccm)",
-                car.getManufacturer(), car.getModel(),
+        holder.car.setText(String.format("%s %s",
+                car.getManufacturer(), car.getModel()));
+        holder.carSub.setText(String.format("(%s / %sccm)",
                 car.getConstructionYear(), car.getEngineDisplacement()));
 
         String comment = fueling.getComment();
@@ -130,6 +131,8 @@ public class LogbookListAdapter extends ArrayAdapter<Fueling> {
 
         @BindView(R.id.activity_logbook_listentry_car)
         protected TextView car;
+        @BindView(R.id.activity_logbook_listentry_car_sub)
+        protected TextView carSub;
         @BindView(R.id.activity_logbook_listentry_comment_view)
         protected View commentView;
         @BindView(R.id.activity_logbook_listentry_comment)
