@@ -25,6 +25,8 @@ import com.google.android.material.snackbar.Snackbar;
 import androidx.appcompat.widget.Toolbar;
 import android.text.InputFilter;
 import android.text.Spanned;
+import android.transition.ChangeBounds;
+import android.transition.TransitionManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -88,10 +90,12 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
         DECIMAL_FORMATTER_3.setDecimalFormatSymbols(symbols);
     }
 
-    @BindView(R.id.logbook_layout_addfueling_toolbar)
-    protected Toolbar addFuelingToolbar;
+    //@BindView(R.id.logbook_layout_addfueling_toolbar)
+    //protected Toolbar addFuelingToolbar;
     @BindView(R.id.activity_log_book_add_fueling_toolbar_exp)
     protected View addFuelingToolbarExp;
+    @BindView(R.id.activity_log_book_add_fueling_toolbar_exp_txt)
+    protected View addFuelingToolbarExpTxt;
     @BindView(R.id.activity_logbook_add_fueling_card_content)
     protected View contentView;
     @BindView(R.id.activity_logbook_add_fueling_card_scrollview)
@@ -114,6 +118,8 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
     protected EditText commentText;
     @BindView(R.id.add_fueling_button)
     protected Button addFuelingButton;
+    @BindView(R.id.closeButton)
+    protected ImageView closeButton;
 
     @BindView(R.id.layout_general_info_background)
     protected View infoBackground;
@@ -141,11 +147,11 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
         View view = inflater.inflate(R.layout.activity_logbook_add_fueling_card_new, container, false);
         ButterKnife.bind(this, view);
 
-        addFuelingToolbar.setNavigationIcon(R.drawable.ic_close_white_24dp);
+        //addFuelingToolbar.setNavigationIcon(R.drawable.ic_close_white_24dp);
         //addFuelingToolbar.inflateMenu(R.menu.menu_logbook_add_fueling);
       
-        addFuelingToolbar.setNavigationOnClickListener(v ->
-                            closeThisFragment());
+        closeButton.setOnClickListener(v->
+                closeThisFragment());
 
         addFuelingButton.setOnClickListener(item -> {
             onClickAddFueling();
@@ -153,8 +159,10 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
         });
 
         // initially we set the toolbar exp to gone
-        addFuelingToolbar.setVisibility(View.GONE);
+        //addFuelingToolbar.setVisibility(View.GONE);
         addFuelingToolbarExp.setVisibility(View.GONE);
+        addFuelingToolbarExpTxt.setVisibility(View.GONE);
+        closeButton.setVisibility(View.GONE);
         contentScrollview.setVisibility(View.GONE);
 
         initTextViews();
@@ -196,9 +204,11 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
     public void onResume() {
         LOG.info("onResume()");
         super.onResume();
-        ECAnimationUtils.animateShowView(getContext(), addFuelingToolbar,
-                R.anim.translate_slide_in_top_fragment);
         ECAnimationUtils.animateShowView(getContext(), addFuelingToolbarExp,
+                R.anim.translate_slide_in_top_fragment);
+        ECAnimationUtils.animateShowView(getContext(), addFuelingToolbarExpTxt,
+                R.anim.translate_slide_in_top_fragment);
+        ECAnimationUtils.animateShowView(getContext(), closeButton,
                 R.anim.translate_slide_in_top_fragment);
         ECAnimationUtils.animateShowView(getContext(), contentScrollview,
                 R.anim.translate_slide_in_bottom_fragment);
@@ -243,7 +253,7 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
 
         if (car == null) {
             LOG.info("Cant create fueling entry, because the car is empty");
-            Snackbar.make(addFuelingToolbar,
+            Snackbar.make(addFuelingToolbarExp,
                     "You must have selected a car type for creating a fueling.",
                     Snackbar.LENGTH_LONG).show();
             return;
@@ -537,6 +547,7 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
     }
 
     private void setTotalPriceValue(double value) {
+        TransitionManager.beginDelayedTransition((ViewGroup) contentView, new ChangeBounds());
         addFuelingTotalCostText.setText(
                 (DECIMAL_FORMATTER_2.format(value) + " €").replaceAll(",", "."));
     }
@@ -574,7 +585,7 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
     }
 
     private void showSnackbarInfo(int resourceID) {
-        Snackbar.make(addFuelingToolbar, resourceID, Snackbar.LENGTH_LONG).show();
+        Snackbar.make(addFuelingToolbarExp, resourceID, Snackbar.LENGTH_LONG).show();
     }
 
     @Override
@@ -643,7 +654,7 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
         ECAnimationUtils.animateHideView(getContext(),
                 ((LogbookActivity) getActivity()).overlayView, R.anim.fade_out);
         ECAnimationUtils.animateHideView(getContext(), R.anim
-                .translate_slide_out_top_fragment, addFuelingToolbar, addFuelingToolbarExp);
+                .translate_slide_out_top_fragment, addFuelingToolbarExp, addFuelingToolbarExpTxt, closeButton);
         ECAnimationUtils.animateHideView(getContext(), contentScrollview, R.anim
                 .translate_slide_out_bottom, new Action0() {
             @Override
