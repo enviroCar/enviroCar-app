@@ -64,7 +64,7 @@ public class OnboardingActivity extends AppCompatActivity implements OnboardingF
             LOGGER.info("Openning BaseMainActivityBottomBar");
             startActivity(intent);
             finish();
-
+            overridePendingTransition(R.anim.fade_in,R.anim.fade_out);
         }
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
@@ -171,9 +171,9 @@ public class OnboardingActivity extends AppCompatActivity implements OnboardingF
         PreferencesHandler.getSharedPreferences(getApplicationContext()).edit().putBoolean(ONBOARDING_COMPLETE,true).apply();
         Intent main = new Intent(OnboardingActivity.this, LoginRegisterActivity.class);
         main.putExtra("from","login");
-        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         startActivity(main);
         finish();
+        overridePendingTransition(R.anim.fade_in,R.anim.fade_out);
     }
 
     @Override
@@ -181,17 +181,17 @@ public class OnboardingActivity extends AppCompatActivity implements OnboardingF
         PreferencesHandler.getSharedPreferences(getApplicationContext()).edit().putBoolean(ONBOARDING_COMPLETE,true).apply();
         Intent main = new Intent(OnboardingActivity.this, LoginRegisterActivity.class);
         main.putExtra("from","register");
-        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         startActivity(main);
         finish();
+        overridePendingTransition(R.anim.fade_in,R.anim.fade_out);
     }
 
     @Override
     public void skipButtonPressed(){
         PreferencesHandler.getSharedPreferences(getApplicationContext()).edit().putBoolean(ONBOARDING_COMPLETE,true).apply();
         Intent main = new Intent(OnboardingActivity.this, BaseMainActivityBottomBar.class);
-        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         startActivity(main);
         finish();
+        overridePendingTransition(R.anim.fade_in,R.anim.fade_out);
     }
 }

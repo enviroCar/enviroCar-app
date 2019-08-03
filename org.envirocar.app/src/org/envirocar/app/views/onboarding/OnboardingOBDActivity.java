@@ -9,6 +9,7 @@ import android.os.Bundle;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
 
+import android.transition.TransitionManager;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -41,6 +42,8 @@ public class OnboardingOBDActivity extends Activity {
     protected ConstraintLayout page2;
     @BindView(R.id.page3)
     protected ConstraintLayout page3;
+    @BindView(R.id.obd_pages)
+    protected ConstraintLayout pages;
     @BindView(R.id.continueButton)
     protected Button continueButton;
     @BindView(R.id.animatedView)
@@ -101,6 +104,7 @@ public class OnboardingOBDActivity extends Activity {
             public void onClick(View view) {
                 if(whichPage == 0){
                     whichPage = 1;
+                    TransitionManager.beginDelayedTransition(pages);
                     page1.setVisibility(View.GONE);
                     page2.setVisibility(View.VISIBLE);
                     page3.setVisibility(View.GONE);
@@ -113,6 +117,7 @@ public class OnboardingOBDActivity extends Activity {
             public void onClick(View view) {
                 if(whichPage == 1){
                     whichPage = 2;
+                    TransitionManager.beginDelayedTransition(page2);
                     page1.setVisibility(View.GONE);
                     page2.setVisibility(View.GONE);
                     page3.setVisibility(View.VISIBLE);
@@ -133,11 +138,13 @@ public class OnboardingOBDActivity extends Activity {
         }
         else if(whichPage == 1){
             whichPage =0;
+            TransitionManager.beginDelayedTransition(pages);
             page1.setVisibility(View.VISIBLE);
             page2.setVisibility(View.GONE);
             page3.setVisibility(View.GONE);
         }else if(whichPage == 2){
             whichPage =1;
+            TransitionManager.beginDelayedTransition(pages);
             page1.setVisibility(View.GONE);
             page2.setVisibility(View.VISIBLE);
             page3.setVisibility(View.GONE);

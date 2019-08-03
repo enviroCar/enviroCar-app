@@ -16,6 +16,7 @@
         android:layout_marginRight="8dp"
         android:fontFamily="@font/roboto_medium"
         android:gravity="center"
+        android:lineSpacingMultiplier="1.4"
         android:text="You are now ready to record tracks!"
         android:textColor="#084B76"
         android:textSize="24sp"
