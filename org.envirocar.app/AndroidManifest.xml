@@ -55,6 +55,9 @@
             android:name=".views.trackdetails.TrackDetailsActivity"
             android:screenOrientation="portrait" />
         <activity
+            android:name=".views.onboarding.OnboardingOBDActivity"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".views.carselection.CarSelectionActivity"
             android:screenOrientation="portrait" />
         <activity

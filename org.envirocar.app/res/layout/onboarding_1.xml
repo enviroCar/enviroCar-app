@@ -7,7 +7,7 @@
     android:orientation="vertical">
 
     <ImageView
-        android:id="@+id/imageView"
+        android:id="@+id/animatedView"
         android:layout_width="264dp"
         android:layout_height="175dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -29,6 +29,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView" />
+        app:layout_constraintTop_toBottomOf="@+id/animatedView" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

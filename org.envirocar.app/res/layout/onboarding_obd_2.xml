@@ -77,9 +77,9 @@
         app:layout_constraintGuide_percent="0.55" />
 
     <ImageView
-        android:id="@+id/imageView7"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
+        android:id="@+id/animatedView"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
         android:visibility="visible"
@@ -91,17 +91,20 @@
         app:srcCompat="@drawable/animated_check" />
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/continueButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@android:color/transparent"
+        android:fontFamily="@font/raleway_semibold"
         android:paddingLeft="18dp"
         android:paddingTop="12dp"
         android:paddingRight="18dp"
         android:paddingBottom="12dp"
         android:text="Continue"
+        android:textAllCaps="true"
         android:textColor="#084B76"
         android:textSize="18sp"
+        android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"

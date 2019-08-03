@@ -58,8 +58,8 @@
             android:paddingTop="12dp"
             android:paddingRight="18dp"
             android:paddingBottom="12dp"
-            android:text="Done"
-            android:textColor="#36759B"
+            android:text="DONE"
+            android:textColor="#084B76"
             android:textSize="18sp"
             app:layout_constraintBottom_toBottomOf="@+id/obdTroubleshoot"
             app:layout_constraintEnd_toEndOf="parent"
@@ -118,6 +118,10 @@
             android:layout_marginEnd="32dp"
             android:layout_marginRight="32dp"
             android:fontFamily="@font/raleway_semibold"
+            android:paddingLeft="18dp"
+            android:paddingTop="12dp"
+            android:paddingRight="18dp"
+            android:paddingBottom="12dp"
             android:text="SKIP"
             android:textColor="#36759B"
             android:textSize="18sp"
@@ -151,6 +155,7 @@
             android:paddingRight="18dp"
             android:paddingBottom="12dp"
             android:text="Can’t find it?"
+            android:textAllCaps="true"
             android:textColor="#7AB6DC"
             android:textSize="16sp"
             app:layout_constraintBottom_toTopOf="@+id/guideline12"
@@ -225,8 +230,8 @@
             android:paddingTop="12dp"
             android:paddingRight="18dp"
             android:paddingBottom="12dp"
-            android:text="Done"
-            android:textColor="#36759B"
+            android:text="DONE"
+            android:textColor="#084B76"
             android:textSize="18sp"
             app:layout_constraintBottom_toTopOf="@+id/guideline14"
             app:layout_constraintEnd_toEndOf="parent"
@@ -285,6 +290,10 @@
             android:layout_marginEnd="32dp"
             android:layout_marginRight="32dp"
             android:fontFamily="@font/raleway_semibold"
+            android:paddingLeft="18dp"
+            android:paddingTop="12dp"
+            android:paddingRight="18dp"
+            android:paddingBottom="12dp"
             android:text="SKIP"
             android:textColor="#36759B"
             android:textSize="18sp"
@@ -320,5 +329,12 @@
             app:layout_constraintTop_toTopOf="@+id/guideline13" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <include
+        android:id="@+id/page3"
+        layout="@layout/onboarding_obd_2"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
