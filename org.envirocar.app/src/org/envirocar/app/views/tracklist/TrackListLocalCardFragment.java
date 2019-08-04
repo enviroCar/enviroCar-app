@@ -84,6 +84,8 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
     private FilterViewModel filterViewModel;
     private SortViewModel sortViewModel;
     private List<Track> localList = Collections.synchronizedList(new ArrayList<>());
+    private Boolean mvVisible = true;
+
     /**
      *
      */
@@ -119,6 +121,11 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
                 sortO = 1;
             else
                 sortO = -1;
+            updateView();
+        });
+
+        sortViewModel.getMapActive().observe(this, item->{
+            mvVisible = sortViewModel.getMapChoice().getValue();
             updateView();
         });
     }
@@ -533,6 +540,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
 
     public  void updateView(){
 
+        mRecyclerViewAdapter.setGuideline(mvVisible);
         setTrackList();
         if (dateFilter) {
             for (int i = 0; i < mTrackList.size(); ++i) {

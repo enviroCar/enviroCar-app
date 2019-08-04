@@ -117,6 +117,7 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
 
     protected E mRecyclerViewAdapter;
     protected RecyclerView.LayoutManager mRecylcerViewLayoutManager;
+    protected GuidelineInterface guidelineInterface;
 
     protected boolean tracksLoaded = false;
     protected final List<Track> mTrackList = Collections.synchronizedList(new ArrayList<>());
@@ -484,4 +485,9 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
         if(mProgressView.getVisibility() == View.VISIBLE)
             ECAnimationUtils.animateHideView(getActivity(), mProgressView, R.anim.fade_out);
     }
+
+    public interface GuidelineInterface {
+        void setGuideline(Boolean bool);
+    }
+
 }

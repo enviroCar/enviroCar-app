@@ -66,7 +66,7 @@ import rx.functions.Action0;
  */
 public abstract class AbstractTrackListCardAdapter<E extends
         AbstractTrackListCardAdapter
-                .TrackCardViewHolder> extends RecyclerView.Adapter<E> {
+                .TrackCardViewHolder> extends RecyclerView.Adapter<E> implements AbstractTrackListCardFragment.GuidelineInterface {
     private static final Logger LOG = Logger.getLogger(AbstractTrackListCardAdapter.class);
 
     protected static final DecimalFormat DECIMAL_FORMATTER_TWO = new DecimalFormat("#.##");
@@ -80,6 +80,8 @@ public abstract class AbstractTrackListCardAdapter<E extends
     }
 
     protected final List<Track> mTrackDataset;
+
+    protected Boolean mvVisible;
 
     protected Scheduler.Worker mMainThreadWorker = AndroidSchedulers.mainThread().createWorker();
 
@@ -166,16 +168,20 @@ public abstract class AbstractTrackListCardAdapter<E extends
         return stringBuilder.toString();
     }
 
-    protected void bindTrackViewHolder(TrackCardViewHolder holder, Track track, Boolean isLocalTrack) {
+    public void setGuideline(Boolean bool){
+        mvVisible = bool;
+    }
+
+    protected void bindTrackViewHolder(TrackCardViewHolder holder, Track track, Boolean isDownloadedTrack) {
         holder.mDistance.setText("...");
         holder.mDuration.setText("...");
         holder.mDurationAdd.setText("H");
         holder.mDate.setText("...");
         holder.mTime.setText("...");
         holder.mTimeAdd.setText("PM");
-
-        if(!isLocalTrack)
+        if(!isDownloadedTrack)
         {
+            holder.guideline.setGuidelinePercent(0.37f);
             holder.mDistance.setVisibility(View.GONE);
             holder.distanceBox.setVisibility(View.GONE);
             holder.mDistanceImg.setVisibility(View.GONE);
@@ -184,6 +190,10 @@ public abstract class AbstractTrackListCardAdapter<E extends
             holder.mDurationImg.setVisibility(View.GONE);
             holder.mCarName.setVisibility(View.GONE);
         } else {
+            if(mvVisible)
+                holder.guideline.setGuidelinePercent(0.37f);
+            else
+                holder.guideline.setGuidelinePercent(0f);
             holder.mDistance.setVisibility(View.VISIBLE);
             holder.distanceBox.setVisibility(View.VISIBLE);
             holder.mDistanceImg.setVisibility(View.VISIBLE);
@@ -196,7 +206,7 @@ public abstract class AbstractTrackListCardAdapter<E extends
         // First, load the track from the dataset
         //holder.mTitleTextView.setText(track.getName());
         // Initialize the mapView.
-        if(isLocalTrack)
+        if(isDownloadedTrack)
         {
             holder.mMapView.setVisibility(View.VISIBLE);
             initMapView(holder, track);
@@ -212,7 +222,7 @@ public abstract class AbstractTrackListCardAdapter<E extends
                     //Set Track Header and TimeImg
                     Date trackDate;
                     SimpleDateFormat formatter;
-                    if(isLocalTrack)
+                    if(isDownloadedTrack)
                         trackDate = new Date(track.getStartTime());
                     else
                     {
@@ -271,7 +281,7 @@ public abstract class AbstractTrackListCardAdapter<E extends
                         }
                     });
 
-                    if(isLocalTrack)
+                    if(isDownloadedTrack)
                     {
                         // Set the duration text.
                         String temp = convertMillisToDate(track.getTimeInMillis());

@@ -71,6 +71,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
     private boolean hasLoadedStored = false;
     private boolean dateFilter = false;
     private boolean carFilter = false;
+    private boolean mvVisible = true;
     private Date startDate;
     private Date endDate;
     private String carName;
@@ -107,7 +108,8 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
         });
 
         sortViewModel.getMapActive().observe(this, item->{
-
+            mvVisible = sortViewModel.getMapChoice().getValue();
+            updateView();
         });
     }
 
@@ -412,6 +414,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
                         R.string.track_list_bg_no_remote_tracks_sub);
             }
             else{
+                mRecyclerViewAdapter.setGuideline(mvVisible);
                 TransitionManager.beginDelayedTransition(mRecyclerView, new Slide(Gravity.LEFT).
                         setDuration(1000).
                         setInterpolator(new FastOutSlowInInterpolator()));
