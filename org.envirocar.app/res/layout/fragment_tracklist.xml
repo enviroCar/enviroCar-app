@@ -19,7 +19,10 @@
     with the enviroCar app. If not, see http://www.gnu.org/licenses/.
 
 -->
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/relativeLayout2"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -28,59 +31,95 @@
         android:id="@+id/fragment_tracklist_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical" />
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <include
         android:id="@+id/fragment_tracklist_info"
         layout="@layout/fragment_tracklist_info_view"
-        android:visibility="gone" />
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <RelativeLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/fragment_tracklist_progress_view"
         android:layout_width="match_parent"
-        android:layout_height="72dp"
-        android:layout_alignParentTop="true"
-        android:background="#cd202020">
+        android:layout_height="100dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginLeft="32dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginRight="32dp"
+        android:layout_marginBottom="8dp"
+        android:background="#cd202020"
+        app:layout_constraintBottom_toBottomOf="@+id/fragment_tracklist_recycler_view"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <ProgressBar
             android:id="@+id/fragment_tracklist_progress_progressBar"
             style="?android:attr/progressBarStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
             android:layout_gravity="center"
             android:layout_marginLeft="@dimen/spacing_xlarge"
             android:layout_marginRight="@dimen/spacing_medium"
-            android:progressTint="@color/white_cario" />
+            android:progressTint="@color/white_cario"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:layout_conversion_wrapHeight="126"
+            tools:layout_conversion_wrapWidth="126" />
 
         <TextView
             android:id="@+id/fragment_tracklist_progress_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
             android:layout_gravity="center"
             android:layout_marginLeft="@dimen/spacing_medium"
+            android:fontFamily="@font/raleway_semibold"
             android:text="@string/track_list_loading_tracks"
             android:textColor="@color/white_cario"
-            android:textSize="26sp" />
+            android:textSize="26sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:layout_conversion_wrapHeight="92"
+            tools:layout_conversion_wrapWidth="301" />
 
         <LinearLayout
+            android:id="@+id/linearLayout3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
             android:layout_marginLeft="@dimen/spacing_large"
-            android:layout_marginRight="@dimen/spacing_large">
+            android:layout_marginRight="@dimen/spacing_large"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:layout_conversion_wrapHeight="0"
+            tools:layout_conversion_wrapWidth="0">
 
         </LinearLayout>
-    </RelativeLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fragment_tracklist_fab"
         style="@style/Widget.enviroCar.Fab"
-        android:visibility="gone"
+        android:layout_gravity="bottom|end"
         android:src="@drawable/ic_cloud_upload_white_24dp"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_gravity="bottom|end"/>
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
 
-</RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

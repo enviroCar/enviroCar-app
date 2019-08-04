@@ -26,8 +26,7 @@
         android:id="@+id/radioGroup"
         android:layout_width="320dp"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/activity_horizontal_margin"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="16dp"
         android:orientation="vertical"
         app:layout_constraintStart_toStartOf="@+id/textView2"
         app:layout_constraintTop_toBottomOf="@+id/textView2">
@@ -59,6 +58,52 @@
         app:layout_constraintStart_toStartOf="@+id/radioGroup"
         app:layout_constraintTop_toBottomOf="@+id/radioGroup" />
 
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginLeft="32dp"
+        android:layout_marginTop="220dp"
+        android:layout_marginEnd="217dp"
+        android:layout_marginRight="217dp"
+        android:fontFamily="@font/raleway_semibold"
+        android:text="View Options"
+        android:textColor="#000000"
+        android:textSize="22sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <RadioGroup
+        android:id="@+id/radioGroup1"
+        android:layout_width="320dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:orientation="vertical"
+        app:layout_constraintStart_toStartOf="@+id/textView4"
+        app:layout_constraintTop_toBottomOf="@+id/textView4">
+
+        <RadioButton
+            android:id="@+id/wMap"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/raleway_medium"
+            android:padding="12dp"
+            android:text="With Map"
+            android:textSize="18sp" />
+
+        <RadioButton
+            android:id="@+id/woMap"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/raleway_medium"
+            android:padding="12dp"
+            android:text="Without Map"
+            android:textSize="18sp" />
+    </RadioGroup>
+
     <Button
         android:id="@+id/submit"
         android:layout_width="wrap_content"
@@ -75,7 +120,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/spinnerSort"
+        app:layout_constraintTop_toBottomOf="@+id/radioGroup1"
         app:textAllCaps="true" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

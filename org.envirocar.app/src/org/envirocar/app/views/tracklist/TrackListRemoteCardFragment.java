@@ -105,6 +105,10 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
                 sortO = -1;
             updateView();
         });
+
+        sortViewModel.getMapActive().observe(this, item->{
+
+        });
     }
 
     @Override
