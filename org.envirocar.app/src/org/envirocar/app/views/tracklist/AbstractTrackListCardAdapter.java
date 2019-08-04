@@ -29,6 +29,7 @@ import androidx.appcompat.widget.Toolbar;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.github.jorgecastilloprz.FABProgressCircle;
@@ -176,16 +177,20 @@ public abstract class AbstractTrackListCardAdapter<E extends
         if(!isLocalTrack)
         {
             holder.mDistance.setVisibility(View.GONE);
+            holder.distanceBox.setVisibility(View.GONE);
             holder.mDistanceImg.setVisibility(View.GONE);
             holder.mDuration.setVisibility(View.GONE);
             holder.mDurationAdd.setVisibility(View.GONE);
             holder.mDurationImg.setVisibility(View.GONE);
+            holder.mCarName.setVisibility(View.GONE);
         } else {
             holder.mDistance.setVisibility(View.VISIBLE);
+            holder.distanceBox.setVisibility(View.VISIBLE);
             holder.mDistanceImg.setVisibility(View.VISIBLE);
             holder.mDuration.setVisibility(View.VISIBLE);
             holder.mDurationAdd.setVisibility(View.VISIBLE);
             holder.mDurationImg.setVisibility(View.VISIBLE);
+            holder.mCarName.setVisibility(View.VISIBLE);
         }
 
         // First, load the track from the dataset
@@ -205,8 +210,22 @@ public abstract class AbstractTrackListCardAdapter<E extends
 
                 try {
                     //Set Track Header and TimeImg
-                    Date trackDate = new Date(track.getStartTime());
-                    SimpleDateFormat formatter = new SimpleDateFormat("HH", Locale.getDefault());
+                    Date trackDate;
+                    SimpleDateFormat formatter;
+                    if(isLocalTrack)
+                        trackDate = new Date(track.getStartTime());
+                    else
+                    {
+                        formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+                        try
+                        {
+                            trackDate = formatter.parse(track.getBegin());
+                        }catch (Exception e){
+                            LOG.error("Unable to parse date", e);
+                            trackDate = new Date();
+                        }
+                    }
+                    formatter = new SimpleDateFormat("HH", Locale.getDefault());
                     Integer hh = Integer.parseInt(formatter.format(trackDate));
                     mMainThreadWorker.schedule(new Action0() {
                         @Override
@@ -423,6 +442,8 @@ public abstract class AbstractTrackListCardAdapter<E extends
         protected TextView mDistance;
         @BindView(R.id.track_details_attributes_image_distance)
         protected ImageView mDistanceImg;
+        @BindView(R.id.distanceBox)
+        protected LinearLayout distanceBox;
         @BindView(R.id.track_details_attributes_header_duration)
         protected TextView mDuration;
         @BindView(R.id.track_details_attributes_header_duration_add)

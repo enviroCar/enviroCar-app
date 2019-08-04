@@ -58,7 +58,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        card_view:layout_constraintGuide_percent="0" />
+        card_view:layout_constraintGuide_percent="0.37" />
 
     <include
         android:id="@+id/include"
