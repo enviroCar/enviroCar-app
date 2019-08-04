@@ -38,14 +38,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.15" />
+            app:layout_constraintGuide_percent="0.13" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline11"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.85" />
+            app:layout_constraintGuide_percent="0.87" />
 
         <TextView
             android:id="@+id/donePage1"
@@ -75,7 +75,7 @@
             android:fontFamily="@font/roboto_medium"
             android:text=" Plug in the OBD adapter in this port"
             android:textColor="#000000"
-            android:textSize="14sp"
+            android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
@@ -92,7 +92,7 @@
             android:lineSpacingMultiplier="1.4"
             android:text="Don’t have an adapter? We recommend this one. Click here to buy."
             android:textColor="#000000"
-            android:textSize="12sp"
+            android:textSize="13sp"
             app:layout_constraintEnd_toEndOf="@+id/textView12"
             app:layout_constraintStart_toStartOf="@+id/textView12"
             app:layout_constraintTop_toBottomOf="@+id/textView12" />
@@ -138,7 +138,7 @@
             android:lineSpacingMultiplier="1.47"
             android:text="It is legally required to be within 2 feet of the steering wheel and is usually underneath the steering wheel. "
             android:textColor="#000000"
-            android:textSize="14sp"
+            android:textSize="15sp"
             app:layout_constraintEnd_toStartOf="@+id/guideline11"
             app:layout_constraintStart_toStartOf="@+id/guideline10"
             app:layout_constraintTop_toTopOf="@+id/guideline9" />
@@ -212,14 +212,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.15" />
+            app:layout_constraintGuide_percent="0.13" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline17"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.85" />
+            app:layout_constraintGuide_percent="0.87" />
 
         <TextView
             android:id="@+id/donePage2"
@@ -248,7 +248,7 @@
             android:gravity="center"
             android:text="Enable bluetooth and pair your device with the adapter."
             android:textColor="#000000"
-            android:textSize="14sp"
+            android:textSize="16sp"
             app:layout_constraintEnd_toStartOf="@+id/guideline17"
             app:layout_constraintStart_toStartOf="@+id/guideline16"
             app:layout_constraintTop_toBottomOf="@+id/textView30" />
@@ -264,7 +264,7 @@
             android:lineSpacingMultiplier="1.4"
             android:text="You may have to enter a PIN to connect. This can be found in the instructions that came with the adapter, or is usually 0000"
             android:textColor="#000000"
-            android:textSize="12sp"
+            android:textSize="13sp"
             app:layout_constraintEnd_toEndOf="@+id/textView27"
             app:layout_constraintStart_toStartOf="@+id/textView27"
             app:layout_constraintTop_toBottomOf="@+id/textView27" />
@@ -280,7 +280,7 @@
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView32"
-            app:srcCompat="@drawable/ic_bluetooth_searching_black_24dp" />
+            app:srcCompat="@drawable/baseline_bluetooth_searching_black_48dp" />
 
         <TextView
             android:id="@+id/skipPage2"
@@ -310,7 +310,7 @@
             android:lineSpacingMultiplier="1.47"
             android:text="The OBD adapter connects with the device using Bluetooth and the app collects diagnostics from your car"
             android:textColor="#000000"
-            android:textSize="14sp"
+            android:textSize="15sp"
             app:layout_constraintEnd_toStartOf="@+id/guideline17"
             app:layout_constraintStart_toStartOf="@+id/guideline16"
             app:layout_constraintTop_toTopOf="@+id/guideline15" />

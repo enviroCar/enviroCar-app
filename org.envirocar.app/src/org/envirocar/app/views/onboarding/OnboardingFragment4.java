@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 
 import androidx.fragment.app.Fragment;
 
@@ -47,6 +48,9 @@ public class OnboardingFragment4 extends Fragment {
 
     @BindView(R.id.onboarding_skip)
     protected Button skip;
+
+    @BindView(R.id.imageView3)
+    protected ImageView background;
 
     public OnboardingFragment4() {
         // Required empty public constructor
@@ -107,6 +111,8 @@ public class OnboardingFragment4 extends Fragment {
         return view;
     }
 
-
+    public void setBackgroundVisibility(float alpha){
+        background.setAlpha(alpha);
+    }
 
 }

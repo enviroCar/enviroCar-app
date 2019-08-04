@@ -33,4 +33,13 @@ public class OBPageAdapter extends FragmentStatePagerAdapter {
         return tabs.size();
     }
 
+    public void setPageBackVisbility(float alpha, int page){
+        if(tabs.get(page) !=null){
+            if(page == 0)
+                ((OnboardingFragment1)tabs.get(page)).setBackgroundVisibility(alpha);
+            else if(page == 3)
+                ((OnboardingFragment4)tabs.get(page)).setBackgroundVisibility(alpha);
+        }
+    }
+
 }

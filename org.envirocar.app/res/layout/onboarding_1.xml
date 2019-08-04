@@ -2,33 +2,101 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/ob_1"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
     <ImageView
-        android:id="@+id/animatedView"
-        android:layout_width="264dp"
-        android:layout_height="175dp"
+        android:id="@+id/ob_img1"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.50"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.40"
-        app:srcCompat="@drawable/img_envirocar_logo" />
-
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="264dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:fontFamily="@font/roboto_light"
-        android:text="The Citizen Science community to  Collect, Share and Analyze  floating car data"
-        android:textSize="15sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/animatedView" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ob_1_back" />
+
+    <ImageView
+        android:id="@+id/logo"
+        android:layout_width="264dp"
+        android:layout_height="150dp"
+        app:layout_constraintBottom_toTopOf="@+id/image_guideline"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:srcCompat="@drawable/img_envirocar_logo" />
+
+    <TextView
+        android:id="@+id/subTV"
+        android:layout_width="264dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:fontFamily="@font/roboto_light"
+        android:text="The Citizen Science community to  Collect, Share and Analyze  floating car data"
+        android:textSize="15sp"
+        android:visibility="visible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.496"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/logo" />
+
+    <TextView
+        android:id="@+id/headerTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/raleway_semibold"
+        android:text="Welcome to enviroCar"
+        android:textColor="#084B76"
+        android:textSize="26sp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/header_guideline"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/header_subTV"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:fontFamily="sans-serif"
+        android:gravity="center"
+        android:text="The enviroCar app is an Android application that connects to the vehicle’s onboard sensors via an ODB II adapter."
+        android:textSize="16sp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toStartOf="@+id/guideline23"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="@+id/guideline22"
+        app:layout_constraintTop_toBottomOf="@+id/headerTV" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline22"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.147" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline23"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.853" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/header_guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.4" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/image_guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.48" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -5,9 +5,12 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.viewpager.widget.ViewPager;
 
 import android.animation.ArgbEvaluator;
+import android.animation.FloatEvaluator;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.transition.Fade;
+import android.transition.TransitionManager;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -72,8 +75,8 @@ public class OnboardingActivity extends AppCompatActivity implements OnboardingF
         setContentView(R.layout.onboarding_basic);
         ButterKnife.bind(this);
         int color0 = Color.WHITE;
-        int color1 = Color.parseColor("#EFF9FD");
-        int color2 = Color.parseColor("#E8F2F9");
+        int color1 = Color.parseColor("#FCFFFF");
+        int color2 = Color.parseColor("#FDFEFE");
         int color3 = Color.WHITE;
 
         colorList = new int[]{color0, color1, color2, color3};
@@ -83,6 +86,9 @@ public class OnboardingActivity extends AppCompatActivity implements OnboardingF
         viewPager.setAdapter(obPageAdapter);
         smartTabLayout.setViewPager(viewPager);
 
+        TransitionManager.beginDelayedTransition(onBoardingLayout, new Fade().setDuration(OnboardingFragment1.animationStart));
+        nextButton.setVisibility(View.VISIBLE);
+        skipButton.setVisibility(View.VISIBLE);
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -103,7 +109,18 @@ public class OnboardingActivity extends AppCompatActivity implements OnboardingF
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
                 ArgbEvaluator evaluator = new ArgbEvaluator();
+                FloatEvaluator floatEvaluator = new FloatEvaluator();
                 int colorUpdate;
+                if(position == 0 || position == 1){
+                    Float alpha = (Float) floatEvaluator.evaluate(positionOffset, 1f, 0f);
+                    if(viewPager.getAdapter() != null)
+                        ((OBPageAdapter)viewPager.getAdapter()).setPageBackVisbility(alpha, 0);
+                }
+                if(position == 2){
+                    Float alpha = (Float) floatEvaluator.evaluate(positionOffset, 0f, 1f);
+                    if(viewPager.getAdapter() != null)
+                        ((OBPageAdapter)viewPager.getAdapter()).setPageBackVisbility(alpha, 3);
+                }
                 if(position!=3){
                     colorUpdate = (Integer) evaluator.evaluate(positionOffset, colorList[position], colorList[position + 1]);
                 }

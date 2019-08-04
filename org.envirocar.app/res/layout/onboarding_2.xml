@@ -80,8 +80,9 @@
         android:layout_marginBottom="100dp"
         android:paddingTop="8dp"
         android:paddingBottom="8dp"
-        android:text="To learn how to connect your OBD adapter click here."
+        android:text="Learn how to connect your OBD adapter."
         android:textColor="#0065A0"
+        android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="@+id/textView5" />
 
