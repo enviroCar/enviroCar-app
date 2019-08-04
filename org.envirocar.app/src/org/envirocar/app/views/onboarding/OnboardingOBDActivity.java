@@ -1,16 +1,16 @@
 package org.envirocar.app.views.onboarding;
 
-
-import android.app.Activity;
 import android.content.Intent;
 import android.graphics.drawable.AnimatedVectorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import android.transition.TransitionManager;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -21,7 +21,7 @@ import org.envirocar.core.logging.Logger;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class OnboardingOBDActivity extends Activity {
+public class OnboardingOBDActivity extends AppCompatActivity {
     private static final Logger LOG = Logger.getLogger(OnboardingOBDActivity.class);
 
     @BindView(R.id.donePage1)
@@ -46,7 +46,7 @@ public class OnboardingOBDActivity extends Activity {
     protected ConstraintLayout pages;
     @BindView(R.id.continueButton)
     protected Button continueButton;
-    @BindView(R.id.animatedView)
+    @BindView(R.id.logo)
     protected ImageView animatedcheck;
 
     protected int whichPage = 0;
@@ -59,6 +59,9 @@ public class OnboardingOBDActivity extends Activity {
         ButterKnife.bind(this);
         animatedcheck.setBackgroundResource(R.drawable.animated_check);
         frameAnimation = (AnimatedVectorDrawable) animatedcheck.getBackground();
+
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         obdLink.setOnClickListener(new View.OnClickListener() {
             @Override

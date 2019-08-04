@@ -78,7 +78,7 @@
         app:layout_constraintGuide_percent="0.55" />
 
     <ImageView
-        android:id="@+id/animatedView"
+        android:id="@+id/logo"
         android:layout_width="120dp"
         android:layout_height="120dp"
         android:layout_marginTop="8dp"
