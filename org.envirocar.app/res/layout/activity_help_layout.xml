@@ -31,31 +31,29 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:paddingLeft="@dimen/spacing_large"
-        android:paddingRight="@dimen/spacing_large">
+        android:padding="24dp">
 
         <TextView
             style="@style/enviroCar.Help.headline1"
-            android:layout_marginTop="@dimen/spacing_large"
-            android:text="@string/help_headline_1"/>
+            android:text="@string/help_headline_1" />
 
         <TextView
             style="@style/enviroCar.Help.content"
-            android:text="@string/help_content_1"/>
+            android:text="@string/help_content_1" />
 
-        <include layout="@layout/help_divider"/>
+        <include layout="@layout/help_divider" />
 
         <TextView
             style="@style/enviroCar.Help.headline1"
-            android:text="@string/help_headline_2"/>
+            android:text="@string/help_headline_2" />
 
         <TextView
             style="@style/enviroCar.Help.headline2"
-            android:text="@string/help_headline_2_1"/>
+            android:text="@string/help_headline_2_1" />
 
         <TextView
             style="@style/enviroCar.Help.content"
-            android:text="@string/help_content_2_1"/>
+            android:text="@string/help_content_2_1" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -69,13 +67,13 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="1."
-                android:textStyle="bold"/>
+                android:textStyle="bold" />
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="10"
-                android:text="@string/help_content_2_1_enum_1"/>
+                android:text="@string/help_content_2_1_enum_1" />
 
         </LinearLayout>
 
@@ -91,13 +89,13 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="2."
-                android:textStyle="bold"/>
+                android:textStyle="bold" />
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="10"
-                android:text="@string/help_content_2_1_enum_2"/>
+                android:text="@string/help_content_2_1_enum_2" />
 
         </LinearLayout>
 
@@ -113,49 +111,50 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="3."
-                android:textStyle="bold"/>
+                android:textStyle="bold" />
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="10"
-                android:text="@string/help_content_2_1_enum_3"/>
+                android:text="@string/help_content_2_1_enum_3" />
 
         </LinearLayout>
 
         <TextView
+            style="@style/enviroCar.Help.content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/spacing_medium"
-            android:text="@string/help_content_2_2"/>
+            android:text="@string/help_content_2_2" />
 
         <TextView
             style="@style/enviroCar.Help.headline2"
             android:layout_marginTop="@dimen/spacing_large"
-            android:text="@string/help_headline_2_2"/>
+            android:text="@string/help_headline_2_2" />
 
         <TextView
             style="@style/enviroCar.Help.content"
-            android:text="@string/help_content_2_2"/>
+            android:text="@string/help_content_2_2" />
 
         <TextView
             style="@style/enviroCar.Help.headline2"
             android:layout_marginTop="@dimen/spacing_large"
-            android:text="@string/help_headline_2_3"/>
+            android:text="@string/help_headline_2_3" />
 
         <TextView
             style="@style/enviroCar.Help.content"
-            android:text="@string/help_content_2_3"/>
+            android:text="@string/help_content_2_3" />
 
-        <include layout="@layout/help_divider"/>
+        <include layout="@layout/help_divider" />
 
         <TextView
             style="@style/enviroCar.Help.headline1"
-            android:text="@string/help_headline_3"/>
+            android:text="@string/help_headline_3" />
 
         <TextView
             style="@style/enviroCar.Help.content"
-            android:text="@string/help_content_3_1"/>
+            android:text="@string/help_content_3_1" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -168,14 +167,14 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="►"/>
+                android:text="►" />
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="10"
                 android:text="@string/help_content_3_bullet_1"
-                android:textStyle="bold"/>
+                android:textStyle="bold" />
         </LinearLayout>
 
         <LinearLayout
@@ -189,14 +188,14 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="►"/>
+                android:text="►" />
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="10"
                 android:text="@string/help_content_3_bullet_2"
-                android:textStyle="bold"/>
+                android:textStyle="bold" />
         </LinearLayout>
 
         <LinearLayout
@@ -210,14 +209,14 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="►"/>
+                android:text="►" />
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="10"
                 android:text="@string/help_content_3_bullet_3"
-                android:textStyle="bold"/>
+                android:textStyle="bold" />
         </LinearLayout>
 
         <LinearLayout
@@ -231,21 +230,21 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="►"/>
+                android:text="►" />
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="10"
                 android:text="@string/help_content_3_bullet_4"
-                android:textStyle="bold"/>
+                android:textStyle="bold" />
         </LinearLayout>
 
         <TextView
             style="@style/enviroCar.Help.content"
-            android:text="@string/help_content_3_2"/>
+            android:text="@string/help_content_3_2" />
 
-        <include layout="@layout/help_divider"/>
+        <include layout="@layout/help_divider" />
 
         <!-- 4. -->
         <TextView
@@ -254,41 +253,41 @@
 
         <TextView
             style="@style/enviroCar.Help.content"
-            android:text="@string/help_content_4_0"/>
+            android:text="@string/help_content_4_0" />
 
         <TextView
             style="@style/enviroCar.Help.headline2"
-            android:text="@string/help_headline_4_1"/>
+            android:text="@string/help_headline_4_1" />
 
         <TextView
             style="@style/enviroCar.Help.content"
-            android:text="@string/help_content_4_1"/>
+            android:text="@string/help_content_4_1" />
 
         <TextView
             style="@style/enviroCar.Help.headline2"
-            android:text="@string/help_headline_4_2"/>
+            android:text="@string/help_headline_4_2" />
 
         <TextView
             style="@style/enviroCar.Help.content"
-            android:text="@string/help_content_4_2"/>
+            android:text="@string/help_content_4_2" />
 
         <!--<TextView-->
-            <!--style="@style/enviroCar.Help.headline2"-->
-            <!--android:text="@string/help_headline_4_3"/>-->
+        <!--style="@style/enviroCar.Help.headline2"-->
+        <!--android:text="@string/help_headline_4_3"/>-->
 
         <!--<TextView-->
-            <!--style="@style/enviroCar.Help.content"-->
-            <!--android:text="@string/help_content_4_3"/>-->
+        <!--style="@style/enviroCar.Help.content"-->
+        <!--android:text="@string/help_content_4_3"/>-->
 
-        <include layout="@layout/help_divider"/>
+        <include layout="@layout/help_divider" />
 
         <!-- 5. -->
         <TextView
             style="@style/enviroCar.Help.headline1"
-            android:text="@string/help_headline_6"/>
+            android:text="@string/help_headline_6" />
 
         <TextView
             style="@style/enviroCar.Help.content"
-            android:text="@string/help_content_6"/>
+            android:text="@string/help_content_6" />
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>
