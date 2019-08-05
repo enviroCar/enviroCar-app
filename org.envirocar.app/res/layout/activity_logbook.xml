@@ -75,15 +75,13 @@
                     <TextView
                         style="@style/enviroCar.title"
                         android:text="2 Fuelings"
-                        android:visibility="gone"/>
+                        android:visibility="gone" />
                 </LinearLayout>
 
-                <ListView
+                <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/activity_logbook_toolbar_fuelinglist"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:choiceMode="singleChoice"
-                    android:divider="#00000000"/>
+                    android:layout_height="match_parent" />
 
                 <TextView
                     android:layout_width="match_parent"

@@ -18,12 +18,14 @@
  */
 package org.envirocar.app.views.logbook;
 
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.MenuItem;
 import android.view.View;
@@ -81,9 +83,9 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
     @BindView(R.id.activity_logbook_header)
     protected View headerView;
     @BindView(R.id.activity_logbook_toolbar_new_fueling_fab)
-    protected View newFuelingFab;
+    protected FloatingActionButton newFuelingFab;
     @BindView(R.id.activity_logbook_toolbar_fuelinglist)
-    protected ListView fuelingList;
+    protected RecyclerView fuelingList;
     @BindView(R.id.overlay)
     protected View overlayView;
 
@@ -101,7 +103,7 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
 //    @BindView(R.id.activity_logbook_no_fuelings_info_view)
 //    protected View noFuelingsView;
 
-    protected LogbookListAdapter fuelingListAdapter;
+    protected LogbookAdapter fuelingListAdapter;
     protected final List<Fueling> fuelings = new ArrayList<Fueling>();
 
     private LogbookAddFuelingFragment addFuelingFragment;
@@ -140,25 +142,43 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
             }
         });
 
-        fuelingListAdapter = new LogbookListAdapter(this, fuelings);
-        fuelingList.setAdapter(fuelingListAdapter);
-
-        fuelingList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+        fuelingListAdapter = new LogbookAdapter(this, fuelings, new LogbookUiListener() {
             @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long
-                    id) {
-                final Fueling fueling = fuelings.get(position);
-                new MaterialDialog.Builder(LogbookActivity.this)
-                        .title(R.string.logbook_dialog_delete_fueling_header)
-                        .content(R.string.logbook_dialog_delete_fueling_content)
-                        .positiveText(R.string.menu_delete)
-                        .negativeText(R.string.cancel)
-                        .onPositive((materialDialog, dialogAction) -> deleteFueling(fueling))
-                        .show();
-                return false;
+            public void onHideAddFuelingCard() {
+                LogbookActivity.this.onHideAddFuelingCard();
+            }
+
+            @Override
+            public void onFuelingUploaded(Fueling fueling) {
+                LogbookActivity.this.onFuelingUploaded(fueling);
+            }
+
+            @Override
+            public void deleteFueling(Fueling fueling) {
+                LogbookActivity.this.deleteFueling(fueling);
             }
         });
+        fuelingList.setLayoutManager(new LinearLayoutManager(this));
+        fuelingList.setAdapter(fuelingListAdapter);
+        fuelingList.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx,int dy){
+                super.onScrolled(recyclerView, dx, dy);
 
+                if (dy >0) {
+                    // Scroll Down
+                    if (newFuelingFab.isShown()) {
+                        newFuelingFab.hide();
+                    }
+                }
+                else if (dy <0) {
+                    // Scroll Up
+                    if (!newFuelingFab.isShown()) {
+                        newFuelingFab.show();
+                    }
+                }
+            }
+        });
         // When the user is logged in, then download its fuelings. Otherwise, show a "not logged
         // in" notification.
         if (userManager.isLoggedIn()) {
@@ -166,7 +186,7 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
         } else {
             LOG.info("User is not logged in.");
             headerView.setVisibility(View.GONE);
-            newFuelingFab.setVisibility(View.GONE);
+            newFuelingFab.hide();
             showNotLoggedInInfo();
         }
     }
@@ -278,7 +298,7 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
      *
      * @param fueling the fueling to delete.
      */
-    private void deleteFueling(final Fueling fueling) {
+    public void deleteFueling(final Fueling fueling) {
         subscription.add(daoProvider.getFuelingDAO()
                 .deleteFuelingObservable(fueling)
                 .subscribeOn(Schedulers.io())

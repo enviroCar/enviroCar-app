@@ -29,4 +29,6 @@ interface LogbookUiListener {
     void onHideAddFuelingCard();
 
     void onFuelingUploaded(Fueling fueling);
+
+    void deleteFueling(Fueling fueling);
 }

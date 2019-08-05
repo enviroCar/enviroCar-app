@@ -22,8 +22,14 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.afollestad.materialdialogs.MaterialDialog;
 
 import org.envirocar.app.R;
 import org.envirocar.core.entity.Car;
@@ -45,46 +51,45 @@ import butterknife.BindView;
  *
  * @author dewall
  */
-public class LogbookListAdapter extends ArrayAdapter<Fueling> {
+public class LogbookAdapter extends RecyclerView.Adapter<LogbookAdapter.FuelingViewHolder> {
     private static final DecimalFormat DECIMAL_FORMATTER = new DecimalFormat("#.##");
     private static final DateFormat DATE_FORMAT = DateFormat.getDateTimeInstance();
 
     private final List<Fueling> fuelings;
-
+    protected final LogbookUiListener listener;
+    private Context context;
     /**
      * Constructor.
      *
-     * @param context the context of the current scope.
      * @param objects the arraylist of fuelings.
      */
-    public LogbookListAdapter(Context context, List<Fueling> objects) {
-        super(context, -1, objects);
+    public LogbookAdapter(Context context, List<Fueling> objects, final LogbookUiListener listener) {
+        this.context = context;
         this.fuelings = objects;
+        this.listener = listener;
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public FuelingViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
+        View listItem= layoutInflater.inflate(R.layout.activity_logbook_listentry_new, parent, false);
+        FuelingViewHolder viewHolder = new FuelingViewHolder(listItem);
+        return viewHolder;
+    }
 
+    @Override
+    public int getItemCount() {
+        return fuelings.size();
+    }
+
+    @Override
+    public void onBindViewHolder(FuelingViewHolder holder, int position) {
         final Fueling fueling = fuelings.get(position);
-
-        // Then inflate a new view for the car and create a holder
-        LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context
-                .LAYOUT_INFLATER_SERVICE);
-
-        FuelingViewHolder holder = null;
-        if (convertView == null) {
-            convertView = inflater.inflate(R.layout.activity_logbook_listentry_new, parent, false);
-            holder = new FuelingViewHolder(convertView);
-            convertView.setTag(holder);
-        } else {
-            holder = (FuelingViewHolder) convertView.getTag();
-        }
-
         Calendar calendar = new GregorianCalendar();
         calendar.setTime(new Date(fueling.getTime()));
 
         holder.dateText.setText(DateUtils.getDateString(
-                getContext(), fueling.getTime()));
+                context, fueling.getTime()));
         holder.totalPrice.setText(String.format("%s €",
                 DECIMAL_FORMATTER.format(fueling.getCost())));
         holder.pricePerLiter.setText(String.format("%s l/€",
@@ -111,15 +116,26 @@ public class LogbookListAdapter extends ArrayAdapter<Fueling> {
         holder.filledUpView.setVisibility(fueling.isPartialFueling() ?
                 View.VISIBLE : View.GONE);
 
-        return convertView;
+        holder.layout.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                final Fueling fueling = fuelings.get(position);
+                new MaterialDialog.Builder(context)
+                        .title(R.string.logbook_dialog_delete_fueling_header)
+                        .content(R.string.logbook_dialog_delete_fueling_content)
+                        .positiveText(R.string.menu_delete)
+                        .negativeText(R.string.cancel)
+                        .onPositive((materialDialog, dialogAction) -> listener.deleteFueling(fueling))
+                        .show();
+                return false;
+            }
+        });
+
     }
 
-    @Override
-    public Fueling getItem(int position) {
-        return this.fuelings.get(position);
-    }
-
-    static class FuelingViewHolder {
+    static class FuelingViewHolder extends RecyclerView.ViewHolder{
+        @BindView(R.id.layout)
+        protected ConstraintLayout layout;
         @BindView(R.id.activity_logbook_listentry_date)
         protected TextView dateText;
         @BindView(R.id.activity_logbook_listentry_kmliter)
@@ -148,6 +164,7 @@ public class LogbookListAdapter extends ArrayAdapter<Fueling> {
          * @param view the core view to inject the subviews from.
          */
         FuelingViewHolder(View view) {
+            super(view);
             ButterKnife.bind(this, view);
         }
     }
