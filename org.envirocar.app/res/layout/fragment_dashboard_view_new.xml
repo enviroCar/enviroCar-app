@@ -35,7 +35,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            app:layout_constraintGuide_percent="0.27" />
+            app:layout_constraintGuide_percent="0.25" />
 
         <androidx.cardview.widget.CardView
             android:id="@+id/cardView"
@@ -339,7 +339,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            app:layout_constraintGuide_percent="0.79" />
+            app:layout_constraintGuide_percent="0.83" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/buttonGroup"
@@ -359,7 +359,7 @@
                 android:paddingLeft="24dp"
                 android:paddingTop="14dp"
                 android:paddingRight="24dp"
-                android:paddingBottom="8dp"
+                android:paddingBottom="10dp"
                 android:text="GPS Only"
                 android:textColor="#000000"
                 android:textSize="16sp"
@@ -380,7 +380,7 @@
                 android:paddingLeft="24dp"
                 android:paddingTop="14dp"
                 android:paddingRight="24dp"
-                android:paddingBottom="8dp"
+                android:paddingBottom="10dp"
                 android:text="OBD + GPS"
                 android:textColor="#000000"
                 android:textSize="16sp"
@@ -415,7 +415,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.43" />
+        app:layout_constraintGuide_percent="0.46" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/buttonBanner"
@@ -423,7 +423,7 @@
         android:layout_height="60dp"
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="24dp"
         android:layout_marginEnd="16dp"
         android:layout_marginRight="16dp"
         android:gravity="center"
@@ -670,7 +670,7 @@
                 android:id="@+id/frameLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="8dp"
                 android:background="@android:color/transparent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -731,6 +731,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="28dp"
                                 android:layout_marginLeft="28dp"
+                                android:layout_marginTop="4dp"
                                 android:fontFamily="@font/roboto"
                                 android:singleLine="true"
                                 android:text="Car Attributes"
@@ -744,6 +745,7 @@
                                 android:id="@+id/dash_board_view_obd_selection_text1"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_marginBottom="4dp"
                                 android:fontFamily="@font/roboto_medium"
                                 android:singleLine="true"
                                 android:text="No OBD Device Selected"
@@ -782,6 +784,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="28dp"
                                 android:layout_marginLeft="28dp"
+                                android:layout_marginTop="4dp"
                                 android:fontFamily="@font/roboto"
                                 android:singleLine="true"
                                 android:text="Please turn on location services"
@@ -795,6 +798,7 @@
                                 android:id="@+id/obdGPSSelectedHeader"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_marginBottom="4dp"
                                 android:fontFamily="@font/roboto_medium"
                                 android:singleLine="true"
                                 android:text="GPS Not Turned On"
@@ -833,6 +837,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="28dp"
                                 android:layout_marginLeft="28dp"
+                                android:layout_marginTop="4dp"
                                 android:fontFamily="@font/roboto"
                                 android:singleLine="true"
                                 android:text="Car Attributes"
@@ -846,6 +851,7 @@
                                 android:id="@+id/dash_board_view_car_selection_text1"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_marginBottom="4dp"
                                 android:fontFamily="@font/roboto_medium"
                                 android:singleLine="true"
                                 android:text="Manufacturer + Model"

@@ -76,14 +76,22 @@ public class UserSerializer implements JsonSerializer<User>, JsonDeserializer<Us
         JsonObject userObject = json.getAsJsonObject();
         String username = userObject.get(User.KEY_USER_NAME).getAsString();
         String mail = userObject.get(User.KEY_USER_MAIL).getAsString();
-        String firstName = userObject.get(User.KEY_USER_FIRST_NAME).getAsString();
-        String lastName = userObject.get(User.KEY_USER_LAST_NAME).getAsString();
+        String firstName;
+        String lastName;
 
         User user = new UserImpl();
         user.setUsername(username);
         user.setMail(mail);
-        user.setFirstName(firstName);
-        user.setLastName(lastName);
+
+        if(userObject.has(User.KEY_USER_FIRST_NAME)) {
+            firstName = userObject.get(User.KEY_USER_FIRST_NAME).getAsString();
+            user.setFirstName(firstName);
+        }
+
+        if(userObject.has(User.KEY_USER_LAST_NAME)) {
+            lastName = userObject.get(User.KEY_USER_LAST_NAME).getAsString();
+            user.setLastName(lastName);
+        }
 
         if (userObject.has(User.KEY_USER_TOU_ACCEPTED)) {
             String touVersion = userObject.get(User.KEY_USER_TOU_ACCEPTED).getAsString();
