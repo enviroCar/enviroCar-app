@@ -18,28 +18,25 @@
  */
 package org.envirocar.app.views.obdselection;
 
-import android.app.AlertDialog;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.widget.AppCompatRadioButton;
-import androidx.appcompat.widget.Toolbar;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.envirocar.app.R;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import butterknife.ButterKnife;
 import butterknife.BindView;
@@ -48,6 +45,9 @@ import butterknife.BindView;
  * @author dewall
  */
 public class OBDDeviceAdapter extends RecyclerView.Adapter<OBDDeviceAdapter.OBDViewHolder> {
+
+    private final String SELECTED_COLOR = "#0166A0";
+    private final String UNSELECTED_COLOR = "#757575";
 
     /**
      * callback interface for the selection callback.
@@ -75,7 +75,7 @@ public class OBDDeviceAdapter extends RecyclerView.Adapter<OBDDeviceAdapter.OBDV
     private final OnOBDListActionCallback mCallback;
 
     private BluetoothDevice mSelectedBluetoothDevice;
-    private AppCompatRadioButton mSelectedRadioButton;
+    private ImageView mSelectedImageView;
     List<BluetoothDevice> pairedDevices = new ArrayList<>();
 
     /**
@@ -143,46 +143,51 @@ public class OBDDeviceAdapter extends RecyclerView.Adapter<OBDDeviceAdapter.OBDV
     public void onBindViewHolder(@NonNull OBDViewHolder holder, int position) {
         final BluetoothDevice device = pairedDevices.get(position);
         holder.mTextView.setText(device.getName());
-        holder.mRadioButton.setChecked(false);
+        holder.mTextViewAdd.setText(device.getAddress());
+        holder.mImageView.setImageTintList(ColorStateList.valueOf(Color.parseColor(UNSELECTED_COLOR)));
 
         // If there exists an already selected bluetooth device and the device of this entry
         // matches the selected device, then set it to checked.
         if (mSelectedBluetoothDevice != null) {
             if (mSelectedBluetoothDevice.getName().equals(device.getName())) {
-                mSelectedRadioButton = holder.mRadioButton;
-                mSelectedRadioButton.setChecked(true);
+                mSelectedImageView = holder.mImageView;
+                mSelectedImageView.setImageTintList(ColorStateList.valueOf(Color.parseColor(SELECTED_COLOR)));
                 mSelectedBluetoothDevice = device;
             }
         }
 
-        holder.mDeleteButton.setOnClickListener(v -> mCallback.onDeleteOBDDevice(device));
-
-        // Set the radiobutton on click listener.
-        holder.mRadioButton.setOnClickListener(v -> {
-            // When the clicked radio button corresponds to the bluetooth device that is
-            // already selected, then do nothing.
-            if (mSelectedBluetoothDevice != null && mSelectedBluetoothDevice.getAddress()
-                    .equals(device.getAddress()))
-                return;
-
-            if (mSelectedRadioButton != null) {
-                mSelectedRadioButton.setChecked(false);
-                // Bug. This needs to happen.. dont know why exactly.
-                notifyDataSetChanged();
-            }
-
-            mSelectedRadioButton = holder.mRadioButton;
-            mSelectedRadioButton.setChecked(true);
-            mSelectedBluetoothDevice = device;
-
-            // Callback.
-            mCallback.onOBDDeviceSelected(device);
-        });
-
         holder.obdSelectionLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mCallback.createDialog(device, holder.mContentView);
+                if(!mIsPairedList)
+                    mCallback.createDialog(device, holder.mContentView);
+                else{
+                    if (mSelectedBluetoothDevice != null && mSelectedBluetoothDevice.getAddress()
+                            .equals(device.getAddress()))
+                        return;
+
+                    if (mSelectedImageView != null) {
+                        mSelectedImageView.setImageTintList(ColorStateList.valueOf(Color.parseColor(SELECTED_COLOR)));
+                        // Bug. This needs to happen.. dont know why exactly.
+                        notifyDataSetChanged();
+                    }
+
+                    mSelectedImageView = holder.mImageView;
+                    mSelectedImageView.setImageTintList(ColorStateList.valueOf(Color.parseColor(SELECTED_COLOR)));
+                    mSelectedBluetoothDevice = device;
+
+                    // Callback.
+                    mCallback.onOBDDeviceSelected(device);
+                }
+            }
+        });
+
+        holder.obdSelectionLayout.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                if(mIsPairedList)
+                    mCallback.onDeleteOBDDevice(device);
+                return false;
             }
         });
     }
@@ -212,9 +217,9 @@ public class OBDDeviceAdapter extends RecyclerView.Adapter<OBDDeviceAdapter.OBDV
             return;
 
         // If there is any other bluetooth device selected, then uncheck it first...
-        if(mSelectedRadioButton != null){
-            mSelectedRadioButton.setChecked(false);
-            mSelectedRadioButton = null;
+        if(mSelectedImageView != null){
+            mSelectedImageView.setImageTintList(ColorStateList.valueOf(Color.parseColor("#757575")));
+            mSelectedImageView = null;
             mSelectedBluetoothDevice = null;
         }
 
@@ -246,15 +251,13 @@ public class OBDDeviceAdapter extends RecyclerView.Adapter<OBDDeviceAdapter.OBDV
 
         // All the views of a row to lookup for.
         @BindView(R.id.obd_selection_layout)
-        protected LinearLayout obdSelectionLayout;
+        protected ConstraintLayout obdSelectionLayout;
         @BindView(R.id.activity_obd_selection_layout_paired_list_entry_image)
         protected ImageView mImageView;
         @BindView(R.id.activity_obd_selection_layout_paired_list_entry_text)
         protected TextView mTextView;
-        @BindView(R.id.activity_obd_selection_layout_paired_list_entry_delete)
-        protected ImageButton mDeleteButton;
-        @BindView(R.id.activity_obd_selection_layout_paired_list_entry_radio)
-        protected AppCompatRadioButton mRadioButton;
+        @BindView(R.id.activity_obd_selection_layout_paired_list_entry_text_add)
+        protected TextView mTextViewAdd;
 
         /**
          * Constructor.

@@ -19,50 +19,56 @@
     with the enviroCar app. If not, see http://www.gnu.org/licenses/.
 
 -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/obd_selection_layout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:descendantFocusability="blocksDescendants"
-    android:orientation="horizontal">
+    android:descendantFocusability="blocksDescendants">
 
     <ImageView
         android:id="@+id/activity_obd_selection_layout_paired_list_entry_image"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center|left"
-        android:layout_margin="10dp"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="12dp"
         android:maxHeight="35dp"
-        android:src="@drawable/ic_laptop" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/obd" />
 
     <TextView
         android:id="@+id/activity_obd_selection_layout_paired_list_entry_text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
+        android:fontFamily="@font/roboto_medium"
+        android:text="Bluetooth Device"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toTopOf="@+id/activity_obd_selection_layout_paired_list_entry_text_add"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/activity_obd_selection_layout_paired_list_entry_image"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/activity_obd_selection_layout_paired_list_entry_text_add"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
-        android:layout_margin="10dp"
-        android:layout_weight="1" />
+        android:layout_marginBottom="4dp"
+        android:fontFamily="@font/roboto_light1"
+        android:text="TextView"
+        android:textSize="11sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/activity_obd_selection_layout_paired_list_entry_text"
+        app:layout_constraintTop_toBottomOf="@+id/activity_obd_selection_layout_paired_list_entry_text" />
 
-    <ImageButton
-        android:id="@+id/activity_obd_selection_layout_paired_list_entry_delete"
-        style="?attr/borderlessButtonStyle"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:layout_gravity="center_vertical|right"
-        android:layout_marginRight="@dimen/spacing_medium"
-        android:alpha="0.54"
-        android:background="?selectableItemBackgroundBorderless"
-        android:gravity="right"
-        android:src="@drawable/ic_delete_black_24dp"
-        android:visibility="gone" />
-
-    <androidx.appcompat.widget.AppCompatRadioButton
-        android:id="@+id/activity_obd_selection_layout_paired_list_entry_radio"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:checked="false"
-        android:gravity="center"
-        android:visibility="gone"/>
-
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
