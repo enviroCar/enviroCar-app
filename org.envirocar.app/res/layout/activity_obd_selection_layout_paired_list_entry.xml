@@ -22,7 +22,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/obd_selection_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:descendantFocusability="blocksDescendants"
     android:orientation="horizontal">
 
@@ -63,6 +63,6 @@
         android:layout_gravity="center"
         android:checked="false"
         android:gravity="center"
-        android:visibility="gone" />
+        android:visibility="gone"/>
 
 </LinearLayout>

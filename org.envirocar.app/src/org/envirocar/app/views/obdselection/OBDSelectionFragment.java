@@ -23,6 +23,7 @@ import android.bluetooth.BluetoothDevice;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
@@ -256,7 +257,50 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
         BluetoothDevice selectedBTDevice = mBluetoothHandler.getSelectedBluetoothDevice();
 
         // Initialize the array adapter for both list views
-        mNewDevicesArrayAdapter = new OBDDeviceAdapter(getActivity(), false);
+        mNewDevicesArrayAdapter = new OBDDeviceAdapter(getActivity(), false, new
+                OBDDeviceAdapter.OnOBDListActionCallback() {
+                    @Override
+                    public void onOBDDeviceSelected(BluetoothDevice device) {
+                    }
+
+                    @Override
+                    public void onDeleteOBDDevice(BluetoothDevice device) {
+                    }
+
+                    @Override
+                    public void createDialog(BluetoothDevice device, View view) {
+                        View contentView = LayoutInflater.from(getActivity()).inflate(R.layout
+                                .bluetooth_pairing_preference_device_pairing_dialog, null, false);
+
+                        // Set toolbar style
+                        Toolbar toolbar1 = contentView.findViewById(R.id
+                                .bluetooth_selection_preference_pairing_dialog_toolbar);
+                        toolbar1.setTitle(R.string.bluetooth_pairing_preference_toolbar_title);
+                        toolbar1.setNavigationIcon(R.drawable.ic_bluetooth_white_24dp);
+                        toolbar1.setTitleTextColor(getActivity().getResources().getColor(R.color
+                                .white_cario));
+
+                        // Set text view
+                        TextView textview = contentView.findViewById(R.id
+                                .bluetooth_selection_preference_pairing_dialog_text);
+                        textview.setText(String.format(getString(
+                                R.string.obd_selection_dialog_pairing_content_template), device.getName()));
+
+                        // Create the Dialog
+                        new AlertDialog.Builder(getActivity())
+                                .setView(contentView)
+                                .setPositiveButton(R.string.obd_selection_dialog_pairing_title,
+                                        (dialog, which) -> {
+                                            // If this button is clicked, pair with the given device
+                                            view.setClickable(false);
+                                            pairDevice(device, view);
+                                        })
+                                .setNegativeButton(R.string.cancel, null) // Nothing to do on cancel
+                                .create()
+                                .show();
+                    }
+                });
+
         mPairedDevicesAdapter = new OBDDeviceAdapter(getActivity(), true, new
                 OBDDeviceAdapter.OnOBDListActionCallback() {
                     @Override
@@ -276,46 +320,18 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
                         LOGGER.info(String.format("onDeleteOBDDevice(%s)", device.getName()));
                         showUnpairingDialig(device);
                     }
+
+                    @Override
+                    public void createDialog(BluetoothDevice device, View view) {
+
+                    }
                 }, selectedBTDevice);
 
         // Set the adapter for both list views
         mNewDevicesListView.setAdapter(mNewDevicesArrayAdapter);
         mPairedDevicesListView.setAdapter(mPairedDevicesAdapter);
-
-
-        mNewDevicesListView.setOnItemClickListener((parent, view1, position, id) -> {
-            final BluetoothDevice device = mNewDevicesArrayAdapter.getItem(position);
-
-            View contentView = LayoutInflater.from(getActivity()).inflate(R.layout
-                    .bluetooth_pairing_preference_device_pairing_dialog, null, false);
-
-            // Set toolbar style
-            Toolbar toolbar1 = contentView.findViewById(R.id
-                    .bluetooth_selection_preference_pairing_dialog_toolbar);
-            toolbar1.setTitle(R.string.bluetooth_pairing_preference_toolbar_title);
-            toolbar1.setNavigationIcon(R.drawable.ic_bluetooth_white_24dp);
-            toolbar1.setTitleTextColor(getActivity().getResources().getColor(R.color
-                    .white_cario));
-
-            // Set text view
-            TextView textview = contentView.findViewById(R.id
-                    .bluetooth_selection_preference_pairing_dialog_text);
-            textview.setText(String.format(getString(
-                    R.string.obd_selection_dialog_pairing_content_template), device.getName()));
-
-            // Create the Dialog
-            new AlertDialog.Builder(getActivity())
-                    .setView(contentView)
-                    .setPositiveButton(R.string.obd_selection_dialog_pairing_title,
-                            (dialog, which) -> {
-                                // If this button is clicked, pair with the given device
-                                view1.setClickable(false);
-                                pairDevice(device, view1);
-                            })
-                    .setNegativeButton(R.string.cancel, null) // Nothing to do on cancel
-                    .create()
-                    .show();
-        });
+        mNewDevicesListView.setLayoutManager(new LinearLayoutManager(getContext()));
+        mPairedDevicesListView.setLayoutManager(new LinearLayoutManager(getContext()));
     }
 
     private void showUnpairingDialig(BluetoothDevice device) {

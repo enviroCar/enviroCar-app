@@ -37,6 +37,7 @@ import android.widget.TextView;
 
 import org.envirocar.app.R;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -65,6 +66,8 @@ public class OBDDeviceAdapter extends RecyclerView.Adapter<OBDDeviceAdapter.OBDV
          * @param device the device to delete.
          */
         void onDeleteOBDDevice(BluetoothDevice device);
+
+        void createDialog(BluetoothDevice device, View view);
     }
 
     private final boolean mIsPairedList;
@@ -73,7 +76,7 @@ public class OBDDeviceAdapter extends RecyclerView.Adapter<OBDDeviceAdapter.OBDV
 
     private BluetoothDevice mSelectedBluetoothDevice;
     private AppCompatRadioButton mSelectedRadioButton;
-    List<BluetoothDevice> pairedDevices;
+    List<BluetoothDevice> pairedDevices = new ArrayList<>();
 
     /**
      * Constructor.
@@ -176,34 +179,11 @@ public class OBDDeviceAdapter extends RecyclerView.Adapter<OBDDeviceAdapter.OBDV
             mCallback.onOBDDeviceSelected(device);
         });
 
-        holder.obdSelectionLayout.setOnClickListener((parent, view1, id) -> {
-
-            // Set toolbar style
-            Toolbar toolbar1 = contentView.findViewById(R.id
-                    .bluetooth_selection_preference_pairing_dialog_toolbar);
-            toolbar1.setTitle(R.string.bluetooth_pairing_preference_toolbar_title);
-            toolbar1.setNavigationIcon(R.drawable.ic_bluetooth_white_24dp);
-            toolbar1.setTitleTextColor(getActivity().getResources().getColor(R.color
-                    .white_cario));
-
-            // Set text view
-            TextView textview = contentView.findViewById(R.id
-                    .bluetooth_selection_preference_pairing_dialog_text);
-            textview.setText(String.format(getString(
-                    R.string.obd_selection_dialog_pairing_content_template), device.getName()));
-
-            // Create the Dialog
-            new AlertDialog.Builder(getActivity())
-                    .setView(contentView)
-                    .setPositiveButton(R.string.obd_selection_dialog_pairing_title,
-                            (dialog, which) -> {
-                                // If this button is clicked, pair with the given device
-                                view1.setClickable(false);
-                                pairDevice(device, view1);
-                            })
-                    .setNegativeButton(R.string.cancel, null) // Nothing to do on cancel
-                    .create()
-                    .show();
+        holder.obdSelectionLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mCallback.createDialog(device, holder.mContentView);
+            }
         });
     }
 
