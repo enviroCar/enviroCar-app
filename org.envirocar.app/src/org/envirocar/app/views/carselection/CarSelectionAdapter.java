@@ -25,7 +25,11 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.RadioButton;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 
@@ -41,8 +45,8 @@ import butterknife.BindView;
 /**
  * @author dewall
  */
-public class CarSelectionListAdapter extends ArrayAdapter<Car> {
-    private static final Logger LOG = Logger.getLogger(CarSelectionListAdapter.class);
+public class CarSelectionAdapter extends RecyclerView.Adapter<CarSelectionAdapter.CarViewHolder> {
+    private static final Logger LOG = Logger.getLogger(CarSelectionAdapter.class);
 
     /**
      * Simple callback interface for the action types of the car list entries.
@@ -85,34 +89,26 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
      * @param values      the values to show in the list.
      * @param callback    the callback for list actions
      */
-    public CarSelectionListAdapter(Context context, Car selectedCar, List<Car> values,
-                                   OnCarListActionCallback callback) {
-        super(context, -1, values);
+    public CarSelectionAdapter(Context context, Car selectedCar, List<Car> values,
+                               OnCarListActionCallback callback) {
         this.mContext = context;
         this.mCars = values;
         this.mCallback = callback;
         this.mSelectedCar = selectedCar;
     }
 
+    @NonNull
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        // First get the car for which the view needs to be created.
+    public CarViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View itemView = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.activity_car_selection_layout_carlist_entry, parent, false);
+
+        return new CarViewHolder(itemView);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull CarViewHolder holder, int position) {
         final Car car = mCars.get(position);
-
-        // Then inflate a new view for the car and create a holder
-        LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context
-                .LAYOUT_INFLATER_SERVICE);
-
-        CarViewHolder holder = null;
-        if (convertView == null) {
-            convertView = inflater.inflate(R.layout
-                    .activity_car_selection_layout_carlist_entry, parent, false);
-            holder = new CarViewHolder(convertView);
-            convertView.setTag(holder);
-        } else {
-            holder = (CarViewHolder) convertView.getTag();
-        }
-
         // set the views
         holder.mFirstLineText.setText(String.format("%s - %s", car.getManufacturer(), car
                 .getModel()));
@@ -144,7 +140,7 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
         });
 
         // Set the onClickListener for a single row.
-        convertView.setOnClickListener(v -> new MaterialDialog.Builder(mContext)
+        holder.carLayout.setOnClickListener(v -> new MaterialDialog.Builder(mContext)
                 .items(R.array.car_list_option_items)
                 .itemsCallback((materialDialog, view, i, charSequence) -> {
                     switch (i) {
@@ -183,13 +179,11 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
                 })
                 .show());
 
-        // Return the created view.
-        return convertView;
     }
 
     @Override
-    public Car getItem(int position) {
-        return mCars.get(position);
+    public int getItemCount() {
+        return mCars.size();
     }
 
     /**
@@ -217,10 +211,12 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
     /**
      * Static view holder class that holds all necessary views of a list-row.
      */
-    static class CarViewHolder {
+    static class CarViewHolder extends RecyclerView.ViewHolder{
 
         protected final View mCoreView;
 
+        @BindView(R.id.car_layout)
+        protected RelativeLayout carLayout;
         @BindView(R.id.activity_car_selection_layout_carlist_entry_icon)
         protected ImageView mIconView;
         @BindView(R.id.activity_car_selection_layout_carlist_entry_firstline)
@@ -242,6 +238,7 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
          * @param view
          */
         CarViewHolder(View view) {
+            super(view);
             this.mCoreView = view;
             ButterKnife.bind(this, view);
         }

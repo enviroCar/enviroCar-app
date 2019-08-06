@@ -23,6 +23,9 @@ import android.os.Bundle;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -77,7 +80,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
     protected FloatingActionButton mFab;
 
     @BindView(R.id.activity_car_selection_layout_carlist)
-    protected ListView mCarListView;
+    protected RecyclerView mCarListView;
 
     @Inject
     protected DAOProvider mDAOProvider;
@@ -91,7 +94,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
     private Set<Car> mCars = new HashSet<>();
 
 
-    private CarSelectionListAdapter mCarListAdapter;
+    private CarSelectionAdapter mCarListAdapter;
     private AutoCompleteArrayAdapter mManufacturerNameAdapter;
     private Subscription loadingCarsSubscription;
 
@@ -207,8 +210,8 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
         Car selectedCar = mCarManager.getCar();
         List<Car> usedCars = new ArrayList<>();
 
-        mCarListAdapter = new CarSelectionListAdapter(this, selectedCar, usedCars,
-                new CarSelectionListAdapter.OnCarListActionCallback() {
+        mCarListAdapter = new CarSelectionAdapter(this, selectedCar, usedCars,
+                new CarSelectionAdapter.OnCarListActionCallback() {
 
                     @Override
                     public void onSelectCar(Car car) {
@@ -234,6 +237,8 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
                         }
                     }
                 });
+
+        mCarListView.setLayoutManager(new LinearLayoutManager(CarSelectionActivity.this));
         mCarListView.setAdapter(mCarListAdapter);
 
         loadingCarsSubscription = mCarManager.getAllDeserializedCars()
@@ -274,7 +279,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
                             if (!usedCars.contains(car))
                                 usedCars.add(car);
                         }
-                        mCarListAdapter.notifyDataSetInvalidated();
+                        mCarListAdapter.notifyDataSetChanged();
                     }
                 });
     }
