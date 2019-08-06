@@ -23,6 +23,8 @@ import android.bluetooth.BluetoothDevice;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.RecyclerView;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,6 +45,8 @@ import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.core.logging.Logger;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -83,9 +87,9 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
     @BindView(R.id.activity_obd_selection_layout_paired_devices_text)
     protected TextView mPairedDevicesTextView;
     @BindView(R.id.activity_obd_selection_layout_paired_devices_list)
-    protected ListView mPairedDevicesListView;
+    protected RecyclerView mPairedDevicesListView;
     @BindView(R.id.activity_obd_selection_layout_available_devices_list)
-    protected ListView mNewDevicesListView;
+    protected RecyclerView mNewDevicesListView;
     @BindView(R.id.activity_obd_selection_layout_search_devices_progressbar)
     protected ProgressBar mProgressBar;
 
@@ -93,8 +97,9 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
     protected TextView mNewDevicesInfoTextView;
 
     // ArrayAdapter for the two different list views.
-    private OBDDeviceListAdapter mNewDevicesArrayAdapter;
-    private OBDDeviceListAdapter mPairedDevicesAdapter;
+    private OBDDeviceAdapter mNewDevicesArrayAdapter;
+    private OBDDeviceAdapter mPairedDevicesAdapter;
+    Set<BluetoothDevice> pairedDevices;
 
     private Subscription mBTDiscoverySubscription;
 
@@ -212,14 +217,14 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
                                 if (mNewDevicesArrayAdapter.isEmpty()) {
                                     mNewDevicesInfoTextView.setText(R.string
                                             .select_bluetooth_preference_info_no_device_found);
-                                } else if (mNewDevicesArrayAdapter.getCount() == 1) {
+                                } else if (mNewDevicesArrayAdapter.getItemCount() == 1) {
                                     mNewDevicesInfoTextView.setText(R.string
                                             .bluetooth_pairing_preference_info_device_found);
                                 } else {
                                     String string = getString(R.string
                                             .bluetooth_pairing_preference_info_devices_found);
                                     mNewDevicesInfoTextView.setText(String.format(string,
-                                            Integer.toString(mNewDevicesArrayAdapter.getCount())));
+                                            Integer.toString(mNewDevicesArrayAdapter.getItemCount())));
                                 }
 
                                 showSnackbar("Discovery Finished!");
@@ -251,9 +256,9 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
         BluetoothDevice selectedBTDevice = mBluetoothHandler.getSelectedBluetoothDevice();
 
         // Initialize the array adapter for both list views
-        mNewDevicesArrayAdapter = new OBDDeviceListAdapter(getActivity(), false);
-        mPairedDevicesAdapter = new OBDDeviceListAdapter(getActivity(), true, new
-                OBDDeviceListAdapter.OnOBDListActionCallback() {
+        mNewDevicesArrayAdapter = new OBDDeviceAdapter(getActivity(), false);
+        mPairedDevicesAdapter = new OBDDeviceAdapter(getActivity(), true, new
+                OBDDeviceAdapter.OnOBDListActionCallback() {
                     @Override
                     public void onOBDDeviceSelected(BluetoothDevice device) {
                         LOGGER.info(String.format("onOBDDeviceSelected(%s)", device.getName()));
@@ -373,7 +378,8 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
      */
     private void updatePairedDevicesList() {
         // Get the set of paired devices.
-        Set<BluetoothDevice> pairedDevices = mBluetoothHandler.getPairedBluetoothDevices();
+        List<BluetoothDevice> pairedDevices = new ArrayList<>();
+        pairedDevices.addAll(mBluetoothHandler.getPairedBluetoothDevices());
 
         // For each device, add an entry to the list view.
         mPairedDevicesAdapter.addAll(pairedDevices);
