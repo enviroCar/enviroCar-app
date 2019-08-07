@@ -45,7 +45,7 @@ import butterknife.BindView;
 /**
  * @author dewall
  */
-public class CarSelectionAdapter extends RecyclerView.Adapter<CarSelectionAdapter.CarViewHolder> {
+public class    CarSelectionAdapter extends RecyclerView.Adapter<CarSelectionAdapter.CarViewHolder> {
     private static final Logger LOG = Logger.getLogger(CarSelectionAdapter.class);
 
     /**
