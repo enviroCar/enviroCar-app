@@ -23,10 +23,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+
+import androidx.annotation.NonNull;
+
+import com.mapbox.mapboxsdk.maps.MapView;
+
 import org.envirocar.app.R;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.logging.Logger;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -47,6 +53,8 @@ public class TrackListRemoteCardAdapter extends AbstractTrackListCardAdapter<
         super(tracks, callback);
     }
 
+    protected List<MapView> mapViews = new ArrayList<>();
+
     @Override
     public RemoteTrackCardViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         // Inflate the content view of the card.
@@ -54,7 +62,9 @@ public class TrackListRemoteCardAdapter extends AbstractTrackListCardAdapter<
                 .inflate(R.layout.fragment_tracklist_cardlayout, parent, false);
 
         // and create a new viewholder.
-        return new RemoteTrackCardViewHolder(remoteView);
+        RemoteTrackCardViewHolder temp = new RemoteTrackCardViewHolder(remoteView);
+        mapViews.add(temp.mMapView);
+        return temp;
     }
 
     @Override
@@ -64,11 +74,11 @@ public class TrackListRemoteCardAdapter extends AbstractTrackListCardAdapter<
         final Track remoteTrack = mTrackDataset.get(position);
 
         // Reset the most important settings of the views.
-        //holder.mTitleTextView.setText(remoteTrack.getName());
-        holder.mMapView.getOverlays().clear();
+        holder.mTitleTextView.setText(remoteTrack.getName());
         holder.mDownloadButton.setOnClickListener(null);
+        holder.mMapView.onCreate(null);
+        holder.mMapView.removeOnDidFailLoadingMapListener(holder.failLoadingMapListener);
         holder.mToolbar.getMenu().clear();
-
         // Depending on the tracks state
         switch (remoteTrack.getDownloadState()) {
             case REMOTE:
@@ -77,9 +87,9 @@ public class TrackListRemoteCardAdapter extends AbstractTrackListCardAdapter<
 
                 // Workaround: Sometimes the inner arcview can be null when set visible
                 holder.mProgressCircle.post(() -> {
-                    holder.mProgressCircle.hide();
+                    //holder.mProgressCircle.hide();
                 });
-                holder.mDownloadButton.setVisibility(View.VISIBLE);
+                holder.mDownloadButton.show();
                 holder.mDownloadButton.setOnClickListener(v -> {
                     holder.mDownloadButton.setOnClickListener(null);
                     mTrackInteractionCallback.onDownloadTrackClicked(remoteTrack, holder);
@@ -90,7 +100,7 @@ public class TrackListRemoteCardAdapter extends AbstractTrackListCardAdapter<
             case DOWNLOADING:
                 holder.mProgressCircle.setVisibility(View.VISIBLE);
                 holder.mProgressCircle.post(() -> holder.mProgressCircle.show());
-                holder.mDownloadButton.setVisibility(View.VISIBLE);
+                holder.mDownloadButton.show();
                 holder.mDownloadNotification.setVisibility(View.VISIBLE);
                 break;
             case DOWNLOADED:
@@ -100,6 +110,21 @@ public class TrackListRemoteCardAdapter extends AbstractTrackListCardAdapter<
                 break;
         }
 
-        holder.mMapView.postInvalidate();
+        //holder.mMapView.postInvalidate();
     }
+
+    public void onLowMemory(){
+        for(MapView mapView : mapViews){
+            mapView.onLowMemory();
+        }
+    }
+
+    public void onDestroy(){
+        for (MapView mapView : mapViews) {
+            mapView.onPause();
+            mapView.onStop();
+            mapView.onDestroy();
+        }
+    }
+
 }

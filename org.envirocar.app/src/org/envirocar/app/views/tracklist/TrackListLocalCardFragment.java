@@ -23,6 +23,8 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.transition.Slide;
+import androidx.transition.TransitionManager;
 
 import com.google.android.material.snackbar.Snackbar;
 
@@ -33,8 +35,6 @@ import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.common.base.Preconditions;
-import com.transitionseverywhere.Slide;
-import com.transitionseverywhere.TransitionManager;
 
 import org.envirocar.app.main.BaseApplication;
 import org.envirocar.app.main.MainActivityComponent;
@@ -47,7 +47,7 @@ import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.core.trackprocessing.TrackStatisticsProvider;
+import org.envirocar.core.trackprocessing.statistics.TrackStatisticsProvider;
 import org.envirocar.core.util.TrackMetadata;
 import org.envirocar.core.util.Util;
 
@@ -266,6 +266,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
 
     @Override
     protected void loadDataset() {
+        LOG.info("loadDataset()");
         // Do not load the dataset twice.
         if(!tracksLoaded)
         {
@@ -462,6 +463,19 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
         });
     }
 
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        mRecyclerViewAdapter.onLowMemory();
+
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mRecyclerViewAdapter.onDestroy();
+    }
+
     private final class LoadLocalTracksTask extends AsyncTask<Void, Void, Void> {
 
         @Override
@@ -584,16 +598,16 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
                 Collections.sort(mTrackList, new Comparator<Track>() {
                     @Override
                     public int compare(Track lhs, Track rhs) {
-                        Float lhsLen;
+                        Double lhsLen;
 
                         if (lhs.getLength() == null)
-                            lhsLen = (float) (((TrackStatisticsProvider) lhs).getDistanceOfTrack());
+                            lhsLen = (((TrackStatisticsProvider) lhs).getDistanceOfTrack());
                         else
                             lhsLen = lhs.getLength();
 
-                        Float rhsLen;
+                        Double rhsLen;
                         if (rhs.getLength() == null)
-                            rhsLen = (float) (((TrackStatisticsProvider) rhs).getDistanceOfTrack());
+                            rhsLen = (((TrackStatisticsProvider) rhs).getDistanceOfTrack());
                         else
                             rhsLen = rhs.getLength();
                         int res = lhsLen.compareTo(rhsLen);

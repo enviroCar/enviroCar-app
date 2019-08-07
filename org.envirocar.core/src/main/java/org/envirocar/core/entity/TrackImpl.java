@@ -22,8 +22,8 @@ import org.envirocar.core.exception.FuelConsumptionException;
 import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.exception.UnsupportedFuelTypeException;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.core.trackprocessing.TrackStatisticsProcessor;
-import org.envirocar.core.trackprocessing.TrackStatisticsProvider;
+import org.envirocar.core.trackprocessing.statistics.TrackStatisticsProcessor;
+import org.envirocar.core.trackprocessing.statistics.TrackStatisticsProvider;
 import org.envirocar.core.util.TrackMetadata;
 
 import java.text.SimpleDateFormat;
@@ -50,7 +50,7 @@ public class TrackImpl implements Track, TrackStatisticsProvider {
     protected Long lastModified;
     protected Long startTime;
     protected Long endTime;
-    protected Float length;
+    protected Double length;
     protected String begin;
     protected String end;
     protected TrackMetadata metadata;
@@ -228,12 +228,12 @@ public class TrackImpl implements Track, TrackStatisticsProvider {
     }
 
     @Override
-    public Float getLength(){
+    public Double getLength(){
         return this.length;
     }
 
     @Override
-    public void setLength(Float length){
+    public void setLength(Double length){
         this.length = length;
     }
 

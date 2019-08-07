@@ -27,8 +27,11 @@
     <string name="property_key_rpm">RPM</string>
     <string name="property_key_intake_temp">Eintrittstemperatur</string>
     <string name="property_key_intake_pressure">Einlassdruck</string>
+    <string name="property_key_engine_fuel_rate">Kraftstoffverbrauch</string>
     <string name="property_key_co2">CO2</string>
     <string name="property_key_consumption">Geschätzter Verbrauch</string>
+    <string name="property_key_energy_consumption">Gerschätzter Energieverbrauch</string>
+    <string name="property_key_energy_co2_emission">Geschätzte CO2 Emission</string>
     <string name="property_key_throttle_position">Drosselklappenstellung</string>
     <string name="property_key_engine_load">Motorlast</string>
     <string name="property_key_gps_accuracy">GPS Genauigkeit</string>

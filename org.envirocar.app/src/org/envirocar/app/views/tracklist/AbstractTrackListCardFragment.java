@@ -44,7 +44,7 @@ import android.widget.TextView;
 import org.envirocar.app.BuildConfig;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.DAOProvider;
-import org.envirocar.app.handler.TermsOfUseManager;
+import org.envirocar.app.handler.agreement.AgreementManager;
 import org.envirocar.app.handler.TrackDAOHandler;
 import org.envirocar.app.handler.TrackUploadHandler;
 import org.envirocar.app.handler.UserHandler;
@@ -87,7 +87,7 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
     @Inject
     protected EnviroCarDB mEnvirocarDB;
     @Inject
-    protected TermsOfUseManager mTermsOfUseManager;
+    protected AgreementManager mAgreementManager;
     @Inject
     protected DAOProvider mDAOProvider;
     @Inject

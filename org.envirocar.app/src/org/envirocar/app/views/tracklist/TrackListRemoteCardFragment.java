@@ -42,7 +42,7 @@ import org.envirocar.core.events.NewUserSettingsEvent;
 import org.envirocar.core.exception.NotConnectedException;
 import org.envirocar.core.exception.UnauthorizedException;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.core.trackprocessing.TrackStatisticsProvider;
+import org.envirocar.core.trackprocessing.statistics.TrackStatisticsProvider;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -124,12 +124,24 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
             showText(R.drawable.img_logged_out,
                     R.string.track_list_bg_not_logged_in,
                     R.string.track_list_bg_not_logged_in_sub);
-
             mProgressView.setVisibility(View.INVISIBLE);
             mRecyclerView.setVisibility(View.GONE);
             mRecyclerViewAdapter.mTrackDataset.clear();
             mRecyclerViewAdapter.notifyDataSetChanged();
         }
+    }
+
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        mRecyclerViewAdapter.onLowMemory();
+
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mRecyclerViewAdapter.onDestroy();
     }
 
     @Override
@@ -192,6 +204,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
 
     @Override
     protected void loadDataset() {
+        LOG.info("loadDataset()");
         // Do not load the dataset twice.
         if (mUserManager.isLoggedIn() && !tracksLoaded)
         {
@@ -461,15 +474,15 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
                         Collections.sort(mTrackList, new Comparator<Track>() {
                             @Override
                             public int compare(Track lhs, Track rhs) {
-                                Float lhsLen;
+                                Double lhsLen;
                                 if (lhs.getLength() == null)
-                                    lhsLen = (float) (((TrackStatisticsProvider) lhs).getDistanceOfTrack());
+                                    lhsLen = (((TrackStatisticsProvider) lhs).getDistanceOfTrack());
                                 else
                                     lhsLen = lhs.getLength();
 
-                                Float rhsLen;
+                                Double rhsLen;
                                 if (rhs.getLength() == null)
-                                    rhsLen = (float) (((TrackStatisticsProvider) rhs).getDistanceOfTrack());
+                                    rhsLen = (((TrackStatisticsProvider) rhs).getDistanceOfTrack());
                                 else
                                     rhsLen = rhs.getLength();
 

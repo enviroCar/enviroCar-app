@@ -165,7 +165,9 @@ public class TrackSerializer implements JsonSerializer<Track>, JsonDeserializer<
         JsonObject result = new JsonObject();
         result.addProperty(Track.KEY_TRACK_TYPE, "FeatureCollection");
         //TODO result.addProperty(Track.KEY_TRACK_PROPERTIES_LENGTH, src.getLengthOfTrack());
-        //result.addProperty(Track.KEY_TRACK_PROPERTIES_LENGTH, src.getLength());
+        result.addProperty(Track.KEY_TRACK_PROPERTIES_BEGIN,src.getBegin());
+        result.addProperty(Track.KEY_TRACK_PROPERTIES_END,src.getEnd());
+        result.addProperty(Track.KEY_TRACK_PROPERTIES_LENGTH, src.getLength());
         result.add(Track.KEY_TRACK_PROPERTIES, trackProperties);
         result.add(Track.KEY_TRACK_FEATURES, trackFeatures);
 
@@ -224,9 +226,15 @@ public class TrackSerializer implements JsonSerializer<Track>, JsonDeserializer<
         String description = properties.has(Track.KEY_TRACK_PROPERTIES_DESCRIPTION) ?
                 properties.get(Track.KEY_TRACK_PROPERTIES_DESCRIPTION).getAsString() :
                 "";
-        Float length = properties.has(Track.KEY_TRACK_PROPERTIES_LENGTH) ?
-                properties.get(Track.KEY_TRACK_PROPERTIES_LENGTH).getAsFloat() :
-                new Float(0);
+        String begin = properties.has(Track.KEY_TRACK_PROPERTIES_BEGIN) ?
+                properties.get(Track.KEY_TRACK_PROPERTIES_BEGIN).getAsString() :
+                "";
+        String end = properties.has(Track.KEY_TRACK_PROPERTIES_END) ?
+                properties.get(Track.KEY_TRACK_PROPERTIES_END).getAsString() :
+                "";
+        Double length = properties.has(Track.KEY_TRACK_PROPERTIES_LENGTH) ?
+                properties.get(Track.KEY_TRACK_PROPERTIES_LENGTH).getAsDouble() :
+                (double)0;
         // Parse the car object.
         JsonObject carObject = properties.get(Track.KEY_TRACK_PROPERTIES_SENSOR)
                 .getAsJsonObject();
@@ -258,9 +266,11 @@ public class TrackSerializer implements JsonSerializer<Track>, JsonDeserializer<
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(measurements.get(0).getTime());
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault());
-        String begin = format.format(calendar.getTime());
+        if(begin.equals(""))
+            begin = format.format(calendar.getTime());
         calendar.setTimeInMillis(measurements.get(measurements.size() - 1).getTime());
-        String end = format.format(calendar.getTime());
+        if(end.equals(""))
+            end = format.format(calendar.getTime());
         track.setBegin(begin);
         track.setEnd(end);
 

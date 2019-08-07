@@ -63,5 +63,5 @@
     <string name="dashboard_my_local_tracks">Lokale Fahrten</string>
     <string name="dashboard_my_remote_tracks">Online Fahrten</string>
     <string name="dashboard_total_tracks">Fahrten in eC</string>
-
+    <string name="dashboard_total_distance">Entfernung</string>
 </resources>

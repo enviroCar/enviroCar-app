@@ -142,7 +142,7 @@ public class BaseApplicationModule {
 
     @Provides
     @Singleton
-    TrackDetailsProvider provideTrackDetailsProvider() { return new TrackDetailsProvider(mBus); }
+    TrackDetailsProvider provideTrackDetailsProvider() { return new TrackDetailsProvider(mBus, mAppContext); }
 
     @Provides
     @Singleton
@@ -167,4 +167,6 @@ public class BaseApplicationModule {
             @InjectApplicationScope Context context) {
         return () -> Util.resolveCacheFolder(context);
     }
+
+
 }

@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
-package org.envirocar.core.trackprocessing;
+package org.envirocar.core.trackprocessing.consumption;
 
 
 import org.envirocar.core.entity.Car;
@@ -30,14 +30,15 @@ import org.envirocar.core.exception.UnsupportedFuelTypeException;
  * @author dewall
  */
 public interface ConsumptionAlgorithm {
-
+    double DIESEL_CONSUMPTION_TO_CO2_FACTOR = 2.65;
+    double GASOLINE_CONSUMPTION_TO_CO2_FACTOR = 2.35;
 
     /**
      * An implementation shall calculate the fuel consumption (l/h).
      *
      * @param measurement the measurement providing the required parameters
      * @return fuel consumption in l/h
-     * @throws FuelConsumptionException if required parameters were missing
+     * @throws FuelConsumptionException     if required parameters were missing
      * @throws UnsupportedFuelTypeException
      */
     double calculateConsumption(Measurement measurement) throws
@@ -51,5 +52,21 @@ public interface ConsumptionAlgorithm {
      * @throws FuelConsumptionException if the fuelType is not supported
      */
     double calculateCO2FromConsumption(double consumption) throws
-			FuelConsumptionException;
+            FuelConsumptionException;
+
+    /**
+     * Resolves the ConsumptionAlgorithm for a specific FuelType.
+     *
+     * @return the consumption algorithm for a specific FuelType.
+     */
+    static ConsumptionAlgorithm fromFuelType(Car.FuelType fuelType) {
+        switch (fuelType) {
+            case DIESEL:
+                return new DieselConsumptionAlgorithm();
+            case GASOLINE:
+                return new GasolineConsumptionAlgorithm();
+            default:
+                return null;
+        }
+    }
 }
