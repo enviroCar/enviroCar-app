@@ -94,6 +94,7 @@ import org.envirocar.core.logging.Logger;
 import org.envirocar.obd.events.TrackRecordingServiceStateChangedEvent;
 import org.envirocar.obd.service.BluetoothServiceState;
 
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -114,6 +115,8 @@ import static android.view.View.GONE;
 
 public class DashBoardFragment extends BaseInjectorFragment {
     private static final Logger LOG = Logger.getLogger(DashBoardFragment.class);
+
+    protected static final DecimalFormat DECIMAL_FORMATTER_TWO = new DecimalFormat("#.#");
 
     @InjectActivityScope
     @Inject
@@ -283,7 +286,7 @@ public class DashBoardFragment extends BaseInjectorFragment {
 //        userTotalDurationTV.setText(t.substring(0, t.length() - 1) + "");*/
         Integer totalTracks = PreferencesHandler.getUploadedTrackCount(getActivity()) + PreferencesHandler.getLocalTrackCount(getActivity());
         userTrackCountTV.setText(totalTracks + "");
-        userTotalDistanceTV.setText(PreferencesHandler.getTotalDistanceTravelledOfUser(getActivity()) + "");
+        userTotalDistanceTV.setText(DECIMAL_FORMATTER_TWO.format(PreferencesHandler.getTotalDistanceTravelledOfUser(getActivity())));
         obdGPSTransition = buttonGroup;
         bannerTransition = buttonBanner;
         frameTransition = frameLayout;
@@ -739,7 +742,7 @@ public class DashBoardFragment extends BaseInjectorFragment {
                         LOG.info(time + " Duration");
                         userTotalDurationTV.setText(time.substring(0, time.length() - 1) + "");
                         PreferencesHandler.setTotalDistanceTravelledOfUser(context, distance);
-                        userTotalDistanceTV.setText(PreferencesHandler.getTotalDistanceTravelledOfUser(context) + "");
+                        userTotalDistanceTV.setText(DECIMAL_FORMATTER_TWO.format(PreferencesHandler.getTotalDistanceTravelledOfUser(context)));
                     }
                 }));
     }
