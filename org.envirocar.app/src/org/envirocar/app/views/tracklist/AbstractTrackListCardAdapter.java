@@ -313,12 +313,15 @@ public abstract class AbstractTrackListCardAdapter<E extends
                     .includes(latLngs)
                     .build();
 
+            double latRatio = Math.max(mTrackBoundingBox.getLatitudeSpan() / 10.0, 0.01);
+            double lngRatio = Math.max(mTrackBoundingBox.getLongitudeSpan() / 10.0, 0.01);
+
             // The view bounding box of the pathoverlay
             mViewBoundingBox = LatLngBounds.from(
-                    mTrackBoundingBox.getLatNorth() + 0.01,
-                    mTrackBoundingBox.getLonEast() + 0.01,
-                    mTrackBoundingBox.getLatSouth() - 0.01,
-                    mTrackBoundingBox.getLonWest() - 0.01);
+                    mTrackBoundingBox.getLatNorth() + latRatio,
+                    mTrackBoundingBox.getLonEast() + lngRatio,
+                    mTrackBoundingBox.getLatSouth() - latRatio,
+                    mTrackBoundingBox.getLonWest() - lngRatio);
         }
 
     }
@@ -340,7 +343,6 @@ public abstract class AbstractTrackListCardAdapter<E extends
         protected TextView mDistance;
         @BindView(R.id.track_details_attributes_header_duration)
         protected TextView mDuration;
-        protected MapboxMap mapboxMap;
         @BindView(R.id.fragment_tracklist_cardlayout_map)
         protected MapView mMapView;
         @BindView(R.id.fragment_tracklist_cardlayout_invis_mapbutton)
