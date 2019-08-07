@@ -31,12 +31,10 @@ import com.mapbox.mapboxsdk.maps.Style;
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
-import com.mapbox.mapboxsdk.style.sources.TileSet;
 
 import org.envirocar.app.R;
 import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.app.main.BaseApplicationComponent;
-import org.envirocar.app.views.utils.MapUtils;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.logging.Logger;
@@ -57,13 +55,14 @@ import rx.schedulers.Schedulers;
 import static android.view.View.GONE;
 
 public class MapExpandedActivity extends BaseInjectorActivity {
-
     private static final Logger LOG = Logger.getLogger(MapExpandedActivity.class);
-    protected static final DecimalFormat DECIMAL_FORMATTER = new DecimalFormat("#.##");
 
+    protected static final DecimalFormat DECIMAL_FORMATTER = new DecimalFormat("#.##");
     private static final String EXTRA_TRACKID = "org.envirocar.app.extraTrackID";
     private static final String EXTRA_TITLE = "org.envirocar.app.extraTitle";
 
+    @Inject
+    protected EnviroCarDB enviroCarDB;
 
     @BindView(R.id.activity_map_follow_fab)
     protected FloatingActionButton mCentreFab;
@@ -96,12 +95,10 @@ public class MapExpandedActivity extends BaseInjectorActivity {
     protected TextView legendEnd;
 
     @BindView(R.id.legend_unit)
-    protected TextView legendUnit;
+    protected TextView legendName;
 
-    @Inject
-    protected EnviroCarDB enviroCarDB;
     protected MapboxMap mapboxMapExpanded;
-    protected TrackSpeedMapOverlay trackMapOverlay;
+    protected TrackMapLayer trackMapOverlay;
     private Track track;
     private Style style;
     private List<Measurement.PropertyKey> options = new ArrayList<>();
@@ -126,26 +123,28 @@ public class MapExpandedActivity extends BaseInjectorActivity {
         ButterKnife.bind(this);
         mMapViewExpanded.onCreate(savedInstanceState);
 
+        // Get the track to show.
         int trackID = getIntent().getIntExtra(EXTRA_TRACKID, -1);
         Track.TrackId trackid = new Track.TrackId(trackID);
-
         Track track = enviroCarDB.getTrack(trackid)
                 .subscribeOn(Schedulers.io())
                 .toBlocking()
                 .first();
         this.track = track;
-        trackMapOverlay = new TrackSpeedMapOverlay(track);
+
+        trackMapOverlay = new TrackMapLayer(track);
+
         options = track.getSupportedProperties();
         for(Measurement.PropertyKey propertyKey : options){
             spinnerStrings.add(propertyKey.toString());
         }
         spinnerStrings.add("None");
-        initMapView();
-        mIsCentredOnTrack = true;
-        mCentreFab.setVisibility(View.VISIBLE);
-        mMapViewExpandedCancel.setOnClickListener(v-> finish());
-        LOG.info("Index of Speed: " + options.indexOf(Measurement.PropertyKey.SPEED));
 
+        initMapView();
+
+        mIsCentredOnTrack = true;
+        mCentreFab.show();
+        mMapViewExpandedCancel.setOnClickListener(v-> finish());
     }
 
     @OnTouch(R.id.activity_track_details_expanded_map)
@@ -153,7 +152,7 @@ public class MapExpandedActivity extends BaseInjectorActivity {
         if (mIsCentredOnTrack) {
             mIsCentredOnTrack = false;
             TransitionManager.beginDelayedTransition(mMapViewExpandedContainer,new androidx.transition.Slide(Gravity.RIGHT));
-            mCentreFab.setVisibility(View.VISIBLE);
+            mCentreFab.show();
         }
         return false;
     }
@@ -164,7 +163,7 @@ public class MapExpandedActivity extends BaseInjectorActivity {
         if (!mIsCentredOnTrack) {
             mIsCentredOnTrack = true;
             TransitionManager.beginDelayedTransition(mMapViewExpandedContainer,new androidx.transition.Slide(Gravity.RIGHT));
-            mCentreFab.setVisibility(GONE);
+            mCentreFab.hide();
             mapboxMapExpanded.easeCamera(CameraUpdateFactory.newLatLngBounds(viewBbox, 50),2500);
         }
     }
@@ -197,34 +196,39 @@ public class MapExpandedActivity extends BaseInjectorActivity {
                 {
                     TransitionManager.beginDelayedTransition(legendCard,new androidx.transition.Slide(Gravity.LEFT));
                     legendCard.setVisibility(View.VISIBLE);
-                } else{
+                } else {
                     TransitionManager.beginDelayedTransition(legendCard,new ChangeBounds());
                 }
 
                 mapboxMapExpanded.getStyle(new Style.OnStyleLoaded() {
                     @Override
                     public void onStyleLoaded(@NonNull Style style) {
-                        style.removeLayer(TrackSpeedMapOverlay.GRADIENT_LAYER);
-                        style.removeSource(TrackSpeedMapOverlay.GRADIENT_SOURCE);
+                        //Remove current gradient layer
+                        style.removeLayer(TrackMapLayer.GRADIENT_LAYER);
+                        style.removeSource(TrackMapLayer.GRADIENT_SOURCE);
+
+                        //Add new gradient layer based on choice of data
                         style.addSource(trackMapOverlay.getGradientGeoJSONSource());
-                        LOG.info(options.get(choice)+"");
                         style.addLayerBelow(trackMapOverlay.getGradientLineLayer(options.get(choice)), "marker-layer1");
+
+                        //Set legend values
                         legendStart.setText(DECIMAL_FORMATTER.format(trackMapOverlay.getGradMin()));
                         legendEnd.setText(DECIMAL_FORMATTER.format(trackMapOverlay.getGradMax()));
                         Float mid = (trackMapOverlay.getGradMin() + trackMapOverlay.getGradMax())/2;
                         legendMid.setText(DECIMAL_FORMATTER.format(mid));
-                        legendUnit.setText(options.get(choice).getStringResource());
+                        legendName.setText(options.get(choice).getStringResource());
                     }
                 });
             }
             else{
+                //None gradient chosen. So remove the gradient layers
                 TransitionManager.beginDelayedTransition(legendCard,new androidx.transition.Slide(Gravity.LEFT));
                 legendCard.setVisibility(GONE);
                 mapboxMapExpanded.getStyle(new Style.OnStyleLoaded() {
                     @Override
                     public void onStyleLoaded(@NonNull Style style) {
-                        style.removeLayer(TrackSpeedMapOverlay.GRADIENT_LAYER);
-                        style.removeSource(TrackSpeedMapOverlay.GRADIENT_SOURCE);
+                        style.removeLayer(TrackMapLayer.GRADIENT_LAYER);
+                        style.removeSource(TrackMapLayer.GRADIENT_SOURCE);
                     }
                 });
             }
@@ -239,7 +243,6 @@ public class MapExpandedActivity extends BaseInjectorActivity {
 
     private void initMapView() {
         final LatLngBounds viewBbox = trackMapOverlay.getViewBoundingBox();
-        TileSet layer = MapUtils.getOSMTileLayer();
         mMapViewExpanded.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(@NonNull MapboxMap mapboxMap1) {
@@ -249,10 +252,12 @@ public class MapExpandedActivity extends BaseInjectorActivity {
                     @Override
                     public void onStyleLoaded(@NonNull Style style) {
                         MapExpandedActivity.this.style = style;
+                        //Set normal source and line layer
                         style.addSource(trackMapOverlay.getGeoJsonSource());
                         style.addLayer(trackMapOverlay.getLineLayer());
+
                         mapboxMap1.moveCamera(CameraUpdateFactory.newLatLngBounds(viewBbox, 50));
-                        setUpStartStopIcons(style, mapboxMap1);
+                        setUpStartStopIcons(style);
                         makeMapChanges(options.indexOf(Measurement.PropertyKey.SPEED));
                     }
                 });
@@ -263,25 +268,27 @@ public class MapExpandedActivity extends BaseInjectorActivity {
         });
     }
 
-    private void setUpStartStopIcons(@NonNull Style loadedMapStyle, @NonNull MapboxMap loadedMapBox) {
-        loadedMapStyle.addImage("stop-marker",
-                BitmapFactory.decodeResource(
-                        this.getResources(), R.drawable.stop_marker));
-
-        loadedMapStyle.addImage("start-marker",
-                BitmapFactory.decodeResource(
-                        this.getResources(), R.drawable.start_marker));
-
+    private void setUpStartStopIcons(@NonNull Style loadedMapStyle) {
         int size = track.getMeasurements().size();
-        List<Point> markerCoordinates = new ArrayList<>();
         if(size>=2)
         {
-            markerCoordinates.add(Point.fromLngLat(track.getMeasurements().get(0).getLongitude(),track.getMeasurements().get(0).getLatitude()));
-            markerCoordinates.add(Point.fromLngLat(track.getMeasurements().get(size-1).getLongitude(),track.getMeasurements().get(size-1).getLatitude()));
-
+            //Set Source with start and stop marker
+            Double lng = track.getMeasurements().get(0).getLongitude();
+            Double lat = track.getMeasurements().get(0).getLatitude();
             GeoJsonSource geoJsonSource = new GeoJsonSource("marker-source1", Feature.fromGeometry(
-                    Point.fromLngLat(markerCoordinates.get(0).longitude(), markerCoordinates.get(0).latitude())));
+                    Point.fromLngLat(lng, lat)));
             loadedMapStyle.addSource(geoJsonSource);
+
+            lng = track.getMeasurements().get(size-1).getLongitude();
+            lat = track.getMeasurements().get(size-1).getLatitude();
+            geoJsonSource = new GeoJsonSource("marker-source2", Feature.fromGeometry(
+                    Point.fromLngLat(lng, lat)));
+            loadedMapStyle.addSource(geoJsonSource);
+
+            //Set symbol layer to set the icons to be displayed at the start and stop
+            loadedMapStyle.addImage("start-marker",
+                    BitmapFactory.decodeResource(
+                            this.getResources(), R.drawable.start_marker));
             SymbolLayer symbolLayer = new SymbolLayer("marker-layer1", "marker-source1");
             symbolLayer.withProperties(
                     PropertyFactory.iconImage("start-marker"),
@@ -290,10 +297,9 @@ public class MapExpandedActivity extends BaseInjectorActivity {
             );
             loadedMapStyle.addLayer(symbolLayer);
 
-            geoJsonSource = new GeoJsonSource("marker-source2", Feature.fromGeometry(
-                    Point.fromLngLat(markerCoordinates.get(1).longitude(), markerCoordinates.get(1).latitude())));
-            loadedMapStyle.addSource(geoJsonSource);
-
+            loadedMapStyle.addImage("stop-marker",
+                    BitmapFactory.decodeResource(
+                            this.getResources(), R.drawable.stop_marker));
             symbolLayer = new SymbolLayer("marker-layer2", "marker-source2");
             symbolLayer.withProperties(
                     PropertyFactory.iconImage("stop-marker"),
@@ -301,7 +307,6 @@ public class MapExpandedActivity extends BaseInjectorActivity {
                     PropertyFactory.iconIgnorePlacement(true)
             );
             loadedMapStyle.addLayerAbove(symbolLayer, "marker-layer1");
-
         }
     }
 
@@ -339,10 +344,14 @@ public class MapExpandedActivity extends BaseInjectorActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        style.removeLayer(MapLayer.LAYER_NAME);
-        style.removeLayer("marker-layer1");
-        style.removeLayer("marker-layer2");
-        mMapViewExpanded.onDestroy();
+        if(style != null)
+        {
+            style.removeLayer(MapLayer.LAYER_NAME);
+            style.removeLayer("marker-layer1");
+            style.removeLayer("marker-layer2");
+        }
+        if(mMapViewExpanded != null)
+            mMapViewExpanded.onDestroy();
     }
 
     @Override

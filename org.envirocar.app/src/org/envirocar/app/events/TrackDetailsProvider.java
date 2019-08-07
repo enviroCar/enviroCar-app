@@ -29,7 +29,6 @@ import com.squareup.otto.Subscribe;
 import org.envirocar.app.services.recording.GPSOnlyRecordingService;
 import org.envirocar.app.services.recording.OBDRecordingService;
 import org.envirocar.app.views.trackdetails.MapLayer;
-import org.envirocar.app.views.trackdetails.TrackSpeedMapOverlay;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.events.recording.RecordingNewMeasurementEvent;
 import org.envirocar.core.logging.Logger;

@@ -26,15 +26,12 @@ public class MapLayer {
 
     protected LineLayer lineLayer;
     protected GeoJsonSource geoJsonSource;
-
     protected ArrayList<Point> mPoints = new ArrayList<>();
     protected ArrayList<LatLng> latLngs = new ArrayList<>();
 
     public MapLayer(){
-        //setGeoJsonSource();
-        //setLineLayer();
-    }
 
+    }
 
     public void addPoint(double aLatitude, double aLongitude) {
         mPoints.add(Point.fromLngLat(aLongitude,aLatitude));
