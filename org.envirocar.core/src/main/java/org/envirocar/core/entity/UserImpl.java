@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- * <p>
+ *
  * This file is part of the enviroCar app.
- * <p>
+ *
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * <p>
+ *
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- * <p>
+ *
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -28,6 +28,8 @@ import org.envirocar.core.util.VersionRange;
 public class UserImpl implements User {
 
     protected String username;
+    protected String firstName;
+    protected String lastName;
     protected String token;
     protected String mail;
     protected String touVersion;
@@ -37,7 +39,7 @@ public class UserImpl implements User {
      * Default Constructor.
      */
     public UserImpl() {
-        this(null, null, null);
+        this(null, null, null, null, null);
     }
 
     /**
@@ -47,7 +49,7 @@ public class UserImpl implements User {
      * @param token    the password
      */
     public UserImpl(String username, String token) {
-        this(username, token, null);
+        this(username, token, null, null, null);
     }
 
     /**
@@ -58,14 +60,53 @@ public class UserImpl implements User {
      * @param mail     the mail
      */
     public UserImpl(String username, String token, String mail) {
+        this(username, token, mail, null, null);
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param username the name of the user
+     * @param token    the password
+     * @param mail     the mail
+     */
+    public UserImpl(String username, String token, String mail, String firstName, String lastName) {
         this.username = username;
         this.token = token;
         this.mail = mail;
+        this.firstName = firstName;
+        this.lastName = lastName;
     }
 
     @Override
     public String getUsername() {
         return username;
+    }
+
+    @Override
+    public String getName() {
+        String name = this.getFirstName() + " " + this.getLastName();
+        return name;
+    }
+
+    @Override
+    public String getFirstName() {
+        return firstName;
+    }
+
+    @Override
+    public String getLastName() {
+        return lastName;
+    }
+
+    @Override
+    public void setFirstName(String FirstName) {
+        this.firstName = FirstName;
+    }
+
+    @Override
+    public void setLastName(String LastName) {
+        this.lastName = LastName;
     }
 
     @Override
@@ -129,6 +170,8 @@ public class UserImpl implements User {
         user.token = token;
         user.touVersion = touVersion;
         user.mail = mail;
+        user.firstName = firstName;
+        user.lastName = lastName;
         return user;
     }
 }

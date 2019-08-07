@@ -68,6 +68,10 @@ public interface TrackService {
     @GET("users/{user}/tracks/")
     Call<List<Track>> getTrackIds(@Path("user") String user);
 
+    @GET("users/{user}/tracks/")
+    Call<List<Track>> getTrackIdsWithLimit(@Path("user") String user,
+                                           @Query("limit") int limit);
+
     @GET("tracks?limit=1")
     Call<ResponseBody> getAllTracksCount();
 

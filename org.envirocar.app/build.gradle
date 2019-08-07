@@ -40,6 +40,7 @@ dependencies {
     implementation rootProject.ext.fabProgressCircle
     implementation rootProject.ext.segmentedUIController
     implementation rootProject.ext.materialDialogs
+    implementation "com.andkulikov:transitionseverywhere:2.0.0"
 
     //implementation rootProject.ext.guava
 //    implementation(materialDialogs) {

@@ -85,10 +85,23 @@ public class ELM327Adapter extends SyncAdapter {
 
         ConfigurationCommand sent = (ConfigurationCommand) sentCommand;
 
-        if (sent.getInstance() == ConfigurationCommand.Instance.ECHO_OFF) {
-            if (content.contains("ELM327v1.") || content.contains("OK")) {
+        if (sent.getInstance() == ConfigurationCommand.Instance.RESET) {
+            if (content.contains("ELM327") || content.contains("OK")) {
                 succesfulCount++;
                 certifiedConnection = true;
+            }
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if (sent.getInstance() == ConfigurationCommand.Instance.ECHO_OFF) {
+            if (content.contains("ELM327") || content.contains("OK")) {
+                succesfulCount++;
+                certifiedConnection = true;
+
             }
         }
 
