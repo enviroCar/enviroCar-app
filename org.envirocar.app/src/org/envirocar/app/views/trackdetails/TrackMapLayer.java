@@ -25,6 +25,7 @@ import com.mapbox.geojson.BoundingBox;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.geojson.LineString;
+import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
 import com.mapbox.mapboxsdk.style.expressions.Expression;
 import com.mapbox.mapboxsdk.style.layers.LineLayer;
@@ -109,11 +110,8 @@ public class TrackMapLayer extends MapLayer{
 
             //If there is only one point added, create another dummy point that is close to
             // the first point. If there are no points, add 2 dummy points
-            if(mPoints.size() == 1){
-                double latitude = mPoints.get(0).latitude();
-                double longitude = mPoints.get(0).longitude();
-                addPoint(latitude + 0.005, longitude+ 0.005);
-            } else if(mPoints.size() == 0){
+            if(mPoints.size() == 0){
+                hasNoMeasurements = true;
                 addPoint(7.635147738274369, 51.96057578167202);
                 addPoint(7.635078051137631, 51.96024289279303);
             }
@@ -127,24 +125,35 @@ public class TrackMapLayer extends MapLayer{
     }
 
     protected void setBoundingBoxes(){
-        // The bounding box of the pathoverlay.
-        mTrackBoundingBox = new LatLngBounds.Builder()
-                .includes(latLngs)
-                .build();
+        if(mPoints.size() == 1){
+            LatLng latLng = latLngs.get(0);
+            mViewBoundingBox = LatLngBounds.from(
+                    latLng.getLatitude() + 0.01,
+                    latLng.getLongitude() + 0.01,
+                    latLng.getLatitude() - 0.01,
+                    latLng.getLongitude() - 0.01);
+        } else {
+            mTrackBoundingBox = new LatLngBounds.Builder()
+                    .includes(latLngs)
+                    .build();
 
-        // The view bounding box of the pathoverlay
-        mViewBoundingBox = LatLngBounds.from(
-                mTrackBoundingBox.getLatNorth() + 0.01,
-                mTrackBoundingBox.getLonEast() + 0.01,
-                mTrackBoundingBox.getLatSouth() - 0.01,
-                mTrackBoundingBox.getLonWest() - 0.01);
+            double latRatio = Math.max(mTrackBoundingBox.getLatitudeSpan() / 10.0, 0.01);
+            double lngRatio = Math.max(mTrackBoundingBox.getLongitudeSpan() / 10.0, 0.01);
+            // The view bounding box of the pathoverlay
+            mViewBoundingBox = LatLngBounds.from(
+                    mTrackBoundingBox.getLatNorth() + latRatio,
+                    mTrackBoundingBox.getLonEast() + lngRatio,
+                    mTrackBoundingBox.getLatSouth() - latRatio,
+                    mTrackBoundingBox.getLonWest() - lngRatio);
 
-        // The bounding box that limits the scrolling of the mapview.
-        mScrollableLimitBox = LatLngBounds.from(
-                mTrackBoundingBox.getLatNorth() + 0.05,
-                mTrackBoundingBox.getLonEast() + 0.05,
-                mTrackBoundingBox.getLatSouth() - 0.05,
-                mTrackBoundingBox.getLonWest() - 0.05);
+            // The bounding box that limits the scrolling of the mapview.
+            mScrollableLimitBox = LatLngBounds.from(
+                    mTrackBoundingBox.getLatNorth() + 0.05,
+                    mTrackBoundingBox.getLonEast() + 0.05,
+                    mTrackBoundingBox.getLatSouth() - 0.05,
+                    mTrackBoundingBox.getLonWest() - 0.05);
+        }
+
     }
 
     /**
