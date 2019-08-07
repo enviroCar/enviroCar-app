@@ -246,7 +246,7 @@ public class DashBoardFragment extends BaseInjectorFragment {
             .newThread().createWorker();
     private final Scheduler.Worker mMainThreadWorker = AndroidSchedulers
             .mainThread().createWorker();
-    protected Long distance = Long.valueOf(0);
+    protected Double distance = 0.0;
     protected long timeInMillis = 0;
     protected Boolean localTCount = false, remoteTCount = false;
     //trackType = 1 means OBD + GPS
@@ -721,13 +721,13 @@ public class DashBoardFragment extends BaseInjectorFragment {
                         } else if (e instanceof UnauthorizedException) {
                             LOG.error("Unauthorised", e);
                         }
-                        distance = Long.valueOf(-1);
+                        distance = -1.0;
                     }
 
                     @Override
                     public void onNext(List<Track> tracks) {
-                        distance = Long.valueOf(0);
-                        timeInMillis = Long.valueOf(0);
+                        distance = -1.0;
+                        timeInMillis = 0L;
                         for (Track track : tracks) {
                             distance += track.getLength();
                             timeInMillis += track.getTimeInMillis();

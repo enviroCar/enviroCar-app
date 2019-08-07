@@ -18,6 +18,9 @@
  */
 package org.envirocar.obd.commands.request.elm;
 
+import androidx.annotation.NonNull;
+
+import org.envirocar.core.logging.Logger;
 import org.envirocar.obd.commands.request.BasicCommand;
 
 public class ConfigurationCommand implements BasicCommand {
@@ -61,7 +64,7 @@ public class ConfigurationCommand implements BasicCommand {
             case MEMORY_OFF:
                 return new ConfigurationCommand("AT M0", i, true);
             case RESET:
-                return new ConfigurationCommand("AT Z", i, false);
+                return new ConfigurationCommand("AT Z", i, true);
             case SELECT_AUTO_PROTOCOL:
                 return new ConfigurationCommand("AT SP 0", i, true);
             case SPACES_OFF:
@@ -84,4 +87,9 @@ public class ConfigurationCommand implements BasicCommand {
         SPACES_OFF
     }
 
+    @NonNull
+    @Override
+    public String toString() {
+        return instance.toString();
+    }
 }

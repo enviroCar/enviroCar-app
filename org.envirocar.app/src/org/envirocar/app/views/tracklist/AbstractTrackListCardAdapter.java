@@ -1,34 +1,35 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
 package org.envirocar.app.views.tracklist;
+
 import android.graphics.Color;
 import android.os.AsyncTask;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.appcompat.widget.Toolbar;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.github.jorgecastilloprz.FABProgressCircle;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.geojson.LineString;
@@ -253,7 +254,7 @@ public abstract class AbstractTrackListCardAdapter<E extends
                     public void onStyleLoaded(@NonNull Style style) {
                         LOG.info("onStyleLoaded()");
                         initRouteCoordinates(track);
-                        GeoJsonSource geoJsonSource = new GeoJsonSource("source-id", FeatureCollection.fromFeatures(new Feature[] {Feature.fromGeometry(
+                        GeoJsonSource geoJsonSource = new GeoJsonSource("source-id", FeatureCollection.fromFeatures(new Feature[]{Feature.fromGeometry(
                                 LineString.fromLngLats(routeCoordinates)
                         )}));
                         style.addSource(geoJsonSource);
@@ -290,27 +291,36 @@ public abstract class AbstractTrackListCardAdapter<E extends
         // Create a list to store our line coordinates.
         routeCoordinates.clear();
         List<Measurement> temp = track.getMeasurements();
-        for(Measurement measurement : temp)
-        {
-            routeCoordinates.add(Point.fromLngLat(measurement.getLongitude(),measurement.getLatitude()));
+        for (Measurement measurement : temp) {
+            routeCoordinates.add(Point.fromLngLat(measurement.getLongitude(), measurement.getLatitude()));
         }
-        LOG.info("routeCoordinates of " + track.getName() +": " + routeCoordinates.size());
+        LOG.info("routeCoordinates of " + track.getName() + ": " + routeCoordinates.size());
         LOG.info(routeCoordinates.get(0).toString());
         latLngs.clear();
-        for(int i = 0; i< routeCoordinates.size(); ++i){
+        for (int i = 0; i < routeCoordinates.size(); ++i) {
             latLngs.add(new LatLng(routeCoordinates.get(i).latitude(), routeCoordinates.get(i).longitude()));
         }
 
-        mTrackBoundingBox = new LatLngBounds.Builder()
-                .includes(latLngs)
-                .build();
+        if (latLngs.size() == 1) {
+            LatLng latLng = latLngs.get(0);
+            mViewBoundingBox = LatLngBounds.from(
+                    latLng.getLatitude() + 0.01,
+                    latLng.getLongitude() + 0.01,
+                    latLng.getLatitude() - 0.01,
+                    latLng.getLongitude() - 0.01);
+        } else {
+            mTrackBoundingBox = new LatLngBounds.Builder()
+                    .includes(latLngs)
+                    .build();
 
-        // The view bounding box of the pathoverlay
-        mViewBoundingBox = LatLngBounds.from(
-                mTrackBoundingBox.getLatNorth() + 0.01,
-                mTrackBoundingBox.getLonEast() + 0.01,
-                mTrackBoundingBox.getLatSouth() - 0.01,
-                mTrackBoundingBox.getLonWest() - 0.01);
+            // The view bounding box of the pathoverlay
+            mViewBoundingBox = LatLngBounds.from(
+                    mTrackBoundingBox.getLatNorth() + 0.01,
+                    mTrackBoundingBox.getLonEast() + 0.01,
+                    mTrackBoundingBox.getLatSouth() - 0.01,
+                    mTrackBoundingBox.getLonWest() - 0.01);
+        }
+
     }
 
     /**
