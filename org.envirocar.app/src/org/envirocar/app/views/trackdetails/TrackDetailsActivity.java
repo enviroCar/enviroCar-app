@@ -53,13 +53,11 @@ import com.mapbox.mapboxsdk.maps.Style;
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
-import com.mapbox.mapboxsdk.style.sources.TileSet;
 
 import org.envirocar.app.R;
 import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.app.main.BaseApplicationComponent;
-import org.envirocar.app.views.utils.MapUtils;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
@@ -265,7 +263,6 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
      */
     private void initMapView() {
         final LatLngBounds viewBbox = trackMapOverlay.getViewBoundingBox();
-        TileSet layer = MapUtils.getOSMTileLayer();
         mMapView.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(@NonNull MapboxMap tep) {
@@ -283,8 +280,8 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
                     }
                 });
                 mapboxMap = tep;
-                mapboxMap.setMaxZoomPreference(layer.getMaxZoom());
-                mapboxMap.setMinZoomPreference(layer.getMinZoom());
+                mapboxMap.setMaxZoomPreference(trackMapOverlay.getMaxZoom());
+                mapboxMap.setMinZoomPreference(trackMapOverlay.getMinZoom());
             }
         });
     }

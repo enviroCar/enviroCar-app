@@ -28,9 +28,11 @@ public class MapLayer {
     protected GeoJsonSource geoJsonSource;
     protected ArrayList<Point> mPoints = new ArrayList<>();
     protected ArrayList<LatLng> latLngs = new ArrayList<>();
+    protected Float maxZoom, minZoom;
 
     public MapLayer(){
-
+        maxZoom = 18f;
+        minZoom = 1f;
     }
 
     public void addPoint(double aLatitude, double aLongitude) {
@@ -72,5 +74,13 @@ public class MapLayer {
 
     public ArrayList<Point> getPoints() {
         return mPoints;
+    }
+
+    public Float getMaxZoom() {
+        return maxZoom;
+    }
+
+    public Float getMinZoom() {
+        return minZoom;
     }
 }

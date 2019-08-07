@@ -34,11 +34,9 @@ import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
-import com.mapbox.mapboxsdk.style.sources.TileSet;
 
 import org.envirocar.app.R;
 import org.envirocar.app.views.trackdetails.TrackMapLayer;
-import org.envirocar.app.views.utils.MapUtils;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.logging.Logger;
@@ -222,7 +220,6 @@ public abstract class AbstractTrackListCardAdapter<E extends
         LOG.info("initMapView()");
         TrackMapLayer trackMapOverlay = new TrackMapLayer(track);
         final LatLngBounds viewBbox = trackMapOverlay.getViewBoundingBox();
-        TileSet layer = MapUtils.getOSMTileLayer();
         holder.mMapView.addOnDidFailLoadingMapListener(holder.failLoadingMapListener);
         holder.mMapView.getMapAsync(new OnMapReadyCallback() {
             @Override
