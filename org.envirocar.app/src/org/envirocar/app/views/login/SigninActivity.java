@@ -20,7 +20,6 @@ import org.envirocar.app.handler.UserHandler;
 import org.envirocar.app.handler.agreement.AgreementManager;
 import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.app.main.BaseApplicationComponent;
-import org.envirocar.app.views.LoginRegisterActivity;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.logging.Logger;
 
@@ -127,7 +126,7 @@ public class SigninActivity extends BaseInjectorActivity {
             imm.hideSoftInputFromWindow(this.passwordEditText.getWindowToken(), 0);
 
             // Try to login
-            login(username, password);
+            this.login(username, password);
         }
     }
 

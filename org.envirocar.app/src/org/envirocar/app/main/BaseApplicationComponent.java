@@ -30,7 +30,6 @@ import org.envirocar.app.services.recording.GPSOnlyRecordingService;
 import org.envirocar.app.services.recording.OBDRecordingService;
 import org.envirocar.app.services.recording.RecordingNotification;
 import org.envirocar.app.services.recording.SpeechOutput;
-import org.envirocar.app.views.LoginRegisterActivity;
 import org.envirocar.app.views.OthersFragment;
 import org.envirocar.app.views.carselection.CarSelectionActivity;
 import org.envirocar.app.views.carselection.CarSelectionAddCarFragment;
@@ -99,7 +98,6 @@ public interface BaseApplicationComponent {
     void inject(TrackDetailsActivity trackDetailsActivity);
     void inject(TrackStatisticsActivity trackStatisticsActivity);
     void inject(MapExpandedActivity mapExpandedActivity);
-    void inject(LoginRegisterActivity loginRegisterActivity);
     void inject(DAOProvider daoProvider);
     void inject(OthersFragment othersFragment);
     void inject(TrackTrimDurationPreference trackTrimDurationPreference);

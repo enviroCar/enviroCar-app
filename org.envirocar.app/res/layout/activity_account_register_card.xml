@@ -138,7 +138,7 @@
                 android:layout_height="wrap_content">
 
                 <CheckBox
-                    android:id="@+id/activity_account_register_agree_tou_checbox"
+                    android:id="@+id/activity_signup_tou_checkbox"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
 
