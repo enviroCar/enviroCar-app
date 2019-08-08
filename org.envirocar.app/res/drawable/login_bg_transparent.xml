@@ -19,19 +19,11 @@
     with the enviroCar app. If not, see http://www.gnu.org/licenses/.
 
 -->
-<resources>
-    <color name="pressed_cario">#8CBF3F</color>
-    <color name="actionbar_title_font_cario">#FFFFFF</color>
-    <color name="blue_dark_cario">#0065A0</color>
-    <color name="blue_light_cario">#048ABF</color>
-    <color name="green_dark_cario">#8CBF3F</color>
-    <color name="green_light_cario">#B9D989</color>
-    <color name="white_cario">#F2F2F2</color>
-    <color name="white_cario_transparent">#88F2F2F2</color>
-    <color name="cario_color_primary">@color/blue_dark_cario</color>
-    <color name="cario_color_primary_dark">#FF01456C</color>
-    <color name="cario_color_tempomat_background">#ff546a72</color>
-    <color name="envirocar_color_divider_grey">#3f6f6f6f</color>
-
-    <color name="envirocar_color_add_card_background">#4757A0</color>
-</resources>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <gradient
+        android:angle="180"
+        android:startColor="#000065A0"
+        android:endColor="#FF0065A0"
+        android:type="linear"/>
+</shape>

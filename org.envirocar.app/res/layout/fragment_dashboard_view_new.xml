@@ -38,7 +38,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
-            android:id="@+id/imageView"
+            android:id="@+id/activity_login_logo"
             android:layout_width="310dp"
             android:layout_height="46dp"
             android:layout_marginTop="8dp"

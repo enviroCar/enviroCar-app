@@ -96,7 +96,7 @@ public class PreferencesHandler implements PreferenceConstants {
 
     public static Double getTotalDistanceTravelledOfUser(Context context){
         return Double.valueOf(PreferenceManager.getDefaultSharedPreferences(context)
-                .getFloat(PREF_TOTAL_DIST_TRAVELLED, 0));
+                .getFloat(PREF_TOTAL_DIST_TRAVELLED, 0.0f));
     }
 
     public static void setTotalDistanceTravelledOfUser(Context context, Double distance){
