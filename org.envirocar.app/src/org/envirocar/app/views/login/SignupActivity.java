@@ -3,11 +3,22 @@ package org.envirocar.app.views.login;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Selection;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.TextPaint;
 import android.text.TextUtils;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
+import android.util.Pair;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 
@@ -22,6 +33,9 @@ import org.envirocar.core.entity.UserImpl;
 import org.envirocar.core.exception.DataUpdateFailureException;
 import org.envirocar.core.exception.ResourceConflictException;
 import org.envirocar.core.logging.Logger;
+
+import java.util.Arrays;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -58,6 +72,8 @@ public class SignupActivity extends BaseInjectorActivity {
     protected EditText password2EditText;
     @BindView(R.id.activity_signup_tou_checkbox)
     protected CheckBox touCheckbox;
+    @BindView(R.id.activity_signup_tou_text)
+    protected TextView touText;
 
     private final Scheduler.Worker mainThreadWorker = AndroidSchedulers.mainThread().createWorker();
     private final Scheduler.Worker backgroundWorker = Schedulers.newThread().createWorker();
@@ -75,6 +91,9 @@ public class SignupActivity extends BaseInjectorActivity {
 
         // inject the views
         ButterKnife.bind(this);
+
+        // make terms of use and privacy statement clickable
+        this.makeClickableTextLinks();
     }
 
     @OnClick(R.id.activity_signup_login_button)
@@ -203,9 +222,6 @@ public class SignupActivity extends BaseInjectorActivity {
                             })
                             .show();
                 });
-
-//                    finish();
-                // askForTermsOfUseAcceptance();
             } catch (ResourceConflictException e) {
                 LOG.warn(e.getMessage(), e);
 
@@ -237,6 +253,55 @@ public class SignupActivity extends BaseInjectorActivity {
                 dialog.dismiss();
             }
         });
+    }
+
+    private void makeClickableTextLinks(){
+        List<Pair<String, View.OnClickListener>> clickableStrings = Arrays.asList(
+                new Pair<>("Terms and Conditions", v -> {
+                    LOG.info("Terms and Conditions clicked. Showing dialog");
+                    showTermsOfUseDialog();
+                }),
+                new Pair<>("Privacy Policy", v -> {
+                    LOG.info("Privacy Policy clicked. Showing dialog");
+                    showTermsOfUseDialog();
+                })
+        );
+
+        SpannableString string = new SpannableString(touText.getText());
+        for (Pair<String, View.OnClickListener> link : clickableStrings) {
+            ClickableSpan span = new ClickableSpan() {
+                @Override
+                public void onClick(@NonNull View widget) {
+                    Selection.setSelection((Spannable) ((TextView) widget).getText(), 0);
+                    widget.invalidate();
+                    link.second.onClick(widget);
+                }
+
+                @Override
+                public void updateDrawState(@NonNull TextPaint ds) {
+                    ds.setColor(getResources().getColor(R.color.green_dark_cario));
+                }
+            };
+
+            int start = touText.getText().toString().indexOf(link.first);
+            if (start > 0) {
+                string.setSpan(span, start, start + link.first.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            }
+        }
+
+        touText.setMovementMethod(LinkMovementMethod.getInstance());
+        touText.setText(string, TextView.BufferType.SPANNABLE);
+    }
+
+    private void showTermsOfUseDialog() {
+        LOG.info("Show Terms of Use Dialog");
+        agreementManager.showLatestTermsOfUseDialogObservable(this)
+                .subscribe(tou -> LOG.info("Closed Dialog"));
+    }
+
+    private void showPrivacyStatementDialog() {
+        LOG.info("Show Privacy Statement dialog");
+        // TODO
     }
 
 }
