@@ -50,6 +50,28 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
+            <TextView
+                android:id="@+id/textView3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="12dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginRight="12dp"
+                android:fontFamily="@font/roboto_medium"
+                android:lineSpacingMultiplier="1.1"
+                android:text="Having problems with the application? Let us know!"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/textView6"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="12dp"
+                android:layout_marginTop="6dp"
+                android:layout_marginRight="12dp"
+                android:fontFamily="@font/roboto_light1"
+                android:text="Explain the issue you are facing in the text fields below. Additionally please include steps to reproduce the issue and tick all checkboxes that apply." />
+
             <EditText
                 android:id="@+id/report_issue_header"
                 android:layout_width="wrap_content"
@@ -66,12 +88,12 @@
                 android:layout_height="170dp"
                 android:layout_marginLeft="12dp"
                 android:layout_marginRight="12dp"
-                android:background="@android:color/transparent"
+                android:background="#0F6F6F6F"
                 android:fontFamily="@font/roboto"
                 android:gravity="start|top"
                 android:hint="@string/report_issue_desc_text"
                 android:inputType="textMultiLine"
-                android:padding="4dp"
+                android:padding="6dp"
                 android:textColor="#000000" />
 
             <LinearLayout
@@ -86,6 +108,8 @@
                     android:layout_margin="12dp"
                     android:background="@android:color/transparent"
                     android:fontFamily="@font/roboto_medium"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
                     android:text="Time since crash:"
                     android:textSize="18sp" />
 
@@ -95,9 +119,12 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="12dp"
                     android:layout_weight="1"
-                    android:background="@android:color/transparent"
+                    android:background="#086F6F6F"
                     android:hint="(in minutes)"
                     android:inputType="number"
+                    android:paddingLeft="6dp"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
                     android:textSize="18sp" />
 
             </LinearLayout>
