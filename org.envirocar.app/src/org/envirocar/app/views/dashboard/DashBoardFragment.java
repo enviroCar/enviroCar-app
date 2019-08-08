@@ -52,7 +52,6 @@ import androidx.transition.Slide;
 import androidx.transition.TransitionManager;
 import androidx.transition.TransitionSet;
 
-import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.android.material.snackbar.Snackbar;
 import com.squareup.otto.Subscribe;
@@ -428,7 +427,6 @@ public class DashBoardFragment extends BaseInjectorFragment {
     protected void ondisableChangingParametersLayoutClicked() {
         Toast.makeText(context, "You cannot change these values while track recording is in progress", Toast.LENGTH_LONG).show();
     }
-
 
 
     @OnClick(R.id.fragment_startup_start_button_inner)
@@ -1215,86 +1213,18 @@ public class DashBoardFragment extends BaseInjectorFragment {
                     new Intent(getActivity(), OBDRecordingService.class));
         }
 
-//        mBluetoothHandler.startBluetoothDiscoveryForSingleDevice(device)
-//                .subscribe(new Subscriber<BluetoothDevice>() {
-//                    private boolean found = false;
-//                    private View contentView;
-//                    private TextView textView;
-//
-//                    @Override
-//                    public void onStart() {
-//                        contentView = getActivity().getLayoutInflater().inflate(
-//                                R.layout.fragment_dashboard_connecting_dialog, null, false);
-//                        textView = contentView.findViewById(
-//                                R.id.fragment_dashboard_connecting_dialog_text);
-//                        textView.setText(String.format(
-//                                getString(R.string.dashboard_connecting_find_template),
-//                                device.getName()));
-//
-//                        mConnectingDialog = DialogUtils.createDefaultDialogBuilder(getContext(),
-//                                R.string.dashboard_connecting,
-//                                R.drawable.ic_bluetooth_searching_white_24dp,
-//                                contentView)
-//                                .cancelable(false)
-//                                .negativeText(R.string.cancel)
-//                                .onNegative((materialDialog, dialogAction) -> {
-//                                    // On cancel, first stop the discovery of other
-//                                    // bluetooth devices.
-//                                    mBluetoothHandler.stopBluetoothDeviceDiscovery();
-//                                    if (found) {
-//                                        // and if the remoteService is already started, then
-//                                        // stop it.
-//                                        getActivity().stopService(new Intent
-//                                                (getActivity(), OBDRecordingService
-//                                                        .class));
-//                                    }
-//                                    found = true;
-//                                })
-//                                .show();
-//                    }
-//
-//                    @Override
-//                    public void onCompleted() {
-//                        if (!found) {
-//                            mConnectingDialog.dismiss();
-//                            mConnectingDialog = DialogUtils.createDefaultDialogBuilder(getContext(),
-//                                    R.string.dashboard_dialog_obd_not_found,
-//                                    R.drawable.ic_bluetooth_searching_white_24dp,
-//                                    String.format(getString(
-//                                            R.string.dashboard_dialog_obd_not_found_content_template),
-//                                            device.getName()))
-//                                    .negativeText(R.string.ok)
-//                                    .show();
-//                        }
-//                    }
-//
-//                    @Override
-//                    public void onError(Throwable e) {
-//                        mConnectingDialog.setActionButton(DialogAction.NEGATIVE, "Okay");
-//                    }
-//
-//                    @Override
-//                    public void onNext(BluetoothDevice bluetoothDevice) {
-//                        found = true;
-//
-//                        // Stop the Bluetooth discovery such that the connection can be
-//                        // faster established.
-//                        mBluetoothHandler.stopBluetoothDeviceDiscovery();
-//
-//                        // Update the content of the connecting dialog.
-//                        textView.setText(String.format(getString(
-//                                R.string.dashboard_connecting_found_template), device.getName()));
-//
-//                        // Start the background remoteService.
-//                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//                            getActivity().startForegroundService(
-//                                    new Intent(getActivity(), OBDRecordingService.class));
-//                        } else {
-//                            getActivity().startService(
-//                                    new Intent(getActivity(), OBDRecordingService.class));
-//                        }
-//                    }
-//                });
+        View contentView = getActivity().getLayoutInflater().inflate(
+                R.layout.fragment_dashboard_connecting_dialog, null, false);
+        TextView textView = contentView.findViewById(R.id.fragment_dashboard_connecting_dialog_text);
+        textView.setText(String.format(getString(R.string.dashboard_connecting_find_template), device.getName()));
+
+        this.mConnectingDialog = DialogUtils.createDefaultDialogBuilder(getContext(), R.string.dashboard_connecting, R.drawable.ic_bluetooth_searching_black_24dp, contentView)
+                .cancelable(false)
+                .negativeText(R.string.cancel)
+                .onNegative((materialDialog, dialogAction) -> {
+                    getActivity().stopService(new Intent(getActivity(), OBDRecordingService.class));
+                })
+                .show();
     }
 
     private void onGPSOnlyStartTrackButtonStartClicked() {
