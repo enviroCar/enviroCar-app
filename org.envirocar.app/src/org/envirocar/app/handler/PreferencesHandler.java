@@ -132,7 +132,7 @@ public class PreferencesHandler implements PreferenceConstants {
 
     public static void resetTrackCounts(Context context){
         PreferenceManager.getDefaultSharedPreferences(context).edit().putInt(PREF_LOCAL_TRACK_COUNT,0)
-                .putInt(PREF_UPLOADED_TRACK_COUNT,0).putInt(PREF_GLOBAL_TRACK_COUNT,0).putLong(PREF_TOTAL_DIST_TRAVELLED, 0).putString(PREF_TOTAL_TIME, "No Tracks").apply();
+                .putInt(PREF_UPLOADED_TRACK_COUNT,0).putInt(PREF_GLOBAL_TRACK_COUNT,0).putFloat(PREF_TOTAL_DIST_TRAVELLED, 0.0f).putString(PREF_TOTAL_TIME, "No Tracks").apply();
     }
 
     public static int getPreviouslySelectedRecordingType(Context context){

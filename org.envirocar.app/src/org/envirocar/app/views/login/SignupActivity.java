@@ -2,7 +2,6 @@ package org.envirocar.app.views.login;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -80,13 +79,8 @@ public class SignupActivity extends BaseInjectorActivity {
 
     @OnClick(R.id.activity_signup_login_button)
     protected void onSwitchToRegister() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            Intent intent = new Intent(this, SigninActivity.class);
-            startActivity(intent);
-        } else {
-            Intent intent = new Intent(this, SigninActivity.class);
-            startActivity(intent);
-        }
+        Intent intent = new Intent(this, SigninActivity.class);
+        startActivity(intent);
     }
 
     @OnClick(R.id.activity_signup_register_button)
@@ -176,7 +170,7 @@ public class SignupActivity extends BaseInjectorActivity {
         }
     }
 
-    private void register(String username, String email, String password){
+    private void register(String username, String email, String password) {
         final MaterialDialog dialog = new MaterialDialog.Builder(SignupActivity.this)
                 .title(R.string.register_progress_signing_in)
                 .progress(true, 0)

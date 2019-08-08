@@ -78,15 +78,10 @@ public class SigninActivity extends BaseInjectorActivity {
 
     @OnClick(R.id.activity_signin_register_button)
     protected void onSwitchToRegisterClicked() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
-                    this, logoImageView, "imageMain");
-            Intent in = new Intent(this, SignupActivity.class);
-            startActivity(in, options.toBundle());
-        } else {
-            Intent intent = new Intent(this, SignupActivity.class);
-            startActivity(intent);
-        }
+        ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                this, logoImageView, "imageMain");
+        Intent in = new Intent(this, SignupActivity.class);
+        startActivity(in, options.toBundle());
     }
 
     @OnClick(R.id.activity_signin_login_button)
