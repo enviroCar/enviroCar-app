@@ -36,6 +36,8 @@ import org.envirocar.app.views.carselection.CarSelectionActivity;
 import org.envirocar.app.views.carselection.CarSelectionAddCarFragment;
 import org.envirocar.app.views.logbook.LogbookActivity;
 import org.envirocar.app.views.logbook.LogbookAddFuelingFragment;
+import org.envirocar.app.views.login.SigninActivity;
+import org.envirocar.app.views.login.SignupActivity;
 import org.envirocar.app.views.obdselection.OBDSelectionActivity;
 import org.envirocar.app.views.obdselection.OBDSelectionFragment;
 import org.envirocar.app.views.preferences.BluetoothDiscoveryIntervalPreference;
@@ -48,7 +50,6 @@ import org.envirocar.app.views.settings.SettingsActivity;
 import org.envirocar.app.views.trackdetails.MapExpandedActivity;
 import org.envirocar.app.views.trackdetails.TrackDetailsActivity;
 import org.envirocar.app.views.trackdetails.TrackStatisticsActivity;
-import org.envirocar.core.dao.PrivacyStatementDAO;
 import org.envirocar.remote.dao.CacheAnnouncementsDAO;
 import org.envirocar.remote.dao.CacheCarDAO;
 import org.envirocar.remote.dao.CacheFuelingDAO;
@@ -108,6 +109,8 @@ public interface BaseApplicationComponent {
     void inject(OBDRecordingService obdRecordingService);
     void inject(SpeechOutput speechOutput);
     void inject(RecordingNotification recordingNotification);
+    void inject(SigninActivity loginActivity);
+    void inject(SignupActivity registerActivity);
 
     MainActivityComponent plus(MainActivityModule mainActivityModule);
 

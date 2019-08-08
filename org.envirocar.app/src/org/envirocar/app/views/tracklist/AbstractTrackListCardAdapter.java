@@ -294,8 +294,7 @@ public abstract class AbstractTrackListCardAdapter<E extends
         for (Measurement measurement : temp) {
             routeCoordinates.add(Point.fromLngLat(measurement.getLongitude(), measurement.getLatitude()));
         }
-        LOG.info("routeCoordinates of " + track.getName() + ": " + routeCoordinates.size());
-        LOG.info(routeCoordinates.get(0).toString());
+
         latLngs.clear();
         for (int i = 0; i < routeCoordinates.size(); ++i) {
             latLngs.add(new LatLng(routeCoordinates.get(i).latitude(), routeCoordinates.get(i).longitude()));

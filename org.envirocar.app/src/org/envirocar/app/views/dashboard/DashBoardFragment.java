@@ -74,8 +74,9 @@ import org.envirocar.app.main.MainActivityComponent;
 import org.envirocar.app.main.MainActivityModule;
 import org.envirocar.app.services.recording.GPSOnlyRecordingService;
 import org.envirocar.app.services.recording.OBDRecordingService;
-import org.envirocar.app.views.LoginRegisterActivity;
 import org.envirocar.app.views.carselection.CarSelectionActivity;
+import org.envirocar.app.views.login.SigninActivity;
+import org.envirocar.app.views.login.SignupActivity;
 import org.envirocar.app.views.obdselection.OBDSelectionActivity;
 import org.envirocar.app.views.recordingscreen.GPSOnlyTrackRecordingScreen;
 import org.envirocar.app.views.recordingscreen.OBDPlusGPSTrackRecordingScreen;
@@ -283,7 +284,7 @@ public class DashBoardFragment extends BaseInjectorFragment {
 //        userTotalDurationTV.setText(t.substring(0, t.length() - 1) + "");*/
         Integer totalTracks = PreferencesHandler.getUploadedTrackCount(getActivity()) + PreferencesHandler.getLocalTrackCount(getActivity());
         userTrackCountTV.setText(totalTracks + "");
-        userTotalDistanceTV.setText(PreferencesHandler.getTotalDistanceTravelledOfUser(getActivity()) + "");
+        //userTotalDistanceTV.setText(PreferencesHandler.getTotalDistanceTravelledOfUser(getActivity()) + "");
         obdGPSTransition = buttonGroup;
         bannerTransition = buttonBanner;
         frameTransition = frameLayout;
@@ -376,8 +377,15 @@ public class DashBoardFragment extends BaseInjectorFragment {
 
     @OnClick(R.id.signInInitiatorButton)
     protected void onLoginInitiatorButtonClicked() {
-        Intent intent = new Intent(getActivity(), LoginRegisterActivity.class);
+        Intent intent = new Intent(getActivity(), SigninActivity.class);
         intent.putExtra("from", "login");
+        startActivity(intent);
+    }
+
+    @OnClick(R.id.registerInitiatorButton)
+    protected void onRegisterInitiatorButtonClicked() {
+        Intent intent = new Intent(getActivity(), SignupActivity.class);
+        intent.putExtra("from", "register");
         startActivity(intent);
     }
 
@@ -418,12 +426,7 @@ public class DashBoardFragment extends BaseInjectorFragment {
         Toast.makeText(context, "You cannot change these values while track recording is in progress", Toast.LENGTH_LONG).show();
     }
 
-    @OnClick(R.id.registerInitiatorButton)
-    protected void onRegisterInitiatorButtonClicked() {
-        Intent intent = new Intent(getActivity(), LoginRegisterActivity.class);
-        intent.putExtra("from", "register");
-        startActivity(intent);
-    }
+
 
     @OnClick(R.id.fragment_startup_start_button_inner)
     public void onStartStopButtonClicked() {
@@ -1200,86 +1203,95 @@ public class DashBoardFragment extends BaseInjectorFragment {
 
         final BluetoothDevice device = mBluetoothHandler.getSelectedBluetoothDevice();
 
-        mBluetoothHandler.startBluetoothDiscoveryForSingleDevice(device)
-                .subscribe(new Subscriber<BluetoothDevice>() {
-                    private boolean found = false;
-                    private View contentView;
-                    private TextView textView;
+        // Start the background remoteService.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            getActivity().startForegroundService(
+                    new Intent(getActivity(), OBDRecordingService.class));
+        } else {
+            getActivity().startService(
+                    new Intent(getActivity(), OBDRecordingService.class));
+        }
 
-                    @Override
-                    public void onStart() {
-                        contentView = getActivity().getLayoutInflater().inflate(
-                                R.layout.fragment_dashboard_connecting_dialog, null, false);
-                        textView = contentView.findViewById(
-                                R.id.fragment_dashboard_connecting_dialog_text);
-                        textView.setText(String.format(
-                                getString(R.string.dashboard_connecting_find_template),
-                                device.getName()));
-
-                        mConnectingDialog = DialogUtils.createDefaultDialogBuilder(getContext(),
-                                R.string.dashboard_connecting,
-                                R.drawable.ic_bluetooth_searching_white_24dp,
-                                contentView)
-                                .cancelable(false)
-                                .negativeText(R.string.cancel)
-                                .onNegative((materialDialog, dialogAction) -> {
-                                    // On cancel, first stop the discovery of other
-                                    // bluetooth devices.
-                                    mBluetoothHandler.stopBluetoothDeviceDiscovery();
-                                    if (found) {
-                                        // and if the remoteService is already started, then
-                                        // stop it.
-                                        getActivity().stopService(new Intent
-                                                (getActivity(), OBDRecordingService
-                                                        .class));
-                                    }
-                                    found = true;
-                                })
-                                .show();
-                    }
-
-                    @Override
-                    public void onCompleted() {
-                        if (!found) {
-                            mConnectingDialog.dismiss();
-                            mConnectingDialog = DialogUtils.createDefaultDialogBuilder(getContext(),
-                                    R.string.dashboard_dialog_obd_not_found,
-                                    R.drawable.ic_bluetooth_searching_white_24dp,
-                                    String.format(getString(
-                                            R.string.dashboard_dialog_obd_not_found_content_template),
-                                            device.getName()))
-                                    .negativeText(R.string.ok)
-                                    .show();
-                        }
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        mConnectingDialog.setActionButton(DialogAction.NEGATIVE, "Okay");
-                    }
-
-                    @Override
-                    public void onNext(BluetoothDevice bluetoothDevice) {
-                        found = true;
-
-                        // Stop the Bluetooth discovery such that the connection can be
-                        // faster established.
-                        mBluetoothHandler.stopBluetoothDeviceDiscovery();
-
-                        // Update the content of the connecting dialog.
-                        textView.setText(String.format(getString(
-                                R.string.dashboard_connecting_found_template), device.getName()));
-
-                        // Start the background remoteService.
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                            getActivity().startForegroundService(
-                                    new Intent(getActivity(), OBDRecordingService.class));
-                        } else {
-                            getActivity().startService(
-                                    new Intent(getActivity(), OBDRecordingService.class));
-                        }
-                    }
-                });
+//        mBluetoothHandler.startBluetoothDiscoveryForSingleDevice(device)
+//                .subscribe(new Subscriber<BluetoothDevice>() {
+//                    private boolean found = false;
+//                    private View contentView;
+//                    private TextView textView;
+//
+//                    @Override
+//                    public void onStart() {
+//                        contentView = getActivity().getLayoutInflater().inflate(
+//                                R.layout.fragment_dashboard_connecting_dialog, null, false);
+//                        textView = contentView.findViewById(
+//                                R.id.fragment_dashboard_connecting_dialog_text);
+//                        textView.setText(String.format(
+//                                getString(R.string.dashboard_connecting_find_template),
+//                                device.getName()));
+//
+//                        mConnectingDialog = DialogUtils.createDefaultDialogBuilder(getContext(),
+//                                R.string.dashboard_connecting,
+//                                R.drawable.ic_bluetooth_searching_white_24dp,
+//                                contentView)
+//                                .cancelable(false)
+//                                .negativeText(R.string.cancel)
+//                                .onNegative((materialDialog, dialogAction) -> {
+//                                    // On cancel, first stop the discovery of other
+//                                    // bluetooth devices.
+//                                    mBluetoothHandler.stopBluetoothDeviceDiscovery();
+//                                    if (found) {
+//                                        // and if the remoteService is already started, then
+//                                        // stop it.
+//                                        getActivity().stopService(new Intent
+//                                                (getActivity(), OBDRecordingService
+//                                                        .class));
+//                                    }
+//                                    found = true;
+//                                })
+//                                .show();
+//                    }
+//
+//                    @Override
+//                    public void onCompleted() {
+//                        if (!found) {
+//                            mConnectingDialog.dismiss();
+//                            mConnectingDialog = DialogUtils.createDefaultDialogBuilder(getContext(),
+//                                    R.string.dashboard_dialog_obd_not_found,
+//                                    R.drawable.ic_bluetooth_searching_white_24dp,
+//                                    String.format(getString(
+//                                            R.string.dashboard_dialog_obd_not_found_content_template),
+//                                            device.getName()))
+//                                    .negativeText(R.string.ok)
+//                                    .show();
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onError(Throwable e) {
+//                        mConnectingDialog.setActionButton(DialogAction.NEGATIVE, "Okay");
+//                    }
+//
+//                    @Override
+//                    public void onNext(BluetoothDevice bluetoothDevice) {
+//                        found = true;
+//
+//                        // Stop the Bluetooth discovery such that the connection can be
+//                        // faster established.
+//                        mBluetoothHandler.stopBluetoothDeviceDiscovery();
+//
+//                        // Update the content of the connecting dialog.
+//                        textView.setText(String.format(getString(
+//                                R.string.dashboard_connecting_found_template), device.getName()));
+//
+//                        // Start the background remoteService.
+//                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//                            getActivity().startForegroundService(
+//                                    new Intent(getActivity(), OBDRecordingService.class));
+//                        } else {
+//                            getActivity().startService(
+//                                    new Intent(getActivity(), OBDRecordingService.class));
+//                        }
+//                    }
+//                });
     }
 
     private void onGPSOnlyStartTrackButtonStartClicked() {
