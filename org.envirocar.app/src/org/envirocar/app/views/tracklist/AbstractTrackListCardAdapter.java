@@ -255,43 +255,43 @@ public abstract class AbstractTrackListCardAdapter<E extends
         holder.mMapView.onStop();
     }
 
-    private void initRouteCoordinates(Track track) {
-        // Create a list to store our line coordinates.
-        routeCoordinates.clear();
-        List<Measurement> temp = track.getMeasurements();
-        for (Measurement measurement : temp) {
-            routeCoordinates.add(Point.fromLngLat(measurement.getLongitude(), measurement.getLatitude()));
-        }
-
-        latLngs.clear();
-        for (int i = 0; i < routeCoordinates.size(); ++i) {
-            latLngs.add(new LatLng(routeCoordinates.get(i).latitude(), routeCoordinates.get(i).longitude()));
-        }
-
-        if (latLngs.size() == 1) {
-            LatLng latLng = latLngs.get(0);
-            mViewBoundingBox = LatLngBounds.from(
-                    latLng.getLatitude() + 0.01,
-                    latLng.getLongitude() + 0.01,
-                    latLng.getLatitude() - 0.01,
-                    latLng.getLongitude() - 0.01);
-        } else {
-            mTrackBoundingBox = new LatLngBounds.Builder()
-                    .includes(latLngs)
-                    .build();
-
-            double latRatio = Math.max(mTrackBoundingBox.getLatitudeSpan() / 10.0, 0.01);
-            double lngRatio = Math.max(mTrackBoundingBox.getLongitudeSpan() / 10.0, 0.01);
-
-            // The view bounding box of the pathoverlay
-            mViewBoundingBox = LatLngBounds.from(
-                    mTrackBoundingBox.getLatNorth() + latRatio,
-                    mTrackBoundingBox.getLonEast() + lngRatio,
-                    mTrackBoundingBox.getLatSouth() - latRatio,
-                    mTrackBoundingBox.getLonWest() - lngRatio);
-        }
-
-    }
+//    private void initRouteCoordinates(Track track) {
+//        // Create a list to store our line coordinates.
+//        routeCoordinates.clear();
+//        List<Measurement> temp = track.getMeasurements();
+//        for (Measurement measurement : temp) {
+//            routeCoordinates.add(Point.fromLngLat(measurement.getLongitude(), measurement.getLatitude()));
+//        }
+//
+//        latLngs.clear();
+//        for (int i = 0; i < routeCoordinates.size(); ++i) {
+//            latLngs.add(new LatLng(routeCoordinates.get(i).latitude(), routeCoordinates.get(i).longitude()));
+//        }
+//
+//        if (latLngs.size() == 1) {
+//            LatLng latLng = latLngs.get(0);
+//            mViewBoundingBox = LatLngBounds.from(
+//                    latLng.getLatitude() + 0.01,
+//                    latLng.getLongitude() + 0.01,
+//                    latLng.getLatitude() - 0.01,
+//                    latLng.getLongitude() - 0.01);
+//        } else {
+//            mTrackBoundingBox = new LatLngBounds.Builder()
+//                    .includes(latLngs)
+//                    .build();
+//
+//            double latRatio = Math.max(mTrackBoundingBox.getLatitudeSpan() / 10.0, 0.01);
+//            double lngRatio = Math.max(mTrackBoundingBox.getLongitudeSpan() / 10.0, 0.01);
+//
+//            // The view bounding box of the pathoverlay
+//            mViewBoundingBox = LatLngBounds.from(
+//                    mTrackBoundingBox.getLatNorth() + latRatio,
+//                    mTrackBoundingBox.getLonEast() + lngRatio,
+//                    mTrackBoundingBox.getLatSouth() - latRatio,
+//                    mTrackBoundingBox.getLonWest() - lngRatio);
+//        }
+//
+//    }
 
     /**
      *
