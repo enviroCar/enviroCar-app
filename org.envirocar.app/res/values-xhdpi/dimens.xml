@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="headline_text">18sp</dimen>
+    <dimen name="heading3">16sp</dimen>
+    <dimen name="subtitle">14sp</dimen>
+    <dimen name="subtext">12sp</dimen>
+    <dimen name="image_icon_m">35dp</dimen>
+    <dimen name="dashboard_selector">50dp</dimen>
+</resources>

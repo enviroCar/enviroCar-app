@@ -33,8 +33,8 @@ import androidx.annotation.Nullable;
 import com.google.android.material.snackbar.Snackbar;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.Group;
 import androidx.core.app.ActivityCompat;
-import androidx.cardview.widget.CardView;
 import androidx.transition.AutoTransition;
 import androidx.transition.ChangeBounds;
 import androidx.transition.Slide;
@@ -137,28 +137,28 @@ public class DashBoardFragment extends BaseInjectorFragment {
     @Inject
     protected CarPreferenceHandler mCarManager;
 
-    @BindView(R.id.userStatisticsContainer)
-    protected LinearLayout userStatisticsContainer;
-    @BindView(R.id.userLoginSignupButtonContainer)
-    protected ConstraintLayout userLoginSignupButtonContainer;
-    @BindView(R.id.userTotalDurationTV)
+    @BindView(R.id.userStatisticsGroup)
+    protected Group userStatisticsGroup;
+    @BindView(R.id.userLoginSignupButtonGroup)
+    protected Group userLoginSignupButtonGroup;
+    @BindView(R.id.userTotalDuration)
     protected TextView userTotalDurationTV;
-    @BindView(R.id.userTotalDurationAddTV)
+    @BindView(R.id.userTotalDurationAdd)
     protected TextView userTotalDurationAddTV;
-    @BindView(R.id.userTrackCountTV)
+    @BindView(R.id.userTrackCount)
     protected TextView userTrackCountTV;
-    @BindView(R.id.userTotalDistanceTV)
+    @BindView(R.id.userTotalDistance)
     protected TextView userTotalDistanceTV;
-    @BindView(R.id.noUserDate)
-    protected TextView noUserDate;
-    @BindView(R.id.signInInitiatorButton)
-    protected Button signInInitiatorButton;
-    @BindView(R.id.registerInitiatorButton)
-    protected Button registerInitiatorButton;
-    @BindView(R.id.dashBoardUserImageView)
+    @BindView(R.id.date)
+    protected TextView date;
+    @BindView(R.id.signInButton)
+    protected Button signInButton;
+    @BindView(R.id.registerButton)
+    protected Button registerButton;
+    @BindView(R.id.dashBoardUserImage)
     protected ImageView dashBoardUserImageView;
-    @BindView(R.id.dashBoardUserName)
-    protected TextView dashBoardUserName;
+    @BindView(R.id.dashBoardName)
+    protected TextView dashBoardName;
 
     @BindView(R.id.errorImageBluetooth)
     protected ImageView errorImageBluetooth;
@@ -178,8 +178,6 @@ public class DashBoardFragment extends BaseInjectorFragment {
     @BindView(R.id.okImageCar)
     protected ImageView okImageCar;
 
-    @BindView(R.id.buttonBanner)
-    protected ConstraintLayout buttonBanner;
     @BindView(R.id.bannerBluetoothContainer)
     protected LinearLayout bannerBluetoothContainer;
     @BindView(R.id.bannerOBDAdapterContainer)
@@ -190,59 +188,54 @@ public class DashBoardFragment extends BaseInjectorFragment {
     protected LinearLayout bannerCarContainer;
 
     @BindView(R.id.disableChangingParametersLayout)
-    protected LinearLayout disableChangingParametersLayout;
+    protected View disableChangingParametersLayout;
 
-    @BindView(R.id.dash_board_view_car_selection)
-    protected ConstraintLayout mCarTypeView;
-    @BindView(R.id.dash_board_view_car_selection_img)
-    protected ImageView mCarTypeImg;
-    @BindView(R.id.dash_board_view_car_selection_text1)
-    protected TextView mCarTypeTextView;
-    @BindView(R.id.dash_board_view_car_selection_text2)
-    protected TextView mCarTypeSubTextView;
+    @BindView(R.id.CarOptions)
+    protected ConstraintLayout CarOptions;
+    @BindView(R.id.CarOptionsImg)
+    protected ImageView CarOptionsImg;
+    @BindView(R.id.CarOptionsTxt1)
+    protected TextView CarOptionsTxt1;
+    @BindView(R.id.CarOptionsTxt2)
+    protected TextView CarOptionsTxt2;
 
-    @BindView(R.id.obdGPSSelectedLayout)
-    protected ConstraintLayout mGPSSelectedView;
-    @BindView(R.id.obdGPSSelectedImage)
-    protected ImageView mGPSSelectedImg;
-    @BindView(R.id.obdGPSSelectedHeader)
-    protected TextView mGPSSelectedTextView;
-    @BindView(R.id.obdGPSSelectedSubHeader)
-    protected TextView mGPSSelectedSubTextView;
+    @BindView(R.id.GPSOptions)
+    protected ConstraintLayout GPSOptions;
+    @BindView(R.id.GPSOptionsImg)
+    protected ImageView GPSOptionsImg;
+    @BindView(R.id.GPSOptionsTxt1)
+    protected TextView GPSOptionsTxt1;
+    @BindView(R.id.GPSOptionsTxt2)
+    protected TextView GPSOptionsTxt2;
 
-    @BindView(R.id.dashboard_view_obd_selection)
-    protected ConstraintLayout mOBDTypeView;
-    @BindView(R.id.dashboard_view_obd_selection_img)
-    protected ImageView mOBDTypeImg;
-    @BindView(R.id.dash_board_view_obd_selection_text1)
-    protected TextView mOBDTypeTextView;
-    @BindView(R.id.dash_board_view_obd_selection_text2)
-    protected TextView mOBDTypeSubTextView;
+    @BindView(R.id.obdOptions)
+    protected ConstraintLayout obdOptions;
+    @BindView(R.id.obdOptionsImg)
+    protected ImageView obdOptionsImg;
+    @BindView(R.id.obdOptionsTxt1)
+    protected TextView obdOptionsTxt1;
+    @BindView(R.id.obdOptionsTxt2)
+    protected TextView obdOptionsTxt2;
 
-    @BindView(R.id.buttonGroup)
-    protected ConstraintLayout buttonGroup;
-    @BindView(R.id.obdPlusGPSSegmentedButton)
-    protected Button obdPlusGPSSegmentedButton;
-    @BindView(R.id.GPSOnlySegmentedButton)
-    protected Button GPSOnlySegmentedButton;
-    @BindView(R.id.obdGPSIndicator)
+    @BindView(R.id.obdPlusGPSButton)
+    protected Button obdPlusGPSButton;
+    @BindView(R.id.GPSOnlyButton)
+    protected Button GPSOnlyButton;
+    @BindView(R.id.obdPlusGPSLineIndicator)
     protected TextView obdGPSIndicator;
-    @BindView(R.id.GPSIndicator)
+    @BindView(R.id.GPSLineIndicator)
     protected TextView GPSIndicator;
-    @BindView(R.id.obdPlusGPSSettingsContainer)
-    protected CardView obdPlusGPSSettingsContainer;
-    @BindView(R.id.settingsLayout)
-    protected ConstraintLayout settingsLayout;
-    @BindView(R.id.frameLayout)
-    protected ConstraintLayout frameLayout;
-    @BindView(R.id.fragment_startup_start_button_inner)
-    protected Button mStartStopButtonInner;
+    @BindView(R.id.optionsLayout)
+    protected ConstraintLayout optionsLayout;
+    @BindView(R.id.startButton)
+    protected Button startButton;
 
     private MaterialDialog mConnectingDialog;
     protected ViewGroup obdGPSTransition;
     protected ViewGroup bannerTransition;
     protected ViewGroup frameTransition;
     protected ViewGroup settingTransition;
+
     protected CompositeSubscription subscriptions = new CompositeSubscription();
     private final Scheduler.Worker mBackgroundWorker = Schedulers
             .newThread().createWorker();
@@ -277,7 +270,7 @@ public class DashBoardFragment extends BaseInjectorFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         // First inflate the general dashboard view.
-        View contentView = inflater.inflate(R.layout.fragment_dashboard_view_new, container, false);
+        View contentView = inflater.inflate(R.layout.fragment_dashboard_view_test, container, false);
 
         ButterKnife.bind(this,contentView);
         String temp = PreferencesHandler.getTotalTime(getActivity());
@@ -289,16 +282,28 @@ public class DashBoardFragment extends BaseInjectorFragment {
         Integer totalTracks = PreferencesHandler.getUploadedTrackCount(getActivity()) + PreferencesHandler.getLocalTrackCount(getActivity());
         userTrackCountTV.setText( totalTracks + "");
         userTotalDistanceTV.setText(PreferencesHandler.getTotalDistanceTravelledOfUser(getActivity())+"");
-        obdGPSTransition = buttonGroup;
-        bannerTransition = buttonBanner;
-        frameTransition = frameLayout;
-        settingTransition = settingsLayout;
 
-        mCarTypeView.setOnClickListener(v -> {
+        bannerTransition.addView(bannerBluetoothContainer);
+        bannerTransition.addView(bannerOBDAdapterContainer);
+        bannerTransition.addView(bannerGPSContainer);
+        bannerTransition.addView(bannerCarContainer);
+
+        obdGPSTransition.addView(obdPlusGPSButton);
+        obdGPSTransition.addView(GPSOnlyButton);
+        obdGPSTransition.addView(GPSIndicator);
+        obdGPSTransition.addView(obdGPSIndicator);
+
+        frameTransition.addView(obdOptions);
+        frameTransition.addView(GPSOptions);
+        frameTransition.addView(CarOptions);
+
+        settingTransition = optionsLayout;
+
+        CarOptions.setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), CarSelectionActivity.class);
             getActivity().startActivity(intent);
         });
-        mOBDTypeView.setOnClickListener(v -> {
+        obdOptions.setOnClickListener(v -> {
             if(errorImageBluetooth.getVisibility() == View.VISIBLE){
                 Intent intent = new Intent(android.provider.Settings.ACTION_BLUETOOTH_SETTINGS);
                 startActivity(intent);
@@ -309,21 +314,21 @@ public class DashBoardFragment extends BaseInjectorFragment {
             }
         });
 
-        mGPSSelectedView.setOnClickListener(v->{
+        GPSOptions.setOnClickListener(v->{
             Intent intent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
             startActivity(intent);
         });
 
         setCarTypeText(mCarPrefHandler.getCar());
         setOBDTypeText(mBluetoothHandler.getSelectedBluetoothDevice());
-        setmGPSSelectedView(mLocationHandler.isGPSEnabled());
+        setGPSOptions(mLocationHandler.isGPSEnabled());
 
-        obdPlusGPSSegmentedButton.setOnClickListener(v->{
+        obdPlusGPSButton.setOnClickListener(v->{
             trackType = 1;
             checkTrackTypeAndSet();
         });
 
-        GPSOnlySegmentedButton.setOnClickListener(v->{
+        GPSOnlyButton.setOnClickListener(v->{
             trackType = 2;
             checkTrackTypeAndSet();
         });
@@ -335,12 +340,12 @@ public class DashBoardFragment extends BaseInjectorFragment {
             trackType = 1;
             checkTrackTypeAndSet();
 
-            obdPlusGPSSegmentedButton.setVisibility(GONE);
-            GPSOnlySegmentedButton.setVisibility(GONE);
+            obdPlusGPSButton.setVisibility(GONE);
+            GPSOnlyButton.setVisibility(GONE);
         }
         else{
-            obdPlusGPSSegmentedButton.setVisibility(View.VISIBLE);
-            GPSOnlySegmentedButton.setVisibility(View.VISIBLE);
+            obdPlusGPSButton.setVisibility(View.VISIBLE);
+            GPSOnlyButton.setVisibility(View.VISIBLE);
         }
 
         if(!checkStoragePermissions())
@@ -379,10 +384,10 @@ public class DashBoardFragment extends BaseInjectorFragment {
         Calendar c = Calendar.getInstance();
         Date date = c.getTime();
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd MMMM yyyy");
-        noUserDate.setText(simpleDateFormat.format(date));
+        this.date.setText(simpleDateFormat.format(date));
     }
 
-    @OnClick(R.id.signInInitiatorButton)
+    @OnClick(R.id.signInButton)
     protected void onLoginInitiatorButtonClicked() {
         Intent intent = new Intent(getActivity(), LoginRegisterActivity.class);
         intent.putExtra("from", "login");
@@ -426,14 +431,14 @@ public class DashBoardFragment extends BaseInjectorFragment {
         Toast.makeText(context, "You cannot change these values while track recording is in progress", Toast.LENGTH_LONG).show();
     }
 
-    @OnClick(R.id.registerInitiatorButton)
+    @OnClick(R.id.registerButton)
     protected void onRegisterInitiatorButtonClicked() {
         Intent intent = new Intent(getActivity(), LoginRegisterActivity.class);
         intent.putExtra("from", "register");
         startActivity(intent);
     }
 
-    @OnClick(R.id.fragment_startup_start_button_inner)
+    @OnClick(R.id.startButton)
     public void onStartStopButtonClicked() {
         switch (trackType) {
             case 1:
@@ -690,9 +695,8 @@ public class DashBoardFragment extends BaseInjectorFragment {
                                                 .addTransition(new ChangeBounds())
                                                 .addTransition(new AutoTransition())
                                                 .addTransition(new Slide(Gravity.LEFT));
-        TransitionManager.beginDelayedTransition(settingsLayout, transitionSet);
-        mOBDTypeView.setVisibility(View.VISIBLE);
-        //obdPlusGPSSettingsContainer.setVisibility(View.VISIBLE);
+        TransitionManager.beginDelayedTransition(optionsLayout, transitionSet);
+        obdOptions.setVisibility(View.VISIBLE);
     }
 
     void showGPSOnlySettings(){
@@ -700,9 +704,8 @@ public class DashBoardFragment extends BaseInjectorFragment {
                 .addTransition(new ChangeBounds())
                 .addTransition(new AutoTransition())
                 .addTransition(new Slide(Gravity.LEFT));
-        TransitionManager.beginDelayedTransition(settingsLayout, transitionSet);
-        //obdPlusGPSSettingsContainer.setVisibility(GONE);
-        mOBDTypeView.setVisibility(GONE);
+        TransitionManager.beginDelayedTransition(optionsLayout, transitionSet);
+        obdOptions.setVisibility(GONE);
     }
 
     void getUserCardDetails(){
@@ -797,15 +800,15 @@ public class DashBoardFragment extends BaseInjectorFragment {
     }
     void updateUserDetailsView(){
         if(mUserManager.isLoggedIn()){
-            dashBoardUserName.setVisibility(View.VISIBLE);
+            dashBoardName.setVisibility(View.VISIBLE);
             dashBoardUserImageView.setVisibility(View.VISIBLE);
-            userStatisticsContainer.setVisibility(View.VISIBLE);
-            userLoginSignupButtonContainer.setVisibility(GONE);
+            userStatisticsGroup.setVisibility(View.VISIBLE);
+            userLoginSignupButtonGroup.setVisibility(GONE);
 
             if(mUserManager.getUser().getFirstName()==null)
-                dashBoardUserName.setText(mUserManager.getUser().getUsername());
+                dashBoardName.setText(mUserManager.getUser().getUsername());
             else
-                dashBoardUserName.setText(mUserManager.getUser().getName());
+                dashBoardName.setText(mUserManager.getUser().getName());
 
             // update the local track count.
             mTrackDAOHandler.getLocalTrackCount()
@@ -853,10 +856,10 @@ public class DashBoardFragment extends BaseInjectorFragment {
             });
 
         } else {
-            dashBoardUserName.setVisibility(GONE);
+            dashBoardName.setVisibility(GONE);
             dashBoardUserImageView.setVisibility(GONE);
-            userStatisticsContainer.setVisibility(GONE);
-            userLoginSignupButtonContainer.setVisibility(View.VISIBLE);
+            userStatisticsGroup.setVisibility(GONE);
+            userLoginSignupButtonGroup.setVisibility(View.VISIBLE);
         }
     }
 
@@ -866,30 +869,30 @@ public class DashBoardFragment extends BaseInjectorFragment {
     private void setOBDTypeText(BluetoothDevice device) {
         getActivity().runOnUiThread(() -> {
             if (!mBluetoothHandler.isBluetoothEnabled()) {
-                mOBDTypeTextView.setText(R.string.dashboard_bluetooth_disabled);
-                mOBDTypeSubTextView.setText(R.string.dashboard_bluetooth_disabled_advise);
-                mOBDTypeImg.setImageResource(R.drawable.bluetooth_error);
-                mOBDTypeSubTextView.setVisibility(View.VISIBLE);
+                obdOptionsTxt1.setText(R.string.dashboard_bluetooth_disabled);
+                obdOptionsTxt2.setText(R.string.dashboard_bluetooth_disabled_advise);
+                obdOptionsImg.setImageResource(R.drawable.bluetooth_error);
+                obdOptionsTxt2.setVisibility(View.VISIBLE);
             } else if (device == null) {
-                mOBDTypeTextView.setText(R.string.dashboard_obd_not_selected);
-                mOBDTypeSubTextView.setText(R.string.dashboard_obd_not_selected_advise);
-                mOBDTypeImg.setImageResource(R.drawable.obd_nc);
-                mOBDTypeSubTextView.setVisibility(View.VISIBLE);
+                obdOptionsTxt1.setText(R.string.dashboard_obd_not_selected);
+                obdOptionsTxt2.setText(R.string.dashboard_obd_not_selected_advise);
+                obdOptionsImg.setImageResource(R.drawable.obd_nc);
+                obdOptionsTxt2.setVisibility(View.VISIBLE);
             } else if (mBluetoothHandler.isAutoconnecting()){
-                mOBDTypeTextView.setText("Autoconnecting");
-                mOBDTypeSubTextView.setText("Trying to Autoconnect to the OBD Device");
-                mOBDTypeImg.setImageResource(R.drawable.obd);
-                mOBDTypeSubTextView.setVisibility(View.VISIBLE);
+                obdOptionsTxt1.setText("Autoconnecting");
+                obdOptionsTxt2.setText("Trying to Autoconnect to the OBD Device");
+                obdOptionsImg.setImageResource(R.drawable.obd);
+                obdOptionsTxt2.setVisibility(View.VISIBLE);
             } else if (!mBluetoothHandler.isBluetoothActive()){
-                mOBDTypeTextView.setText("OBD-II adapter not found");
-                mOBDTypeSubTextView.setText("Unable to pair with the current selected OBD-II adapter");
-                mOBDTypeImg.setImageResource(R.drawable.obd);
-                mOBDTypeSubTextView.setVisibility(View.VISIBLE);
+                obdOptionsTxt1.setText("OBD-II adapter not found");
+                obdOptionsTxt2.setText("Unable to pair with the current selected OBD-II adapter");
+                obdOptionsImg.setImageResource(R.drawable.obd);
+                obdOptionsTxt2.setVisibility(View.VISIBLE);
             } else {
-                mOBDTypeTextView.setText(device.getName());
-                mOBDTypeSubTextView.setText(device.getAddress());
-                mOBDTypeImg.setImageResource(R.drawable.obd_connected);
-                mOBDTypeSubTextView.setVisibility(View.VISIBLE);
+                obdOptionsTxt1.setText(device.getName());
+                obdOptionsTxt2.setText(device.getAddress());
+                obdOptionsImg.setImageResource(R.drawable.obd_connected);
+                obdOptionsTxt2.setVisibility(View.VISIBLE);
             }
         });
     }
@@ -899,34 +902,34 @@ public class DashBoardFragment extends BaseInjectorFragment {
      */
     private void setCarTypeText(Car car) {
         if (car != null) {
-            mCarTypeTextView.setText(String.format("%s - %s",
+            CarOptionsTxt1.setText(String.format("%s - %s",
                     car.getManufacturer(),
                     car.getModel()));
 
 
-            mCarTypeSubTextView.setText(String.format("%s    %s    %s ccm",
+            CarOptionsTxt2.setText(String.format("%s    %s    %s ccm",
                     car.getConstructionYear(),
                     car.getFuelType(),
                     car.getEngineDisplacement()));
 
-            mCarTypeSubTextView.setVisibility(View.VISIBLE);
+            CarOptionsTxt2.setVisibility(View.VISIBLE);
         } else {
-            mCarTypeTextView.setText(R.string.dashboard_carselection_no_car_selected);
-            mCarTypeSubTextView.setText(R.string.dashboard_carselection_no_car_selected_advise);
-            mCarTypeSubTextView.setVisibility(View.VISIBLE);
+            CarOptionsTxt1.setText(R.string.dashboard_carselection_no_car_selected);
+            CarOptionsTxt2.setText(R.string.dashboard_carselection_no_car_selected_advise);
+            CarOptionsTxt2.setVisibility(View.VISIBLE);
         }
     }
 
-    private void setmGPSSelectedView(boolean isGPSEnabled){
+    private void setGPSOptions(boolean isGPSEnabled){
         if(isGPSEnabled == false){
-            mGPSSelectedTextView.setText("GPS is not enabled");
-            mGPSSelectedSubTextView.setText("Please turn on location services");
-            mGPSSelectedImg.setImageResource(R.drawable.gps_off);
+            GPSOptionsTxt1.setText("GPS is not enabled");
+            GPSOptionsTxt2.setText("Please turn on location services");
+            GPSOptionsImg.setImageResource(R.drawable.gps_off);
         }
         else{
-            mGPSSelectedTextView.setText("GPS is enabled");
-            mGPSSelectedSubTextView.setText("enviroCar has access to your location");
-            mGPSSelectedImg.setImageResource(R.drawable.gps_connected);
+            GPSOptionsTxt1.setText("GPS is enabled");
+            GPSOptionsTxt2.setText("enviroCar has access to your location");
+            GPSOptionsImg.setImageResource(R.drawable.gps_connected);
         }
     }
     /**
@@ -1036,7 +1039,7 @@ public class DashBoardFragment extends BaseInjectorFragment {
             } else if (trackType == 2) {
                 updateStartStopButtonGPSOnly(GPSOnlyRecordingService.CURRENT_SERVICE_STATE);
             }
-            setmGPSSelectedView(event.mIsGPSEnabled);
+            setGPSOptions(event.mIsGPSEnabled);
         });
     }
 
@@ -1192,16 +1195,16 @@ public class DashBoardFragment extends BaseInjectorFragment {
     private void updateStartStopButton(int background, String text, boolean enabled) {
         TransitionSet transitionSet = new TransitionSet()
                 .addTransition(new Recolor())
-                .addTarget(R.id.fragment_startup_start_button_inner);
+                .addTarget(R.id.startButton);
 
         TransitionManager.beginDelayedTransition(frameTransition, transitionSet);
-        mStartStopButtonInner.setBackgroundResource(background);
+        startButton.setBackgroundResource(background);
             if(background == R.drawable.btn_grey)
-                mStartStopButtonInner.setTextColor(Color.BLACK);
+                startButton.setTextColor(Color.BLACK);
             else
-                mStartStopButtonInner.setTextColor(Color.WHITE);
-            mStartStopButtonInner.setText(text);
-            mStartStopButtonInner.setEnabled(enabled);
+                startButton.setTextColor(Color.WHITE);
+            startButton.setText(text);
+            startButton.setEnabled(enabled);
     }
 
     private void onOBDPlusGPSStartTrackButtonStartClicked() {
