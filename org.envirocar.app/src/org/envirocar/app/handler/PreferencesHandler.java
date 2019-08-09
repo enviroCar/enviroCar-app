@@ -94,13 +94,13 @@ public class PreferencesHandler implements PreferenceConstants {
         PreferenceManager.getDefaultSharedPreferences(context).edit().putInt(PREF_LOCAL_TRACK_COUNT ,count).apply();
     }
 
-    public static Long getTotalDistanceTravelledOfUser(Context context){
-        return PreferenceManager.getDefaultSharedPreferences(context)
-                .getLong(PREF_TOTAL_DIST_TRAVELLED, 0);
+    public static Double getTotalDistanceTravelledOfUser(Context context){
+        return Double.valueOf(PreferenceManager.getDefaultSharedPreferences(context)
+                .getFloat(PREF_TOTAL_DIST_TRAVELLED, 0.0f));
     }
 
-    public static void setTotalDistanceTravelledOfUser(Context context, Long distance){
-        PreferenceManager.getDefaultSharedPreferences(context).edit().putLong(PREF_TOTAL_DIST_TRAVELLED, distance).apply();
+    public static void setTotalDistanceTravelledOfUser(Context context, Double distance){
+        PreferenceManager.getDefaultSharedPreferences(context).edit().putFloat(PREF_TOTAL_DIST_TRAVELLED, distance.floatValue()).apply();
     }
 
     public static String getTotalTime(Context context){
@@ -132,7 +132,7 @@ public class PreferencesHandler implements PreferenceConstants {
 
     public static void resetTrackCounts(Context context){
         PreferenceManager.getDefaultSharedPreferences(context).edit().putInt(PREF_LOCAL_TRACK_COUNT,0)
-                .putInt(PREF_UPLOADED_TRACK_COUNT,0).putInt(PREF_GLOBAL_TRACK_COUNT,0).putLong(PREF_TOTAL_DIST_TRAVELLED, 0).putString(PREF_TOTAL_TIME, "0s").apply();
+                .putInt(PREF_UPLOADED_TRACK_COUNT,0).putInt(PREF_GLOBAL_TRACK_COUNT,0).putFloat(PREF_TOTAL_DIST_TRAVELLED, 0.0f).putString(PREF_TOTAL_TIME, "No Tracks").apply();
     }
 
     public static int getPreviouslySelectedRecordingType(Context context){

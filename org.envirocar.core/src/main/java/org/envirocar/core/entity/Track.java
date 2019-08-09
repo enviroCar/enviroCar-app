@@ -118,9 +118,9 @@ public interface Track extends BaseEntity<Track>, Comparable<Track> {
 
     long getTimeInMillis();
 
-    Long getLength();
+    Double getLength();
 
-    void setLength(Long length);
+    void setLength(Double length);
 
     TrackStatus getTrackStatus();
 

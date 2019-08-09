@@ -89,13 +89,11 @@
                 android:id="@+id/date"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="20dp"
                 android:layout_marginEnd="24dp"
-                android:layout_marginRight="24dp"
                 android:fontFamily="@font/roboto_medium"
                 android:text="TextView"
                 android:textSize="@dimen/subtext"
-                app:layout_constraintBottom_toTopOf="@+id/dashBoardName"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -229,7 +227,7 @@
                 app:constraint_referenced_ids="textView7,userTotalDistance,userTotalDuration,textView12,userTotalDurationAdd,textView14,textView16,userTrackCount,dashBoardUserImage,dashBoardName" />
 
             <Button
-                android:id="@+id/signInButton"
+                android:id="@+id/signInInitiatorButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/btn_outline"
@@ -242,13 +240,13 @@
                 android:textColor="#000000"
                 android:textSize="16sp"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/registerButton"
+                app:layout_constraintEnd_toStartOf="@+id/registerInitiatorButton"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/textView19" />
 
             <Button
-                android:id="@+id/registerButton"
+                android:id="@+id/registerInitiatorButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/btn_outline"
@@ -260,11 +258,11 @@
                 android:text="@string/action_sign_in_register"
                 android:textColor="#000000"
                 android:textSize="16sp"
-                app:layout_constraintBottom_toBottomOf="@+id/signInButton"
+                app:layout_constraintBottom_toBottomOf="@+id/signInInitiatorButton"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toEndOf="@+id/signInButton"
-                app:layout_constraintTop_toTopOf="@+id/signInButton" />
+                app:layout_constraintStart_toEndOf="@+id/signInInitiatorButton"
+                app:layout_constraintTop_toTopOf="@+id/signInInitiatorButton" />
 
             <TextView
                 android:id="@+id/textView19"
@@ -285,7 +283,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:visibility="gone"
-                app:constraint_referenced_ids="signInButton,registerButton,textView19" />
+                app:constraint_referenced_ids="signInInitiatorButton,registerInitiatorButton,textView19" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
@@ -553,14 +551,6 @@
 
         </LinearLayout>
     </LinearLayout>
-
-    <androidx.constraintlayout.widget.Barrier
-        android:id="@+id/barrier2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:barrierDirection="bottom"
-        app:constraint_referenced_ids="bannerGPSContainer, bannerOBDAdapterContainer, bannerCarContainer, bannerBluetoothContainer"
-        tools:layout_editor_absoluteY="341dp" />
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/nestedScrollView"

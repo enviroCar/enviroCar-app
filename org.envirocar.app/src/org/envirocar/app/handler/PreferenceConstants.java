@@ -63,7 +63,7 @@ public interface PreferenceConstants {
     String PREF_LOCAL_TRACK_COUNT = "pref_local_track_count";
     String PREF_UPLOADED_TRACK_COUNT = "pref_uploaded_track_count";
     String PREF_GLOBAL_TRACK_COUNT = "pref_global_track_count";
-    String PREF_TOTAL_DIST_TRAVELLED = "pref_total_dist_travelled";
+    String PREF_TOTAL_DIST_TRAVELLED = "pref_total_dist_travelled_3";
     String PREF_TOTAL_TIME = "pref_total_time";
 
     String PREF_PREV_REC_TYPE = "pref_prev_rec_type";

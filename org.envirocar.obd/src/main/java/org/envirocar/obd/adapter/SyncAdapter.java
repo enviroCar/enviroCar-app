@@ -125,7 +125,7 @@ public abstract class SyncAdapter implements OBDAdapter {
                                 subscriber.unsubscribe();
                             }
 
-                            LOGGER.info("Sending command in initial phase: " + cc.toString());
+                            LOGGER.info("Sending Init Command: " + cc.toString());
                             //push the command to the output stream
                             commandExecutor.execute(cc);
 
@@ -147,6 +147,7 @@ public abstract class SyncAdapter implements OBDAdapter {
                         }
                     }
                 } catch (IOException | AdapterFailedException e) {
+                    LOGGER.error("Some unexpected error occured", e);
                     subscriber.onError(e);
                     subscriber.unsubscribe();
                 } catch (StreamFinishedException e) {
