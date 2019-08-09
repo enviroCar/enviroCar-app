@@ -279,9 +279,9 @@ public class DashBoardFragment extends BaseInjectorFragment {
         View contentView = inflater.inflate(R.layout.fragment_dashboard_view_test, container, false);
 
         ButterKnife.bind(this, contentView);
-        String t = PreferencesHandler.getTotalTime(getActivity());
-///*        userTotalDurationAddTV.setText(t.charAt(t.length() - 1) + "");
-//        userTotalDurationTV.setText(t.substring(0, t.length() - 1) + "");*/
+        //String t = PreferencesHandler.getTotalTime(getActivity());
+        //userTotalDurationAddTV.setText(t.charAt(t.length() - 1) + "");
+        //userTotalDurationTV.setText(t.substring(0, t.length() - 1) + "");
         Integer totalTracks = PreferencesHandler.getUploadedTrackCount(getActivity()) + PreferencesHandler.getLocalTrackCount(getActivity());
         userTrackCountTV.setText(totalTracks + "");
         userTotalDistanceTV.setText(DECIMAL_FORMATTER_TWO.format(PreferencesHandler.getTotalDistanceTravelledOfUser(getActivity())));
@@ -290,8 +290,9 @@ public class DashBoardFragment extends BaseInjectorFragment {
             Intent intent = new Intent(getActivity(), CarSelectionActivity.class);
             getActivity().startActivity(intent);
         });
+
         obdOptions.setOnClickListener(v -> {
-            if(errorImageBluetooth.getVisibility() == View.VISIBLE){
+            if (errorImageBluetooth.getVisibility() == View.VISIBLE) {
                 Intent intent = new Intent(android.provider.Settings.ACTION_BLUETOOTH_SETTINGS);
                 startActivity(intent);
             } else {
@@ -300,7 +301,7 @@ public class DashBoardFragment extends BaseInjectorFragment {
             }
         });
 
-        GPSOptions.setOnClickListener(v->{
+        GPSOptions.setOnClickListener(v-> {
             Intent intent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
             startActivity(intent);
         });
@@ -309,8 +310,8 @@ public class DashBoardFragment extends BaseInjectorFragment {
         setOBDTypeText(mBluetoothHandler.getSelectedBluetoothDevice());
         setGPSOptions(mLocationHandler.isGPSEnabled());
 
-        obdPlusGPSButton.setOnClickListener(v->{
-            if(trackType != 1) {
+        obdPlusGPSButton.setOnClickListener(v-> {
+            if (trackType != 1) {
                 obdPlusGPSButton.setEnabled(false);
                 GPSOnlyButton.setEnabled(false);
                 trackType = 1;
@@ -318,8 +319,8 @@ public class DashBoardFragment extends BaseInjectorFragment {
             }
         });
 
-        GPSOnlyButton.setOnClickListener(v->{
-            if(trackType != 2){
+        GPSOnlyButton.setOnClickListener(v-> {
+            if (trackType != 2) {
                 obdPlusGPSButton.setEnabled(false);
                 GPSOnlyButton.setEnabled(false);
                 trackType = 2;
@@ -333,10 +334,9 @@ public class DashBoardFragment extends BaseInjectorFragment {
         if (!PreferencesHandler.getEnableGPSBasedTrackRecording(context)) {
             trackType = 1;
             checkTrackTypeAndSet();
-
             obdPlusGPSButton.setVisibility(GONE);
             GPSOnlyButton.setVisibility(GONE);
-        } else{
+        } else {
             obdPlusGPSButton.setVisibility(View.VISIBLE);
             GPSOnlyButton.setVisibility(View.VISIBLE);
         }
@@ -527,7 +527,6 @@ public class DashBoardFragment extends BaseInjectorFragment {
             GPSIndicator.setVisibility(GONE);
             trackType = 1;
             showOBDPlusGPSSettings();
-
         } else {
             obdGPSIndicator.setVisibility(GONE);
             GPSIndicator.setVisibility(View.VISIBLE);
@@ -716,24 +715,24 @@ public class DashBoardFragment extends BaseInjectorFragment {
                 .setAction(getString(actionStringId), listener).show();
     }
 
-    void showOBDPlusGPSSettings(){
+    void showOBDPlusGPSSettings() {
         LOG.info("showOBDPlusGPSSettings");
         TransitionSet transitionSet = new TransitionSet()
-                .addTransition(new ChangeBounds())
-                .addTransition(new AutoTransition())
-                .addTransition(new Slide(Gravity.LEFT)
-                .addTarget(obdOptions));
+                                        .addTransition(new ChangeBounds())
+                                        .addTransition(new AutoTransition())
+                                        .addTransition(new Slide(Gravity.LEFT)
+                                        .addTarget(obdOptions));
         TransitionManager.beginDelayedTransition(optionsLayout, transitionSet);
         obdOptions.setVisibility(View.VISIBLE);
     }
 
-    void showGPSOnlySettings(){
+    void showGPSOnlySettings() {
         LOG.info("showGPSOnlySettings");
         TransitionSet transitionSet = new TransitionSet()
-                .addTransition(new ChangeBounds())
-                .addTransition(new AutoTransition())
-                .addTransition(new Slide(Gravity.LEFT)
-                .addTarget(obdOptions));
+                                        .addTransition(new ChangeBounds())
+                                        .addTransition(new AutoTransition())
+                                        .addTransition(new Slide(Gravity.LEFT)
+                                        .addTarget(obdOptions));
         TransitionManager.beginDelayedTransition(optionsLayout, transitionSet);
         obdOptions.setVisibility(GONE);
     }
@@ -794,33 +793,37 @@ public class DashBoardFragment extends BaseInjectorFragment {
         if (diffDays != 0) {
             stringBuilder.append(diffDays);
             stringBuilder.append(" : ");
+
             if (diffHours > 1) {
                 stringBuilder.append(diffHours);
             }
+
             stringBuilder.append("d");
         } else {
             if (diffHours != 0) {
                 stringBuilder.append(diffHours);
+
                 if (diffMinutes != 0) {
                     stringBuilder.append(" : ");
                     stringBuilder.append(diffMinutes);
                 }
+
                 stringBuilder.append("h");
             } else {
                 if (diffMinutes != 0) {
                     stringBuilder.append(diffMinutes);
+
                     if (diffSeconds != 0) {
                         stringBuilder.append(" : ");
                         stringBuilder.append(diffSeconds);
                     }
+
                     stringBuilder.append("m");
                 } else {
                     stringBuilder.append(diffSeconds);
                     stringBuilder.append("s");
-
                 }
             }
-
         }
         return stringBuilder.toString();
     }
@@ -945,13 +948,12 @@ public class DashBoardFragment extends BaseInjectorFragment {
         }
     }
 
-    private void setGPSOptions(boolean isGPSEnabled){
-        if(isGPSEnabled == false){
+    private void setGPSOptions(boolean isGPSEnabled) {
+        if (isGPSEnabled == false) {
             GPSOptionsTxt1.setText("GPS is not enabled");
             GPSOptionsTxt2.setText("Please turn on location services");
             GPSOptionsImg.setImageResource(R.drawable.gps_off);
-        }
-        else{
+        } else {
             GPSOptionsTxt1.setText("GPS is enabled");
             GPSOptionsTxt2.setText("enviroCar has access to your location");
             GPSOptionsImg.setImageResource(R.drawable.gps_connected);
@@ -1225,7 +1227,7 @@ public class DashBoardFragment extends BaseInjectorFragment {
 
         TransitionManager.beginDelayedTransition(optionsLayout, transitionSet);
         startButton.setBackgroundResource(background);
-            if(background == R.drawable.btn_grey)
+            if (background == R.drawable.btn_grey)
                 startButton.setTextColor(Color.BLACK);
             else
                 startButton.setTextColor(Color.WHITE);
