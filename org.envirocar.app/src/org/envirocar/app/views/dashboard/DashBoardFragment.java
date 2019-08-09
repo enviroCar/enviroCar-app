@@ -37,7 +37,9 @@ import androidx.constraintlayout.widget.Group;
 import androidx.core.app.ActivityCompat;
 import androidx.transition.AutoTransition;
 import androidx.transition.ChangeBounds;
+import androidx.transition.Fade;
 import androidx.transition.Slide;
+import androidx.transition.Transition;
 import androidx.transition.TransitionManager;
 import androidx.transition.TransitionSet;
 
@@ -137,6 +139,8 @@ public class DashBoardFragment extends BaseInjectorFragment {
     @Inject
     protected CarPreferenceHandler mCarManager;
 
+    @BindView(R.id.dashboardLayout)
+    protected ConstraintLayout dashboardLayout;
     @BindView(R.id.userStatisticsGroup)
     protected Group userStatisticsGroup;
     @BindView(R.id.userLoginSignupButtonGroup)
@@ -178,6 +182,8 @@ public class DashBoardFragment extends BaseInjectorFragment {
     @BindView(R.id.okImageCar)
     protected ImageView okImageCar;
 
+    @BindView(R.id.buttonBanner)
+    protected LinearLayout buttonBanner;
     @BindView(R.id.bannerBluetoothContainer)
     protected LinearLayout bannerBluetoothContainer;
     @BindView(R.id.bannerOBDAdapterContainer)
@@ -225,15 +231,13 @@ public class DashBoardFragment extends BaseInjectorFragment {
     protected TextView obdGPSIndicator;
     @BindView(R.id.GPSLineIndicator)
     protected TextView GPSIndicator;
+
     @BindView(R.id.optionsLayout)
     protected ConstraintLayout optionsLayout;
     @BindView(R.id.startButton)
     protected Button startButton;
 
     private MaterialDialog mConnectingDialog;
-    protected ViewGroup obdGPSTransition;
-    protected ViewGroup bannerTransition;
-    protected ViewGroup frameTransition;
     protected ViewGroup settingTransition;
 
     protected CompositeSubscription subscriptions = new CompositeSubscription();
@@ -244,6 +248,7 @@ public class DashBoardFragment extends BaseInjectorFragment {
     protected Long distance = Long.valueOf(0);
     protected long timeInMillis = 0;
     protected Boolean localTCount = false, remoteTCount = false;
+    protected Boolean isModeChanging = false;
     //trackType = 1 means OBD + GPS
     //trackType = 2 means GPS Only
     private static int trackType = 1;
@@ -283,20 +288,6 @@ public class DashBoardFragment extends BaseInjectorFragment {
         userTrackCountTV.setText( totalTracks + "");
         userTotalDistanceTV.setText(PreferencesHandler.getTotalDistanceTravelledOfUser(getActivity())+"");
 
-        bannerTransition.addView(bannerBluetoothContainer);
-        bannerTransition.addView(bannerOBDAdapterContainer);
-        bannerTransition.addView(bannerGPSContainer);
-        bannerTransition.addView(bannerCarContainer);
-
-        obdGPSTransition.addView(obdPlusGPSButton);
-        obdGPSTransition.addView(GPSOnlyButton);
-        obdGPSTransition.addView(GPSIndicator);
-        obdGPSTransition.addView(obdGPSIndicator);
-
-        frameTransition.addView(obdOptions);
-        frameTransition.addView(GPSOptions);
-        frameTransition.addView(CarOptions);
-
         settingTransition = optionsLayout;
 
         CarOptions.setOnClickListener(v -> {
@@ -324,13 +315,21 @@ public class DashBoardFragment extends BaseInjectorFragment {
         setGPSOptions(mLocationHandler.isGPSEnabled());
 
         obdPlusGPSButton.setOnClickListener(v->{
-            trackType = 1;
-            checkTrackTypeAndSet();
+            if(trackType != 1) {
+                obdPlusGPSButton.setEnabled(false);
+                GPSOnlyButton.setEnabled(false);
+                trackType = 1;
+                checkTrackTypeAndSet();
+            }
         });
 
         GPSOnlyButton.setOnClickListener(v->{
-            trackType = 2;
-            checkTrackTypeAndSet();
+            if(trackType != 2){
+                obdPlusGPSButton.setEnabled(false);
+                GPSOnlyButton.setEnabled(false);
+                trackType = 2;
+                checkTrackTypeAndSet();
+            }
         });
 
         checkTrackTypeAndSet();
@@ -356,13 +355,46 @@ public class DashBoardFragment extends BaseInjectorFragment {
     }
 
     protected void checkTrackTypeAndSet(){
-        TransitionManager.beginDelayedTransition(obdGPSTransition);
+        TransitionSet transition = new TransitionSet()
+                .addTransition(new ChangeBounds())
+                .addTransition(new Fade());
+        transition.addTarget(R.id.obdPlusGPSLineIndicator);
+        transition.addTarget(R.id.GPSLineIndicator);
+        transition.addListener(new Transition.TransitionListener() {
+            @Override
+            public void onTransitionStart(@NonNull Transition transition) {
+
+            }
+
+            @Override
+            public void onTransitionEnd(@NonNull Transition transition) {
+                obdPlusGPSButton.setEnabled(true);
+                GPSOnlyButton.setEnabled(true);
+            }
+
+            @Override
+            public void onTransitionCancel(@NonNull Transition transition) {
+
+            }
+
+            @Override
+            public void onTransitionPause(@NonNull Transition transition) {
+
+            }
+
+            @Override
+            public void onTransitionResume(@NonNull Transition transition) {
+
+            }
+        });
+
         switch (trackType) {
             case 1:
                 trackType = 1;
                 DashBoardFragment.this.showOBDPlusGPSSettings();
                 PreferencesHandler.setPreviouslySelectedRecordingType(context.getApplicationContext(), 1);
                 DashBoardFragment.this.updateStartStopButtonOBDPlusGPS(OBDRecordingService.CURRENT_SERVICE_STATE);
+                TransitionManager.beginDelayedTransition(dashboardLayout, transition);
                 obdGPSIndicator.setVisibility(View.VISIBLE);
                 GPSIndicator.setVisibility(GONE);
                 break;
@@ -371,7 +403,7 @@ public class DashBoardFragment extends BaseInjectorFragment {
                 DashBoardFragment.this.showGPSOnlySettings();
                 PreferencesHandler.setPreviouslySelectedRecordingType(context.getApplicationContext(), 2);
                 DashBoardFragment.this.updateStartStopButtonGPSOnly(GPSOnlyRecordingService.CURRENT_SERVICE_STATE);
-                //DashBoardFragment.this.updateBannerForGPSOnlyType();
+                TransitionManager.beginDelayedTransition(dashboardLayout, transition);
                 obdGPSIndicator.setVisibility(GONE);
                 GPSIndicator.setVisibility(View.VISIBLE);
                 break;
@@ -691,19 +723,23 @@ public class DashBoardFragment extends BaseInjectorFragment {
     }
 
     void showOBDPlusGPSSettings(){
+        LOG.info("showOBDPlusGPSSettings");
         TransitionSet transitionSet = new TransitionSet()
-                                                .addTransition(new ChangeBounds())
-                                                .addTransition(new AutoTransition())
-                                                .addTransition(new Slide(Gravity.LEFT));
+                .addTransition(new ChangeBounds())
+                .addTransition(new AutoTransition())
+                .addTransition(new Slide(Gravity.LEFT)
+                .addTarget(obdOptions));
         TransitionManager.beginDelayedTransition(optionsLayout, transitionSet);
         obdOptions.setVisibility(View.VISIBLE);
     }
 
     void showGPSOnlySettings(){
+        LOG.info("showGPSOnlySettings");
         TransitionSet transitionSet = new TransitionSet()
                 .addTransition(new ChangeBounds())
                 .addTransition(new AutoTransition())
-                .addTransition(new Slide(Gravity.LEFT));
+                .addTransition(new Slide(Gravity.LEFT)
+                .addTarget(obdOptions));
         TransitionManager.beginDelayedTransition(optionsLayout, transitionSet);
         obdOptions.setVisibility(GONE);
     }
@@ -1045,7 +1081,7 @@ public class DashBoardFragment extends BaseInjectorFragment {
 
     private void updateBannerForGPSOnlyType(){
         LOG.info("updateBannerForGPSOnlyType() called");
-        TransitionManager.beginDelayedTransition(bannerTransition);
+        TransitionManager.beginDelayedTransition(buttonBanner);
         errorImageBluetooth.setVisibility(GONE);
         errorImageOBDAdapter.setVisibility(GONE);
         okImageBluetooth.setVisibility(GONE);
@@ -1067,11 +1103,12 @@ public class DashBoardFragment extends BaseInjectorFragment {
             errorImageCar.setVisibility(GONE);
             okImageCar.setVisibility(View.VISIBLE);
         }
+
     }
 
     private void updateBannerForOBDPlusGPSType(){
         LOG.info("updateBannerForOBDPlusGPSType() called");
-        TransitionManager.beginDelayedTransition(bannerTransition);
+        TransitionManager.beginDelayedTransition(buttonBanner);
         bannerBluetoothContainer.setVisibility(View.VISIBLE);
         bannerOBDAdapterContainer.setVisibility(View.VISIBLE);
         LOG.info("Bluetooth and OBD containers loaded.");
@@ -1197,7 +1234,7 @@ public class DashBoardFragment extends BaseInjectorFragment {
                 .addTransition(new Recolor())
                 .addTarget(R.id.startButton);
 
-        TransitionManager.beginDelayedTransition(frameTransition, transitionSet);
+        TransitionManager.beginDelayedTransition(optionsLayout, transitionSet);
         startButton.setBackgroundResource(background);
             if(background == R.drawable.btn_grey)
                 startButton.setTextColor(Color.BLACK);

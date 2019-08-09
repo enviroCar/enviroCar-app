@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/dashboardLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -93,7 +94,7 @@
                 android:layout_marginRight="24dp"
                 android:fontFamily="@font/roboto_medium"
                 android:text="TextView"
-                android:textSize="@dimen/heading3"
+                android:textSize="@dimen/subtext"
                 app:layout_constraintBottom_toTopOf="@+id/dashBoardName"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -345,220 +346,212 @@
         app:layout_constraintStart_toStartOf="@+id/GPSOnlyButton"
         app:layout_constraintTop_toBottomOf="@+id/GPSOnlyButton" />
 
-    <androidx.constraintlayout.widget.Group
+    <LinearLayout
         android:id="@+id/buttonBanner"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:constraint_referenced_ids="bannerOBDAdapterContainer,bannerGPSContainer,bannerCarContainer,bannerBluetoothContainer" />
+        android:layout_marginTop="16dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toTopOf="@+id/obdPlusGPSLineIndicator"
+        tools:layout_editor_absoluteX="0dp">
 
-    <LinearLayout
-        android:id="@+id/bannerBluetoothContainer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:gravity="center_horizontal|center_vertical"
-        android:orientation="vertical"
-        android:padding="4dp"
-        android:visibility="visible"
-        app:layout_constraintEnd_toStartOf="@+id/bannerOBDAdapterContainer"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/obdPlusGPSLineIndicator">
-
-        <FrameLayout
+        <LinearLayout
+            android:id="@+id/bannerBluetoothContainer"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center_horizontal|center_vertical"
+            android:orientation="vertical"
+            android:padding="4dp"
+            android:visibility="visible">
 
-            <ImageView
-                android:layout_width="@dimen/dashboard_selector"
-                android:layout_height="@dimen/dashboard_selector"
-                android:layout_gravity="center"
-                android:background="@drawable/btn_dashboard_circle"
-                android:padding="10dp"
-                android:src="@drawable/ic_bluetooth_black_24dp"
-                android:visibility="visible" />
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
 
-            <ImageView
-                android:id="@+id/errorImageBluetooth"
-                android:layout_width="@dimen/dashboard_selector"
-                android:layout_height="@dimen/dashboard_selector"
-                android:layout_gravity="center"
-                android:background="@drawable/btn_dashboard_circle"
-                android:padding="10dp"
-                android:src="@drawable/bluetooth_error"
-                android:visibility="gone" />
+                <ImageView
+                    android:layout_width="@dimen/dashboard_selector"
+                    android:layout_height="@dimen/dashboard_selector"
+                    android:layout_gravity="center"
+                    android:background="@drawable/btn_dashboard_circle"
+                    android:padding="10dp"
+                    android:src="@drawable/ic_bluetooth_black_24dp"
+                    android:visibility="visible" />
 
-            <ImageView
-                android:id="@+id/okImageBluetooth"
-                android:layout_width="@dimen/dashboard_selector"
-                android:layout_height="@dimen/dashboard_selector"
-                android:layout_gravity="center"
-                android:background="@drawable/btn_dashboard_connected_circle"
-                android:padding="10dp"
-                android:src="@drawable/bluetooth_connected"
-                android:tint="@color/common_google_signin_btn_text_dark_focused"
-                android:visibility="gone" />
+                <ImageView
+                    android:id="@+id/errorImageBluetooth"
+                    android:layout_width="@dimen/dashboard_selector"
+                    android:layout_height="@dimen/dashboard_selector"
+                    android:layout_gravity="center"
+                    android:background="@drawable/btn_dashboard_circle"
+                    android:padding="10dp"
+                    android:src="@drawable/bluetooth_error"
+                    android:visibility="gone" />
+
+                <ImageView
+                    android:id="@+id/okImageBluetooth"
+                    android:layout_width="@dimen/dashboard_selector"
+                    android:layout_height="@dimen/dashboard_selector"
+                    android:layout_gravity="center"
+                    android:background="@drawable/btn_dashboard_connected_circle"
+                    android:padding="10dp"
+                    android:src="@drawable/bluetooth_connected"
+                    android:tint="@color/common_google_signin_btn_text_dark_focused"
+                    android:visibility="gone" />
 
 
-        </FrameLayout>
+            </FrameLayout>
 
 
-    </LinearLayout>
+        </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/bannerOBDAdapterContainer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="center_horizontal|center_vertical"
-        android:orientation="vertical"
-        android:padding="4dp"
-        android:visibility="visible"
-        app:layout_constraintEnd_toStartOf="@+id/bannerGPSContainer"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/bannerBluetoothContainer"
-        app:layout_constraintTop_toTopOf="@+id/bannerBluetoothContainer">
-
-        <FrameLayout
+        <LinearLayout
+            android:id="@+id/bannerOBDAdapterContainer"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center_horizontal|center_vertical"
+            android:orientation="vertical"
+            android:padding="4dp"
+            android:visibility="visible">
 
-            <ImageView
-                android:layout_width="@dimen/dashboard_selector"
-                android:layout_height="@dimen/dashboard_selector"
-                android:layout_gravity="center"
-                android:background="@drawable/btn_dashboard_circle"
-                android:padding="10dp"
-                android:src="@drawable/obd"
-                android:tint="#000000"
-                android:visibility="visible" />
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
 
-            <ImageView
-                android:id="@+id/errorImageOBDAdapter"
-                android:layout_width="@dimen/dashboard_selector"
-                android:layout_height="@dimen/dashboard_selector"
-                android:layout_gravity="center"
-                android:background="@drawable/btn_dashboard_circle"
-                android:padding="10dp"
-                android:src="@drawable/obd_nc"
-                android:visibility="gone" />
+                <ImageView
+                    android:layout_width="@dimen/dashboard_selector"
+                    android:layout_height="@dimen/dashboard_selector"
+                    android:layout_gravity="center"
+                    android:background="@drawable/btn_dashboard_circle"
+                    android:padding="10dp"
+                    android:src="@drawable/obd"
+                    android:tint="#000000"
+                    android:visibility="visible" />
 
-            <ImageView
-                android:id="@+id/okImageOBDAdapter"
-                android:layout_width="@dimen/dashboard_selector"
-                android:layout_height="@dimen/dashboard_selector"
-                android:layout_gravity="center"
-                android:background="@drawable/btn_dashboard_connected_circle"
-                android:padding="10dp"
-                android:src="@drawable/obd_connected"
-                android:tint="@color/common_google_signin_btn_text_dark_focused"
-                android:visibility="gone" />
+                <ImageView
+                    android:id="@+id/errorImageOBDAdapter"
+                    android:layout_width="@dimen/dashboard_selector"
+                    android:layout_height="@dimen/dashboard_selector"
+                    android:layout_gravity="center"
+                    android:background="@drawable/btn_dashboard_circle"
+                    android:padding="10dp"
+                    android:src="@drawable/obd_nc"
+                    android:visibility="gone" />
 
-        </FrameLayout>
+                <ImageView
+                    android:id="@+id/okImageOBDAdapter"
+                    android:layout_width="@dimen/dashboard_selector"
+                    android:layout_height="@dimen/dashboard_selector"
+                    android:layout_gravity="center"
+                    android:background="@drawable/btn_dashboard_connected_circle"
+                    android:padding="10dp"
+                    android:src="@drawable/obd_connected"
+                    android:tint="@color/common_google_signin_btn_text_dark_focused"
+                    android:visibility="gone" />
 
-    </LinearLayout>
+            </FrameLayout>
 
-    <LinearLayout
-        android:id="@+id/bannerGPSContainer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="center_horizontal|center_vertical"
-        android:orientation="vertical"
-        android:padding="4dp"
-        app:layout_constraintEnd_toStartOf="@+id/bannerCarContainer"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/bannerOBDAdapterContainer"
-        app:layout_constraintTop_toTopOf="@+id/bannerOBDAdapterContainer">
+        </LinearLayout>
 
-        <FrameLayout
+        <LinearLayout
+            android:id="@+id/bannerGPSContainer"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center_horizontal|center_vertical"
+            android:orientation="vertical"
+            android:padding="4dp">
 
-            <ImageView
-                android:layout_width="@dimen/dashboard_selector"
-                android:layout_height="@dimen/dashboard_selector"
-                android:layout_gravity="center"
-                android:background="@drawable/btn_dashboard_circle"
-                android:padding="10dp"
-                android:src="@drawable/gps"
-                android:tint="#000000"
-                android:visibility="visible" />
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
 
-            <ImageView
-                android:id="@+id/errorImageGPS"
-                android:layout_width="@dimen/dashboard_selector"
-                android:layout_height="@dimen/dashboard_selector"
-                android:layout_gravity="center"
-                android:background="@drawable/btn_dashboard_circle"
-                android:padding="10dp"
-                android:src="@drawable/gps_off"
-                android:visibility="gone" />
+                <ImageView
+                    android:layout_width="@dimen/dashboard_selector"
+                    android:layout_height="@dimen/dashboard_selector"
+                    android:layout_gravity="center"
+                    android:background="@drawable/btn_dashboard_circle"
+                    android:padding="10dp"
+                    android:src="@drawable/gps"
+                    android:tint="#000000"
+                    android:visibility="visible" />
 
-            <ImageView
-                android:id="@+id/okImageGPS"
-                android:layout_width="@dimen/dashboard_selector"
-                android:layout_height="@dimen/dashboard_selector"
-                android:layout_gravity="center"
-                android:background="@drawable/btn_dashboard_connected_circle"
-                android:padding="10dp"
-                android:src="@drawable/gps_connected"
-                android:tint="@color/common_google_signin_btn_text_dark_focused"
-                android:visibility="gone" />
+                <ImageView
+                    android:id="@+id/errorImageGPS"
+                    android:layout_width="@dimen/dashboard_selector"
+                    android:layout_height="@dimen/dashboard_selector"
+                    android:layout_gravity="center"
+                    android:background="@drawable/btn_dashboard_circle"
+                    android:padding="10dp"
+                    android:src="@drawable/gps_off"
+                    android:visibility="gone" />
 
-        </FrameLayout>
+                <ImageView
+                    android:id="@+id/okImageGPS"
+                    android:layout_width="@dimen/dashboard_selector"
+                    android:layout_height="@dimen/dashboard_selector"
+                    android:layout_gravity="center"
+                    android:background="@drawable/btn_dashboard_connected_circle"
+                    android:padding="10dp"
+                    android:src="@drawable/gps_connected"
+                    android:tint="@color/common_google_signin_btn_text_dark_focused"
+                    android:visibility="gone" />
+
+            </FrameLayout>
 
 
-    </LinearLayout>
+        </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/bannerCarContainer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="center_horizontal|center_vertical"
-        android:orientation="vertical"
-        android:padding="4dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/bannerGPSContainer"
-        app:layout_constraintTop_toTopOf="@+id/bannerGPSContainer">
-
-        <FrameLayout
+        <LinearLayout
+            android:id="@+id/bannerCarContainer"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center_horizontal|center_vertical"
+            android:orientation="vertical"
+            android:padding="4dp">
 
-            <ImageView
-                android:layout_width="@dimen/dashboard_selector"
-                android:layout_height="@dimen/dashboard_selector"
-                android:layout_gravity="center"
-                android:background="@drawable/btn_dashboard_circle"
-                android:padding="10dp"
-                android:src="@drawable/ic_drive_eta_black_24dp"
-                android:tint="@color/common_google_signin_btn_text_dark_focused"
-                android:visibility="visible" />
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
 
-            <ImageView
-                android:id="@+id/errorImageCar"
-                android:layout_width="@dimen/dashboard_selector"
-                android:layout_height="@dimen/dashboard_selector"
-                android:layout_gravity="center"
-                android:background="@drawable/btn_dashboard_circle"
-                android:padding="10dp"
-                android:src="@drawable/ic_drive_eta_black_24dp"
-                android:tint="@color/common_google_signin_btn_text_dark_focused"
-                android:visibility="gone" />
+                <ImageView
+                    android:layout_width="@dimen/dashboard_selector"
+                    android:layout_height="@dimen/dashboard_selector"
+                    android:layout_gravity="center"
+                    android:background="@drawable/btn_dashboard_circle"
+                    android:padding="10dp"
+                    android:src="@drawable/ic_drive_eta_black_24dp"
+                    android:tint="@color/common_google_signin_btn_text_dark_focused"
+                    android:visibility="visible" />
 
-            <ImageView
-                android:id="@+id/okImageCar"
-                android:layout_width="@dimen/dashboard_selector"
-                android:layout_height="@dimen/dashboard_selector"
-                android:layout_gravity="center"
-                android:background="@drawable/btn_dashboard_connected_circle"
-                android:padding="10dp"
-                android:src="@drawable/ic_drive_eta_black_24dp"
-                android:tint="@color/common_google_signin_btn_text_dark_focused"
-                android:visibility="gone" />
+                <ImageView
+                    android:id="@+id/errorImageCar"
+                    android:layout_width="@dimen/dashboard_selector"
+                    android:layout_height="@dimen/dashboard_selector"
+                    android:layout_gravity="center"
+                    android:background="@drawable/btn_dashboard_circle"
+                    android:padding="10dp"
+                    android:src="@drawable/ic_drive_eta_black_24dp"
+                    android:tint="@color/common_google_signin_btn_text_dark_focused"
+                    android:visibility="gone" />
 
-        </FrameLayout>
+                <ImageView
+                    android:id="@+id/okImageCar"
+                    android:layout_width="@dimen/dashboard_selector"
+                    android:layout_height="@dimen/dashboard_selector"
+                    android:layout_gravity="center"
+                    android:background="@drawable/btn_dashboard_connected_circle"
+                    android:padding="10dp"
+                    android:src="@drawable/ic_drive_eta_black_24dp"
+                    android:tint="@color/common_google_signin_btn_text_dark_focused"
+                    android:visibility="gone" />
 
+            </FrameLayout>
+
+        </LinearLayout>
     </LinearLayout>
 
     <androidx.constraintlayout.widget.Barrier
@@ -570,14 +563,15 @@
         tools:layout_editor_absoluteY="341dp" />
 
     <androidx.core.widget.NestedScrollView
+        android:id="@+id/nestedScrollView"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="8dp"
         android:fillViewport="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/barrier2">
+        app:layout_constraintTop_toBottomOf="@+id/buttonBanner">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/optionsLayout"
@@ -612,6 +606,7 @@
                 android:orientation="horizontal"
                 android:paddingTop="@dimen/spacing_medium"
                 android:paddingBottom="@dimen/spacing_medium"
+                android:visibility="visible"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
@@ -786,7 +781,7 @@
                 android:layout_width="145dp"
                 android:layout_height="45dp"
                 android:layout_marginTop="8dp"
-                android:layout_marginBottom="20dp"
+                android:layout_marginBottom="16dp"
                 android:background="@drawable/btn_dark"
                 android:fontFamily="@font/roboto_medium"
                 android:paddingLeft="18dp"
@@ -799,8 +794,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/disableChangingParametersLayout"
-                app:layout_constraintVertical_bias="0.1" />
+                app:layout_constraintTop_toBottomOf="@+id/CarOptions" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
