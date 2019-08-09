@@ -603,11 +603,10 @@
 
                 <ImageView
                     android:id="@+id/obdOptionsImg"
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
+                    android:layout_width="@dimen/image_icon_s"
+                    android:layout_height="@dimen/image_icon_s"
                     android:layout_gravity="center"
                     android:layout_marginStart="@dimen/spacing_large"
-                    android:layout_marginLeft="@dimen/spacing_large"
                     android:src="@drawable/ic_bluetooth_searching_black_24dp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -666,8 +665,8 @@
 
                 <ImageView
                     android:id="@+id/GPSOptionsImg"
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
+                    android:layout_width="@dimen/image_icon_s"
+                    android:layout_height="@dimen/image_icon_s"
                     android:layout_gravity="center"
                     android:layout_marginLeft="@dimen/spacing_large"
                     android:src="@drawable/gps"
@@ -725,8 +724,8 @@
 
                 <ImageView
                     android:id="@+id/CarOptionsImg"
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
+                    android:layout_width="@dimen/image_icon_s"
+                    android:layout_height="@dimen/image_icon_s"
                     android:layout_gravity="center"
                     android:layout_marginLeft="@dimen/spacing_large"
                     android:src="@drawable/ic_drive_eta_black_24dp"

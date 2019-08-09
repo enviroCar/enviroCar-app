@@ -5,5 +5,6 @@
     <dimen name="subtitle">16sp</dimen>
     <dimen name="subtext">13sp</dimen>
     <dimen name="image_icon_m">45dp</dimen>
+    <dimen name="image_icon_s">30dp</dimen>
     <dimen name="dashboard_selector">57dp</dimen>
 </resources>
