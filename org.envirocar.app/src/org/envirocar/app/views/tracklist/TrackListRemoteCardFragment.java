@@ -233,7 +233,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
         // Show the downloading text notification.
         ECAnimationUtils.animateShowView(getActivity(), holder.mDownloadNotification,
                 R.anim.fade_in);
-        holder.mProgressCircle.show();
+        //holder.mProgressCircle.show();
         track.setDownloadState(Track.DownloadState.DOWNLOADING);
 
         mTrackDAOHandler.fetchRemoteTrackObservable(track)
@@ -243,6 +243,14 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
 
                     @Override
                     public void onCompleted() {
+                        LOG.info("Track " + track.getRemoteID() + " downloaded. Setting ViewHolder");
+                        mRecyclerViewAdapter.bindTrackViewHolder(holder, track, true);
+
+                        // and hide the download button
+                        ECAnimationUtils.animateHideView(getActivity(), R.anim.fade_out,
+                                holder.mDownloadButton, holder
+                                        .mDownloadNotification);
+                        /*
                         holder.mProgressCircle.beginFinalAnimation();
                         holder.mProgressCircle.attachListener(() -> {
                             // When the visualization is finished, then Init the
@@ -256,13 +264,14 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
                             //ECAnimationUtils.animateShowView(getActivity(), holder.mContentView, R
                             //        .anim.fade_in);
                         });
+                        */
                     }
 
                     @Override
                     public void onError(Throwable e) {
                         LOG.error("Not connected exception", e);
                         showSnackbar(R.string.track_list_communication_error);
-                        holder.mProgressCircle.hide();
+                        //holder.mProgressCircle.hide();
                         track.setDownloadState(Track.DownloadState.DOWNLOADING);
                         holder.mDownloadNotification.setText(
                                 R.string.track_list_error_while_downloading);
@@ -420,6 +429,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
                 showNoTracksInfo(false);
             }
             else{
+                mRecyclerView.removeAllViews();
                 mRecyclerViewAdapter.setGuideline(mvVisible);
                 TransitionManager.beginDelayedTransition(mRecyclerView, new Slide(Gravity.LEFT).
                         setDuration(1000).

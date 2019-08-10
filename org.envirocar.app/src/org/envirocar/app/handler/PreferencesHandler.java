@@ -95,8 +95,8 @@ public class PreferencesHandler implements PreferenceConstants {
     }
 
     public static Double getTotalDistanceTravelledOfUser(Context context){
-        return Double.valueOf(PreferenceManager.getDefaultSharedPreferences(context)
-                .getFloat(PREF_TOTAL_DIST_TRAVELLED, 0));
+        return (double) PreferenceManager.getDefaultSharedPreferences(context)
+                .getFloat(PREF_TOTAL_DIST_TRAVELLED, 0.0F);
     }
 
     public static void setTotalDistanceTravelledOfUser(Context context, Double distance){
@@ -132,7 +132,7 @@ public class PreferencesHandler implements PreferenceConstants {
 
     public static void resetTrackCounts(Context context){
         PreferenceManager.getDefaultSharedPreferences(context).edit().putInt(PREF_LOCAL_TRACK_COUNT,0)
-                .putInt(PREF_UPLOADED_TRACK_COUNT,0).putInt(PREF_GLOBAL_TRACK_COUNT,0).putLong(PREF_TOTAL_DIST_TRAVELLED, 0).putString(PREF_TOTAL_TIME, "No Tracks").apply();
+                .putInt(PREF_UPLOADED_TRACK_COUNT,0).putInt(PREF_GLOBAL_TRACK_COUNT,0).putFloat(PREF_TOTAL_DIST_TRAVELLED, 0.0F).putString(PREF_TOTAL_TIME, "No Tracks").apply();
     }
 
     public static int getPreviouslySelectedRecordingType(Context context){
