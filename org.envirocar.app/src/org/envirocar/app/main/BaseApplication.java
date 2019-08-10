@@ -31,7 +31,6 @@ import android.graphics.Color;
 import android.os.Build;
 import android.preference.PreferenceManager;
 
-import androidx.multidex.MultiDexApplication;
 
 import com.mapbox.mapboxsdk.Mapbox;
 
@@ -58,7 +57,7 @@ import javax.inject.Inject;
  * @author dewall
  */
 @AcraCore(buildConfigClass = BuildConfig.class, reportSenderFactoryClasses = ACRASenderFactory.class)
-public class BaseApplication extends MultiDexApplication {
+public class BaseApplication extends Application {
     private static final Logger LOGGER = Logger.getLogger(BaseApplication.class);
 
     BaseApplicationComponent baseApplicationComponent;

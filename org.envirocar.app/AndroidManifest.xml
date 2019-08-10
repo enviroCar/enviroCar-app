@@ -41,6 +41,8 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/Theme.Cario">
+
+        <!-- Activities -->
         <activity
             android:name=".views.trackdetails.TrackDetailsActivity"
             android:screenOrientation="portrait" />
@@ -57,7 +59,10 @@
             android:name=".views.trackdetails.TrackStatisticsActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".views.LoginRegisterActivity"
+            android:name=".views.login.SigninActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".views.login.SignupActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".views.settings.SettingsActivity"
@@ -71,30 +76,33 @@
         <activity
             android:name=".views.HelpActivity"
             android:screenOrientation="portrait" />
+
+        <!-- Services -->
         <service
             android:name=".services.AutomaticTrackRecordingService"
             android:enabled="true" />
         <!--<service-->
-            <!--android:name=".services.OBDConnectionService"-->
-            <!--android:enabled="true" />-->
+        <!--android:name=".services.OBDConnectionService"-->
+        <!--android:enabled="true" />-->
         <service
             android:name=".services.TrackUploadService"
             android:enabled="true" />
         <!--<service-->
-            <!--android:name=".services.GPSOnlyConnectionService"-->
-            <!--android:enabled="true" />-->
+        <!--android:name=".services.GPSOnlyConnectionService"-->
+        <!--android:enabled="true" />-->
 
         <service
             android:name=".services.recording.OBDRecordingService"
-            android:enabled="true"/>
-        <service android:name=".services.recording.GPSOnlyRecordingService"
-            android:enabled="true"/>
+            android:enabled="true" />
+        <service
+            android:name=".services.recording.GPSOnlyRecordingService"
+            android:enabled="true" />
         <service
             android:name=".aidl.EnviroCarDataService"
             android:enabled="true"
             android:exported="true">
             <!--<intent-filter>-->
-                <!--<action android:name="service.envirocarobd" />-->
+            <!--<action android:name="service.envirocarobd" />-->
             <!--</intent-filter>-->
         </service>
 
