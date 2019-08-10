@@ -15,7 +15,7 @@
         android:fontFamily="@font/roboto_medium"
         android:text="Your Afternoon Ride"
         android:textColor="#000000"
-        android:textSize="20sp"
+        android:textSize="@dimen/heading3"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -26,7 +26,7 @@
         android:layout_marginTop="6dp"
         android:fontFamily="@font/roboto_medium"
         android:text="A 170"
-        android:textSize="16sp"
+        android:textSize="@dimen/subtitle"
         app:layout_constraintStart_toStartOf="@+id/track_details_attributes_header_title"
         app:layout_constraintTop_toBottomOf="@+id/track_details_attributes_header_title" />
 
@@ -34,13 +34,16 @@
         android:id="@+id/track_details_attributes_header_date"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:layout_marginLeft="4dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
         android:layout_marginRight="16dp"
         android:alpha="0.9"
         android:fontFamily="@font/roboto"
         android:text="May 21, 2019"
         android:textColor="#000000"
-        android:textSize="14sp"
+        android:textSize="@dimen/subtext"
         app:layout_constraintBottom_toTopOf="@+id/timeBox"
         app:layout_constraintEnd_toStartOf="@+id/track_details_attributes_image_distance"
         app:layout_constraintHorizontal_bias="0.5"
@@ -54,7 +57,7 @@
         android:alpha="0.90"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="@+id/track_details_attributes_header_date"
-        app:layout_constraintTop_toBottomOf="@+id/track_details_attributes_header_date" >
+        app:layout_constraintTop_toBottomOf="@+id/track_details_attributes_header_date">
 
         <TextView
             android:id="@+id/track_details_attributes_header_time"
@@ -66,7 +69,7 @@
             android:fontFamily="@font/roboto"
             android:text="2:30"
             android:textColor="#000000"
-            android:textSize="14sp" />
+            android:textSize="@dimen/subtext" />
 
         <TextView
             android:id="@+id/track_details_attributes_header_time_add"
@@ -76,15 +79,15 @@
             android:fontFamily="@font/raleway_semibold"
             android:text="PM"
             android:textAllCaps="true"
-            android:textSize="13sp" />
+            android:textSize="@dimen/subtext" />
     </LinearLayout>
 
     <ImageView
         android:id="@+id/track_details_attributes_image_date"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
+        android:layout_width="@dimen/image_icon_xs"
+        android:layout_height="@dimen/image_icon_xs"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
         android:layout_marginEnd="4dp"
         android:layout_marginRight="4dp"
         app:layout_constraintBottom_toBottomOf="@+id/track_details_attributes_header_date"
@@ -96,8 +99,8 @@
 
     <ImageView
         android:id="@+id/track_details_attributes_image_time"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
+        android:layout_width="@dimen/image_icon_s"
+        android:layout_height="@dimen/image_icon_s"
         app:layout_constraintBottom_toBottomOf="@+id/timeBox"
         app:layout_constraintEnd_toEndOf="@+id/track_details_attributes_image_date"
         app:layout_constraintStart_toStartOf="@+id/track_details_attributes_image_date"
@@ -118,8 +121,8 @@
 
     <ImageView
         android:id="@+id/track_details_attributes_image_distance"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
+        android:layout_width="@dimen/image_icon_xs"
+        android:layout_height="@dimen/image_icon_xs"
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
         android:layout_marginEnd="4dp"
@@ -137,6 +140,8 @@
         android:id="@+id/distanceBox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:layout_marginLeft="4dp"
         android:layout_marginEnd="20dp"
         android:layout_marginRight="20dp"
         android:alpha="0.75"
@@ -157,7 +162,7 @@
             android:fontFamily="@font/roboto"
             android:text="2.06"
             android:textColor="#000000"
-            android:textSize="14sp" />
+            android:textSize="@dimen/subtext" />
 
         <TextView
             android:id="@+id/textView5"
@@ -166,7 +171,7 @@
             android:layout_weight="1"
             android:fontFamily="@font/raleway_semibold"
             android:text="KM"
-            android:textSize="13sp" />
+            android:textSize="@dimen/subtext" />
     </LinearLayout>
 
     <LinearLayout
@@ -188,7 +193,7 @@
             android:fontFamily="@font/roboto"
             android:text="5:00"
             android:textColor="#000000"
-            android:textSize="14sp" />
+            android:textSize="@dimen/subtext" />
 
         <TextView
             android:id="@+id/track_details_attributes_header_duration_add"
@@ -196,13 +201,13 @@
             android:layout_height="wrap_content"
             android:fontFamily="@font/raleway_semibold"
             android:text="M"
-            android:textSize="13sp" />
+            android:textSize="@dimen/subtext" />
     </LinearLayout>
 
     <ImageView
         android:id="@+id/track_details_attributes_image_duration"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
+        android:layout_width="@dimen/image_icon_xs"
+        android:layout_height="@dimen/image_icon_xs"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="@+id/durationBox"
         app:layout_constraintStart_toStartOf="@+id/track_details_attributes_image_distance"
@@ -219,6 +224,14 @@
         app:layout_constraintBottom_toBottomOf="@+id/track_details_attributes_header_title"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/barrier"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="start"
+        app:constraint_referenced_ids="track_details_attributes_header_title,track_details_attributes_header_car"
+        tools:layout_editor_absoluteX="320dp" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
