@@ -3,13 +3,16 @@
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="160dp">
+    android:layout_height="160dp"
+    xmlns:mapbox="http://schemas.android.com/apk/res-auto">
 
     <com.mapbox.mapboxsdk.maps.MapView
         android:id="@+id/fragment_tracklist_cardlayout_map"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:clickable="false"
+        mapbox:mapbox_renderTextureMode="true"
+        android:background="@android:color/background_light"
         android:transitionName="transition_track_details"
         android:visibility="visible"
         card_view:layout_constraintBottom_toBottomOf="parent"
