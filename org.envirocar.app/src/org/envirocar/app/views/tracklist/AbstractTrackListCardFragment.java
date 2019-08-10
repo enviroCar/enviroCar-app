@@ -28,6 +28,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.core.content.FileProvider;
@@ -95,6 +97,8 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
     @Inject
     protected TrackUploadHandler mTrackUploadHandler;
 
+    @BindView(R.id.tracklist_layout)
+    protected ConstraintLayout tracklistLayout;
     @BindView(R.id.fragment_tracklist_info)
     protected View infoView;
     @BindView(R.id.fragment_tracklist_info_img)
@@ -117,7 +121,6 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
 
     protected E mRecyclerViewAdapter;
     protected RecyclerView.LayoutManager mRecylcerViewLayoutManager;
-    protected GuidelineInterface guidelineInterface;
 
     protected boolean tracksLoaded = false;
     protected final List<Track> mTrackList = Collections.synchronizedList(new ArrayList<>());

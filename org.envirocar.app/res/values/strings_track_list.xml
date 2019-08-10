@@ -47,6 +47,8 @@
     <string name="track_list_bg_no_local_tracks_sub">You have 0 local tracks</string>
     <string name="track_list_bg_no_remote_tracks">NO UPLOADED TRACKS</string>
     <string name="track_list_bg_no_remote_tracks_sub">You have 0 uploaded tracks</string>
+    <string name="track_list_bg_no_tracks_after_filter">NO TRACKS</string>
+    <string name="track_list_bg_no_tracks_after_filter_sub">No tracks in current range</string>
     <string name="track_list_bg_not_logged_in">NOT LOGGED IN</string>
     <string name="track_list_bg_not_logged_in_sub">To access your remote tracks\nyou have to log in fist.</string>
     <string name="track_list_bg_no_connection">NOT CONNECTED</string>

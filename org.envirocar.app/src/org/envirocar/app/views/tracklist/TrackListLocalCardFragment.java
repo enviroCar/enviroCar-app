@@ -156,7 +156,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
                     public void onCompleted() {
                         LOG.info("onCompleted()");
                         if (mRecyclerViewAdapter.getItemCount() <= 0) {
-                            showNoLocalTracksInfo();
+                            showNoLocalTracksInfo(false);
                         }
                     }
 
@@ -536,7 +536,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
                             if (newTrackAdded) {
                                 updateView();
                             } else if (mTrackList.isEmpty()) {
-                                showNoLocalTracksInfo();
+                                showNoLocalTracksInfo(false);
                             }
                         }
                     });
@@ -641,7 +641,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
         }
 
         if (mTrackList.isEmpty()) {
-            showNoLocalTracksInfo();
+            showNoLocalTracksInfo(true);
         }
         else{
             TransitionManager.beginDelayedTransition(mRecyclerView, new Slide(Gravity.LEFT).
@@ -656,10 +656,18 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
         }
 
     }
-    private void showNoLocalTracksInfo() {
-        showText(R.drawable.img_tracks,
-                R.string.track_list_bg_no_local_tracks,
-                R.string.track_list_bg_no_local_tracks_sub);
+    private void showNoLocalTracksInfo(Boolean afterFilter) {
+        mRecyclerView.setVisibility(View.GONE);
+        if(!afterFilter) {
+            showText(R.drawable.img_tracks,
+                    R.string.track_list_bg_no_local_tracks,
+                    R.string.track_list_bg_no_local_tracks_sub);
+        } else {
+            showText(R.drawable.img_tracks,
+                    R.string.track_list_bg_no_tracks_after_filter,
+                    R.string.track_list_bg_no_tracks_after_filter_sub);
+        }
+        infoView.setVisibility(View.VISIBLE);
     }
 
     /**

@@ -23,6 +23,7 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.transition.Fade;
 import androidx.transition.Slide;
 import androidx.transition.TransitionManager;
 
@@ -326,7 +327,6 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
                             }
 
                             hasLoadedStored = true;
-                            setTrackList();
                             updateView();
 
                         }
@@ -381,7 +381,6 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
                                 }
                             }
                             hasLoadedRemote = true;
-                            setTrackList();
                             // Sort the list and update the list
                             updateView();
 
@@ -393,11 +392,9 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
     }
 
     public void setTrackList(){
-        if (hasLoadedStored && hasLoadedRemote) {
-            for(Track track : remoteList){
-                if(!mTrackList.contains(track))
-                    mTrackList.add(track);
-            }
+        for(Track track : remoteList){
+            if(!mTrackList.contains(track))
+                mTrackList.add(track);
         }
     }
 
@@ -413,18 +410,14 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
     }
 
     private void updateView() {
+        LOG.info("updateView()");
         if (hasLoadedStored && hasLoadedRemote) {
+            LOG.info("Tracked loaded.");
             setTrackList();
             hideProgressView();
             if (mTrackList.isEmpty()) {
-                mRecyclerView.setVisibility(View.VISIBLE);
-                mRecyclerView.removeAllViews();
-                TransitionManager.beginDelayedTransition(mRecyclerView, new Slide(Gravity.RIGHT));
-                mRecyclerViewAdapter.notifyDataSetChanged();
-                mRecyclerView.setVisibility(View.GONE);
-                showText(R.drawable.img_tracks,
-                        R.string.track_list_bg_no_remote_tracks,
-                        R.string.track_list_bg_no_remote_tracks_sub);
+                LOG.info("No tracks.");
+                showNoTracksInfo(false);
             }
             else{
                 mRecyclerViewAdapter.setGuideline(mvVisible);
@@ -438,7 +431,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
                         try {
                             Date trackDateStart = simpleDateFormat.parse(track.getBegin());
                             Date trackDateEnd = simpleDateFormat.parse(track.getEnd());
-                            if (trackDateStart.before(startDate) || trackDateEnd.after(endDate)) {mRecyclerView.removeViewAt(i);
+                            if (trackDateStart.before(startDate) || trackDateEnd.after(endDate)) {
                                 mTrackList.remove(i);
                                 i--;
                             }
@@ -514,12 +507,28 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
 
                 }
                 if (!mTrackList.isEmpty()) {
-                    mRecyclerView.removeAllViews();
                     mRecyclerView.setVisibility(View.VISIBLE);
                     infoView.setVisibility(View.GONE);
                     mRecyclerViewAdapter.notifyDataSetChanged();
+                } else {
+                    showNoTracksInfo(true);
                 }
             }
         }
+    }
+
+    private void showNoTracksInfo(Boolean afterFilter) {
+        TransitionManager.beginDelayedTransition(tracklistLayout, new Fade());
+        mRecyclerView.setVisibility(View.GONE);
+        if(!afterFilter) {
+            showText(R.drawable.img_tracks,
+                    R.string.track_list_bg_no_remote_tracks,
+                    R.string.track_list_bg_no_remote_tracks_sub);
+        } else {
+            showText(R.drawable.img_tracks,
+                    R.string.track_list_bg_no_tracks_after_filter,
+                    R.string.track_list_bg_no_tracks_after_filter_sub);
+        }
+        infoView.setVisibility(View.VISIBLE);
     }
 }
