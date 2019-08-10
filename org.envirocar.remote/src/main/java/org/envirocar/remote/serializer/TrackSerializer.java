@@ -260,7 +260,6 @@ public class TrackSerializer implements JsonSerializer<Track>, JsonDeserializer<
         track.setRemoteID(id);
         track.setName(name);
         track.setDescription(description);
-        track.setLength(length);
         track.setCar(car);
         track.setMeasurements(measurements); // Storing happens here...
         Calendar calendar = Calendar.getInstance();
@@ -273,8 +272,7 @@ public class TrackSerializer implements JsonSerializer<Track>, JsonDeserializer<
             end = format.format(calendar.getTime());
         track.setBegin(begin);
         track.setEnd(end);
-
-        LOG.info(length + " " + begin + " " + end);
+        track.setLength(length);
 
         return track;
     }

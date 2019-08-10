@@ -23,6 +23,8 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import androidx.constraintlayout.widget.Guideline;
 
 import androidx.annotation.NonNull;
+
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.Toolbar;
 import android.view.View;
@@ -180,6 +182,7 @@ public abstract class AbstractTrackListCardAdapter<E extends
     protected void bindTrackViewHolder(TrackCardViewHolder holder, Track track, Boolean isDownloadedTrack) {
         holder.mDistance.setText("...");
         holder.mDuration.setText("...");
+        LOG.info("bindLocalTrackViewHolder()");
         holder.mDurationAdd.setText("H");
         holder.mDate.setText("...");
         holder.mTime.setText("...");

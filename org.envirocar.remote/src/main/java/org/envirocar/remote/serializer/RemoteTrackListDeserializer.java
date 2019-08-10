@@ -60,6 +60,7 @@ public class RemoteTrackListDeserializer implements JsonDeserializer<List<Track>
             String modified = trackObject.get(Track
                     .KEY_TRACK_PROPERTIES_MODIFIED).getAsString();
             String name = trackObject.get(Track.KEY_TRACK_PROPERTIES_NAME).getAsString();
+
             String begin = trackObject.get(Track.KEY_TRACK_PROPERTIES_BEGIN).getAsString();
             String end = trackObject.get(Track.KEY_TRACK_PROPERTIES_END).getAsString();
             JsonObject carObject = trackObject.get(Track.KEY_TRACK_PROPERTIES_SENSOR)
