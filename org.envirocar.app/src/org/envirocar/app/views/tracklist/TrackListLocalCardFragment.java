@@ -20,9 +20,12 @@ package org.envirocar.app.views.tracklist;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
+
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.transition.Slide;
 import androidx.transition.TransitionManager;
 
@@ -143,6 +146,24 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
                 .negativeText(R.string.cancel)
                 .onPositive((materialDialog, dialogAction) -> uploadAllLocalTracks())
                 .show());
+
+        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                if (dy > 0) {
+                    // Scroll Down
+                    if (mFAB.isShown()) {
+                        mFAB.hide();
+                    }
+                } else if (dy < 0) {
+                    // Scroll Up
+                    if (!mFAB.isShown()) {
+                        mFAB.show();
+                    }
+                }
+            }
+        });
     }
 
     private void uploadAllLocalTracks() {
