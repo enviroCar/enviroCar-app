@@ -101,14 +101,14 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
 
         sortViewModel.getSortActive().observe(this, item -> {
             sortC = sortViewModel.getSortChoice().getValue();
-            if(sortViewModel.getSortOrder().getValue())
+            if (sortViewModel.getSortOrder().getValue())
                 sortO = 1;
             else
                 sortO = -1;
             updateView();
         });
 
-        sortViewModel.getMapActive().observe(this, item->{
+        sortViewModel.getMapActive().observe(this, item-> {
             mvVisible = sortViewModel.getMapChoice().getValue();
             updateView();
         });
@@ -207,8 +207,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
     protected void loadDataset() {
         LOG.info("loadDataset()");
         // Do not load the dataset twice.
-        if (mUserManager.isLoggedIn() && !tracksLoaded)
-        {
+        if (mUserManager.isLoggedIn() && !tracksLoaded) {
             tracksLoaded = true;
             new LoadRemoteTracksTask().execute();
         }
@@ -336,8 +335,8 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
                             }
 
                             hasLoadedStored = true;
+                            // Sort the list and update the list
                             updateView();
-
                         }
                     }));
 
@@ -400,9 +399,9 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
         }
     }
 
-    public void setTrackList(){
-        for(Track track : remoteList){
-            if(!mTrackList.contains(track))
+    public void setTrackList() {
+        for (Track track : remoteList) {
+            if (!mTrackList.contains(track))
                 mTrackList.add(track);
         }
     }
@@ -427,8 +426,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
             if (mTrackList.isEmpty()) {
                 LOG.info("No tracks.");
                 showNoTracksInfo(false);
-            }
-            else{
+            } else {
                 mRecyclerView.removeAllViews();
                 mRecyclerViewAdapter.setGuideline(mvVisible);
                 TransitionManager.beginDelayedTransition(mRecyclerView, new Slide(Gravity.LEFT).
@@ -461,12 +459,11 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
                     }
                 }
 
-                switch (sortC){
+                switch (sortC) {
                     case 0:
                         Collections.sort(mTrackList, new Comparator<Track>() {
                             @Override
-                            public int compare(Track track1, Track track2)
-                            {
+                            public int compare(Track track1, Track track2) {
                                 int res = track1.getBegin().compareTo(track2.getBegin());
                                 return res*sortO;
                             }
@@ -530,7 +527,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
     private void showNoTracksInfo(Boolean afterFilter) {
         TransitionManager.beginDelayedTransition(tracklistLayout, new Fade());
         mRecyclerView.setVisibility(View.GONE);
-        if(!afterFilter) {
+        if (!afterFilter) {
             showText(R.drawable.img_tracks,
                     R.string.track_list_bg_no_remote_tracks,
                     R.string.track_list_bg_no_remote_tracks_sub);

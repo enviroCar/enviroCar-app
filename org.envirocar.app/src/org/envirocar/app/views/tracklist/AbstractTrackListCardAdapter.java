@@ -83,9 +83,7 @@ public abstract class AbstractTrackListCardAdapter<E extends
     }
 
     protected final List<Track> mTrackDataset;
-
     protected Boolean mvVisible;
-
     protected Scheduler.Worker mMainThreadWorker = AndroidSchedulers.mainThread().createWorker();
     protected final OnTrackInteractionCallback mTrackInteractionCallback;
 
@@ -132,21 +130,20 @@ public abstract class AbstractTrackListCardAdapter<E extends
         }
     }
 
-    String convertMillisToDate(Long timeInMillis){
+    String convertMillisToDate(Long timeInMillis) {
         long diffSeconds = timeInMillis / 1000 % 60;
         long diffMinutes = timeInMillis / (60 * 1000) % 60;
         long diffHours = timeInMillis / (60 * 60 * 1000) % 24;
         long diffDays = timeInMillis / (24 * 60 * 60 * 1000);
         StringBuilder stringBuilder = new StringBuilder();
-        if(diffDays != 0) {
+        if (diffDays != 0) {
             stringBuilder.append(diffDays);
             stringBuilder.append(":");
             if (diffHours > 1) {
                 stringBuilder.append(DECIMAL_FORMATTER.format(diffHours));
             }
             stringBuilder.append("D");
-        }
-        else {
+        } else {
             if (diffHours != 0) {
                 stringBuilder.append(diffHours);
                 if (diffMinutes != 0){
@@ -154,41 +151,36 @@ public abstract class AbstractTrackListCardAdapter<E extends
                     stringBuilder.append(DECIMAL_FORMATTER.format(diffMinutes));
                 }
                 stringBuilder.append("H");
-            }
-            else {
+            } else {
                 if (diffMinutes!=0) {
                     stringBuilder.append(diffMinutes);
-                    if(diffSeconds!=0){
+                    if (diffSeconds!=0) {
                         stringBuilder.append(":");
                         stringBuilder.append(DECIMAL_FORMATTER.format(diffSeconds));
                     }
                     stringBuilder.append("M");
-                }
-                else{
+                } else {
                     stringBuilder.append(diffSeconds);
                     stringBuilder.append("S");
-
                 }
             }
-
         }
         return stringBuilder.toString();
     }
 
-    public void setGuideline(Boolean bool){
+    public void setGuideline(Boolean bool) {
         mvVisible = bool;
     }
 
     protected void bindTrackViewHolder(TrackCardViewHolder holder, Track track, Boolean isDownloadedTrack) {
+        LOG.info("bindLocalTrackViewHolder()");
         holder.mDistance.setText("...");
         holder.mDuration.setText("...");
-        LOG.info("bindLocalTrackViewHolder()");
         holder.mDurationAdd.setText("H");
         holder.mDate.setText("...");
         holder.mTime.setText("...");
         holder.mTimeAdd.setText("PM");
-        if(!isDownloadedTrack)
-        {
+        if(!isDownloadedTrack) {
             holder.guideline.setGuidelinePercent(0.37f);
             holder.mDistance.setVisibility(View.GONE);
             holder.distanceBox.setVisibility(View.GONE);
@@ -198,10 +190,12 @@ public abstract class AbstractTrackListCardAdapter<E extends
             holder.mDurationImg.setVisibility(View.GONE);
             holder.mCarName.setVisibility(View.GONE);
         } else {
+
             if(mvVisible)
                 holder.guideline.setGuidelinePercent(0.37f);
             else
                 holder.guideline.setGuidelinePercent(0f);
+
             holder.mDistance.setVisibility(View.VISIBLE);
             holder.distanceBox.setVisibility(View.VISIBLE);
             holder.mDistanceImg.setVisibility(View.VISIBLE);
@@ -214,12 +208,10 @@ public abstract class AbstractTrackListCardAdapter<E extends
         // First, load the track from the dataset
         //holder.mTitleTextView.setText(track.getName());
         // Initialize the mapView.
-        if(isDownloadedTrack)
-        {
+        if (isDownloadedTrack) {
             holder.mMapView.setVisibility(View.VISIBLE);
             initMapView(holder, track);
-        }
-        else
+        } else
             holder.mMapView.setVisibility(View.GONE);
         // Set all the view parameters.
         new AsyncTask<Void, Void, Void>() {
@@ -230,15 +222,13 @@ public abstract class AbstractTrackListCardAdapter<E extends
                     //Set Track Header and TimeImg
                     Date trackDate;
                     SimpleDateFormat formatter;
-                    if(isDownloadedTrack)
+                    if (isDownloadedTrack)
                         trackDate = new Date(track.getStartTime());
-                    else
-                    {
+                    else {
                         formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-                        try
-                        {
+                        try {
                             trackDate = formatter.parse(track.getBegin());
-                        }catch (Exception e){
+                        } catch (Exception e) {
                             LOG.error("Unable to parse date", e);
                             trackDate = new Date();
                         }
@@ -248,19 +238,17 @@ public abstract class AbstractTrackListCardAdapter<E extends
                     mMainThreadWorker.schedule(new Action0() {
                         @Override
                         public void call() {
-                            if(hh < 4 || hh > 19) {
+                            if (hh < 4 || hh > 19) {
                                 holder.mTitleTextView.setText("Your Night Track");
                                 holder.mTimeImg.setImageResource(R.drawable.night);
-                            }
-                            else if(hh >= 4 && hh < 9) {
+                            } else if (hh >= 4 && hh < 9) {
                                 holder.mTitleTextView.setText("Your Morning Track");
                                 holder.mTimeImg.setImageResource(R.drawable.morning);
                             }
-                            else if(hh > 9 && hh < 15) {
+                            else if (hh > 9 && hh < 15) {
                                 holder.mTitleTextView.setText("Your Afternoon Track");
                                 holder.mTimeImg.setImageResource(R.drawable.afternoon);
-                            }
-                            else {
+                            } else {
                                 holder.mTitleTextView.setText("Your Evening Track");
                                 holder.mTimeImg.setImageResource(R.drawable.evening);
                             }
@@ -289,15 +277,13 @@ public abstract class AbstractTrackListCardAdapter<E extends
                         }
                     });
 
-                    if(isDownloadedTrack)
-                    {
+                    if (isDownloadedTrack) {
                         // Set the duration text.
                         String temp = convertMillisToDate(track.getTimeInMillis());
                         mMainThreadWorker.schedule(new Action0() {
                             @Override
                             public void call() {
-                                if(temp != "" || temp !=null)
-                                {
+                                if (temp != "" || temp !=null) {
                                     String t1 = temp.substring(0, temp.length()-1);
                                     String t2 = temp.substring(temp.length()-1);
                                     holder.mDuration.setText(t1);
@@ -364,6 +350,7 @@ public abstract class AbstractTrackListCardAdapter<E extends
                     mTrackInteractionCallback.onUploadTrackClicked(track);
                     break;
             }
+
             return false;
         });
 
@@ -400,7 +387,6 @@ public abstract class AbstractTrackListCardAdapter<E extends
                         tep.moveCamera(CameraUpdateFactory.newLatLngBounds(viewBbox, 50));
                     }
                 });
-
             }
         });
     }

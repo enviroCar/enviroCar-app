@@ -95,27 +95,26 @@ public class FilterDialog extends Dialog implements AdapterView.OnItemSelectedLi
             public void onClick(View v) {
                 error = true;
 
-                if(!checkBoxDate.isChecked() || !checkBoxCar.isChecked())
-                {
+                if (!checkBoxDate.isChecked() || !checkBoxCar.isChecked()) {
                     error = false;
-                    if(!checkBoxDate.isChecked())
+                    if (!checkBoxDate.isChecked())
                         filterViewModel.setFilterDate(false);
-                    if(!checkBoxCar.isChecked())
+                    if (!checkBoxCar.isChecked())
                         filterViewModel.setFilterCar(false);
                 }
 
-                if(checkBoxDate.isChecked() && startDate!=null && endDate!=null && startDate.before(endDate)){
+                if (checkBoxDate.isChecked() && startDate!=null && endDate!=null && startDate.before(endDate)) {
                     filterViewModel.setFilterDates(startDate, endDate);
                     filterViewModel.setFilterDate(true);
                     error = false;
                 }
-                if(checkBoxCar.isChecked() && carName!=null){
+                if (checkBoxCar.isChecked() && carName!=null) {
                     filterViewModel.setFilterCarName(carName);
                     filterViewModel.setFilterCar(true);
                     error = false;
                 }
-                if(!error){
-                    if(filterViewModel.getFilterActive().getValue() == null)
+                if (!error) {
+                    if (filterViewModel.getFilterActive().getValue() == null)
                         filterViewModel.setFilterActive(true);
                     else
                         filterViewModel.setFilterActive(!filterViewModel.getFilterActive().getValue());
@@ -127,10 +126,9 @@ public class FilterDialog extends Dialog implements AdapterView.OnItemSelectedLi
         checkBoxDate.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton  group, boolean isChecked) {
-                if (isChecked){
+                if (isChecked) {
                     dateLayout.setVisibility(View.VISIBLE);
-                }
-                else {
+                } else {
                     dateLayout.setVisibility(View.GONE);
                 }
             }
@@ -140,10 +138,9 @@ public class FilterDialog extends Dialog implements AdapterView.OnItemSelectedLi
         checkBoxCar.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton  group, boolean isChecked) {
-                if (isChecked){
+                if (isChecked) {
                     spinnerCar.setVisibility(View.VISIBLE);
-                }
-                else {
+                } else {
                     spinnerCar.setVisibility(View.GONE);
                 }
             }
@@ -165,9 +162,9 @@ public class FilterDialog extends Dialog implements AdapterView.OnItemSelectedLi
                                 c.set(Calendar.DAY_OF_MONTH, dayOfMonth);
                                 Date temp = c.getTime();
                                 Date temp2 = Calendar.getInstance().getTime();
-                                if(endDate!=null)
+                                if (endDate!=null)
                                     temp2 = endDate;
-                                if(!temp.after(temp2))
+                                if (!temp.after(temp2))
                                     startDate = c.getTime();
                                 else
                                     startDate = temp2;
@@ -194,9 +191,9 @@ public class FilterDialog extends Dialog implements AdapterView.OnItemSelectedLi
                                 c.set(Calendar.DAY_OF_MONTH, dayOfMonth);
                                 Date temp = c.getTime();
                                 Date temp2 = Calendar.getInstance().getTime();
-                                if(startDate!=null)
+                                if (startDate!=null)
                                     temp2 = startDate;
-                                if(!temp.before(temp2))
+                                if (!temp.before(temp2))
                                     endDate = c.getTime();
                                 else
                                     endDate = temp2;
@@ -210,12 +207,12 @@ public class FilterDialog extends Dialog implements AdapterView.OnItemSelectedLi
     }
 
 
-    public void setSpinner(){
+    public void setSpinner() {
         Set<String> temp  = PreferencesHandler.getSharedPreferences(context)
                 .getStringSet(PreferenceConstants.PREFERENCE_TAG_CARS, new HashSet<>());
         List<String> carList = new ArrayList<>(temp);
         carNames = new ArrayList<>();
-        for(int i=0; i<carList.size();++i){
+        for(int i = 0; i < carList.size(); ++i){
             Car car = CarUtils.instantiateCar(carList.get(i));
             carNames.add(car.getManufacturer() + " " + car.getModel());
         }
@@ -224,26 +221,24 @@ public class FilterDialog extends Dialog implements AdapterView.OnItemSelectedLi
         spinnerCar.setOnItemSelectedListener(this);
     }
 
-    public void checkViewModelStatus(){
+    public void checkViewModelStatus() {
         try {
             datesSet = filterViewModel.getFilterDate().getValue();
             checkBoxDate.setChecked(datesSet);
-            if(datesSet){
+            if (datesSet) {
                 startDate = filterViewModel.getFilterDateStart().getValue();
                 endDate = filterViewModel.getFilterDateEnd().getValue();
                 setDateHeader(1);
                 setDateHeader(2);
                 dateLayout.setVisibility(View.VISIBLE);
-            }
-            else
-            {
+            } else {
                 startDate = null;
                 endDate = null;
                 setDateHeader(0);
                 dateLayout.setVisibility(View.GONE);
             }
 
-        }catch (Exception e){
+        } catch (Exception e){
             filterViewModel.getFilterDate().setValue(false);
             datesSet = false;
             checkBoxDate.setChecked(datesSet);
@@ -256,29 +251,26 @@ public class FilterDialog extends Dialog implements AdapterView.OnItemSelectedLi
         try {
             carSet = filterViewModel.getFilterCar().getValue();
             checkBoxCar.setChecked(carSet);
-            if(carSet){
+            if (carSet) {
                 carName = filterViewModel.getFilterCarName().getValue();
                 spinnerCar.setVisibility(View.VISIBLE);
                 spinnerCar.setSelection(carNames.indexOf(carName));
-            }else
+            } else
                 spinnerCar.setVisibility(View.GONE);
-        }catch (Exception e){
+        } catch (Exception e){
             checkBoxCar.setChecked(false);
             spinnerCar.setVisibility(View.GONE);
         }
     }
 
-    public void setDateHeader(int choice){
-        if(choice == 1)
-        {
+    public void setDateHeader(int choice) {
+        if (choice == 1) {
             String header = new SimpleDateFormat("dd MMMM").format(startDate);
             start.setText(header);
-        }
-        else if(choice == 2){
+        } else if(choice == 2) {
             String header = new SimpleDateFormat("dd MMMM").format(endDate);
             end.setText(header);
-        }
-        else{
+        } else {
             start.setText("Start Date");
             end.setText("End Date");
         }

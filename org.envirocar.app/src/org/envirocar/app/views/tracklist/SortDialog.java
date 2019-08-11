@@ -24,7 +24,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class SortDialog extends Dialog implements AdapterView.OnItemSelectedListener{
+public class SortDialog extends Dialog implements AdapterView.OnItemSelectedListener {
     private static final Logger LOG = Logger.getLogger(SortDialog.class);
 
     @BindView(R.id.spinnerSort)
@@ -65,11 +65,11 @@ public class SortDialog extends Dialog implements AdapterView.OnItemSelectedList
         sortViewModel = ViewModelProviders.of(activity).get(SortViewModel.class);
         checkViewModelStatus();
         setSpinner();
-        if(sortOrder)
+        if (sortOrder)
             radioGroup.check(R.id.asc);
         else
             radioGroup.check(R.id.desc);
-        if(mapChoice)
+        if (mapChoice)
             radioGroup1.check(R.id.wMap);
         else
             radioGroup1.check(R.id.woMap);
@@ -77,20 +77,14 @@ public class SortDialog extends Dialog implements AdapterView.OnItemSelectedList
         radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int i) {
-                if(i == R.id.asc)
-                    sortOrder = true;
-                else
-                    sortOrder = false;
+                sortOrder = i == R.id.asc;
             }
         });
 
         radioGroup1.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int i) {
-                if(i == R.id.wMap)
-                    mapChoice = true;
-                else
-                    mapChoice = false;
+                mapChoice = i == R.id.wMap;
             }
         });
 
@@ -100,39 +94,37 @@ public class SortDialog extends Dialog implements AdapterView.OnItemSelectedList
                 sortViewModel.setSortOrder(sortOrder);
                 sortViewModel.setSortChoice(sortChoice);
                 sortViewModel.setMapChoice(mapChoice);
-                if(sortViewModel.getSortActive().getValue() == null)
+                if (sortViewModel.getSortActive().getValue() == null)
                     sortViewModel.setSortActive(true);
                 else
                     sortViewModel.setSortActive(!sortViewModel.getSortActive().getValue());
 
-                if(sortViewModel.getMapActive().getValue() == null)
+                if (sortViewModel.getMapActive().getValue() == null)
                     sortViewModel.setMapActive(true);
                 else
                     sortViewModel.setMapActive(!sortViewModel.getMapActive().getValue());
-
                 dismiss();
             }
         });
     }
 
-    public void setSpinner()
-    {
+    public void setSpinner() {
         List<String> list = Arrays.asList(activity.getResources().getStringArray(R.array.sort_options));
         ArrayAdapter<String> adapter = new ArrayAdapter(activity,R.layout.spinner_item, list);
         spinnerSort.setAdapter(adapter);
         spinnerSort.setOnItemSelectedListener(this);
     }
 
-    void checkViewModelStatus(){
+    void checkViewModelStatus() {
 
         sortChoice = sortViewModel.getSortChoice().getValue();
         sortOrder = sortViewModel.getSortOrder().getValue();
         mapChoice = sortViewModel.getMapChoice().getValue();
-        if(sortChoice == null)
+        if (sortChoice == null)
             sortChoice = 0;
-        if(sortOrder == null)
+        if (sortOrder == null)
             sortOrder = true;
-        if(mapChoice == null)
+        if (mapChoice == null)
             mapChoice = true;
 
     }

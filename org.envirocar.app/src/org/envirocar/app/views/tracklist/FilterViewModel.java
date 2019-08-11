@@ -18,7 +18,7 @@ public class FilterViewModel extends ViewModel {
         return filterActive;
     }
 
-    public void setFilterActive(Boolean bool){
+    public void setFilterActive(Boolean bool) {
         filterActive.setValue(bool);
     }
 
@@ -42,20 +42,20 @@ public class FilterViewModel extends ViewModel {
         return filterCarName;
     }
 
-    public void setFilterDate(Boolean bool){
+    public void setFilterDate(Boolean bool) {
         filterDate.setValue(bool);
     }
 
-    public void setFilterDates(Date after, Date before){
+    public void setFilterDates(Date after, Date before) {
         filterDateStart.setValue(after);
         filterDateEnd.setValue(before);
     }
 
-    public void setFilterCar(Boolean bool){
+    public void setFilterCar(Boolean bool) {
         filterCar.setValue(bool);
     }
 
-    public void setFilterCarName(String name){
+    public void setFilterCarName(String name) {
         filterCarName.setValue(name);
     }
 }

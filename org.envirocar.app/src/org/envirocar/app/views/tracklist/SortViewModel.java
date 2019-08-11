@@ -15,7 +15,7 @@ public class SortViewModel extends ViewModel {
         return sortOrder;
     }
 
-    public void setSortOrder(Boolean bool){
+    public void setSortOrder(Boolean bool) {
             sortOrder.setValue(bool);
     }
 
@@ -23,7 +23,7 @@ public class SortViewModel extends ViewModel {
         return sortActive;
     }
 
-    public void setSortActive(Boolean bool){
+    public void setSortActive(Boolean bool) {
         sortActive.setValue(bool);
     }
 

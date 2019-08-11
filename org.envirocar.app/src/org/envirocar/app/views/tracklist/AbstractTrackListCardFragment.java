@@ -145,7 +145,6 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
         ButterKnife.bind(this, view);
 
         // Initiate the recyclerview
-//        mRecyclerView.setHasFixedSize(true);
         mRecylcerViewLayoutManager = new LinearLayoutManager(getActivity());
         mRecyclerView.setLayoutManager(mRecylcerViewLayoutManager);
 
@@ -175,7 +174,7 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
     protected void exportTrack(Track track) {
 
         try {
-            if(checkStoragePermissions()){
+            if (checkStoragePermissions()) {
                 // Create an sharing intent.
                 Intent sharingIntent = new Intent(Intent.ACTION_SEND);
                 sharingIntent.setType("application/json");
@@ -190,7 +189,7 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
                 sharingIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 // Wrap the intent with a chooser.
                 startActivity(Intent.createChooser(sharingIntent, "Share via"));
-            }else{
+            } else {
                 requestStoragePermissions();
             }
 
@@ -254,7 +253,7 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
         LOG.info("onRequestPermissionResult");
-        if(requestCode == REQUEST_STORAGE_PERMISSION_REQUEST_CODE){
+        if (requestCode == REQUEST_STORAGE_PERMISSION_REQUEST_CODE) {
             if (grantResults.length <= 0) {
                 // If user interaction was interrupted, the permission request is cancelled and you
                 // receive empty arrays.

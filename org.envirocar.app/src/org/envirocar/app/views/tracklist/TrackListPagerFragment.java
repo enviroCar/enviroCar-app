@@ -106,6 +106,7 @@ public class TrackListPagerFragment extends BaseInjectorFragment {
                 sortDialog.show();
             }
         });
+
         mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int

@@ -120,14 +120,14 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
 
         sortViewModel.getSortActive().observe(this, item -> {
             sortC = sortViewModel.getSortChoice().getValue();
-            if(sortViewModel.getSortOrder().getValue())
+            if (sortViewModel.getSortOrder().getValue())
                 sortO = 1;
             else
                 sortO = -1;
             updateView();
         });
 
-        sortViewModel.getMapActive().observe(this, item->{
+        sortViewModel.getMapActive().observe(this, item-> {
             mvVisible = sortViewModel.getMapChoice().getValue();
             updateView();
         });
@@ -261,10 +261,10 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
             @Override
             public void onUploadTrackClicked(Track track) {
                 LOG.info(String.format("onUploadTrackClicked(%s)", track.getTrackID()));
-                if(track.hasProperty(Measurement.PropertyKey.SPEED)){
+                if (track.hasProperty(Measurement.PropertyKey.SPEED)) {
                     // Upload the track
                     uploadTrack(track);
-                }else {
+                } else {
                     showSnackbar(R.string.trackviews_cannot_upload_gps_tracks);
                 }
             }
@@ -289,8 +289,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
     protected void loadDataset() {
         LOG.info("loadDataset()");
         // Do not load the dataset twice.
-        if(!tracksLoaded)
-        {
+        if (!tracksLoaded) {
             tracksLoaded = true;
             new LoadLocalTracksTask().execute();
         }
@@ -566,14 +565,14 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
         }
     }
 
-    public void setTrackList(){
-        for(Track track : localList){
-            if(!mTrackList.contains(track))
+    public void setTrackList() {
+        for (Track track : localList) {
+            if (!mTrackList.contains(track))
                 mTrackList.add(track);
         }
     }
 
-    public  void updateView(){
+    public  void updateView() {
 
         mRecyclerViewAdapter.setGuideline(mvVisible);
         setTrackList();
@@ -604,16 +603,16 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
             }
         }
 
-        switch (sortC){
+        switch (sortC) {
             case 0:
                 Collections.sort(mTrackList, new Comparator<Track>() {
                     @Override
-                    public int compare(Track track1, Track track2)
-                    {
+                    public int compare(Track track1, Track track2) {
                         int res = track1.getBegin().compareTo(track2.getBegin());
                         return res*sortO;
                     }
-                });break;
+                });
+                break;
 
             case 1:
                 Collections.sort(mTrackList, new Comparator<Track>() {
@@ -632,7 +631,6 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
                         else
                             rhsLen = rhs.getLength();
                         int res = lhsLen.compareTo(rhsLen);
-                        LOG.info(res + " result of compare");
 
                         return res*sortO;
                     }
@@ -663,8 +661,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
 
         if (mTrackList.isEmpty()) {
             showNoLocalTracksInfo(true);
-        }
-        else{
+        } else {
             TransitionManager.beginDelayedTransition(mRecyclerView, new Slide(Gravity.LEFT).
                     setDuration(1000).
                     setInterpolator(new FastOutSlowInInterpolator()));
@@ -679,7 +676,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
     }
     private void showNoLocalTracksInfo(Boolean afterFilter) {
         mRecyclerView.setVisibility(View.GONE);
-        if(!afterFilter) {
+        if (!afterFilter) {
             showText(R.drawable.img_tracks,
                     R.string.track_list_bg_no_local_tracks,
                     R.string.track_list_bg_no_local_tracks_sub);
