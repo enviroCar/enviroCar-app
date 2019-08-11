@@ -7,6 +7,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ListAdapter;
+import android.widget.ListView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -82,11 +84,22 @@ public class TrackStatisticsFragment extends BaseInjectorFragment {
     private TrackStatistics trackStatistics;
     private GlobalStatistics globalStatistics;
     private UserStatistics userStatistics;
+    private CardInterface cardInterface;
 
     @Override
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
         MainActivityComponent mainActivityComponent =  baseApplicationComponent.plus(new MainActivityModule(getActivity()));
         mainActivityComponent.inject(this);
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        try {
+            cardInterface = (CardInterface) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString() + " must implement CardInterface");
+        }
     }
 
     @Nullable
@@ -278,6 +291,11 @@ public class TrackStatisticsFragment extends BaseInjectorFragment {
                 }
             }
             adapter.notifyDataSetChanged();
+            cardInterface.setCardViewHeight(recyclerView.getHeight());
         }
+    }
+
+    public interface CardInterface{
+        void setCardViewHeight(int height);
     }
 }

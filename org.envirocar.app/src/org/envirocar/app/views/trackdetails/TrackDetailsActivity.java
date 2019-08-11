@@ -30,6 +30,7 @@ import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.widget.NestedScrollView;
@@ -39,6 +40,7 @@ import androidx.viewpager.widget.ViewPager;
 import android.transition.Slide;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -82,7 +84,7 @@ import rx.schedulers.Schedulers;
 /**
  * @author dewall
  */
-public class TrackDetailsActivity extends BaseInjectorActivity {
+public class TrackDetailsActivity extends BaseInjectorActivity implements TrackStatisticsFragment.CardInterface {
     private static final Logger LOG = Logger.getLogger(TrackDetailsActivity.class);
 
     private static final String EXTRA_TRACKID = "org.envirocar.app.extraTrackID";
@@ -112,6 +114,8 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
     @BindView(R.id.activity_track_details_header_map)
     protected MapView mMapView;
 
+    @BindView(R.id.cardView)
+    protected CardView cardView;
     @BindView(R.id.activity_track_details_header_toolbar)
     protected Toolbar mToolbar;
     @BindView(R.id.track_details_attributes_header_duration1)
@@ -157,6 +161,13 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
     @Override
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
         baseApplicationComponent.inject(this);
+    }
+
+    @Override
+    public void setCardViewHeight(int height) {
+        ViewGroup.LayoutParams params = cardView.getLayoutParams();
+        params.height = height+300;
+        cardView.setLayoutParams(params);
     }
 
     @Override
@@ -230,7 +241,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
                 .transparent));
 
         setTitleAndAttr();
-        collapsingToolbarLayout.setTitle(title.getText().toString());
+        //collapsingToolbarLayout.setTitle(title.getText().toString());
 
         // Initialize the mapview and the trackpath
         initMapView();
