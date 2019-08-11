@@ -111,12 +111,11 @@ public class TrackInfoFragment extends BaseInjectorFragment {
 
             // show consumption and emission either when the fuel type of the track's car is
             // gasoline or the beta setting has been enabled.
-            if(!track.hasProperty(Measurement.PropertyKey.SPEED)){
+            if (!track.hasProperty(Measurement.PropertyKey.SPEED)) {
                 mConsumptionContainer.setVisibility(View.GONE);
                 mCo2Container.setVisibility(View.GONE);
                 descriptionTv.setText(R.string.gps_track_details);
-            }
-            else if (track.getCar().getFuelType() == Car.FuelType.GASOLINE ||
+            } else if (track.getCar().getFuelType() == Car.FuelType.GASOLINE ||
                     PreferencesHandler.isDieselConsumptionEnabled(getContext())) {
                 mEmissionText.setText(DECIMAL_FORMATTER_TWO_DIGITS.format(
                         ((TrackStatisticsProvider) track).getGramsPerKm()) + " g/km");
@@ -144,7 +143,7 @@ public class TrackInfoFragment extends BaseInjectorFragment {
         }
     }
 
-    String convertMillisToDate(){
+    String convertMillisToDate() {
         try {
             long timeInMillis = track.getDuration();
             long diffSeconds = timeInMillis / 1000 % 60;
@@ -184,10 +183,9 @@ public class TrackInfoFragment extends BaseInjectorFragment {
                         }
                     }
                 }
-
             }
             return stringBuilder.toString();
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return null;
         }

@@ -30,7 +30,7 @@ public class MapLayer {
     protected ArrayList<LatLng> latLngs = new ArrayList<>();
     protected Float maxZoom, minZoom;
 
-    public MapLayer(){
+    public MapLayer() {
         maxZoom = 18f;
         minZoom = 1f;
     }
@@ -40,7 +40,7 @@ public class MapLayer {
         latLngs.add(new LatLng(aLatitude, aLongitude));
     }
 
-    public void clearPath(){
+    public void clearPath() {
         mPoints.clear();
         latLngs.clear();
     }
@@ -63,7 +63,7 @@ public class MapLayer {
                 PropertyFactory.lineCap(Property.LINE_CAP_ROUND));
     }
 
-    public void changeLineProperties(PropertyValue<?> properties){
+    public void changeLineProperties(PropertyValue<?> properties) {
         lineLayer.setProperties(properties);
     }
 

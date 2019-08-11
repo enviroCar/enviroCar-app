@@ -17,8 +17,7 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-        switch (position)
-        {
+        switch (position) {
             case 0:
                 final TrackInfoFragment f1 = new TrackInfoFragment();
                 f1.setArguments(this.bundle);

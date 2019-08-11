@@ -181,9 +181,9 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
                 .subscribeOn(Schedulers.io())
                 .toBlocking()
                 .first();
-        this.track = track;
 
         trackMapOverlay = new TrackMapLayer(track);
+
         Bundle bundle = new Bundle();
         bundle.putString("ID", track.getRemoteID());
         bundle.putInt("track", mTrackID);
@@ -195,12 +195,11 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
                 FloatEvaluator evaluator = new FloatEvaluator();
                 Float update1 = evaluator.evaluate(positionOffset, 1f, 0.2f);
                 Float update2 = evaluator.evaluate(positionOffset, 0.2f, 1f);
-                if(position == 0)
-                {
+
+                if (position == 0) {
                     indicator0.setAlpha(update1);
                     indicator1.setAlpha(update2);
-                }
-                else{
+                } else {
                     indicator0.setAlpha(update2);
                     indicator1.setAlpha(update1);
                 }
@@ -208,12 +207,10 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
 
             @Override
             public void onPageSelected(int position) {
-                if(position == 0)
-                {
+                if (position == 0) {
                     indicator0.setAlpha(1);
                     indicator1.setAlpha(0.2f);
-                }
-                else{
+                } else {
                     indicator0.setAlpha(0.2f);
                     indicator1.setAlpha(1);
                 }
@@ -224,9 +221,9 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
 
             }
         });
+
         CollapsingToolbarLayout collapsingToolbarLayout = findViewById
                 (R.id.collapsing_toolbar);
-
         collapsingToolbarLayout.setExpandedTitleColor(getResources().getColor(android.R.color
                 .transparent));
         collapsingToolbarLayout.setStatusBarScrimColor(getResources().getColor(android.R.color
@@ -234,49 +231,48 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
 
         setTitleAndAttr();
         collapsingToolbarLayout.setTitle(title.getText().toString());
+
         // Initialize the mapview and the trackpath
         initMapView();
         initViewValues();
 
         updateStatusBarColor();
-        mFAB.setOnClickListener(v -> {
-           TrackStatisticsActivity.createInstance(TrackDetailsActivity.this, mTrackID);
-        });
+        mFAB.setOnClickListener(v -> TrackStatisticsActivity.createInstance(TrackDetailsActivity.this, mTrackID));
 
         mMapViewContainer.setOnClickListener(v-> MapExpandedActivity.createInstance(TrackDetailsActivity.this, mTrackID));
     }
 
     private void setTitleAndAttr(){
-        try{
+        try {
             Date trackDate = new Date(track.getStartTime());
             String carName = " with the " + track.getCar().getModel();
             Integer hh = Integer.parseInt(new SimpleDateFormat("HH", Locale.getDefault()).format(trackDate));
-            if(hh < 4 || hh > 19) {
+
+            if (hh < 4 || hh > 19) {
                 title.setText("Your Night Track" + carName);
                 timeImage.setImageResource(R.drawable.night);
-            }
-            else if(hh >= 4 && hh < 9) {
+            } else if(hh >= 4 && hh < 9) {
                 title.setText("Your Morning Track" + carName);
                 timeImage.setImageResource(R.drawable.morning);
-            }
-            else if(hh > 9 && hh < 15) {
+            } else if(hh > 9 && hh < 15) {
                 title.setText("Your Afternoon Track" + carName);
                 timeImage.setImageResource(R.drawable.afternoon);
-            }
-            else {
+            } else {
                 title.setText("Your Evening Track" + carName);
                 timeImage.setImageResource(R.drawable.evening);
             }
+
             String trackDateS = new SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault()).format(trackDate);
             String trackTimeS = new SimpleDateFormat("KK:mm a", Locale.getDefault()).format(trackDate);
             mDateText.setText(trackDateS);
             mTimeText.setText(trackTimeS);
-        }catch (Exception e){
+
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public void convertMillisToDate(){
+    public void convertMillisToDate() {
         try {
             long timeInMillis = track.getDuration();
             long diffSeconds = timeInMillis / 1000 % 60;
@@ -291,8 +287,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
                     timeTV2.setVisibility(View.VISIBLE);
                     mDurationText2.setText(diffHours+"");
                     timeTV2.setText("H");
-                }
-                else{
+                } else {
                     mDurationText2.setVisibility(View.INVISIBLE);
                     timeTV2.setVisibility(View.INVISIBLE);
                 }
@@ -307,7 +302,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
                         timeTV2.setVisibility(View.VISIBLE);
                         mDurationText2.setText(new DecimalFormat("00").format(diffMinutes)+"");
                         timeTV2.setText("M");
-                    } else{
+                    } else {
                         mDurationText2.setVisibility(View.INVISIBLE);
                         timeTV2.setVisibility(View.INVISIBLE);
                     }
@@ -322,7 +317,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
                             timeTV2.setVisibility(View.VISIBLE);
                             mDurationText2.setText(new DecimalFormat("00").format(diffSeconds)+"");
                             timeTV2.setText("S");
-                        } else{
+                        } else {
                             mDurationText2.setVisibility(View.INVISIBLE);
                             timeTV2.setVisibility(View.INVISIBLE);
                         }
@@ -335,9 +330,8 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
                             timeTV2.setVisibility(View.INVISIBLE);
                     }
                 }
-
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -385,21 +379,21 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
         final LatLngBounds viewBbox = trackMapOverlay.getViewBoundingBox();
         mMapView.getMapAsync(new OnMapReadyCallback() {
             @Override
-            public void onMapReady(@NonNull MapboxMap tep) {
+            public void onMapReady(@NonNull MapboxMap temp) {
 
-                tep.getUiSettings().setLogoEnabled(false);
-                tep.getUiSettings().setAttributionEnabled(false);
-                tep.setStyle(new Style.Builder().fromUrl("https://api.maptiler.com/maps/basic/style.json?key=YJCrA2NeKXX45f8pOV6c "), new Style.OnStyleLoaded() {
+                temp.getUiSettings().setLogoEnabled(false);
+                temp.getUiSettings().setAttributionEnabled(false);
+                temp.setStyle(new Style.Builder().fromUrl("https://api.maptiler.com/maps/basic/style.json?key=YJCrA2NeKXX45f8pOV6c "), new Style.OnStyleLoaded() {
                     @Override
                     public void onStyleLoaded(@NonNull Style style) {
                         mapStyle = style;
                         style.addSource(trackMapOverlay.getGeoJsonSource());
                         style.addLayer(trackMapOverlay.getLineLayer());
-                        tep.moveCamera(CameraUpdateFactory.newLatLngBounds(viewBbox, 50));
+                        temp.moveCamera(CameraUpdateFactory.newLatLngBounds(viewBbox, 50));
                         setUpStartStopIcons(style);
                     }
                 });
-                mapboxMap = tep;
+                mapboxMap = temp;
                 mapboxMap.setMaxZoomPreference(trackMapOverlay.getMaxZoom());
                 mapboxMap.setMinZoomPreference(trackMapOverlay.getMinZoom());
             }
@@ -408,8 +402,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
 
     private void setUpStartStopIcons(@NonNull Style loadedMapStyle) {
         int size = track.getMeasurements().size();
-        if(size>=2 && trackMapOverlay.hasLatLng())
-        {
+        if (size>=2 && trackMapOverlay.hasLatLng()) {
             //Set Source with start and stop marker
             Double lng = track.getMeasurements().get(0).getLongitude();
             Double lat = track.getMeasurements().get(0).getLatitude();
@@ -490,18 +483,16 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if(mapStyle != null)
-        {
+        if (mapStyle != null) {
             mapStyle.removeLayer(MapLayer.LAYER_NAME);
             mapStyle.removeLayer("marker-layer1");
             mapStyle.removeLayer("marker-layer2");
         } else {
             LOG.info("Style was null.");
         }
-        if(mMapView != null)
-        {
+        if (mMapView != null) {
             mMapView.onDestroy();
-        } else{
+        } else {
             LOG.info("mMapView was null.");
         }
     }

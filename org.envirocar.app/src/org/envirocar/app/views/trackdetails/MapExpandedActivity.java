@@ -110,6 +110,7 @@ public class MapExpandedActivity extends BaseInjectorActivity {
         intent.putExtra(EXTRA_TRACKID, trackID);
         activity.startActivity(intent);
     }
+
     @Override
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
         baseApplicationComponent.inject(this);
@@ -131,11 +132,9 @@ public class MapExpandedActivity extends BaseInjectorActivity {
                 .toBlocking()
                 .first();
         this.track = track;
-
         trackMapOverlay = new TrackMapLayer(track);
 
         options = track.getSupportedProperties();
-
         if(trackMapOverlay.hasLatLng()){
             for(Measurement.PropertyKey propertyKey : options){
                 spinnerStrings.add(propertyKey.toString());
@@ -149,13 +148,8 @@ public class MapExpandedActivity extends BaseInjectorActivity {
 
         mIsCentredOnTrack = true;
         mCentreFab.show();
+
         mMapViewExpandedCancel.setOnClickListener(v-> {
-        if(style != null)
-        {
-            style.removeLayer(MapLayer.LAYER_NAME);
-            style.removeLayer("marker-layer1");
-            style.removeLayer("marker-layer2");
-        }
         finish();
         });
     }
@@ -198,15 +192,12 @@ public class MapExpandedActivity extends BaseInjectorActivity {
 
     }
 
-    private void makeMapChanges(int choice){
+    private void makeMapChanges(int choice) {
         final LatLngBounds viewBbox = trackMapOverlay.getViewBoundingBox();
-        if(mapboxMapExpanded != null)
-        {
+        if (mapboxMapExpanded != null) {
             LOG.info("Choice: " + choice);
-            if(!spinnerStrings.get(choice).equalsIgnoreCase("None"))
-            {
-                if(legendCard.getVisibility() != View.VISIBLE)
-                {
+            if (!spinnerStrings.get(choice).equalsIgnoreCase("None")) {
+                if(legendCard.getVisibility() != View.VISIBLE) {
                     TransitionManager.beginDelayedTransition(legendCard,new androidx.transition.Slide(Gravity.LEFT));
                     legendCard.setVisibility(View.VISIBLE);
                 } else {
@@ -227,26 +218,14 @@ public class MapExpandedActivity extends BaseInjectorActivity {
                         //Set legend values
                         Double min = trackMapOverlay.getGradMin();
                         Double max = trackMapOverlay.getGradMax();
-                        LOG.info("Min:" + min);
-                        LOG.info("Max:" + max);
-                        try{
-                            legendStart.setText(DECIMAL_FORMATTER.format(min));
-                            legendEnd.setText(DECIMAL_FORMATTER.format(max));
-                            Double mid = ( max + min ) / 2;
-                            legendMid.setText(DECIMAL_FORMATTER.format(mid));
-                        } catch (Exception e) {
-                            min = (double) 0;
-                            max = (double) 0;
-                            legendStart.setText(DECIMAL_FORMATTER.format(min));
-                            legendEnd.setText(DECIMAL_FORMATTER.format(max));
-                            Double mid = ( max + min ) / 2;
-                            legendMid.setText(DECIMAL_FORMATTER.format(mid));
-                        }
+                        Double mid = ( max + min ) / 2;
+                        legendStart.setText(DECIMAL_FORMATTER.format(min));
+                        legendEnd.setText(DECIMAL_FORMATTER.format(max));
+                        legendMid.setText(DECIMAL_FORMATTER.format(mid));
                         legendName.setText(options.get(choice).getStringResource());
                     }
                 });
-            }
-            else{
+            } else {
                 //None gradient chosen. So remove the gradient layers
                 TransitionManager.beginDelayedTransition(legendCard,new androidx.transition.Slide(Gravity.LEFT));
                 legendCard.setVisibility(GONE);
@@ -271,10 +250,10 @@ public class MapExpandedActivity extends BaseInjectorActivity {
         final LatLngBounds viewBbox = trackMapOverlay.getViewBoundingBox();
         mMapViewExpanded.getMapAsync(new OnMapReadyCallback() {
             @Override
-            public void onMapReady(@NonNull MapboxMap mapboxMap1) {
-                mapboxMap1.getUiSettings().setLogoEnabled(false);
-                mapboxMap1.getUiSettings().setAttributionEnabled(false);
-                mapboxMap1.setStyle(new Style.Builder().fromUrl("https://api.maptiler.com/maps/basic/style.json?key=YJCrA2NeKXX45f8pOV6c "), new Style.OnStyleLoaded() {
+            public void onMapReady(@NonNull MapboxMap mapboxMap) {
+                mapboxMap.getUiSettings().setLogoEnabled(false);
+                mapboxMap.getUiSettings().setAttributionEnabled(false);
+                mapboxMap.setStyle(new Style.Builder().fromUrl("https://api.maptiler.com/maps/basic/style.json?key=YJCrA2NeKXX45f8pOV6c "), new Style.OnStyleLoaded() {
                     @Override
                     public void onStyleLoaded(@NonNull Style style) {
                         MapExpandedActivity.this.style = style;
@@ -282,12 +261,12 @@ public class MapExpandedActivity extends BaseInjectorActivity {
                         style.addSource(trackMapOverlay.getGeoJsonSource());
                         style.addLayer(trackMapOverlay.getLineLayer());
 
-                        mapboxMap1.moveCamera(CameraUpdateFactory.newLatLngBounds(viewBbox, 50));
+                        mapboxMap.moveCamera(CameraUpdateFactory.newLatLngBounds(viewBbox, 50));
                         setUpStartStopIcons(style);
                         makeMapChanges(options.indexOf(Measurement.PropertyKey.SPEED));
                     }
                 });
-                mapboxMapExpanded = mapboxMap1;
+                mapboxMapExpanded = mapboxMap;
                 mapboxMapExpanded.setMaxZoomPreference(18);
                 mapboxMapExpanded.setMinZoomPreference(1);
             }
@@ -296,8 +275,7 @@ public class MapExpandedActivity extends BaseInjectorActivity {
 
     private void setUpStartStopIcons(@NonNull Style loadedMapStyle) {
         int size = track.getMeasurements().size();
-        if(size>=2 && trackMapOverlay.hasLatLng())
-        {
+        if (size>=2 && trackMapOverlay.hasLatLng()) {
             //Set Source with start and stop marker
             Double lng = track.getMeasurements().get(0).getLongitude();
             Double lat = track.getMeasurements().get(0).getLatitude();
@@ -371,14 +349,13 @@ public class MapExpandedActivity extends BaseInjectorActivity {
     protected void onDestroy() {
         LOG.info("onDestroy()");
         super.onDestroy();
-        if(style != null)
-        {
+        if(style != null) {
             style.removeLayer(MapLayer.LAYER_NAME);
             style.removeLayer(TrackMapLayer.GRADIENT_LAYER);
             style.removeLayer("marker-layer1");
             style.removeLayer("marker-layer2");
         } else {
-            LOG.info("style was null");
+            LOG.info("Style was null");
             mapboxMapExpanded.getStyle(new Style.OnStyleLoaded() {
                 @Override
                 public void onStyleLoaded(@NonNull Style style) {
@@ -389,7 +366,7 @@ public class MapExpandedActivity extends BaseInjectorActivity {
                 }
             });
         }
-        if(mMapViewExpanded != null)
+        if (mMapViewExpanded != null)
             mMapViewExpanded.onDestroy();
         else
             LOG.info("mMapViewExpanded was null");

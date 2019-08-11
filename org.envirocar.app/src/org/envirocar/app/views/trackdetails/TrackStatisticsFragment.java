@@ -68,7 +68,6 @@ public class TrackStatisticsFragment extends BaseInjectorFragment {
     @Inject
     protected EnviroCarDB mEnvirocarDB;
 
-
     @BindView(R.id.recyclerView)
     protected RecyclerView recyclerView;
     @BindView(R.id.infoButton)
@@ -94,16 +93,19 @@ public class TrackStatisticsFragment extends BaseInjectorFragment {
     @Override
     public android.view.View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
+
         final Bundle args = getArguments();
         ID = args.getString("ID");
         View rootView = inflater.inflate(R.layout.fragment_track_statistics, container, false);
         unbinder = ButterKnife.bind(this, rootView);
+
         adapter = new TrackStatisticsAdapter(trackStatisticsDataHolderList);
         LinearLayoutManager llm = new LinearLayoutManager(getContext());
         llm.setOrientation(RecyclerView.VERTICAL);
         recyclerView.setLayoutManager(llm);
         recyclerView.setAdapter(adapter);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
+
         subscription = new CompositeSubscription();
         loadData();
         infoButton.setOnClickListener(new View.OnClickListener() {
@@ -137,40 +139,40 @@ public class TrackStatisticsFragment extends BaseInjectorFragment {
     private void getTrackStatistics() {
         String trackID = ID;
         subscription.add(mDAOProvider.getTrackStatisticsDAO().getTrackStatisticsObservable(trackID)
-        .subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribe(new Subscriber<TrackStatistics>() {
-            @Override
-            public void onStart() {
-                LOG.info("onStart() of getTrackStatistics with " + trackID );
-            }
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<TrackStatistics>() {
+                    @Override
+                    public void onStart() {
+                        LOG.info("onStart() of getTrackStatistics with " + trackID );
+                    }
 
-            @Override
-            public void onCompleted() {
+                    @Override
+                    public void onCompleted() {
 
-            }
+                    }
 
-            @Override
-            public void onError(Throwable e) {
-                LOG.error(e.getMessage(), e);
-                if (e instanceof NotConnectedException) {
-                    LOG.error("Error", e);
-                } else if (e instanceof UnauthorizedException) {
-                    LOG.error("Unauthorised",e);
-                }
-            }
+                    @Override
+                    public void onError(Throwable e) {
+                        LOG.error(e.getMessage(), e);
+                        if (e instanceof NotConnectedException) {
+                            LOG.error("Error", e);
+                        } else if (e instanceof UnauthorizedException) {
+                            LOG.error("Unauthorised",e);
+                        }
+                    }
 
-            @Override
-            public void onNext(TrackStatistics temp) {
-                LOG.info("Track Statistics loaded.");
-                trackStats = true;
-                trackStatistics = temp;
-                setTrackStatisticsDataHolderList();
-            }
-        }));
+                    @Override
+                    public void onNext(TrackStatistics temp) {
+                        LOG.info("Track Statistics loaded.");
+                        trackStats = true;
+                        trackStatistics = temp;
+                        setTrackStatisticsDataHolderList();
+                    }
+                }));
     }
 
-    private void getUserStatistics(){
+    private void getUserStatistics() {
         subscription.add(mDAOProvider.getUserStatisticsDAO().getUserStatisticsObservable()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -206,71 +208,69 @@ public class TrackStatisticsFragment extends BaseInjectorFragment {
                 }));
     }
 
-    private void getGlobalStatistics(){
+    private void getGlobalStatistics() {
         subscription.add(mDAOProvider.getGlobalStatisticsDAO().getGlobalStatisticsObservable()
-        .subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribe(new Subscriber<GlobalStatistics>() {
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<GlobalStatistics>() {
 
-            @Override
-            public void onStart(){
-                LOG.info("onStart() of getGlobalStatistics");
-            }
+                    @Override
+                    public void onStart(){
+                        LOG.info("onStart() of getGlobalStatistics");
+                    }
 
-            @Override
-            public void onCompleted() {
+                    @Override
+                    public void onCompleted() {
 
-            }
+                    }
 
-            @Override
-            public void onError(Throwable e) {
-                LOG.error("Error: "+e.getMessage(),e);
+                    @Override
+                    public void onError(Throwable e) {
+                        LOG.error("Error: "+e.getMessage(),e);
 
-                if (e instanceof NotConnectedException) {
-                    LOG.error("Error", e);
-                } else if (e instanceof UnauthorizedException) {
-                    LOG.error("Unauthorised",e);
-                }
-            }
+                        if (e instanceof NotConnectedException) {
+                            LOG.error("Error", e);
+                        } else if (e instanceof UnauthorizedException) {
+                            LOG.error("Unauthorised",e);
+                        }
+                    }
 
-            @Override
-            public void onNext(GlobalStatistics temp) {
-                LOG.info("Global Statistics loaded.");
-                globalStats = true;
-                globalStatistics = temp;
-                setTrackStatisticsDataHolderList();
-            }
-        }));
+                    @Override
+                    public void onNext(GlobalStatistics temp) {
+                        LOG.info("Global Statistics loaded.");
+                        globalStats = true;
+                        globalStatistics = temp;
+                        setTrackStatisticsDataHolderList();
+                    }
+                }));
     }
 
-    private void setTrackStatisticsDataHolderList(){
-        LOG.debug("setTrackStatisticsDataHolderList called " + trackStats + userStats + globalStats );
+    private void setTrackStatisticsDataHolderList() {
         trackStatisticsDataHolderList.clear();
-        if(trackStats && userStats && globalStats)
-        {
+        if (trackStats && userStats && globalStats) {
             int j = 0;
-            for(int i=0; i<statChoices.length; ++i) {
-                if(trackStatistics.getStatistic(statChoices[i]) != null)
-                {   TrackStatisticsDataHolder temp = new TrackStatisticsDataHolder();
+            for (int i = 0; i < statChoices.length; ++i) {
+                if (trackStatistics.getStatistic(statChoices[i]) != null) {
+                    TrackStatisticsDataHolder temp = new TrackStatisticsDataHolder();
+
                     temp.setTrackAvg(Float.valueOf(DECIMAL_FORMATTER_TWO_DIGITS.format(trackStatistics.getStatistic(statChoices[i]).getAvgValue())));
                     temp.setTrackMax(Float.valueOf(DECIMAL_FORMATTER_TWO_DIGITS.format(trackStatistics.getStatistic(statChoices[i]).getMaxValue())));
                     temp.setPhenomena(trackStatistics.getStatistic(statChoices[i]).getPhenomenonName());
                     temp.setUnit(trackStatistics.getStatistic(statChoices[i]).getPhenomenonUnit());
                     temp.setDisplayUserAndGlobalAvg(true);
 
-                    if(userStatistics.getStatistic(statChoices[i]) == null || globalStatistics.getStatistic(statChoices[i]) == null)
+                    if (userStatistics.getStatistic(statChoices[i]) == null || globalStatistics.getStatistic(statChoices[i]) == null)
                         temp.setDisplayUserAndGlobalAvg(false);
 
-                    if(statChoices[i].equalsIgnoreCase(TrackStatistics.KEY_USER_STAT_LOAD) || statChoices[i].equalsIgnoreCase(TrackStatistics.KEY_USER_STAT_RPM))
+                    if (statChoices[i].equalsIgnoreCase(TrackStatistics.KEY_USER_STAT_LOAD) || statChoices[i].equalsIgnoreCase(TrackStatistics.KEY_USER_STAT_RPM))
                         temp.setDisplayUserAndGlobalAvg(false);
 
-                    if(userStatistics.getStatistic(statChoices[i]) != null) {
+                    if (userStatistics.getStatistic(statChoices[i]) != null)
                         temp.setUserAvg(Float.valueOf(DECIMAL_FORMATTER_TWO_DIGITS.format(userStatistics.getStatistic(statChoices[i]).getAvgValue())));
-                    }
                     
-                    if(globalStatistics.getStatistic(statChoices[i]) != null) {
+                    if(globalStatistics.getStatistic(statChoices[i]) != null)
                         temp.setGlobalAvg(Float.valueOf(DECIMAL_FORMATTER_TWO_DIGITS.format(globalStatistics.getStatistic(statChoices[i]).getAvgValue())));
-                    }
+
                     temp.setResImg(statImgs[i]);
                     trackStatisticsDataHolderList.add(temp);
                     LOG.debug(trackStatisticsDataHolderList.get(j).getPhenomena());
@@ -278,8 +278,6 @@ public class TrackStatisticsFragment extends BaseInjectorFragment {
                 }
             }
             adapter.notifyDataSetChanged();
-
         }
     }
-    
 }

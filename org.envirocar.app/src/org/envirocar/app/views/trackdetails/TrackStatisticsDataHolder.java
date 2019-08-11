@@ -1,6 +1,7 @@
 package org.envirocar.app.views.trackdetails;
 
 public class TrackStatisticsDataHolder {
+
     private String phenomena;
     private String unit;
     private int resImg;
@@ -70,7 +71,7 @@ public class TrackStatisticsDataHolder {
     }
 
     public void setUserAvg(Float userAvg) {
-        if(displayUserAndGlobalAvg == Boolean.TRUE)
+        if (displayUserAndGlobalAvg == Boolean.TRUE)
             this.userAvg = userAvg;
         else
             this.userAvg = null;
@@ -81,7 +82,7 @@ public class TrackStatisticsDataHolder {
     }
 
     public void setGlobalAvg(Float globalAvg) {
-        if(displayUserAndGlobalAvg == Boolean.TRUE)
+        if (displayUserAndGlobalAvg == Boolean.TRUE)
             this.globalAvg = globalAvg;
         else
             this.globalAvg = null;
@@ -93,7 +94,7 @@ public class TrackStatisticsDataHolder {
 
     public void setDisplayUserAndGlobalAvg(Boolean displayUserAndGlobalAvg) {
         this.displayUserAndGlobalAvg = displayUserAndGlobalAvg;
-        if(displayUserAndGlobalAvg == Boolean.FALSE){
+        if (displayUserAndGlobalAvg == Boolean.FALSE) {
             setGlobalAvg(null);
             setUserAvg(null);
         }

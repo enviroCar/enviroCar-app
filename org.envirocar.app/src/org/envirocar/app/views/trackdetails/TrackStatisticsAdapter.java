@@ -49,14 +49,12 @@ public class TrackStatisticsAdapter extends RecyclerView.Adapter<TrackStatistics
         holder.trackAvg.setText(temp.getTrackAvg() + temp.getUnit());
         holder.trackMax.setText(temp.getTrackMax() + temp.getUnit());
         holder.image.setImageResource(temp.getResImg());
-        if(temp.getDisplayUserAndGlobalAvg())
-        {
+        if (temp.getDisplayUserAndGlobalAvg()) {
             holder.globalAvg.setVisibility(View.VISIBLE);
             holder.userAvg.setVisibility(View.VISIBLE);
             holder.globalAvg.setText("The Community Average: " + temp.getGlobalAvg() + temp.getUnit());
             holder.userAvg.setText("Your Average: " + temp.getUserAvg() + temp.getUnit());
-        }
-        else{
+        } else {
             holder.globalAvg.setVisibility(View.GONE);
             holder.userAvg.setVisibility(View.GONE);
         }
