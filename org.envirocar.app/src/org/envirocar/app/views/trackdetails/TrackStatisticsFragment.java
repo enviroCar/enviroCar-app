@@ -24,7 +24,6 @@ import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.app.main.BaseApplicationComponent;
 import org.envirocar.app.main.MainActivityComponent;
 import org.envirocar.app.main.MainActivityModule;
-import org.envirocar.app.views.LoginRegisterActivity;
 import org.envirocar.core.entity.GlobalStatistics;
 import org.envirocar.core.entity.TrackStatistics;
 import org.envirocar.core.entity.UserStatistics;

@@ -50,4 +50,11 @@
 
     <string name="not_yet_registered_question">Du hast noch keinen Account?</string>
     <string name="not_yet_registered_register">Hier registrieren!</string>
+
+
+    <string name="login_mail_not_confirmed_dialog_title">E-Mail-Bestätigung erforderlich</string>
+    <string name="login_mail_not_confirmed_dialog_content">Dein E-Mail-Konto wurde noch nicht bestätigt. Um die volle Funktionalität von enviroCar zu nutzen, loggen Sie sich bitte in Ihr E-Mail-Konto ein und bestätigen Sie Ihre E-Mail-Adresse.</string>
+
+    <string name="register_success_dialog_title">Du bist nur einen Schritt entfernt.....</string>
+    <string name="register_success_dialog_content">Sie sind nur einen Schritt davon entfernt, Ihr Konto bei enviroCar zu aktivieren. Bitte überprüfen Sie Ihre Mails, um die Registrierung abzuschließen.</string>
 </resources>

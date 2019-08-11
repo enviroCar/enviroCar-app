@@ -59,7 +59,6 @@ public class TrackListPagerFragment extends BaseInjectorFragment {
             savedInstanceState) {
         LOG.info("onCreateView()");
         View content = inflater.inflate(R.layout.fragment_tracklist_layout, container, false);
-
         ButterKnife.bind(this, content);
 
         trackListPageAdapter = new TrackListPagerAdapter(getFragmentManager());

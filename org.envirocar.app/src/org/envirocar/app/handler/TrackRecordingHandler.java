@@ -24,6 +24,7 @@ import android.content.Intent;
 
 import com.squareup.otto.Bus;
 
+import org.envirocar.app.handler.agreement.AgreementManager;
 import org.envirocar.app.main.BaseApplication;
 import org.envirocar.app.R;
 import org.envirocar.app.services.recording.GPSOnlyRecordingService;
@@ -85,7 +86,7 @@ public class TrackRecordingHandler {
     @Inject
     protected UserHandler mUserManager;
     @Inject
-    protected TermsOfUseManager mTermsOfUseManager;
+    protected AgreementManager mAgreementManager;
     @Inject
     protected CarPreferenceHandler carHander;
 

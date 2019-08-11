@@ -31,6 +31,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import android.view.WindowManager;
 
+import com.mapbox.mapboxsdk.Mapbox;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.R;
@@ -81,6 +82,8 @@ public class BaseMainActivityBottomBar extends BaseInjectorActivity {
     protected TrackListPagerFragment mTrackListPagerFragment;
     @Inject
     protected OthersFragment mOthersFragment;
+    @Inject
+    protected Mapbox mapbox;
 
     @BindView(R.id.navigation)
     protected BottomNavigationView navigationBottomBar;

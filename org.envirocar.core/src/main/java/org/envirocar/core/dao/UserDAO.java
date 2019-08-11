@@ -36,7 +36,7 @@ import rx.Observable;
  */
 public interface UserDAO {
 
-    User getUser(String id) throws DataRetrievalFailureException, UnauthorizedException, NotConnectedException;
+    User getUser(String id) throws DataRetrievalFailureException, UnauthorizedException, NotConnectedException, ResourceConflictException;
 
     Observable<User> getUserObservable(String id);
 

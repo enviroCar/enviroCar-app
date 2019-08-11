@@ -78,6 +78,7 @@
     <string name="driving">Driving</string>
 
     <string name="gps_track_details">*This is a GPS based track. It cannot be uploaded to the open data.</string>
+    <string name="dashboard_signin_prompt">Sign in to upload your tracks</string>
     <string name="report_issue_text">Timestamps are automatically included in the logs. Sending us reports helps us reproduce unexpected behavior or crashes. This makes enviroCar better and more stable. Click the send button below to email this report to us.</string>
     <string name="report_issue_bottom_text">This feature uses the default \"Send To\" mechanism.
 	    If you invoke it with your Email client, you can easily send the report via email. If you do not have an Email client installed,
@@ -113,5 +114,7 @@
         <item>[GPS-EN]</item>
         <item>[ACTIVE-TRACK]</item>
     </string-array>
+
+    <string name="submit">Submit</string>
 
 </resources>
