@@ -73,6 +73,16 @@ public class LocalTrackDAO implements TrackDAO {
     }
 
     @Override
+    public List<Track> getTrackIdsWithLimit(int limit){
+        return null;
+    }
+
+    @Override
+    public Observable<List<Track>> getTrackIdsWithLimitObservable(int limit){
+        return null;
+    }
+
+    @Override
     public List<Track> getTrackIds(int limit, int page) {
         return null;
     }

@@ -216,6 +216,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
 
     @Override
     protected void loadDataset() {
+        LOG.info("loadDataset()");
         // Do not load the dataset twice.
         if (!tracksLoaded) {
             tracksLoaded = true;
@@ -409,6 +410,19 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
                         }));
             }
         });
+    }
+
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        mRecyclerViewAdapter.onLowMemory();
+
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mRecyclerViewAdapter.onDestroy();
     }
 
     private final class LoadLocalTracksTask extends AsyncTask<Void, Void, Void> {

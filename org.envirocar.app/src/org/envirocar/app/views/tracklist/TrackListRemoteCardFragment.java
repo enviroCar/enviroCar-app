@@ -78,12 +78,24 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
             showText(R.drawable.img_logged_out,
                     R.string.track_list_bg_not_logged_in,
                     R.string.track_list_bg_not_logged_in_sub);
-
             mProgressView.setVisibility(View.INVISIBLE);
             mRecyclerView.setVisibility(View.GONE);
             mRecyclerViewAdapter.mTrackDataset.clear();
             mRecyclerViewAdapter.notifyDataSetChanged();
         }
+    }
+
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        mRecyclerViewAdapter.onLowMemory();
+
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mRecyclerViewAdapter.onDestroy();
     }
 
     @Override
@@ -146,6 +158,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
 
     @Override
     protected void loadDataset() {
+        LOG.info("loadDataset()");
         // Do not load the dataset twice.
         if (mUserManager.isLoggedIn() && !tracksLoaded) {
             tracksLoaded = true;

@@ -16,16 +16,16 @@
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
-package org.envirocar.core.trackprocessing;
+package org.envirocar.core.trackprocessing.statistics;
 
 import android.location.Location;
 
+import org.envirocar.core.trackprocessing.consumption.ConsumptionAlgorithm;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.exception.FuelConsumptionException;
 import org.envirocar.core.exception.UnsupportedFuelTypeException;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.core.utils.CarUtils;
 
 import java.util.List;
 
@@ -45,7 +45,7 @@ public class TrackStatisticsProcessor {
      * @param fuelType the fuel type of the corresponding car.
      */
     public TrackStatisticsProcessor(Car.FuelType fuelType) {
-        this.consumptionAlgorithm = CarUtils.resolveConsumptionAlgorithm(fuelType);
+        this.consumptionAlgorithm = ConsumptionAlgorithm.fromFuelType(fuelType);
     }
 
     public double computeDistanceOfTrack(List<Measurement> measurements) {
