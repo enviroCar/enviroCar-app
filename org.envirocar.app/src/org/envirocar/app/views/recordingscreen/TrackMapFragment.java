@@ -145,7 +145,7 @@ public class TrackMapFragment extends BaseInjectorFragment implements Permission
             }
         });
         mIsFollowingLocation = true;
-        mFollowFab.setVisibility(View.INVISIBLE);
+        mFollowFab.hide();
 
         return contentView;
     }
@@ -210,7 +210,7 @@ public class TrackMapFragment extends BaseInjectorFragment implements Permission
 
         // and start it on the fab.
         mFollowFab.startAnimation(slideLeft);
-        mFollowFab.setVisibility(View.VISIBLE);
+        mFollowFab.show();
     }
 
     /**
@@ -230,7 +230,7 @@ public class TrackMapFragment extends BaseInjectorFragment implements Permission
 
             @Override
             public void onAnimationEnd(Animation animation) {
-                mFollowFab.setVisibility(View.INVISIBLE);
+                mFollowFab.hide();
             }
 
             @Override
