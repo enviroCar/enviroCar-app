@@ -166,8 +166,9 @@ public class TrackDetailsActivity extends BaseInjectorActivity implements TrackS
     @Override
     public void setCardViewHeight(int height) {
         ViewGroup.LayoutParams params = cardView.getLayoutParams();
-        params.height = height+300;
+        params.height = height+500;
         cardView.setLayoutParams(params);
+        LOG.info("CardView height set at:" + params.height);
     }
 
     @Override
