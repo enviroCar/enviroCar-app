@@ -31,6 +31,7 @@ import android.preference.PreferenceManager;
 
 import com.google.common.base.Preconditions;
 import com.squareup.otto.Bus;
+import com.squareup.otto.Produce;
 
 import org.envirocar.app.services.recording.OBDRecordingService;
 import org.envirocar.core.events.bluetooth.BluetoothDeviceDiscoveredEvent;
@@ -50,6 +51,7 @@ import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import dagger.Provides;
 import rx.Observable;
 import rx.Scheduler;
 import rx.Subscriber;
@@ -179,6 +181,10 @@ public class BluetoothHandler {
         }
     }
 
+    @Produce
+    public BluetoothDeviceSelectedEvent produceBluetoothDeviceSelectedEvent(){
+        return new BluetoothDeviceSelectedEvent(getSelectedBluetoothDevice());
+    }
 
     /**
      * Returns the corresponding BluetoothDevice for the attributes stored in the shared

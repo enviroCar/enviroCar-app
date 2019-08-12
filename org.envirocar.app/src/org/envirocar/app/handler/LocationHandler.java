@@ -33,6 +33,7 @@ import android.os.Bundle;
 import androidx.core.app.ActivityCompat;
 
 import com.squareup.otto.Bus;
+import com.squareup.otto.Produce;
 
 import org.envirocar.core.events.gps.GpsDOPEvent;
 import org.envirocar.core.events.gps.GpsLocationChangedEvent;
@@ -187,6 +188,7 @@ public class LocationHandler {
     public LocationHandler(@InjectApplicationScope Context context, Bus bus) {
         this.mContext = context;
         this.mBus = bus;
+        this.mBus.register(this);
 
         // Sets the current Location updates to null.
         this.mLastBestLocation = null;
@@ -295,5 +297,10 @@ public class LocationHandler {
                 }
             }
         }
+    }
+
+    @Produce
+    public GpsStateChangedEvent produceGpsStateChangedEvent(){
+        return new GpsStateChangedEvent(isGPSEnabled());
     }
 }

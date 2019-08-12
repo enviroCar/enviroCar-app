@@ -25,6 +25,7 @@ import android.preference.PreferenceManager;
 import android.widget.Toast;
 
 import com.squareup.otto.Bus;
+import com.squareup.otto.Produce;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.core.ContextInternetAccessProvider;
@@ -53,6 +54,7 @@ import java.util.UUID;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import dagger.Provides;
 import rx.Observable;
 import rx.Subscriber;
 
@@ -460,6 +462,11 @@ public class CarPreferenceHandler {
                 .remove(PreferenceConstants.PREFERENCE_TAG_CAR)
                 .remove(PreferenceConstants.CAR_HASH_CODE)
                 .commit();
+    }
+
+    @Produce
+    public NewCarTypeSelectedEvent produceCarTypeSelectedEvent(){
+        return new NewCarTypeSelectedEvent(getCar());
     }
 
 }
