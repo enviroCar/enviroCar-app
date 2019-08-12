@@ -20,6 +20,7 @@
 -->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/login_bg"
@@ -34,11 +35,14 @@
             android:layout_height="match_parent"
             android:alpha="0.2"
             android:background="@drawable/img_map"
-            android:src="@drawable/login_bg_transparent" />
+            android:src="@drawable/login_bg_transparent"
+            tools:layout_editor_absoluteX="-35dp"
+            tools:layout_editor_absoluteY="0dp" />
 
         <ImageView
             android:id="@+id/activity_login_logo"
             style="@style/envirocar.login.logo"
+            android:layout_marginTop="16dp"
             android:transitionName="imageMain"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -49,16 +53,13 @@
             android:id="@+id/textView6"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="166dp"
-            android:layout_marginLeft="166dp"
-            android:layout_marginEnd="165dp"
-            android:layout_marginRight="165dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
             android:text="Sign In"
             android:textColor="@color/white_cario"
             android:textSize="26dp"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/activity_login_logo" />
 
