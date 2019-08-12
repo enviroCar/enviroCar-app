@@ -31,7 +31,7 @@
         android:layout_width="25dp"
         android:layout_height="25dp"
         android:layout_marginTop="16dp"
-        android:tint="#8BBFE0"
+        android:tint="#000000"
         app:layout_constraintStart_toStartOf="@+id/guideline"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/calendar" />
@@ -42,7 +42,7 @@
         android:layout_height="43dp"
         android:layout_marginTop="16dp"
         android:layout_marginBottom="16dp"
-        android:tint="#8BBFE0"
+        android:tint="#000000"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/imageView"
         app:layout_constraintStart_toStartOf="@+id/imageView"
@@ -54,8 +54,7 @@
         android:layout_width="25dp"
         android:layout_height="25dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:tint="#8BBFE0"
+        android:tint="#000000"
         app:layout_constraintBottom_toBottomOf="@+id/timeImage"
         app:layout_constraintEnd_toStartOf="@+id/track_details_attributes_header_duration1"
         app:layout_constraintTop_toTopOf="@+id/timeImage"
@@ -65,7 +64,7 @@
         android:id="@+id/imageView4"
         android:layout_width="25dp"
         android:layout_height="25dp"
-        android:tint="#8BBFE0"
+        android:tint="#000000"
         app:layout_constraintBottom_toBottomOf="@+id/imageView"
         app:layout_constraintEnd_toEndOf="@+id/imageView3"
         app:layout_constraintStart_toStartOf="@+id/imageView3"
@@ -117,20 +116,18 @@
         app:layout_constraintTop_toTopOf="@+id/imageView4" />
 
     <TextView
-        android:id="@+id/track_details_attributes_header_duration2"
+        android:id="@+id/textView2"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="2dp"
-        android:height="25dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="1dp"
         android:fontFamily="@font/source_sans_pro_semibold"
         android:gravity="bottom|left"
-        android:text="55"
-        android:textAllCaps="true"
-        android:textColor="#000000"
-        android:textSize="16sp"
-        app:layout_constraintBottom_toBottomOf="@+id/imageView3"
-        app:layout_constraintEnd_toStartOf="@+id/time2"
-        app:layout_constraintTop_toTopOf="@+id/imageView3" />
+        android:text="KM"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@+id/track_details_attributes_header_distance"
+        app:layout_constraintEnd_toStartOf="@+id/guideline2"
+        app:layout_constraintTop_toTopOf="@+id/track_details_attributes_header_distance" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline"
@@ -145,36 +142,6 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.85" />
-
-    <TextView
-        android:id="@+id/textView2"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:layout_marginBottom="1dp"
-        android:fontFamily="@font/source_sans_pro_semibold"
-        android:gravity="bottom|left"
-        android:text="KM"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="@+id/track_details_attributes_header_distance"
-        app:layout_constraintEnd_toStartOf="@+id/guideline2"
-        app:layout_constraintTop_toTopOf="@+id/track_details_attributes_header_distance" />
-
-    <TextView
-        android:id="@+id/time2"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:layout_marginBottom="1dp"
-        android:height="25dp"
-        android:fontFamily="@font/source_sans_pro_semibold"
-        android:gravity="bottom|left"
-        android:text="H"
-        android:textAllCaps="true"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="@+id/track_details_attributes_header_duration2"
-        app:layout_constraintEnd_toStartOf="@+id/guideline2"
-        app:layout_constraintTop_toTopOf="@+id/track_details_attributes_header_duration2" />
 
     <TextView
         android:id="@+id/track_details_attributes_header_duration1"
@@ -210,5 +177,37 @@
         app:layout_constraintBottom_toBottomOf="@+id/track_details_attributes_header_duration1"
         app:layout_constraintEnd_toStartOf="@+id/track_details_attributes_header_duration2"
         app:layout_constraintTop_toTopOf="@+id/track_details_attributes_header_duration1" />
+
+    <TextView
+        android:id="@+id/track_details_attributes_header_duration2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="2dp"
+        android:height="25dp"
+        android:fontFamily="@font/source_sans_pro_semibold"
+        android:gravity="bottom|left"
+        android:text="55"
+        android:textAllCaps="true"
+        android:textColor="#000000"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="@+id/imageView3"
+        app:layout_constraintEnd_toStartOf="@+id/time2"
+        app:layout_constraintTop_toTopOf="@+id/imageView3" />
+
+    <TextView
+        android:id="@+id/time2"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_marginBottom="1dp"
+        android:height="25dp"
+        android:fontFamily="@font/source_sans_pro_semibold"
+        android:gravity="bottom|left"
+        android:text="H"
+        android:textAllCaps="true"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@+id/track_details_attributes_header_duration2"
+        app:layout_constraintEnd_toStartOf="@+id/guideline2"
+        app:layout_constraintTop_toTopOf="@+id/track_details_attributes_header_duration2" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

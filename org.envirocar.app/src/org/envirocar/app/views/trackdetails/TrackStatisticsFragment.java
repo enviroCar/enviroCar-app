@@ -9,12 +9,16 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.transition.Fade;
+import androidx.transition.TransitionManager;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 
@@ -70,10 +74,18 @@ public class TrackStatisticsFragment extends BaseInjectorFragment {
     @Inject
     protected EnviroCarDB mEnvirocarDB;
 
+    @BindView(R.id.layout)
+    protected ConstraintLayout layout;
     @BindView(R.id.recyclerView)
     protected RecyclerView recyclerView;
     @BindView(R.id.infoButton)
     protected ImageView infoButton;
+    @BindView(R.id.noTrackStats)
+    protected TextView noTrackStats;
+    @BindView(R.id.loadingStats)
+    protected TextView loadingStats;
+    @BindView(R.id.errorLoading)
+    protected TextView errorLoadingStats;
 
     private List<TrackStatisticsDataHolder> trackStatisticsDataHolderList = new ArrayList<>();
     private TrackStatisticsAdapter adapter;
@@ -144,6 +156,10 @@ public class TrackStatisticsFragment extends BaseInjectorFragment {
 
 
     public void loadData() {
+        TransitionManager.beginDelayedTransition(layout, new Fade());
+        loadingStats.setVisibility(View.VISIBLE);
+        errorLoadingStats.setVisibility(View.GONE);
+        noTrackStats.setVisibility(View.GONE);
         getTrackStatistics();
         getUserStatistics();
         getGlobalStatistics();
@@ -173,6 +189,8 @@ public class TrackStatisticsFragment extends BaseInjectorFragment {
                         } else if (e instanceof UnauthorizedException) {
                             LOG.error("Unauthorised",e);
                         }
+                        loadingStats.setVisibility(View.INVISIBLE);
+                        errorLoadingStats.setVisibility(View.VISIBLE);
                     }
 
                     @Override
@@ -209,6 +227,8 @@ public class TrackStatisticsFragment extends BaseInjectorFragment {
                         } else if (e instanceof UnauthorizedException) {
                             LOG.error("Unauthorised",e);
                         }
+                        loadingStats.setVisibility(View.INVISIBLE);
+                        errorLoadingStats.setVisibility(View.VISIBLE);
                     }
 
                     @Override
@@ -246,6 +266,8 @@ public class TrackStatisticsFragment extends BaseInjectorFragment {
                         } else if (e instanceof UnauthorizedException) {
                             LOG.error("Unauthorised",e);
                         }
+                        loadingStats.setVisibility(View.INVISIBLE);
+                        errorLoadingStats.setVisibility(View.VISIBLE);
                     }
 
                     @Override
@@ -261,6 +283,7 @@ public class TrackStatisticsFragment extends BaseInjectorFragment {
     private void setTrackStatisticsDataHolderList() {
         trackStatisticsDataHolderList.clear();
         if (trackStats && userStats && globalStats) {
+            loadingStats.setVisibility(View.INVISIBLE);
             int j = 0;
             for (int i = 0; i < statChoices.length; ++i) {
                 if (trackStatistics.getStatistic(statChoices[i]) != null) {
@@ -290,6 +313,8 @@ public class TrackStatisticsFragment extends BaseInjectorFragment {
                     j++;
                 }
             }
+            if (j == 0)
+                noTrackStats.setVisibility(View.VISIBLE);
             adapter.notifyDataSetChanged();
             cardInterface.setCardViewHeight(recyclerView.getHeight());
         }
