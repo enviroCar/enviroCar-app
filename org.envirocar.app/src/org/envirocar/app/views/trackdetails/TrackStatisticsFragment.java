@@ -1,14 +1,11 @@
 package org.envirocar.app.views.trackdetails;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.ListAdapter;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -55,11 +52,14 @@ import rx.subscriptions.CompositeSubscription;
 public class TrackStatisticsFragment extends BaseInjectorFragment {
     private static final Logger LOG = Logger.getLogger(TrackStatisticsFragment.class);
 
-    private String[] statChoices = {TrackStatistics.KEY_USER_STAT_CONSUMPTION,
-            TrackStatistics.KEY_USER_STAT_SPEED, TrackStatistics.KEY_USER_STAT_CO2,
-            TrackStatistics.KEY_USER_STAT_LOAD, TrackStatistics.KEY_USER_STAT_RPM};
+    private String[] statChoices = { TrackStatistics.KEY_USER_STAT_CONSUMPTION,
+                                        TrackStatistics.KEY_USER_STAT_SPEED, TrackStatistics.KEY_USER_STAT_CO2,
+                                        TrackStatistics.KEY_USER_STAT_LOAD, TrackStatistics.KEY_USER_STAT_RPM };
 
-    private int[] statImgs = {R.drawable.consumption, R.drawable.speed, R.drawable.ic_co2_emission, R.drawable.load, R.drawable.speed};
+    private int[] statImgs = { R.drawable.consumption, R.drawable.speed,
+                                R.drawable.ic_co2_emission, R.drawable.load,
+                                R.drawable.speed };
+
     private static final DecimalFormat DECIMAL_FORMATTER_TWO_DIGITS = new DecimalFormat("#.##");
 
     @Inject
@@ -309,7 +309,6 @@ public class TrackStatisticsFragment extends BaseInjectorFragment {
 
                     temp.setResImg(statImgs[i]);
                     trackStatisticsDataHolderList.add(temp);
-                    LOG.debug(trackStatisticsDataHolderList.get(j).getPhenomena());
                     j++;
                 }
             }

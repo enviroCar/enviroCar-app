@@ -125,10 +125,6 @@ public class TrackDetailsActivity extends BaseInjectorActivity implements TrackS
     @BindView(R.id.track_details_attributes_header_distance)
     protected TextView mDistanceText;
 
-    @BindView(R.id.track_details_attributes_header_date)
-    protected TextView mDateText;
-    @BindView(R.id.track_details_attributes_header_time)
-    protected TextView mTimeText;
     @BindView(R.id.activity_track_details_appbar_layout)
     protected AppBarLayout mAppBarLayout;
 
@@ -137,8 +133,6 @@ public class TrackDetailsActivity extends BaseInjectorActivity implements TrackS
 
     @BindView(R.id.title)
     protected TextView title;
-    @BindView(R.id.timeImage)
-    protected ImageView timeImage;
     @BindView(R.id.time1)
     protected TextView timeTV1;
     @BindView(R.id.time2)
@@ -168,7 +162,6 @@ public class TrackDetailsActivity extends BaseInjectorActivity implements TrackS
         ViewGroup.LayoutParams params = cardView.getLayoutParams();
         params.height = height+500;
         cardView.setLayoutParams(params);
-        LOG.info("CardView height set at:" + params.height);
     }
 
     @Override
@@ -262,22 +255,22 @@ public class TrackDetailsActivity extends BaseInjectorActivity implements TrackS
 
             if (hh < 4 || hh > 19) {
                 title.setText("Your Night Track" + carName);
-                timeImage.setImageResource(R.drawable.night);
+                //timeImage.setImageResource(R.drawable.night);
             } else if(hh >= 4 && hh < 9) {
                 title.setText("Your Morning Track" + carName);
-                timeImage.setImageResource(R.drawable.morning);
+                //timeImage.setImageResource(R.drawable.morning);
             } else if(hh > 9 && hh < 15) {
                 title.setText("Your Afternoon Track" + carName);
-                timeImage.setImageResource(R.drawable.afternoon);
+                //timeImage.setImageResource(R.drawable.afternoon);
             } else {
                 title.setText("Your Evening Track" + carName);
-                timeImage.setImageResource(R.drawable.evening);
+                //timeImage.setImageResource(R.drawable.evening);
             }
 
-            String trackDateS = new SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault()).format(trackDate);
-            String trackTimeS = new SimpleDateFormat("KK:mm a", Locale.getDefault()).format(trackDate);
-            mDateText.setText(trackDateS);
-            mTimeText.setText(trackTimeS);
+            //String trackDateS = new SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault()).format(trackDate);
+            //String trackTimeS = new SimpleDateFormat("KK:mm a", Locale.getDefault()).format(trackDate);
+            //mDateText.setText(trackDateS);
+            //mTimeText.setText(trackTimeS);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -294,6 +287,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity implements TrackS
             if (diffDays != 0) {
                 mDurationText1.setText(diffDays+"");
                 timeTV1.setText("D");
+
                 if (diffHours > 1) {
                     mDurationText2.setVisibility(View.VISIBLE);
                     timeTV2.setVisibility(View.VISIBLE);
@@ -309,6 +303,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity implements TrackS
                     timeTV1.setVisibility(View.VISIBLE);
                     mDurationText1.setText(diffHours+"");
                     timeTV1.setText("H");
+
                     if (diffMinutes != 0) {
                         mDurationText2.setVisibility(View.VISIBLE);
                         timeTV2.setVisibility(View.VISIBLE);
@@ -324,6 +319,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity implements TrackS
                         timeTV1.setVisibility(View.VISIBLE);
                         mDurationText1.setText(diffMinutes+"");
                         timeTV1.setText("M");
+
                         if (diffSeconds != 0) {
                             mDurationText2.setVisibility(View.VISIBLE);
                             timeTV2.setVisibility(View.VISIBLE);

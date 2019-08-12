@@ -193,6 +193,7 @@ public class TrackMapLayer extends MapLayer {
             float size = (float)measurementList.size(), i= 0f;
             if (size >= 2) {
                 List<Double> propertyValues = new ArrayList<>();
+
                 for (Measurement measurement : measurementList) {
                     if (measurement.hasProperty(propertyKey))
                         propertyValues.add(measurement.getProperty(propertyKey));
@@ -204,6 +205,7 @@ public class TrackMapLayer extends MapLayer {
 
                 Double min;
                 Double max;
+
                 if (propertyKey.equals(Measurement.PropertyKey.SPEED))
                     min = (double) 0;
                 else {
@@ -247,6 +249,7 @@ public class TrackMapLayer extends MapLayer {
 
             } else {
                 LOG.info("Not enough measurements. Returning default linestring");
+                // Line doesn't have enough points, returning the default blue linestring
                 return new LineLayer(GRADIENT_LAYER, GRADIENT_SOURCE).withProperties(
                         lineCap(Property.LINE_CAP_ROUND),
                         lineJoin(Property.LINE_JOIN_ROUND),

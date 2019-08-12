@@ -22,112 +22,37 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/linearLayout"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
-
-    <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="25dp"
-        android:layout_height="25dp"
-        android:layout_marginTop="16dp"
-        android:tint="#000000"
-        app:layout_constraintStart_toStartOf="@+id/guideline"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/calendar" />
-
-    <ImageView
-        android:id="@+id/timeImage"
-        android:layout_width="43dp"
-        android:layout_height="43dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="16dp"
-        android:tint="#000000"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/imageView"
-        app:layout_constraintStart_toStartOf="@+id/imageView"
-        app:layout_constraintTop_toBottomOf="@+id/imageView"
-        app:srcCompat="@drawable/morning" />
-
-    <ImageView
-        android:id="@+id/imageView3"
-        android:layout_width="25dp"
-        android:layout_height="25dp"
-        android:layout_marginEnd="8dp"
-        android:tint="#000000"
-        app:layout_constraintBottom_toBottomOf="@+id/timeImage"
-        app:layout_constraintEnd_toStartOf="@+id/track_details_attributes_header_duration1"
-        app:layout_constraintTop_toTopOf="@+id/timeImage"
-        app:srcCompat="@drawable/duration" />
-
-    <ImageView
-        android:id="@+id/imageView4"
-        android:layout_width="25dp"
-        android:layout_height="25dp"
-        android:tint="#000000"
-        app:layout_constraintBottom_toBottomOf="@+id/imageView"
-        app:layout_constraintEnd_toEndOf="@+id/imageView3"
-        app:layout_constraintStart_toStartOf="@+id/imageView3"
-        app:layout_constraintTop_toTopOf="@+id/imageView"
-        app:srcCompat="@drawable/distanceoftrack" />
-
-    <TextView
-        android:id="@+id/track_details_attributes_header_date"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="12dp"
-        android:fontFamily="@font/source_sans_pro_semibold"
-        android:gravity="left|center_vertical"
-        android:text="May 23, 2019"
-        android:textAllCaps="false"
-        android:textColor="#000000"
-        android:textSize="16sp"
-        app:layout_constraintBottom_toBottomOf="@+id/imageView"
-        app:layout_constraintStart_toEndOf="@+id/imageView"
-        app:layout_constraintTop_toTopOf="@+id/imageView" />
-
-    <TextView
-        android:id="@+id/track_details_attributes_header_time"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:fontFamily="@font/source_sans_pro_semibold"
-        android:gravity="left|center_vertical"
-        android:text="5:30pm "
-        android:textAllCaps="false"
-        android:textColor="#000000"
-        android:textSize="16sp"
-        app:layout_constraintBottom_toBottomOf="@+id/timeImage"
-        app:layout_constraintStart_toStartOf="@+id/track_details_attributes_header_date"
-        app:layout_constraintTop_toTopOf="@+id/timeImage" />
+    android:layout_height="130dp">
 
     <TextView
         android:id="@+id/track_details_attributes_header_distance"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="2dp"
-        android:fontFamily="@font/source_sans_pro_semibold"
+        android:layout_marginEnd="32dp"
+        android:fontFamily="@font/roboto_medium"
         android:gravity="bottom|left"
         android:text="2.65"
         android:textAllCaps="true"
         android:textColor="#000000"
-        android:textSize="16sp"
-        app:layout_constraintBottom_toBottomOf="@+id/imageView4"
-        app:layout_constraintEnd_toStartOf="@+id/textView2"
-        app:layout_constraintTop_toTopOf="@+id/imageView4" />
+        android:textSize="24sp"
+        app:layout_constraintBottom_toBottomOf="@+id/constraintLayout2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.2"
+        app:layout_constraintStart_toEndOf="@+id/constraintLayout2" />
 
     <TextView
         android:id="@+id/textView2"
         android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:layout_marginBottom="1dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
         android:fontFamily="@font/source_sans_pro_semibold"
         android:gravity="bottom|left"
         android:text="KM"
-        android:textSize="14sp"
+        android:textSize="16sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="@+id/track_details_attributes_header_distance"
-        app:layout_constraintEnd_toStartOf="@+id/guideline2"
-        app:layout_constraintTop_toTopOf="@+id/track_details_attributes_header_distance" />
+        app:layout_constraintBaseline_toBaselineOf="@id/track_details_attributes_header_distance"
+        app:layout_constraintStart_toEndOf="@+id/track_details_attributes_header_distance" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline"
@@ -143,71 +68,103 @@
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.85" />
 
-    <TextView
-        android:id="@+id/track_details_attributes_header_duration1"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="2dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/track_details_attributes_header_distance"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.38">
 
-        android:height="25dp"
-        android:fontFamily="@font/source_sans_pro_semibold"
-        android:gravity="bottom|left"
-        android:text="2"
-        android:textAllCaps="true"
-        android:textColor="#000000"
-        android:textSize="16sp"
-        app:layout_constraintBottom_toBottomOf="@+id/imageView3"
-        app:layout_constraintEnd_toStartOf="@+id/time1"
-        app:layout_constraintTop_toTopOf="@+id/imageView3" />
+        <TextView
+            android:id="@+id/track_details_attributes_header_duration1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="2dp"
+            android:fontFamily="@font/roboto_medium"
+            android:text="2"
+            android:textAllCaps="true"
+            android:textColor="#000000"
+            android:textSize="24sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/time1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:fontFamily="@font/source_sans_pro_semibold"
+            android:gravity="bottom|left"
+            android:text="H"
+            android:textAllCaps="true"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintBaseline_toBaselineOf="@+id/track_details_attributes_header_duration1"
+            app:layout_constraintStart_toEndOf="@+id/track_details_attributes_header_duration1" />
+
+        <TextView
+            android:id="@+id/track_details_attributes_header_duration2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:fontFamily="@font/roboto_medium"
+            android:gravity="bottom|left"
+            android:text="55"
+            android:textAllCaps="true"
+            android:textColor="#000000"
+            android:textSize="24sp"
+            app:layout_constraintBottom_toBottomOf="@+id/track_details_attributes_header_duration1"
+            app:layout_constraintStart_toEndOf="@+id/time1" />
+
+        <TextView
+            android:id="@+id/time2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="8dp"
+            android:fontFamily="@font/source_sans_pro_semibold"
+            android:text="H"
+            android:textAllCaps="true"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintBaseline_toBaselineOf="@+id/track_details_attributes_header_duration2"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/track_details_attributes_header_duration2" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <TextView
-        android:id="@+id/time1"
+        android:id="@+id/textView8"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="4dp"
-        android:layout_marginRight="4dp"
-        android:layout_marginBottom="1dp"
-        android:height="25dp"
-        android:fontFamily="@font/source_sans_pro_semibold"
-        android:gravity="bottom|left"
-        android:text="H"
-        android:textAllCaps="true"
+        android:layout_marginTop="8dp"
+        android:fontFamily="@font/roboto_medium"
+        android:text="@string/track_list_details_duration"
+        android:textColor="#509FD0"
         android:textSize="14sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="@+id/track_details_attributes_header_duration1"
-        app:layout_constraintEnd_toStartOf="@+id/track_details_attributes_header_duration2"
-        app:layout_constraintTop_toTopOf="@+id/track_details_attributes_header_duration1" />
+        app:layout_constraintEnd_toEndOf="@+id/constraintLayout2"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="@+id/constraintLayout2"
+        app:layout_constraintTop_toBottomOf="@+id/constraintLayout2" />
 
     <TextView
-        android:id="@+id/track_details_attributes_header_duration2"
+        android:id="@+id/textView9"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="2dp"
-        android:height="25dp"
-        android:fontFamily="@font/source_sans_pro_semibold"
-        android:gravity="bottom|left"
-        android:text="55"
-        android:textAllCaps="true"
-        android:textColor="#000000"
-        android:textSize="16sp"
-        app:layout_constraintBottom_toBottomOf="@+id/imageView3"
-        app:layout_constraintEnd_toStartOf="@+id/time2"
-        app:layout_constraintTop_toTopOf="@+id/imageView3" />
-
-    <TextView
-        android:id="@+id/time2"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:layout_marginBottom="1dp"
-        android:height="25dp"
-        android:fontFamily="@font/source_sans_pro_semibold"
-        android:gravity="bottom|left"
-        android:text="H"
-        android:textAllCaps="true"
+        android:fontFamily="@font/roboto_medium"
+        android:text="Distance"
+        android:textColor="#509FD0"
         android:textSize="14sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="@+id/track_details_attributes_header_duration2"
-        app:layout_constraintEnd_toStartOf="@+id/guideline2"
-        app:layout_constraintTop_toTopOf="@+id/track_details_attributes_header_duration2" />
+        app:layout_constraintBottom_toBottomOf="@+id/textView8"
+        app:layout_constraintEnd_toEndOf="@+id/textView2"
+        app:layout_constraintStart_toStartOf="@+id/track_details_attributes_header_distance"
+        app:layout_constraintTop_toTopOf="@+id/textView8" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
