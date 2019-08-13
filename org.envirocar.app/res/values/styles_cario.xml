@@ -36,8 +36,9 @@
         <item name="background">@color/background_material_dark</item>
 
         <item name="android:windowContentTransitions" tools:targetApi="lollipop">true</item>
+        <item name="android:actionMenuTextColor">@color/white</item>
+        <!--<item name="android:textColorSecondary">@color/white</item>-->
 
-        <!--<item name="android:windowBackground">@drawable/envirocar_launch_screen</item>-->
     </style>
 
 
