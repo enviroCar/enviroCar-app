@@ -18,6 +18,8 @@
  */
 package org.envirocar.core.events.bluetooth;
 
+import android.bluetooth.BluetoothDevice;
+
 import com.google.common.base.MoreObjects;
 
 /**
@@ -26,6 +28,7 @@ import com.google.common.base.MoreObjects;
 public class BluetoothStateChangedEvent {
 
     public final boolean isBluetoothEnabled;
+    public final BluetoothDevice selectedDevice;
 
     /**
      * Constructor.
@@ -33,7 +36,12 @@ public class BluetoothStateChangedEvent {
      * @param isBluetoothEnabled    bluetooth state.
      */
     public BluetoothStateChangedEvent(boolean isBluetoothEnabled) {
+        this(isBluetoothEnabled, null);
+    }
+
+    public BluetoothStateChangedEvent(boolean isBluetoothEnabled, BluetoothDevice selectedDevice){
         this.isBluetoothEnabled = isBluetoothEnabled;
+        this.selectedDevice = selectedDevice;
     }
 
     @Override

@@ -36,6 +36,7 @@ import com.mapbox.mapboxsdk.Mapbox;
 
 import org.acra.*;
 import org.acra.annotation.*;
+import org.envirocar.app.handler.LocationHandler;
 import org.envirocar.app.handler.PreferenceConstants;
 import org.envirocar.app.notifications.NotificationHandler;
 import org.envirocar.core.logging.ACRASenderFactory;
@@ -66,22 +67,23 @@ public class BaseApplication extends Application {
 
     private String CHANNEL_ID = "channel1";
 
-
     @Inject
-    UserService userService;
+    protected UserService userService;
     @Inject
-    CarService carService;
+    protected CarService carService;
     @Inject
-    TrackService trackService;
+    protected TrackService trackService;
     @Inject
-    TermsOfUseService termsOfUseService;
+    protected TermsOfUseService termsOfUseService;
     @Inject
-    FuelingService fuelingService;
+    protected FuelingService fuelingService;
     @Inject
-    AnnouncementsService announcementsService;
+    protected AnnouncementsService announcementsService;
     @InjectApplicationScope
     @Inject
-    Context context;
+    protected Context context;
+    @Inject
+    protected LocationHandler locationHandler;
 
     private SharedPreferences.OnSharedPreferenceChangeListener preferenceListener
             = (sharedPreferences, key) -> {

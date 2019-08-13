@@ -47,6 +47,7 @@ import org.envirocar.app.services.AutomaticTrackRecordingService;
 import org.envirocar.app.views.OthersFragment;
 import org.envirocar.app.views.TroubleshootingFragment;
 import org.envirocar.app.views.dashboard.DashBoardFragment;
+import org.envirocar.app.views.dashboard.DashboardFragment2;
 import org.envirocar.app.views.tracklist.TrackListPagerFragment;
 import org.envirocar.core.events.TrackFinishedEvent;
 import org.envirocar.core.exception.NoMeasurementsException;
@@ -105,7 +106,7 @@ public class BaseMainActivityBottomBar extends BaseInjectorActivity {
                 switch (item.getItemId()) {
                     case R.id.navigation_dashboard:
                         if(selectedMenuItemID != 1){
-                            fragmentTransaction.replace(R.id.fragmentContainer, new DashBoardFragment());
+                            fragmentTransaction.replace(R.id.fragmentContainer, new DashboardFragment2());
                             fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
                             fragmentTransaction.commit();
                             selectedMenuItemID = 1;
