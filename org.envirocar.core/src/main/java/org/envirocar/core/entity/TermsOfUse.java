@@ -35,6 +35,11 @@ public interface TermsOfUse extends BaseEntity<TermsOfUse> {
      */
     String getId();
 
+    /**
+     * Sets the id
+     *
+     * @param id the id
+     */
     void setId(String id);
 
     /**
@@ -44,6 +49,11 @@ public interface TermsOfUse extends BaseEntity<TermsOfUse> {
      */
     String getIssuedDate();
 
+    /**
+     * Sets the issued date.
+     *
+     * @param issuedDate the issued date.
+     */
     void setIssuedDate(String issuedDate);
 
     /**
@@ -53,5 +63,10 @@ public interface TermsOfUse extends BaseEntity<TermsOfUse> {
      */
     String getContents();
 
+    /**
+     * Sets the content.
+     *
+     * @param content the content string.
+     */
     void setContents(String content);
 }

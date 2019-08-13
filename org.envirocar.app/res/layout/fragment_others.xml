@@ -97,7 +97,7 @@
                     android:layout_height="40dp"
                     android:padding="6dp"
                     android:src="@drawable/others_settings"
-                    android:tint="@color/black"
+                    android:tint="@android:color/black"
                     />
 
                 <TextView

@@ -18,18 +18,19 @@
  */
 package org.envirocar.app.events;
 
+import android.content.Context;
 import android.location.Location;
 import android.os.SystemClock;
 
-import com.mapbox.mapboxsdk.overlay.PathOverlay;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Produce;
 import com.squareup.otto.Subscribe;
 
-import org.envirocar.app.services.GPSOnlyConnectionService;
-import org.envirocar.app.services.OBDConnectionService;
+import org.envirocar.app.services.recording.GPSOnlyRecordingService;
+import org.envirocar.app.services.recording.OBDRecordingService;
+import org.envirocar.app.views.trackdetails.MapLayer;
 import org.envirocar.core.entity.Measurement;
-import org.envirocar.core.events.NewMeasurementEvent;
+import org.envirocar.core.events.recording.RecordingNewMeasurementEvent;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.obd.service.BluetoothServiceState;
 
@@ -46,7 +47,7 @@ public class TrackDetailsProvider {
     private final Scheduler.Worker mMainThreadWorker = AndroidSchedulers
             .mainThread().createWorker();
 
-    private PathOverlay mTrackMapOverlay = new PathOverlay();
+    private MapLayer mTrackMapOverlay = new MapLayer();
 
     private int mNumMeasurements;
     private double mDistanceValue;
@@ -66,13 +67,13 @@ public class TrackDetailsProvider {
      *
      * @param bus
      */
-    public TrackDetailsProvider(Bus bus) {
+    public TrackDetailsProvider(Bus bus, Context context) {
         this.mBus = bus;
         // we do not need to register on the bus!
     }
 
     @Subscribe
-    public void onReceiveNewMeasurementEvent(NewMeasurementEvent event) {
+    public void onReceiveNewMeasurementEvent(RecordingNewMeasurementEvent event) {
         LOGGER.debug(String.format("Received event: %s", event.toString()));
 
         if (mNumMeasurements == 0) {
@@ -86,7 +87,7 @@ public class TrackDetailsProvider {
         updateDistance(event.mMeasurement);
         updateAverageSpeed(event.mMeasurement);
         updatePathOverlay(event.mMeasurement);
-        if(GPSOnlyConnectionService.CURRENT_SERVICE_STATE == BluetoothServiceState.SERVICE_STARTED
+        if(OBDRecordingService.CURRENT_SERVICE_STATE == BluetoothServiceState.SERVICE_STARTED
                 && event.mMeasurement.hasProperty(Measurement.PropertyKey.GPS_SPEED) ){
             GPSSpeed = event.mMeasurement.getProperty(Measurement.PropertyKey.GPS_SPEED);
             mBus.post(produceGPSSpeedEvent());
@@ -122,6 +123,7 @@ public class TrackDetailsProvider {
 
     private void updatePathOverlay(Measurement measurement) {
         mMainThreadWorker.schedule(() -> {
+            LOGGER.info("Map being updated with new points: " + measurement.getLatitude() + measurement.getLongitude() );
             mTrackMapOverlay.addPoint(measurement.getLatitude(), measurement.getLongitude());
         });
     }
@@ -165,13 +167,13 @@ public class TrackDetailsProvider {
      * @param measurement
      */
     private void updateAverageSpeed(Measurement measurement) {
-        if (OBDConnectionService.CURRENT_SERVICE_STATE == BluetoothServiceState.SERVICE_STARTED &&
+        if (OBDRecordingService.CURRENT_SERVICE_STATE == BluetoothServiceState.SERVICE_STARTED &&
                 measurement.hasProperty(Measurement.PropertyKey.SPEED)){
             mTotalSpeed += measurement.getProperty(Measurement.PropertyKey.SPEED);
             mAvrgSpeed = (int) mTotalSpeed / mNumMeasurements;
             mBus.post(provideAverageSpeed());
         }
-        else if (GPSOnlyConnectionService.CURRENT_SERVICE_STATE == BluetoothServiceState.SERVICE_STARTED &&
+        else if (GPSOnlyRecordingService.CURRENT_SERVICE_STATE == BluetoothServiceState.SERVICE_STARTED &&
                 measurement.hasProperty(Measurement.PropertyKey.GPS_SPEED)){
             mTotalSpeed += measurement.getProperty(Measurement.PropertyKey.GPS_SPEED);
             mAvrgSpeed = (int) mTotalSpeed / mNumMeasurements;

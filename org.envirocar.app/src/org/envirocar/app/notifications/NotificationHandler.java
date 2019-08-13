@@ -29,7 +29,7 @@ import android.widget.RemoteViews;
 
 import org.envirocar.app.main.BaseMainActivityBottomBar;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.core.util.InjectApplicationScope;
+import org.envirocar.core.injection.InjectApplicationScope;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -51,7 +51,7 @@ public class NotificationHandler {
     private static Notification foregroundNotification;
     private static RemoteViews smallView;
     private static RemoteViews bigView;
-    private static ServiceStateForNotificationForNotification serviceStateForNotification = ServiceStateForNotificationForNotification.UNCONNECTED;
+    private static ServiceStateForNotification serviceStateForNotification = ServiceStateForNotification.UNCONNECTED;
 
     private static String CHANNEL_ID = "channel1";
 
@@ -68,11 +68,11 @@ public class NotificationHandler {
                 NOTIFICATION_SERVICE)).cancel(1991);
     }
 
-    public static ServiceStateForNotificationForNotification getRecordingState(){
+    public static ServiceStateForNotification getRecordingState(){
         return serviceStateForNotification;
     }
 
-    public static void setRecordingState(ServiceStateForNotificationForNotification state) {
+    public static void setRecordingState(ServiceStateForNotification state) {
         serviceStateForNotification = state;
 
         // build notification

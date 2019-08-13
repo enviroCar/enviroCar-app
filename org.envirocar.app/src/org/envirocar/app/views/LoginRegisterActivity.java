@@ -16,6 +16,7 @@
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
+/*
 package org.envirocar.app.views;
 
 import android.animation.Animator;
@@ -76,6 +77,7 @@ import rx.schedulers.Schedulers;
  *
  * @author dewall
  */
+/*
 public class LoginRegisterActivity extends BaseInjectorActivity {
     private static final Logger LOG = Logger.getLogger(LoginRegisterActivity.class);
 
@@ -83,7 +85,7 @@ public class LoginRegisterActivity extends BaseInjectorActivity {
     protected Toolbar mToolbar;
     @BindView(R.id.activity_login_exp_toolbar)
     protected Toolbar mExpToolbar;
-    
+
     @BindView(R.id.activity_account_login_card_layout)
     protected ConstraintLayout mLoginLayout;
     @BindView(R.id.login_layout)
@@ -468,6 +470,7 @@ public class LoginRegisterActivity extends BaseInjectorActivity {
      * OnClick annotated function that gets invoked when the register button on the login card
      * gets clicked.
      */
+/*
     @OnClick(R.id.activity_account_login_card_register_button)
     protected void onRegisterButtonClicked() {
         // When the register button was clicked, then replace the login card with the
@@ -491,6 +494,7 @@ public class LoginRegisterActivity extends BaseInjectorActivity {
      * @param animResource the animation resource.
      * @param hide         should the view be hid?
      */
+/*
     private void animateViewTransition(final View view, int animResource, boolean hide) {
         Animation animation = AnimationUtils.loadAnimation(this, animResource);
         if (hide) {
@@ -534,6 +538,7 @@ public class LoginRegisterActivity extends BaseInjectorActivity {
     /**
      * Expands the expanding toolbar to the a specific amount of the screensize.
      */
+/*
     private void expandExpToolbarToHalfScreen() {
         mExpToolbar.setVisibility(View.VISIBLE);
 
@@ -575,6 +580,7 @@ public class LoginRegisterActivity extends BaseInjectorActivity {
      * @param end   end value
      * @return the ValueAnimator that animates the desired animation.
      */
+/*
     private ValueAnimator createSlideAnimator(int start, int end) {
 
         ValueAnimator animator = ValueAnimator.ofInt(start, end);
@@ -589,3 +595,4 @@ public class LoginRegisterActivity extends BaseInjectorActivity {
         return animator;
     }
 }
+*/

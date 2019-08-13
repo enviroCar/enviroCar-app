@@ -60,10 +60,21 @@ public class RemoteTrackListDeserializer implements JsonDeserializer<List<Track>
                     .KEY_TRACK_PROPERTIES_MODIFIED).getAsString();
             String name = trackObject.get(Track.KEY_TRACK_PROPERTIES_NAME).getAsString();
 
+            String begin = trackObject.get(Track.KEY_TRACK_PROPERTIES_BEGIN).getAsString();
+            String end = trackObject.get(Track.KEY_TRACK_PROPERTIES_END).getAsString();
             // Create a new remote track.
             Track remoteTrack = new TrackImpl(Track.DownloadState.REMOTE);
             remoteTrack.setRemoteID(id);
             remoteTrack.setName(name);
+            remoteTrack.setBegin(begin);
+            remoteTrack.setEnd(end);
+
+            if (trackObject.has(Track.KEY_TRACK_PROPERTIES_LENGTH)) {
+                double length = trackObject.get(Track.KEY_TRACK_PROPERTIES_LENGTH).getAsDouble();
+                remoteTrack.setLength(length);
+            }
+
+
             try {
                 remoteTrack.setLastModified(Util.isoDateToLong(modified));
             } catch (ParseException e) {

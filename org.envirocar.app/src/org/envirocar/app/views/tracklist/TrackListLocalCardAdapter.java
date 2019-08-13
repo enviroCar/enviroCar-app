@@ -22,10 +22,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.mapbox.mapboxsdk.maps.MapView;
+
 import org.envirocar.app.R;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.logging.Logger;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -45,6 +48,8 @@ public class TrackListLocalCardAdapter extends AbstractTrackListCardAdapter<
         super(tracks, callback);
     }
 
+    protected List<MapView> mapViews = new ArrayList<>();
+
     @Override
     public TrackListLocalCardAdapter.LocalTrackCardViewHolder onCreateViewHolder(
             ViewGroup parent, int viewType) {
@@ -54,11 +59,29 @@ public class TrackListLocalCardAdapter extends AbstractTrackListCardAdapter<
                 .fragment_tracklist_cardlayout, parent, false);
 
         // then return a new view holder for the inflated view.
-        return new LocalTrackCardViewHolder(view);
+        LocalTrackCardViewHolder temp = new LocalTrackCardViewHolder(view);
+
+        mapViews.add(temp.mMapView);
+        return temp;
     }
 
     @Override
     public void onBindViewHolder(final LocalTrackCardViewHolder holder, int position) {
         bindLocalTrackViewHolder(holder, mTrackDataset.get(position));
     }
+
+    public void onLowMemory(){
+        for(MapView mapView : mapViews){
+            mapView.onLowMemory();
+        }
+    }
+
+    public void onDestroy(){
+        for (MapView mapView : mapViews) {
+            mapView.onPause();
+            mapView.onStop();
+            mapView.onDestroy();
+        }
+    }
+
 }

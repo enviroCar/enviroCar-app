@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+<!--
 
     Copyright (C) 2013 - 2019 the enviroCar community
 
@@ -45,7 +46,7 @@
     <string name="welcome_message">Welcome, %s</string>
     <string name="goodbye_message">Goodbye, %s</string>
 
-    <string name="envirocar.org">http://www.envirocar.org</string>
+    <string name="envirocar.org" translatable="false">http://www.envirocar.org</string>
 
     <string name="imperial_unit">Use Imperial units</string>
 
@@ -64,42 +65,21 @@
 
     <string name="general_error_please_report">General Track Error - Please report this issue</string>
 
-    <string name="not_yet_registered_question">Dont\'t have an account?</string>
-    <string name="not_yet_registered_register">Sign Up!</string>
 
-    <string name="already_registered_question">Have an Account?</string>
-    <string name="already_registered_sign_in">Sign in!</string>
 
     <string name="ok" translatable="false">OK</string>
 
-    <string name="title_dashboard">Dashboard</string>
-    <string name="title_my_tracks">My Tracks</string>
-    <string name="title_others">Others</string>
+
 
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="others_logbook">Log Book</string>
-    <string name="others_settings">Settings</string>
-    <string name="others_help">Help</string>
-    <string name="others_report_issue">Report Issue</string>
-    <string name="others_rate_us">Rate Us</string>
-    <string name="others_logout">Logout</string>
-    <string name="others_close_envirocar">Close enviroCar</string>
-    <string name="my_local_tracks">#My Local Tracks</string>
-    <string name="my_remote_tracks">#My Remote Tracks</string>
-    <string name="total_tracks">#Total Tracks</string>
 
-    <string name="banner_error_ok">Ok</string>
-    <string name="banner_bluetooth_error_title">Bluetooth is Off!</string>
-    <string name="banner_bluetooth_error_content">Please turn ON Bluetooth</string>
-    <string name="banner_obd_adapter_error_title">OBD Device is not selected!</string>
-    <string name="banner_obd_adapter_error_content">Please select an OBD Device</string>
-    <string name="banner_gps_error_title">GPS is Off!</string>
-    <string name="banner_gps_error_content">Please turn ON GPS</string>
-    <string name="banner_car_error_title">Car is not selected!</string>
-    <string name="banner_car_error_content">Please choose a Car to continue</string>
+
+
     <string name="driving">Driving</string>
 
     <string name="gps_track_details">*This is a GPS based track. It cannot be uploaded to the open data.</string>
+    <string name="dashboard_signin_prompt">Sign in to upload your tracks</string>
+
     <string name="onboarding_next">Next</string>
     <string name="onboarding_skip">Skip</string>
     <string name="action_sign_up">Sign Up</string>
@@ -112,5 +92,43 @@ enviroCar provides free and open access to the the community\'s anonymized track
     <string name="login_user_already_signed_in">There is already a user signed in. Do you want to go to your Dashboard?</string>
     <string name="login_go_to_dashboard">Go to Dashboard</string>
     <string name="login_logout_user">Log Out</string>
+
+    <string name="report_issue_text">Timestamps are automatically included in the logs. Sending us reports helps us reproduce unexpected behavior or crashes. This makes enviroCar better and more stable. Click the send button below to email this report to us.</string>
+    <string name="report_issue_bottom_text">This feature uses the default \"Send To\" mechanism.
+	    If you invoke it with your Email client, you can easily send the report via email. If you do not have an Email client installed,
+	    you can save the log file on a PC, e.g. through Bluetooth or USB. \n\nIn such cases we appreciate sending
+	    in the reporting bundle manually. They are stored at the following locations:</string>
+    <string name="report_issue_desc_text">A more detailed description</string>
+
+    <string-array name="report_issue_subject_header">
+        <item>Force Crash</item>
+        <item>Sudden Lags</item>
+        <item>App was Unresponsive</item>
+        <item>Component does not work as expected</item>
+        <item>Request for a feature</item>
+    </string-array>
+
+    <string-array name="report_issue_subject_tags">
+        <item>[CRASH]</item>
+        <item>[LAG]</item>
+        <item>[UNRES]</item>
+        <item>[UNEXPECTED BEHAVIOR]</item>
+        <item>[FEATURE REQ]</item>
+    </string-array>
+
+
+    <string-array name="report_issue_body_header">
+        <item>Internet was enabled</item>
+        <item>GPS was enabled</item>
+        <item>During Active Track</item>
+    </string-array>
+
+    <string-array name="report_issue_body_tags">
+        <item>[IN-EN]</item>
+        <item>[GPS-EN]</item>
+        <item>[ACTIVE-TRACK]</item>
+    </string-array>
+
+    <string name="submit">Submit</string>
 
 </resources>

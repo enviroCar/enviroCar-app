@@ -24,7 +24,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import com.squareup.sqlbrite.BriteDatabase;
 import com.squareup.sqlbrite.SqlBrite;
 
-import org.envirocar.core.util.InjectApplicationScope;
+import org.envirocar.core.injection.InjectApplicationScope;
 
 import javax.inject.Singleton;
 
@@ -65,3 +65,4 @@ public final class DatabaseModule {
     }
 
 }
+

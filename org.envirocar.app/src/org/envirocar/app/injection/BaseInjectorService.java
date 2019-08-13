@@ -18,15 +18,21 @@
  */
 package org.envirocar.app.injection;
 
+import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
+
 import androidx.annotation.Nullable;
+import androidx.lifecycle.LifecycleService;
 
 import com.squareup.otto.Bus;
 
 import org.envirocar.app.main.BaseApplication;
 import org.envirocar.app.main.BaseApplicationComponent;
+
+import java.lang.reflect.Field;
+import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -36,9 +42,7 @@ import javax.inject.Inject;
  *
  * @author dewall
  */
-public abstract class BaseInjectorService extends Service {
-
-    protected abstract void injectDependencies(BaseApplicationComponent baseApplicationComponent);
+public abstract class BaseInjectorService extends LifecycleService {
 
     // Injected variables.
     @Inject
@@ -47,6 +51,7 @@ public abstract class BaseInjectorService extends Service {
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
+        super.onBind(intent);
         return null;
     }
 
@@ -55,4 +60,21 @@ public abstract class BaseInjectorService extends Service {
         super.onCreate();
         injectDependencies(BaseApplication.get(this).getBaseApplicationComponent());
     }
+
+    /**
+     * Gets the NotificationManager
+     *
+     * @return returns the NotificationManager
+     */
+    protected NotificationManager getNotificationManager() {
+        return (NotificationManager) this.getSystemService(NOTIFICATION_SERVICE);
+    }
+
+    /**
+     * Abstract method for injecting dependencies.
+     *
+     * @param baseApplicationComponent
+     */
+    protected abstract void injectDependencies(BaseApplicationComponent baseApplicationComponent);
+
 }

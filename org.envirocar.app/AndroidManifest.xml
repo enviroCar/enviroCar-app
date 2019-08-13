@@ -34,12 +34,15 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
 
+
     <application
         android:name=".main.BaseApplication"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/Theme.Cario">
+
+        <!-- Activities -->
         <activity android:name=".views.onboarding.OnboardingActivity"
             android:label="@string/app_name"
             android:launchMode="singleTop"
@@ -55,6 +58,9 @@
             android:name=".views.trackdetails.TrackDetailsActivity"
             android:screenOrientation="portrait" />
         <activity
+            android:name=".views.trackdetails.MapExpandedActivity"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".views.onboarding.OnboardingOBDActivity"
             android:screenOrientation="portrait" />
         <activity
@@ -67,7 +73,10 @@
             android:name=".views.trackdetails.TrackStatisticsActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".views.LoginRegisterActivity"
+            android:name=".views.login.SigninActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".views.login.SignupActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".views.settings.SettingsActivity"
@@ -82,18 +91,34 @@
             android:name=".views.HelpActivity"
             android:screenOrientation="portrait" />
 
+        <!-- Services -->
         <service
             android:name=".services.AutomaticTrackRecordingService"
             android:enabled="true" />
-        <service
-            android:name=".services.OBDConnectionService"
-            android:enabled="true" />
+        <!--<service-->
+        <!--android:name=".services.OBDConnectionService"-->
+        <!--android:enabled="true" />-->
         <service
             android:name=".services.TrackUploadService"
             android:enabled="true" />
+        <!--<service-->
+        <!--android:name=".services.GPSOnlyConnectionService"-->
+        <!--android:enabled="true" />-->
+
         <service
-            android:name=".services.GPSOnlyConnectionService"
+            android:name=".services.recording.OBDRecordingService"
             android:enabled="true" />
+        <service
+            android:name=".services.recording.GPSOnlyRecordingService"
+            android:enabled="true" />
+        <service
+            android:name=".aidl.EnviroCarDataService"
+            android:enabled="true"
+            android:exported="true">
+            <!--<intent-filter>-->
+            <!--<action android:name="service.envirocarobd" />-->
+            <!--</intent-filter>-->
+        </service>
 
         <receiver android:name=".services.SystemStartupReceiver">
             <intent-filter>

@@ -31,15 +31,16 @@ import android.graphics.Color;
 import android.os.Build;
 import android.preference.PreferenceManager;
 
+
+import com.mapbox.mapboxsdk.Mapbox;
+
 import org.acra.*;
 import org.acra.annotation.*;
-import org.acra.config.ConfigurationBuilder;
 import org.envirocar.app.handler.PreferenceConstants;
 import org.envirocar.app.notifications.NotificationHandler;
-import org.envirocar.core.logging.ACRACustomSender;
 import org.envirocar.core.logging.ACRASenderFactory;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.core.util.InjectApplicationScope;
+import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.util.Util;
 import org.envirocar.remote.service.AnnouncementsService;
 import org.envirocar.remote.service.CarService;
@@ -94,9 +95,13 @@ public class BaseApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
-        baseApplicationComponent = DaggerBaseApplicationComponent.builder()
-                .baseApplicationModule(new BaseApplicationModule(this))
-                .build();
+        Mapbox.getInstance(this, "");
+
+        baseApplicationComponent =
+                DaggerBaseApplicationComponent
+                        .builder()
+                        .baseApplicationModule(new BaseApplicationModule(this))
+                        .build();
         baseApplicationComponent.inject(this);
 
         EnviroCarService.setCarService(carService);
@@ -149,7 +154,7 @@ public class BaseApplication extends Application {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         boolean obfus = prefs.getBoolean(PreferenceConstants.OBFUSCATE_POSITION, false);
 
-        LOGGER.info("Obfuscation enabled? "+ obfus);
+        LOGGER.info("Obfuscation enabled? " + obfus);
 
         Logger.initialize(Util.getVersionString(this),
                 prefs.getBoolean(PreferenceConstants.ENABLE_DEBUG_LOGGING, false));
@@ -197,11 +202,11 @@ public class BaseApplication extends Application {
         LOGGER.info("freeMemory: " + Runtime.getRuntime().freeMemory());
     }
 
-    public BaseApplicationComponent getBaseApplicationComponent(){
+    public BaseApplicationComponent getBaseApplicationComponent() {
         return baseApplicationComponent;
     }
 
-    public static BaseApplication get(Context context){
+    public static BaseApplication get(Context context) {
         return (BaseApplication) context.getApplicationContext();
     }
 

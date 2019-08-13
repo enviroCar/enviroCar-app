@@ -40,7 +40,7 @@ import java.security.NoSuchAlgorithmException;
  */
 public class GravatarUtils {
     private static final Logger LOG = Logger.getLogger(GravatarUtils.class);
-    private static final String GRAVATAR_URL = "http://www.gravatar.com/avatar/";
+    private static final String GRAVATAR_URL = "https://www.gravatar.com/avatar/";
 
     /**
      * from https://de.gravatar.com/site/implement/images/java/

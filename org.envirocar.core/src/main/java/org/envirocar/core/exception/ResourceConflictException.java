@@ -18,15 +18,50 @@
  */
 package org.envirocar.core.exception;
 
+/**
+ * @author dewall
+ */
 public class ResourceConflictException extends DAOException {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
 
-	public ResourceConflictException(String error) {
-		super(error);
-	}
+    public enum ConflictType {
+        USERNAME,
+        MAIL,
+        UNKNOWN
+    }
 
+    private final ConflictType conflictType;
+
+    /**
+     * Constructor with unknown conflictType
+     *
+     * @param error
+     */
+    public ResourceConflictException(String error) {
+        this(error, ConflictType.UNKNOWN);
+    }
+
+    /**
+     * Constructor with conflictType
+     *
+     * @param error
+     * @param conflictType
+     */
+    public ResourceConflictException(String error, ConflictType conflictType) {
+        super(error);
+        this.conflictType = conflictType;
+    }
+
+    /**
+     * Getter
+     *
+     * @return the conflictType
+     */
+    public ConflictType getConflictType() {
+        return conflictType;
+    }
 }

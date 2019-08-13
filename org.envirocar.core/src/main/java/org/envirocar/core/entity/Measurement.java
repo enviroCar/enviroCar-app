@@ -30,13 +30,14 @@ import java.util.Map;
  */
 public interface Measurement extends BaseEntity<Measurement> {
 
-    interface PropertyKeyExtension{
+    interface PropertyKeyExtension {
         int getStringResource();
+
         int getUnitResource();
     }
 
     // All measurement values
-    enum PropertyKey implements PropertyKeyExtension{
+    enum PropertyKey implements PropertyKeyExtension {
         SPEED {
             @Override
             public int getStringResource() {
@@ -107,6 +108,16 @@ public interface Measurement extends BaseEntity<Measurement> {
                 return "CO2";
             }
         },
+        ENGINE_FULE_RATE {
+            @Override
+            public int getStringResource() {
+                return R.string.property_key_engine_fuel_rate;
+            }
+
+            public String toString() {
+                return "Engine Fuel Rate";
+            }
+        },
         CONSUMPTION {
             @Override
             public int getStringResource() {
@@ -115,6 +126,27 @@ public interface Measurement extends BaseEntity<Measurement> {
 
             public String toString() {
                 return "Consumption";
+            }
+        },
+        ENERGY_CONSUMPTION {
+            @Override
+            public int getStringResource() {
+                return R.string.property_key_energy_consumption;
+            }
+
+            public String toString() {
+                return "Energy Consumption";
+            }
+        },
+        ENERGY_CONSUMPTION_CO2 {
+            @Override
+            public int getStringResource() {
+                return R.string.property_key_energy_co2_emission;
+            }
+
+            @Override
+            public String toString() {
+                return "Energy Consumption CO2 Emission";
             }
         },
         THROTTLE_POSITON {
@@ -304,6 +336,7 @@ public interface Measurement extends BaseEntity<Measurement> {
                 return "Short-Term Fuel Trim 1";
             }
         };
+
         @Override
         public int getUnitResource() {
             return -1;

@@ -10,6 +10,11 @@ dependencies {
     implementation rootProject.ext.supportRecyclerview
     implementation rootProject.ext.supportConstraintLayout
 
+    implementation rootProject.ext.supportLifecycleExtension
+    implementation rootProject.ext.supportLifecycleRuntime
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    annotationProcessor rootProject.ext.supportLifecycleCompiler
+
     // Dependency injection, view injection, event bus ...
     implementation rootProject.ext.dagger
     implementation rootProject.ext.otto
@@ -38,6 +43,7 @@ dependencies {
     implementation rootProject.ext.fabProgressCircle
     implementation rootProject.ext.segmentedUIController
     implementation rootProject.ext.materialDialogs
+    implementation "com.andkulikov:transitionseverywhere:2.0.0"
 
     //implementation rootProject.ext.guava
 //    implementation(materialDialogs) {
@@ -78,6 +84,7 @@ dependencies {
     api project(path: ':org.envirocar.obd')
     api project(path: ':org.envirocar.storage')
     api project(path: ':org.envirocar.algorithm')
+    implementation 'com.github.enviroCar:enviroCar-aidl:d67cfa49f3'
 }
 
 

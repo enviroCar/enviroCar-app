@@ -42,7 +42,7 @@
         android:gravity="center"
         android:lineSpacingMultiplier="1.5"
         android:text="Upload your recorded tracks to help enrich the enviroCar community data store.  "
-        android:textSize="@dimen/subtitle"
+        android:textSize="@dimen/subtext"
         app:layout_constraintEnd_toStartOf="@+id/guideline19"
         app:layout_constraintStart_toStartOf="@+id/guideline18"
         app:layout_constraintTop_toBottomOf="@+id/textView24" />

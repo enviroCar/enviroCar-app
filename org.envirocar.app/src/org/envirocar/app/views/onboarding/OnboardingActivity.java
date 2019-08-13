@@ -2,6 +2,8 @@ package org.envirocar.app.views.onboarding;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.transition.Fade;
+import androidx.transition.TransitionManager;
 import androidx.viewpager.widget.ViewPager;
 
 import android.animation.ArgbEvaluator;
@@ -9,8 +11,6 @@ import android.animation.FloatEvaluator;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.transition.Fade;
-import android.transition.TransitionManager;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -20,7 +20,8 @@ import com.ogaclejapan.smarttablayout.SmartTabLayout;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.app.main.BaseMainActivityBottomBar;
-import org.envirocar.app.views.LoginRegisterActivity;
+import org.envirocar.app.views.login.SigninActivity;
+import org.envirocar.app.views.login.SignupActivity;
 import org.envirocar.core.logging.Logger;
 
 import butterknife.BindView;
@@ -186,7 +187,7 @@ public class OnboardingActivity extends AppCompatActivity implements OnboardingF
     @Override
     public void signInButtonPressed(){
         PreferencesHandler.getSharedPreferences(getApplicationContext()).edit().putBoolean(ONBOARDING_COMPLETE,true).apply();
-        Intent main = new Intent(OnboardingActivity.this, LoginRegisterActivity.class);
+        Intent main = new Intent(OnboardingActivity.this, SigninActivity.class);
         main.putExtra("from","login");
         startActivity(main);
         finish();
@@ -196,7 +197,7 @@ public class OnboardingActivity extends AppCompatActivity implements OnboardingF
     @Override
     public void signUpButtonPressed(){
         PreferencesHandler.getSharedPreferences(getApplicationContext()).edit().putBoolean(ONBOARDING_COMPLETE,true).apply();
-        Intent main = new Intent(OnboardingActivity.this, LoginRegisterActivity.class);
+        Intent main = new Intent(OnboardingActivity.this, SignupActivity.class);
         main.putExtra("from","register");
         startActivity(main);
         finish();

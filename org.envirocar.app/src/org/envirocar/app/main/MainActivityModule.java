@@ -22,10 +22,15 @@ package org.envirocar.app.main;
 import android.app.Activity;
 import android.content.Context;
 
+import com.mapbox.mapboxsdk.Mapbox;
+
 import org.envirocar.app.views.OthersFragment;
 import org.envirocar.app.views.dashboard.DashBoardFragment;
 import org.envirocar.app.views.tracklist.TrackListPagerFragment;
-import org.envirocar.core.util.InjectionActivityScope;
+import org.envirocar.core.injection.InjectActivityScope;
+import org.envirocar.core.injection.InjectApplicationScope;
+
+import javax.inject.Inject;
 
 import dagger.Module;
 import dagger.Provides;
@@ -56,7 +61,7 @@ public class MainActivityModule {
     }
 
     @Provides
-    @InjectionActivityScope
+    @InjectActivityScope
     public Context provideContext() {
         return mActivity;
     }
@@ -74,6 +79,11 @@ public class MainActivityModule {
     @Provides
     public OthersFragment provideOthersFragment(){
         return new OthersFragment();
+    }
+
+    @Provides
+    public Mapbox provideMapBox() {
+        return Mapbox.getInstance(mActivity, "");
     }
 
 }

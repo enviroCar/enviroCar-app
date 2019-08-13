@@ -23,8 +23,8 @@ import android.location.Location;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.algorithm.AbstractMeasurementProvider;
-import org.envirocar.app.services.GPSOnlyConnectionService;
-import org.envirocar.app.services.OBDConnectionService;
+import org.envirocar.app.services.recording.GPSOnlyRecordingService;
+import org.envirocar.app.services.recording.OBDRecordingService;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.MeasurementImpl;
 import org.envirocar.core.events.gps.GpsDOP;
@@ -78,12 +78,12 @@ public class InterpolationMeasurementProvider extends AbstractMeasurementProvide
 
                         Measurement m = createMeasurement();
 
-                        if(OBDConnectionService.CURRENT_SERVICE_STATE == BluetoothServiceState.SERVICE_STARTED){
+                        if (OBDRecordingService.CURRENT_SERVICE_STATE == BluetoothServiceState.SERVICE_STARTED) {
                             if (m != null && m.getLatitude() != null && m.getLongitude() != null && m.hasProperty(Measurement.PropertyKey.SPEED)) {
                                 subscriber.onNext(m);
                             }
-                        }else if(GPSOnlyConnectionService.CURRENT_SERVICE_STATE == BluetoothServiceState.SERVICE_STARTED){
-                            if (m != null && m.getLatitude() != null && m.getLongitude() != null && GPSOnlyConnectionService.drivingDetected) {
+                        } else if (GPSOnlyRecordingService.CURRENT_SERVICE_STATE == BluetoothServiceState.SERVICE_STARTED) {
+                            if (m != null && m.getLatitude() != null && m.getLongitude() != null && GPSOnlyRecordingService.drivingDetected) {
                                 subscriber.onNext(m);
                             }
                         }
