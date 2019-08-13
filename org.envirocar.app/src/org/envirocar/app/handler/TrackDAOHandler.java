@@ -54,15 +54,13 @@ public class TrackDAOHandler {
     private static final Logger LOGGER = Logger.getLogger(TrackDAOHandler.class);
 
     private final Context context;
-    private final UserManager userManager;
     private final EnviroCarDB enviroCarDB;
     private final DAOProvider daoProvider;
 
     @Inject
-    public TrackDAOHandler(@InjectApplicationScope Context context, UserManager userManager,
+    public TrackDAOHandler(@InjectApplicationScope Context context,
                            DAOProvider daoProvider, EnviroCarDB enviroCarDB) {
         this.context = context;
-        this.userManager = userManager;
         this.enviroCarDB = enviroCarDB;
         this.daoProvider = daoProvider;
     }
@@ -152,10 +150,9 @@ public class TrackDAOHandler {
                 .map(tracks -> tracks.size());
     }
 
-    public Observable<TrackMetadata> updateTrackMetadataObservable(Track track) {
+    public Observable<TrackMetadata> updateTrackMetadataObservable(Track track, String touVersion) {
         return Observable.just(track)
-                .map(track1 -> new TrackMetadata(Util.getVersionString(context),
-                        userManager.getUser().getTermsOfUseVersion()))
+                .map(track1 -> new TrackMetadata(Util.getVersionString(context), touVersion))
                 .flatMap(trackMetadata -> updateTrackMetadata(track
                                 .getTrackID(),
                         trackMetadata));

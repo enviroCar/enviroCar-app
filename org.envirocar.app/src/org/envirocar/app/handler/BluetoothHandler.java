@@ -113,7 +113,7 @@ public class BluetoothHandler {
 
                         // Post a new event for the changed bluetooth state on the eventbus.
                         BluetoothStateChangedEvent turnedOnEvent
-                                = new BluetoothStateChangedEvent(true);
+                                = new BluetoothStateChangedEvent(true, getSelectedBluetoothDevice());
                         bus.post(turnedOnEvent);
 
                         break;
@@ -179,6 +179,11 @@ public class BluetoothHandler {
                 }
             }
         }
+    }
+
+    @Produce
+    public BluetoothStateChangedEvent produceBluetoothStateChangedEvent(){
+        return new BluetoothStateChangedEvent(isBluetoothEnabled(), getSelectedBluetoothDevice());
     }
 
     @Produce

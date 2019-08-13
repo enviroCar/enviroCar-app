@@ -237,7 +237,7 @@ public class TrackUploadHandler {
     private Observable.Transformer<Track, Track> updateTrackMetadata() {
         return trackObservable -> trackObservable.flatMap(
                 track -> trackDAOHandler
-                        .updateTrackMetadataObservable(track)
+                        .updateTrackMetadataObservable(track, mUserManager.getUser().getTermsOfUseVersion())
                         .map(trackMetadata -> track));
     }
 

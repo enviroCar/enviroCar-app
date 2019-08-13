@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -24,6 +24,7 @@ import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
 
 import com.squareup.otto.Bus;
+import com.squareup.otto.Produce;
 
 import org.envirocar.app.R;
 import org.envirocar.app.exception.NotLoggedInException;
@@ -43,8 +44,10 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.exceptions.OnErrorThrowable;
 import rx.functions.Func1;
+import rx.schedulers.Schedulers;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -69,6 +72,7 @@ public class UserHandler implements UserManager {
     private final Context context;
     private final Bus bus;
     private final DAOProvider daoProvider;
+    private final TrackDAOHandler trackDAOHandler;
 
     private User mUser;
     private Bitmap mGravatarBitmap;
@@ -79,10 +83,13 @@ public class UserHandler implements UserManager {
      * @param context the context of the current scope.
      */
     @Inject
-    public UserHandler(@InjectApplicationScope Context context, Bus bus, DAOProvider daoProvider) {
+    public UserHandler(@InjectApplicationScope Context context, Bus bus, DAOProvider daoProvider, TrackDAOHandler trackDAOHandler) {
         this.context = context;
         this.bus = bus;
         this.daoProvider = daoProvider;
+        this.trackDAOHandler = trackDAOHandler;
+
+        this.bus.register(this);
     }
 
     /**
@@ -163,6 +170,19 @@ public class UserHandler implements UserManager {
         logOut(false);
     }
 
+    public Observable<Boolean> logOutObservable() {
+        return Observable.just(isLoggedIn())
+                .observeOn(Schedulers.io())
+                .subscribeOn(AndroidSchedulers.mainThread())
+                .map(isLoggedIn -> {
+                    if (isLoggedIn) {
+                        logOut();
+                        return true;
+                    }
+                    throw OnErrorThrowable.from(new NotLoggedInException("Unable to log out. User is not logged in."));
+                });
+    }
+
     private void logOut(boolean withoutEvent) {
         // Removes all the preferences from the editor.
         SharedPreferences prefs = getUserPreferences();
@@ -186,7 +206,7 @@ public class UserHandler implements UserManager {
         mGravatarBitmap = null;
 
         // Delete all local representations of tracks that are already uploaded.
-        //        mTrackRecordingHandler.deleteAllRemoteTracksLocally();
+        trackDAOHandler.deleteAllRemoteTracksLocally();
 
         // Fire a new event on the event bus holding indicating that no logged in user exist.
         if (!withoutEvent) {
@@ -218,7 +238,7 @@ public class UserHandler implements UserManager {
             LOG.warn(e.getMessage(), e);
 
             logOut(true);
-            if (e instanceof MailNotConfirmedException){
+            if (e instanceof MailNotConfirmedException) {
                 callback.onMailNotConfirmed();
             } else {
                 // Password is incorrect. Inform the callback about this.
@@ -275,4 +295,8 @@ public class UserHandler implements UserManager {
         return userPrefs;
     }
 
+    @Produce
+    public NewUserSettingsEvent produceNewUserSettingsEvent() {
+        return new NewUserSettingsEvent(getUser(), isLoggedIn());
+    }
 }
