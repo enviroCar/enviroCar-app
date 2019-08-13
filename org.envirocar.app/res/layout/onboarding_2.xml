@@ -11,31 +11,32 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="24dp"
-        android:layout_marginRight="24dp"
         android:fontFamily="@font/roboto_medium"
         android:gravity="right"
         android:lineSpacingExtra="6sp"
         android:text="@string/onboarding_2_txt"
         android:textColor="#000000"
-        android:textSize="20sp"
+        android:textSize="@dimen/heading3"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/guideline"
-        app:layout_constraintTop_toTopOf="@+id/guideline5" />
+        app:layout_constraintTop_toTopOf="@+id/guideline5"
+        android:layout_marginRight="24dp" />
 
     <TextView
         android:id="@+id/textView5"
-        android:layout_width="299dp"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
-        android:layout_marginLeft="24dp"
         android:fontFamily="@font/roboto_light"
         android:gravity="left"
         android:lineSpacingExtra="4sp"
         android:text="Collect data about your tracks using an OBD adapter. Upload them to enrich the enviroCar community data store."
         android:textColor="#000000"
-        android:textSize="16sp"
+        android:textSize="@dimen/subtitle"
         app:layout_constraintBottom_toTopOf="@+id/obd_onbaording_start"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintEnd_toStartOf="@+id/guideline27"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginLeft="24dp" />
 
     <TextView
         android:id="@+id/textView6"
@@ -45,7 +46,7 @@
         android:fontFamily="@font/roboto_medium"
         android:text="Collect and Share"
         android:textColor="#0065A0"
-        android:textSize="22sp"
+        android:textSize="@dimen/headline_text"
         app:layout_constraintBottom_toTopOf="@+id/textView5"
         app:layout_constraintStart_toStartOf="@+id/textView5" />
 
@@ -67,23 +68,36 @@
         app:layout_constraintGuide_percent="0.17" />
 
     <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline27"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.85" />
+
+    <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline5"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         app:layout_constraintGuide_percent="0.065" />
 
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline24"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.86" />
+
     <TextView
         android:id="@+id/obd_onbaording_start"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="100dp"
         android:paddingTop="8dp"
         android:paddingBottom="8dp"
         android:text="Learn how to connect your OBD adapter."
         android:textColor="#0065A0"
-        android:textSize="16sp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:textSize="@dimen/subtitle"
+        app:layout_constraintBottom_toTopOf="@+id/guideline24"
         app:layout_constraintStart_toStartOf="@+id/textView5" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

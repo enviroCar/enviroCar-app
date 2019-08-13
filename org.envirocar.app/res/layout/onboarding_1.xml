@@ -21,26 +21,26 @@
 
     <ImageView
         android:id="@+id/logo"
-        android:layout_width="264dp"
+        android:layout_width="0dp"
         android:layout_height="150dp"
         app:layout_constraintBottom_toTopOf="@+id/image_guideline"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/guideline23"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/guideline22"
         app:srcCompat="@drawable/img_envirocar_logo" />
 
     <TextView
         android:id="@+id/subTV"
-        android:layout_width="264dp"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:fontFamily="@font/roboto_light"
         android:text="The Citizen Science community to  Collect, Share and Analyze  floating car data"
-        android:textSize="15sp"
+        android:textSize="@dimen/subtitle"
         android:visibility="visible"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/guideline23"
         app:layout_constraintHorizontal_bias="0.496"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/guideline22"
         app:layout_constraintTop_toBottomOf="@+id/logo" />
 
     <TextView
