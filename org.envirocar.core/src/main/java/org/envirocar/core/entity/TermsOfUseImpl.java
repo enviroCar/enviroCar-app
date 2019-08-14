@@ -26,6 +26,15 @@ public class TermsOfUseImpl implements TermsOfUse {
     protected String issuedDate;
     protected String contents;
 
+    public TermsOfUseImpl() {
+    }
+
+    public TermsOfUseImpl(String id, String issuedDate, String contents) {
+        this.id = id;
+        this.issuedDate = issuedDate;
+        this.contents = contents;
+    }
+
     public String getId() {
         return id;
     }

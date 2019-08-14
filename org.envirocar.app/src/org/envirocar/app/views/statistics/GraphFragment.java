@@ -377,7 +377,7 @@ public class GraphFragment extends BaseInjectorFragment {
                         }
                         else if (choice == 1)
                         {
-                            values.set(index, values.get(index) + temp.getLength());
+                            values.set(index, values.get(index) + temp.getLength().floatValue());
                         }
 
                     } catch (Exception e) {

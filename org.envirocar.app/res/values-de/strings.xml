@@ -63,7 +63,6 @@
     <string name="track_finished_no_measurements">Der abzuschließende Track enthielt keine Messungen</string>
 	<string name="general_error_please_report">Programmfehler - Bitte melden Sie das Problem</string>
 
-    <string name="not_yet_registered_question">Sie haben noch keinen Account?</string>
-	<string name="not_yet_registered_register">Hier registrieren!</string>
+    <string name="submit">Absenden</string>
 
 </resources>

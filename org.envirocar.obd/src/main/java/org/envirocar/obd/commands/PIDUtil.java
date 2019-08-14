@@ -53,6 +53,7 @@ public class PIDUtil {
 			case SPEED:
 			case INTAKE_AIR_TEMP:
 			case MAF:
+			case ENGINE_FUEL_RATE:
 			case TPS:
 			case O2_LAMBDA_PROBE_1_VOLTAGE:
 			case O2_LAMBDA_PROBE_2_VOLTAGE:
@@ -92,6 +93,8 @@ public class PIDUtil {
 				return Measurement.PropertyKey.MAF;
 			case TPS:
 				return Measurement.PropertyKey.THROTTLE_POSITON;
+			case ENGINE_FUEL_RATE:
+				return Measurement.PropertyKey.ENGINE_FULE_RATE;
 			case O2_LAMBDA_PROBE_1_VOLTAGE:
 			case O2_LAMBDA_PROBE_2_VOLTAGE:
 			case O2_LAMBDA_PROBE_3_VOLTAGE:

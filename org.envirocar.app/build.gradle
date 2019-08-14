@@ -10,11 +10,15 @@ dependencies {
     implementation rootProject.ext.supportRecyclerview
     implementation rootProject.ext.supportConstraintLayout
 
+    implementation rootProject.ext.supportLifecycleExtension
+    implementation rootProject.ext.supportLifecycleRuntime
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    annotationProcessor rootProject.ext.supportLifecycleCompiler
+
     // Dependency injection, view injection, event bus ...
     implementation rootProject.ext.dagger
     implementation rootProject.ext.otto
     implementation rootProject.ext.butterKnife
-    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     annotationProcessor rootProject.ext.daggerCompiler
     annotationProcessor rootProject.ext.butterknifeCompiler
     //    implementation 'org.glassfish:javax.annotation:10.0-b28'
@@ -37,6 +41,7 @@ dependencies {
     implementation rootProject.ext.segmentedUIController
     implementation rootProject.ext.materialDialogs
     implementation "android.arch.lifecycle:extensions:1.1.1"
+    implementation "com.andkulikov:transitionseverywhere:2.0.0"
 
     //implementation rootProject.ext.guava
 //    implementation(materialDialogs) {

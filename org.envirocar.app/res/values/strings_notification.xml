@@ -54,4 +54,14 @@
     <string name="notification_automatic_track_upload_error_sub">An error occurred during the upload process.</string>
     <string name="notification_automatic_track_upload_success">Automatic Upload Successful</string>
     <string name="notification_automatic_track_upload_success_sub" formatted="false">%s of %s tracks have been successfully uploaded.</string>
+
+    <string name="banner_error_ok">Ok</string>
+    <string name="banner_bluetooth_error_title">Bluetooth is Off!</string>
+    <string name="banner_bluetooth_error_content">Please turn ON Bluetooth</string>
+    <string name="banner_obd_adapter_error_title">OBD Device is not selected!</string>
+    <string name="banner_obd_adapter_error_content">Please select an OBD Device</string>
+    <string name="banner_gps_error_title">GPS is Off!</string>
+    <string name="banner_gps_error_content">Please turn ON GPS</string>
+    <string name="banner_car_error_title">Car is not selected!</string>
+    <string name="banner_car_error_content">Please choose a Car to continue</string>
 </resources>

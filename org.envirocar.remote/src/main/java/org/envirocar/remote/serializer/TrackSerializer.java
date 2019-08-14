@@ -164,6 +164,8 @@ public class TrackSerializer implements JsonSerializer<Track>, JsonDeserializer<
         //TODO result.addProperty(Track.KEY_TRACK_PROPERTIES_LENGTH, src.getLengthOfTrack());
         result.addProperty(Track.KEY_TRACK_PROPERTIES_LENGTH, src.getLength());
         result.addProperty(Track.KEY_TRACK_PROPERTIES_CREATED,src.getCreated());
+        result.addProperty(Track.KEY_TRACK_PROPERTIES_BEGIN,src.getBegin());
+        result.addProperty(Track.KEY_TRACK_PROPERTIES_END,src.getEnd());
         result.add(Track.KEY_TRACK_PROPERTIES, trackProperties);
         result.add(Track.KEY_TRACK_FEATURES, trackFeatures);
 
@@ -225,9 +227,15 @@ public class TrackSerializer implements JsonSerializer<Track>, JsonDeserializer<
         String description = properties.has(Track.KEY_TRACK_PROPERTIES_DESCRIPTION) ?
                 properties.get(Track.KEY_TRACK_PROPERTIES_DESCRIPTION).getAsString() :
                 "";
-        Long length = properties.has(Track.KEY_TRACK_PROPERTIES_LENGTH) ?
-                properties.get(Track.KEY_TRACK_PROPERTIES_LENGTH).getAsLong() :
-                new Long(0);
+        String begin = properties.has(Track.KEY_TRACK_PROPERTIES_BEGIN) ?
+                properties.get(Track.KEY_TRACK_PROPERTIES_BEGIN).getAsString() :
+                "";
+        String end = properties.has(Track.KEY_TRACK_PROPERTIES_END) ?
+                properties.get(Track.KEY_TRACK_PROPERTIES_END).getAsString() :
+                "";
+        Double length = properties.has(Track.KEY_TRACK_PROPERTIES_LENGTH) ?
+                properties.get(Track.KEY_TRACK_PROPERTIES_LENGTH).getAsDouble() :
+                new Double(0);
         // Parse the car object.
         JsonObject carObject = properties.get(Track.KEY_TRACK_PROPERTIES_SENSOR)
                 .getAsJsonObject();
@@ -254,6 +262,8 @@ public class TrackSerializer implements JsonSerializer<Track>, JsonDeserializer<
         track.setName(name);
         track.setDescription(description);
         track.setCreated(created);
+        track.setBegin(begin);
+        track.setEnd(end);
         track.setLength(length);
         track.setCar(car);
         track.setMeasurements(measurements); // Storing happens here...

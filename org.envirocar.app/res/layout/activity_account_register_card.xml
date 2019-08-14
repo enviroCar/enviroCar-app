@@ -130,6 +130,44 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:paddingTop="@dimen/activity_horizontal_margin"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <CheckBox
+                    android:id="@+id/activity_signup_tou_checkbox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:id="@+id/activity_signup_tou_text"
+                    android:paddingLeft="@dimen/activity_vertical_margin"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minLines="5"
+                    android:textColorLink="@color/blue_light_cario"
+                    android:text="I acknowledge I have read and agree to enviroCar's Terms and Conditions and \nenviroCar's Privacy Policy."/>
+            </LinearLayout>
+
+            <!--<LinearLayout-->
+                <!--android:orientation="horizontal"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content">-->
+
+                <!--<CheckBox-->
+                    <!--android:id="@+id/activity_account_register_agree_privacy_checbox"-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content" />-->
+
+                <!--<TextView-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:text="I agree to enviroCar's Privacy Policy."/>-->
+            <!--</LinearLayout>-->
+
             <Button
                 android:id="@+id/activity_account_register_button"
                 android:layout_width="wrap_content"
@@ -140,6 +178,7 @@
                 android:paddingRight="32dp"
                 android:layout_marginBottom="@dimen/spacing_large"
                 android:text="@string/action_sign_in_register"/>
+
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -167,8 +206,6 @@
             </LinearLayout>
 
         </LinearLayout>
-
-
 
     </LinearLayout>
 </androidx.cardview.widget.CardView>

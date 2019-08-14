@@ -24,9 +24,6 @@ import android.util.Base64OutputStream;
 
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.core.trackprocessing.ConsumptionAlgorithm;
-import org.envirocar.core.trackprocessing.DieselConsumptionAlgorithm;
-import org.envirocar.core.trackprocessing.GasolineConsumptionAlgorithm;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -107,15 +104,7 @@ public class CarUtils {
         return null;
     }
 
-    public static ConsumptionAlgorithm resolveConsumptionAlgorithm(Car.FuelType fuelType) {
-        if (fuelType == Car.FuelType.DIESEL) {
-            return new DieselConsumptionAlgorithm();
-        } else {
-            return new GasolineConsumptionAlgorithm();
-        }
-    }
-
-    public static String carToStringWithLinebreak(Car car){
+    public static String carToStringWithLinebreak(Car car) {
         StringBuilder sb = new StringBuilder();
         sb.append(car.getManufacturer());
         sb.append(" - ");
@@ -137,7 +126,7 @@ public class CarUtils {
      * @return true if the car has been uploaded.
      */
     public static boolean isCarUploaded(Car car) {
-        if(car.getId() != null) {
+        if (car.getId() != null) {
             return !car.getId().startsWith(Car.TEMPORARY_SENSOR_ID);
         }
         return false;

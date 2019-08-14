@@ -22,12 +22,15 @@ import org.envirocar.core.exception.FuelConsumptionException;
 import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.exception.UnsupportedFuelTypeException;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.core.trackprocessing.TrackStatisticsProcessor;
-import org.envirocar.core.trackprocessing.TrackStatisticsProvider;
+import org.envirocar.core.trackprocessing.statistics.TrackStatisticsProcessor;
+import org.envirocar.core.trackprocessing.statistics.TrackStatisticsProvider;
 import org.envirocar.core.util.TrackMetadata;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * TODO JavaDoc
@@ -47,7 +50,9 @@ public class TrackImpl implements Track, TrackStatisticsProvider {
     protected Long lastModified;
     protected Long startTime;
     protected Long endTime;
-    protected Long length;
+    protected Double length;
+    protected String begin;
+    protected String end;
     protected TrackMetadata metadata;
     protected Track.TrackStatus trackStatus = Track.TrackStatus.ONGOING;
     protected List<Measurement> measurements = new ArrayList<Measurement>();
@@ -232,18 +237,52 @@ public class TrackImpl implements Track, TrackStatisticsProvider {
     }
 
     @Override
-    public Long getLength(){
+    public Double getLength(){
         return this.length;
     }
 
     @Override
-    public void setLength(Long length){
+    public void setLength(Double length){
         this.length = length;
     }
 
     @Override
     public long getDuration() throws NoMeasurementsException {
         return getEndTime() - getStartTime();
+    }
+
+    @Override
+    public String getBegin() {
+        return begin;
+    }
+
+    @Override
+    public void setBegin(String begin) {
+        this.begin = begin;
+    }
+
+    @Override
+    public String getEnd() {
+        return end;
+    }
+
+    @Override
+    public void setEnd(String end) {
+        this.end = end;
+    }
+
+    @Override
+    public long getTimeInMillis() {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault());
+        Date date1 = null, date2 = null;
+        try {
+            date1 = format.parse(begin);
+            date2 = format.parse(end);
+        }catch (Exception e){
+            LOG.error("Error in getTimeInMillis ", e);
+        }
+        long difference = date2.getTime() - date1.getTime();
+        return difference;
     }
 
     @Override

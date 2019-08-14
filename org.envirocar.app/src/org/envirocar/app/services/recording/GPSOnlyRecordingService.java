@@ -1,3 +1,21 @@
+/**
+ * Copyright (C) 2013 - 2019 the enviroCar community
+ *
+ * This file is part of the enviroCar app.
+ *
+ * The enviroCar app is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * The enviroCar app is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+ * Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
+ */
 package org.envirocar.app.services.recording;
 
 import android.app.PendingIntent;
@@ -32,6 +50,7 @@ import org.envirocar.core.utils.ServiceUtils;
 import org.envirocar.obd.events.TrackRecordingServiceStateChangedEvent;
 import org.envirocar.obd.service.BluetoothServiceState;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -94,7 +113,7 @@ public class GPSOnlyRecordingService extends AbstractRecordingService {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-
+            LOG.info("Received broadcast!!! " + action);
             // Check if the intent is intended to stop the recording.
             if (ACTION_STOP_TRACK_RECORDING.equals(action)) {
                 LOG.info("Received Broadcast: Stop Track Recording.");
@@ -149,16 +168,25 @@ public class GPSOnlyRecordingService extends AbstractRecordingService {
         activityTransitionPendingIntent = PendingIntent.getBroadcast(this, 0, activityTransitionIntent, 0);
         registerReceiver(broadcastReceiver, new IntentFilter(TRANSITIONS_RECEIVER_ACTION));
 
-        // Initialize transition
-        List<ActivityTransition> transitions = Arrays.asList(
-                new ActivityTransition.Builder()
-                        .setActivityType(DetectedActivity.IN_VEHICLE)
-                        .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
-                        .build(),
-                new ActivityTransition.Builder()
-                        .setActivityType(DetectedActivity.IN_VEHICLE)
-                        .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
-                        .build());
+        // Activities to create the transitions for
+        List<Integer> activities = Arrays.asList(DetectedActivity.IN_VEHICLE);
+
+        // Initialize transitions
+        List<ActivityTransition> transitions = new ArrayList<>();
+        for (int activity : activities) {
+            ActivityTransition enter = new ActivityTransition.Builder()
+                    .setActivityType(activity)
+                    .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
+                    .build();
+
+            ActivityTransition exit = new ActivityTransition.Builder()
+                    .setActivityType(activity)
+                    .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
+                    .build();
+
+            transitions.add(enter);
+            transitions.add(exit);
+        }
 
         ActivityTransitionRequest request = new ActivityTransitionRequest(transitions);
 
@@ -209,12 +237,6 @@ public class GPSOnlyRecordingService extends AbstractRecordingService {
                 .addOnFailureListener(e -> LOG.error("Transitions could not be registered", e));
 
         this.drivingDetected = false;
-    }
-
-
-    @Override
-    protected Class<? extends BaseInjectorActivity> getRecordingScreenClass() {
-        return GPSOnlyTrackRecordingScreen.class;
     }
 
     @Override

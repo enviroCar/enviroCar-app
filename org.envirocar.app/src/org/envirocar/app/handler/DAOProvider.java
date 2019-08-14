@@ -27,6 +27,7 @@ import org.envirocar.core.InternetAccessProvider;
 import org.envirocar.core.dao.AnnouncementDAO;
 import org.envirocar.core.dao.CarDAO;
 import org.envirocar.core.dao.FuelingDAO;
+import org.envirocar.core.dao.PrivacyStatementDAO;
 import org.envirocar.core.dao.TermsOfUseDAO;
 import org.envirocar.core.dao.TrackDAO;
 import org.envirocar.core.dao.TrackStatisticsDAO;
@@ -131,6 +132,13 @@ public class DAOProvider {
             return baseApplicationComponent.getRemoteTermsOfUseDAO();
         }
         return baseApplicationComponent.getCacheTermsOfUseDAO();
+    }
+
+    public PrivacyStatementDAO getPrivacyStatementDAO() {
+        if (this.mInternetAccessProvider.isConnected()) {
+            return baseApplicationComponent.getRemotePrivacyStatementDAO();
+        }
+        return baseApplicationComponent.getCachePrivacyStatementDao();
     }
 
     public AnnouncementDAO getAnnouncementsDAO() {

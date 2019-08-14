@@ -18,6 +18,7 @@
  */
 package org.envirocar.obd.commands;
 
+import org.envirocar.core.logging.Logger;
 import org.envirocar.obd.commands.request.BasicCommand;
 import org.envirocar.obd.exception.AdapterSearchingException;
 import org.envirocar.obd.exception.InvalidCommandResponseException;
@@ -33,6 +34,7 @@ import java.util.Set;
 
 
 public class PIDSupported implements BasicCommand {
+    private static final Logger LOG = Logger.getLogger(PIDSupported.class);
 
     private final byte[] output;
     private Set<PID> pids;
@@ -115,6 +117,8 @@ public class PIDSupported implements BasicCommand {
              * conver to hex string so the PIDUtil can parse it
              */
             for (Integer pidInt : pids) {
+                LOG.info("Supported RAW PIDs: " + pidInt);
+
                 String hex = Integer.toHexString(pidInt);
                 if (hex.length() == 1) {
                     hex = "0".concat(hex);

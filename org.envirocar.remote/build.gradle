@@ -45,6 +45,7 @@ dependencies {
     // third party
     implementation rootProject.ext.apacheCommons
 
+
     // Modules
     api project(path : ':org.envirocar.core')
 }

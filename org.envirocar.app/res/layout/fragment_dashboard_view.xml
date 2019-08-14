@@ -101,7 +101,35 @@ android:layout_height="match_parent">
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="-"
-                        android:id="@+id/userLocalTrackCountTV"
+                        android:id="@+id/userTotalDurationTV"
+                        android:textStyle="bold"
+                        android:textSize="22sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:maxLines="1"
+                        android:singleLine="false"
+                        android:text="@string/dashboard_my_local_tracks"
+                        android:textSize="12sp" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:padding="5dp"
+                    >
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="-"
+                        android:id="@+id/userTrackCountTV"
                         android:textStyle="bold"
                         android:textSize="22sp"
                         />
@@ -111,8 +139,7 @@ android:layout_height="match_parent">
                         android:layout_height="wrap_content"
                         android:layout_marginTop="6dp"
                         android:maxLines="1"
-                        android:ellipsize="end"
-                        android:text="@string/my_local_tracks"
+                        android:text="@string/dashboard_my_remote_tracks"
                         android:textSize="12sp"
                         />
 
@@ -131,7 +158,7 @@ android:layout_height="match_parent">
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="-"
-                        android:id="@+id/userUploadedTrackCountTV"
+                        android:id="@+id/userTotalDistanceTV"
                         android:textStyle="bold"
                         android:textSize="22sp"
                         />
@@ -141,38 +168,7 @@ android:layout_height="match_parent">
                         android:layout_height="wrap_content"
                         android:layout_marginTop="6dp"
                         android:maxLines="1"
-                        android:ellipsize="end"
-                        android:text="@string/my_remote_tracks"
-                        android:textSize="12sp"
-                        />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:gravity="center"
-                    android:padding="5dp"
-                    >
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="-"
-                        android:id="@+id/userGlobalTrackCountTV"
-                        android:textStyle="bold"
-                        android:textSize="22sp"
-                        />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="6dp"
-                        android:maxLines="1"
-                        android:ellipsize="end"
-                        android:text="@string/total_tracks"
+                        android:text="@string/dashboard_total_tracks"
                         android:textSize="12sp"
                         />
 

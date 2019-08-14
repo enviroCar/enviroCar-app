@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -72,7 +72,11 @@ public abstract class SyncAdapter implements OBDAdapter {
     private Map<PID, AtomicInteger> failureMap = new HashMap<>();
     private List<PIDCommand> requestCommands;
     private Queue<PIDCommand> commandRingBuffer = new ArrayDeque<>();
-    private Queue<PIDSupported> pidSupportedCommands = new ArrayDeque<>(Arrays.asList(new PIDSupported(), new PIDSupported("20")));
+    private Queue<PIDSupported> pidSupportedCommands = new ArrayDeque<>(
+            Arrays.asList(
+                    new PIDSupported(),
+                    new PIDSupported("20"),
+                    new PIDSupported("40")));
 
 
     @Override
@@ -112,8 +116,7 @@ public abstract class SyncAdapter implements OBDAdapter {
 
                             subscriber.onNext(true);
                             subscriber.onCompleted();
-                        }
-                        else {
+                        } else {
                             BasicCommand cc = pollNextInitializationCommand();
 
                             if (cc == null) {
@@ -122,7 +125,7 @@ public abstract class SyncAdapter implements OBDAdapter {
                                 subscriber.unsubscribe();
                             }
 
-                            LOGGER.info("Sending command in initial phase: "+cc.toString());
+                            LOGGER.info("Sending Init Command: " + cc.toString());
                             //push the command to the output stream
                             commandExecutor.execute(cc);
 
@@ -132,23 +135,23 @@ public abstract class SyncAdapter implements OBDAdapter {
                                     Thread.sleep(750);
                                     LOGGER.info("Retrieving initial phase response...");
                                     byte[] resp = commandExecutor.retrieveLatestResponse();
-                                    LOGGER.info("Retrieved initial phase response: "+Base64.encodeToString(resp, Base64.DEFAULT));
+                                    LOGGER.info("Retrieved initial phase response: " + Base64.encodeToString(resp, Base64.DEFAULT));
                                     analyzedSuccessfully = analyzedSuccessfully | analyzeMetadataResponse(resp, cc);
                                 } catch (InterruptedException e) {
                                     LOGGER.warn(e.getMessage());
                                 }
-                            
-                            }
-                            else {
+
+                            } else {
                                 LOGGER.info("Command does not expect a result, continuing.");
                             }
                         }
                     }
                 } catch (IOException | AdapterFailedException e) {
+                    LOGGER.error("Some unexpected error occured", e);
                     subscriber.onError(e);
                     subscriber.unsubscribe();
                 } catch (StreamFinishedException e) {
-                    LOGGER.warn("The stream was closed unexpectedly: "+e.getMessage());
+                    LOGGER.warn("The stream was closed unexpectedly: " + e.getMessage());
                     subscriber.onCompleted();
                     subscriber.unsubscribe();
                 }
@@ -206,7 +209,7 @@ public abstract class SyncAdapter implements OBDAdapter {
                         subscriber.onError(e);
                         subscriber.unsubscribe();
                     } catch (StreamFinishedException e) {
-                        LOGGER.info("Stream finished: "+ e.getMessage());
+                        LOGGER.info("Stream finished: " + e.getMessage());
                         subscriber.onCompleted();
                         subscriber.unsubscribe();
                     } catch (AdapterSearchingException e) {
@@ -240,8 +243,7 @@ public abstract class SyncAdapter implements OBDAdapter {
                  */
                 commandRingBuffer.offer(cmd);
                 return cmd;
-            }
-            else {
+            } else {
                 /**
                  * blacklisted: do not re-add it and return the next candidate
                  */
@@ -259,8 +261,7 @@ public abstract class SyncAdapter implements OBDAdapter {
 
         if (this.failureMap.containsKey(command)) {
             this.failureMap.get(command).getAndIncrement();
-        }
-        else {
+        } else {
             AtomicInteger ai = new AtomicInteger(1);
             this.failureMap.put(command, ai);
         }
@@ -270,7 +271,7 @@ public abstract class SyncAdapter implements OBDAdapter {
         if (requestCommands == null) {
             requestCommands = new ArrayList<>();
 
-            for (PID p: PID.values()) {
+            for (PID p : PID.values()) {
                 addIfSupported(p);
             }
 
@@ -282,12 +283,10 @@ public abstract class SyncAdapter implements OBDAdapter {
     protected void addIfSupported(PID pid) {
         if (supportedPIDs == null || supportedPIDs.isEmpty()) {
             requestCommands.add(PIDUtil.instantiateCommand(pid));
-        }
-        else if (supportedPIDs.contains(pid)) {
+        } else if (supportedPIDs.contains(pid)) {
             requestCommands.add(PIDUtil.instantiateCommand(pid));
-        }
-        else {
-            LOGGER.info("PID "+pid.toString()+" not supported. Skipping.");
+        } else {
+            LOGGER.info("PID " + pid.toString() + " not supported. Skipping.");
         }
     }
 
@@ -302,7 +301,7 @@ public abstract class SyncAdapter implements OBDAdapter {
     }
 
     private boolean checkIsBlacklisted(PID pid) {
-        return this.failureMap.containsKey(pid)  && this.failureMap.get(pid).get() > MAX_ERROR_PER_COMMAND;
+        return this.failureMap.containsKey(pid) && this.failureMap.get(pid).get() > MAX_ERROR_PER_COMMAND;
     }
 
     @Override
