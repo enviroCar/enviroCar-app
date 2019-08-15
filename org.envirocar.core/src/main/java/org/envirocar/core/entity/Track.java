@@ -31,15 +31,15 @@ import java.util.List;
 public interface Track extends BaseEntity<Track>, Comparable<Track> {
     String KEY_TRACK_TYPE = "type";
     String KEY_TRACK_PROPERTIES = "properties";
-    String KEY_TRACK_PROPERTIES_ID = "id";
-    String KEY_TRACK_PROPERTIES_NAME = "name";
-    String KEY_TRACK_PROPERTIES_DESCRIPTION = "description";
-    String KEY_TRACK_PROPERTIES_CREATED = "created";
-    String KEY_TRACK_PROPERTIES_MODIFIED = "modified";
-    String KEY_TRACK_PROPERTIES_SENSOR = "sensor";
-    String KEY_TRACK_PROPERTIES_LENGTH = "length";
-    String KEY_TRACK_PROPERTIES_BEGIN = "begin";
-    String KEY_TRACK_PROPERTIES_END = "end";
+    String KEY_TRACK_ID = "id";
+    String KEY_TRACK_NAME = "name";
+    String KEY_TRACK_DESC = "description";
+    String KEY_TRACK_CREATED = "created";
+    String KEY_TRACK_MODIFIED = "modified";
+    String KEY_TRACK_SENSOR = "sensor";
+    String KEY_TRACK_LENGTH = "length";
+    String KEY_TRACK_BEGIN = "begin";
+    String KEY_TRACK_END = "end";
 
     String KEY_TRACK_FEATURES = "features";
     String KEY_TRACK_FEATURES_GEOMETRY = "geometry";
@@ -108,15 +108,7 @@ public interface Track extends BaseEntity<Track>, Comparable<Track> {
 
     long getDuration() throws NoMeasurementsException;
 
-    String getBegin();
-
-    void setBegin(String begin);
-
-    String getEnd();
-
-    void setEnd(String end);
-
-    long getTimeInMillis();
+    long getDurationMillis();
 
     Double getLength();
 

@@ -50,8 +50,6 @@ public class TrackImpl implements Track, TrackStatisticsProvider {
     protected Long startTime;
     protected Long endTime;
     protected Double length;
-    protected String begin;
-    protected String end;
     protected TrackMetadata metadata;
     protected Track.TrackStatus trackStatus = Track.TrackStatus.ONGOING;
     protected List<Measurement> measurements = new ArrayList<Measurement>();
@@ -241,37 +239,8 @@ public class TrackImpl implements Track, TrackStatisticsProvider {
     }
 
     @Override
-    public String getBegin() {
-        return begin;
-    }
-
-    @Override
-    public void setBegin(String begin) {
-        this.begin = begin;
-    }
-
-    @Override
-    public String getEnd() {
-        return end;
-    }
-
-    @Override
-    public void setEnd(String end) {
-        this.end = end;
-    }
-
-    @Override
-    public long getTimeInMillis() {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault());
-        Date date1 = null, date2 = null;
-        try {
-            date1 = format.parse(begin);
-            date2 = format.parse(end);
-        }catch (Exception e){
-            LOG.error("Error in getTimeInMillis ", e);
-        }
-        long difference = date2.getTime() - date1.getTime();
-        return difference;
+    public long getDurationMillis() {
+        return endTime - startTime;
     }
 
     @Override
@@ -460,8 +429,10 @@ public class TrackImpl implements Track, TrackStatisticsProvider {
 
     @Override
     public double getDistanceOfTrack() {
-        if (distanceOfTrack == null) {
+        if (distanceOfTrack == null && STATISTICS_PROCESSOR != null) {
             distanceOfTrack = STATISTICS_PROCESSOR.computeDistanceOfTrack(getMeasurements());
+        } else {
+            return 0.0;
         }
         return distanceOfTrack;
     }
