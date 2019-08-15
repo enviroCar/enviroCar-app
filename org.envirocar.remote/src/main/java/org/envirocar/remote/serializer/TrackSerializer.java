@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -83,8 +83,9 @@ import static org.envirocar.core.entity.Measurement.PropertyKey.THROTTLE_POSITON
 /**
  * @author dewall
  */
-public class TrackSerializer implements JsonSerializer<Track>, JsonDeserializer<Track> {
+public class TrackSerializer extends AbstractJsonSerde implements JsonSerializer<Track>, JsonDeserializer<Track> {
     private static final Logger LOG = Logger.getLogger(TrackSerializer.class);
+
 
     public static final Set<Measurement.PropertyKey> supportedPhenomenons = new HashSet<>();
 
@@ -121,10 +122,10 @@ public class TrackSerializer implements JsonSerializer<Track>, JsonDeserializer<
         LOG.info("serialize() track");
         // set the properties of the json object
         JsonObject trackProperties = new JsonObject();
-        trackProperties.addProperty(Track.KEY_TRACK_PROPERTIES_NAME, src.getName());
-        trackProperties.addProperty(Track.KEY_TRACK_PROPERTIES_DESCRIPTION,
+        trackProperties.addProperty(Track.KEY_TRACK_NAME, src.getName());
+        trackProperties.addProperty(Track.KEY_TRACK_DESC,
                 src.getDescription());
-        trackProperties.addProperty(Track.KEY_TRACK_PROPERTIES_SENSOR, src.getCar().getId());
+        trackProperties.addProperty(Track.KEY_TRACK_SENSOR, src.getCar().getId());
 
         try {
             if (src.getMetadata() != null) {
@@ -161,10 +162,7 @@ public class TrackSerializer implements JsonSerializer<Track>, JsonDeserializer<
 
         JsonObject result = new JsonObject();
         result.addProperty(Track.KEY_TRACK_TYPE, "FeatureCollection");
-        //TODO result.addProperty(Track.KEY_TRACK_PROPERTIES_LENGTH, src.getLengthOfTrack());
-        result.addProperty(Track.KEY_TRACK_PROPERTIES_BEGIN,src.getBegin());
-        result.addProperty(Track.KEY_TRACK_PROPERTIES_END,src.getEnd());
-        result.addProperty(Track.KEY_TRACK_PROPERTIES_LENGTH, src.getLength());
+        result.addProperty(Track.KEY_TRACK_LENGTH, src.getLength());
         result.add(Track.KEY_TRACK_PROPERTIES, trackProperties);
         result.add(Track.KEY_TRACK_FEATURES, trackFeatures);
 
@@ -209,39 +207,27 @@ public class TrackSerializer implements JsonSerializer<Track>, JsonDeserializer<
     @Override
     public Track deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
             throws JsonParseException {
-        LOG.info("deserialize()");
-
         // Get the properties json object.
-        JsonObject properties = json.getAsJsonObject()
-                .get(Track.KEY_TRACK_PROPERTIES).getAsJsonObject();
+        JsonObject p = json.getAsJsonObject().get(Track.KEY_TRACK_PROPERTIES).getAsJsonObject();
 
         // Parse the properties
-        String id = properties.get(Track.KEY_TRACK_PROPERTIES_ID).getAsString();
-        String name = properties.has(Track.KEY_TRACK_PROPERTIES_NAME) ?
-                properties.get(Track.KEY_TRACK_PROPERTIES_NAME).getAsString() :
-                ("unnamed Track #" + id);
-        String description = properties.has(Track.KEY_TRACK_PROPERTIES_DESCRIPTION) ?
-                properties.get(Track.KEY_TRACK_PROPERTIES_DESCRIPTION).getAsString() :
-                "";
-        String begin = properties.has(Track.KEY_TRACK_PROPERTIES_BEGIN) ?
-                properties.get(Track.KEY_TRACK_PROPERTIES_BEGIN).getAsString() :
-                "";
-        String end = properties.has(Track.KEY_TRACK_PROPERTIES_END) ?
-                properties.get(Track.KEY_TRACK_PROPERTIES_END).getAsString() :
-                "";
-        Double length = properties.has(Track.KEY_TRACK_PROPERTIES_LENGTH) ?
-                properties.get(Track.KEY_TRACK_PROPERTIES_LENGTH).getAsDouble() :
-                new Double(0);
+        String id = p.get(Track.KEY_TRACK_ID).getAsString();
+        String name = p.has(Track.KEY_TRACK_NAME) ? p.get(Track.KEY_TRACK_NAME).getAsString() : "unnamed Track #" + id;
+        String description = p.has(Track.KEY_TRACK_DESC) ? p.get(Track.KEY_TRACK_DESC).getAsString() : "";
+
+        // parse start and end time
+        Long startTime = parseStringAsTime(Track.KEY_TRACK_BEGIN, p);
+        Long endTime = parseStringAsTime(Track.KEY_TRACK_END, p);
+
+        // parse the length
+        Double length = parseAsDouble(Track.KEY_TRACK_LENGTH, p);
+
         // Parse the car object.
-        JsonObject carObject = properties.get(Track.KEY_TRACK_PROPERTIES_SENSOR)
-                .getAsJsonObject();
+        JsonObject carObject = p.get(Track.KEY_TRACK_SENSOR).getAsJsonObject();
         Car car = context.deserialize(carObject, Car.class);
 
-        LOG.info("deserialize() measurements");
-
         // Parse the measurements
-        JsonArray measurementsJsonArray = json.getAsJsonObject().get(Track
-                .KEY_TRACK_FEATURES).getAsJsonArray();
+        JsonArray measurementsJsonArray = json.getAsJsonObject().get(Track.KEY_TRACK_FEATURES).getAsJsonArray();
         List<Measurement> measurements = new ArrayList<>();
         for (int i = 0; i < measurementsJsonArray.size(); i++) {
             JsonObject measurementObject = measurementsJsonArray.get(i).getAsJsonObject();
@@ -249,16 +235,15 @@ public class TrackSerializer implements JsonSerializer<Track>, JsonDeserializer<
                     measurementObject, Measurement.class));
         }
 
-        LOG.info("deserialze(): storing measurements in database");
-
         // Create the track
         Track track = new TrackImpl(Track.DownloadState.DOWNLOADED);
         track.setTrackStatus(Track.TrackStatus.FINISHED);
         track.setRemoteID(id);
         track.setName(name);
         track.setDescription(description);
-        track.setBegin(begin);
-        track.setEnd(end);
+        track.setStartTime(startTime);
+        track.setEndTime(endTime);
+
         track.setLength(length);
         track.setCar(car);
         track.setMeasurements(measurements); // Storing happens here...
@@ -276,7 +261,7 @@ public class TrackSerializer implements JsonSerializer<Track>, JsonDeserializer<
         Map<Measurement.PropertyKey, Double> props = measurement.getAllProperties();
         for (Measurement.PropertyKey key : props.keySet()) {
             if (supportedPhenomenons.contains(key)) {
-                if (isDiesel && (key == Measurement.PropertyKey.CO2 || key == Measurement.PropertyKey.CONSUMPTION) ){
+                if (isDiesel && (key == Measurement.PropertyKey.CO2 || key == Measurement.PropertyKey.CONSUMPTION)) {
                     // DO NOTHING TODO delete when necessary
                 } else {
                     result.add(key.toString(), createValue(props.get(key)));

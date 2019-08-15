@@ -32,7 +32,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class AbstractSimpleListSerde<T extends BaseEntity> implements JsonSerializer<List<T>>, JsonDeserializer<List<T>> {
+public abstract class AbstractSimpleListSerde<T extends BaseEntity> extends AbstractJsonSerde implements JsonSerializer<List<T>>, JsonDeserializer<List<T>> {
 
     private final String rootKey;
     private final Class<T> entityClass;

@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -40,7 +40,7 @@ import java.util.List;
  *
  * @author dewall
  */
-public class RemoteTrackListDeserializer implements JsonDeserializer<List<Track>> {
+public class RemoteTrackListDeserializer extends AbstractJsonSerde implements JsonDeserializer<List<Track>> {
     private static final Logger LOG = Logger.getLogger(RemoteTrackListDeserializer.class);
 
     @Override
@@ -52,31 +52,23 @@ public class RemoteTrackListDeserializer implements JsonDeserializer<List<Track>
 
         List<Track> result = new ArrayList<>();
         for (int i = 0; i < trackArray.size(); i++) {
-            JsonObject trackObject = trackArray.get(i).getAsJsonObject();
+            JsonObject o = trackArray.get(i).getAsJsonObject();
 
-            // Get the delivered properties of a track.
-            String id = trackObject.get(Track.KEY_TRACK_PROPERTIES_ID).getAsString();
-            String modified = trackObject.get(Track
-                    .KEY_TRACK_PROPERTIES_MODIFIED).getAsString();
-            String name = trackObject.get(Track.KEY_TRACK_PROPERTIES_NAME).getAsString();
-
-            String begin = trackObject.get(Track.KEY_TRACK_PROPERTIES_BEGIN).getAsString();
-            String end = trackObject.get(Track.KEY_TRACK_PROPERTIES_END).getAsString();
             // Create a new remote track.
             Track remoteTrack = new TrackImpl(Track.DownloadState.REMOTE);
-            remoteTrack.setRemoteID(id);
-            remoteTrack.setName(name);
-            remoteTrack.setBegin(begin);
-            remoteTrack.setEnd(end);
+            remoteTrack.setRemoteID(o.get(Track.KEY_TRACK_ID).getAsString());
+            remoteTrack.setName(o.get(Track.KEY_TRACK_NAME).getAsString());
+            remoteTrack.setStartTime(parseStringAsTime(Track.KEY_TRACK_BEGIN, o));
+            remoteTrack.setEndTime(parseStringAsTime(Track.KEY_TRACK_END, o));
 
-            if (trackObject.has(Track.KEY_TRACK_PROPERTIES_LENGTH)) {
-                double length = trackObject.get(Track.KEY_TRACK_PROPERTIES_LENGTH).getAsDouble();
+            if (o.has(Track.KEY_TRACK_LENGTH)) {
+                double length = o.get(Track.KEY_TRACK_LENGTH).getAsDouble();
                 remoteTrack.setLength(length);
             }
 
-
             try {
-                remoteTrack.setLastModified(Util.isoDateToLong(modified));
+                remoteTrack.setLastModified(Util.isoDateToLong(o.get(Track
+                        .KEY_TRACK_MODIFIED).getAsString()));
             } catch (ParseException e) {
                 e.printStackTrace();
             }
