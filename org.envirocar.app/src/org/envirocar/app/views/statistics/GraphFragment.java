@@ -61,8 +61,8 @@ import rx.subscriptions.CompositeSubscription;
 public class GraphFragment extends BaseInjectorFragment {
     private static final Logger LOG = Logger.getLogger(GraphFragment.class);
 
-    protected int position;
-    protected int choice;
+    protected int tabPosition;
+    protected int spinnerChoice;
     protected int iteration;
 
     @Inject
@@ -83,8 +83,11 @@ public class GraphFragment extends BaseInjectorFragment {
     @BindView(R.id.no_stats)
     protected TextView noStats;
 
-    @BindView(R.id.no_stats_img)
-    protected ImageView noStatsImg;
+    @BindView(R.id.loading_stats)
+    protected TextView loadingStats;
+
+    @BindView(R.id.info_img)
+    protected ImageView infoImg;
 
     @BindView(R.id.arrow_left)
     protected ImageButton arrowLeft;
@@ -140,7 +143,10 @@ public class GraphFragment extends BaseInjectorFragment {
         choiceViewModel = ViewModelProviders.of(this.getActivity()).get(ChoiceViewModel.class);
         choiceViewModel.getSelectedOption().observe(this, item -> {
             LOG.info("choiceViewModel.getSelectedOption()");
-            choice = item;
+            spinnerChoice = item;
+            infoImg.setVisibility(View.VISIBLE);
+            loadingStats.setVisibility(View.VISIBLE);
+            mChart.setVisibility(View.INVISIBLE);
             loadGraph();
         });
     }
@@ -150,12 +156,11 @@ public class GraphFragment extends BaseInjectorFragment {
     public View onCreateView(@Nullable LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        LOG.info("onCreateView Position: " + position);
         View view = inflater.inflate(R.layout.stat_fragment_graph, container, false);
-        position = getArguments().getInt("pos");
+        tabPosition = getArguments().getInt("pos");
         unbinder = ButterKnife.bind(this, view);
         mDAOProvider = new DAOProvider(context);
-        choice = 0;
+        spinnerChoice = 0;
         cleanUpData();
         return view;
     }
@@ -192,9 +197,9 @@ public class GraphFragment extends BaseInjectorFragment {
     {
         valuesHello.clear();
         int n;
-        if(position == 0)
+        if(tabPosition == 0)
             n=7;
-        else if(position == 1)
+        else if(tabPosition == 1)
             n=31;
         else
             n=12;
@@ -213,9 +218,9 @@ public class GraphFragment extends BaseInjectorFragment {
         labels = new ArrayList<>();
         String x[] = {"Days", "Months", "Years"};
         String y[] = {"Days", "Months", "Years"};
-        if(position == 0)
+        if(tabPosition == 0)
             labels = Arrays.asList(weekdays);
-        else if(position == 1)
+        else if(tabPosition == 1)
             for(int i=1;i<=31;++i)
                 labels.add(i+"");
         else
@@ -264,19 +269,18 @@ public class GraphFragment extends BaseInjectorFragment {
                         if (e instanceof NotConnectedException) {
                             LOG.error("Error", e);
                             if (persistentTrackList.isEmpty()) {
-                                LOG.debug("TrackList Empty");
+                                LOG.debug("persistentTrackList Empty");
                             }
                         } else if (e instanceof UnauthorizedException) {
                             LOG.error("Unauthorised",e);
                             if (persistentTrackList.isEmpty()) {
-                                LOG.debug("TrackList Empty");
+                                LOG.debug("persistentTrackList Empty");
                             }
                         }
                     }
 
                     @Override
                     public void onNext(List<Track> tracks) {
-                        LOG.info("onNext(" + tracks.size() + ") tracks loaded in GraphFragment");
                         for (Track track : tracks) {
                             if (!persistentTrackList.contains(track)) {
                                 persistentTrackList.add(track);
@@ -297,23 +301,26 @@ public class GraphFragment extends BaseInjectorFragment {
 
 
     public void loadDates(){
+        infoImg.setVisibility(View.VISIBLE);
+        loadingStats.setVisibility(View.VISIBLE);
+        mChart.setVisibility(View.INVISIBLE);
         setTrackList();
         Calendar cal = Calendar.getInstance();
         Date after = cal.getTime(), before = cal.getTime();
-        if(position == 0){
+        if(tabPosition == 0){
             cal.set(mYear,mMonth,mDay);
             after = getWeekStartDate(cal.getTime());
             before = getWeekEndDate(cal.getTime());
 
         }
-        else if(position ==1)
+        else if(tabPosition ==1)
         {
             cal.set(mYear,mMonth,1);
             after = cal.getTime();
             cal.set(mYear,mMonth+1,1);
             before = cal.getTime();
         }
-        else if(position ==2)
+        else if(tabPosition ==2)
         {
             cal.set(mYear,0,1);
             after = cal.getTime();
@@ -339,43 +346,41 @@ public class GraphFragment extends BaseInjectorFragment {
 
     public void setGraph()
     {
+
         if(mTrackList.size()==0)
         {
+            loadingStats.setVisibility(View.GONE);
             noStats.setVisibility(View.VISIBLE);
-            noStatsImg.setVisibility(View.VISIBLE);
-            mChart.setVisibility(View.INVISIBLE);
+            infoImg.setVisibility(View.VISIBLE);
             LOG.info("mTracklist has zero elements");
         }
         else {
-            noStats.setVisibility(View.INVISIBLE);
-            noStatsImg.setVisibility(View.INVISIBLE);
-            mChart.setVisibility(View.VISIBLE);
-            LOG.info(mTrackList.size() + " Tracks in range");
 
+            LOG.info(mTrackList.size() + " Tracks in range");
             TrackwDate t = new TrackwDate();
             setLabels();
             setZeros();
 
-            if(choice!=2)
+            if(spinnerChoice !=2)
             {
                 for (int i = 0; i < mTrackList.size(); ++i) {
                     try {
                         Track temp = mTrackList.get(i);
                         t.getDateTime(temp);
                         int index;
-                        if (position == 0)
+                        if (tabPosition == 0)
                             index = t.getDay() - 1;
-                        else if (position == 1)
+                        else if (tabPosition == 1)
                             index = t.getDate() - 1;
                         else
                             index = t.getMonth();
 
-                        if (choice == 0)
+                        if (spinnerChoice == 0)
                         {
                             values.set(index, values.get(index) + 1);
 
                         }
-                        else if (choice == 1)
+                        else if (spinnerChoice == 1)
                         {
                             values.set(index, values.get(index) + temp.getLength().floatValue());
                         }
@@ -396,83 +401,86 @@ public class GraphFragment extends BaseInjectorFragment {
 
     public void getTrackStatistics(){
 
-        String trackID = mTrackList.get(iteration).getRemoteID();
-        Track temp = mTrackList.get(iteration);
-        TrackwDate t = new TrackwDate();
-        t.getDateTime(temp);
-        int index;
-        if (position == 0)
-            index = t.getDay() - 1;
-        else if (position == 1)
-            index = t.getDate() - 1;
-        else
-            index = t.getMonth();
+        if (iteration < mTrackList.size()) {
+            String trackID = mTrackList.get(iteration).getRemoteID();
+            Track temp = mTrackList.get(iteration);
+            TrackwDate t = new TrackwDate();
+            t.getDateTime(temp);
+            int index;
+            if (tabPosition == 0)
+                index = t.getDay() - 1;
+            else if (tabPosition == 1)
+                index = t.getDate() - 1;
+            else
+                index = t.getMonth();
 
-        subscriptions.add(mDAOProvider.getTrackStatisticsDAO().getTrackStatisticsObservable(trackID)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Subscriber<TrackStatistics>() {
+            subscriptions.add(mDAOProvider.getTrackStatisticsDAO().getTrackStatisticsObservable(trackID)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Subscriber<TrackStatistics>() {
 
-                    @Override
-                    public void onStart() {
-                        LOG.info("onStart() of getTrackStatistics with " + trackID +" at index: " + index);
-                        mMainThreadWorker.schedule(() -> {
+                        @Override
+                        public void onStart() {
+                            LOG.info("onStart() of getTrackStatistics with " + trackID +" at index: " + index);
+                            mMainThreadWorker.schedule(() -> {
 
-                        });
-                    }
-
-                    @Override
-                    public void onCompleted() {
-
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        LOG.error(e.getMessage(), e);
-                        if (e instanceof NotConnectedException) {
-                            LOG.error("Error", e);
-                            if (mTrackStatistics == null) {
-                                LOG.debug("TrackStatistics Empty");
-                            }
-                        } else if (e instanceof UnauthorizedException) {
-                            LOG.error("Unauthorised",e);
-                            if (mTrackStatistics == null) {
-                                LOG.debug("TrackStatistics Empty");
-                            }
+                            });
                         }
-                    }
 
-                    @Override
-                    public void onNext(TrackStatistics trackStatistics) {
-                        mTrackStatistics = trackStatistics;
-                        noOfTracks.set(index, noOfTracks.get(index) + 1);
+                        @Override
+                        public void onCompleted() {
 
-                        LOG.info("Statistics load with " + getTrackStatData());
-                        LOG.info("Value of " + index + " = " + values.get(index));
-                        LOG.info("No of Tracks at index " + index + " = " + noOfTracks.get(index));
-                        iteration++;
+                        }
 
-                        if(iteration<mTrackList.size())
-                            getTrackStatistics();
-                        else
-                        {
-                            for (int i = 0; i < values.size(); ++i) {
-                                if (values.get(i) != 0)
-                                    values.set(i, values.get(i) / noOfTracks.get(i));
+                        @Override
+                        public void onError(Throwable e) {
+                            LOG.error(e.getMessage(), e);
+                            if (e instanceof NotConnectedException) {
+                                LOG.error("Error", e);
+                                if (mTrackStatistics == null) {
+                                    LOG.debug("TrackStatistics Empty");
                                 }
-
-                            setGraphOptionsAndShow();
+                            } else if (e instanceof UnauthorizedException) {
+                                LOG.error("Unauthorised",e);
+                                if (mTrackStatistics == null) {
+                                    LOG.debug("TrackStatistics Empty");
+                                }
+                            }
                         }
-                    }
-                }));
+
+                        @Override
+                        public void onNext(TrackStatistics trackStatistics) {
+                            mTrackStatistics = trackStatistics;
+                            values.set(index, values.get(index) + getTrackStatData());
+                            noOfTracks.set(index, noOfTracks.get(index) + 1);
+                            iteration++;
+                            getTrackStatistics();
+                        }
+                    }));
+
+        } else {
+            for (int i = 0; i < values.size(); ++i) {
+                if (values.get(i) != 0)
+                    values.set(i, values.get(i) / noOfTracks.get(i));
+            }
+            setGraphOptionsAndShow();
+        }
+
     }
 
     public Float getTrackStatData(){
-        return (float) mTrackStatistics.getStatistic(TrackStatistics.KEY_USER_STAT_SPEED).getAvgValue();
+        if(mTrackStatistics.getStatistic(TrackStatistics.KEY_USER_STAT_SPEED) != null)
+            return (float) mTrackStatistics.getStatistic(TrackStatistics.KEY_USER_STAT_SPEED).getAvgValue();
+        else
+            return (float) 0;
     }
 
     public void setGraphOptionsAndShow()
     {
+        loadingStats.setVisibility(View.GONE);
+        noStats.setVisibility(View.GONE);
+        infoImg.setVisibility(View.GONE);
+        mChart.setVisibility(View.VISIBLE);
         mChart.cancelDataAnimation();
         Line line = new Line(valuesHello);
         line.setCubic(false).setColor(Color.parseColor("#36759B"))
@@ -488,7 +496,7 @@ public class GraphFragment extends BaseInjectorFragment {
             i++;
         }
         mChartData = new LineChartData(lines);
-        mChartData.setAxisXBottom(new Axis(labelsHello).setHasLines(true).setName(labelsX.get(position))
+        mChartData.setAxisXBottom(new Axis(labelsHello).setHasLines(true).setName(labelsX.get(tabPosition))
                 .setTextColor(Color.parseColor("#800065A0")));
         mChartData.setAxisYLeft(new Axis().setTextColor(Color.parseColor("#800065A0")));
 
@@ -525,18 +533,18 @@ public class GraphFragment extends BaseInjectorFragment {
     }
 
     public void setDateSelectorButton(Calendar c){
-        if(position == 0)
+        if(tabPosition == 0)
         {
             String header = begOfWeek + " - " + endOfWeek + " " + new SimpleDateFormat
                     ("MMMM", Locale.getDefault()).format(c.getTime());
             dateButton.setText(header);
         }
-        else if(position == 1)
+        else if(tabPosition == 1)
         {
             String header = new SimpleDateFormat("MMMM yyyy", Locale.getDefault()).format(c.getTime());
             dateButton.setText(header);
         }
-        else if(position == 2)
+        else if(tabPosition == 2)
         {
             String header = new SimpleDateFormat("yyyy", Locale.getDefault()).format(c.getTime());
             dateButton.setText(header);
@@ -566,7 +574,7 @@ public class GraphFragment extends BaseInjectorFragment {
     @OnClick(R.id.arrow_left)
     public void moveLeft(){
         Calendar c = Calendar.getInstance();
-        if(position == 0)
+        if(tabPosition == 0)
         {
             c.set(mYear,mMonth,mDay);
             c.add(Calendar.DAY_OF_YEAR, -7);
@@ -577,7 +585,7 @@ public class GraphFragment extends BaseInjectorFragment {
             begOfWeek = getWeekStartDate(c.getTime()).getDate();
             endOfWeek = getWeekEndDate(c.getTime()).getDate();
         }
-        else if(position == 1)
+        else if(tabPosition == 1)
         {
             mMonth--;
             c.set(mYear,mMonth,mDay);
@@ -595,7 +603,7 @@ public class GraphFragment extends BaseInjectorFragment {
     @OnClick(R.id.arrow_right)
     public void moveRight(){
         Calendar c = Calendar.getInstance();
-        if(position == 0)
+        if(tabPosition == 0)
         {
             c.set(mYear,mMonth,mDay);
             c.add(Calendar.DAY_OF_YEAR, 7);
@@ -606,7 +614,7 @@ public class GraphFragment extends BaseInjectorFragment {
             begOfWeek = getWeekStartDate(c.getTime()).getDate();
             endOfWeek = getWeekEndDate(c.getTime()).getDate();
         }
-        else if(position == 1)
+        else if(tabPosition == 1)
         {
             mMonth++;
             c.set(mYear,mMonth,mDay);
