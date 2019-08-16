@@ -2,24 +2,34 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/linearLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/header_gradient"
     tools:context=".views.statistics.StatisticsFragment">
 
     <ImageView
-        android:id="@+id/envirocar_img"
+        android:id="@+id/header"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="#0065A0"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/guideline4"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/no_user_layout" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline4"
         android:layout_width="wrap_content"
-        android:layout_height="30dp"
-        android:src="@drawable/img_envirocar_logo_white"
-        tools:layout_editor_absoluteY="16dp" />
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.116" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/no_user_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone">
+        android:visibility="gone"
+        tools:layout_editor_absoluteY="470dp">
 
         <ImageView
             android:id="@+id/no_user_img"
@@ -60,7 +70,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        tools:layout_editor_absoluteY="70dp">
+        app:layout_constraintTop_toTopOf="@+id/guideline4">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/loading_layout"
@@ -294,6 +304,13 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.43" />
+
     <androidx.core.widget.NestedScrollView
         android:id="@+id/stat_scrollView"
         android:layout_width="match_parent"
@@ -301,11 +318,12 @@
         android:layout_marginTop="8dp"
         android:fillViewport="true"
         android:scrollbarStyle="insideOverlay"
+        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/stat_card">
+        app:layout_constraintTop_toBottomOf="@id/stat_card">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -354,6 +372,33 @@
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
+
+    <ImageView
+        android:id="@+id/header_gradient"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:src="@drawable/header_gradient_dashboard"
+        android:visibility="visible"
+        app:layout_constraintBottom_toTopOf="@id/guideline5"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/enviroCar_img"
+        android:layout_width="0dp"
+        android:layout_height="46dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:src="@drawable/img_envirocar_logo_white"
+        android:visibility="visible"
+        app:layout_constraintBottom_toTopOf="@+id/guideline4"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.491"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

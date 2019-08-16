@@ -129,6 +129,12 @@ public class StatisticsFragment extends BaseInjectorFragment implements AdapterV
     @BindView(R.id.no_user_layout)
     protected ConstraintLayout noUser;
 
+    @BindView(R.id.header_gradient)
+    protected ImageView headerGradient;
+
+    @BindView(R.id.header)
+    protected ImageView header;
+
     @BindView(R.id.tracks_card)
     protected ConstraintLayout TracksCard;
 
@@ -188,20 +194,22 @@ public class StatisticsFragment extends BaseInjectorFragment implements AdapterV
 
         if(!isUserSignedIn)
         {
-            cardView.setVisibility(View.INVISIBLE);
-            scrollView.setVisibility(View.INVISIBLE);
+            cardView.setVisibility(View.GONE);
+            scrollView.setVisibility(View.GONE);
+            header.setVisibility(View.VISIBLE);
+            headerGradient.setVisibility(View.GONE);
             noUser.setVisibility(View.VISIBLE);
         }
         else{
             ProgressMessage.setVisibility(View.VISIBLE);
+            headerGradient.setVisibility(View.VISIBLE);
+            header.setVisibility(View.GONE);
             noUser.setVisibility(View.GONE);
             ViewPagerAdapter adapter = new ViewPagerAdapter(getChildFragmentManager());
             viewPager.setAdapter(adapter);
             tabLayout.setupWithViewPager(viewPager);
             loadDataset();
         }
-
-
         return statView;
     }
 
