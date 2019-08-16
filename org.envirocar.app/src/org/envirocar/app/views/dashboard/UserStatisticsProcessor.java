@@ -20,8 +20,6 @@ import org.envirocar.core.logging.Logger;
 import org.envirocar.core.trackprocessing.statistics.TrackStatisticsProvider;
 import org.envirocar.storage.EnviroCarDB;
 
-import java.util.List;
-
 import javax.inject.Inject;
 
 import rx.Observable;
@@ -110,6 +108,7 @@ public class UserStatisticsProcessor extends AbstractCachable<UserStatisticsProc
 
     @Subscribe
     public void onNewUserSettingsEvent(NewUserSettingsEvent event) {
+        LOG.info(String.format("New User statistics received %s. Updating statistics.", event.toString()));
         UserStatisticsHolder s = readFromCache();
         if (event.mIsLoggedIn == s.isLoggedIn()) {
             return;
@@ -118,20 +117,13 @@ public class UserStatisticsProcessor extends AbstractCachable<UserStatisticsProc
         // reset statistics cache
         this.resetStatistics(event.mIsLoggedIn ? event.mUser.getUsername() : null);
 
-        Observable<List<Track>> obs = enviroCarDB.getAllLocalTracks(true)
-                .compose(new Observable.Transformer<List<Track>, List<Track>>() {
-                    @Override
-                    public Observable<List<Track>> call(Observable<List<Track>> listObservable) {
-                        return null;
-                    }
-                });
-
-        if (event.mIsLoggedIn) {
-            obs = obs.mergeWith(trackDAO.getTrackIdsObservable(5000, 1));
-        }
-
-        //
-        obs.subscribeOn(Schedulers.io())
+        enviroCarDB.getAllLocalTracks(true)
+                .compose(listObservable -> {
+                    if (event.mIsLoggedIn)
+                        return listObservable.mergeWith(trackDAO.getTrackIdsObservable(5000, 1));
+                    return listObservable;
+                })
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .flatMap(tracks -> Observable.from(tracks))
                 .map(this::updateStatistics)

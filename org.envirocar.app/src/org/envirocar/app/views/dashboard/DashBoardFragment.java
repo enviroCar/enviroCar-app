@@ -220,11 +220,11 @@ public class DashBoardFragment extends BaseInjectorFragment {
     @BindView(R.id.dash_board_view_obd_selection_text2)
     protected TextView mOBDTypeSubTextView;
 
-    @BindView(R.id.fragment_dasboard_mode_selector)
+    @BindView(R.id.fragment_dashboard_mode_selector)
     protected ConstraintLayout buttonGroup;
-    @BindView(R.id.obdPlusGPSSegmentedButton)
+    @BindView(R.id.fragment_dashboard_obd_mode_button)
     protected Button obdPlusGPSSegmentedButton;
-    @BindView(R.id.GPSOnlySegmentedButton)
+    @BindView(R.id.fragment_dashboard_gps_mode_button)
     protected Button GPSOnlySegmentedButton;
     @BindView(R.id.obdGPSIndicator)
     protected TextView obdGPSIndicator;
@@ -605,17 +605,7 @@ public class DashBoardFragment extends BaseInjectorFragment {
                 LOG.debug("Permission granted, updates requested, starting the recording procedure");
                 onStartStopButtonClicked();
             } else {
-                // Permission denied.
 
-                // Notify the user via a SnackBar that they have rejected a core permission for the
-                // app, which makes the Activity useless. In a real app, core permissions would
-                // typically be best requested during a welcome-screen flow.
-
-                // Additionally, it is important to remember that a permission might have been
-                // rejected without asking the user for permission (device policy or "Never ask
-                // again" prompts). Therefore, a user interface affordance is typically implemented
-                // when permissions are denied. Otherwise, your app could appear unresponsive to
-                // touches or interactions which have required permissions.
                 showSnackbar(R.string.permission_denied_explanation,
                         R.string.settings, view -> {
                             // Build intent that displays the App settings screen.
@@ -637,17 +627,7 @@ public class DashBoardFragment extends BaseInjectorFragment {
             } else if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 LOG.debug("Permission granted, updates requested, starting the logging procedure");
             } else {
-                // Permission denied.
 
-                // Notify the user via a SnackBar that they have rejected a core permission for the
-                // app, which makes the Activity useless. In a real app, core permissions would
-                // typically be best requested during a welcome-screen flow.
-
-                // Additionally, it is important to remember that a permission might have been
-                // rejected without asking the user for permission (device policy or "Never ask
-                // again" prompts). Therefore, a user interface affordance is typically implemented
-                // when permissions are denied. Otherwise, your app could appear unresponsive to
-                // touches or interactions which have required permissions.
                 showSnackbar(R.string.permission_denied_explanation,
                         R.string.settings, view -> {
                             // Build intent that displays the App settings screen.
@@ -734,7 +714,7 @@ public class DashBoardFragment extends BaseInjectorFragment {
                         timeInMillis = 0L;
                         for (Track track : tracks) {
                             distance += track.getLength();
-                            timeInMillis += track.getTimeInMillis();
+                            timeInMillis += track.getDurationMillis();
                         }
 
                         String time = convertMillisToDate();
@@ -920,38 +900,6 @@ public class DashBoardFragment extends BaseInjectorFragment {
         }
     }
 
-    /**
-     * Applies an animation on the given view.
-     *
-     * @param view         the view to apply the animation on.
-     * @param animResource the animation resource.
-     * @param hide         should the view be hid?
-     */
-    private void animateViewTransition(final View view, int animResource, boolean hide) {
-        Animation animation = AnimationUtils.loadAnimation(getActivity(), animResource);
-        if (hide) {
-            animation.setAnimationListener(new Animation.AnimationListener() {
-                @Override
-                public void onAnimationStart(Animation animation) {
-                    // nothing to do..
-                }
-
-                @Override
-                public void onAnimationEnd(Animation animation) {
-                    view.setVisibility(GONE);
-                }
-
-                @Override
-                public void onAnimationRepeat(Animation animation) {
-                    // nothing to do..
-                }
-            });
-            view.startAnimation(animation);
-        } else {
-            view.setVisibility(View.VISIBLE);
-            view.startAnimation(animation);
-        }
-    }
 
     /**
      * Receiver method for {@link TrackRecordingServiceStateChangedEvent}s posted on the event bus.
