@@ -162,6 +162,12 @@ public class Logger {
 		log(SEVERE, message, e);
 	}
 
+	public void error(String message){
+		log(SEVERE, message);
+	}
+
+	public void error(Throwable e) { log(SEVERE, e.getMessage(), e); }
+
 	public void error(String message, Throwable t){
 		log(SEVERE, message, t);
 	}
