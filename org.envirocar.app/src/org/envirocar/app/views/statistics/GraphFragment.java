@@ -117,6 +117,7 @@ public class GraphFragment extends BaseInjectorFragment {
     private Unbinder unbinder;
     private ChoiceViewModel choiceViewModel;
     private Context context;
+    private Boolean isTrackDownloading = false;
 
     // List of tracks for the range selected
     protected List<Track> mTrackList = new ArrayList<>();
@@ -190,10 +191,16 @@ public class GraphFragment extends BaseInjectorFragment {
 
     public void loadGraph() {
         cleanUpData();
-        if (persistentTrackList.size() == 0)
-            getData();
-        else
-            loadDates();
+        // If the tracks are being downloaded, wait
+        // Else load the dates
+        if (!isTrackDownloading) {
+            // If the persistentTrackList has no elements, check if there are any new
+            // tracks. Or if the tracks have not been downloaded yet, download them
+            if (persistentTrackList.size() == 0)
+                getData();
+            else
+                loadDates();
+        }
     }
 
     /**
@@ -221,6 +228,9 @@ public class GraphFragment extends BaseInjectorFragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        if (!subscriptions.isUnsubscribed()) {
+            subscriptions.unsubscribe();
+        }
         unbinder.unbind();
     }
 
@@ -269,6 +279,7 @@ public class GraphFragment extends BaseInjectorFragment {
     }
 
     public void getData() {
+        isTrackDownloading = true;
         subscriptions.add(mDAOProvider.getTrackDAO().getTrackIdsObservable()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -310,6 +321,7 @@ public class GraphFragment extends BaseInjectorFragment {
                                 persistentTrackList.add(track);
                             }
                         }
+                        isTrackDownloading = false;
                         loadDates();
                     }
                 }));
@@ -317,7 +329,8 @@ public class GraphFragment extends BaseInjectorFragment {
 
     /**
      * Set mTrackList to hold all tracks
-     * This is done every time the range changes. After setting, the tracks not in range are removed
+     * This is done every time the range changes. After setting, the tracks not in
+     * the desired range are removed in trimTracksToRange()
      */
     public void setTrackList() {
         for (Track track : persistentTrackList) {
@@ -334,6 +347,7 @@ public class GraphFragment extends BaseInjectorFragment {
     public void loadDates() {
         infoImg.setVisibility(View.VISIBLE);
         loadingStats.setVisibility(View.VISIBLE);
+        noStats.setVisibility(View.GONE);
         mChart.setVisibility(View.INVISIBLE);
 
         setTrackList();
@@ -356,10 +370,10 @@ public class GraphFragment extends BaseInjectorFragment {
             before = cal.getTime();
         }
 
-        trimTacksToRange(after, before);
+        trimTracksToRange(after, before);
     }
 
-    public void trimTacksToRange(Date start, Date end) {
+    public void trimTracksToRange(Date start, Date end) {
         for (int i = 0; i < mTrackList.size(); ++i) {
             TrackwDate t = new TrackwDate();
             t.getDateTime(mTrackList.get(i));
@@ -368,6 +382,7 @@ public class GraphFragment extends BaseInjectorFragment {
                 i--;
             }
         }
+        LOG.info("Tracks in Range:" + mTrackList.size());
         setGraph();
     }
 
@@ -376,7 +391,6 @@ public class GraphFragment extends BaseInjectorFragment {
             loadingStats.setVisibility(View.GONE);
             noStats.setVisibility(View.VISIBLE);
             infoImg.setVisibility(View.VISIBLE);
-            LOG.info("mTracklist has zero elements");
         } else {
             TrackwDate t = new TrackwDate();
             setLabels();
@@ -410,70 +424,58 @@ public class GraphFragment extends BaseInjectorFragment {
                 }
                 setGraphOptionsAndShow();
             } else {
-                getTrackStatistics();
+                trackIteration = 0;
+                for (Track track : mTrackList) {
+                    String trackID = track.getRemoteID();
+                    t.getDateTime(track);
+                    getTrackStatistics(trackID, t);
+                }
             }
         }
     }
 
-    public void getTrackStatistics() {
-        // Have the statistics for all the tracks in range been saved?
-        // If yes, compute the averages for the values List
-        // else, continue finding the statistics for the next track
-        if (trackIteration < mTrackList.size()) {
-            String trackID = mTrackList.get(trackIteration).getRemoteID();
-            Track temp = mTrackList.get(trackIteration);
-            TrackwDate t = new TrackwDate();
-            t.getDateTime(temp);
+    public void getTrackStatistics(String trackID, TrackwDate t) {
+        int index;
+        if (tabPosition == 0)
+            index = t.getDay() - 1;
+        else if (tabPosition == 1)
+            index = t.getDate() - 1;
+        else
+            index = t.getMonth();
 
-            int index;
-            if (tabPosition == 0)
-                index = t.getDay() - 1;
-            else if (tabPosition == 1)
-                index = t.getDate() - 1;
-            else
-                index = t.getMonth();
+        subscriptions.add(mDAOProvider.getTrackStatisticsDAO().getTrackStatisticsObservable(trackID)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<TrackStatistics>() {
 
-            subscriptions.add(mDAOProvider.getTrackStatisticsDAO().getTrackStatisticsObservable(trackID)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new Subscriber<TrackStatistics>() {
+                    @Override
+                    public void onStart() {
+                        LOG.info("onStart() of getTrackStatistics with " + trackID +" at index: " + index);
+                    }
 
-                        @Override
-                        public void onStart() {
-                            LOG.info("onStart() of getTrackStatistics with " + trackID +" at index: " + index);
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        LOG.error(e.getMessage(), e);
+                        if (e instanceof NotConnectedException) {
+                            LOG.error("Error", e);
+                        } else if (e instanceof UnauthorizedException) {
+                            LOG.error("Unauthorised",e);
                         }
+                    }
 
-                        @Override
-                        public void onCompleted() {
-
-                        }
-
-                        @Override
-                        public void onError(Throwable e) {
-                            LOG.error(e.getMessage(), e);
-                            if (e instanceof NotConnectedException) {
-                                LOG.error("Error", e);
-                            } else if (e instanceof UnauthorizedException) {
-                                LOG.error("Unauthorised",e);
-                            }
-                        }
-
-                        @Override
-                        public void onNext(TrackStatistics trackStatistics) {
-                            values.set(index, values.get(index) + getTrackStatData(trackStatistics));
-                            noOfTracks.set(index, noOfTracks.get(index) + 1);
-                            trackIteration++;
-                            getTrackStatistics();
-                        }
-                    }));
-
-        } else {
-            for (int i = 0; i < values.size(); ++i) {
-                if (values.get(i) != 0)
-                    values.set(i, values.get(i) / noOfTracks.get(i));
-            }
-            setGraphOptionsAndShow();
-        }
+                    @Override
+                    public void onNext(TrackStatistics trackStatistics) {
+                        values.set(index, values.get(index) + getTrackStatData(trackStatistics));
+                        noOfTracks.set(index, noOfTracks.get(index) + 1);
+                        trackIteration++;
+                        computeAverageSpeed();
+                    }
+                }));
     }
 
     public Float getTrackStatData(TrackStatistics trackStatistics) {
@@ -481,6 +483,23 @@ public class GraphFragment extends BaseInjectorFragment {
             return (float) trackStatistics.getStatistic(TrackStatistics.KEY_USER_STAT_SPEED).getAvgValue();
         else
             return (float) 0;
+    }
+
+
+    public void computeAverageSpeed() {
+        // Have the statistics for all the tracks in range been saved?
+        // If yes, compute the averages for the values List
+        // else, do nothing
+        if (trackIteration < mTrackList.size()) {
+
+        } else {
+            LOG.info("Stats of all tracks loaded");
+            for (int i = 0; i < values.size(); ++i) {
+                if (values.get(i) != 0)
+                    values.set(i, values.get(i) / noOfTracks.get(i));
+            }
+            setGraphOptionsAndShow();
+        }
     }
 
     /**
@@ -599,7 +618,11 @@ public class GraphFragment extends BaseInjectorFragment {
             mYear--;
             c.set(mYear,mMonth,mDay);
         }
-
+        // If the data being shown is Speed, unsubscribe from previous data
+        // being downloaded from the API
+        if (spinnerChoice == 2) {
+            subscriptions.clear();
+        }
         setDateSelectorButton(c);
         loadDates();
     }
@@ -626,7 +649,11 @@ public class GraphFragment extends BaseInjectorFragment {
             mYear++;
             c.set(mYear,mMonth,mDay);
         }
-
+        // If the data being shown is Speed, unsubscribe from previous data
+        // being downloaded from the API
+        if (spinnerChoice == 2) {
+            subscriptions.clear();
+        }
         setDateSelectorButton(c);
         loadDates();
     }
