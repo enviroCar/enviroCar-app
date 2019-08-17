@@ -9,4 +9,4 @@
     android:gravity="left"
     android:padding="10dp"
     android:textColor="#A00065A0"
-    android:textSize="20sp" />
+    android:textSize="@dimen/heading2" />
