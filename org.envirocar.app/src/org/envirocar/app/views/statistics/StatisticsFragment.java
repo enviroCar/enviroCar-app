@@ -39,9 +39,6 @@ import org.envirocar.storage.EnviroCarDB;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -73,6 +70,10 @@ public class StatisticsFragment extends BaseInjectorFragment implements AdapterV
     @Inject
     protected EnviroCarDB mEnvirocarDB;
 
+    // Views for the LastTrack layout
+    @BindView(R.id.tracks_card)
+    protected ConstraintLayout tracksCard;
+
     @BindView(R.id.stat_last_track_header)
     protected TextView LastTrackHeader;
 
@@ -81,12 +82,6 @@ public class StatisticsFragment extends BaseInjectorFragment implements AdapterV
 
     @BindView(R.id.stat_track_time)
     protected TextView LastTrackTime;
-
-    @BindView(R.id.stat_card)
-    protected CardView cardView;
-
-    @BindView(R.id.stat_scrollView)
-    protected NestedScrollView scrollView;
 
     @BindView(R.id.stat_track_date)
     protected TextView LastTrackDate;
@@ -103,18 +98,6 @@ public class StatisticsFragment extends BaseInjectorFragment implements AdapterV
     @BindView(R.id.stat_comp_speed)
     protected TextView LastTrackStatSpeed;
 
-    @BindView(R.id.stat_graph_spinner)
-    protected Spinner GraphSpinner;
-
-    @BindView(R.id.stat_tabLayout)
-    protected TabLayout tabLayout;
-
-    @BindView(R.id.stat_viewPager)
-    protected ViewPager viewPager;
-
-    @BindView(R.id.loading_layout)
-    protected ConstraintLayout ProgressMessage;
-
     @BindView(R.id.stat_info)
     protected TextView StatInfo;
 
@@ -124,35 +107,59 @@ public class StatisticsFragment extends BaseInjectorFragment implements AdapterV
     @BindView(R.id.stat_img_comp_speed)
     protected ImageView compSpeed;
 
-    @BindView(R.id.no_tracks_card)
-    protected ConstraintLayout noTracksCard;
+    //Other Card layouts
+    @BindView(R.id.stat_card)
+    protected CardView cardView;
+
+    @BindView(R.id.loading_card)
+    protected ConstraintLayout loadingCard;
+
+    @BindView(R.id.message_card)
+    protected ConstraintLayout messageCard;
+
+    @BindView(R.id.message_header)
+    protected TextView messageHeader;
+
+    @BindView(R.id.message_desc)
+    protected TextView messageDesc;
 
     @BindView(R.id.no_user_layout)
-    protected ConstraintLayout noUser;
+    protected ConstraintLayout noUserCard;
 
+    // Background images
     @BindView(R.id.header_gradient)
     protected ImageView headerGradient;
 
     @BindView(R.id.header)
     protected ImageView header;
 
-    @BindView(R.id.tracks_card)
-    protected ConstraintLayout TracksCard;
+    // Other Views
+    @BindView(R.id.stat_scrollView)
+    protected NestedScrollView scrollView;
+
+    @BindView(R.id.stat_graph_spinner)
+    protected Spinner GraphSpinner;
+
+    @BindView(R.id.stat_tabLayout)
+    protected TabLayout tabLayout;
+
+    @BindView(R.id.stat_viewPager)
+    protected ViewPager viewPager;
 
     protected boolean isUserSignedIn;
-    protected Unbinder unbinder;
-    private ChoiceViewModel choiceViewModel;
-    private CompositeSubscription subscriptions ;
-    protected Scheduler.Worker mMainThreadWorker = AndroidSchedulers.mainThread().createWorker();
     protected boolean tracksLoaded = false;
     protected boolean userStatsLoaded = false;
     protected boolean trackStatsLoaded = false;
-    protected List<Track> mTrackList = Collections.synchronizedList(new ArrayList<>());
+    protected Track lastTrack;
     protected UserStatistics mUserStatistics;
     protected TrackStatistics mTrackStatistics;
-    Float trackAvgSpeed;
-    Float trackAvgFuel;
+    protected Float trackAvgSpeed;
+    protected Float trackAvgFuel;
+    protected ChoiceViewModel choiceViewModel;
 
+    protected CompositeSubscription subscriptions ;
+    protected Scheduler.Worker mMainThreadWorker = AndroidSchedulers.mainThread().createWorker();
+    protected Unbinder unbinder;
 
 
     public StatisticsFragment() {
@@ -185,7 +192,6 @@ public class StatisticsFragment extends BaseInjectorFragment implements AdapterV
         GraphSpinner.setAdapter(spinnerAdapter);
         GraphSpinner.setOnItemSelectedListener(this);
 
-        LOG.info("Statistics Fragment Created.");
         tracksLoaded = false;
         userStatsLoaded = false;
         trackStatsLoaded = false;
@@ -196,16 +202,16 @@ public class StatisticsFragment extends BaseInjectorFragment implements AdapterV
             scrollView.setVisibility(View.GONE);
             header.setVisibility(View.VISIBLE);
             headerGradient.setVisibility(View.GONE);
-            noUser.setVisibility(View.VISIBLE);
+            noUserCard.setVisibility(View.VISIBLE);
         } else {
-            ProgressMessage.setVisibility(View.VISIBLE);
+            loadingCard.setVisibility(View.VISIBLE);
             headerGradient.setVisibility(View.VISIBLE);
             header.setVisibility(View.GONE);
-            noUser.setVisibility(View.GONE);
+            noUserCard.setVisibility(View.GONE);
             ViewPagerAdapter adapter = new ViewPagerAdapter(getChildFragmentManager());
             viewPager.setAdapter(adapter);
             tabLayout.setupWithViewPager(viewPager);
-            loadDataset();
+            loadData();
         }
         return statView;
     }
@@ -217,14 +223,14 @@ public class StatisticsFragment extends BaseInjectorFragment implements AdapterV
 
         if (mUserManager.isLoggedIn()) {
             LOG.info("Statistics Fragment Resumed.");
-            noUser.setVisibility(View.GONE);
+            noUserCard.setVisibility(View.GONE);
             ViewPagerAdapter adapter = new ViewPagerAdapter(getChildFragmentManager());
             viewPager.setAdapter(adapter);
             tabLayout.setupWithViewPager(viewPager);
             mUserManager.getUser();
-            loadDataset();
+            loadData();
         } else {
-            noUser.setVisibility(View.VISIBLE);
+            noUserCard.setVisibility(View.VISIBLE);
             cardView.setVisibility(View.INVISIBLE);
             scrollView.setVisibility(View.INVISIBLE);
         }
@@ -241,9 +247,9 @@ public class StatisticsFragment extends BaseInjectorFragment implements AdapterV
         unbinder.unbind();
     }
 
-    protected void loadDataset() {
+    protected void loadData() {
         getStatsOfUser();
-        getAllTracksFromDB();
+        getLastRemoteTrack();
     }
 
     public void getStatsOfUser(){
@@ -256,7 +262,7 @@ public class StatisticsFragment extends BaseInjectorFragment implements AdapterV
                     public void onStart() {
                         LOG.info("onStart() of getStatsOfUser");
                         mMainThreadWorker.schedule(() -> {
-                            ProgressMessage.setVisibility(View.VISIBLE);
+                            loadingCard.setVisibility(View.VISIBLE);
                         });
                     }
 
@@ -271,15 +277,15 @@ public class StatisticsFragment extends BaseInjectorFragment implements AdapterV
 
                         if (e instanceof NotConnectedException) {
                             LOG.error("Error", e);
-                            if (mUserStatistics == null) {
-                                LOG.debug("No User Statistics");
-                            }
                         } else if (e instanceof UnauthorizedException) {
                             LOG.error("Unauthorised",e);
-                            if (mUserStatistics == null) {
-                                LOG.debug("No User Statistics");
-                            }
                         }
+
+                        messageHeader.setText(R.string.stats_error_header);
+                        messageDesc.setText(R.string.stats_error_desc);
+                        messageCard.setVisibility(View.VISIBLE);
+                        tracksCard.setVisibility(View.GONE);
+                        loadingCard.setVisibility(View.GONE);
                     }
 
                     @Override
@@ -289,20 +295,21 @@ public class StatisticsFragment extends BaseInjectorFragment implements AdapterV
                         userStatsLoaded = Boolean.TRUE;
                         if (trackStatsLoaded == Boolean.TRUE)
                             setUserStatisticsInCard();
+
                     }
                 }));
     }
 
-    public void getAllTracksFromDB() {
+    public void getLastRemoteTrack() {
         subscriptions.add(mDAOProvider.getTrackDAO().getTrackIdsWithLimitObservable(1)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Subscriber<List<Track>>() {
                     @Override
                     public void onStart() {
-                        LOG.info("onStart() of getAllTracksFromDB");
+                        LOG.info("onStart() of getLastRemoteTrack");
                         mMainThreadWorker.schedule(() -> {
-                            ProgressMessage.setVisibility(View.VISIBLE);
+                            loadingCard.setVisibility(View.VISIBLE);
                         });
                     }
 
@@ -317,28 +324,23 @@ public class StatisticsFragment extends BaseInjectorFragment implements AdapterV
 
                         if (e instanceof NotConnectedException) {
                             LOG.error("Error", e);
-                            if (mTrackList.isEmpty()) {
-                                LOG.debug("TrackList Empty");
-                            }
                         } else if (e instanceof UnauthorizedException) {
                             LOG.error("Unauthorised",e);
-                            if (mTrackList.isEmpty()) {
-                                LOG.debug("TrackList Empty");
-                            }
                         }
-                        ProgressMessage.setVisibility(View.INVISIBLE);
+
+                        messageHeader.setText(R.string.stats_error_header);
+                        messageDesc.setText(R.string.stats_error_desc);
+                        messageCard.setVisibility(View.VISIBLE);
+                        tracksCard.setVisibility(View.GONE);
+                        loadingCard.setVisibility(View.GONE);
                     }
 
                     @Override
                     public void onNext(List<Track> trackList) {
-                        LOG.info("onNext(" + trackList.size() + ") tracks stored on db");
-
-                        for (Track track : trackList) {
-                            if (!mTrackList.contains(track)) {
-                                mTrackList.add(track);
-                            }
-                        }
-                        Collections.sort(mTrackList);
+                        if (trackList != null && trackList.size() != 0)
+                            lastTrack = trackList.get(0);
+                        else
+                            lastTrack = null;
                         getLastTrackStatistics();
                     }
                 }));
@@ -346,7 +348,7 @@ public class StatisticsFragment extends BaseInjectorFragment implements AdapterV
 
     public void getLastTrackStatistics() {
 
-        String trackID = mTrackList.get(0).getRemoteID();
+        String trackID = lastTrack.getRemoteID();
         subscriptions.add(mDAOProvider.getTrackStatisticsDAO().getTrackStatisticsObservable(trackID)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -355,9 +357,6 @@ public class StatisticsFragment extends BaseInjectorFragment implements AdapterV
                     @Override
                     public void onStart() {
                         LOG.info("onStart of getLastTrackStatistics");
-                        mMainThreadWorker.schedule(() -> {
-
-                        });
                     }
 
                     @Override
@@ -368,17 +367,18 @@ public class StatisticsFragment extends BaseInjectorFragment implements AdapterV
                     @Override
                     public void onError(Throwable e) {
                         LOG.error(e.getMessage(), e);
+
                         if (e instanceof NotConnectedException) {
                             LOG.error("Error", e);
-                            if (mTrackStatistics == null) {
-                                LOG.debug("Last Track Statistics Empty");
-                            }
                         } else if (e instanceof UnauthorizedException) {
                             LOG.error("Unauthorised",e);
-                            if (mTrackStatistics == null) {
-                                LOG.debug("Last Track Statistics Empty");
-                            }
                         }
+
+                        messageHeader.setText(R.string.stats_error_header);
+                        messageDesc.setText(R.string.stats_error_desc);
+                        messageCard.setVisibility(View.VISIBLE);
+                        tracksCard.setVisibility(View.GONE);
+                        loadingCard.setVisibility(View.GONE);
                     }
 
                     @Override
@@ -470,21 +470,23 @@ public class StatisticsFragment extends BaseInjectorFragment implements AdapterV
         if (trackAvgSpeed == null && trackAvgFuel == null)
             StatInfo.setVisibility(View.INVISIBLE);
 
-        LOG.info("Layouts set.");
         updateView();
     }
 
     private void updateView() {
-        ProgressMessage.setVisibility(View.INVISIBLE);
-        if (mTrackList.isEmpty()) {
-            LOG.info("No Tracks in DB");
-            noTracksCard.setVisibility(View.VISIBLE);
-            TracksCard.setVisibility(View.GONE);
+        loadingCard.setVisibility(View.INVISIBLE);
+
+        if (lastTrack == null) {
+            messageHeader.setText(R.string.stat_no_tracks);
+            messageDesc.setText(R.string.stats_no_tracks_desc);
+            messageCard.setVisibility(View.VISIBLE);
+            tracksCard.setVisibility(View.GONE);
         } else {
-            TracksCard.setVisibility(View.VISIBLE);
+            messageCard.setVisibility(View.GONE);
+            tracksCard.setVisibility(View.VISIBLE);
 
             TrackwDate t = new TrackwDate();
-            t.getDateTime(mTrackList.get(0),1);
+            t.getDateTime(lastTrack,1);
             SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, MMMM dd, yyyy", Locale.getDefault());
             SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm a", Locale.getDefault());
             LastTrackDate.setText(dateFormat.format(t.getDateObject()));

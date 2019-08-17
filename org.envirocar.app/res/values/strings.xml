@@ -120,6 +120,9 @@
     <string name="stat_no_tracks">You have no Tracks</string>
     <string name="stats_no_tracks_desc">Come back after uploading some tracks</string>
     <string name="no_user_text">Please sign in to view your Statistics</string>
+    <string name="statistics_loading_data">Loading Data...</string>
+    <string name="stats_error_header">Error</string>
+    <string name="stats_error_desc">There was an error getting your last track</string>
 
 
 </resources>

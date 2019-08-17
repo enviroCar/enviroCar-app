@@ -73,7 +73,7 @@
         app:layout_constraintTop_toTopOf="@+id/guideline4">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/loading_layout"
+            android:id="@+id/loading_card"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="visible">
@@ -94,13 +94,13 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/no_tracks_card"
+            android:id="@+id/message_card"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="gone">
 
             <TextView
-                android:id="@+id/stat_no_tracks"
+                android:id="@+id/message_header"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="24dp"
@@ -114,7 +114,7 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
-                android:id="@+id/stat_no_tracks_desc"
+                android:id="@+id/message_desc"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="24dp"
@@ -125,7 +125,7 @@
                 android:textSize="@dimen/subtitle"
                 android:visibility="visible"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/stat_no_tracks" />
+                app:layout_constraintTop_toBottomOf="@+id/message_header" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -353,7 +353,7 @@
             <androidx.viewpager.widget.ViewPager
                 android:id="@+id/stat_viewPager"
                 android:layout_width="match_parent"
-                android:layout_height="500dp">
+                android:layout_height="400dp">
 
             </androidx.viewpager.widget.ViewPager>
 

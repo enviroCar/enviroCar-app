@@ -21,27 +21,12 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/no_stats"
+        android:id="@+id/info_msg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="40dp"
         android:fontFamily="@font/roboto_medium"
         android:text="@string/no_stats"
-        android:textColor="#9C9C9C"
-        android:textSize="13sp"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@+id/chart"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.496"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <TextView
-        android:id="@+id/loading_stats"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="40dp"
-        android:fontFamily="@font/roboto_medium"
-        android:text="Loading data..."
         android:textColor="#9C9C9C"
         android:textSize="13sp"
         android:visibility="visible"
@@ -53,12 +38,9 @@
     <lecho.lib.hellocharts.view.LineChartView
         android:id="@+id/chart"
         android:layout_width="0dp"
-        android:layout_height="200dp"
-        android:layout_marginStart="4dp"
-        android:layout_marginLeft="4dp"
+        android:layout_height="225dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="4dp"
-        android:layout_marginRight="4dp"
+        android:padding="8dp"
         android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -71,11 +53,12 @@
         android:layout_marginTop="8dp"
         android:layout_marginBottom="20dp"
         android:visibility="visible"
-        app:layout_constraintBottom_toTopOf="@+id/no_stats"
+        app:layout_constraintBottom_toTopOf="@+id/info_msg"
         app:layout_constraintEnd_toStartOf="@+id/chart"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/chart"
         app:layout_constraintTop_toTopOf="@+id/chart"
+        app:layout_constraintVertical_bias="0.5"
         app:srcCompat="@drawable/no_tracks" />
 
     <ImageButton

@@ -91,11 +91,8 @@ public class GraphFragment extends BaseInjectorFragment {
     @BindView(R.id.dateButton)
     protected Button dateButton;
 
-    @BindView(R.id.no_stats)
-    protected TextView noStats;
-
-    @BindView(R.id.loading_stats)
-    protected TextView loadingStats;
+    @BindView(R.id.info_msg)
+    protected TextView infoMsg;
 
     @BindView(R.id.info_img)
     protected ImageView infoImg;
@@ -110,14 +107,18 @@ public class GraphFragment extends BaseInjectorFragment {
     protected lecho.lib.hellocharts.view.LineChartView mChart;
 
     private LineChartData mChartData;
+    // If spinnerChoice is Speed, this list holds the number of tracks corresponding
+    // to each indice of values. It is used to calculate the average speed for each indice
     protected ArrayList<Float> noOfTracks;
+    private Boolean isTrackDownloading = false;
+    // Holds the current date range to show
     protected int mYear, mMonth, mDay, mWeek, begOfWeek, endOfWeek;
+    private ChoiceViewModel choiceViewModel;
+
     protected CompositeSubscription subscriptions = new CompositeSubscription();
     protected Scheduler.Worker mMainThreadWorker = AndroidSchedulers.mainThread().createWorker();
     private Unbinder unbinder;
-    private ChoiceViewModel choiceViewModel;
     private Context context;
-    private Boolean isTrackDownloading = false;
 
     // List of tracks for the range selected
     protected List<Track> mTrackList = new ArrayList<>();
@@ -169,7 +170,8 @@ public class GraphFragment extends BaseInjectorFragment {
             LOG.info("choiceViewModel.getSelectedOption()");
             spinnerChoice = item;
             infoImg.setVisibility(View.VISIBLE);
-            loadingStats.setVisibility(View.VISIBLE);
+            infoMsg.setText(R.string.statistics_loading_data);
+            infoMsg.setVisibility(View.VISIBLE);
             mChart.setVisibility(View.INVISIBLE);
             loadGraph();
         });
@@ -185,8 +187,20 @@ public class GraphFragment extends BaseInjectorFragment {
         unbinder = ButterKnife.bind(this, view);
         mDAOProvider = new DAOProvider(context);
         spinnerChoice = 0;
-        cleanUpData();
+        Calendar c = Calendar.getInstance();
+        setDates(c);
+        loadGraph();
         return view;
+    }
+
+    public void setDates(Calendar c){
+        mYear = c.get(Calendar.YEAR);
+        mMonth = c.get(Calendar.MONTH);
+        mDay = c.get(Calendar.DAY_OF_MONTH);
+        mWeek = c.get(Calendar.WEEK_OF_YEAR);
+        begOfWeek = getWeekStartDate(c.getTime()).getDate();
+        endOfWeek = getWeekEndDate(c.getTime()).getDate();
+        setDateSelectorButton(c);
     }
 
     public void loadGraph() {
@@ -199,7 +213,7 @@ public class GraphFragment extends BaseInjectorFragment {
             if (persistentTrackList.size() == 0)
                 getData();
             else
-                loadDates();
+                setDatesForTrim();
         }
     }
 
@@ -207,14 +221,6 @@ public class GraphFragment extends BaseInjectorFragment {
      * Resets all data used in the chart
      */
     public void cleanUpData() {
-        Calendar c = Calendar.getInstance();
-        mYear = c.get(Calendar.YEAR);
-        mMonth = c.get(Calendar.MONTH);
-        mDay = c.get(Calendar.DAY_OF_MONTH);
-        mWeek = c.get(Calendar.WEEK_OF_YEAR);
-        begOfWeek = getWeekStartDate(c.getTime()).getDate();
-        endOfWeek = getWeekEndDate(c.getTime()).getDate();
-
         trackIteration = 0;
         xAxisNameArray = new ArrayList<>();
         xAxisNameArray.add("Days");
@@ -222,7 +228,6 @@ public class GraphFragment extends BaseInjectorFragment {
         xAxisNameArray.add("Months");
         setZeros();
         setLabels();
-        setDateSelectorButton(c);
     }
 
     @Override
@@ -233,6 +238,7 @@ public class GraphFragment extends BaseInjectorFragment {
         }
         unbinder.unbind();
     }
+
 
     /**
      * Set all the y values of the chart to zero
@@ -322,7 +328,7 @@ public class GraphFragment extends BaseInjectorFragment {
                             }
                         }
                         isTrackDownloading = false;
-                        loadDates();
+                        setDatesForTrim();
                     }
                 }));
     }
@@ -342,35 +348,43 @@ public class GraphFragment extends BaseInjectorFragment {
 
 
     /**
-     * Set the date range needed and then trim mTrackList
+     * Set the start and end date range needed and then trim mTrackList
      */
-    public void loadDates() {
+    public void setDatesForTrim() {
+        LOG.info("setDatesForTrim()");
+
         infoImg.setVisibility(View.VISIBLE);
-        loadingStats.setVisibility(View.VISIBLE);
-        noStats.setVisibility(View.GONE);
+        infoMsg.setVisibility(View.VISIBLE);
+        infoMsg.setText(R.string.statistics_loading_data);
         mChart.setVisibility(View.INVISIBLE);
 
         setTrackList();
 
         Calendar cal = Calendar.getInstance();
-        Date after = cal.getTime(), before = cal.getTime();
+        Date start = cal.getTime(), end = cal.getTime();
         if (tabPosition == 0) {
             cal.set(mYear,mMonth,mDay);
-            after = getWeekStartDate(cal.getTime());
-            before = getWeekEndDate(cal.getTime());
+            start = getWeekStartDate(cal.getTime());
+            end = getWeekEndDate(cal.getTime());
         } else if (tabPosition == 1) {
+            // Set the start date as the beginning of the current month
             cal.set(mYear,mMonth,1);
-            after = cal.getTime();
+            start = cal.getTime();
+
+            // Set the end date as the beginning of the next month
             cal.set(mYear,mMonth+1,1);
-            before = cal.getTime();
+            end = cal.getTime();
         } else if (tabPosition == 2) {
+            // Set the start date as Jan 1st of the current year
             cal.set(mYear,0,1);
-            after = cal.getTime();
+            start = cal.getTime();
+
+            // Set the end date as Jan 1st of the next year
             cal.set(mYear+1,0,1);
-            before = cal.getTime();
+            end = cal.getTime();
         }
 
-        trimTracksToRange(after, before);
+        trimTracksToRange(start, end);
     }
 
     public void trimTracksToRange(Date start, Date end) {
@@ -388,8 +402,8 @@ public class GraphFragment extends BaseInjectorFragment {
 
     public void setGraph() {
         if(mTrackList.size() == 0) {
-            loadingStats.setVisibility(View.GONE);
-            noStats.setVisibility(View.VISIBLE);
+            infoMsg.setText(R.string.no_stats);
+            infoMsg.setVisibility(View.VISIBLE);
             infoImg.setVisibility(View.VISIBLE);
         } else {
             TrackwDate t = new TrackwDate();
@@ -434,6 +448,11 @@ public class GraphFragment extends BaseInjectorFragment {
         }
     }
 
+    /**
+     * Get the average speed for the track and add it to the values List
+     * @param trackID for the track to get average speed
+     * @param t used to select which index of values to add the speed to
+     */
     public void getTrackStatistics(String trackID, TrackwDate t) {
         int index;
         if (tabPosition == 0)
@@ -478,6 +497,10 @@ public class GraphFragment extends BaseInjectorFragment {
                 }));
     }
 
+    /**
+     * @param trackStatistics
+     * @return the average speed from the trackStatistics object
+     */
     public Float getTrackStatData(TrackStatistics trackStatistics) {
         if (trackStatistics.getStatistic(TrackStatistics.KEY_USER_STAT_SPEED) != null)
             return (float) trackStatistics.getStatistic(TrackStatistics.KEY_USER_STAT_SPEED).getAvgValue();
@@ -485,13 +508,13 @@ public class GraphFragment extends BaseInjectorFragment {
             return (float) 0;
     }
 
-
+    /**
+     * After the statistics for all tracks have been downloaded, compute the average for
+     * each indice of values
+     */
     public void computeAverageSpeed() {
-        // Have the statistics for all the tracks in range been saved?
-        // If yes, compute the averages for the values List
-        // else, do nothing
         if (trackIteration < mTrackList.size()) {
-
+            // Do nothing..
         } else {
             LOG.info("Stats of all tracks loaded");
             for (int i = 0; i < values.size(); ++i) {
@@ -507,8 +530,7 @@ public class GraphFragment extends BaseInjectorFragment {
      * needed parameters for the graph
      */
     public void setGraphOptionsAndShow() {
-        loadingStats.setVisibility(View.GONE);
-        noStats.setVisibility(View.GONE);
+        infoMsg.setVisibility(View.GONE);
         infoImg.setVisibility(View.GONE);
         mChart.setVisibility(View.VISIBLE);
         mChart.cancelDataAnimation();
@@ -538,26 +560,19 @@ public class GraphFragment extends BaseInjectorFragment {
     }
 
     @OnClick(R.id.dateButton)
-    public void setDate() {
+    public void createDateDialog() {
         DatePickerDialog datePickerDialog = new DatePickerDialog(context,
                 new DatePickerDialog.OnDateSetListener() {
 
                     @Override
                     public void onDateSet(DatePicker view, int year,
                                           int monthOfYear, int dayOfMonth) {
-                        mYear = year;
-                        mMonth = monthOfYear;
-                        mDay = dayOfMonth;
                         Calendar c = Calendar.getInstance();
-                        c.set(Calendar.YEAR,mYear);
-                        c.set(Calendar.MONTH, mMonth);
-                        c.set(Calendar.DAY_OF_MONTH, mDay);
-                        mWeek = c.get(Calendar.WEEK_OF_YEAR);
-                        begOfWeek = getWeekStartDate(c.getTime()).getDate();
-                        endOfWeek = getWeekEndDate(c.getTime()).getDate();
-                        LOG.info("mWeek: "+mWeek+" mYear: "+mYear+" mMonth: "+mMonth+" mDay: "+mDay);
-                        setDateSelectorButton(c);
-                        loadDates();
+                        c.set(Calendar.YEAR,year);
+                        c.set(Calendar.MONTH, monthOfYear);
+                        c.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                        setDates(c);
+                        loadGraph();
                     }
                 }, mYear, mMonth, mDay);
         datePickerDialog.show();
@@ -605,12 +620,6 @@ public class GraphFragment extends BaseInjectorFragment {
         if (tabPosition == 0) {
             c.set(mYear,mMonth,mDay);
             c.add(Calendar.DAY_OF_YEAR, -7);
-            mYear = c.get(Calendar.YEAR);
-            mMonth = c.get(Calendar.MONTH);
-            mDay = c.get(Calendar.DAY_OF_MONTH);
-            mWeek = c.get(Calendar.WEEK_OF_YEAR);
-            begOfWeek = getWeekStartDate(c.getTime()).getDate();
-            endOfWeek = getWeekEndDate(c.getTime()).getDate();
         } else if(tabPosition == 1) {
             mMonth--;
             c.set(mYear,mMonth,mDay);
@@ -623,8 +632,8 @@ public class GraphFragment extends BaseInjectorFragment {
         if (spinnerChoice == 2) {
             subscriptions.clear();
         }
-        setDateSelectorButton(c);
-        loadDates();
+        setDates(c);
+        loadGraph();
     }
 
     /**
@@ -636,12 +645,6 @@ public class GraphFragment extends BaseInjectorFragment {
         if (tabPosition == 0) {
             c.set(mYear,mMonth,mDay);
             c.add(Calendar.DAY_OF_YEAR, 7);
-            mYear = c.get(Calendar.YEAR);
-            mMonth = c.get(Calendar.MONTH);
-            mDay = c.get(Calendar.DAY_OF_MONTH);
-            mWeek = c.get(Calendar.WEEK_OF_YEAR);
-            begOfWeek = getWeekStartDate(c.getTime()).getDate();
-            endOfWeek = getWeekEndDate(c.getTime()).getDate();
         } else if (tabPosition == 1) {
             mMonth++;
             c.set(mYear,mMonth,mDay);
@@ -654,7 +657,7 @@ public class GraphFragment extends BaseInjectorFragment {
         if (spinnerChoice == 2) {
             subscriptions.clear();
         }
-        setDateSelectorButton(c);
-        loadDates();
+        setDates(c);
+        loadGraph();
     }
 }
