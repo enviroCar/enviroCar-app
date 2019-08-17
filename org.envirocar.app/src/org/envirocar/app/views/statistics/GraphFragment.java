@@ -115,7 +115,7 @@ public class GraphFragment extends BaseInjectorFragment {
 
     private LineChartData mChartData;
     // If spinnerChoice is Speed, this list holds the number of tracks corresponding
-    // to each indice of values. It is used to calculate the average speed for each indice
+    // to each index of values. It is used to calculate the average speed for each index
     protected ArrayList<Float> noOfTracks;
     private Boolean isTrackDownloading = false;
     private ChoiceViewModel choiceViewModel;
@@ -443,7 +443,7 @@ public class GraphFragment extends BaseInjectorFragment {
                 for (Track track : mTrackList) {
                     String trackID = track.getRemoteID();
                     TrackDateUtil t = new TrackDateUtil(track);
-                    getTrackStatistics(trackID, t);
+                    getTrackStatistics(trackID, t, TrackStatistics.KEY_USER_STAT_SPEED);
                 }
             }
         }
@@ -453,8 +453,9 @@ public class GraphFragment extends BaseInjectorFragment {
      * Get the average speed for the track and add it to the values List
      * @param trackID for the track to get average speed
      * @param t used to select which index of values to add the speed to
+     * @param phenomenon the phenomenon to get data for
      */
-    public void getTrackStatistics(String trackID, TrackDateUtil t) {
+    public void getTrackStatistics(String trackID, TrackDateUtil t, String phenomenon) {
         int index;
         if (tabPosition == 0)
             index = t.getDay() - 1;
@@ -463,14 +464,15 @@ public class GraphFragment extends BaseInjectorFragment {
         else
             index = t.getMonth();
 
-        subscriptions.add(mDAOProvider.getTrackStatisticsDAO().getTrackStatisticsObservable(trackID)
+        subscriptions.add(mDAOProvider.getTrackStatisticsDAO()
+                .getTrackStatisticsByPhenomenonObservable(trackID, phenomenon)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Subscriber<TrackStatistics>() {
 
                     @Override
                     public void onStart() {
-                        LOG.info("onStart() of getTrackStatistics with " + trackID +" at index: " + index);
+                        LOG.info("onStart() of getTrackStatistics with " + trackID);
                     }
 
                     @Override
@@ -490,30 +492,32 @@ public class GraphFragment extends BaseInjectorFragment {
 
                     @Override
                     public void onNext(TrackStatistics trackStatistics) {
-                        values.set(index, values.get(index) + getTrackStatData(trackStatistics));
+                        values.set(index, values.get(index) + getTrackStatData(trackStatistics, phenomenon));
                         noOfTracks.set(index, noOfTracks.get(index) + 1);
                         trackIteration++;
-                        computeAverageSpeed();
+                        computeAverages();
                     }
                 }));
     }
 
     /**
+     *
      * @param trackStatistics
-     * @return the average speed from the trackStatistics object
+     * @param phenomenon
+     * @return the average value of the specified phenomenon from the trackstatistics object
      */
-    public Float getTrackStatData(TrackStatistics trackStatistics) {
-        if (trackStatistics.getStatistic(TrackStatistics.KEY_USER_STAT_SPEED) != null)
-            return (float) trackStatistics.getStatistic(TrackStatistics.KEY_USER_STAT_SPEED).getAvgValue();
+    public Float getTrackStatData(TrackStatistics trackStatistics, String phenomenon) {
+        if (trackStatistics.getStatistic(phenomenon) != null)
+            return (float) trackStatistics.getStatistic(phenomenon).getAvgValue();
         else
             return (float) 0;
     }
 
     /**
      * After the statistics for all tracks have been downloaded, compute the average for
-     * each indice of values
+     * each index of values
      */
-    public void computeAverageSpeed() {
+    public void computeAverages() {
         if (trackIteration < mTrackList.size()) {
             // Do nothing..
         } else {
