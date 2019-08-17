@@ -389,8 +389,7 @@ public class GraphFragment extends BaseInjectorFragment {
 
     public void trimTracksToRange(Date start, Date end) {
         for (int i = 0; i < mTrackList.size(); ++i) {
-            TrackwDate t = new TrackwDate();
-            t.getDateTime(mTrackList.get(i));
+            TrackDateUtil t = new TrackDateUtil(mTrackList.get(i));
             if (!(t.getDateObject().after(start) && t.getDateObject().before(end))) {
                 mTrackList.remove(i);
                 i--;
@@ -406,7 +405,6 @@ public class GraphFragment extends BaseInjectorFragment {
             infoMsg.setVisibility(View.VISIBLE);
             infoImg.setVisibility(View.VISIBLE);
         } else {
-            TrackwDate t = new TrackwDate();
             setLabels();
             setZeros();
 
@@ -414,7 +412,7 @@ public class GraphFragment extends BaseInjectorFragment {
                 for (int i = 0; i < mTrackList.size(); ++i) {
                     try {
                         Track temp = mTrackList.get(i);
-                        t.getDateTime(temp);
+                        TrackDateUtil t = new TrackDateUtil(temp);
 
                         // Which day / date / month does the data need to be stored in
                         int index;
@@ -441,7 +439,7 @@ public class GraphFragment extends BaseInjectorFragment {
                 trackIteration = 0;
                 for (Track track : mTrackList) {
                     String trackID = track.getRemoteID();
-                    t.getDateTime(track);
+                    TrackDateUtil t = new TrackDateUtil(track);
                     getTrackStatistics(trackID, t);
                 }
             }
@@ -453,7 +451,7 @@ public class GraphFragment extends BaseInjectorFragment {
      * @param trackID for the track to get average speed
      * @param t used to select which index of values to add the speed to
      */
-    public void getTrackStatistics(String trackID, TrackwDate t) {
+    public void getTrackStatistics(String trackID, TrackDateUtil t) {
         int index;
         if (tabPosition == 0)
             index = t.getDay() - 1;

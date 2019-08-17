@@ -485,10 +485,9 @@ public class StatisticsFragment extends BaseInjectorFragment implements AdapterV
             messageCard.setVisibility(View.GONE);
             tracksCard.setVisibility(View.VISIBLE);
 
-            TrackwDate t = new TrackwDate();
-            t.getDateTime(lastTrack,1);
+            TrackDateUtil t = new TrackDateUtil(lastTrack);
             SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, MMMM dd, yyyy", Locale.getDefault());
-            SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm a", Locale.getDefault());
+            SimpleDateFormat timeFormat = new SimpleDateFormat("KK:mm a", Locale.getDefault());
             LastTrackDate.setText(dateFormat.format(t.getDateObject()));
             LastTrackTime.setText(timeFormat.format(t.getDateObject()));
 

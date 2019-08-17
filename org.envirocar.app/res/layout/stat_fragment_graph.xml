@@ -20,25 +20,10 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/info_msg"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="40dp"
-        android:fontFamily="@font/roboto_medium"
-        android:text="@string/no_stats"
-        android:textColor="#9C9C9C"
-        android:textSize="13sp"
-        android:visibility="visible"
-        app:layout_constraintBottom_toBottomOf="@+id/chart"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.496"
-        app:layout_constraintStart_toStartOf="parent" />
-
     <lecho.lib.hellocharts.view.LineChartView
         android:id="@+id/chart"
         android:layout_width="0dp"
-        android:layout_height="225dp"
+        android:layout_height="200dp"
         android:layout_marginTop="8dp"
         android:padding="8dp"
         android:visibility="invisible"
@@ -58,8 +43,23 @@
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/chart"
         app:layout_constraintTop_toTopOf="@+id/chart"
-        app:layout_constraintVertical_bias="0.5"
+        app:layout_constraintVertical_bias="0.8"
         app:srcCompat="@drawable/no_tracks" />
+
+    <TextView
+        android:id="@+id/info_msg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="40dp"
+        android:fontFamily="@font/roboto_medium"
+        android:text="@string/no_stats"
+        android:textColor="#9C9C9C"
+        android:textSize="@dimen/subtext"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="@+id/chart"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.496"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <ImageButton
         android:id="@+id/arrow_left"
