@@ -16,6 +16,8 @@ import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.widget.NestedScrollView;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.transition.ChangeBounds;
+import androidx.transition.TransitionManager;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.tabs.TabLayout;
@@ -196,6 +198,8 @@ public class StatisticsFragment extends BaseInjectorFragment implements AdapterV
         userStatsLoaded = false;
         trackStatsLoaded = false;
         subscriptions = new CompositeSubscription();
+
+        TransitionManager.beginDelayedTransition(cardView, new ChangeBounds());
 
         if (!isUserSignedIn) {
             cardView.setVisibility(View.GONE);

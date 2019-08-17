@@ -14,8 +14,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.transition.Fade;
+import androidx.transition.Transition;
+import androidx.transition.TransitionManager;
 
 import org.envirocar.app.R;
 import org.envirocar.app.handler.DAOProvider;
@@ -88,6 +92,9 @@ public class GraphFragment extends BaseInjectorFragment {
     @Inject
     protected EnviroCarDB mEnvirocarDB;
 
+    @BindView(R.id.graphLayout)
+    protected ConstraintLayout graphLayout;
+
     @BindView(R.id.dateButton)
     protected Button dateButton;
 
@@ -111,9 +118,12 @@ public class GraphFragment extends BaseInjectorFragment {
     // to each indice of values. It is used to calculate the average speed for each indice
     protected ArrayList<Float> noOfTracks;
     private Boolean isTrackDownloading = false;
-    // Holds the current date range to show
-    protected int mYear, mMonth, mDay, mWeek, begOfWeek, endOfWeek;
     private ChoiceViewModel choiceViewModel;
+
+    // Holds the current date for the date picker
+    protected int mYear, mMonth, mDay;
+    // Holds the current date range to show data for
+    protected Date startDate, endDate;
 
     protected CompositeSubscription subscriptions = new CompositeSubscription();
     protected Scheduler.Worker mMainThreadWorker = AndroidSchedulers.mainThread().createWorker();
@@ -193,14 +203,33 @@ public class GraphFragment extends BaseInjectorFragment {
         return view;
     }
 
-    public void setDates(Calendar c){
+    public void setDates(Calendar c) {
+        if (tabPosition == 0) {
+            startDate = getWeekStartDate(c.getTime());
+            endDate = getWeekEndDate(c.getTime());
+        } else if (tabPosition == 1 ) {
+            // Set the start date as the 1st of the current month
+            c.set(Calendar.DAY_OF_MONTH, 1);
+            startDate = c.getTime();
+
+            // Set the end date as the 1st of the next month
+            c.set(c.get(Calendar.YEAR), c.get(Calendar.MONTH) + 1, 1 );
+            endDate = c.getTime();
+        } else if (tabPosition == 2) {
+            // Set the start date as Jan 1st of the current year
+            c.set(Calendar.DAY_OF_YEAR, 1);
+            startDate = c.getTime();
+
+            // Set the end date as Jan 1st of the next month
+            c.set(c.get(Calendar.YEAR) + 1, 0, 1 );
+            endDate = c.getTime();
+        }
+
+        c.setTime(startDate);
         mYear = c.get(Calendar.YEAR);
         mMonth = c.get(Calendar.MONTH);
         mDay = c.get(Calendar.DAY_OF_MONTH);
-        mWeek = c.get(Calendar.WEEK_OF_YEAR);
-        begOfWeek = getWeekStartDate(c.getTime()).getDate();
-        endOfWeek = getWeekEndDate(c.getTime()).getDate();
-        setDateSelectorButton(c);
+        setDateSelectorButton();
     }
 
     public void loadGraph() {
@@ -213,7 +242,15 @@ public class GraphFragment extends BaseInjectorFragment {
             if (persistentTrackList.size() == 0)
                 getData();
             else
-                setDatesForTrim();
+            {
+                infoImg.setVisibility(View.VISIBLE);
+                infoMsg.setVisibility(View.VISIBLE);
+                infoMsg.setText(R.string.statistics_loading_data);
+                mChart.setVisibility(View.INVISIBLE);
+
+                setTrackList();
+                trimTracksToRange(startDate, endDate);
+            }
         }
     }
 
@@ -328,7 +365,14 @@ public class GraphFragment extends BaseInjectorFragment {
                             }
                         }
                         isTrackDownloading = false;
-                        setDatesForTrim();
+
+                        infoImg.setVisibility(View.VISIBLE);
+                        infoMsg.setVisibility(View.VISIBLE);
+                        infoMsg.setText(R.string.statistics_loading_data);
+                        mChart.setVisibility(View.INVISIBLE);
+
+                        setTrackList();
+                        trimTracksToRange(startDate, endDate);
                     }
                 }));
     }
@@ -344,47 +388,6 @@ public class GraphFragment extends BaseInjectorFragment {
                 mTrackList.add(track);
             }
         }
-    }
-
-
-    /**
-     * Set the start and end date range needed and then trim mTrackList
-     */
-    public void setDatesForTrim() {
-        LOG.info("setDatesForTrim()");
-
-        infoImg.setVisibility(View.VISIBLE);
-        infoMsg.setVisibility(View.VISIBLE);
-        infoMsg.setText(R.string.statistics_loading_data);
-        mChart.setVisibility(View.INVISIBLE);
-
-        setTrackList();
-
-        Calendar cal = Calendar.getInstance();
-        Date start = cal.getTime(), end = cal.getTime();
-        if (tabPosition == 0) {
-            cal.set(mYear,mMonth,mDay);
-            start = getWeekStartDate(cal.getTime());
-            end = getWeekEndDate(cal.getTime());
-        } else if (tabPosition == 1) {
-            // Set the start date as the beginning of the current month
-            cal.set(mYear,mMonth,1);
-            start = cal.getTime();
-
-            // Set the end date as the beginning of the next month
-            cal.set(mYear,mMonth+1,1);
-            end = cal.getTime();
-        } else if (tabPosition == 2) {
-            // Set the start date as Jan 1st of the current year
-            cal.set(mYear,0,1);
-            start = cal.getTime();
-
-            // Set the end date as Jan 1st of the next year
-            cal.set(mYear+1,0,1);
-            end = cal.getTime();
-        }
-
-        trimTracksToRange(start, end);
     }
 
     public void trimTracksToRange(Date start, Date end) {
@@ -576,16 +579,37 @@ public class GraphFragment extends BaseInjectorFragment {
         datePickerDialog.show();
     }
 
-    public void setDateSelectorButton(Calendar c){
+    public void setDateSelectorButton(){
+        Transition dateButtonTransition = new Fade();
+        dateButtonTransition.addTarget(dateButton).addTarget(R.id.dateButton);
+        TransitionManager.beginDelayedTransition(graphLayout, dateButtonTransition);
+
         if (tabPosition == 0) {
-            String header = begOfWeek + " - " + endOfWeek + " " + new SimpleDateFormat
-                    ("MMMM", Locale.getDefault()).format(c.getTime());
+            Calendar start = Calendar.getInstance(), end = Calendar.getInstance();
+            start.setTime(startDate);
+            end.setTime(endDate);
+
+            int begOfWeek = start.get(Calendar.DAY_OF_MONTH);
+            int endOfWeek = end.get(Calendar.DAY_OF_MONTH);
+
+            String header;
+            if(start.get(Calendar.MONTH) == end.get(Calendar.MONTH))
+                header = begOfWeek + " - " + endOfWeek + " " + new SimpleDateFormat
+                    ("MMMM", Locale.getDefault()).format(startDate);
+            else {
+                String begMonth = new SimpleDateFormat
+                        ("MMM", Locale.getDefault()).format(startDate);
+                String endMonth = new SimpleDateFormat
+                        ("MMM", Locale.getDefault()).format(endDate);
+                header = begOfWeek + " " + begMonth + " - " + endOfWeek + " " + endMonth;
+            }
+
             dateButton.setText(header);
         } else if (tabPosition == 1) {
-            String header = new SimpleDateFormat("MMMM yyyy", Locale.getDefault()).format(c.getTime());
+            String header = new SimpleDateFormat("MMMM yyyy", Locale.getDefault()).format(startDate);
             dateButton.setText(header);
         } else if (tabPosition == 2) {
-            String header = new SimpleDateFormat("yyyy", Locale.getDefault()).format(c.getTime());
+            String header = new SimpleDateFormat("yyyy", Locale.getDefault()).format(startDate);
             dateButton.setText(header);
         }
     }
@@ -594,7 +618,7 @@ public class GraphFragment extends BaseInjectorFragment {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
         while (calendar.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY) {
-            calendar.add(Calendar.DATE, -1);
+            calendar.add(Calendar.DAY_OF_YEAR, -1);
         }
         return calendar.getTime();
     }
@@ -603,9 +627,9 @@ public class GraphFragment extends BaseInjectorFragment {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
         while (calendar.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY) {
-            calendar.add(Calendar.DATE, 1);
+            calendar.add(Calendar.DAY_OF_YEAR, -1);
         }
-        calendar.add(Calendar.DATE, -1);
+        calendar.add(Calendar.DAY_OF_YEAR, 7);
         return calendar.getTime();
     }
 
