@@ -118,11 +118,12 @@
     <string name="submit">Submit</string>
     <string name="no_stats">There aren’t any tracks available for this range</string>
     <string name="stat_no_tracks">You have no Tracks</string>
-    <string name="stats_no_tracks_desc">Come back after uploading some tracks</string>
+    <string name="stats_no_tracks_desc">Come back after uploading a few tracks</string>
     <string name="no_user_text">Please sign in to view your Statistics</string>
     <string name="statistics_loading_data">Loading Data...</string>
     <string name="stats_error_header">Error</string>
     <string name="stats_error_desc">There was an error getting your last track</string>
+    <string name="statistics_error_loading_data">There was an error loading track data</string>
 
 
 </resources>

@@ -91,6 +91,17 @@
                 android:visibility="visible"
                 tools:layout_editor_absoluteX="40dp"
                 tools:layout_editor_absoluteY="16dp" />
+
+            <ImageView
+                android:id="@+id/loading_icon"
+                android:layout_width="@dimen/image_icon_s"
+                android:layout_height="@dimen/image_icon_s"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="12dp"
+                android:padding="2dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/baseline_refresh_black_24dp" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -126,6 +137,17 @@
                 android:visibility="visible"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/message_header" />
+
+            <ImageView
+                android:id="@+id/message_icon"
+                android:layout_width="@dimen/image_icon_s"
+                android:layout_height="@dimen/image_icon_s"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="12dp"
+                android:padding="2dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/baseline_refresh_black_24dp" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

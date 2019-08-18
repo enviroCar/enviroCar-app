@@ -346,15 +346,14 @@ public class GraphFragment extends BaseInjectorFragment {
                         LOG.error(e.getMessage(), e);
                         if (e instanceof NotConnectedException) {
                             LOG.error("Error", e);
-                            if (persistentTrackList.isEmpty()) {
-                                LOG.debug("persistentTrackList Empty");
-                            }
                         } else if (e instanceof UnauthorizedException) {
                             LOG.error("Unauthorised",e);
-                            if (persistentTrackList.isEmpty()) {
-                                LOG.debug("persistentTrackList Empty");
-                            }
                         }
+
+                        infoImg.setVisibility(View.VISIBLE);
+                        infoMsg.setVisibility(View.VISIBLE);
+                        infoMsg.setText(R.string.statistics_error_loading_data);
+                        mChart.setVisibility(View.INVISIBLE);
                     }
 
                     @Override
@@ -488,6 +487,11 @@ public class GraphFragment extends BaseInjectorFragment {
                         } else if (e instanceof UnauthorizedException) {
                             LOG.error("Unauthorised",e);
                         }
+
+                        infoImg.setVisibility(View.VISIBLE);
+                        infoMsg.setVisibility(View.VISIBLE);
+                        infoMsg.setText(R.string.statistics_error_loading_data);
+                        mChart.setVisibility(View.INVISIBLE);
                     }
 
                     @Override

@@ -5,6 +5,9 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.LinearInterpolator;
+import android.view.animation.RotateAnimation;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
@@ -116,6 +119,9 @@ public class StatisticsFragment extends BaseInjectorFragment implements AdapterV
     @BindView(R.id.loading_card)
     protected ConstraintLayout loadingCard;
 
+    @BindView(R.id.loading_icon)
+    protected ImageView loadingIcon;
+
     @BindView(R.id.message_card)
     protected ConstraintLayout messageCard;
 
@@ -124,6 +130,9 @@ public class StatisticsFragment extends BaseInjectorFragment implements AdapterV
 
     @BindView(R.id.message_desc)
     protected TextView messageDesc;
+
+    @BindView(R.id.message_icon)
+    protected ImageView messageIcon;
 
     @BindView(R.id.no_user_layout)
     protected ConstraintLayout noUserCard;
@@ -208,7 +217,6 @@ public class StatisticsFragment extends BaseInjectorFragment implements AdapterV
             headerGradient.setVisibility(View.GONE);
             noUserCard.setVisibility(View.VISIBLE);
         } else {
-            loadingCard.setVisibility(View.VISIBLE);
             headerGradient.setVisibility(View.VISIBLE);
             header.setVisibility(View.GONE);
             noUserCard.setVisibility(View.GONE);
@@ -217,6 +225,14 @@ public class StatisticsFragment extends BaseInjectorFragment implements AdapterV
             tabLayout.setupWithViewPager(viewPager);
             loadData();
         }
+
+        messageIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                messageCard.setVisibility(View.GONE);
+                loadData();
+            }
+        });
         return statView;
     }
 
@@ -252,6 +268,7 @@ public class StatisticsFragment extends BaseInjectorFragment implements AdapterV
     }
 
     protected void loadData() {
+        showLoadingCard();
         getStatsOfUser();
         getLastRemoteTrack();
     }
@@ -265,9 +282,6 @@ public class StatisticsFragment extends BaseInjectorFragment implements AdapterV
                     @Override
                     public void onStart() {
                         LOG.info("onStart() of getStatsOfUser");
-                        mMainThreadWorker.schedule(() -> {
-                            loadingCard.setVisibility(View.VISIBLE);
-                        });
                     }
 
                     @Override
@@ -289,7 +303,7 @@ public class StatisticsFragment extends BaseInjectorFragment implements AdapterV
                         messageDesc.setText(R.string.stats_error_desc);
                         messageCard.setVisibility(View.VISIBLE);
                         tracksCard.setVisibility(View.GONE);
-                        loadingCard.setVisibility(View.GONE);
+                        hideLoadingCard();
                     }
 
                     @Override
@@ -312,9 +326,6 @@ public class StatisticsFragment extends BaseInjectorFragment implements AdapterV
                     @Override
                     public void onStart() {
                         LOG.info("onStart() of getLastRemoteTrack");
-                        mMainThreadWorker.schedule(() -> {
-                            loadingCard.setVisibility(View.VISIBLE);
-                        });
                     }
 
                     @Override
@@ -336,7 +347,7 @@ public class StatisticsFragment extends BaseInjectorFragment implements AdapterV
                         messageDesc.setText(R.string.stats_error_desc);
                         messageCard.setVisibility(View.VISIBLE);
                         tracksCard.setVisibility(View.GONE);
-                        loadingCard.setVisibility(View.GONE);
+                        hideLoadingCard();
                     }
 
                     @Override
@@ -382,7 +393,7 @@ public class StatisticsFragment extends BaseInjectorFragment implements AdapterV
                         messageDesc.setText(R.string.stats_error_desc);
                         messageCard.setVisibility(View.VISIBLE);
                         tracksCard.setVisibility(View.GONE);
-                        loadingCard.setVisibility(View.GONE);
+                        hideLoadingCard();
                     }
 
                     @Override
@@ -478,7 +489,7 @@ public class StatisticsFragment extends BaseInjectorFragment implements AdapterV
     }
 
     private void updateView() {
-        loadingCard.setVisibility(View.INVISIBLE);
+        hideLoadingCard();
 
         if (lastTrack == null) {
             messageHeader.setText(R.string.stat_no_tracks);
@@ -517,6 +528,23 @@ public class StatisticsFragment extends BaseInjectorFragment implements AdapterV
 
     @Override
     public void onNothingSelected(AdapterView<?> arg0) {
+    }
+
+    public void showLoadingCard(){
+        loadingCard.setVisibility(View.VISIBLE);
+
+        RotateAnimation rotate = new RotateAnimation(0,360,
+                Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+        rotate.setDuration(1000);
+        rotate.setRepeatCount(Animation.INFINITE);
+        rotate.setRepeatMode(Animation.INFINITE);
+        rotate.setInterpolator(new LinearInterpolator());
+        loadingIcon.startAnimation(rotate);
+    }
+
+    public void hideLoadingCard(){
+        loadingIcon.clearAnimation();
+        loadingCard.setVisibility(View.GONE);
     }
 
 }
