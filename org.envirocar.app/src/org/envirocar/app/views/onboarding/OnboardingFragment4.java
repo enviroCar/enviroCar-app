@@ -29,7 +29,7 @@ import static android.content.Context.MODE_PRIVATE;
  */
 public class OnboardingFragment4 extends Fragment {
 
-    public interface OBButtonInterface{
+    public interface OBButtonInterface {
         void signInButtonPressed();
         void signUpButtonPressed();
         void skipButtonPressed();
@@ -71,8 +71,9 @@ public class OnboardingFragment4 extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.onboarding_4, container, false);
         ButterKnife.bind(this, view);
+
         SharedPreferences prefs = getContext().getSharedPreferences("userPrefs", MODE_PRIVATE);
-        if(!(prefs.contains("username") && prefs.contains("token"))){
+        if (!(prefs.contains("username") && prefs.contains("token"))) {
             signUp.setText("Sign Up");
             signUp.setVisibility(View.VISIBLE);
             skip.setVisibility(View.VISIBLE);
@@ -82,8 +83,7 @@ public class OnboardingFragment4 extends Fragment {
                     obButtonInterface.signInButtonPressed();
                 }
             });
-        }
-        else {
+        } else {
             signIn.setText("Continue to Dashboard");
             signUp.setVisibility(View.INVISIBLE);
             skip.setVisibility(View.INVISIBLE);
@@ -94,6 +94,7 @@ public class OnboardingFragment4 extends Fragment {
                 }
             });
         }
+
         signUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -107,12 +108,10 @@ public class OnboardingFragment4 extends Fragment {
                 obButtonInterface.skipButtonPressed();
             }
         });
-
         return view;
     }
 
-    public void setBackgroundVisibility(float alpha){
+    public void setBackgroundVisibility(float alpha) {
         background.setAlpha(alpha);
     }
-
 }

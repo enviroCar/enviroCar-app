@@ -57,6 +57,7 @@ public class OnboardingOBDActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.onboarding_obd);
         ButterKnife.bind(this);
+
         animatedcheck.setBackgroundResource(R.drawable.animated_check);
         frameAnimation = (AnimatedVectorDrawable) animatedcheck.getBackground();
 
@@ -105,7 +106,7 @@ public class OnboardingOBDActivity extends AppCompatActivity {
         doneP1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(whichPage == 0){
+                if (whichPage == 0) {
                     whichPage = 1;
                     TransitionManager.beginDelayedTransition(pages);
                     page1.setVisibility(View.GONE);
@@ -118,7 +119,7 @@ public class OnboardingOBDActivity extends AppCompatActivity {
         doneP2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(whichPage == 1){
+                if (whichPage == 1) {
                     whichPage = 2;
                     TransitionManager.beginDelayedTransition(page2);
                     page1.setVisibility(View.GONE);
@@ -133,19 +134,19 @@ public class OnboardingOBDActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         LOG.info("whichPage: " + whichPage);
-        if(frameAnimation.isRunning()){
+
+        if (frameAnimation.isRunning()) {
             frameAnimation.stop();
         }
-        if(whichPage == 0){
+        if (whichPage == 0) {
             super.onBackPressed();
-        }
-        else if(whichPage == 1){
+        } else if (whichPage == 1) {
             whichPage =0;
             TransitionManager.beginDelayedTransition(pages);
             page1.setVisibility(View.VISIBLE);
             page2.setVisibility(View.GONE);
             page3.setVisibility(View.GONE);
-        }else if(whichPage == 2){
+        } else if (whichPage == 2) {
             whichPage =1;
             TransitionManager.beginDelayedTransition(pages);
             page1.setVisibility(View.GONE);

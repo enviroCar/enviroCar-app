@@ -37,12 +37,6 @@ public class OnboardingFragment1 extends Fragment {
         // Required empty public constructor
     }
 
-    @BindView(R.id.header_guideline)
-    protected Guideline headerGuideline;
-
-    @BindView(R.id.image_guideline)
-    protected Guideline imageGuideline;
-
     @BindView(R.id.headerTV)
     protected TextView headerTV;
 
@@ -93,10 +87,7 @@ public class OnboardingFragment1 extends Fragment {
         return view;
     }
 
-    public void setBackgroundVisibility(float alpha){
+    public void setBackgroundVisibility(float alpha) {
         background.setAlpha(alpha);
     }
-
-
-
 }

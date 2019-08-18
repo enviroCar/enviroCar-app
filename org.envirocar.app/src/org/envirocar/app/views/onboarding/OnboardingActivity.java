@@ -55,15 +55,16 @@ public class OnboardingActivity extends AppCompatActivity implements OnboardingF
         super.onCreate(savedInstanceState);
         boolean isOnboardingComplete = PreferencesHandler.getSharedPreferences(getApplicationContext()).getBoolean(OnboardingActivity.ONBOARDING_COMPLETE,false);
         boolean isTest = false;
-        try{
+
+        try {
             Intent intent = getIntent();
             isTest = intent.getBooleanExtra("test-call", false);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
         LOGGER.info("Onboarding: "+ isOnboardingComplete);
-        if(isOnboardingComplete && !isTest ){
+        if (isOnboardingComplete && !isTest ) {
             Intent intent = new Intent(OnboardingActivity.this, BaseMainActivityBottomBar.class);
             LOGGER.info("Openning BaseMainActivityBottomBar");
             startActivity(intent);
@@ -87,13 +88,14 @@ public class OnboardingActivity extends AppCompatActivity implements OnboardingF
         viewPager.setAdapter(obPageAdapter);
         smartTabLayout.setViewPager(viewPager);
 
-        TransitionManager.beginDelayedTransition(onBoardingLayout, new Fade().setDuration(OnboardingFragment1.animationStart));
+        TransitionManager.beginDelayedTransition(onBoardingLayout, new Fade()
+                                                                    .setDuration(OnboardingFragment1.animationStart));
         nextButton.setVisibility(View.VISIBLE);
         skipButton.setVisibility(View.VISIBLE);
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(viewPager.getCurrentItem() < obPageAdapter.getCount()-1){
+                if (viewPager.getCurrentItem() < obPageAdapter.getCount()-1) {
                     viewPager.setCurrentItem(viewPager.getCurrentItem()+1,true);
                 }
             }
@@ -106,40 +108,37 @@ public class OnboardingActivity extends AppCompatActivity implements OnboardingF
             }
         });
 
-        smartTabLayout.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener(){
+        smartTabLayout.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
                 ArgbEvaluator evaluator = new ArgbEvaluator();
                 FloatEvaluator floatEvaluator = new FloatEvaluator();
+
                 int colorUpdate;
-                if(position == 0 || position == 1){
+                if (position == 0 || position == 1) {
                     Float alpha = (Float) floatEvaluator.evaluate(positionOffset, 1f, 0f);
                     if(viewPager.getAdapter() != null)
                         ((OBPageAdapter)viewPager.getAdapter()).setPageBackVisbility(alpha, 0);
                 }
-                if(position == 2){
+                if (position == 2) {
                     Float alpha = (Float) floatEvaluator.evaluate(positionOffset, 0f, 1f);
-                    if(viewPager.getAdapter() != null)
+                    if (viewPager.getAdapter() != null)
                         ((OBPageAdapter)viewPager.getAdapter()).setPageBackVisbility(alpha, 3);
                 }
-                if(position!=3){
+                if (position!=3) {
                     colorUpdate = (Integer) evaluator.evaluate(positionOffset, colorList[position], colorList[position + 1]);
-                }
-                else
-                {
+                } else {
                     colorUpdate = (Integer) evaluator.evaluate(positionOffset, colorList[position], colorList[position]);
                 }
                 viewPager.setBackgroundColor(colorUpdate);
             }
 
             @Override
-            public void onPageSelected(int position){
-                if(position == 3){
+            public void onPageSelected(int position) {
+                if (position == 3) {
                     skipButton.setVisibility(View.GONE);
                     nextButton.setVisibility(View.GONE);
-                }
-                else
-                {
+                } else {
                     skipButton.setVisibility(View.VISIBLE);
                     nextButton.setVisibility(View.VISIBLE);
                 }
@@ -158,12 +157,11 @@ public class OnboardingActivity extends AppCompatActivity implements OnboardingF
                         viewPager.setBackgroundColor(color3);
                         break;
                 }
-
             }
         });
     }
 
-    protected void finishOnboarding(){
+    protected void finishOnboarding() {
         PreferencesHandler.getSharedPreferences(getApplicationContext()).edit().putBoolean(ONBOARDING_COMPLETE,true).apply();
         Intent main = new Intent(OnboardingActivity.this, BaseMainActivityBottomBar.class);
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -172,20 +170,19 @@ public class OnboardingActivity extends AppCompatActivity implements OnboardingF
     }
 
     @Override
-    public void onPause(){
+    public void onPause() {
         super.onPause();
     }
 
     @Override
-    public void onBackPressed()
-    {
-        if(viewPager.getCurrentItem()!=0){
+    public void onBackPressed() {
+        if (viewPager.getCurrentItem()!=0) {
             viewPager.setCurrentItem(viewPager.getCurrentItem()-1);
         }
     }
 
     @Override
-    public void signInButtonPressed(){
+    public void signInButtonPressed() {
         PreferencesHandler.getSharedPreferences(getApplicationContext()).edit().putBoolean(ONBOARDING_COMPLETE,true).apply();
         Intent main = new Intent(OnboardingActivity.this, SigninActivity.class);
         main.putExtra("from","login");
@@ -195,7 +192,7 @@ public class OnboardingActivity extends AppCompatActivity implements OnboardingF
     }
 
     @Override
-    public void signUpButtonPressed(){
+    public void signUpButtonPressed() {
         PreferencesHandler.getSharedPreferences(getApplicationContext()).edit().putBoolean(ONBOARDING_COMPLETE,true).apply();
         Intent main = new Intent(OnboardingActivity.this, SignupActivity.class);
         main.putExtra("from","register");
@@ -205,7 +202,7 @@ public class OnboardingActivity extends AppCompatActivity implements OnboardingF
     }
 
     @Override
-    public void skipButtonPressed(){
+    public void skipButtonPressed() {
         PreferencesHandler.getSharedPreferences(getApplicationContext()).edit().putBoolean(ONBOARDING_COMPLETE,true).apply();
         Intent main = new Intent(OnboardingActivity.this, BaseMainActivityBottomBar.class);
         startActivity(main);

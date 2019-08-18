@@ -20,11 +20,9 @@ public class OnboardingFragment3 extends Fragment {
         // Required empty public constructor
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         return inflater.inflate(R.layout.onboarding_3,container,false);
     }
-
 }

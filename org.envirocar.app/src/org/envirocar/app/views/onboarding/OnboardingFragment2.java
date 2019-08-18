@@ -43,5 +43,4 @@ public class OnboardingFragment2 extends Fragment {
         });
         return view;
     }
-
 }
