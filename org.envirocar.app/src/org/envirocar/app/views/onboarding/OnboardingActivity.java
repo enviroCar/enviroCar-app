@@ -66,7 +66,6 @@ public class OnboardingActivity extends AppCompatActivity implements OnboardingF
         LOGGER.info("Onboarding: "+ isOnboardingComplete);
         if (isOnboardingComplete && !isTest ) {
             Intent intent = new Intent(OnboardingActivity.this, BaseMainActivityBottomBar.class);
-            LOGGER.info("Openning BaseMainActivityBottomBar");
             startActivity(intent);
             finish();
             overridePendingTransition(R.anim.fade_in,R.anim.fade_out);
@@ -90,6 +89,7 @@ public class OnboardingActivity extends AppCompatActivity implements OnboardingF
 
         TransitionManager.beginDelayedTransition(onBoardingLayout, new Fade()
                                                                     .setDuration(OnboardingFragment1.animationStart));
+        //The next and skip button at the bottom of each onboarding page
         nextButton.setVisibility(View.VISIBLE);
         skipButton.setVisibility(View.VISIBLE);
         nextButton.setOnClickListener(new View.OnClickListener() {
@@ -111,30 +111,39 @@ public class OnboardingActivity extends AppCompatActivity implements OnboardingF
         smartTabLayout.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                ArgbEvaluator evaluator = new ArgbEvaluator();
-                FloatEvaluator floatEvaluator = new FloatEvaluator();
 
-                int colorUpdate;
+                FloatEvaluator floatEvaluator = new FloatEvaluator();
+                // To hide the background image present in the first page, i.e. the blurred map
+                // as you scroll from page 1 to 2
                 if (position == 0 || position == 1) {
-                    Float alpha = (Float) floatEvaluator.evaluate(positionOffset, 1f, 0f);
+                    Float alpha = floatEvaluator.evaluate(positionOffset, 1f, 0f);
                     if(viewPager.getAdapter() != null)
-                        ((OBPageAdapter)viewPager.getAdapter()).setPageBackVisbility(alpha, 0);
+                        ((OBPageAdapter) viewPager.getAdapter()).setPageBackVisibility(alpha, 0);
                 }
+
+                // To hide the background image in the final page as you scroll
                 if (position == 2) {
-                    Float alpha = (Float) floatEvaluator.evaluate(positionOffset, 0f, 1f);
+                    Float alpha = floatEvaluator.evaluate(positionOffset, 0f, 1f);
                     if (viewPager.getAdapter() != null)
-                        ((OBPageAdapter)viewPager.getAdapter()).setPageBackVisbility(alpha, 3);
+                        ((OBPageAdapter) viewPager.getAdapter()).setPageBackVisibility(alpha, 3);
                 }
+
+                // The background color of each page changes as you scroll
+                // The colors smoothly transition from one to the next
+                int colorUpdate;
+                ArgbEvaluator evaluator = new ArgbEvaluator();
                 if (position!=3) {
                     colorUpdate = (Integer) evaluator.evaluate(positionOffset, colorList[position], colorList[position + 1]);
                 } else {
                     colorUpdate = (Integer) evaluator.evaluate(positionOffset, colorList[position], colorList[position]);
                 }
+
                 viewPager.setBackgroundColor(colorUpdate);
             }
 
             @Override
             public void onPageSelected(int position) {
+                // If on the last page, hide the bottom buttons
                 if (position == 3) {
                     skipButton.setVisibility(View.GONE);
                     nextButton.setVisibility(View.GONE);
@@ -159,14 +168,6 @@ public class OnboardingActivity extends AppCompatActivity implements OnboardingF
                 }
             }
         });
-    }
-
-    protected void finishOnboarding() {
-        PreferencesHandler.getSharedPreferences(getApplicationContext()).edit().putBoolean(ONBOARDING_COMPLETE,true).apply();
-        Intent main = new Intent(OnboardingActivity.this, BaseMainActivityBottomBar.class);
-        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        startActivity(main);
-        finish();
     }
 
     @Override
@@ -201,6 +202,7 @@ public class OnboardingActivity extends AppCompatActivity implements OnboardingF
         overridePendingTransition(R.anim.fade_in,R.anim.fade_out);
     }
 
+    // This is for the skip button present on the final page of Onboarding
     @Override
     public void skipButtonPressed() {
         PreferencesHandler.getSharedPreferences(getApplicationContext()).edit().putBoolean(ONBOARDING_COMPLETE,true).apply();

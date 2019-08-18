@@ -26,6 +26,7 @@ public class OnboardingFragment2 extends Fragment {
         // Required empty public constructor
     }
 
+    // Button to start the OBD Adapter Activity
     @BindView(R.id.obd_onbaording_start)
     protected TextView obdOBStart;
 
@@ -34,6 +35,7 @@ public class OnboardingFragment2 extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.onboarding_2,container,false);
         ButterKnife.bind(this, view);
+
         obdOBStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

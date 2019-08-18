@@ -31,7 +31,11 @@ import butterknife.ButterKnife;
  */
 public class OnboardingFragment1 extends Fragment {
     private static final Logger LOG = Logger.getLogger(OnboardingFragment1.class);
-    public static final Long animationStart = 1200L, animationDuration = 500L;
+
+    // How long before the logo is hidden
+    public static final Long animationStart = 1000L;
+    // The duration taken to hide the logo and show the background image
+    public static final Long animationDuration = 500L;
 
     public OnboardingFragment1() {
         // Required empty public constructor
@@ -61,7 +65,8 @@ public class OnboardingFragment1 extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.onboarding_1,container,false);
         ButterKnife.bind(this, view);
-        LOG.info("Begin Transitions");
+
+        //To slowly hide and show the background image and text in the first page
         final Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
             @Override
@@ -80,7 +85,6 @@ public class OnboardingFragment1 extends Fragment {
                 TransitionManager.beginDelayedTransition(layout, new Fade().setDuration(500));
                 headerTV.setVisibility(View.VISIBLE);
                 headerSubTV.setVisibility(View.VISIBLE);
-                LOG.info("End Transitions");
             }
         }, animationStart+animationDuration);
 

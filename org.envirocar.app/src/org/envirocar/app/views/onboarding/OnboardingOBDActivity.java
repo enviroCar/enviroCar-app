@@ -26,26 +26,37 @@ public class OnboardingOBDActivity extends AppCompatActivity {
 
     @BindView(R.id.donePage1)
     protected TextView doneP1;
+
     @BindView(R.id.donePage2)
     protected TextView doneP2;
+
     @BindView(R.id.skipPage1)
     protected TextView skipP1;
+
     @BindView(R.id.skipPage2)
     protected TextView skipP2;
+
     @BindView(R.id.obdTroubleshoot)
     protected TextView obdTroubleshoot;
+
     @BindView(R.id.obdLink)
     protected TextView obdLink;
+
     @BindView(R.id.page1)
     protected ConstraintLayout page1;
+
     @BindView(R.id.page2)
     protected ConstraintLayout page2;
+
     @BindView(R.id.page3)
     protected ConstraintLayout page3;
+
     @BindView(R.id.obd_pages)
     protected ConstraintLayout pages;
+
     @BindView(R.id.continueButton)
     protected Button continueButton;
+
     @BindView(R.id.logo)
     protected ImageView animatedcheck;
 
@@ -64,6 +75,7 @@ public class OnboardingOBDActivity extends AppCompatActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
+        // Link to the recommended OBD Adapter
         obdLink.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -73,6 +85,7 @@ public class OnboardingOBDActivity extends AppCompatActivity {
                 }
         });
 
+        // Link to a website that helps you find your OBD port
         obdTroubleshoot.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -133,11 +146,11 @@ public class OnboardingOBDActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        LOG.info("whichPage: " + whichPage);
-
+        // Stop the animated check mark if it is running
         if (frameAnimation.isRunning()) {
             frameAnimation.stop();
         }
+
         if (whichPage == 0) {
             super.onBackPressed();
         } else if (whichPage == 1) {

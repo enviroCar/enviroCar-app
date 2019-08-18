@@ -73,10 +73,13 @@ public class OnboardingFragment4 extends Fragment {
         ButterKnife.bind(this, view);
 
         SharedPreferences prefs = getContext().getSharedPreferences("userPrefs", MODE_PRIVATE);
+        // If there is no user signed in, show the sign in and sign up buttons
+        // Else show a button to continue to the dashboard
         if (!(prefs.contains("username") && prefs.contains("token"))) {
             signUp.setText("Sign Up");
             signUp.setVisibility(View.VISIBLE);
             skip.setVisibility(View.VISIBLE);
+
             signIn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -87,6 +90,7 @@ public class OnboardingFragment4 extends Fragment {
             signIn.setText("Continue to Dashboard");
             signUp.setVisibility(View.INVISIBLE);
             skip.setVisibility(View.INVISIBLE);
+
             signIn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
