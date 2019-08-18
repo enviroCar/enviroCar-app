@@ -7,6 +7,9 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.LinearInterpolator;
+import android.view.animation.RotateAnimation;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.ImageButton;
@@ -104,6 +107,9 @@ public class GraphFragment extends BaseInjectorFragment {
     @BindView(R.id.info_img)
     protected ImageView infoImg;
 
+    @BindView(R.id.graph_loading_icon)
+    protected ImageView loadingIcon;
+
     @BindView(R.id.arrow_left)
     protected ImageButton arrowLeft;
 
@@ -179,10 +185,7 @@ public class GraphFragment extends BaseInjectorFragment {
         choiceViewModel.getSelectedOption().observe(this, item -> {
             LOG.info("choiceViewModel.getSelectedOption()");
             spinnerChoice = item;
-            infoImg.setVisibility(View.VISIBLE);
-            infoMsg.setText(R.string.statistics_loading_data);
-            infoMsg.setVisibility(View.VISIBLE);
-            mChart.setVisibility(View.INVISIBLE);
+            showMessage(R.string.statistics_loading_data);
             loadGraph();
         });
     }
@@ -200,6 +203,12 @@ public class GraphFragment extends BaseInjectorFragment {
         Calendar c = Calendar.getInstance();
         setDates(c);
         loadGraph();
+        loadingIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                loadGraph();
+            }
+        });
         return view;
     }
 
@@ -233,7 +242,19 @@ public class GraphFragment extends BaseInjectorFragment {
     }
 
     public void loadGraph() {
+        LOG.info("loadGraph");
+        loadingIcon.setVisibility(View.VISIBLE);
+        RotateAnimation rotate = new RotateAnimation(0,360,
+                Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+        rotate.setDuration(1000);
+        rotate.setRepeatCount(Animation.INFINITE);
+        rotate.setRepeatMode(Animation.INFINITE);
+        rotate.setInterpolator(new LinearInterpolator());
+        loadingIcon.startAnimation(rotate);
+
         cleanUpData();
+        showMessage(R.string.statistics_loading_data);
+
         // If the tracks are being downloaded, wait
         // Else load the dates
         if (!isTrackDownloading) {
@@ -241,13 +262,7 @@ public class GraphFragment extends BaseInjectorFragment {
             // tracks. Or if the tracks have not been downloaded yet, download them
             if (persistentTrackList.size() == 0)
                 getData();
-            else
-            {
-                infoImg.setVisibility(View.VISIBLE);
-                infoMsg.setVisibility(View.VISIBLE);
-                infoMsg.setText(R.string.statistics_loading_data);
-                mChart.setVisibility(View.INVISIBLE);
-
+            else {
                 setTrackList();
                 trimTracksToRange(startDate, endDate);
             }
@@ -331,9 +346,6 @@ public class GraphFragment extends BaseInjectorFragment {
                     @Override
                     public void onStart() {
                         LOG.info("onStart() of getData");
-                        mMainThreadWorker.schedule(() -> {
-
-                        });
                     }
 
                     @Override
@@ -345,15 +357,13 @@ public class GraphFragment extends BaseInjectorFragment {
                     public void onError(Throwable e) {
                         LOG.error(e.getMessage(), e);
                         if (e instanceof NotConnectedException) {
-                            LOG.error("Error", e);
+                            LOG.error("Error in getData", e);
                         } else if (e instanceof UnauthorizedException) {
                             LOG.error("Unauthorised",e);
                         }
-
-                        infoImg.setVisibility(View.VISIBLE);
-                        infoMsg.setVisibility(View.VISIBLE);
-                        infoMsg.setText(R.string.statistics_error_loading_data);
-                        mChart.setVisibility(View.INVISIBLE);
+                        isTrackDownloading = false;
+                        loadingIcon.clearAnimation();
+                        showMessage(R.string.statistics_error_loading_data);
                     }
 
                     @Override
@@ -364,11 +374,7 @@ public class GraphFragment extends BaseInjectorFragment {
                             }
                         }
                         isTrackDownloading = false;
-
-                        infoImg.setVisibility(View.VISIBLE);
-                        infoMsg.setVisibility(View.VISIBLE);
-                        infoMsg.setText(R.string.statistics_loading_data);
-                        mChart.setVisibility(View.INVISIBLE);
+                        showMessage(R.string.statistics_loading_data);
 
                         setTrackList();
                         trimTracksToRange(startDate, endDate);
@@ -403,9 +409,8 @@ public class GraphFragment extends BaseInjectorFragment {
 
     public void setGraph() {
         if(mTrackList.size() == 0) {
-            infoMsg.setText(R.string.no_stats);
-            infoMsg.setVisibility(View.VISIBLE);
-            infoImg.setVisibility(View.VISIBLE);
+            loadingIcon.clearAnimation();
+            showMessage(R.string.no_stats);
         } else {
             setLabels();
             setZeros();
@@ -487,11 +492,8 @@ public class GraphFragment extends BaseInjectorFragment {
                         } else if (e instanceof UnauthorizedException) {
                             LOG.error("Unauthorised",e);
                         }
-
-                        infoImg.setVisibility(View.VISIBLE);
-                        infoMsg.setVisibility(View.VISIBLE);
-                        infoMsg.setText(R.string.statistics_error_loading_data);
-                        mChart.setVisibility(View.INVISIBLE);
+                        loadingIcon.clearAnimation();
+                        showMessage(R.string.statistics_error_loading_data);
                     }
 
                     @Override
@@ -541,6 +543,9 @@ public class GraphFragment extends BaseInjectorFragment {
     public void setGraphOptionsAndShow() {
         infoMsg.setVisibility(View.GONE);
         infoImg.setVisibility(View.GONE);
+        loadingIcon.clearAnimation();
+        loadingIcon.setVisibility(View.GONE);
+
         mChart.setVisibility(View.VISIBLE);
         mChart.cancelDataAnimation();
 
@@ -689,5 +694,12 @@ public class GraphFragment extends BaseInjectorFragment {
         }
         setDates(c);
         loadGraph();
+    }
+
+    public void showMessage(int stringRes){
+        infoImg.setVisibility(View.VISIBLE);
+        infoMsg.setVisibility(View.VISIBLE);
+        infoMsg.setText(stringRes);
+        mChart.setVisibility(View.INVISIBLE);
     }
 }
