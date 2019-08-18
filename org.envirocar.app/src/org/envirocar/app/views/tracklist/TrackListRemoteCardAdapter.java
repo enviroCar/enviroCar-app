@@ -63,7 +63,6 @@ public class TrackListRemoteCardAdapter extends AbstractTrackListCardAdapter<
 
         // and create a new viewholder.
         RemoteTrackCardViewHolder temp = new RemoteTrackCardViewHolder(remoteView);
-
         mapViews.add(temp.mMapView);
         return temp;
     }
@@ -90,7 +89,7 @@ public class TrackListRemoteCardAdapter extends AbstractTrackListCardAdapter<
                 holder.mProgressCircle.post(() -> {
                     //holder.mProgressCircle.hide();
                 });
-                holder.mDownloadButton.setVisibility(View.VISIBLE);
+                holder.mDownloadButton.show();
                 holder.mDownloadButton.setOnClickListener(v -> {
                     holder.mDownloadButton.setOnClickListener(null);
                     mTrackInteractionCallback.onDownloadTrackClicked(remoteTrack, holder);
@@ -101,7 +100,7 @@ public class TrackListRemoteCardAdapter extends AbstractTrackListCardAdapter<
                 holder.mContentView.setVisibility(View.GONE);
                 holder.mProgressCircle.setVisibility(View.VISIBLE);
                 holder.mProgressCircle.post(() -> holder.mProgressCircle.show());
-                holder.mDownloadButton.setVisibility(View.VISIBLE);
+                holder.mDownloadButton.show();
                 holder.mDownloadNotification.setVisibility(View.VISIBLE);
                 break;
             case DOWNLOADED:

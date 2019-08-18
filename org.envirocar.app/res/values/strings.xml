@@ -115,4 +115,6 @@
         <item>[ACTIVE-TRACK]</item>
     </string-array>
 
+    <string name="submit">Submit</string>
+
 </resources>

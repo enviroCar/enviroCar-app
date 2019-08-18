@@ -229,9 +229,9 @@ public class TrackSerializer implements JsonSerializer<Track>, JsonDeserializer<
         String end = properties.has(Track.KEY_TRACK_PROPERTIES_END) ?
                 properties.get(Track.KEY_TRACK_PROPERTIES_END).getAsString() :
                 "";
-        Long length = properties.has(Track.KEY_TRACK_PROPERTIES_LENGTH) ?
-                properties.get(Track.KEY_TRACK_PROPERTIES_LENGTH).getAsLong() :
-                new Long(0);
+        Double length = properties.has(Track.KEY_TRACK_PROPERTIES_LENGTH) ?
+                properties.get(Track.KEY_TRACK_PROPERTIES_LENGTH).getAsDouble() :
+                new Double(0);
         // Parse the car object.
         JsonObject carObject = properties.get(Track.KEY_TRACK_PROPERTIES_SENSOR)
                 .getAsJsonObject();
