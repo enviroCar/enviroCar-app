@@ -27,11 +27,10 @@
 
         <ImageView
             android:id="@+id/imageView2"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="@dimen/image_icon_s"
+            android:layout_height="@dimen/image_icon_s"
             android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
-            android:padding="6dp"
+            android:padding="2dp"
             android:tint="#000000"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/textView5"
@@ -42,12 +41,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
             android:layout_marginTop="12dp"
             android:fontFamily="sans-serif-medium"
             android:text="@string/pref_general_settings"
             android:textColor="#000000"
-            android:textSize="17sp"
+            android:textSize="@dimen/heading3"
             app:layout_constraintStart_toEndOf="@+id/imageView2"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -76,11 +74,10 @@
 
         <ImageView
             android:id="@+id/imageView3"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="@dimen/image_icon_s"
+            android:layout_height="@dimen/image_icon_s"
             android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
-            android:padding="6dp"
+            android:padding="2dp"
             android:tint="#000000"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/textView7"
@@ -91,12 +88,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
             android:layout_marginTop="12dp"
             android:fontFamily="sans-serif-medium"
             android:text="@string/autoconnect_settings"
             android:textColor="#000000"
-            android:textSize="17sp"
+            android:textSize="@dimen/heading3"
             app:layout_constraintStart_toEndOf="@+id/imageView3"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -176,11 +172,10 @@
 
         <ImageView
             android:id="@+id/imageView5"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="@dimen/image_icon_s"
+            android:layout_height="@dimen/image_icon_s"
             android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
-            android:padding="6dp"
+            android:padding="2dp"
             android:tint="#000000"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/textView10"
@@ -191,12 +186,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
             android:layout_marginTop="12dp"
             android:fontFamily="sans-serif-medium"
             android:text="@string/settings_optional"
             android:textColor="#000000"
-            android:textSize="17sp"
+            android:textSize="@dimen/heading3"
             app:layout_constraintStart_toEndOf="@+id/imageView5"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -226,11 +220,10 @@
 
         <ImageView
             android:id="@+id/imageView6"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="@dimen/image_icon_s"
+            android:layout_height="@dimen/image_icon_s"
             android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
-            android:padding="6dp"
+            android:padding="2dp"
             android:tint="#000000"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/textView11"
@@ -241,12 +234,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
             android:layout_marginTop="12dp"
             android:fontFamily="sans-serif-medium"
             android:text="@string/settings_other"
             android:textColor="#000000"
-            android:textSize="17sp"
+            android:textSize="@dimen/heading3"
             app:layout_constraintStart_toEndOf="@+id/imageView6"
             app:layout_constraintTop_toTopOf="parent" />
 

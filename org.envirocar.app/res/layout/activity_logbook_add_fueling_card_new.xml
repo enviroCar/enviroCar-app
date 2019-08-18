@@ -40,10 +40,9 @@
 
     <ImageView
         android:id="@+id/closeButton"
-        android:layout_width="28dp"
-        android:layout_height="28dp"
+        android:layout_width="@dimen/image_icon_s"
+        android:layout_height="@dimen/image_icon_s"
         android:layout_marginStart="24dp"
-        android:layout_marginLeft="24dp"
         android:tint="@color/blue_dark_cario"
         app:layout_constraintBottom_toBottomOf="@+id/activity_log_book_add_fueling_toolbar_exp_txt"
         app:layout_constraintStart_toStartOf="@+id/activity_log_book_add_fueling_toolbar_exp"
@@ -58,7 +57,7 @@
         android:fontFamily="@font/raleway_semibold"
         android:text="@string/logbook_add_fueling"
         android:textColor="@color/blue_dark_cario"
-        android:textSize="24sp"
+        android:textSize="@dimen/headline_text"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="@+id/activity_log_book_add_fueling_toolbar_exp"
         app:layout_constraintEnd_toEndOf="@+id/activity_log_book_add_fueling_toolbar_exp"
@@ -124,7 +123,7 @@
                 android:fontFamily="@font/roboto_medium"
                 android:text="@string/logbook_milage"
                 android:textColor="#000000"
-                android:textSize="16sp"
+                android:textSize="@dimen/subtitle"
                 app:layout_constraintBottom_toBottomOf="@+id/textView26"
                 app:layout_constraintStart_toStartOf="@+id/logbook_add_fueling_volumetext" />
 
@@ -148,12 +147,11 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="24dp"
-                android:layout_marginLeft="24dp"
                 android:layout_marginTop="24dp"
                 android:fontFamily="@font/roboto_medium"
                 android:text="@string/logbook_volume"
                 android:textColor="#000000"
-                android:textSize="16sp"
+                android:textSize="@dimen/subtitle"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/activity_logbook_add_fueling_car_selection" />
 
@@ -179,7 +177,7 @@
                 android:fontFamily="@font/roboto_medium"
                 android:text="@string/logbook_priceperlitre"
                 android:textColor="#000000"
-                android:textSize="16sp"
+                android:textSize="@dimen/subtitle"
                 app:layout_constraintEnd_toEndOf="@+id/activity_logbook_add_fueling_car_selection"
                 app:layout_constraintTop_toTopOf="@+id/textView24" />
 
@@ -208,7 +206,7 @@
                 android:fontFamily="@font/roboto_medium"
                 android:text="@string/logbook_total_price"
                 android:textColor="#000000"
-                android:textSize="16sp"
+                android:textSize="@dimen/subtitle"
                 app:layout_constraintStart_toStartOf="@+id/logbook_add_fueling_priceperlitretext"
                 app:layout_constraintTop_toBottomOf="@+id/logbook_add_fueling_priceperlitretext" />
 
@@ -237,7 +235,7 @@
                 android:fontFamily="@font/roboto_medium"
                 android:text="@string/logbook_partial_fueling"
                 android:textColor="#000000"
-                android:textSize="14sp"
+                android:textSize="@dimen/subtext"
                 app:layout_constraintStart_toStartOf="@+id/logbook_add_fueling_milagetext"
                 app:layout_constraintTop_toBottomOf="@+id/logbook_add_fueling_milagetext" />
 
@@ -261,7 +259,7 @@
                 android:fontFamily="@font/roboto_medium"
                 android:text="@string/logbook_missed_fueling"
                 android:textColor="#000000"
-                android:textSize="14sp"
+                android:textSize="@dimen/subtext"
                 app:layout_constraintStart_toStartOf="@+id/textView27"
                 app:layout_constraintTop_toBottomOf="@+id/textView27" />
 
@@ -284,7 +282,7 @@
                 android:fontFamily="@font/roboto_medium"
                 android:text="Kommentar"
                 android:textColor="#000000"
-                android:textSize="16sp"
+                android:textSize="@dimen/subtitle"
                 app:layout_constraintStart_toStartOf="@+id/logbook_add_fueling_comment"
                 app:layout_constraintTop_toBottomOf="@+id/textView28" />
 
@@ -312,7 +310,7 @@
                 android:fontFamily="@font/roboto_medium"
                 android:text="Car Name"
                 android:textColor="#000000"
-                android:textSize="16sp"
+                android:textSize="@dimen/subtitle"
                 app:layout_constraintStart_toStartOf="@+id/activity_logbook_add_fueling_car_selection"
                 app:layout_constraintTop_toBottomOf="@+id/textView22" />
 
@@ -331,7 +329,7 @@
                 android:text="@string/logbook_add_fueling"
                 android:textAllCaps="true"
                 android:textColor="#0065A0"
-                android:textSize="16sp"
+                android:textSize="@dimen/heading3"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"

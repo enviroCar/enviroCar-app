@@ -20,11 +20,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
-            android:layout_marginRight="16dp"
             android:fontFamily="sans-serif-medium"
             android:text="Do., 05.11.2015"
             android:textColor="#000000"
-            android:textSize="18sp"
+            android:textSize="@dimen/heading3"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/activity_logbook_listentry_car" />
 
@@ -34,7 +33,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
             android:text="31.820 km  -  56,54 l"
-            android:textSize="14sp"
+            android:textSize="@dimen/subtext"
             app:layout_constraintEnd_toEndOf="@+id/activity_logbook_listentry_date"
             app:layout_constraintTop_toBottomOf="@+id/activity_logbook_listentry_date" />
 
@@ -44,13 +43,12 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
-            android:layout_marginRight="16dp"
             android:layout_marginBottom="8dp"
             android:fontFamily="sans-serif-medium"
             android:gravity="right"
             android:text="35,00 €"
             android:textColor="@color/blue_dark_cario"
-            android:textSize="18sp"
+            android:textSize="@dimen/heading3"
             app:layout_constraintBottom_toTopOf="@+id/activity_logbook_listentry_priceperliter"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/activity_logbook_listentry_kmliter" />
@@ -62,16 +60,15 @@
             android:layout_marginBottom="16dp"
             android:gravity="right"
             android:text="1,32 €/l"
-            android:textSize="14sp"
+            android:textSize="@dimen/subtitle"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@+id/activity_logbook_listentry_totalprice" />
 
         <ImageView
             android:id="@+id/imageView10"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
+            android:layout_width="@dimen/image_icon_s"
+            android:layout_height="@dimen/image_icon_s"
             android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
             android:layout_marginTop="16dp"
             android:src="@drawable/ic_drive_eta_black_24dp"
             android:tint="#000000"
@@ -84,14 +81,12 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginStart="12dp"
-            android:layout_marginLeft="12dp"
             android:layout_marginEnd="40dp"
-            android:layout_marginRight="40dp"
             android:fontFamily="sans-serif-medium"
             android:gravity="center_vertical"
             android:text="Mercedes-Benz A 170"
             android:textColor="#000000"
-            android:textSize="16sp"
+            android:textSize="@dimen/subtitle"
             app:layout_constraintBottom_toBottomOf="@+id/imageView10"
             app:layout_constraintEnd_toStartOf="@+id/activity_logbook_listentry_date"
             app:layout_constraintStart_toEndOf="@+id/imageView10"
@@ -103,7 +98,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
             android:text="(2004 / 1699ccm)"
-            android:textSize="12sp"
+            android:textSize="@dimen/subtext"
             app:layout_constraintStart_toStartOf="@+id/activity_logbook_listentry_car"
             app:layout_constraintTop_toBottomOf="@+id/activity_logbook_listentry_car" />
 
@@ -133,7 +128,7 @@
                 android:layout_marginLeft="18dp"
                 android:gravity="center_vertical"
                 android:text="Dies ist ein Kommentar"
-                android:textSize="13dp" />
+                android:textSize="@dimen/subtext" />
 
         </LinearLayout>
 
@@ -163,7 +158,7 @@
                 android:layout_marginLeft="18dp"
                 android:gravity="center_vertical"
                 android:text="Partial Fill-up"
-                android:textSize="13dp" />
+                android:textSize="@dimen/subtext" />
         </LinearLayout>
 
         <LinearLayout
@@ -193,7 +188,7 @@
                 android:layout_marginLeft="18dp"
                 android:gravity="center_vertical"
                 android:text="Missed previous Fill-up"
-                android:textSize="13dp" />
+                android:textSize="@dimen/subtext" />
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
