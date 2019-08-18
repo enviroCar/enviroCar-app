@@ -130,5 +130,6 @@ enviroCar provides free and open access to the the community\'s anonymized track
     </string-array>
 
     <string name="submit">Submit</string>
+    <string name="obd_selection_help_text">If you need help connecting to the OBD Adapter, press the info icon in the toolbar</string>
 
 </resources>

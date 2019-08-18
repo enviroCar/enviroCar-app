@@ -18,11 +18,14 @@
  */
 package org.envirocar.app.views.obdselection;
 
+import android.content.Intent;
 import android.os.Bundle;
 import com.google.android.material.snackbar.Snackbar;
 import androidx.fragment.app.Fragment;
 import androidx.appcompat.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Switch;
 import android.widget.TextView;
 
@@ -32,6 +35,7 @@ import org.envirocar.app.main.BaseApplicationComponent;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.injection.BaseInjectorActivity;
+import org.envirocar.app.views.onboarding.OnboardingOBDActivity;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.core.logging.Logger;
 
@@ -59,6 +63,8 @@ public class OBDSelectionActivity extends BaseInjectorActivity implements
     protected Switch mSwitch;
     @BindView(R.id.activity_obd_selection_layout_enablebt_text)
     protected TextView mEnableBTText;
+    @BindView(R.id.help_button)
+    protected Button helpButton;
 
     protected Fragment mOBDSelectionFragment;
 
@@ -96,6 +102,16 @@ public class OBDSelectionActivity extends BaseInjectorActivity implements
 
         // Setup the bluetooth toolbar
         setupBluetoothSwitch();
+
+        // Set the on click listener for the OBD Adapter Onboarding
+        // Incase the user needs help connecting to the adapter
+        helpButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(OBDSelectionActivity.this, OnboardingOBDActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     private void setupBluetoothSwitch() {

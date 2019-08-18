@@ -32,7 +32,19 @@
         android:layout_height="wrap_content"
         android:background="@color/blue_dark_cario"
         android:elevation="6dp"
-        android:orientation="vertical"/>
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/help_button"
+            android:layout_width="@dimen/image_icon_xs"
+            android:layout_height="@dimen/image_icon_xs"
+            android:layout_gravity="right"
+            android:layout_marginTop="8dp"
+            android:layout_marginRight="12dp"
+            android:background="@drawable/ic_info_black_24dp"
+            android:backgroundTint="@color/white_cario" />
+
+    </androidx.appcompat.widget.Toolbar>
 
     <LinearLayout
         android:id="@+id/activity_obd_selection_layout_enablebt_toolbar"
@@ -72,9 +84,20 @@
 
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/textView8"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="16dp"
+        android:fontFamily="@font/roboto_light"
+        android:text="@string/obd_selection_help_text"
+        android:textSize="@dimen/subtext" />
+
     <FrameLayout
         android:id="@+id/activity_obd_selection_layout_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent" />
 
 </LinearLayout>

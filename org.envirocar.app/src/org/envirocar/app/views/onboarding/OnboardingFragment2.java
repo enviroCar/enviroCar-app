@@ -36,6 +36,7 @@ public class OnboardingFragment2 extends Fragment {
         View view = inflater.inflate(R.layout.onboarding_2,container,false);
         ButterKnife.bind(this, view);
 
+        // Set the on click listener for the OBD Adapter Onboarding
         obdOBStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
