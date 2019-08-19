@@ -36,11 +36,11 @@ public interface Car extends BaseEntity<Car>, Serializable {
     String KEY_CAR_MANUFACTURER = "manufacturer";
     String KEY_CAR_ENGINEDISPLACEMENT = "engineDisplacement";
 
-    String KEY_FUELTYPE_ENUM_GASOLINE = "Gasoline";
-    String KEY_FUELTYPE_ENUM_DIESEL = "Diesel";
+    String KEY_FUELTYPE_ENUM_GASOLINE = "gasoline";
+    String KEY_FUELTYPE_ENUM_DIESEL = "diesel";
 
-    String FUELTYPE_GASOLINE = "Gasoline";
-    String FUELTYPE_DIESEL = "Diesel";
+    String FUELTYPE_GASOLINE = "gasoline";
+    String FUELTYPE_DIESEL = "diesel";
 
     String TEMPORARY_SENSOR_ID = "%TMP_ID%";
 

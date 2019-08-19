@@ -29,12 +29,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 
-import com.afollestad.materialdialogs.MaterialDialog;
 
 import org.envirocar.app.main.BaseApplicationComponent;
 import org.envirocar.app.R;
@@ -80,6 +77,8 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
 
     @BindView(R.id.activity_logbook_toolbar)
     protected Toolbar toolbar;
+    @BindView(R.id.logbook_info)
+    protected ImageView logbookInfo;
     @BindView(R.id.activity_logbook_header)
     protected View headerView;
     @BindView(R.id.activity_logbook_toolbar_new_fueling_fab)
@@ -132,20 +131,19 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+        logbookInfo.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onMenuItemClick(MenuItem item) {
+            public void onClick(View view) {
                 AlertDialog.Builder b = new AlertDialog.Builder(LogbookActivity.this);
                 b.setMessage("Long press the card if you want to delete it.");
                 b.show();
-                return false;
             }
         });
 
         fuelingListAdapter = new LogbookAdapter(this, fuelings, new LogbookUiListener() {
             @Override
             public void onHideAddFuelingCard() {
-                LogbookActivity.this.onHideAddFuelingCard();
+                LogbookActivity.this.hideAddFuelingCard();
             }
 
             @Override
@@ -398,7 +396,8 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
                 .remove(addFuelingFragment)
                 .commit();
         addFuelingFragment = null;
-        ECAnimationUtils.animateShowView(LogbookActivity.this, newFuelingFab, R.anim.fade_in);
+        ECAnimationUtils.animateHideView(this, overlayView, R.anim.fade_out);
+        newFuelingFab.show();
     }
 
     private void showSnackbarInfo(int resourceID) {

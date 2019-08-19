@@ -37,7 +37,19 @@
             android:layout_height="wrap_content"
             android:background="@color/blue_dark_cario"
             android:orientation="vertical"
-            app:elevation="6dp"/>
+            app:elevation="6dp">
+
+            <ImageView
+                android:id="@+id/logbook_info"
+                android:layout_width="@dimen/image_icon_s"
+                android:layout_height="@dimen/image_icon_s"
+                android:layout_gravity="right"
+                android:layout_marginRight="16dp"
+                android:padding="2dp"
+                android:visibility="visible"
+                app:srcCompat="@drawable/baseline_info_white_24dp" />
+
+        </androidx.appcompat.widget.Toolbar>
 
         <RelativeLayout
             android:layout_width="match_parent"
