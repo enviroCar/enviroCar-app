@@ -120,16 +120,17 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
+                android:layout_marginTop="32dp"
                 android:fontFamily="@font/roboto_medium"
                 android:text="@string/logbook_milage"
                 android:textColor="#000000"
                 android:textSize="@dimen/subtitle"
-                app:layout_constraintBottom_toBottomOf="@+id/textView26"
-                app:layout_constraintStart_toStartOf="@+id/logbook_add_fueling_volumetext" />
+                app:layout_constraintStart_toStartOf="@+id/activity_logbook_add_fueling_car_selection"
+                app:layout_constraintTop_toBottomOf="@+id/activity_logbook_add_fueling_car_selection" />
 
             <EditText
                 android:id="@+id/logbook_add_fueling_milagetext"
-                android:layout_width="0dp"
+                android:layout_width="120dp"
                 android:layout_height="40dp"
                 android:layout_marginTop="8dp"
                 android:height="40dp"
@@ -138,7 +139,6 @@
                 android:inputType="number"
                 android:textColorHint="@color/white_cario"
                 android:textSize="18sp"
-                app:layout_constraintEnd_toEndOf="@+id/logbook_add_fueling_volumetext"
                 app:layout_constraintStart_toStartOf="@+id/textView23"
                 app:layout_constraintTop_toBottomOf="@+id/textView23" />
 
@@ -146,18 +146,16 @@
                 android:id="@+id/textView24"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="24dp"
-                android:layout_marginTop="24dp"
                 android:fontFamily="@font/roboto_medium"
                 android:text="@string/logbook_volume"
                 android:textColor="#000000"
                 android:textSize="@dimen/subtitle"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/activity_logbook_add_fueling_car_selection" />
+                app:layout_constraintStart_toStartOf="@+id/logbook_add_fueling_volumetext"
+                app:layout_constraintTop_toTopOf="@+id/textView23" />
 
             <EditText
                 android:id="@+id/logbook_add_fueling_volumetext"
-                android:layout_width="0dp"
+                android:layout_width="120dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:height="40dp"
@@ -166,24 +164,24 @@
                 android:inputType="numberDecimal"
                 android:textColorHint="@color/white_cario"
                 android:textSize="18sp"
-                app:layout_constraintEnd_toEndOf="@+id/textView24"
-                app:layout_constraintStart_toStartOf="@+id/textView24"
+                app:layout_constraintEnd_toEndOf="@+id/activity_logbook_add_fueling_car_selection"
                 app:layout_constraintTop_toBottomOf="@+id/textView24" />
 
             <TextView
                 android:id="@+id/textView25"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
                 android:fontFamily="@font/roboto_medium"
                 android:text="@string/logbook_priceperlitre"
                 android:textColor="#000000"
                 android:textSize="@dimen/subtitle"
-                app:layout_constraintEnd_toEndOf="@+id/activity_logbook_add_fueling_car_selection"
-                app:layout_constraintTop_toTopOf="@+id/textView24" />
+                app:layout_constraintStart_toStartOf="@+id/textView23"
+                app:layout_constraintTop_toBottomOf="@+id/logbook_add_fueling_milagetext" />
 
             <EditText
                 android:id="@+id/logbook_add_fueling_priceperlitretext"
-                android:layout_width="0dp"
+                android:layout_width="120dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:layout_weight="2"
@@ -193,7 +191,6 @@
                 android:inputType="numberDecimal"
                 android:textColorHint="@color/white_cario"
                 android:textSize="18sp"
-                app:layout_constraintEnd_toEndOf="@+id/textView25"
                 app:layout_constraintStart_toStartOf="@+id/textView25"
                 app:layout_constraintTop_toBottomOf="@+id/textView25" />
 
@@ -202,17 +199,17 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="32dp"
                 android:fontFamily="@font/roboto_medium"
                 android:text="@string/logbook_total_price"
                 android:textColor="#000000"
                 android:textSize="@dimen/subtitle"
-                app:layout_constraintStart_toStartOf="@+id/logbook_add_fueling_priceperlitretext"
-                app:layout_constraintTop_toBottomOf="@+id/logbook_add_fueling_priceperlitretext" />
+                app:layout_constraintStart_toStartOf="@+id/textView24"
+                app:layout_constraintTop_toBottomOf="@+id/logbook_add_fueling_volumetext" />
 
             <EditText
                 android:id="@+id/logbook_add_fueling_totalpricetext"
-                android:layout_width="0dp"
+                android:layout_width="120dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:layout_weight="2"
@@ -222,7 +219,6 @@
                 android:inputType="numberDecimal"
                 android:textColorHint="@color/white_cario"
                 android:textSize="18sp"
-                app:layout_constraintEnd_toEndOf="@+id/logbook_add_fueling_priceperlitretext"
                 app:layout_constraintStart_toStartOf="@+id/textView26"
                 app:layout_constraintTop_toBottomOf="@+id/textView26" />
 
@@ -231,13 +227,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
+                android:layout_marginStart="24dp"
                 android:layout_marginTop="32dp"
                 android:fontFamily="@font/roboto_medium"
                 android:text="@string/logbook_partial_fueling"
                 android:textColor="#000000"
                 android:textSize="@dimen/subtext"
-                app:layout_constraintStart_toStartOf="@+id/logbook_add_fueling_milagetext"
-                app:layout_constraintTop_toBottomOf="@+id/logbook_add_fueling_milagetext" />
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/logbook_add_fueling_priceperlitretext" />
 
             <CheckBox
                 android:id="@+id/logbook_add_fueling_partialfueling_checkbox"
@@ -245,9 +242,10 @@
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
                 android:layout_gravity="center"
+                android:layout_marginEnd="8dp"
                 android:gravity="center"
                 app:layout_constraintBottom_toBottomOf="@+id/textView27"
-                app:layout_constraintStart_toStartOf="@+id/logbook_add_fueling_totalpricetext"
+                app:layout_constraintEnd_toEndOf="@+id/activity_logbook_add_fueling_car_selection"
                 app:layout_constraintTop_toTopOf="@+id/textView27" />
 
             <TextView
