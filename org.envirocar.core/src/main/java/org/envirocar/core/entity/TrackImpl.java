@@ -25,6 +25,7 @@ import org.envirocar.core.logging.Logger;
 import org.envirocar.core.trackprocessing.statistics.TrackStatisticsProcessor;
 import org.envirocar.core.trackprocessing.statistics.TrackStatisticsProvider;
 import org.envirocar.core.util.TrackMetadata;
+import org.envirocar.core.util.Util;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -244,14 +245,10 @@ public class TrackImpl implements Track, TrackStatisticsProvider {
 
     @Override
     public String getBegin() {
-        if(this.begin != null)
-        return this.begin;
-        else
-        {
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTimeInMillis(measurements.get(0).getTime());
-            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault());
-            String begin = format.format(calendar.getTime());
+        if (this.begin != null)
+            return this.begin;
+        else {
+            String begin = Util.longToIsoDate(measurements.get(0).getTime());
             this.setBegin(begin);
             return begin;
 
@@ -266,13 +263,10 @@ public class TrackImpl implements Track, TrackStatisticsProvider {
 
     @Override
     public String getEnd() {
-        if(this.end != null)
+        if (this.end != null)
             return this.end;
-        else{
-            Calendar calendar = Calendar.getInstance();
-            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault());
-            calendar.setTimeInMillis(measurements.get(measurements.size() - 1).getTime());
-            String end = format.format(calendar.getTime());
+        else {
+            String end = Util.longToIsoDate(measurements.get(measurements.size() - 1).getTime());
             this.setEnd(end);
             return end;
         }
@@ -285,16 +279,14 @@ public class TrackImpl implements Track, TrackStatisticsProvider {
 
     @Override
     public long getTimeInMillis() {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault());
-        Date date1 = null, date2 = null;
+        Date date1 = new Date(), date2 = new Date();
         try {
-            date1 = format.parse(getBegin());
-            date2 = format.parse(getEnd());
-        }catch (Exception e){
+            date1 = new Date(Util.isoDateToLong(getBegin()));
+            date2 = new Date(Util.isoDateToLong(getEnd()));
+        } catch (Exception e) {
             LOG.error("Error in getTimeInMillis ", e);
         }
-        long difference = date2.getTime() - date1.getTime();
-        return difference;
+        return date2.getTime() - date1.getTime();
     }
 
     @Override

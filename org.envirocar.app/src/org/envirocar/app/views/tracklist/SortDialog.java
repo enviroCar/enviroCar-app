@@ -113,6 +113,7 @@ public class SortDialog extends Dialog implements AdapterView.OnItemSelectedList
         ArrayAdapter<String> adapter = new ArrayAdapter(activity,R.layout.spinner_item, list);
         spinnerSort.setAdapter(adapter);
         spinnerSort.setOnItemSelectedListener(this);
+        spinnerSort.setSelection(sortChoice);
     }
 
     void checkViewModelStatus() {

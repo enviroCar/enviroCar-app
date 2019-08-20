@@ -24,7 +24,6 @@ import androidx.constraintlayout.widget.Guideline;
 
 import androidx.annotation.NonNull;
 
-import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.Toolbar;
 import android.view.View;
@@ -32,8 +31,8 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.github.jorgecastilloprz.FABProgressCircle;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
 import com.mapbox.mapboxsdk.maps.MapView;
@@ -47,6 +46,7 @@ import org.envirocar.core.entity.Track;
 import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.trackprocessing.statistics.TrackStatisticsProvider;
+import org.envirocar.core.util.Util;
 
 import java.text.DateFormat;
 import java.text.DecimalFormat;
@@ -173,7 +173,7 @@ public abstract class AbstractTrackListCardAdapter<E extends
     }
 
     protected void bindTrackViewHolder(TrackCardViewHolder holder, Track track, Boolean isDownloadedTrack) {
-        LOG.info("bindLocalTrackViewHolder()");
+        LOG.info("bindTrackViewHolder() with isDownloadedTrack: " + isDownloadedTrack);
         holder.mDistance.setText("...");
         holder.mDuration.setText("...");
         holder.mDurationAdd.setText("H");
@@ -225,9 +225,8 @@ public abstract class AbstractTrackListCardAdapter<E extends
                     if (isDownloadedTrack)
                         trackDate = new Date(track.getStartTime());
                     else {
-                        formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
                         try {
-                            trackDate = formatter.parse(track.getBegin());
+                            trackDate = new Date(Util.isoDateToLong(track.getBegin()));
                         } catch (Exception e) {
                             LOG.error("Unable to parse date", e);
                             trackDate = new Date();
@@ -331,6 +330,10 @@ public abstract class AbstractTrackListCardAdapter<E extends
             if (track.isRemoteTrack()) {
                 holder.mToolbar.getMenu().removeItem(R.id.menu_tracklist_cardlayout_item_upload);
             }
+            if (!isDownloadedTrack) {
+                holder.mToolbar.getMenu().removeItem(R.id.menu_tracklist_cardlayout_item_details);
+                holder.mToolbar.getMenu().removeItem(R.id.menu_tracklist_cardlayout_item_export);
+            }
         }
 
         holder.mToolbar.setOnMenuItemClickListener(item -> {
@@ -338,7 +341,7 @@ public abstract class AbstractTrackListCardAdapter<E extends
 
             switch (item.getItemId()) {
                 case R.id.menu_tracklist_cardlayout_item_details:
-                    mTrackInteractionCallback.onTrackDetailsClicked(track, holder.mMapView);
+                        mTrackInteractionCallback.onTrackDetailsClicked(track, holder.mMapView);
                     break;
                 case R.id.menu_tracklist_cardlayout_item_delete:
                     mTrackInteractionCallback.onDeleteTrackClicked(track);
@@ -414,6 +417,8 @@ public abstract class AbstractTrackListCardAdapter<E extends
 
         @BindView(R.id.fragment_tracklist_cardlayout_toolbar)
         protected Toolbar mToolbar;
+        @BindView(R.id.fragment_tracklist_cardlayout_content_new)
+        protected View mContentView;
         @BindView(R.id.track_details_attributes_header_title)
         protected TextView mTitleTextView;
         @BindView(R.id.track_details_attributes_header_car)
@@ -487,8 +492,6 @@ public abstract class AbstractTrackListCardAdapter<E extends
      */
     static class RemoteTrackCardViewHolder extends TrackCardViewHolder {
 
-        @BindView(R.id.fragment_tracklist_cardlayout_remote_progresscircle)
-        protected FABProgressCircle mProgressCircle;
         @BindView(R.id.fragment_tracklist_cardlayout_remote_downloadfab)
         protected FloatingActionButton mDownloadButton;
         @BindView(R.id.fragment_tracklist_cardlayout_downloading_notification)

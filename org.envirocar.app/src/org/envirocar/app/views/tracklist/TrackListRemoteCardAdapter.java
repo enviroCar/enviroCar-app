@@ -82,35 +82,25 @@ public class TrackListRemoteCardAdapter extends AbstractTrackListCardAdapter<
         // Depending on the tracks state
         switch (remoteTrack.getDownloadState()) {
             case REMOTE:
-                //holder.mContentView.setVisibility(View.GONE);
-                //holder.mProgressCircle.setVisibility(View.VISIBLE);
-
-                // Workaround: Sometimes the inner arcview can be null when set visible
-                //holder.mProgressCircle.post(() -> {
-                    //holder.mProgressCircle.hide();
-                //});
                 holder.mDownloadButton.show();
                 holder.mDownloadButton.setOnClickListener(v -> {
                     holder.mDownloadButton.setOnClickListener(null);
+                    holder.mDownloadButton.hide();
                     mTrackInteractionCallback.onDownloadTrackClicked(remoteTrack, holder);
                 });
                 holder.mDownloadNotification.setVisibility(View.GONE);
                 bindTrackViewHolder(holder, remoteTrack,false);
                 break;
             case DOWNLOADING:
-                //holder.mProgressCircle.setVisibility(View.VISIBLE);
-                //holder.mProgressCircle.post(() -> holder.mProgressCircle.show());
-                holder.mDownloadButton.show();
                 holder.mDownloadNotification.setVisibility(View.VISIBLE);
                 break;
             case DOWNLOADED:
-                //holder.mProgressCircle.setVisibility(View.GONE);
+                holder.mDownloadButton.hide();
                 holder.mDownloadNotification.setVisibility(View.GONE);
                 bindTrackViewHolder(holder, remoteTrack, true);
                 break;
         }
-
-        holder.mMapView.postInvalidate();
+        //holder.mMapView.postInvalidate();
     }
 
     public void onLowMemory() {

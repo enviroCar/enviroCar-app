@@ -44,6 +44,7 @@ import org.envirocar.core.exception.NotConnectedException;
 import org.envirocar.core.exception.UnauthorizedException;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.trackprocessing.statistics.TrackStatisticsProvider;
+import org.envirocar.core.util.Util;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -245,32 +246,18 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
                         LOG.info("Track " + track.getRemoteID() + " downloaded. Setting ViewHolder");
                         mRecyclerViewAdapter.bindTrackViewHolder(holder, track, true);
 
-                        // and hide the download button
-                        ECAnimationUtils.animateHideView(getActivity(), R.anim.fade_out,
-                                holder.mDownloadButton, holder
+                        // and hide the download notification
+                        ECAnimationUtils.animateHideView(getActivity(), R.anim.fade_out, holder
                                         .mDownloadNotification);
-                        /*
-                        holder.mProgressCircle.beginFinalAnimation();
-                        holder.mProgressCircle.attachListener(() -> {
-                            // When the visualization is finished, then Init the
-                            // content view including its mapview and track details.
-                            mRecyclerViewAdapter.bindTrackViewHolder(holder, track, true);
 
-                            // and hide the download button
-                            ECAnimationUtils.animateHideView(getActivity(), R.anim.fade_out,
-                                    holder.mProgressCircle, holder.mDownloadButton, holder
-                                            .mDownloadNotification);
-                            //ECAnimationUtils.animateShowView(getActivity(), holder.mContentView, R
-                            //        .anim.fade_in);
-                        });
-                        */
+                        ECAnimationUtils.animateShowView(getActivity(), holder.mContentView, R
+                                        .anim.fade_in);
                     }
 
                     @Override
                     public void onError(Throwable e) {
                         LOG.error("Not connected exception", e);
                         showSnackbar(R.string.track_list_communication_error);
-                        //holder.mProgressCircle.hide();
                         track.setDownloadState(Track.DownloadState.DOWNLOADING);
                         holder.mDownloadNotification.setText(
                                 R.string.track_list_error_while_downloading);
@@ -435,10 +422,9 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
                 if (dateFilter) {
                     for (int i = 0; i < mTrackList.size(); ++i) {
                         Track track = mTrackList.get(i);
-                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault());
                         try {
-                            Date trackDateStart = simpleDateFormat.parse(track.getBegin());
-                            Date trackDateEnd = simpleDateFormat.parse(track.getEnd());
+                            Date trackDateStart = new Date(Util.isoDateToLong(track.getBegin()));
+                            Date trackDateEnd = new Date(Util.isoDateToLong(track.getEnd()));
                             if (trackDateStart.before(startDate) || trackDateEnd.after(endDate)) {
                                 mTrackList.remove(i);
                                 i--;
