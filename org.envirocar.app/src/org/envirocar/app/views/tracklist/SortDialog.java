@@ -37,16 +37,28 @@ public class SortDialog extends Dialog implements AdapterView.OnItemSelectedList
     protected RadioButton desc;
     @BindView(R.id.submit)
     protected Button submit;
-    private SortViewModel sortViewModel;
-    private Integer sortChoice;
-    private Boolean sortOrder;
-    private Boolean mapChoice;
     @BindView(R.id.radioGroup1)
     protected RadioGroup radioGroup1;
     @BindView(R.id.wMap)
     protected RadioButton wMap;
     @BindView(R.id.woMap)
     protected RadioButton woMap;
+
+    private SortViewModel sortViewModel;
+
+    // 1: By Date
+    // 2: By Length
+    // 3: By Duration
+    // 4: By Car
+    private Integer sortChoice;
+
+    // True: Ascending
+    // False: Descending
+    private Boolean sortOrder;
+
+    // True: With Map
+    // False: Without Map
+    private Boolean mapChoice;
 
     Context context;
     FragmentActivity activity;
@@ -62,13 +74,17 @@ public class SortDialog extends Dialog implements AdapterView.OnItemSelectedList
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_tracklist_sort_dialog);
         ButterKnife.bind(this);
+
         sortViewModel = ViewModelProviders.of(activity).get(SortViewModel.class);
+
         checkViewModelStatus();
         setSpinner();
+
         if (sortOrder)
             radioGroup.check(R.id.asc);
         else
             radioGroup.check(R.id.desc);
+
         if (mapChoice)
             radioGroup1.check(R.id.wMap);
         else
@@ -108,6 +124,9 @@ public class SortDialog extends Dialog implements AdapterView.OnItemSelectedList
         });
     }
 
+    /**
+     * Set the spinner with the sort options
+     */
     public void setSpinner() {
         List<String> list = Arrays.asList(activity.getResources().getStringArray(R.array.sort_options));
         ArrayAdapter<String> adapter = new ArrayAdapter(activity,R.layout.spinner_item, list);
@@ -116,11 +135,15 @@ public class SortDialog extends Dialog implements AdapterView.OnItemSelectedList
         spinnerSort.setSelection(sortChoice);
     }
 
+    /**
+     * If the sort values already exist, get them and set the respective fields. If they
+     * dont exist, set the default values for them
+     */
     void checkViewModelStatus() {
-
         sortChoice = sortViewModel.getSortChoice().getValue();
         sortOrder = sortViewModel.getSortOrder().getValue();
         mapChoice = sortViewModel.getMapChoice().getValue();
+
         if (sortChoice == null)
             sortChoice = 0;
         if (sortOrder == null)
@@ -131,7 +154,6 @@ public class SortDialog extends Dialog implements AdapterView.OnItemSelectedList
     }
     @Override
     public void onItemSelected(AdapterView<?> arg0, View arg1, int position, long id) {
-        LOG.info("Item "+position+" clicked.");
         sortChoice = position;
     }
 

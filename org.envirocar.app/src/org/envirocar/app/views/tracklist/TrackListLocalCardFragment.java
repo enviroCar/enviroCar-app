@@ -76,16 +76,22 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
     private static final Logger LOG = Logger.getLogger(TrackListLocalCardFragment.class);
 
     private boolean dateFilter = false;
-    private boolean carFilter = false;
     private Date startDate;
     private Date endDate;
+
+    private boolean carFilter = false;
     private String carName;
+
     private Integer sortC = 0;
     private Integer sortO = 1;
+
     private FilterViewModel filterViewModel;
     private SortViewModel sortViewModel;
+
     private List<Track> localList = Collections.synchronizedList(new ArrayList<>());
-    private Boolean mvVisible = true;
+
+    // Holds whether the MapView is visible or not
+    private Boolean mapViewVisible = true;
 
     /**
      *
@@ -104,6 +110,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
         super.onCreate(savedInstanceState);
         MainActivityComponent mainActivityComponent =  BaseApplication.get(getActivity()).getBaseApplicationComponent().plus(new MainActivityModule(getActivity()));
         mainActivityComponent.inject(this);
+
         filterViewModel = ViewModelProviders.of(this.getActivity()).get(FilterViewModel.class);
         sortViewModel = ViewModelProviders.of(this.getActivity()).get(SortViewModel.class);
 
@@ -126,7 +133,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
         });
 
         sortViewModel.getMapActive().observe(this, item-> {
-            mvVisible = sortViewModel.getMapChoice().getValue();
+            mapViewVisible = sortViewModel.getMapChoice().getValue();
             updateView();
         });
     }
@@ -571,9 +578,10 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
     }
 
     public  void updateView() {
+        mRecyclerViewAdapter.setGuideline(mapViewVisible);
 
-        mRecyclerViewAdapter.setGuideline(mvVisible);
         setTrackList();
+
         if (dateFilter) {
             for (int i = 0; i < mTrackList.size(); ++i) {
                 Track track = mTrackList.get(i);
@@ -589,6 +597,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
                 }
             }
         }
+
         if (carFilter) {
             for (int i = 0; i < mTrackList.size(); ++i) {
                 Track track = mTrackList.get(i);
@@ -662,15 +671,17 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
             TransitionManager.beginDelayedTransition(mRecyclerView, new Slide(Gravity.LEFT).
                     setDuration(1000).
                     setInterpolator(new FastOutSlowInInterpolator()));
+
             mRecyclerView.removeAllViews();
             mRecyclerView.setVisibility(View.VISIBLE);
-            infoView.setVisibility(View.GONE);
             mRecyclerViewAdapter.notifyDataSetChanged();
+
+            infoView.setVisibility(View.GONE);
             ECAnimationUtils.animateShowView(getActivity(), mFAB,
                     R.anim.translate_slide_in_bottom_fragment);
         }
-
     }
+
     private void showNoLocalTracksInfo(Boolean afterFilter) {
         mRecyclerView.setVisibility(View.GONE);
         if (!afterFilter) {

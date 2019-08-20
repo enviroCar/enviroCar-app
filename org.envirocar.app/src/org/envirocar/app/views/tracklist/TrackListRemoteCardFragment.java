@@ -69,16 +69,22 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
 
     private boolean hasLoadedRemote = false;
     private boolean hasLoadedStored = false;
+
     private boolean dateFilter = false;
-    private boolean carFilter = false;
-    private boolean mvVisible = true;
     private Date startDate;
     private Date endDate;
+
+    private boolean carFilter = false;
     private String carName;
+
+    private boolean mvVisible = true;
+
     private Integer sortC = 0;
     private Integer sortO = 1;
+
     private FilterViewModel filterViewModel;
     private SortViewModel sortViewModel;
+
     private List<Track> remoteList = Collections.synchronizedList(new ArrayList<>());
 
     @Override
@@ -86,6 +92,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
         super.onCreate(savedInstanceState);
         MainActivityComponent mainActivityComponent = BaseApplication.get(getActivity()).getBaseApplicationComponent().plus(new MainActivityModule(getActivity()));
         mainActivityComponent.inject(this);
+
         filterViewModel = ViewModelProviders.of(this.getActivity()).get(FilterViewModel.class);
         sortViewModel = ViewModelProviders.of(this.getActivity()).get(SortViewModel.class);
 
@@ -407,15 +414,18 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
         if (hasLoadedStored && hasLoadedRemote) {
             setTrackList();
             hideProgressView();
+
             if (mTrackList.isEmpty()) {
                 LOG.info("No tracks.");
                 showNoTracksInfo(false);
             } else {
                 mRecyclerView.removeAllViews();
                 mRecyclerViewAdapter.setGuideline(mvVisible);
+
                 TransitionManager.beginDelayedTransition(mRecyclerView, new Slide(Gravity.LEFT).
                         setDuration(1000).
                         setInterpolator(new FastOutSlowInInterpolator()));
+
                 if (dateFilter) {
                     for (int i = 0; i < mTrackList.size(); ++i) {
                         Track track = mTrackList.get(i);
@@ -431,6 +441,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
                         }
                     }
                 }
+
                 if (carFilter) {
                     for (int i = 0; i < mTrackList.size(); ++i) {
                         Track track = mTrackList.get(i);

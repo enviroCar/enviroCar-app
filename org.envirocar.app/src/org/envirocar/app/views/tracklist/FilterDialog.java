@@ -61,16 +61,26 @@ public class FilterDialog extends Dialog implements AdapterView.OnItemSelectedLi
 
     private Context context;
     private FragmentActivity activity;
+
+    // For the date picker dialog
     private int mYear;
     private int mMonth;
     private int mDay;
+
+    // Variables for the date filter
     private Date startDate = null;
     protected Date endDate = null;
-    protected String carName = null;
-    private boolean error ;
     private boolean datesSet = false;
+
+    // Variables for the car filter
+    protected String carName = null;
     private boolean carSet = false;
-    ArrayList<String> carNames;
+    ArrayList<String> carNames = new ArrayList<>();
+
+    // Have the required values for the active filters been set
+    private boolean error;
+
+
     private FilterViewModel filterViewModel;
 
     public FilterDialog(@NonNull Context context, @NonNull FragmentActivity activity) {
@@ -84,13 +94,16 @@ public class FilterDialog extends Dialog implements AdapterView.OnItemSelectedLi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_tracklist_filter_dialog);
         ButterKnife.bind(this);
+
         filterViewModel = ViewModelProviders.of(activity).get(FilterViewModel.class);
         Calendar c = Calendar.getInstance();
         mYear = c.get(Calendar.YEAR);
         mMonth = c.get(Calendar.MONTH);
         mDay = c.get(Calendar.DAY_OF_MONTH);
+
         setSpinner();
         checkViewModelStatus();
+
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -124,6 +137,7 @@ public class FilterDialog extends Dialog implements AdapterView.OnItemSelectedLi
             }
         });
 
+        // if checked, show the date filtering options
         checkBoxDate.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton  group, boolean isChecked) {
@@ -136,6 +150,7 @@ public class FilterDialog extends Dialog implements AdapterView.OnItemSelectedLi
 
         });
 
+        // if checked, show the car filtering options
         checkBoxCar.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton  group, boolean isChecked) {
@@ -148,6 +163,7 @@ public class FilterDialog extends Dialog implements AdapterView.OnItemSelectedLi
 
         });
 
+        // Button to set the start date for the date filter
         start.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -177,6 +193,7 @@ public class FilterDialog extends Dialog implements AdapterView.OnItemSelectedLi
             }
         });
 
+        // Button to set the end date for the date filter
         end.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -207,21 +224,31 @@ public class FilterDialog extends Dialog implements AdapterView.OnItemSelectedLi
         });
     }
 
-
+    /**
+     * Get the users list of cars to set up the Car Spinner
+     */
     public void setSpinner() {
         Set<String> temp  = PreferencesHandler.getSharedPreferences(context)
                 .getStringSet(PreferenceConstants.PREFERENCE_TAG_CARS, new HashSet<>());
-        List<String> carList = new ArrayList<>(temp);
-        carNames = new ArrayList<>();
+        List<String> carList = new ArrayList<>();
+
+        if(temp != null)
+            carList = new ArrayList<>(temp);
+
         for(int i = 0; i < carList.size(); ++i){
             Car car = CarUtils.instantiateCar(carList.get(i));
             carNames.add(car.getManufacturer() + " " + car.getModel());
         }
+
         ArrayAdapter<String> adapter = new ArrayAdapter(activity,R.layout.spinner_item, carNames);
         spinnerCar.setAdapter(adapter);
         spinnerCar.setOnItemSelectedListener(this);
     }
 
+    /**
+     * If the filter values already exist, get them and set the respective fields. If they
+     * dont exist, set the default values for them
+     */
     public void checkViewModelStatus() {
         try {
             datesSet = filterViewModel.getFilterDate().getValue();
@@ -264,6 +291,12 @@ public class FilterDialog extends Dialog implements AdapterView.OnItemSelectedLi
         }
     }
 
+    /**
+     * Set the start and end date in the Filter Dialog
+     * @param choice if 1: Set Start
+     *               else if 2 :  Set End
+     *               else : Set both with default strings
+     */
     public void setDateHeader(int choice) {
         if (choice == 1) {
             String header = new SimpleDateFormat("dd MMMM", Locale.getDefault()).format(startDate);
@@ -277,9 +310,12 @@ public class FilterDialog extends Dialog implements AdapterView.OnItemSelectedLi
         }
     }
 
+    /**
+     * When the spinner item is selected, change the value of the LiveData so that the
+     * observers get notified
+     */
     @Override
     public void onItemSelected(AdapterView<?> arg0, View arg1, int position, long id) {
-        LOG.info("Item "+position+" clicked.");
         carName = carNames.get(position);
         filterViewModel.setFilterCarName(carName);
     }

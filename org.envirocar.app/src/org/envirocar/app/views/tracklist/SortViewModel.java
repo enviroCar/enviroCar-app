@@ -5,11 +5,15 @@ import androidx.lifecycle.ViewModel;
 
 public class SortViewModel extends ViewModel {
 
+    // To notify that a sort option has been modified
+    private final MutableLiveData<Boolean> sortActive = new MutableLiveData<>();
     private final MutableLiveData<Integer> sortChoice = new MutableLiveData<>();
     private final MutableLiveData<Boolean> sortOrder = new MutableLiveData<>();
-    private final MutableLiveData<Boolean> sortActive = new MutableLiveData<>();
-    private final MutableLiveData<Boolean> mapChoice = new MutableLiveData<>();
+
+    // To notify that a viewing option has been modified
     private final MutableLiveData<Boolean> mapActive = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> mapChoice = new MutableLiveData<>();
+
 
     public MutableLiveData<Boolean> getSortOrder() {
         return sortOrder;

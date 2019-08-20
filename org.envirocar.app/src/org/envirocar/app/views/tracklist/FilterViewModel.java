@@ -7,10 +7,15 @@ import java.util.Date;
 
 public class FilterViewModel extends ViewModel {
 
+    // To notify that a filter has been modified
     private final MutableLiveData<Boolean> filterActive = new MutableLiveData<>();
+
+    // Holds whether the date filter is active or not
     private final MutableLiveData<Boolean> filterDate = new MutableLiveData<>();
     private final MutableLiveData<Date> filterDateStart = new MutableLiveData<>();
     private final MutableLiveData<Date> filterDateEnd = new MutableLiveData<>();
+
+    // Holds whether the car filter is active or not
     private final MutableLiveData<Boolean> filterCar = new MutableLiveData<>();
     private final MutableLiveData<String> filterCarName = new MutableLiveData<>();
 
