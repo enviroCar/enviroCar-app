@@ -46,13 +46,11 @@ import org.envirocar.core.logging.Logger;
 import org.envirocar.core.trackprocessing.statistics.TrackStatisticsProvider;
 import org.envirocar.core.util.Util;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 import rx.Observer;
 import rx.Subscriber;
@@ -407,7 +405,6 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
     private void updateView() {
         LOG.info("updateView()");
         if (hasLoadedStored && hasLoadedRemote) {
-            LOG.info("Tracked loaded.");
             setTrackList();
             hideProgressView();
             if (mTrackList.isEmpty()) {

@@ -139,6 +139,7 @@ public abstract class AbstractTrackListCardAdapter<E extends
         if (diffDays != 0) {
             stringBuilder.append(diffDays);
             stringBuilder.append(":");
+
             if (diffHours > 1) {
                 stringBuilder.append(DECIMAL_FORMATTER.format(diffHours));
             }
@@ -146,6 +147,7 @@ public abstract class AbstractTrackListCardAdapter<E extends
         } else {
             if (diffHours != 0) {
                 stringBuilder.append(diffHours);
+
                 if (diffMinutes != 0){
                     stringBuilder.append(":");
                     stringBuilder.append(DECIMAL_FORMATTER.format(diffMinutes));
@@ -154,6 +156,7 @@ public abstract class AbstractTrackListCardAdapter<E extends
             } else {
                 if (diffMinutes!=0) {
                     stringBuilder.append(diffMinutes);
+
                     if (diffSeconds!=0) {
                         stringBuilder.append(":");
                         stringBuilder.append(DECIMAL_FORMATTER.format(diffSeconds));
@@ -190,7 +193,6 @@ public abstract class AbstractTrackListCardAdapter<E extends
             holder.mDurationImg.setVisibility(View.GONE);
             holder.mCarName.setVisibility(View.GONE);
         } else {
-
             if(mvVisible)
                 holder.guideline.setGuidelinePercent(0.37f);
             else
@@ -205,8 +207,6 @@ public abstract class AbstractTrackListCardAdapter<E extends
             holder.mCarName.setVisibility(View.VISIBLE);
         }
 
-        // First, load the track from the dataset
-        //holder.mTitleTextView.setText(track.getName());
         // Initialize the mapView.
         if (isDownloadedTrack) {
             holder.mMapView.setVisibility(View.VISIBLE);
@@ -221,7 +221,7 @@ public abstract class AbstractTrackListCardAdapter<E extends
                 try {
                     //Set Track Header and TimeImg
                     Date trackDate;
-                    SimpleDateFormat formatter;
+
                     if (isDownloadedTrack)
                         trackDate = new Date(track.getStartTime());
                     else {
@@ -232,7 +232,8 @@ public abstract class AbstractTrackListCardAdapter<E extends
                             trackDate = new Date();
                         }
                     }
-                    formatter = new SimpleDateFormat("HH", Locale.getDefault());
+
+                    SimpleDateFormat formatter = new SimpleDateFormat("HH", Locale.getDefault());
                     Integer hh = Integer.parseInt(formatter.format(trackDate));
                     mMainThreadWorker.schedule(new Action0() {
                         @Override

@@ -32,6 +32,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 import butterknife.BindView;
@@ -265,10 +266,10 @@ public class FilterDialog extends Dialog implements AdapterView.OnItemSelectedLi
 
     public void setDateHeader(int choice) {
         if (choice == 1) {
-            String header = new SimpleDateFormat("dd MMMM").format(startDate);
+            String header = new SimpleDateFormat("dd MMMM", Locale.getDefault()).format(startDate);
             start.setText(header);
         } else if(choice == 2) {
-            String header = new SimpleDateFormat("dd MMMM").format(endDate);
+            String header = new SimpleDateFormat("dd MMMM", Locale.getDefault()).format(endDate);
             end.setText(header);
         } else {
             start.setText("Start Date");

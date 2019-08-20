@@ -54,13 +54,11 @@ import org.envirocar.core.trackprocessing.statistics.TrackStatisticsProvider;
 import org.envirocar.core.util.TrackMetadata;
 import org.envirocar.core.util.Util;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 import rx.Observable;
 import rx.Subscriber;
@@ -579,10 +577,9 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
         if (dateFilter) {
             for (int i = 0; i < mTrackList.size(); ++i) {
                 Track track = mTrackList.get(i);
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault());
                 try {
-                    Date trackDateStart = simpleDateFormat.parse(track.getBegin());
-                    Date trackDateEnd = simpleDateFormat.parse(track.getEnd());
+                    Date trackDateStart = new Date(Util.isoDateToLong(track.getBegin()));
+                    Date trackDateEnd = new Date(Util.isoDateToLong(track.getEnd()));
                     if (trackDateStart.before(startDate) || trackDateEnd.after(endDate)) {
                         mTrackList.remove(i);
                         i--;
