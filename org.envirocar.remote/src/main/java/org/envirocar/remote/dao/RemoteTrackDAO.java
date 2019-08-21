@@ -235,9 +235,8 @@ public class RemoteTrackDAO extends BaseRemoteDAO<TrackDAO, TrackService> implem
     @Override
     public List<Track> getTrackIds(int limit, int page) throws NotConnectedException,
             UnauthorizedException {
-        final TrackService trackService = EnviroCarService.getTrackService();
-        Call<List<Track>> remoteTrackCall = trackService.getTrackIds(userManager.getUser()
-                .getUsername());
+        Call<List<Track>> remoteTrackCall = remoteService.getTrackIdsWithLimit(userManager.getUser()
+                .getUsername(), limit);
 
         try {
             // Execute the call
