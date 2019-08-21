@@ -490,7 +490,7 @@ android:layout_height="match_parent">
                         segmentedgroup:sc_corner_radius="10dp">
 
                         <RadioButton
-                            android:id="@+id/obdPlusGPSSegmentedButton"
+                            android:id="@+id/fragment_dashboard_obd_mode_button"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
@@ -498,7 +498,7 @@ android:layout_height="match_parent">
                             style="@style/RadioButton" />
 
                         <RadioButton
-                            android:id="@+id/GPSOnlySegmentedButton"
+                            android:id="@+id/fragment_dashboard_gps_mode_button"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"

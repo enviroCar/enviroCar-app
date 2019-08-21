@@ -362,7 +362,7 @@
             app:layout_constraintGuide_percent="0.79" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/fragment_dasboard_mode_selector"
+            android:id="@+id/fragment_dashboard_mode_selector"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -371,7 +371,7 @@
             app:layout_constraintStart_toStartOf="parent">
 
             <Button
-                android:id="@+id/GPSOnlySegmentedButton"
+                android:id="@+id/fragment_dashboard_gps_mode_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
@@ -386,11 +386,11 @@
                 app:layout_constraintBottom_toTopOf="@+id/obdGPSIndicator"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toEndOf="@+id/obdPlusGPSSegmentedButton"
-                app:layout_constraintTop_toTopOf="@+id/obdPlusGPSSegmentedButton" />
+                app:layout_constraintStart_toEndOf="@+id/fragment_dashboard_obd_mode_button"
+                app:layout_constraintTop_toTopOf="@+id/fragment_dashboard_obd_mode_button" />
 
             <Button
-                android:id="@+id/obdPlusGPSSegmentedButton"
+                android:id="@+id/fragment_dashboard_obd_mode_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="3dp"
@@ -405,7 +405,7 @@
                 android:textColor="#000000"
                 android:textSize="16sp"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/GPSOnlySegmentedButton"
+                app:layout_constraintEnd_toStartOf="@+id/fragment_dashboard_gps_mode_button"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent" />
 
@@ -414,18 +414,18 @@
                 android:layout_width="0dp"
                 android:layout_height="3dp"
                 android:background="#167FC1"
-                app:layout_constraintEnd_toEndOf="@+id/GPSOnlySegmentedButton"
-                app:layout_constraintStart_toStartOf="@+id/GPSOnlySegmentedButton"
-                app:layout_constraintTop_toBottomOf="@+id/GPSOnlySegmentedButton" />
+                app:layout_constraintEnd_toEndOf="@+id/fragment_dashboard_gps_mode_button"
+                app:layout_constraintStart_toStartOf="@+id/fragment_dashboard_gps_mode_button"
+                app:layout_constraintTop_toBottomOf="@+id/fragment_dashboard_gps_mode_button" />
 
             <TextView
                 android:id="@+id/obdGPSIndicator"
                 android:layout_width="0dp"
                 android:layout_height="3dp"
                 android:background="#167FC1"
-                app:layout_constraintEnd_toEndOf="@+id/obdPlusGPSSegmentedButton"
-                app:layout_constraintStart_toStartOf="@+id/obdPlusGPSSegmentedButton"
-                app:layout_constraintTop_toBottomOf="@+id/obdPlusGPSSegmentedButton" />
+                app:layout_constraintEnd_toEndOf="@+id/fragment_dashboard_obd_mode_button"
+                app:layout_constraintStart_toStartOf="@+id/fragment_dashboard_obd_mode_button"
+                app:layout_constraintTop_toBottomOf="@+id/fragment_dashboard_obd_mode_button" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

@@ -228,76 +228,44 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/fragment_dasboard_mode_selector"
+        <info.hoang8f.android.segmented.SegmentedGroup xmlns:segmentedgroup="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/fragment_dashboard_mode_selector"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginRight="30dp"
+            android:layout_marginBottom="10dp"
+            android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/cardView2">
+            app:layout_constraintTop_toBottomOf="@+id/cardView2"
+            segmentedgroup:sc_tint_color="@color/cario_color_primary_dark"
+            segmentedgroup:sc_border_width="2dp"
+            segmentedgroup:sc_corner_radius="10dp">
 
-            <Button
-                android:id="@+id/GPSOnlySegmentedButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
-                android:fontFamily="@font/roboto_medium"
-                android:paddingLeft="24dp"
-                android:paddingTop="14dp"
-                android:paddingRight="24dp"
-                android:paddingBottom="8dp"
-                android:text="GPS Only"
-                android:textColor="#000000"
-                android:textSize="16sp"
-                app:layout_constraintBottom_toTopOf="@+id/obdGPSIndicator"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toEndOf="@+id/obdPlusGPSSegmentedButton"
-                app:layout_constraintTop_toTopOf="@+id/obdPlusGPSSegmentedButton" />
-
-            <Button
-                android:id="@+id/obdPlusGPSSegmentedButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="3dp"
-                android:background="@android:color/transparent"
-                android:fontFamily="@font/roboto_medium"
-                android:gravity="center"
-                android:paddingLeft="24dp"
-                android:paddingTop="14dp"
-                android:paddingRight="24dp"
-                android:paddingBottom="8dp"
-                android:text="OBD + GPS"
-                android:textColor="#000000"
-                android:textSize="16sp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/GPSOnlySegmentedButton"
-                app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toStartOf="parent" />
-
-            <TextView
-                android:id="@+id/GPSIndicator"
+            <RadioButton
+                android:id="@+id/fragment_dashboard_obd_mode_button"
+                style="@style/RadioButton"
                 android:layout_width="0dp"
-                android:layout_height="3dp"
-                android:background="#167FC1"
-                app:layout_constraintEnd_toEndOf="@+id/GPSOnlySegmentedButton"
-                app:layout_constraintStart_toStartOf="@+id/GPSOnlySegmentedButton"
-                app:layout_constraintTop_toBottomOf="@+id/GPSOnlySegmentedButton" />
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:checked="true"
+                android:text="OBD + GPS" />
 
-            <TextView
-                android:id="@+id/obdGPSIndicator"
+            <RadioButton
+                android:id="@+id/fragment_dashboard_gps_mode_button"
+                style="@style/RadioButton"
                 android:layout_width="0dp"
-                android:layout_height="3dp"
-                android:background="#167FC1"
-                app:layout_constraintEnd_toEndOf="@+id/obdPlusGPSSegmentedButton"
-                app:layout_constraintStart_toStartOf="@+id/obdPlusGPSSegmentedButton"
-                app:layout_constraintTop_toBottomOf="@+id/obdPlusGPSSegmentedButton" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="GPS Only" />
+
+        </info.hoang8f.android.segmented.SegmentedGroup>
 
         <LinearLayout
-            android:id="@+id/linearLayout4"
+            android:id="@+id/fragment_dashboard_indicator_view"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginStart="8dp"
@@ -308,7 +276,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHeight_percent="0.08"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/fragment_dasboard_mode_selector">
+            app:layout_constraintTop_toBottomOf="@id/fragment_dashboard_mode_selector">
 
 
             <ImageView
@@ -378,7 +346,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_chainStyle="spread_inside"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/linearLayout4"
+            app:layout_constraintTop_toBottomOf="@+id/fragment_dashboard_indicator_view"
             app:layout_constraintWidth_percent=".85">
 
             <LinearLayout
