@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -23,6 +23,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.AsyncTask;
 import android.os.PowerManager;
 
 import com.squareup.otto.Produce;
@@ -34,6 +35,7 @@ import org.envirocar.app.handler.LocationHandler;
 import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.app.handler.TrackRecordingHandler;
 import org.envirocar.app.main.BaseApplicationComponent;
+import org.envirocar.app.notifications.ServiceStateForNotification;
 import org.envirocar.app.services.OBDConnectionHandler;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Measurement;
@@ -152,6 +154,8 @@ public class OBDRecordingService extends AbstractRecordingService {
         this.consumptionAlgorithm = ConsumptionAlgorithm.fromFuelType(car.getFuelType());
         this.mafAlgorithm = new CalculatedMAFWithStaticVolumetricEfficiency(car);
         this.energyConsumptionAlgorithm = new LoadBasedEnergyConsumptionAlgorithm(car.getFuelType());
+
+        showNotification(ServiceStateForNotification.CONNECTING);
     }
 
 
@@ -163,7 +167,7 @@ public class OBDRecordingService extends AbstractRecordingService {
             LOG.info("The BluetoothHandler has a valid device. Start the OBD Connection");
 
             //
-            connectingSubscription = startOBDConnection(device);
+            startOBDConnection(device);
         } else {
             LOG.severe("No default Bluetooth device selected");
             ServiceUtils.stopService(this, OBDRecordingService.class);
@@ -173,9 +177,12 @@ public class OBDRecordingService extends AbstractRecordingService {
     @Override
     protected void stopRecording() {
         LOG.info("Destroying the OBD-based recording");
-        super.onDestroy();
 
         unregisterReceiver(broadcastReciever);
+        if (connectingSubscription != null && !connectingSubscription.isUnsubscribed())
+            connectingSubscription.unsubscribe();
+        if (measurementSubscription != null && !measurementSubscription.isUnsubscribed())
+            measurementSubscription.unsubscribe();
 
         LOG.info("OBDConnectionService successfully destroyed");
     }
@@ -188,39 +195,44 @@ public class OBDRecordingService extends AbstractRecordingService {
     /**
      * @param device the device to start a connection to.
      */
-    private Subscription startOBDConnection(final BluetoothDevice device) {
-        return obdConnectionHandler.getOBDConnectionObservable(device)
-                .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.io())
-                .subscribe(new Subscriber<BluetoothSocketWrapper>() {
-                    @Override
-                    public void onStart() {
-                        LOG.info("onStart() connection");
+    private void startOBDConnection(final BluetoothDevice device) {
+        new AsyncTask<Void, Void, Void>() {
 
-                        // Set remoteService state to STARTING and fire an event on the bus.
-                        CURRENT_SERVICE_STATE = BluetoothServiceState.SERVICE_STARTING;
-                        bus.post(new TrackRecordingServiceStateChangedEvent(CURRENT_SERVICE_STATE));
-                    }
+            @Override
+            protected Void doInBackground(Void... voids) {
+                connectingSubscription = obdConnectionHandler.getOBDConnectionObservable(device)
+                        .subscribe(new Subscriber<BluetoothSocketWrapper>() {
+                            @Override
+                            public void onStart() {
+                                LOG.info("onStart() connection");
 
-                    @Override
-                    public void onCompleted() {
-                        LOG.info("onCompleted(): BluetoothSocketWrapper connection completed");
-                    }
+                                // Set remoteService state to STARTING and fire an event on the bus.
+                                CURRENT_SERVICE_STATE = BluetoothServiceState.SERVICE_STARTING;
+                                bus.post(new TrackRecordingServiceStateChangedEvent(CURRENT_SERVICE_STATE));
+                            }
 
-                    @Override
-                    public void onError(Throwable e) {
-                        LOG.error(e.getMessage(), e);
-                        unsubscribe();
-                    }
+                            @Override
+                            public void onCompleted() {
+                                LOG.info("onCompleted(): BluetoothSocketWrapper connection completed");
+                            }
 
-                    @Override
-                    public void onNext(BluetoothSocketWrapper socketWrapper) {
-                        LOG.info("startOBDConnection.onNext() socket successfully connected.");
-                        bluetoothSocketWrapper = socketWrapper;
-                        onDeviceConnected(bluetoothSocketWrapper);
-                        onCompleted();
-                    }
-                });
+                            @Override
+                            public void onError(Throwable e) {
+                                LOG.error(e.getMessage(), e);
+                                unsubscribe();
+                            }
+
+                            @Override
+                            public void onNext(BluetoothSocketWrapper socketWrapper) {
+                                LOG.info("startOBDConnection.onNext() socket successfully connected.");
+                                bluetoothSocketWrapper = socketWrapper;
+                                onDeviceConnected(bluetoothSocketWrapper);
+                                onCompleted();
+                            }
+                        });
+                return null;
+            }
+        }.execute();
     }
 
     private void stopOBDConnection() {

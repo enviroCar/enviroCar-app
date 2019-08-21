@@ -39,6 +39,7 @@ import java.util.UUID;
 import rx.Observable;
 import rx.Subscriber;
 import rx.exceptions.OnErrorThrowable;
+import rx.schedulers.Schedulers;
 
 /**
  * TODO JavaDoc
@@ -74,6 +75,8 @@ public class OBDConnectionHandler {
                         throw OnErrorThrowable.from(new UUIDSanityCheckFailedException());
                 })
                 .concatMap(bluetoothDevice -> getUUIDList(bluetoothDevice))
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
                 .concatMap(uuids -> createOBDBluetoothObservable(device, uuids));
     }
 
