@@ -63,6 +63,7 @@ public class ELM327Adapter extends SyncAdapter {
         result.add(ConfigurationCommand.instance(ConfigurationCommand.Instance.RESET));
         result.add(ConfigurationCommand.instance(ConfigurationCommand.Instance.ECHO_OFF));
         result.add(ConfigurationCommand.instance(ConfigurationCommand.Instance.ECHO_OFF));
+        result.add(ConfigurationCommand.instance(ConfigurationCommand.Instance.MEMORY_OFF));
         result.add(ConfigurationCommand.instance(ConfigurationCommand.Instance.LINE_FEED_OFF));
         result.add(new Timeout(62));
         result.add(ConfigurationCommand.instance(ConfigurationCommand.Instance.SELECT_AUTO_PROTOCOL));
