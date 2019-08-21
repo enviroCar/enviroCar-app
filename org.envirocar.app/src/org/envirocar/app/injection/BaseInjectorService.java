@@ -51,8 +51,7 @@ public abstract class BaseInjectorService extends LifecycleService {
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        super.onBind(intent);
-        return null;
+        return super.onBind(intent);
     }
 
     @Override

@@ -836,7 +836,7 @@ public class DashBoardFragment extends BaseInjectorFragment {
      */
     private void setOBDTypeText(BluetoothDevice device) {
         getActivity().runOnUiThread(() -> {
-            if (!mBluetoothHandler.isBluetoothEnabled()) {
+/*            if (!mBluetoothHandler.isBluetoothEnabled()) {
                 mOBDTypeTextView.setText(R.string.dashboard_bluetooth_disabled);
                 mOBDTypeSubTextView.setText(R.string.dashboard_bluetooth_disabled_advise);
                 mOBDTypeImg.setImageResource(R.drawable.bluetooth_error);
@@ -861,7 +861,7 @@ public class DashBoardFragment extends BaseInjectorFragment {
                 mOBDTypeSubTextView.setText(device.getAddress());
                 mOBDTypeImg.setImageResource(R.drawable.obd_connected);
                 mOBDTypeSubTextView.setVisibility(View.VISIBLE);
-            }
+            }*/
         });
     }
 

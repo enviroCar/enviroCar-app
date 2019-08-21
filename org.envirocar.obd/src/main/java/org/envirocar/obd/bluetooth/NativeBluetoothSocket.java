@@ -20,6 +20,7 @@ package org.envirocar.obd.bluetooth;
 
 import android.bluetooth.BluetoothSocket;
 
+import org.envirocar.core.logging.Logger;
 import org.envirocar.obd.bluetooth.BluetoothSocketWrapper;
 
 import java.io.IOException;
@@ -30,6 +31,7 @@ import java.io.OutputStream;
  * TODO JavaDoc
  */
 public class NativeBluetoothSocket extends BluetoothSocketWrapper {
+	private static final Logger LOG = Logger.getLogger(NativeBluetoothSocket.class);
 
 	private BluetoothSocket socket;
 
@@ -54,7 +56,9 @@ public class NativeBluetoothSocket extends BluetoothSocketWrapper {
 
 	@Override
 	public void connect() throws IOException {
+		LOG.error("This gets called");
 		socket.connect();
+		LOG.error("and this?");
 	}
 
 	@Override

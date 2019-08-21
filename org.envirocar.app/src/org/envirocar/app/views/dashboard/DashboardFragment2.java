@@ -1,6 +1,7 @@
 package org.envirocar.app.views.dashboard;
 
 import android.bluetooth.BluetoothDevice;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -35,6 +36,7 @@ import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.UserHandler;
 import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.app.main.BaseApplicationComponent;
+import org.envirocar.app.services.recording.GPSOnlyRecordingService;
 import org.envirocar.app.services.recording.OBDRecordingService;
 import org.envirocar.app.views.carselection.CarSelectionActivity;
 import org.envirocar.app.views.login.SigninActivity;
@@ -77,8 +79,6 @@ public class DashboardFragment2 extends BaseInjectorFragment {
     protected TextView textView;
     @BindView(R.id.fragment_dashboard_logged_in_layout)
     protected View loggedInLayout;
-    @BindView(R.id.fragment_dashboard_mode_selector)
-    protected ViewGroup modeSelector;
 
     @BindView(R.id.fragment_dashboard_user_tracks_layout)
     protected View userTracksLayout;
@@ -230,21 +230,21 @@ public class DashboardFragment2 extends BaseInjectorFragment {
         // check whether OBD is visible or not.
         int visibility = button.getId() == R.id.fragment_dashboard_obd_mode_button ? View.VISIBLE : View.GONE;
 
+        // shared transition set
+        TransitionSet transitionSet = new TransitionSet()
+                .addTransition(new ChangeBounds())
+                .addTransition(new AutoTransition())
+                .addTransition(new Slide(Gravity.LEFT));
+
         // animate transition
-        TransitionManager.beginDelayedTransition(this.modeSelector);
-        TransitionManager.beginDelayedTransition(this.bluetoothSelectionView,
-                new TransitionSet()
-                        .addTransition(new ChangeBounds())
-                        .addTransition(new AutoTransition())
-                        .addTransition(new Slide(Gravity.LEFT)));
+        TransitionManager.beginDelayedTransition(this.modeSegmentedGroup);
+        TransitionManager.beginDelayedTransition(this.bluetoothSelectionView, transitionSet);
         this.bluetoothSelectionView.setVisibility(visibility);
 
         // indicator transition
-        TransitionManager.beginDelayedTransition(this.indicatorView);
+        TransitionManager.beginDelayedTransition(this.indicatorView, transitionSet);
         this.bluetoothIndicator.setVisibility(visibility);
         this.obdIndicator.setVisibility(visibility);
-
-
     }
 
     // OnClick Handler
@@ -265,22 +265,30 @@ public class DashboardFragment2 extends BaseInjectorFragment {
     @OnClick(R.id.fragment_dashboard_start_track_button)
     protected void onStartTrackButtonClicked() {
         LOG.info("Clicked on Start Track Button");
-        BluetoothDevice device = bluetoothHandler.getSelectedBluetoothDevice();
+        switch (this.modeSegmentedGroup.getCheckedRadioButtonId()){
+            case R.id.fragment_dashboard_obd_mode_button:
+                BluetoothDevice device = bluetoothHandler.getSelectedBluetoothDevice();
 
-        Intent serviceIntent = new Intent(getActivity(), OBDRecordingService.class);
-        this.connectingDialog = new MaterialDialog.Builder(getActivity())
-                .iconRes(R.drawable.ic_bluetooth_searching_black_24dp)
-                .title(R.string.dashboard_connecting)
-                .content(String.format(getString(R.string.dashboard_connecting_find_template), device.getName()))
-                .progress(true, 0)
-                .negativeText(R.string.cancel)
-                .cancelable(false)
-                .onNegative((dialog, which) -> getActivity().stopService(serviceIntent))
-                .show();
+                Intent obdRecordingIntent = new Intent(getActivity(), OBDRecordingService.class);
+                this.connectingDialog = new MaterialDialog.Builder(getActivity())
+                        .iconRes(R.drawable.ic_bluetooth_searching_black_24dp)
+                        .title(R.string.dashboard_connecting)
+                        .content(String.format(getString(R.string.dashboard_connecting_find_template), device.getName()))
+                        .progress(true, 0)
+                        .negativeText(R.string.cancel)
+                        .cancelable(false)
+                        .onNegative((dialog, which) -> getActivity().stopService(obdRecordingIntent))
+                        .show();
 
-        ContextCompat.startForegroundService(getActivity(), serviceIntent);
-
-        // TODO
+                ContextCompat.startForegroundService(getActivity(), obdRecordingIntent);
+                break;
+            case R.id.fragment_dashboard_gps_mode_button:
+                Intent gpsOnlyIntent = new Intent(getActivity(), GPSOnlyRecordingService.class);
+                ContextCompat.startForegroundService(getActivity(), gpsOnlyIntent);
+                break;
+            default:
+                break;
+        }
     }
 
     @OnClick(R.id.fragment_dashboard_indicator_car)
@@ -381,7 +389,7 @@ public class DashboardFragment2 extends BaseInjectorFragment {
      * @param event
      */
     @Subscribe
-    public void onGpsStateChangedEvent(GpsStateChangedEvent event) {
+    public void onGpsStateChangedEvent(final GpsStateChangedEvent event) {
         // post on decor view to ensure that it gets executed when view has been inflated.
         runAfterInflation(() -> {
             this.gpsIndicator.setEnabled(!event.mIsGPSEnabled);
@@ -390,7 +398,7 @@ public class DashboardFragment2 extends BaseInjectorFragment {
     }
 
     @Subscribe
-    public void onNewUserSettingsEvent(NewUserSettingsEvent event) {
+    public void onNewUserSettingsEvent(final NewUserSettingsEvent event) {
         runAfterInflation(() -> {
             if (event.mIsLoggedIn) {
                 this.loggedInLayout.setVisibility(View.VISIBLE);
@@ -406,7 +414,7 @@ public class DashboardFragment2 extends BaseInjectorFragment {
     }
 
     @Subscribe
-    public void onUserStatisticsUpdateEvent(UserStatisticsUpdateEvent event) {
+    public void onUserStatisticsUpdateEvent(final UserStatisticsUpdateEvent event) {
         runAfterInflation(() -> {
             userTracksTextView.setText("" + event.numTracks);
             userDistanceTextView.setText(String.format("%s km", (int) event.totalDistance));
@@ -434,20 +442,26 @@ public class DashboardFragment2 extends BaseInjectorFragment {
     }
 
     private void updateStartTrackButton() {
+        boolean setEnabled = false;
         switch (this.modeSegmentedGroup.getCheckedRadioButtonId()) {
-            case R.id.fragment_dashboard_mode_selector:
-
+            case R.id.fragment_dashboard_gps_mode_button:
+                setEnabled = (!this.carIndicator.isEnabled()
+                        && !this.gpsIndicator.isEnabled());
+                break;
+            case R.id.fragment_dashboard_obd_mode_button:
+                setEnabled = (!this.bluetoothIndicator.isEnabled()
+                        && !this.gpsIndicator.isEnabled()
+                        && !this.obdIndicator.isEnabled()
+                        && !this.carIndicator.isEnabled());
+                break;
         }
-        boolean setEnabled = (!this.bluetoothIndicator.isEnabled()
-                && !this.gpsIndicator.isEnabled()
-                && !this.obdIndicator.isEnabled()
-                && !this.carIndicator.isEnabled());
         this.startTrackButton.setEnabled(setEnabled);
     }
 
     private void updateStartTrackButton(BluetoothServiceState state) {
         switch (state) {
             case SERVICE_STOPPED:
+                this.startTrackButton.setEnabled(true);
                 break;
             case SERVICE_STARTED:
                 break;

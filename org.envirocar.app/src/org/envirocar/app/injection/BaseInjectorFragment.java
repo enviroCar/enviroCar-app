@@ -109,4 +109,8 @@ public abstract class BaseInjectorFragment extends Fragment {
             mIsRegistered = false;
         }
     }
+
+    protected void runAfterInflation(Runnable runnable){
+        getActivity().getWindow().getDecorView().post(runnable);
+    }
 }

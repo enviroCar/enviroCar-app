@@ -39,6 +39,7 @@ import org.acra.annotation.*;
 import org.envirocar.app.handler.LocationHandler;
 import org.envirocar.app.handler.PreferenceConstants;
 import org.envirocar.app.notifications.NotificationHandler;
+import org.envirocar.app.views.dashboard.UserStatisticsProcessor;
 import org.envirocar.core.logging.ACRASenderFactory;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.injection.InjectApplicationScope;
@@ -84,6 +85,8 @@ public class BaseApplication extends Application {
     protected Context context;
     @Inject
     protected LocationHandler locationHandler;
+    @Inject
+    protected UserStatisticsProcessor statisticsProcessor;
 
     private SharedPreferences.OnSharedPreferenceChangeListener preferenceListener
             = (sharedPreferences, key) -> {

@@ -18,8 +18,6 @@
  */
 package org.envirocar.app.main;
 
-import android.location.LocationManager;
-
 import com.squareup.sqlbrite.SqlBrite;
 
 import org.envirocar.app.aidl.EnviroCarDataService;
@@ -37,6 +35,7 @@ import org.envirocar.app.views.OthersFragment;
 import org.envirocar.app.views.carselection.CarSelectionActivity;
 import org.envirocar.app.views.carselection.CarSelectionAddCarFragment;
 import org.envirocar.app.views.dashboard.DashboardFragment2;
+import org.envirocar.app.views.dashboard.UserStatisticsProcessor;
 import org.envirocar.app.views.logbook.LogbookActivity;
 import org.envirocar.app.views.logbook.LogbookAddFuelingFragment;
 import org.envirocar.app.views.login.SigninActivity;
@@ -115,6 +114,7 @@ public interface BaseApplicationComponent {
     void inject(SignupActivity registerActivity);
     void inject(DashboardFragment2 dashboardFragment2);
     void inject(LocationHandler locationHandler);
+    void inject(UserStatisticsProcessor statisticsProcessor);
 
     MainActivityComponent plus(MainActivityModule mainActivityModule);
 

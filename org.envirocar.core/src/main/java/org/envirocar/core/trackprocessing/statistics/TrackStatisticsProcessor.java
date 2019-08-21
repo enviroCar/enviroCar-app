@@ -52,7 +52,7 @@ public class TrackStatisticsProcessor {
         double distance = 0.0;
 
         // Return a distance of one if only one measurement exists.
-        if (measurements.size() <= 1) {
+        if (measurements == null || measurements.size() <= 1) {
             return distance;
         }
 
