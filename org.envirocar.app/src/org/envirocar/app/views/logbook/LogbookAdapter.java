@@ -22,8 +22,6 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -72,7 +70,7 @@ public class LogbookAdapter extends RecyclerView.Adapter<LogbookAdapter.FuelingV
     @Override
     public FuelingViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
-        View listItem= layoutInflater.inflate(R.layout.activity_logbook_listentry_new, parent, false);
+        View listItem= layoutInflater.inflate(R.layout.activity_logbook_listentry, parent, false);
         FuelingViewHolder viewHolder = new FuelingViewHolder(listItem);
         return viewHolder;
     }

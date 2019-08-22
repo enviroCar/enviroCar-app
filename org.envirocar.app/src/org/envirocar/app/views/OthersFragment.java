@@ -330,7 +330,7 @@ public class OthersFragment extends BaseInjectorFragment {
                     // Show a snackbar that indicates the finished logout
                     Snackbar.make(getActivity().findViewById(R.id.navigation),
                             String.format(getString(R.string.goodbye_message), user
-                                    .getUsername()),
+                                    .getName()),
                             Snackbar.LENGTH_LONG).show();
                     //disable logout button
                     othersLogOut.setVisibility(View.GONE);

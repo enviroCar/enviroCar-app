@@ -64,7 +64,7 @@ public class SettingsActivity extends BaseInjectorActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.fragment_settings_main_new);
+        setContentView(R.layout.fragment_settings_main);
         ButterKnife.bind(this);
 
         setSupportActionBar(mToolbar);

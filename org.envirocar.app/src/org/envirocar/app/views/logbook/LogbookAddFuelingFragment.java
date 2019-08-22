@@ -22,7 +22,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
 import com.google.android.material.snackbar.Snackbar;
-import androidx.appcompat.widget.Toolbar;
+
 import android.text.InputFilter;
 import android.text.Spanned;
 import android.transition.ChangeBounds;
@@ -144,7 +144,7 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
         super.onCreateView(inflater, container, savedInstanceState);
 
         // Inflate the view and inject the annotated view.
-        View view = inflater.inflate(R.layout.activity_logbook_add_fueling_card_new, container, false);
+        View view = inflater.inflate(R.layout.activity_logbook_add_fueling_card, container, false);
         ButterKnife.bind(this, view);
 
         //addFuelingToolbar.setNavigationIcon(R.drawable.ic_close_white_24dp);
