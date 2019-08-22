@@ -22,7 +22,9 @@ import android.app.Activity;
 import android.graphics.Point;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.Toolbar;
+import androidx.constraintlayout.widget.Group;
+import androidx.core.widget.NestedScrollView;
+
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Pair;
@@ -35,6 +37,8 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
+import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
@@ -81,32 +85,31 @@ import rx.schedulers.Schedulers;
 public class CarSelectionAddCarFragment extends BaseInjectorFragment {
     private static final Logger LOG = Logger.getLogger(CarSelectionAddCarFragment.class);
 
-    @BindView(R.id.activity_car_selection_newcar_toolbar)
-    protected Toolbar toolbar;
-    @BindView(R.id.activity_car_selection_newcar_toolbar_exp)
-    protected View toolbarExp;
-    @BindView(R.id.activity_car_selection_newcar_content_view)
-    protected View contentView;
-    @BindView(R.id.activity_car_selection_newcar_download_layout)
-    protected View downloadView;
+    @BindView(R.id.activity_car_selection_newcar_close)
+    protected ImageView closeButton;
+    
+    @BindView(R.id.activity_car_selection_newcar_nestedscrollview)
+    protected NestedScrollView contentView;
+    @BindView(R.id.activity_car_selection_newcar_download_group)
+    protected Group downloadView;
 
     @BindView(R.id.activity_car_selection_newcar_manufacturer)
-    protected TextView manufacturerText;
+    protected AutoCompleteTextView manufacturerText;
     @BindView(R.id.activity_car_selection_newcar_manufacturer_spinner)
     protected Spinner manufacturerSpinner;
 
     @BindView(R.id.activity_car_selection_newcar_model)
-    protected TextView modelText;
+    protected AutoCompleteTextView modelText;
     @BindView(R.id.activity_car_selection_newcar_model_spinner)
     protected Spinner modelSpinner;
 
     @BindView(R.id.activity_car_selection_newcar_year)
-    protected TextView yearText;
+    protected AutoCompleteTextView yearText;
     @BindView(R.id.activity_car_selection_newcar_year_spinner)
     protected Spinner yearSpinner;
 
     @BindView(R.id.activity_car_selection_newcar_engine)
-    protected TextView engineText;
+    protected AutoCompleteTextView engineText;
     @BindView(R.id.activity_car_selection_newcar_engine_spinner)
     protected Spinner engineSpinner;
 
@@ -139,7 +142,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
         super.onCreateView(inflater, container, savedInstanceState);
 
         View view = inflater.inflate(
-                R.layout.activity_car_selection_newcar_fragment, container, false);
+                R.layout.activity_car_selection_newcar_fragment_new, container, false);
         ButterKnife.bind(this, view);
 
         // Get the display size in pixels
@@ -154,14 +157,16 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
         yearSpinner.setDropDownWidth(width / 2);
         engineSpinner.setDropDownWidth(width / 2);
 
-        toolbar.setNavigationIcon(R.drawable.ic_close_white_24dp);
-        toolbar.inflateMenu(R.menu.menu_logbook_add_fueling);
-        toolbar.setNavigationOnClickListener(v -> {hideKeyboard(v); closeThisFragment(); });
+        closeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                hideKeyboard(view); 
+                closeThisFragment();
+            }
+        });
 
 
         // initially we set the toolbar exp to gone
-        toolbar.setVisibility(View.GONE);
-        toolbarExp.setVisibility(View.GONE);
         contentView.setVisibility(View.GONE);
         downloadView.setVisibility(View.INVISIBLE);
 

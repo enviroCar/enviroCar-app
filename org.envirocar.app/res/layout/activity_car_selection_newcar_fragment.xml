@@ -186,7 +186,7 @@
                         android:layout_margin="@dimen/spacing_medium"
                         android:alpha="0.54"
                         android:src="@drawable/ic_drive_eta_black_24dp"
-                        android:visibility="invisible"/>
+                        android:visibility="invisible" />
 
                     <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="0dp"
