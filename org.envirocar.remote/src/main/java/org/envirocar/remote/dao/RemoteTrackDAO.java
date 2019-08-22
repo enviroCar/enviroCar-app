@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -39,11 +39,10 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.reactivex.Observable;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Response;
-import rx.Observable;
-import rx.Subscriber;
 
 /**
  * TODO JavaDoc
@@ -93,7 +92,7 @@ public class RemoteTrackDAO extends BaseRemoteDAO<TrackDAO, TrackService> implem
             try {
                 Track remoteTracks = getTrackById(id);
                 subscriber.onNext(remoteTracks);
-                subscriber.onCompleted();
+                subscriber.onComplete();
             } catch (Exception e) {
                 subscriber.onError(e);
             }
@@ -204,21 +203,17 @@ public class RemoteTrackDAO extends BaseRemoteDAO<TrackDAO, TrackService> implem
 
     @Override
     public Observable<Track> createTrackObservable(Track track) {
-        return Observable.create(new Observable.OnSubscribe<Track>() {
-            @Override
-            public void call(Subscriber<? super Track> subscriber) {
-                LOG.info("call: creating remote track.");
-                subscriber.onStart();
-                try {
-                    subscriber.onNext(createTrack(track));
-                } catch (DataCreationFailureException |
-                        NotConnectedException |
-                        UnauthorizedException e) {
-                    LOG.error(e.getMessage(), e);
-                    subscriber.onError(e);
-                }
-                subscriber.onCompleted();
+        return Observable.create(emitter -> {
+            LOG.info("call: creating remote track.");
+            try {
+                emitter.onNext(createTrack(track));
+            } catch (DataCreationFailureException |
+                    NotConnectedException |
+                    UnauthorizedException e) {
+                LOG.error(e.getMessage(), e);
+                emitter.onError(e);
             }
+            emitter.onComplete();
         });
     }
 
@@ -259,36 +254,28 @@ public class RemoteTrackDAO extends BaseRemoteDAO<TrackDAO, TrackService> implem
 
     @Override
     public Observable<List<Track>> getTrackIdsObservable() {
-        return Observable.create(new Observable.OnSubscribe<List<Track>>() {
-            @Override
-            public void call(Subscriber<? super List<Track>> subscriber) {
-                try {
-                    List<Track> remoteTrackIds = getTrackIds();
-                    subscriber.onNext(remoteTrackIds);
-                    subscriber.onCompleted();
-                } catch (Exception e) {
-                    subscriber.onError(e);
-                }
+        return Observable.create(emitter -> {
+            try {
+                List<Track> remoteTrackIds = getTrackIds();
+                emitter.onNext(remoteTrackIds);
+                emitter.onComplete();
+            } catch (Exception e) {
+                emitter.onError(e);
             }
         });
     }
 
     @Override
     public Observable<List<Track>> getTrackIdsObservable(final int limit, final int page) {
-        return Observable.create(
-                new Observable.OnSubscribe<List<Track>>() {
-                    @Override
-                    public void call(Subscriber<? super List<Track>> subscriber) {
-                        try {
-                            List<Track> remoteTracks = getTrackIds(limit, page);
-                            subscriber.onNext(remoteTracks);
-                            subscriber.onCompleted();
-                        } catch (Exception e) {
-                            subscriber.onError(e);
-                        }
-                    }
-                }
-        );
+        return Observable.create(emitter -> {
+            try {
+                List<Track> remoteTracks = getTrackIds(limit, page);
+                emitter.onNext(remoteTracks);
+                emitter.onComplete();
+            } catch (Exception e) {
+                emitter.onError(e);
+            }
+        });
     }
 
     @Override
@@ -317,20 +304,15 @@ public class RemoteTrackDAO extends BaseRemoteDAO<TrackDAO, TrackService> implem
 
     @Override
     public Observable<List<Track>> getTrackIdsWithLimitObservable(final int limit) {
-        return Observable.create(
-                new Observable.OnSubscribe<List<Track>>() {
-                    @Override
-                    public void call(Subscriber<? super List<Track>> subscriber) {
-                        try {
-                            List<Track> remoteTracks = getTrackIdsWithLimit(limit);
-                            subscriber.onNext(remoteTracks);
-                            subscriber.onCompleted();
-                        } catch (Exception e) {
-                            subscriber.onError(e);
-                        }
-                    }
-                }
-        );
+        return Observable.create(emitter -> {
+            try {
+                List<Track> remoteTracks = getTrackIdsWithLimit(limit);
+                emitter.onNext(remoteTracks);
+                emitter.onComplete();
+            } catch (Exception e) {
+                emitter.onError(e);
+            }
+        });
     }
 
     @Override

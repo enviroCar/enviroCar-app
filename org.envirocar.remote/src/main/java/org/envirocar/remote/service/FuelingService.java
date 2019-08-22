@@ -23,6 +23,7 @@ import org.envirocar.core.entity.Fueling;
 
 import java.util.List;
 
+import io.reactivex.Observable;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -30,7 +31,6 @@ import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
-import rx.Observable;
 
 /**
  * retrofit2 remoteService interface that describes the access to the fuelings endpoints of the

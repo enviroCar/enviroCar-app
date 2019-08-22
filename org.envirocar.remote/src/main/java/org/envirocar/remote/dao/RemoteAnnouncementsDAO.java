@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -33,10 +33,9 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import io.reactivex.Observable;
 import retrofit2.Call;
 import retrofit2.Response;
-import rx.Observable;
-import rx.Subscriber;
 
 /**
  * The data access object for remote fuelings that are stored at the envirocar remoteService.
@@ -57,7 +56,7 @@ public class RemoteAnnouncementsDAO extends BaseRemoteDAO<AnnouncementDAO, Annou
 //    }
 
     @Inject
-    public RemoteAnnouncementsDAO(CacheAnnouncementsDAO cacheDAO, AnnouncementsService service){
+    public RemoteAnnouncementsDAO(CacheAnnouncementsDAO cacheDAO, AnnouncementsService service) {
         super(cacheDAO, service);
     }
 
@@ -98,20 +97,15 @@ public class RemoteAnnouncementsDAO extends BaseRemoteDAO<AnnouncementDAO, Annou
 
     @Override
     public Observable<List<Announcement>> getAllAnnouncementsObservable() {
-        return Observable.create(
-                new Observable.OnSubscribe<List<Announcement>>() {
-                    @Override
-                    public void call(Subscriber<? super List<Announcement>> subscriber) {
-                        try {
-                            List<Announcement> result = getAllAnnouncements();
-                            subscriber.onNext(result);
-                            subscriber.onCompleted();
-                        } catch (Exception e) {
-                            subscriber.onError(e);
-                        }
-                    }
-                }
-        );
+        return Observable.create(emitter -> {
+            try {
+                List<Announcement> result = getAllAnnouncements();
+                emitter.onNext(result);
+                emitter.onComplete();
+            } catch (Exception e) {
+                emitter.onError(e);
+            }
+        });
     }
 
     @Override

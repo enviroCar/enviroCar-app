@@ -28,10 +28,10 @@ import org.envirocar.remote.util.EnvirocarServiceUtils;
 
 import java.io.IOException;
 
+import io.reactivex.Observable;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Response;
-import rx.Observable;
 
 /**
  * TODO JavaDoc
@@ -106,7 +106,7 @@ public class BaseRemoteDAO<C, S> {
         return Observable.create(subscriber -> {
             try {
                 subscriber.onNext(func.call());
-                subscriber.onCompleted();
+                subscriber.onComplete();
             } catch (Exception e) {
                 subscriber.onError(e);
             }

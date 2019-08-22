@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -21,15 +21,14 @@ package org.envirocar.remote.dao;
 import org.envirocar.core.dao.AbstractCacheDAO;
 import org.envirocar.core.dao.TermsOfUseDAO;
 import org.envirocar.core.entity.TermsOfUse;
-import org.envirocar.core.exception.DataRetrievalFailureException;
-import org.envirocar.core.exception.NotConnectedException;
 import org.envirocar.core.logging.Logger;
 
 import java.util.List;
 
 import javax.inject.Inject;
 
-import rx.Observable;
+import io.reactivex.Observable;
+
 
 public class CacheTermsOfUseDAO extends AbstractCacheDAO implements TermsOfUseDAO {
     private static final Logger logger = Logger.getLogger(CacheTermsOfUseDAO.class);
@@ -37,7 +36,8 @@ public class CacheTermsOfUseDAO extends AbstractCacheDAO implements TermsOfUseDA
     private static final String INSTANCE_CACHE_FILE_NAME = "tou-instance-";
 
     @Inject
-    public CacheTermsOfUseDAO() {}
+    public CacheTermsOfUseDAO() {
+    }
 
     @Override
     public TermsOfUse getTermsOfUse(String id) {

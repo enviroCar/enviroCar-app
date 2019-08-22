@@ -29,8 +29,8 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import io.reactivex.Observable;
 import retrofit2.Call;
-import rx.Observable;
 
 /**
  * @author dewall

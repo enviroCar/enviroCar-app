@@ -30,8 +30,8 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import io.reactivex.Observable;
 import retrofit2.Call;
-import rx.Observable;
 
 /**
  * Data access object that handles the access to the terms of use at the envirocar remoteService.

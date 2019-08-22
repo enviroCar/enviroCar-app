@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -37,11 +37,9 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import io.reactivex.Observable;
 import retrofit2.Call;
 import retrofit2.Response;
-import rx.Observable;
-import rx.Subscriber;
-import rx.functions.Func1;
 
 /**
  * TODO JavaDoc
@@ -103,7 +101,7 @@ public class RemoteCarDAO extends BaseRemoteDAO<CarDAO, CarService> implements C
             NotConnectedException, DataRetrievalFailureException {
         LOG.info(String.format("getCarsByUser(%s)", user.getUsername()));
         Call<List<Car>> carsCall = remoteService.getAllCars(user.getUsername());
-        try{
+        try {
             Response<List<Car>> carsResponse = executeCall(carsCall);
             return carsResponse.body();
         } catch (IOException | ResourceConflictException e) {
@@ -114,20 +112,16 @@ public class RemoteCarDAO extends BaseRemoteDAO<CarDAO, CarService> implements C
     @Override
     public Observable<List<Car>> getCarsByUserObservable(User user) {
         LOG.info(String.format("getCarsByUserObservable(%s)", user.getUsername()));
-        return Observable.create(new Observable.OnSubscribe<List<Car>>() {
-            @Override
-            public void call(Subscriber<? super List<Car>> subscriber) {
-                LOG.info("call:");
-                try {
-                    subscriber.onStart();
-                    subscriber.onNext(getCarsByUser(user));
-                } catch (UnauthorizedException |
-                        NotConnectedException |
-                        DataRetrievalFailureException e){
-                    subscriber.onError(e);
-                }
-                subscriber.onCompleted();
+        return Observable.create(emitter -> {
+            LOG.info("call:");
+            try {
+                emitter.onNext(getCarsByUser(user));
+            } catch (UnauthorizedException |
+                    NotConnectedException |
+                    DataRetrievalFailureException e) {
+                emitter.onError(e);
             }
+            emitter.onComplete();
         });
     }
 
@@ -160,21 +154,18 @@ public class RemoteCarDAO extends BaseRemoteDAO<CarDAO, CarService> implements C
 
     @Override
     public Observable<Car> createCarObservable(final Car car) {
-        return Observable.create(new Observable.OnSubscribe<Car>() {
-            @Override
-            public void call(Subscriber<? super Car> subscriber) {
-                try {
-                    String location = createCar(car);
-                    LOG.info("Car has been uploaded -> [" + location + "]");
-                    car.setId(location);
-                    subscriber.onNext(car);
-                } catch (DataCreationFailureException |
-                        NotConnectedException |
-                        UnauthorizedException e) {
-                    subscriber.onError(e);
-                }
-                subscriber.onCompleted();
+        return Observable.create(emitter -> {
+            try {
+                String location = createCar(car);
+                LOG.info("Car has been uploaded -> [" + location + "]");
+                car.setId(location);
+                emitter.onNext(car);
+            } catch (DataCreationFailureException |
+                    NotConnectedException |
+                    UnauthorizedException e) {
+                emitter.onError(e);
             }
+            emitter.onComplete();
         });
     }
 
@@ -190,26 +181,23 @@ public class RemoteCarDAO extends BaseRemoteDAO<CarDAO, CarService> implements C
 
         // return an observeable that returns a list of cars for every 100 cars.
         return Observable.just(carsCall)
-                .concatMap(new Func1<Call<List<Car>>, Observable<? extends List<Car>>>() {
-                    @Override
-                    public Observable<? extends List<Car>> call(Call<List<Car>> listCall) {
-                        try {
-                            // Execute the call.
-                            Response<List<Car>> response = listCall.execute();
+                .concatMap(listCall -> {
+                    try {
+                        // Execute the call.
+                        Response<List<Car>> response = listCall.execute();
 
-                            Observable<List<Car>> res = Observable.just(response.body());
-                            // Search for "rel=last". If this exists, then this was not the last
-                            // page.
-                            if (EnvirocarServiceUtils.hasNextPage(response)) {
-                                // If this is not the last page, then recursively concatenate with
-                                // other observables.
-                                res = res.concatWith(getAllCarsObservable(page + 1));
-                            }
-                            return res;
-                        } catch (IOException e) {
-                            // Return an error observable that invokes the observers onError method.
-                            return Observable.error(new DataRetrievalFailureException(e));
+                        Observable<List<Car>> res = Observable.just(response.body());
+                        // Search for "rel=last". If this exists, then this was not the last
+                        // page.
+                        if (EnvirocarServiceUtils.hasNextPage(response)) {
+                            // If this is not the last page, then recursively concatenate with
+                            // other observables.
+                            res = res.concatWith(getAllCarsObservable(page + 1));
                         }
+                        return res;
+                    } catch (IOException e) {
+                        // Return an error observable that invokes the observers onError method.
+                        return Observable.error(new DataRetrievalFailureException(e));
                     }
                 });
     }
