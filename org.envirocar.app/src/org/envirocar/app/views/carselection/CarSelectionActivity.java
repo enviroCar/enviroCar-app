@@ -29,7 +29,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.ListView;
 
 import org.envirocar.app.main.BaseApplicationComponent;
 import org.envirocar.app.R;
@@ -177,12 +176,11 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
             return false;
         }
         ECAnimationUtils.animateShowView(this, overlayView, R.anim.fade_in);
-        ECAnimationUtils.animateHideView(this,mFab, R.anim.fade_out);
+        mFab.hide();
         this.addCarFragment = new CarSelectionAddCarFragment();
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.activity_car_selection_container, this.addCarFragment)
                 .commit();
-
 
         // this card was already visible. Therefore, return false.
         return true;
@@ -200,7 +198,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
                     .remove(addCarFragment)
                     .commit();
             addCarFragment = null;
-            ECAnimationUtils.animateShowView(this, mFab, R.anim.fade_in);
+            mFab.show();
             return true;
         }
         return false;

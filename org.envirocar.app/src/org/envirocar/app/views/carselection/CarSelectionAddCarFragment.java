@@ -22,7 +22,6 @@ import android.app.Activity;
 import android.graphics.Point;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.Group;
 import androidx.core.widget.NestedScrollView;
 
 import android.text.Editable;
@@ -30,21 +29,22 @@ import android.text.TextWatcher;
 import android.util.Pair;
 import android.view.Display;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.jakewharton.rxbinding.support.v7.widget.RxToolbar;
+import com.jakewharton.rxbinding.view.RxView;
 
 import org.envirocar.app.main.BaseApplicationComponent;
 import org.envirocar.app.R;
@@ -87,29 +87,33 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
 
     @BindView(R.id.activity_car_selection_newcar_close)
     protected ImageView closeButton;
+    @BindView(R.id.activity_car_selection_newcar_header)
+    protected RelativeLayout header;
+    @BindView(R.id.activity_car_selection_newcar_done)
+    protected Button doneButton;
     
     @BindView(R.id.activity_car_selection_newcar_nestedscrollview)
     protected NestedScrollView contentView;
-    @BindView(R.id.activity_car_selection_newcar_download_group)
-    protected Group downloadView;
+    @BindView(R.id.activity_car_selection_newcar_download_layout)
+    protected LinearLayout downloadView;
 
     @BindView(R.id.activity_car_selection_newcar_manufacturer)
-    protected AutoCompleteTextView manufacturerText;
+    protected TextView manufacturerText;
     @BindView(R.id.activity_car_selection_newcar_manufacturer_spinner)
     protected Spinner manufacturerSpinner;
 
     @BindView(R.id.activity_car_selection_newcar_model)
-    protected AutoCompleteTextView modelText;
+    protected TextView modelText;
     @BindView(R.id.activity_car_selection_newcar_model_spinner)
     protected Spinner modelSpinner;
 
     @BindView(R.id.activity_car_selection_newcar_year)
-    protected AutoCompleteTextView yearText;
+    protected TextView yearText;
     @BindView(R.id.activity_car_selection_newcar_year_spinner)
     protected Spinner yearSpinner;
 
     @BindView(R.id.activity_car_selection_newcar_engine)
-    protected AutoCompleteTextView engineText;
+    protected TextView engineText;
     @BindView(R.id.activity_car_selection_newcar_engine_spinner)
     protected Spinner engineSpinner;
 
@@ -142,7 +146,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
         super.onCreateView(inflater, container, savedInstanceState);
 
         View view = inflater.inflate(
-                R.layout.activity_car_selection_newcar_fragment_new, container, false);
+                R.layout.activity_car_selection_newcar_fragment, container, false);
         ButterKnife.bind(this, view);
 
         // Get the display size in pixels
@@ -165,12 +169,13 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
             }
         });
 
-
         // initially we set the toolbar exp to gone
+        header.setVisibility(View.GONE);
         contentView.setVisibility(View.GONE);
+        doneButton.setVisibility(View.GONE);
         downloadView.setVisibility(View.INVISIBLE);
 
-        createCarSubscription = RxToolbar.itemClicks(toolbar)
+        createCarSubscription = RxView.clicks(doneButton)
                 .filter(continueWhenFormIsCorrect())
                 .map(createCarFromForm())
                 .filter(continueWhenCarHasCorrectValues())
@@ -207,12 +212,12 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
     public void onResume() {
         LOG.info("onResume()");
         super.onResume();
-        ECAnimationUtils.animateShowView(getContext(), toolbar,
-                R.anim.translate_slide_in_top_fragment);
-        ECAnimationUtils.animateShowView(getContext(), toolbarExp,
-                R.anim.translate_slide_in_top_fragment);
-        ECAnimationUtils.animateShowView(getContext(), contentView,
-                R.anim.translate_slide_in_bottom_fragment);
+        ECAnimationUtils.animateShowView(getContext(),
+                header, R.anim.translate_slide_in_top_fragment);
+        ECAnimationUtils.animateShowView(getContext(),
+                contentView, R.anim.translate_slide_in_bottom_fragment);
+        ECAnimationUtils.animateShowView(getContext(),
+                doneButton, R.anim.translate_slide_in_bottom_fragment);
     }
 
     @Override
@@ -235,8 +240,9 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
      * exists. If this is the case, then it adds the car to the list of selected cars. If not,
      * then it selects
      */
-    private Func1<MenuItem, Boolean> continueWhenFormIsCorrect() {
-        return menuItem -> {
+    private <T> Func1<T, Boolean> continueWhenFormIsCorrect() {
+        return T -> {
+            LOG.info("continueWhenFormIsCorrect");
             // First, reset the form
             manufacturerText.setError(null);
             modelText.setError(null);
@@ -272,6 +278,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
             } else {
                 return true;
             }
+
         };
     }
 
@@ -725,7 +732,9 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
         ECAnimationUtils.animateHideView(getContext(),
                 ((CarSelectionActivity) getActivity()).overlayView, R.anim.fade_out);
         ECAnimationUtils.animateHideView(getContext(), R.anim
-                .translate_slide_out_top_fragment, toolbar, toolbarExp);
+                .translate_slide_out_top_fragment, header);
+        ECAnimationUtils.animateHideView(getContext(), R.anim
+                .translate_slide_out_bottom, doneButton);
         ECAnimationUtils.animateHideView(getContext(), contentView, R.anim
                 .translate_slide_out_bottom, new Action0() {
             @Override
