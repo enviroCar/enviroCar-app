@@ -276,7 +276,7 @@ public class DashBoardFragment extends BaseInjectorFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         // First inflate the general dashboard view.
-        View contentView = inflater.inflate(R.layout.fragment_dashboard_view_test, container, false);
+        View contentView = inflater.inflate(R.layout.fragment_dashboard_view, container, false);
 
         ButterKnife.bind(this, contentView);
         //String t = PreferencesHandler.getTotalTime(getActivity());
