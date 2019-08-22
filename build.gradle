@@ -68,6 +68,12 @@ ext {
     supportLifecycleRuntime = "androidx.lifecycle:lifecycle-runtime:$lifecycle_version"
     supportLifecycleCompiler = "androidx.lifecycle:lifecycle-compiler:$lifecycle_version"
 
+    // database dependencies
+    def sqlite_version = "2.0.1"
+    supportSqlite = "androidx.sqlite:sqlite:$sqlite_version"
+    supportSqliteFramework = "androidx.sqlite:sqlite-framework:$sqlite_version"
+    sqlBrite = 'com.squareup.sqlbrite3:sqlbrite:3.2.0'
+
     // Dependency injection, view injection, event bus...
     dagger = 'com.google.dagger:dagger:2.22.1'
     daggerCompiler = 'com.google.dagger:dagger-compiler:2.22.1'
@@ -76,17 +82,22 @@ ext {
     otto = 'com.squareup:otto:1.3.8'
 
     // Retrofit2 dependencies.
-    retrofit2 = 'com.squareup.retrofit2:retrofit:2.5.0'
-    retrofitGson2 = 'com.squareup.retrofit2:converter-gson:2.5.0'
-    retrofitAdapters2 = 'com.squareup.retrofit2:retrofit-adapters:2.5.0'
-    retrofitRxJava2 = 'com.squareup.retrofit2:adapter-rxjava:2.5.0'
+    def retrofit_version = "2.6.1"
+    retrofit2 = "com.squareup.retrofit2:retrofit:$retrofit_version"
+    retrofitGson2 = "com.squareup.retrofit2:converter-gson:$retrofit_version"
+    retrofitAdapters2 = "com.squareup.retrofit2:retrofit-adapters:$retrofit_version"
+    retrofitRxJava2 = "com.squareup.retrofit2:adapter-rxjava2:$retrofit_version"
 
     // RxJava dependencies.
-    rxJava = 'io.reactivex:rxjava:1.0.16'
-    rxAndroid = 'io.reactivex:rxandroid:1.0.1'
-    rxPreferences = 'com.f2prateek.rx.preferences:rx-preferences:1.0.1'
-    rxBinding = 'com.jakewharton.rxbinding:rxbinding-appcompat-v7:0.4.0'
-    sqlBrite = 'com.squareup.sqlbrite:sqlbrite:1.1.2'
+    rxJava = 'io.reactivex.rxjava2:rxjava:2.2.0'
+    rxAndroid = 'io.reactivex.rxjava2:rxandroid:2.1.1'
+    rxPreferences = 'com.f2prateek.rx.preferences2:rx-preferences:2.0.0'
+
+    // RxBindings
+    def rxbinding_version = "3.0.0"
+    rxBindingCore = "com.jakewharton.rxbinding3:rxbinding-core:$rxbinding_version"
+    rxBindingAppCompat = "com.jakewharton.rxbinding3:rxbinding-appcompat:$rxbinding_version"
+
 
     // Google dependencies
     gson = 'com.google.code.gson:gson:2.8.5'
