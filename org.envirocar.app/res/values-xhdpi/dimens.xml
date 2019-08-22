@@ -9,4 +9,5 @@
     <dimen name="image_icon_s">28dp</dimen>
     <dimen name="image_icon_xs">22dp</dimen>
     <dimen name="dashboard_selector">50dp</dimen>
+    <dimen name="xxlarge_text">28sp</dimen>
 </resources>

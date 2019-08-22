@@ -42,7 +42,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <include layout="@layout/fragment_tracklist_cardlayout_content_new" />
+            <include layout="@layout/fragment_tracklist_cardlayout_content" />
 
         </LinearLayout>
     </androidx.cardview.widget.CardView>

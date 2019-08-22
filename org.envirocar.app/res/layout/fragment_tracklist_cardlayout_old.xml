@@ -79,7 +79,7 @@
             </RelativeLayout>
 
             <include
-                layout="@layout/fragment_tracklist_cardlayout_content"
+                layout="@layout/fragment_tracklist_cardlayout_content_old"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/fragment_tracklist_cardlayout_toolbar"

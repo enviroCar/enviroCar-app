@@ -19,91 +19,88 @@
     with the enviroCar app. If not, see http://www.gnu.org/licenses/.
 
 -->
-<LinearLayout
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:mapbox="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/fragment_tracklist_cardlayout_content"
-    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    xmlns:mapbox="http://schemas.android.com/apk/res-auto">
+    android:layout_height="165dp">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="150dp">
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fragment_tracklist_cardlayout_remote_downloadfab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/spacing_small"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:src="@drawable/ic_cloud_download_white_24dp"
+        android:visibility="gone"
+        card_view:backgroundTint="#8BBFE0"
+        card_view:layout_constraintBottom_toBottomOf="parent"
+        card_view:layout_constraintEnd_toStartOf="@id/guideline3"
+        card_view:layout_constraintStart_toStartOf="parent"
+        card_view:layout_constraintTop_toTopOf="parent"
+        tools:borderWidth="0dp"
+        tools:elevation="12dp"
+        tools:rippleColor="@color/fab_ripple" />
 
-        <com.mapbox.mapboxsdk.maps.MapView
-            android:id="@+id/fragment_tracklist_cardlayout_map"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:clickable="false"
-            mapbox:mapbox_renderTextureMode="true"
-            android:background="@android:color/background_light"
-            android:transitionName="transition_track_details"/>
+    <com.mapbox.mapboxsdk.maps.MapView
+        android:id="@+id/fragment_tracklist_cardlayout_map"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@android:color/background_light"
+        android:clickable="false"
+        android:transitionName="transition_track_details"
+        android:visibility="visible"
+        card_view:layout_constraintBottom_toBottomOf="parent"
+        card_view:layout_constraintEnd_toStartOf="@id/guideline3"
+        card_view:layout_constraintStart_toStartOf="parent"
+        card_view:layout_constraintTop_toTopOf="parent"
+        mapbox:mapbox_renderTextureMode="true" />
 
-        <ImageButton
-            android:id="@+id/fragment_tracklist_cardlayout_invis_mapbutton"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@android:color/transparent"
-            android:elevation="4dp"/>
+    <ImageButton
+        android:id="@+id/fragment_tracklist_cardlayout_invis_mapbutton"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@android:color/transparent"
+        android:elevation="4dp"
+        android:visibility="visible"
+        card_view:layout_constraintBottom_toBottomOf="@+id/fragment_tracklist_cardlayout_map"
+        card_view:layout_constraintEnd_toEndOf="@+id/fragment_tracklist_cardlayout_map"
+        card_view:layout_constraintStart_toStartOf="@+id/fragment_tracklist_cardlayout_map"
+        card_view:layout_constraintTop_toTopOf="@+id/fragment_tracklist_cardlayout_map" />
 
-    </RelativeLayout>
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        card_view:layout_constraintGuide_percent="0.37" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="horizontal"
-        android:padding="@dimen/spacing_large">
+    <include
+        android:id="@+id/include"
+        layout="@layout/fragment_tracklist_cardlayout_text_content"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        card_view:layout_constraintBottom_toBottomOf="parent"
+        card_view:layout_constraintEnd_toEndOf="parent"
+        card_view:layout_constraintStart_toStartOf="@+id/guideline3"
+        card_view:layout_constraintTop_toTopOf="parent" />
 
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_margin="5dp"
-            android:layout_weight="1"
-            android:orientation="vertical">
+    <TextView
+        android:id="@+id/fragment_tracklist_cardlayout_downloading_notification"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="#F08BBFE0"
+        android:fontFamily="@font/roboto_medium"
+        android:gravity="center"
+        android:text="Downloading..."
+        android:textSize="30sp"
+        android:visibility="gone"
+        card_view:layout_constraintBottom_toBottomOf="parent"
+        card_view:layout_constraintEnd_toEndOf="parent"
+        card_view:layout_constraintStart_toStartOf="parent"
+        card_view:layout_constraintTop_toTopOf="parent" />
 
-            <TextView
-                android:id="@+id/track_details_attributes_header_duration"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:text="0:00"
-                android:textColor="@color/blue_light_cario"
-                android:textSize="24sp"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="@string/track_list_details_duration"
-                android:textSize="10sp"/>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_margin="5dp"
-            android:layout_weight="1"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/track_details_attributes_header_distance"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:text="0:00"
-                android:textColor="@color/blue_light_cario"
-                android:textSize="24sp"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="@string/track_list_details_distance"
-                android:textSize="10sp"/>
-        </LinearLayout>
-
-    </LinearLayout>
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

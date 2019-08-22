@@ -31,7 +31,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
@@ -83,7 +82,7 @@ public abstract class AbstractTrackListCardAdapter<E extends
     }
 
     protected final List<Track> mTrackDataset;
-    protected Boolean mvVisible;
+    protected Boolean mapViewVisible;
     protected Scheduler.Worker mMainThreadWorker = AndroidSchedulers.mainThread().createWorker();
     protected final OnTrackInteractionCallback mTrackInteractionCallback;
 
@@ -172,7 +171,7 @@ public abstract class AbstractTrackListCardAdapter<E extends
     }
 
     public void setGuideline(Boolean bool) {
-        mvVisible = bool;
+        mapViewVisible = bool;
     }
 
     protected void bindTrackViewHolder(TrackCardViewHolder holder, Track track, Boolean isDownloadedTrack) {
@@ -193,7 +192,7 @@ public abstract class AbstractTrackListCardAdapter<E extends
             holder.mDurationImg.setVisibility(View.GONE);
             holder.mCarName.setVisibility(View.GONE);
         } else {
-            if(mvVisible)
+            if(mapViewVisible)
                 holder.guideline.setGuidelinePercent(0.37f);
             else
                 holder.guideline.setGuidelinePercent(0f);
@@ -364,6 +363,15 @@ public abstract class AbstractTrackListCardAdapter<E extends
             LOG.info("Clicked on the map. Navigate to the details activity");
             mTrackInteractionCallback.onTrackDetailsClicked(track, holder.mMapView);
         });
+
+        if (!mapViewVisible) {
+            holder.mContentView.setOnClickListener(view -> {
+                LOG.info("Clicked on the card. MapView hidden. Navigate to the details activity");
+                mTrackInteractionCallback.onTrackDetailsClicked(track, holder.mContentView);
+            });
+        } else {
+            holder.mContentView.setOnClickListener(null);
+        }
     }
 
 
@@ -418,7 +426,7 @@ public abstract class AbstractTrackListCardAdapter<E extends
 
         @BindView(R.id.fragment_tracklist_cardlayout_toolbar)
         protected Toolbar mToolbar;
-        @BindView(R.id.fragment_tracklist_cardlayout_content_new)
+        @BindView(R.id.fragment_tracklist_cardlayout_content)
         protected View mContentView;
         @BindView(R.id.track_details_attributes_header_title)
         protected TextView mTitleTextView;
