@@ -23,7 +23,8 @@ import org.envirocar.obd.commands.response.DataResponse;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import rx.Observable;
+import io.reactivex.Observable;
+
 
 /**
  * Interface for a OBD connector. It can provide device specific

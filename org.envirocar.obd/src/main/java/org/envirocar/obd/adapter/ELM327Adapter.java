@@ -33,7 +33,8 @@ import java.util.ArrayDeque;
 import java.util.List;
 import java.util.Queue;
 
-import rx.Observable;
+import io.reactivex.Observable;
+
 
 /**
  * Created by matthes on 02.11.15.

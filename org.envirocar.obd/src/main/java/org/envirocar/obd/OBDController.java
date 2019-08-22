@@ -36,6 +36,8 @@ import org.envirocar.obd.events.PropertyKeyEvent;
 import org.envirocar.obd.events.RPMUpdateEvent;
 import org.envirocar.obd.events.SpeedUpdateEvent;
 import org.envirocar.obd.exception.AllAdaptersFailedException;
+import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -44,10 +46,11 @@ import java.util.ArrayDeque;
 import java.util.Queue;
 import java.util.concurrent.TimeUnit;
 
-import rx.Scheduler;
-import rx.Subscriber;
-import rx.Subscription;
-import rx.schedulers.Schedulers;
+import io.reactivex.Observer;
+import io.reactivex.Scheduler;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
+
 
 /**
  * this is the main class for interacting with a OBD-II adapter.
@@ -169,20 +172,15 @@ public class OBDController {
      */
     private void startInitialization(boolean alreadyTried) {
         // start the observable and subscribe to it
-        this.initSubscription = this.obdAdapter.initialize(this.inputStream, this.outputStream)
+        this.obdAdapter.initialize(this.inputStream, this.outputStream)
                 .subscribeOn(Schedulers.io())
                 .observeOn(OBDSchedulers.scheduler())
                 .timeout(this.obdAdapter.getExpectedInitPeriod(), TimeUnit.MILLISECONDS)
                 .subscribe(getInitSubscriber(alreadyTried));
     }
 
-    private Subscriber<Boolean> getInitSubscriber(boolean alreadyTried) {
-        return new Subscriber<Boolean>() {
-
-            @Override
-            public void onCompleted() {
-                LOG.info("Connecting has been initialized!");
-            }
+    private Observer<Boolean> getInitSubscriber(boolean alreadyTried) {
+        return new Observer<Boolean>() {
 
             @Override
             public void onError(Throwable e) {
@@ -197,7 +195,6 @@ public class OBDController {
 
 
                 try {
-                    this.unsubscribe();
 
                     if (obdAdapter.hasCertifiedConnection()) {
                         if (!alreadyTried) {
@@ -224,6 +221,17 @@ public class OBDController {
             }
 
             @Override
+            public void onComplete() {
+                LOG.info("Connecting has been initialized!");
+            }
+
+
+            @Override
+            public void onSubscribe(Disposable d) {
+
+            }
+
+            @Override
             public void onNext(Boolean b) {
                 LOG.info("Connection verified - starting data collection");
                 try {
@@ -234,7 +242,7 @@ public class OBDController {
                 }
 
                 //unsubscribe, otherwise we will get a timeout
-                this.unsubscribe();
+                this.onComplete();
 
                 startCollectingData();
                 //TODO implement equivalent notification method:
@@ -257,7 +265,7 @@ public class OBDController {
         this.connectionListener.onConnectionVerified();
 
         // start the observable with a timeout
-        this.dataSubscription = this.obdAdapter.observe()
+        this.obdAdapter.observe()
                 .subscribeOn(Schedulers.io())
                 .observeOn(OBDSchedulers.scheduler())
                 .timeout(MAX_NODATA_TIME, TimeUnit.MILLISECONDS)
@@ -265,14 +273,8 @@ public class OBDController {
 
     }
 
-    private Subscriber<DataResponse> getCollectingDataSubscriber() {
-        return new Subscriber<DataResponse>() {
-            @Override
-            public void onCompleted() {
-                LOG.info("onCompleted(): data collection");
-                //TODO implement equivalent notification method:
-                //dataListener.shutdown();
-            }
+    private Observer<DataResponse> getCollectingDataSubscriber() {
+        return new Observer<DataResponse>() {
 
             @Override
             public void onError(Throwable e) {
@@ -285,7 +287,19 @@ public class OBDController {
                 }
 
                 connectionListener.onAllAdaptersFailed();
-                this.unsubscribe();
+
+            }
+
+            @Override
+            public void onComplete() {
+                LOG.info("onCompleted(): data collection");
+                //TODO implement equivalent notification method:
+                //dataListener.shutdown();
+            }
+
+            @Override
+            public void onSubscribe(Disposable d) {
+
             }
 
             @Override
@@ -380,10 +394,10 @@ public class OBDController {
         userRequestedStop = true;
 
         if (this.initSubscription != null) {
-            this.initSubscription.unsubscribe();
+            this.initSubscription.cancel();
         }
         if (this.dataSubscription != null) {
-            this.dataSubscription.unsubscribe();
+            this.dataSubscription.cancel();
         }
     }
 }

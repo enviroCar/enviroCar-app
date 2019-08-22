@@ -49,8 +49,8 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import rx.Observable;
-import rx.Subscriber;
+import io.reactivex.Observable;
+
 
 public abstract class SyncAdapter implements OBDAdapter {
 
@@ -87,74 +87,68 @@ public abstract class SyncAdapter implements OBDAdapter {
          * create an observable that tries to verify the
          * connection based on response analysis
          */
-        Observable<Boolean> obs = Observable.create(new Observable.OnSubscribe<Boolean>() {
+        Observable<Boolean> obs = Observable.create(subscriber -> {
 
-            @Override
-            public void call(Subscriber<? super Boolean> subscriber) {
-                try {
-                    boolean analyzedSuccessfully = false;
-                    commandExecutor.setLogEverything(true);
+            try {
+                boolean analyzedSuccessfully = false;
+                commandExecutor.setLogEverything(true);
 
-                    while (!subscriber.isUnsubscribed()) {
-                        if (analyzedSuccessfully) {
-                            /**
-                             * a successful data connection has been established:
-                             * retrieve the supported PIDs
-                             */
-                            PIDSupported pid = pidSupportedCommands.poll();
-                            while (pid != null) {
-                                commandExecutor.execute(pid);
+                while (!subscriber.isDisposed()) {
+                    if (analyzedSuccessfully) {
+                        /**
+                         * a successful data connection has been established:
+                         * retrieve the supported PIDs
+                         */
+                        PIDSupported pid = pidSupportedCommands.poll();
+                        while (pid != null) {
+                            commandExecutor.execute(pid);
+                            byte[] resp = commandExecutor.retrieveLatestResponse();
+                            try {
+                                supportedPIDs.addAll(pid.parsePIDs(resp));
+                            } catch (InvalidCommandResponseException e) {
+                                LOGGER.warn(e.getMessage(), e);
+                            }
+                            LOGGER.info("Currently supported PIDs: " + supportedPIDs.toString());
+                            pid = pidSupportedCommands.poll();
+                        }
+
+                        subscriber.onNext(true);
+                        subscriber.onComplete();
+                    } else {
+                        BasicCommand cc = pollNextInitializationCommand();
+
+                        if (cc == null) {
+                            subscriber.onError(new AdapterFailedException(
+                                    "All init commands sent, but could not verify connection"));
+                        }
+
+                        LOGGER.info("Sending Init Command: " + cc.toString());
+                        //push the command to the output stream
+                        commandExecutor.execute(cc);
+
+                        //check if the command needs a response (most likely)
+                        if (cc.awaitsResults()) {
+                            try {
+                                Thread.sleep(750);
+                                LOGGER.info("Retrieving initial phase response...");
                                 byte[] resp = commandExecutor.retrieveLatestResponse();
-                                try {
-                                    supportedPIDs.addAll(pid.parsePIDs(resp));
-                                } catch (InvalidCommandResponseException e) {
-                                    LOGGER.warn(e.getMessage(), e);
-                                }
-                                LOGGER.info("Currently supported PIDs: " + supportedPIDs.toString());
-                                pid = pidSupportedCommands.poll();
+                                LOGGER.info("Retrieved initial phase response: " + Base64.encodeToString(resp, Base64.DEFAULT));
+                                analyzedSuccessfully = analyzedSuccessfully | analyzeMetadataResponse(resp, cc);
+                            } catch (InterruptedException e) {
+                                LOGGER.warn(e.getMessage());
                             }
 
-                            subscriber.onNext(true);
-                            subscriber.onCompleted();
                         } else {
-                            BasicCommand cc = pollNextInitializationCommand();
-
-                            if (cc == null) {
-                                subscriber.onError(new AdapterFailedException(
-                                        "All init commands sent, but could not verify connection"));
-                                subscriber.unsubscribe();
-                            }
-
-                            LOGGER.info("Sending Init Command: " + cc.toString());
-                            //push the command to the output stream
-                            commandExecutor.execute(cc);
-
-                            //check if the command needs a response (most likely)
-                            if (cc.awaitsResults()) {
-                                try {
-                                    Thread.sleep(750);
-                                    LOGGER.info("Retrieving initial phase response...");
-                                    byte[] resp = commandExecutor.retrieveLatestResponse();
-                                    LOGGER.info("Retrieved initial phase response: " + Base64.encodeToString(resp, Base64.DEFAULT));
-                                    analyzedSuccessfully = analyzedSuccessfully | analyzeMetadataResponse(resp, cc);
-                                } catch (InterruptedException e) {
-                                    LOGGER.warn(e.getMessage());
-                                }
-
-                            } else {
-                                LOGGER.info("Command does not expect a result, continuing.");
-                            }
+                            LOGGER.info("Command does not expect a result, continuing.");
                         }
                     }
-                } catch (IOException | AdapterFailedException e) {
-                    LOGGER.error("Some unexpected error occured", e);
-                    subscriber.onError(e);
-                    subscriber.unsubscribe();
-                } catch (StreamFinishedException e) {
-                    LOGGER.warn("The stream was closed unexpectedly: " + e.getMessage());
-                    subscriber.onCompleted();
-                    subscriber.unsubscribe();
                 }
+            } catch (IOException | AdapterFailedException e) {
+                LOGGER.error("Some unexpected error occured", e);
+                subscriber.onError(e);
+            } catch (StreamFinishedException e) {
+                LOGGER.warn("The stream was closed unexpectedly: " + e.getMessage());
+                subscriber.onComplete();
             }
         });
 
@@ -163,69 +157,63 @@ public abstract class SyncAdapter implements OBDAdapter {
 
     @Override
     public Observable<DataResponse> observe() {
-        return Observable.create(new Observable.OnSubscribe<DataResponse>() {
+        return Observable.create(subscriber -> {
 
-            @Override
-            public void call(Subscriber<? super DataResponse> subscriber) {
-                LOGGER.info("SyncAdapter.observe().call()");
-                commandExecutor.setLogEverything(false);
+            LOGGER.info("SyncAdapter.observe().call()");
+            commandExecutor.setLogEverything(false);
 
-                //prepare all pending data commands
-                preparePendingCommands();
+            //prepare all pending data commands
+            preparePendingCommands();
 
-                PIDCommand latestCommand = null;
-                byte[] bytes = null;
-                while (!subscriber.isUnsubscribed()) {
-                    try {
-                        latestCommand = pollNextCommand();
-                        LOGGER.debug("Sending command " + (latestCommand != null ? latestCommand.getPid().toString() : "n/a"));
+            PIDCommand latestCommand = null;
+            byte[] bytes = null;
+            while (!subscriber.isDisposed()) {
+                try {
+                    latestCommand = pollNextCommand();
+                    LOGGER.debug("Sending command " + (latestCommand != null ? latestCommand.getPid().toString() : "n/a"));
 
-                        /**
-                         * write the next pending command
-                         */
-                        if (latestCommand != null) {
-                            commandExecutor.execute(latestCommand);
-                        }
-
-                        /**
-                         * read the next incoming response
-                         */
-                        bytes = commandExecutor.retrieveLatestResponse();
-
-                        DataResponse response = parser.parse(preProcess(bytes));
-
-                        if (response != null) {
-                            LOGGER.debug("isUnsubscribed? " + subscriber.isUnsubscribed());
-                            subscriber.onNext(response);
-                        }
-                    } catch (IOException e) {
-                        subscriber.onError(e);
-                        subscriber.unsubscribe();
-                    } catch (AdapterFailedException e) {
-                        LOGGER.warn(e.getMessage(), e);
-                        LOGGER.warn(String.format("Sent Command was: %s; Received response was: %s",
-                                latestCommand.getPid().toString(),
-                                Base64.encodeToString(bytes, Base64.DEFAULT)));
-                        subscriber.onError(e);
-                        subscriber.unsubscribe();
-                    } catch (StreamFinishedException e) {
-                        LOGGER.info("Stream finished: " + e.getMessage());
-                        subscriber.onCompleted();
-                        subscriber.unsubscribe();
-                    } catch (AdapterSearchingException e) {
-                        LOGGER.warn("Adapter still searching: " + e.getMessage());
-                    } catch (NoDataReceivedException e) {
-                        LOGGER.warn("No data received: " + e.getMessage());
-                        increaseFailureCount(latestCommand.getPid());
-                    } catch (InvalidCommandResponseException e) {
-                        LOGGER.warn("Received InvalidCommandResponseException: " + e.getCommand());
-                        increaseFailureCount(PIDUtil.fromString(e.getCommand()));
-                    } catch (UnmatchedResponseException e) {
-                        LOGGER.warn("Unmatched response: " + e.getMessage());
+                    /**
+                     * write the next pending command
+                     */
+                    if (latestCommand != null) {
+                        commandExecutor.execute(latestCommand);
                     }
-                }
 
+                    /**
+                     * read the next incoming response
+                     */
+                    bytes = commandExecutor.retrieveLatestResponse();
+
+                    DataResponse response = parser.parse(preProcess(bytes));
+
+                    if (response != null) {
+                        LOGGER.debug("isDisposed? " + subscriber.isDisposed());
+                        subscriber.onNext(response);
+                    }
+                } catch (IOException e) {
+                    subscriber.onError(e);
+                } catch (AdapterFailedException e) {
+                    LOGGER.warn(e.getMessage(), e);
+                    LOGGER.warn(String.format("Sent Command was: %s; Received response was: %s",
+                            latestCommand.getPid().toString(),
+                            Base64.encodeToString(bytes, Base64.DEFAULT)));
+                    subscriber.onError(e);
+                } catch (StreamFinishedException e) {
+                    LOGGER.info("Stream finished: " + e.getMessage());
+                    subscriber.onComplete();
+                } catch (AdapterSearchingException e) {
+                    LOGGER.warn("Adapter still searching: " + e.getMessage());
+                } catch (NoDataReceivedException e) {
+                    LOGGER.warn("No data received: " + e.getMessage());
+                    increaseFailureCount(latestCommand.getPid());
+                } catch (InvalidCommandResponseException e) {
+                    LOGGER.warn("Received InvalidCommandResponseException: " + e.getCommand());
+                    increaseFailureCount(PIDUtil.fromString(e.getCommand()));
+                } catch (UnmatchedResponseException e) {
+                    LOGGER.warn("Unmatched response: " + e.getMessage());
+                }
             }
+
         });
     }
 
@@ -314,8 +302,7 @@ public abstract class SyncAdapter implements OBDAdapter {
     protected abstract List<PIDCommand> providePendingCommands();
 
     /**
-     *
-     * @param response the raw data received
+     * @param response    the raw data received
      * @param sentCommand the originating command
      * @return true if the adapter established a meaningful connection
      */
