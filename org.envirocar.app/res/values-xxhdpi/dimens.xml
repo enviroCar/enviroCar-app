@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="headline_text">22sp</dimen>
+    <dimen name="heading2">19sp</dimen>
     <dimen name="heading3">18sp</dimen>
     <dimen name="subtitle">16sp</dimen>
     <dimen name="subtext">13sp</dimen>
     <dimen name="image_icon_m">45dp</dimen>
     <dimen name="image_icon_s">30dp</dimen>
+    <dimen name="image_icon_xs">25dp</dimen>
     <dimen name="dashboard_selector">57dp</dimen>
+    <dimen name="xxlarge_text">36sp</dimen>
 </resources>
