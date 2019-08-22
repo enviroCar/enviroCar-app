@@ -270,11 +270,11 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
                     @Override
                     public void createDialog(BluetoothDevice device, View view) {
                         View contentView = LayoutInflater.from(getActivity()).inflate(R.layout
-                                .bluetooth_pairing_preference_device_pairing_dialog, null, false);
+                                .preference_dialog, null, false);
 
                         // Set toolbar style
                         Toolbar toolbar1 = contentView.findViewById(R.id
-                                .bluetooth_selection_preference_pairing_dialog_toolbar);
+                                .preference_dialog_toolbar);
                         toolbar1.setTitle(R.string.bluetooth_pairing_preference_toolbar_title);
                         toolbar1.setNavigationIcon(R.drawable.ic_bluetooth_white_24dp);
                         toolbar1.setTitleTextColor(getActivity().getResources().getColor(R.color
@@ -282,7 +282,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
 
                         // Set text view
                         TextView textview = contentView.findViewById(R.id
-                                .bluetooth_selection_preference_pairing_dialog_text);
+                                .preference_dialog_text);
                         textview.setText(String.format(getString(
                                 R.string.obd_selection_dialog_pairing_content_template), device.getName()));
 
@@ -336,11 +336,11 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
 
     private void showUnpairingDialig(BluetoothDevice device) {
         View contentView = LayoutInflater.from(getActivity())
-                .inflate(R.layout.bluetooth_pairing_preference_device_pairing_dialog, null, false);
+                .inflate(R.layout.preference_dialog, null, false);
 
         // Set toolbar style
         Toolbar toolbar1 = contentView.findViewById(R.id
-                .bluetooth_selection_preference_pairing_dialog_toolbar);
+                .preference_dialog_toolbar);
         toolbar1.setTitle(R.string.obd_selection_dialog_delete_pairing_title);
         toolbar1.setNavigationIcon(R.drawable.ic_bluetooth_white_24dp);
         toolbar1.setTitleTextColor(
@@ -348,7 +348,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
 
         // Set text view
         TextView textview = contentView.findViewById(R.id
-                .bluetooth_selection_preference_pairing_dialog_text);
+                .preference_dialog_text);
         textview.setText(String.format(
                 getString(R.string.obd_selection_dialog_delete_pairing_content_template),
                 device.getName()));

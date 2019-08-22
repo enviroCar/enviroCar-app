@@ -20,15 +20,19 @@ package org.envirocar.app.views.carselection;
 
 import android.content.Context;
 import android.os.Bundle;
+
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.TextView;
 
 import org.envirocar.app.main.BaseApplicationComponent;
 import org.envirocar.app.R;
@@ -225,14 +229,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
                                 "" + car.getConstructionYear(),
                                 "" + car.getEngineDisplacement()));
 
-                        // If the car has been removed successfully...
-                        if (mCarManager.removeCar(car)) {
-                            // then remove it from the list and show a snackbar.
-                            mCarListAdapter.removeCarItem(car);
-                            showSnackbar(String.format(
-                                    getString(R.string.car_selection_car_deleted_tmp),
-                                    car.getManufacturer(), car.getModel()));
-                        }
+                        showDeleteDialog(car);
                     }
                 });
 
@@ -280,6 +277,48 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
                         mCarListAdapter.notifyDataSetChanged();
                     }
                 });
+    }
+
+    private void showDeleteDialog(Car car){
+        View contentView = LayoutInflater.from(CarSelectionActivity.this)
+                .inflate(R.layout.preference_dialog, null, false);
+
+        // Set toolbar style
+        Toolbar toolbar1 = contentView.findViewById(R.id
+                .preference_dialog_toolbar);
+        toolbar1.setTitle(R.string.car_selection_dialog_delete_car_title);
+        toolbar1.setNavigationIcon(R.drawable.ic_drive_eta_black_24dp);
+        toolbar1.setTitleTextColor(
+                getResources().getColor(R.color.white_cario));
+
+        // Set text view
+        TextView textview = contentView.findViewById(R.id
+                .preference_dialog_text);
+        textview.setText(String.format(
+                getString(R.string.car_selection_dialog_delete_car_content_template),
+                car.getManufacturer() + " " + car.getModel()));
+
+        // Create the AlertDialog.
+        new MaterialDialog.Builder(CarSelectionActivity.this)
+                .customView(contentView, false)
+                .positiveText(R.string.car_selection_preference_dialog_remove_car)
+                .negativeText(R.string.menu_cancel)
+                .callback(new MaterialDialog.ButtonCallback() {
+                    @Override
+                    public void onPositive(MaterialDialog dialog) {
+                        LOG.debug("OnPositiveButton clicked to delete car.");
+
+                        // If the car has been removed successfully...
+                        if (mCarManager.removeCar(car)) {
+                            // then remove it from the list and show a snackbar.
+                            mCarListAdapter.removeCarItem(car);
+                            showSnackbar(String.format(
+                                    getString(R.string.car_selection_car_deleted_tmp),
+                                    car.getManufacturer(), car.getModel()));
+                        }
+                    }
+                })
+                .show();
     }
 
     /**

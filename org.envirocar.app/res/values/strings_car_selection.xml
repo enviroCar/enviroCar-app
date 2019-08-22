@@ -37,4 +37,8 @@
     <string name="car_selection_construction_year">Construction Year</string>
     <string name="car_selection_engine_displacement">Engine Displacement (cc)</string>
 
+    <string name="car_selection_dialog_delete_car_title">Delete Car?</string>
+    <string name="car_selection_dialog_delete_car_content_template">Do you want to delete the following car: "%s"?</string>
+    <string name="car_selection_preference_dialog_remove_car">Delete</string>
+
 </resources>

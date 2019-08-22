@@ -156,11 +156,11 @@ public class BluetoothPairingPreference extends DialogPreference {
             final BluetoothDevice device = mNewDevicesArrayAdapter.getItem(position);
 
             View contentView = LayoutInflater.from(getContext()).inflate(R.layout
-                    .bluetooth_pairing_preference_device_pairing_dialog, null, false);
+                    .preference_dialog, null, false);
 
             // Set toolbar style
             Toolbar toolbar1 = contentView.findViewById(R.id
-                    .bluetooth_selection_preference_pairing_dialog_toolbar);
+                    .preference_dialog_toolbar);
             toolbar1.setTitle(R.string.bluetooth_pairing_preference_toolbar_title);
             toolbar1.setNavigationIcon(R.drawable.ic_bluetooth_white_24dp);
             toolbar1.setTitleTextColor(getContext().getResources().getColor(R.color
@@ -168,7 +168,7 @@ public class BluetoothPairingPreference extends DialogPreference {
 
             // Set text view
             TextView textview = contentView.findViewById(R.id
-                    .bluetooth_selection_preference_pairing_dialog_text);
+                    .preference_dialog_text);
             textview.setText(String.format("Do you want to pair with %s?", device.getName()));
 
             // Create the Dialog
@@ -192,11 +192,11 @@ public class BluetoothPairingPreference extends DialogPreference {
             final BluetoothDevice device = mPairedDevicesAdapter.getItem(position);
 
             View contentView = LayoutInflater.from(getContext()).inflate(R.layout
-                    .bluetooth_pairing_preference_device_pairing_dialog, null, false);
+                    .preference_dialog, null, false);
 
             // Set toolbar style
             Toolbar toolbar1 = contentView.findViewById(R.id
-                    .bluetooth_selection_preference_pairing_dialog_toolbar);
+                    .preference_dialog_toolbar);
             toolbar1.setTitle("Bluetooth Device");
             toolbar1.setNavigationIcon(R.drawable.ic_bluetooth_white_24dp);
             toolbar1.setTitleTextColor(getContext().getResources().getColor(R.color
@@ -204,7 +204,7 @@ public class BluetoothPairingPreference extends DialogPreference {
 
             // Set text view
             TextView textview = contentView.findViewById(R.id
-                    .bluetooth_selection_preference_pairing_dialog_text);
+                    .preference_dialog_text);
             textview.setText(String.format("Do you want to remove the pairing with %s?", device
                     .getName()));
 

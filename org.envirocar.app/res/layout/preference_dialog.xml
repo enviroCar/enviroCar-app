@@ -25,14 +25,14 @@
               android:layout_height="match_parent">
 
     <androidx.appcompat.widget.Toolbar
-        android:id="@+id/bluetooth_selection_preference_pairing_dialog_toolbar"
+        android:id="@+id/preference_dialog_toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/blue_dark_cario"
         android:title="Bluetooth Pairing" />
 
     <TextView
-        android:id="@+id/bluetooth_selection_preference_pairing_dialog_text"
+        android:id="@+id/preference_dialog_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="20dp"

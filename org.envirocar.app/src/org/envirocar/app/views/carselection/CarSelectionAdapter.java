@@ -19,19 +19,17 @@
 package org.envirocar.app.views.carselection;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.ImageView;
-import android.widget.RadioButton;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.afollestad.materialdialogs.MaterialDialog;
 
 import org.envirocar.app.R;
 import org.envirocar.core.entity.Car;
@@ -47,6 +45,9 @@ import butterknife.BindView;
  */
 public class    CarSelectionAdapter extends RecyclerView.Adapter<CarSelectionAdapter.CarViewHolder> {
     private static final Logger LOG = Logger.getLogger(CarSelectionAdapter.class);
+
+    private final String SELECTED_COLOR = "#0166A0";
+    private final String UNSELECTED_COLOR = "#757575";
 
     /**
      * Simple callback interface for the action types of the car list entries.
@@ -78,7 +79,7 @@ public class    CarSelectionAdapter extends RecyclerView.Adapter<CarSelectionAda
     private final OnCarListActionCallback mCallback;
 
     private Car mSelectedCar;
-    private RadioButton mSelectedButton;
+    private ImageView mSelectedImageView;
     private final List<Car> mCars;
 
     /**
@@ -116,68 +117,82 @@ public class    CarSelectionAdapter extends RecyclerView.Adapter<CarSelectionAda
         holder.mGasolineText.setText(car.getFuelType().toString());
         holder.mEngineText.setText(String.format("%s ccm",
                 Integer.toString(car.getEngineDisplacement())));
+        holder.mIconView.setImageTintList(ColorStateList.valueOf(Color.parseColor(UNSELECTED_COLOR)));
 
         // If this car is the selected car, then set the radio button checked.
         if (mSelectedCar != null && mSelectedCar.equals(car)) {
-            mSelectedButton = holder.mRadioButton;
-            mSelectedButton.setChecked(true);
+            mSelectedImageView = holder.mIconView;
+            mSelectedImageView.setImageTintList(ColorStateList.valueOf(Color.parseColor(SELECTED_COLOR)));
         }
 
         final CarViewHolder tmpHolder = holder;
-        // set the onClickListener of the radio button.
-        holder.mRadioButton.setOnClickListener(v -> {
+        // set the onClickListener of the row
+        holder.carLayout.setOnClickListener(view -> {
+            if(mSelectedCar != null && mSelectedCar.equals(car))
+                return;
+
             if (mSelectedCar == null) {
                 mSelectedCar = car;
-                mSelectedButton = tmpHolder.mRadioButton;
-            } else if (!mSelectedCar.equals(car)) {
-                mSelectedCar = car;
-                if (mSelectedButton != null)
-                    mSelectedButton.setChecked(false);
-                mSelectedButton = tmpHolder.mRadioButton;
+                mSelectedImageView = holder.mIconView;
             }
-            tmpHolder.mRadioButton.setChecked(true);
+
+            if (mSelectedImageView != null) {
+                mSelectedImageView.setImageTintList(ColorStateList.valueOf(Color.parseColor(UNSELECTED_COLOR)));
+            }
+
+            mSelectedCar = car;
+            mSelectedImageView = holder.mIconView;
+            mSelectedImageView.setImageTintList(ColorStateList.valueOf(Color.parseColor(SELECTED_COLOR)));
             mCallback.onSelectCar(mSelectedCar);
         });
 
-        // Set the onClickListener for a single row.
-        holder.carLayout.setOnClickListener(v -> new MaterialDialog.Builder(mContext)
-                .items(R.array.car_list_option_items)
-                .itemsCallback((materialDialog, view, i, charSequence) -> {
-                    switch (i) {
-                        case 0:
-                            if(car.equals(mSelectedCar))
-                                return;
+        // Set the onLongClickListener for the row row.
+        holder.carLayout.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                mCallback.onDeleteCar(car);
+                /*new MaterialDialog.Builder(mContext)
+                        .items(R.array.car_list_option_items)
+                        .itemsCallback((materialDialog, view, i, charSequence) -> {
+                            switch (i) {
+                                case 0:
+                                    if (car.equals(mSelectedCar))
+                                        return;
 
-                            // Uncheck the currently checked car.
-                            if (mSelectedButton != null) {
-                                mSelectedButton.setChecked(false);
+                                    // Uncheck the currently checked car.
+                                    if (mSelectedImageView != null) {
+                                        mSelectedImageView.setImageTintList(ColorStateList.valueOf(Color.parseColor(UNSELECTED_COLOR)));
+                                    }
+
+                                    // Set the new car as selected car type.
+                                    mSelectedCar = car;
+                                    mSelectedImageView = tmpHolder.mIconView;
+                                    mSelectedImageView.setImageTintList(ColorStateList.valueOf(Color.parseColor(SELECTED_COLOR)));
+
+                                    // Call the callback in order to react accordingly.
+                                    mCallback.onSelectCar(car);
+                                    break;
+                                case 1:
+                                    // Uncheck the the previously checked radio button and update the
+                                    // references accordingly.
+                                    if (car.equals(mSelectedCar)) {
+                                        mSelectedCar = null;
+                                        mSelectedImageView.setImageTintList(ColorStateList.valueOf(Color.parseColor(UNSELECTED_COLOR)));
+                                        mSelectedImageView = null;
+                                    }
+
+                                    // Call the callback
+                                    mCallback.onDeleteCar(car);
+                                    break;
+                                default:
+                                    LOG.warn("No action selected!");
                             }
-
-                            // Set the new car as selected car type.
-                            mSelectedCar = car;
-                            mSelectedButton = tmpHolder.mRadioButton;
-                            mSelectedButton.setChecked(true);
-
-                            // Call the callback in order to react accordingly.
-                            mCallback.onSelectCar(car);
-                            break;
-                        case 1:
-                            // Uncheck the the previously checked radio button and update the
-                            // references accordingly.
-                            if (car.equals(mSelectedCar)) {
-                                mSelectedCar = null;
-                                mSelectedButton.setChecked(false);
-                                mSelectedButton = null;
-                            }
-
-                            // Call the callback
-                            mCallback.onDeleteCar(car);
-                            break;
-                        default:
-                            LOG.warn("No action selected!");
-                    }
-                })
-                .show());
+                        })
+                        .show();
+                        */
+                return false;
+            }
+        });
 
     }
 
@@ -216,7 +231,7 @@ public class    CarSelectionAdapter extends RecyclerView.Adapter<CarSelectionAda
         protected final View mCoreView;
 
         @BindView(R.id.car_layout)
-        protected RelativeLayout carLayout;
+        protected ConstraintLayout carLayout;
         @BindView(R.id.activity_car_selection_layout_carlist_entry_icon)
         protected ImageView mIconView;
         @BindView(R.id.activity_car_selection_layout_carlist_entry_firstline)
@@ -228,9 +243,6 @@ public class    CarSelectionAdapter extends RecyclerView.Adapter<CarSelectionAda
         protected TextView mGasolineText;
         @BindView(R.id.activity_car_selection_layout_carlist_entry_year)
         protected TextView mYearText;
-
-        @BindView(R.id.activity_car_selection_layout_carlist_entry_radio)
-        protected RadioButton mRadioButton;
 
         /**
          * Constructor.

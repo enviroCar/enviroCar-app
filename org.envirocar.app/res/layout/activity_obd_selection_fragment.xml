@@ -42,7 +42,7 @@
             android:text="@string/obd_selection_paired_devices"
             android:textColor="@color/blue_dark_cario"
             android:textSize="14sp"
-            android:visibility="gone" />
+            android:visibility="visible" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/activity_obd_selection_layout_paired_devices_list"
