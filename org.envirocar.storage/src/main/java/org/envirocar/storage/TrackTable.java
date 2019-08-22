@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -33,9 +33,9 @@ import org.json.JSONException;
 import java.util.ArrayList;
 import java.util.List;
 
-import rx.Observable;
-import rx.Subscriber;
-import rx.functions.Func1;
+import io.reactivex.Observable;
+import io.reactivex.functions.Function;
+
 
 /**
  * TODO JavaDoc
@@ -94,45 +94,28 @@ class TrackTable {
 
     protected static final String DELETE = "DROP TABLE IF EXISTS " + TABLE_TRACK;
 
-    protected static final Func1<Cursor, Track> MAPPER = new Func1<Cursor, Track>() {
-        @Override
-        public Track call(Cursor cursor) {
-            return fromCursor(cursor);
-        }
-    };
+    protected static final Function<Cursor, Track> MAPPER = cursor -> fromCursor(cursor);
 
-    public static final Func1<? super Cursor, ? extends Observable<Track.TrackId>>
-            TO_TRACK_ID_MAPPER = new Func1<Cursor, Observable<Track.TrackId>>() {
-        @Override
-        public Observable<Track.TrackId> call(Cursor cursor) {
-            return Observable.create(new Observable.OnSubscribe<Track.TrackId>() {
-                @Override
-                public void call(Subscriber<? super Track.TrackId> subscriber) {
-                    subscriber.onStart();
-                    cursor.moveToFirst();
-                    for (int i = 1; cursor.moveToNext() && !subscriber.isUnsubscribed(); i++) {
-                        subscriber.onNext(new Track.TrackId(cursor.getLong(
-                                cursor.getColumnIndex(KEY_TRACK_ID))));
-                    }
-                    subscriber.onCompleted();
+    public static final Function<? super Cursor, ? extends Observable<Track.TrackId>>
+            TO_TRACK_ID_MAPPER = (Function<Cursor, Observable<Track.TrackId>>) cursor -> Observable.create(emitter -> {
+        cursor.moveToFirst();
+        for (int i = 1; cursor.moveToNext() && !emitter.isDisposed(); i++) {
+            emitter.onNext(new Track.TrackId(cursor.getLong(
+                    cursor.getColumnIndex(KEY_TRACK_ID))));
+        }
+        emitter.onComplete();
+    });
+
+    public static final Function<? super Cursor, ? extends List<Track.TrackId>>
+            TO_TRACK_ID_LIST_MAPPER = (Function<Cursor, List<Track.TrackId>>) cursor -> {
+                List<Track.TrackId> idList = new ArrayList<>(cursor.getCount());
+
+                while (cursor.moveToNext()) {
+                    idList.add(new Track.TrackId(cursor.getLong(
+                            cursor.getColumnIndex(KEY_TRACK_ID))));
                 }
-            });
-        }
-    };
-
-    public static final Func1<? super Cursor, ? extends List<Track.TrackId>>
-            TO_TRACK_ID_LIST_MAPPER = new Func1<Cursor, List<Track.TrackId>>() {
-        @Override
-        public List<Track.TrackId> call(Cursor cursor) {
-            List<Track.TrackId> idList = new ArrayList<>(cursor.getCount());
-
-            while(cursor.moveToNext()){
-                idList.add(new Track.TrackId(cursor.getLong(
-                        cursor.getColumnIndex(KEY_TRACK_ID))));
-            }
-            return idList;
-        }
-    };
+                return idList;
+            };
 
     public static ContentValues toContentValues(Track track) {
         ContentValues values = new ContentValues();

@@ -26,7 +26,8 @@ import org.envirocar.core.util.TrackMetadata;
 
 import java.util.List;
 
-import rx.Observable;
+import io.reactivex.Observable;
+
 
 /**
  * TODO JavaDoc
