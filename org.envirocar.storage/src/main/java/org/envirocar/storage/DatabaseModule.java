@@ -19,7 +19,6 @@
 package org.envirocar.storage;
 
 import android.content.Context;
-import android.database.sqlite.SQLiteOpenHelper;
 
 import androidx.sqlite.db.SupportSQLiteOpenHelper;
 import androidx.sqlite.db.framework.*;
@@ -46,8 +45,8 @@ public final class DatabaseModule {
     private static final Logger LOG = Logger.getLogger(DatabaseModule.class);
 
     // configs
-    private static final String DATABASE_NAME = "envirocar.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final String DATABASE_NAME = "envirocar";
+    private static final int DATABASE_VERSION = 11;
 
 
     @Provides
@@ -69,6 +68,7 @@ public final class DatabaseModule {
         SupportSQLiteOpenHelper helper = new FrameworkSQLiteOpenHelperFactory().create(config);
         BriteDatabase db = sqlBrite.wrapDatabaseHelper(helper, Schedulers.io());
         db.setLoggingEnabled(true);
+
         return db;
     }
 

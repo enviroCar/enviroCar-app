@@ -11,8 +11,6 @@ import org.envirocar.core.logging.Logger;
 class EnviroCarDBCallback extends SupportSQLiteOpenHelper.Callback {
     private static final Logger LOG = Logger.getLogger(EnviroCarDBOpenHelper.class);
 
-
-
     /**
      * Creates a new Callback to get database lifecycle events.
      *
@@ -25,25 +23,18 @@ class EnviroCarDBCallback extends SupportSQLiteOpenHelper.Callback {
     @Override
     public void onCreate(SupportSQLiteDatabase db) {
         LOG.info("On create enviroCar database");
-        try {
-            db.execSQL(TrackTable.CREATE);
-            db.execSQL(MeasurementTable.CREATE);
-        } finally {
-            db.endTransaction();
-        }
+//            db.execSQL("PRAGMA foreign_keys=ON;");
+        db.execSQL(TrackTable.CREATE);
+        db.execSQL(MeasurementTable.CREATE);
     }
 
     @Override
     public void onUpgrade(SupportSQLiteDatabase db, int oldVersion, int newVersion) {
         LOG.info("On update enviroCar database");
-        db.beginTransaction();
-        try {
-            db.execSQL(MeasurementTable.DELETE);
-            db.execSQL(TrackTable.DELETE);
-            db.execSQL(TrackTable.CREATE);
-            db.execSQL(MeasurementTable.CREATE);
-        } finally {
-            db.endTransaction();
-        }
+        db.execSQL(MeasurementTable.DELETE);
+        db.execSQL(TrackTable.DELETE);
+        db.execSQL(TrackTable.CREATE);
+        db.execSQL(MeasurementTable.CREATE);
+
     }
 }

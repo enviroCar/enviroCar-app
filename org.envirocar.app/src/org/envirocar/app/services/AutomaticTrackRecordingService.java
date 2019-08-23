@@ -68,7 +68,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.DisposableObserver;
-import io.reactivex.observers.SafeObserver;
 import io.reactivex.schedulers.Schedulers;
 
 import static org.envirocar.app.notifications.NotificationHandler.context;
@@ -223,18 +222,31 @@ public class AutomaticTrackRecordingService extends BaseInjectorService {
         subscriptions.add(
                 PreferencesHandler.getSelectedCarObsevable()
                         .map(car -> (car != null))
-                        .subscribe(hasCar -> {
-                            LOGGER.info(String.format("Received changed selected car -> [%s]", hasCar));
-                            hasCarSelected = hasCar;
+                        .subscribeWith(new DisposableObserver<Boolean>() {
+                            @Override
+                            public void onNext(Boolean hasCar) {
+                                LOGGER.info(String.format("Received changed selected car -> [%s]", hasCar));
+                                hasCarSelected = hasCar;
 
-                            if (recordingTypeSelected == 1) {
-                                if (hasCarSelected) {
-                                    scheduleDiscovery(mDiscoveryInterval);
+                                if (recordingTypeSelected == 1) {
+                                    if (hasCarSelected) {
+                                        scheduleDiscovery(mDiscoveryInterval);
+                                    } else {
+                                        unscheduleDiscovery();
+                                    }
                                 } else {
-                                    unscheduleDiscovery();
+                                    setGPSAutoConnect();
                                 }
-                            } else {
-                                setGPSAutoConnect();
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+                                LOGGER.error(e);
+                            }
+
+                            @Override
+                            public void onComplete() {
+
                             }
                         }));
 

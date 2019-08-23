@@ -250,8 +250,8 @@ public class PreferencesHandler implements PreferenceConstants {
 
     public static Observable<Car> getSelectedCarObsevable(){
         return getRxSharedPreferences(context)
-                .getString(PREFERENCE_TAG_CAR, null)
+                .getString(PREFERENCE_TAG_CAR, "")
                 .asObservable()
-                .map(s -> s != null ? CarUtils.instantiateCar(s) : null);
+                .map(s -> s != "" ? CarUtils.instantiateCar(s) : null);
     }
 }

@@ -60,6 +60,7 @@ public class EnviroCarDBOpenHelper extends SQLiteOpenHelper {
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
+            db.close();
         }
     }
 
