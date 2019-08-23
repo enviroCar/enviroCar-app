@@ -560,7 +560,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
                             hideProgressView();
                             if (newTrackAdded) {
                                 updateView();
-                            } else if (mTrackList.isEmpty()) {
+                            } else if (localList.isEmpty()) {
                                 showNoLocalTracksInfo(false);
                             }
                         }
