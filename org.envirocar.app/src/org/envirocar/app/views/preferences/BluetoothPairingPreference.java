@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -23,7 +23,6 @@ import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.preference.DialogPreference;
-import androidx.appcompat.widget.Toolbar;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,12 +32,14 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.widget.Toolbar;
+
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
-import org.envirocar.app.main.BaseApplication;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.BluetoothHandler;
+import org.envirocar.app.main.BaseApplication;
 import org.envirocar.app.views.preferences.bluetooth.BluetoothDeviceListAdapter;
 import org.envirocar.core.events.bluetooth.BluetoothPairingChangedEvent;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
@@ -48,12 +49,12 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-import butterknife.ButterKnife;
 import butterknife.BindView;
-import rx.Subscriber;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
+import butterknife.ButterKnife;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.observers.DisposableObserver;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * @author dewall
@@ -220,7 +221,7 @@ public class BluetoothPairingPreference extends DialogPreference {
                                 }
                             })
                     .setNegativeButton(R.string.menu_cancel, null) // Nothing to do on
-                            // cancel.
+                    // cancel.
                     .create()
                     .show();
         });
@@ -303,71 +304,68 @@ public class BluetoothPairingPreference extends DialogPreference {
         mNewDevicesArrayAdapter.clear();
 
 //        Subscription sub = mBluetoothHandler.startBluetoothDeviceDiscoveryObservable(true)
-        Subscription sub = mBluetoothHandler.startBluetoothDiscoveryOnlyUnpaired()
+        Disposable sub = mBluetoothHandler.startBluetoothDiscoveryOnlyUnpaired()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                        new Subscriber<BluetoothDevice>() {
-                            @Override
-                            public void onStart() {
-                                LOGGER.info("Blutooth discovery started.");
+                .subscribeWith(new DisposableObserver<BluetoothDevice>() {
+                    @Override
+                    public void onStart() {
+                        LOGGER.info("Blutooth discovery started.");
 
-                                // Show the progressbar
-                                mProgressBar.setVisibility(View.VISIBLE);
+                        // Show the progressbar
+                        mProgressBar.setVisibility(View.VISIBLE);
 
-                                // Set info view to "searching...".
-                                mNewDevicesInfoTextView.setText(R.string
-                                        .bluetooth_pairing_preference_info_searching_devices);
+                        // Set info view to "searching...".
+                        mNewDevicesInfoTextView.setText(R.string
+                                .bluetooth_pairing_preference_info_searching_devices);
 
-                                Toast.makeText(getContext(), "Discovery Started!", Toast
-                                        .LENGTH_LONG).show();
-                            }
+                        Toast.makeText(getContext(), "Discovery Started!", Toast
+                                .LENGTH_LONG).show();
+                    }
 
-                            @Override
-                            public void onCompleted() {
-                                LOGGER.info("Bluetooth discovery finished.");
+                    @Override
+                    public void onComplete() {
+                        LOGGER.info("Bluetooth discovery finished.");
 
-                                // Dismiss the progressbar.
-                                mProgressBar.setVisibility(View.GONE);
+                        // Dismiss the progressbar.
+                        mProgressBar.setVisibility(View.GONE);
 
-                                // If no devices found, set the corresponding textview to visibile.
-                                if (mNewDevicesArrayAdapter.isEmpty()) {
-                                    mNewDevicesInfoTextView.setText(R.string
-                                            .select_bluetooth_preference_info_no_device_found);
-                                } else if (mNewDevicesArrayAdapter.getCount() == 1) {
-                                    mNewDevicesInfoTextView.setText(R.string
-                                            .bluetooth_pairing_preference_info_device_found);
-                                } else {
-                                    String string = getContext().getString(R.string
-                                            .bluetooth_pairing_preference_info_devices_found);
-                                    mNewDevicesInfoTextView.setText(String.format(string, "" +
-                                            mNewDevicesArrayAdapter.getCount()));
-                                }
-
-                                Toast.makeText(getContext(), "Discovery Finished!", Toast
-                                        .LENGTH_LONG).show();
-                            }
-
-                            @Override
-                            public void onError(Throwable e) {
-                                LOGGER.error("Error while discovering bluetooth devices", e);
-                            }
-
-                            @Override
-                            public void onNext(BluetoothDevice device) {
-                                LOGGER.info(String.format("Bluetooth device detected: [name=%s, address=%s]",
-                                        device.getName(), device.getAddress()));
-
-                                // if the discovered device is not already part of the list, then
-                                // add it to the list and add an entry to the array adapter.
-                                if (!mPairedDevicesAdapter.contains(device) &&
-                                        !mNewDevicesArrayAdapter.contains(device)) {
-                                    mNewDevicesArrayAdapter.add(device);
-//                }
-                                }
-                            }
+                        // If no devices found, set the corresponding textview to visibile.
+                        if (mNewDevicesArrayAdapter.isEmpty()) {
+                            mNewDevicesInfoTextView.setText(R.string
+                                    .select_bluetooth_preference_info_no_device_found);
+                        } else if (mNewDevicesArrayAdapter.getCount() == 1) {
+                            mNewDevicesInfoTextView.setText(R.string
+                                    .bluetooth_pairing_preference_info_device_found);
+                        } else {
+                            String string = getContext().getString(R.string
+                                    .bluetooth_pairing_preference_info_devices_found);
+                            mNewDevicesInfoTextView.setText(String.format(string, "" +
+                                    mNewDevicesArrayAdapter.getCount()));
                         }
-                );
+
+                        Toast.makeText(getContext(), "Discovery Finished!", Toast
+                                .LENGTH_LONG).show();
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        LOGGER.error("Error while discovering bluetooth devices", e);
+                    }
+
+                    @Override
+                    public void onNext(BluetoothDevice device) {
+                        LOGGER.info(String.format("Bluetooth device detected: [name=%s, address=%s]",
+                                device.getName(), device.getAddress()));
+
+                        // if the discovered device is not already part of the list, then
+                        // add it to the list and add an entry to the array adapter.
+                        if (!mPairedDevicesAdapter.contains(device) &&
+                                !mNewDevicesArrayAdapter.contains(device)) {
+                            mNewDevicesArrayAdapter.add(device);
+                        }
+                    }
+                });
     }
 
 
@@ -446,7 +444,6 @@ public class BluetoothPairingPreference extends DialogPreference {
             }
         });
     }
-
 
 
     @Override

@@ -80,7 +80,7 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import rx.schedulers.Schedulers;
+import io.reactivex.schedulers.Schedulers;
 
 
 /**
@@ -192,8 +192,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
         Track.TrackId trackid = new Track.TrackId(mTrackID);
         Track track = mEnvirocarDB.getTrack(trackid)
                 .subscribeOn(Schedulers.io())
-                .toBlocking()
-                .first();
+                .blockingFirst();
         this.track = track;
 
         trackMapOverlay = new TrackMapLayer(track);

@@ -41,6 +41,7 @@ import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.utils.BroadcastUtils;
 import org.envirocar.core.utils.ServiceUtils;
+import org.reactivestreams.Subscription;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -51,12 +52,11 @@ import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import dagger.Provides;
-import rx.Observable;
-import rx.Scheduler;
-import rx.Subscriber;
-import rx.Subscription;
-import rx.schedulers.Schedulers;
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.Scheduler;
+import io.reactivex.observers.DisposableObserver;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * @author dewall
@@ -71,7 +71,7 @@ public class BluetoothHandler {
 
     private final Scheduler.Worker mWorker = Schedulers.io().createWorker();
 
-    private Subscription mDiscoverySubscription;
+    private DisposableObserver mDiscoverySubscription;
     private boolean mIsAutoconnecting;
 
     // The bluetooth adapter
@@ -91,7 +91,7 @@ public class BluetoothHandler {
 
                         stopBluetoothDeviceDiscovery();
                         if (mDiscoverySubscription != null) {
-                            mDiscoverySubscription.unsubscribe();
+                            mDiscoverySubscription.dispose();
                             mDiscoverySubscription = null;
                         }
 
@@ -339,7 +339,7 @@ public class BluetoothHandler {
      * @return
      */
     public Observable<BluetoothDevice> startBluetoothDiscovery() {
-        return Observable.create(subscriber -> {
+        return Observable.create((ObservableEmitter<BluetoothDevice> subscriber) -> {
             LOGGER.info("startBluetoothDiscovery(): subscriber call");
 
             // If the device is already discovering, cancel the discovery before starting.
@@ -357,7 +357,7 @@ public class BluetoothHandler {
 
             if (mDiscoverySubscription != null) {
                 // Cancel the pending subscription.
-                mDiscoverySubscription.unsubscribe();
+                mDiscoverySubscription.dispose();
                 mDiscoverySubscription = null;
             }
 
@@ -369,12 +369,17 @@ public class BluetoothHandler {
 
             mDiscoverySubscription = BroadcastUtils
                     .createBroadcastObservable(context, filter)
-                    .subscribe(new Subscriber<Intent>() {
+                    .subscribeWith(new DisposableObserver<Intent>() {
 
                         @Override
-                        public void onCompleted() {
+                        protected void onStart() {
+                            super.onStart();
+                        }
+
+                        @Override
+                        public void onComplete() {
                             LOGGER.info("onCompleted()");
-                            subscriber.onCompleted();
+                            subscriber.onComplete();
                         }
 
                         @Override
@@ -390,7 +395,7 @@ public class BluetoothHandler {
 
                             // If the discovery process has been started.
                             if (BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals(action)) {
-                                subscriber.onStart();
+//                                subscriber.onStart();
                             }
 
                             // If the discovery process finds a device
@@ -404,17 +409,17 @@ public class BluetoothHandler {
 
                             // If the discovery process has been finished.
                             else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
-                                subscriber.onCompleted();
+                                subscriber.onComplete();
                                 mWorker.schedule(() -> {
-                                    if (!isUnsubscribed()) {
-                                        unsubscribe();
+                                    if (!isDisposed()) {
+                                        dispose();
                                     }
                                 }, 100, TimeUnit.MILLISECONDS);
                             }
                         }
                     });
 
-            subscriber.add(mDiscoverySubscription);
+            subscriber.setDisposable(mDiscoverySubscription);
             mBluetoothAdapter.startDiscovery();
         });
     }

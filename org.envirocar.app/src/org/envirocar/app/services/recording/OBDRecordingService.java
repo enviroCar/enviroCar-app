@@ -61,12 +61,13 @@ import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
-import rx.Scheduler;
-import rx.Subscriber;
-import rx.Subscription;
-import rx.functions.Action0;
-import rx.schedulers.Schedulers;
-import rx.subjects.PublishSubject;
+import io.reactivex.Scheduler;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.observers.DisposableObserver;
+import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subjects.PublishSubject;
+
 
 /**
  * TODO JavaDoc
@@ -111,8 +112,9 @@ public class OBDRecordingService extends AbstractRecordingService {
     private LoadBasedEnergyConsumptionAlgorithm energyConsumptionAlgorithm;
 
     // subscriptions
-    private Subscription connectingSubscription;
-    private Subscription measurementSubscription;
+    private Disposable connectingSubscription;
+    private Disposable measurementSubscription;
+    private CompositeDisposable compositeDisposable = new CompositeDisposable();
 
     private BluetoothSocketWrapper bluetoothSocketWrapper;
 
@@ -179,10 +181,12 @@ public class OBDRecordingService extends AbstractRecordingService {
         LOG.info("Destroying the OBD-based recording");
 
         unregisterReceiver(broadcastReciever);
-        if (connectingSubscription != null && !connectingSubscription.isUnsubscribed())
-            connectingSubscription.unsubscribe();
-        if (measurementSubscription != null && !measurementSubscription.isUnsubscribed())
-            measurementSubscription.unsubscribe();
+        if (connectingSubscription != null && !connectingSubscription.isDisposed())
+            connectingSubscription.dispose();
+        if (measurementSubscription != null && !measurementSubscription.isDisposed())
+            measurementSubscription.dispose();
+        if (compositeDisposable != null && !compositeDisposable.isDisposed())
+            compositeDisposable.dispose();
 
         LOG.info("OBDConnectionService successfully destroyed");
     }
@@ -201,7 +205,7 @@ public class OBDRecordingService extends AbstractRecordingService {
             @Override
             protected Void doInBackground(Void... voids) {
                 connectingSubscription = obdConnectionHandler.getOBDConnectionObservable(device)
-                        .subscribe(new Subscriber<BluetoothSocketWrapper>() {
+                        .subscribeWith(new DisposableObserver<BluetoothSocketWrapper>() {
                             @Override
                             public void onStart() {
                                 LOG.info("onStart() connection");
@@ -212,14 +216,14 @@ public class OBDRecordingService extends AbstractRecordingService {
                             }
 
                             @Override
-                            public void onCompleted() {
+                            public void onComplete() {
                                 LOG.info("onCompleted(): BluetoothSocketWrapper connection completed");
                             }
 
                             @Override
                             public void onError(Throwable e) {
                                 LOG.error(e.getMessage(), e);
-                                unsubscribe();
+                                dispose();
                             }
 
                             @Override
@@ -227,7 +231,8 @@ public class OBDRecordingService extends AbstractRecordingService {
                                 LOG.info("startOBDConnection.onNext() socket successfully connected.");
                                 bluetoothSocketWrapper = socketWrapper;
                                 onDeviceConnected(bluetoothSocketWrapper);
-                                onCompleted();
+                                onComplete();
+                                dispose();
                             }
                         });
                 return null;
@@ -241,10 +246,12 @@ public class OBDRecordingService extends AbstractRecordingService {
             stopForeground(true);
 
             // If there is an active UUID subscription.
-            if (connectingSubscription != null && !connectingSubscription.isUnsubscribed())
-                connectingSubscription.unsubscribe();
-            if (measurementSubscription != null && !measurementSubscription.isUnsubscribed())
-                measurementSubscription.unsubscribe();
+            if (connectingSubscription != null && !connectingSubscription.isDisposed())
+                connectingSubscription.dispose();
+            if (measurementSubscription != null && !measurementSubscription.isDisposed())
+                measurementSubscription.dispose();
+            if (compositeDisposable != null && !compositeDisposable.isDisposed())
+                compositeDisposable.dispose();
 
             if (obdController != null)
                 obdController.shutdown();
@@ -320,25 +327,26 @@ public class OBDRecordingService extends AbstractRecordingService {
         measurementSubscription = measurementProvider.measurements(samplingRate)
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
-                .subscribe(getMeasurementSubscriber());
+                .subscribeWith(getMeasurementSubscriber());
     }
 
 
-    private Subscriber<Measurement> getMeasurementSubscriber() {
-        return new Subscriber<Measurement>() {
-            PublishSubject<Measurement> measurementPublisher =
-                    PublishSubject.create();
+    private DisposableObserver<Measurement> getMeasurementSubscriber() {
+        return new DisposableObserver<Measurement>() {
+            PublishSubject<Measurement> measurementPublisher = PublishSubject.create();
+
 
             @Override
             public void onStart() {
                 LOG.info("onStart(): MeasuremnetProvider Subscription");
-                add(trackRecordingHandler.startNewTrack(measurementPublisher));
+
+                compositeDisposable.add(trackRecordingHandler.startNewTrack(measurementPublisher));
             }
 
             @Override
-            public void onCompleted() {
+            public void onComplete() {
                 LOG.info("onCompleted(): MeasurementProvider");
-                measurementPublisher.onCompleted();
+                measurementPublisher.onComplete();
                 measurementPublisher = null;
             }
 
@@ -408,16 +416,16 @@ public class OBDRecordingService extends AbstractRecordingService {
         private long timeLastGpsMeasurement;
 
         private final Scheduler.Worker mBackgroundWorker = Schedulers.io().createWorker();
-        private Subscription mOBDCheckerSubscription;
-        private Subscription mGPSCheckerSubscription;
+        private Disposable mOBDCheckerSubscription;
+        private Disposable mGPSCheckerSubscription;
 
-        private final Action0 gpsConnectionCloser = () -> {
+        private final Runnable gpsConnectionCloser = () -> {
             LOG.warn("CONNECTION CLOSED due to no GPS values");
             stopOBDConnection();
             stopSelf();
         };
 
-        private final Action0 obdConnectionCloser = () -> {
+        private final Runnable obdConnectionCloser = () -> {
             LOG.warn("CONNECTION CLOSED due to no OBD values");
             stopOBDConnection();
             stopSelf();
@@ -426,7 +434,7 @@ public class OBDRecordingService extends AbstractRecordingService {
         @Subscribe
         public void onReceiveGpsLocationChangedEvent(GpsLocationChangedEvent event) {
             if (mGPSCheckerSubscription != null) {
-                mGPSCheckerSubscription.unsubscribe();
+                mGPSCheckerSubscription.dispose();
                 mGPSCheckerSubscription = null;
             }
 
@@ -440,7 +448,7 @@ public class OBDRecordingService extends AbstractRecordingService {
         public void onReceiveSpeedUpdateEvent(SpeedUpdateEvent event) {
             LOG.info("Received speed update, no stop required via mOBDCheckerSubscription!");
             if (mOBDCheckerSubscription != null) {
-                mOBDCheckerSubscription.unsubscribe();
+                mOBDCheckerSubscription.dispose();
                 mOBDCheckerSubscription = null;
             }
 
@@ -453,9 +461,9 @@ public class OBDRecordingService extends AbstractRecordingService {
         public void shutDown() {
             LOG.info("shutDown() OBDConnectionRecognizer");
             if (mOBDCheckerSubscription != null)
-                mOBDCheckerSubscription.unsubscribe();
+                mOBDCheckerSubscription.dispose();
             if (mGPSCheckerSubscription != null)
-                mGPSCheckerSubscription.unsubscribe();
+                mGPSCheckerSubscription.dispose();
         }
     }
 

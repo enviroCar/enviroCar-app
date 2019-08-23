@@ -40,11 +40,11 @@ import org.envirocar.core.logging.Logger;
 import java.util.Collections;
 import java.util.List;
 
-import rx.Observer;
-import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
-import rx.subscriptions.CompositeSubscription;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.observers.DisposableObserver;
+import io.reactivex.schedulers.Schedulers;
+
 
 /**
  * @author dewall
@@ -53,7 +53,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
         TrackListRemoteCardAdapter> implements TrackListLocalCardFragment.OnTrackUploadedListener {
     private static final Logger LOG = Logger.getLogger(TrackListRemoteCardFragment.class);
 
-    private CompositeSubscription subscriptions = new CompositeSubscription();
+    private CompositeDisposable subscriptions = new CompositeDisposable();
 
     private boolean hasLoadedRemote = false;
     private boolean hasLoadedStored = false;
@@ -103,8 +103,8 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
         LOG.info("onDestroyView()");
         super.onDestroyView();
 
-        if (!subscriptions.isUnsubscribed()) {
-            subscriptions.unsubscribe();
+        if (!subscriptions.isDisposed()) {
+            subscriptions.dispose();
         }
     }
 
@@ -191,10 +191,10 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
         mTrackDAOHandler.fetchRemoteTrackObservable(track)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<Track>() {
+                .subscribe(new DisposableObserver<Track>() {
 
                     @Override
-                    public void onCompleted() {
+                    public void onComplete () {
                         holder.mProgressCircle.beginFinalAnimation();
                         holder.mProgressCircle.attachListener(() -> {
                             // When the visualization is finished, then Init the
@@ -244,7 +244,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
             subscriptions.add(mEnvirocarDB.getAllRemoteTracks()
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new Subscriber<List<Track>>() {
+                    .subscribeWith(new DisposableObserver<List<Track>>() {
 
                         @Override
                         public void onStart() {
@@ -256,7 +256,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
                         }
 
                         @Override
-                        public void onCompleted() {
+                        public void onComplete() {
 
                         }
 
@@ -288,7 +288,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
             subscriptions.add(mDAOProvider.getTrackDAO().getTrackIdsObservable()
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new Subscriber<List<Track>>() {
+                    .subscribeWith(new DisposableObserver<List<Track>>() {
 
                         @Override
                         public void onStart() {
@@ -300,7 +300,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
                         }
 
                         @Override
-                        public void onCompleted() {
+                        public void onComplete() {
 
                         }
 

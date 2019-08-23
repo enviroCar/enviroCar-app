@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -34,8 +34,6 @@ import com.google.android.gms.location.ActivityTransitionEvent;
 import com.google.android.gms.location.ActivityTransitionRequest;
 import com.google.android.gms.location.ActivityTransitionResult;
 import com.google.android.gms.location.DetectedActivity;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.squareup.otto.Subscribe;
 
@@ -65,13 +63,13 @@ import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
-import rx.Scheduler;
-import rx.Subscriber;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.observers.SafeSubscriber;
-import rx.schedulers.Schedulers;
-import rx.subscriptions.CompositeSubscription;
+import io.reactivex.Scheduler;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.observers.DisposableObserver;
+import io.reactivex.observers.SafeObserver;
+import io.reactivex.schedulers.Schedulers;
 
 import static org.envirocar.app.notifications.NotificationHandler.context;
 
@@ -93,6 +91,7 @@ public class AutomaticTrackRecordingService extends BaseInjectorService {
 
     @Override
     public IBinder onBind(Intent intent) {
+        super.onBind(intent);
         return null;
     }
 
@@ -123,9 +122,9 @@ public class AutomaticTrackRecordingService extends BaseInjectorService {
     private int mDiscoveryInterval = PreferencesHandler.DEFAULT_BLUETOOTH_DISCOVERY_INTERVAL;
 
     // private member fields.
-    private Subscription mWorkerSubscription;
-    private Subscription mDiscoverySubscription;
-    private CompositeSubscription subscriptions = new CompositeSubscription();
+    private Disposable mWorkerSubscription;
+    private Disposable mDiscoverySubscription;
+    private CompositeDisposable subscriptions = new CompositeDisposable();
 
     //Activity recognition stuff
     // The intent action which will be fired when transitions are triggered.
@@ -164,7 +163,7 @@ public class AutomaticTrackRecordingService extends BaseInjectorService {
 
                 // UNUSED: This leads sometimes to some errors if you always ski
                 if (mDiscoverySubscription != null) {
-                    mDiscoverySubscription.unsubscribe();
+                    mDiscoverySubscription.dispose();
                     mDiscoverySubscription = null;
                 }
             }
@@ -191,6 +190,7 @@ public class AutomaticTrackRecordingService extends BaseInjectorService {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        super.onStartCommand(intent, flags, startId);
         LOGGER.info("onStartCommand()");
         return START_STICKY;
     }
@@ -224,9 +224,7 @@ public class AutomaticTrackRecordingService extends BaseInjectorService {
                 PreferencesHandler.getSelectedCarObsevable()
                         .map(car -> (car != null))
                         .subscribe(hasCar -> {
-                            LOGGER.info(String.format("Received changed selected car -> [%s]",
-                                    hasCar));
-
+                            LOGGER.info(String.format("Received changed selected car -> [%s]", hasCar));
                             hasCarSelected = hasCar;
 
                             if (recordingTypeSelected == 1) {
@@ -313,8 +311,8 @@ public class AutomaticTrackRecordingService extends BaseInjectorService {
         // unregister all boradcast receivers.
         unregisterReceiver(mBroadcastReciever);
 
-        if (!subscriptions.isUnsubscribed()) {
-            subscriptions.unsubscribe();
+        if (!subscriptions.isDisposed()) {
+            subscriptions.dispose();
         }
     }
 
@@ -349,9 +347,9 @@ public class AutomaticTrackRecordingService extends BaseInjectorService {
     private void stopAutomaticOBDTrackRecordingProcedures() {
         // Unsubscribe subscriptions.
         if (mWorkerSubscription != null)
-            mWorkerSubscription.unsubscribe();
+            mWorkerSubscription.dispose();
         if (mDiscoverySubscription != null)
-            mDiscoverySubscription.unsubscribe();
+            mDiscoverySubscription.dispose();
 
         // Close the corresponding notification.
         NotificationHandler.closeNotification();
@@ -457,7 +455,7 @@ public class AutomaticTrackRecordingService extends BaseInjectorService {
                 // NotificationHandler.setRecordingState(ServiceStateForNotification.CONNECTED);
                 NotificationHandler.closeNotification();
                 if (mWorkerSubscription != null)
-                    mWorkerSubscription.unsubscribe();
+                    mWorkerSubscription.dispose();
                 break;
             case SERVICE_STOPPING:
                 NotificationHandler.setRecordingState(ServiceStateForNotification.STOPPING);
@@ -537,15 +535,14 @@ public class AutomaticTrackRecordingService extends BaseInjectorService {
             // unsubscribe on the corresponding subscription.
             if (mDiscoverySubscription != null) {
                 mBluetoothHandler.stopBluetoothDeviceDiscovery();
-                mDiscoverySubscription.unsubscribe();
+                mDiscoverySubscription.dispose();
                 mDiscoverySubscription = null;
             }
 
             // Initialize a new discovery of the bluetooth.
             mDiscoverySubscription = mBluetoothHandler
                     .startBluetoothDiscoveryForSingleDevice(device)
-                    .subscribe(new SafeSubscriber<BluetoothDevice>(new Subscriber<BluetoothDevice>() {
-
+                    .subscribeWith(new DisposableObserver<BluetoothDevice>() {
                         private boolean isFound = false;
 
                         @Override
@@ -573,7 +570,7 @@ public class AutomaticTrackRecordingService extends BaseInjectorService {
                         }
 
                         @Override
-                        public void onCompleted() {
+                        public void onComplete() {
                             LOGGER.info("Device Discovery finished...");
 
                             // If the device to search for has not been found during the
@@ -592,7 +589,7 @@ public class AutomaticTrackRecordingService extends BaseInjectorService {
                             }
 
                             if (mDiscoverySubscription != null) {
-                                mDiscoverySubscription.unsubscribe();
+                                mDiscoverySubscription.dispose();
                                 mDiscoverySubscription = null;
                             }
                         }
@@ -601,11 +598,6 @@ public class AutomaticTrackRecordingService extends BaseInjectorService {
                         public void onError(Throwable e) {
                             LOGGER.error("Error while discovering for the selected Bluetooth " +
                                     "devices", e);
-                        }
-                    }) {
-                        @Override
-                        public void onStart() {
-                            getActual().onStart();
                         }
                     });
         }
@@ -648,7 +640,7 @@ public class AutomaticTrackRecordingService extends BaseInjectorService {
         if (mWorkerSubscription != null) {
             if (mBluetoothHandler.isDiscovering())
                 mBluetoothHandler.stopBluetoothDeviceDiscovery();
-            mWorkerSubscription.unsubscribe();
+            mWorkerSubscription.dispose();
         }
     }
 
@@ -669,23 +661,9 @@ public class AutomaticTrackRecordingService extends BaseInjectorService {
         ActivityTransitionRequest request = new ActivityTransitionRequest(transitions);
 
         // Register for Transitions Updates.
-        Task<Void> task =
-                ActivityRecognition.getClient(this)
-                        .requestActivityTransitionUpdates(request, mPendingIntent);
-        task.addOnSuccessListener(
-                new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void result) {
-                        LOGGER.info("Transitions Api was successfully registered.");
-                    }
-                });
-        task.addOnFailureListener(
-                new OnFailureListener() {
-                    @Override
-                    public void onFailure(Exception e) {
-                        LOGGER.warn("Transitions Api could not be registered: " + e, null);
-                    }
-                });
+        Task<Void> task = ActivityRecognition.getClient(this).requestActivityTransitionUpdates(request, mPendingIntent);
+        task.addOnSuccessListener(result -> LOGGER.info("Transitions Api was successfully registered."));
+        task.addOnFailureListener(e -> LOGGER.warn("Transitions Api could not be registered: " + e, null));
     }
 
     private void removeActivityTransitions() {

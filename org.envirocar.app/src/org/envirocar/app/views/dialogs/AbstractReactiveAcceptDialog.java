@@ -24,13 +24,16 @@ import com.afollestad.materialdialogs.MaterialDialog;
 
 import org.envirocar.core.entity.BaseEntity;
 import org.envirocar.core.entity.User;
+import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
 
-import rx.Observable;
-import rx.Scheduler;
-import rx.Subscriber;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.Scheduler;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 
 /**
@@ -62,25 +65,26 @@ public abstract class AbstractReactiveAcceptDialog<T extends BaseEntity> {
      * @return the dialog observable.
      */
     public Observable<T> asObservable() {
-        return Observable.create(new Observable.OnSubscribe<T>() {
+        return Observable.create(new ObservableOnSubscribe<T>() {
             private MaterialDialog dialog;
 
             @Override
-            public void call(Subscriber<? super T> subscriber) {
-                MaterialDialog.Builder builder = createDialogBuilder(subscriber);
+            public void subscribe(ObservableEmitter<T> emitter) throws Exception {
+                MaterialDialog.Builder builder = createDialogBuilder(emitter);
                 mainThreadWorker.schedule(() -> dialog = builder.show());
 
-                subscriber.add(new Subscription() {
+                emitter.setDisposable(new Disposable() {
                     @Override
-                    public void unsubscribe() {
+                    public void dispose() {
                         if (dialog != null) {
                             dialog.dismiss();
+                            dialog = null;
                         }
                     }
 
                     @Override
-                    public boolean isUnsubscribed() {
-                        return subscriber.isUnsubscribed();
+                    public boolean isDisposed() {
+                        return emitter.isDisposed();
                     }
                 });
             }
@@ -90,5 +94,5 @@ public abstract class AbstractReactiveAcceptDialog<T extends BaseEntity> {
     /**
      * @return the ready designed dialog builder.
      */
-    protected abstract MaterialDialog.Builder createDialogBuilder(Subscriber subscriber);
+    protected abstract MaterialDialog.Builder createDialogBuilder(ObservableEmitter<T> subscriber);
 }

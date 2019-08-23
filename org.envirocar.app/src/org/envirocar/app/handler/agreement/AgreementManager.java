@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -43,11 +43,12 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import rx.Observable;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.exceptions.OnErrorThrowable;
-import rx.functions.Func1;
-import rx.schedulers.Schedulers;
+import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
+import io.reactivex.ObservableTransformer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * TODO JavaDoc
@@ -132,7 +133,7 @@ public class AgreementManager {
                         return inst;
                     } catch (DataRetrievalFailureException | NotConnectedException e) {
                         LOG.warn(e.getMessage(), e);
-                        throw OnErrorThrowable.from(e);
+                        throw e;
                     }
                 });
     }
@@ -149,22 +150,21 @@ public class AgreementManager {
                         return inst;
                     } catch (DataRetrievalFailureException | NotConnectedException e) {
                         LOG.warn(e.getMessage(), e);
-                        throw OnErrorThrowable.from(e);
+                        throw e;
                     }
                 });
     }
 
-    private <T> Func1<List<T>, List<T>> checkNullElseThrowNotConnected() {
+    private <T> Function<List<T>, List<T>> checkNullElseThrowNotConnected() {
         return t -> {
             if (t == null || t.isEmpty()) {
-                throw OnErrorThrowable.from(new NotConnectedException(
-                        "Error while retrieving Terms of Use and Privacy Statement"));
+                throw new NotConnectedException("Error while retrieving Terms of Use and Privacy Statement");
             }
             return t;
         };
     }
 
-    private Func1<PrivacyStatement, Observable<PrivacyStatement>> checkPrivacyStatementAcceptance(Activity activity) {
+    private Function<PrivacyStatement, Observable<PrivacyStatement>> checkPrivacyStatementAcceptance(Activity activity) {
         LOG.info("Check whether the Privacy Statement has been accepted.");
         return privacyStatement -> {
             User user = checkUserLoggedInAndReturn();
@@ -185,21 +185,19 @@ public class AgreementManager {
 
             // if no dialog is possible, throw an exception
             else {
-                throw OnErrorThrowable.from(new NotAcceptedTermsOfUseException(
-                        "The user has not accepted the terms of use"));
+                throw new NotAcceptedTermsOfUseException("The user has not accepted the terms of use");
             }
         };
     }
 
-    private Func1<TermsOfUse, Observable<TermsOfUse>> checkTermsOfUseAcceptance(Activity activity) {
+    private Function<TermsOfUse, Observable<TermsOfUse>> checkTermsOfUseAcceptance(Activity activity) {
         LOG.info("checkTermsOfUseAcceptance()");
         return termsOfUse -> {
             User user = checkUserLoggedInAndReturn();
             LOG.info(String.format("Retrieved terms of use for user [%s] with terms of" +
                     " use version [%s]", user.getUsername(), user.getTermsOfUseVersion()));
 
-            boolean hasAccepted = termsOfUse
-                    .getIssuedDate().equals(user.getTermsOfUseVersion());
+            boolean hasAccepted = termsOfUse.getIssuedDate().equals(user.getTermsOfUseVersion());
 
             // If the user has accepted, then just return the generic type
             if (hasAccepted) {
@@ -211,17 +209,15 @@ public class AgreementManager {
             }
             // Otherwise, throw an exception.
             else {
-                throw OnErrorThrowable.from(new NotAcceptedTermsOfUseException(
-                        "The user has not accepted the terms of use"));
+                throw new NotAcceptedTermsOfUseException("The user has not accepted the terms of use");
             }
         };
     }
 
-    private User checkUserLoggedInAndReturn() throws OnErrorThrowable {
+    private User checkUserLoggedInAndReturn() throws Exception {
         User user = mUserManager.getUser();
         if (user == null) {
-            throw OnErrorThrowable.from(new NotLoggedInException(
-                    mContext.getString(R.string.trackviews_not_logged_in)));
+            throw new NotLoggedInException(mContext.getString(R.string.trackviews_not_logged_in));
         }
         return user;
     }
@@ -244,7 +240,7 @@ public class AgreementManager {
                         return termsOfUse;
                     } catch (DataUpdateFailureException | UnauthorizedException e) {
                         LOG.warn(e.getMessage(), e);
-                        throw OnErrorThrowable.from(e);
+                        throw e;
                     }
                 });
     }
@@ -264,13 +260,13 @@ public class AgreementManager {
                         return privacyStatement;
                     } catch (DataUpdateFailureException | UnauthorizedException e) {
                         LOG.warn(e.getMessage(), e);
-                        throw OnErrorThrowable.from(e);
+                        throw e;
                     }
                 });
     }
 
 
-    public static class TermsOfUseValidator<T> implements Observable.Transformer<T, T> {
+    public static class TermsOfUseValidator<T> implements ObservableTransformer<T, T> {
         private final AgreementManager agreementManager;
         private final Activity activity;
 
@@ -302,8 +298,8 @@ public class AgreementManager {
         }
 
         @Override
-        public Observable<T> call(Observable<T> tObservable) {
-            return tObservable.flatMap(t ->
+        public ObservableSource<T> apply(Observable<T> upstream) {
+            return upstream.flatMap(t ->
                     agreementManager.getCurrentTermsOfUseObservable()
                             .flatMap(agreementManager.checkTermsOfUseAcceptance(activity))
                             .flatMap(o -> agreementManager.getCurrentPrivacyStatementObservable())

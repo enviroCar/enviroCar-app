@@ -18,7 +18,8 @@
  */
 package org.envirocar.app.main;
 
-import com.squareup.sqlbrite.SqlBrite;
+
+import com.squareup.sqlbrite3.SqlBrite;
 
 import org.envirocar.app.aidl.EnviroCarDataService;
 import org.envirocar.app.handler.DAOProvider;

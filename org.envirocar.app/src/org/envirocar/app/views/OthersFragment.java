@@ -59,16 +59,16 @@ import javax.inject.Inject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import rx.Scheduler;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
+import io.reactivex.Scheduler;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * A simple {@link Fragment} subclass.
  */
 public class OthersFragment extends BaseInjectorFragment {
-    private static final Logger LOGGER = Logger
-            .getLogger(OthersFragment.class);
+    private static final Logger LOGGER = Logger .getLogger(OthersFragment.class);
+
     @Inject
     protected UserHandler mUserManager;
     @Inject

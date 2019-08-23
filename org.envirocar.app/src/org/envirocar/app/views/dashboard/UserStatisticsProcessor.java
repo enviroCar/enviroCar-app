@@ -22,9 +22,10 @@ import org.envirocar.storage.EnviroCarDB;
 
 import javax.inject.Inject;
 
-import rx.Observable;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
+
 
 /**
  * @author dewall
@@ -125,7 +126,7 @@ public class UserStatisticsProcessor extends AbstractCachable<UserStatisticsProc
                 })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .flatMap(tracks -> Observable.from(tracks))
+                .flatMap(tracks -> Observable.fromIterable(tracks))
                 .map(this::updateStatistics)
                 .subscribe(this::onNextStatistics, LOG::error);
     }

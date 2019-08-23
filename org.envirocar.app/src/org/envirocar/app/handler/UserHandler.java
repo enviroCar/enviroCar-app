@@ -43,11 +43,10 @@ import java.io.IOException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import rx.Observable;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.exceptions.OnErrorThrowable;
-import rx.functions.Func1;
-import rx.schedulers.Schedulers;
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -149,16 +148,12 @@ public class UserHandler implements UserManager {
         return prefs.contains(USERNAME) && prefs.contains(TOKEN);
     }
 
-    public <T> Func1<T, T> getIsLoggedIn() {
-        return new Func1<T, T>() {
-            @Override
-            public T call(T t) {
-                if (isLoggedIn())
-                    return t;
-                else
-                    throw OnErrorThrowable.from(new NotLoggedInException(context.getString(R
-                            .string.trackviews_not_logged_in)));
-            }
+    public <T> Function<T, T> getIsLoggedIn() {
+        return t -> {
+            if (isLoggedIn())
+                return t;
+            else
+                throw new NotLoggedInException(context.getString(R.string.trackviews_not_logged_in));
         };
     }
 
@@ -179,7 +174,7 @@ public class UserHandler implements UserManager {
                         logOut();
                         return true;
                     }
-                    throw OnErrorThrowable.from(new NotLoggedInException("Unable to log out. User is not logged in."));
+                    throw new NotLoggedInException("Unable to log out. User is not logged in.");
                 });
     }
 

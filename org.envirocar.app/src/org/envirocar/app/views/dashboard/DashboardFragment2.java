@@ -28,7 +28,7 @@ import androidx.core.content.ContextCompat;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.android.material.snackbar.Snackbar;
-import com.jakewharton.rxbinding.support.v7.widget.RxToolbar;
+import com.jakewharton.rxbinding3.appcompat.RxToolbar;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.R;
@@ -61,10 +61,10 @@ import butterknife.ButterKnife;
 import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
 import info.hoang8f.android.segmented.SegmentedGroup;
-import rx.Observable;
-import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.observers.DisposableObserver;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * @author dewall
@@ -181,8 +181,8 @@ public class DashboardFragment2 extends BaseInjectorFragment {
         }
     }
 
-    private Subscriber<Boolean> onLogoutSubscriber() {
-        return new Subscriber<Boolean>() {
+    private DisposableObserver<Boolean> onLogoutSubscriber() {
+        return new DisposableObserver<Boolean>() {
             private MaterialDialog dialog = null;
             private User userTemp = null;
 
@@ -204,7 +204,7 @@ public class DashboardFragment2 extends BaseInjectorFragment {
             }
 
             @Override
-            public void onCompleted() {
+            public void onComplete() {
                 // Show a snackbar that indicates the finished logout
                 Snackbar.make(getActivity().findViewById(R.id.navigation),
                         String.format(getString(R.string.goodbye_message), userTemp.getUsername()),

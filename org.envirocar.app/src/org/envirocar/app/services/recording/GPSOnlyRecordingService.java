@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -39,9 +39,7 @@ import org.envirocar.algorithm.MeasurementProvider;
 import org.envirocar.app.BuildConfig;
 import org.envirocar.app.events.DrivingDetectedEvent;
 import org.envirocar.app.handler.PreferencesHandler;
-import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.app.main.BaseApplicationComponent;
-import org.envirocar.app.views.recordingscreen.GPSOnlyTrackRecordingScreen;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.events.gps.GpsLocationChangedEvent;
 import org.envirocar.core.events.recording.RecordingNewMeasurementEvent;
@@ -55,12 +53,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import rx.Scheduler;
-import rx.Subscriber;
-import rx.Subscription;
-import rx.functions.Action0;
-import rx.schedulers.Schedulers;
-import rx.subjects.PublishSubject;
+import io.reactivex.Scheduler;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.observers.DisposableObserver;
+import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subjects.PublishSubject;
+
 
 /**
  * TODO JavaDoc
@@ -89,16 +87,16 @@ public class GPSOnlyRecordingService extends AbstractRecordingService {
     private long startingTime;
 
     // observable subscriptions
-    private Subscription trackTrimDurationSubscription;
-    private Subscription drivingStoppedSubscription;
-    private Subscription measurementSubscription;
+    private Disposable trackTrimDurationSubscription;
+    private Disposable drivingStoppedSubscription;
+    private Disposable measurementSubscription;
 
     // Parameters for activity recognition
     private PendingIntent activityTransitionPendingIntent;
 
     private GPSOnlyConnectionRecognizer connectionRecognizer = new GPSOnlyConnectionRecognizer();
 
-    private final Action0 drivingConnectionCloser = () -> {
+    private final Runnable drivingConnectionCloser = () -> {
         LOG.warn("Connection closed to to driving state absence");
 
         // Finish the current track
@@ -139,14 +137,14 @@ public class GPSOnlyRecordingService extends AbstractRecordingService {
                     drivingDetected = true;
                     bus.post(new DrivingDetectedEvent(true));
                     if (drivingStoppedSubscription != null) {
-                        drivingStoppedSubscription.unsubscribe();
+                        drivingStoppedSubscription.dispose();
                         drivingStoppedSubscription = null;
                     }
                 } else if (event.getTransitionType() == ActivityTransition.ACTIVITY_TRANSITION_EXIT) {
                     bus.post(new DrivingDetectedEvent(false));
                     if (CURRENT_SERVICE_STATE == BluetoothServiceState.SERVICE_STARTED) {
-                        drivingStoppedSubscription = backgroundWorker.schedule(
-                                drivingConnectionCloser, 1000 * trackTrimDuration, TimeUnit.MILLISECONDS);
+                        drivingStoppedSubscription = backgroundWorker.schedule(drivingConnectionCloser,
+                                1000 * trackTrimDuration, TimeUnit.MILLISECONDS);
                     }
                 }
             }
@@ -221,7 +219,7 @@ public class GPSOnlyRecordingService extends AbstractRecordingService {
     @Override
     protected void stopRecording() {
         // Unregister subscriptions.
-        this.trackTrimDurationSubscription.unsubscribe();
+        this.trackTrimDurationSubscription.dispose();
         this.trackTrimDurationSubscription = null;
 
         // stopping the GPS Only connection
@@ -244,31 +242,32 @@ public class GPSOnlyRecordingService extends AbstractRecordingService {
         baseApplicationComponent.inject(this);
     }
 
-    private Subscription subscribeForMeasurements(Context context, MeasurementProvider measurementProvider) {
+    private Disposable subscribeForMeasurements(Context context, MeasurementProvider measurementProvider) {
         // this is the first access to the measurement objects push it further
         Long samplingRate = PreferencesHandler.getSamplingRate(context) * 1000;
         return measurementProvider.measurements(samplingRate)
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
-                .subscribe(getMeasurementSubscriber());
+                .subscribeWith(getMeasurementSubscriber());
     }
 
-    private Subscriber<Measurement> getMeasurementSubscriber() {
-        return new Subscriber<Measurement>() {
-            PublishSubject<Measurement> measurementPublisher =
-                    PublishSubject.create();
+    private DisposableObserver<Measurement> getMeasurementSubscriber() {
+        return new DisposableObserver<Measurement>() {
+            private PublishSubject<Measurement> measurementPublisher = PublishSubject.create();
+            private Disposable trackRecordingDisposable = null;
 
             @Override
             public void onStart() {
                 LOG.info("onStart(): MeasuremnetProvider Subscription");
-                add(trackRecordingHandler.startNewTrack(measurementPublisher));
+                trackRecordingDisposable = trackRecordingHandler.startNewTrack(measurementPublisher);
             }
 
             @Override
-            public void onCompleted() {
+            public void onComplete() {
                 LOG.info("onCompleted(): MeasurementProvider");
-                measurementPublisher.onCompleted();
+                measurementPublisher.onComplete();
                 measurementPublisher = null;
+                disposeTrackRecording();
             }
 
             @Override
@@ -276,6 +275,7 @@ public class GPSOnlyRecordingService extends AbstractRecordingService {
                 LOG.error(e.getMessage(), e);
                 measurementPublisher.onError(e);
                 measurementPublisher = null;
+                disposeTrackRecording();
             }
 
             @Override
@@ -283,6 +283,12 @@ public class GPSOnlyRecordingService extends AbstractRecordingService {
                 LOG.info("onNNNNENEEXT()");
                 measurementPublisher.onNext(measurement);
                 bus.post(new RecordingNewMeasurementEvent(measurement));
+            }
+
+            private void disposeTrackRecording() {
+                if (trackRecordingDisposable != null && !trackRecordingDisposable.isDisposed()) {
+                    trackRecordingDisposable.dispose();
+                }
             }
         };
     }
@@ -295,8 +301,8 @@ public class GPSOnlyRecordingService extends AbstractRecordingService {
         backgroundWorker.schedule(() -> {
             stopForeground(true);
 
-            if (measurementSubscription != null && !measurementSubscription.isUnsubscribed())
-                measurementSubscription.unsubscribe();
+            if (measurementSubscription != null && !measurementSubscription.isDisposed())
+                measurementSubscription.dispose();
 
             if (connectionRecognizer != null)
                 connectionRecognizer.shutDown();
@@ -306,7 +312,7 @@ public class GPSOnlyRecordingService extends AbstractRecordingService {
                 wakeLock.release();
             }
             if (drivingStoppedSubscription != null) {
-                drivingStoppedSubscription.unsubscribe();
+                drivingStoppedSubscription.dispose();
                 drivingStoppedSubscription = null;
             }
 
@@ -327,9 +333,9 @@ public class GPSOnlyRecordingService extends AbstractRecordingService {
         private static final long GPS_INTERVAL = 1000 * 60 * 2; // 2 minutes;
 
         private final Scheduler.Worker backgroundWorker = Schedulers.io().createWorker();
-        private Subscription gpsCheckerSubscription;
+        private Disposable gpsCheckerSubscription;
 
-        private final Action0 gpsConnectionCloser = () -> {
+        private final Runnable gpsConnectionCloser = () -> {
             LOG.warn("CONNECTION CLOSED due to no GPS values");
             stopGPSOnlyConnection();
             stopSelf();
@@ -338,17 +344,18 @@ public class GPSOnlyRecordingService extends AbstractRecordingService {
         @Subscribe
         public void onReceiveGpsLocationChangedEvent(GpsLocationChangedEvent event) {
             if (gpsCheckerSubscription != null) {
-                gpsCheckerSubscription.unsubscribe();
+                gpsCheckerSubscription.dispose();
                 gpsCheckerSubscription = null;
             }
-            gpsCheckerSubscription = backgroundWorker.schedule(
-                    gpsConnectionCloser, GPS_INTERVAL, TimeUnit.MILLISECONDS);
+            gpsCheckerSubscription = backgroundWorker.schedule(gpsConnectionCloser,
+                    GPS_INTERVAL, TimeUnit.MILLISECONDS);
         }
 
         public void shutDown() {
             LOG.info("shutDown() GPSOnlyConnectionRecognizer");
             if (gpsCheckerSubscription != null) {
-                gpsCheckerSubscription.unsubscribe();
+                gpsCheckerSubscription.dispose();
+                gpsCheckerSubscription = null;
             }
         }
     }

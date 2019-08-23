@@ -58,9 +58,9 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import rx.Scheduler;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.subscriptions.CompositeSubscription;
+import io.reactivex.Scheduler;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
 
 public class BaseMainActivityBottomBar extends BaseInjectorActivity {
 
@@ -91,7 +91,7 @@ public class BaseMainActivityBottomBar extends BaseInjectorActivity {
 
     private int selectedMenuItemID = 0;
 
-    private CompositeSubscription subscriptions = new CompositeSubscription();
+    private CompositeDisposable subscriptions = new CompositeDisposable();
     private BroadcastReceiver errorInformationReceiver;
     private boolean paused;
 
@@ -206,8 +206,8 @@ public class BaseMainActivityBottomBar extends BaseInjectorActivity {
 
         mTemporaryFileManager.shutdown();
 
-        if (!subscriptions.isUnsubscribed()) {
-            subscriptions.unsubscribe();
+        if (!subscriptions.isDisposed()) {
+            subscriptions.dispose();
         }
     }
 

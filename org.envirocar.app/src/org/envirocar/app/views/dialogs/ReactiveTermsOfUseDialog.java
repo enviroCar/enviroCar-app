@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -31,8 +31,7 @@ import org.envirocar.core.entity.TermsOfUse;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.logging.Logger;
 
-import rx.Subscriber;
-import rx.functions.Action0;
+import io.reactivex.ObservableEmitter;
 
 /**
  * TODO JavaDoc
@@ -61,9 +60,8 @@ public class ReactiveTermsOfUseDialog extends AbstractReactiveAcceptDialog<Terms
         super(activityContext, user, entity);
     }
 
-
     @Override
-    protected MaterialDialog.Builder createDialogBuilder(Subscriber subscriber) {
+    protected MaterialDialog.Builder createDialogBuilder(ObservableEmitter<TermsOfUse> subscriber) {
         // Create the terms of use dialog.
         if (user != null) {
             boolean firstTime = user.getTermsOfUseVersion() == null;
@@ -94,7 +92,7 @@ public class ReactiveTermsOfUseDialog extends AbstractReactiveAcceptDialog<Terms
      * @param onNegative the action that gets called when the user rejects the terms of use.
      * @return the created dialog instance.
      */
-    private MaterialDialog.Builder createAcceptDialogBuilder(Spanned content, Action0 onPositive, Action0 onNegative) {
+    private MaterialDialog.Builder createAcceptDialogBuilder(Spanned content, Runnable onPositive, Runnable onNegative) {
         return new MaterialDialog.Builder(activityContext)
                 .title(R.string.terms_of_use_title)
                 .content(content)

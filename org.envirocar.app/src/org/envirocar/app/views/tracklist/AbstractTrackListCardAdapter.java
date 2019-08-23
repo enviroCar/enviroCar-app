@@ -17,17 +17,18 @@
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
 package org.envirocar.app.views.tracklist;
-import android.os.AsyncTask;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.appcompat.widget.Toolbar;
+import android.os.AsyncTask;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.github.jorgecastilloprz.FABProgressCircle;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
 import com.mapbox.mapboxsdk.maps.MapView;
@@ -52,9 +53,8 @@ import java.util.TimeZone;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import rx.Scheduler;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action0;
+import io.reactivex.Scheduler;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 
 /**
  * TODO JavaDoc
@@ -141,32 +141,19 @@ public abstract class AbstractTrackListCardAdapter<E extends
                 try {
                     String date = UTC_DATE_FORMATTER.format(new Date(
                             track.getDuration()));
-                    mMainThreadWorker.schedule(new Action0() {
-                        @Override
-                        public void call() {
-                            holder.mDuration.setText(date);
-                        }
-                    });
+                    mMainThreadWorker.schedule(() -> holder.mDuration.setText(date));
 
                     // Set the tracklength parameter.
                     double distanceOfTrack = ((TrackStatisticsProvider) track).getDistanceOfTrack();
                     String tracklength = String.format("%s km", DECIMAL_FORMATTER_TWO.format(
                             distanceOfTrack));
-                    mMainThreadWorker.schedule(new Action0() {
-                        @Override
-                        public void call() {
-                            holder.mDistance.setText(tracklength);
-                        }
-                    });
+                    mMainThreadWorker.schedule(() -> holder.mDistance.setText(tracklength));
 
                 } catch (NoMeasurementsException e) {
                     LOG.warn(e.getMessage(), e);
-                    mMainThreadWorker.schedule(new Action0() {
-                        @Override
-                        public void call() {
-                            holder.mDistance.setText("0 km");
-                            holder.mDuration.setText("0:00");
-                        }
+                    mMainThreadWorker.schedule(() -> {
+                        holder.mDistance.setText("0 km");
+                        holder.mDuration.setText("0:00");
                     });
                 }
 

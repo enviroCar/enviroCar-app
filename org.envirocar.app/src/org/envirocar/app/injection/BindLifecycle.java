@@ -15,41 +15,15 @@
  *
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
- *//*
+ */
+package org.envirocar.app.injection;
 
-package org.envirocar.app.rxutils;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-
-import io.reactivex.ObservableEmitter;
-import io.reactivex.observers.DisposableObserver;
-
-*/
-/**
- * TODO JavaDoc
- *
- * @author dewall
- *//*
-
-public class SingleItemForwardSubscriber<T> extends ItemForwardSubscriber<T> {
-    public static <T> SingleItemForwardSubscriber<T> create(new ObservableEmitter<T> subscriber) {
-        return new SingleItemForwardSubscriber<>(subscriber);
-    }
-
-    */
-/**
-     * Constructor
-     *
-     * @param subscriber
-     *//*
-
-    private SingleItemForwardSubscriber(ObservableEmitter<T> subscriber) {
-        super(subscriber);
-    }
-
-    @Override
-    public void onNext(T t) {
-        super.onNext(t);
-        subscriber.onComplete();
-    }
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.FIELD)
+public @interface BindLifecycle {
 }
-*/

@@ -23,7 +23,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
-import com.f2prateek.rx.preferences.RxSharedPreferences;
+import com.f2prateek.rx.preferences2.RxSharedPreferences;
 import com.squareup.otto.Bus;
 import com.squareup.otto.ThreadEnforcer;
 

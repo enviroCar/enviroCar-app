@@ -50,7 +50,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnTouch;
-import rx.schedulers.Schedulers;
+import io.reactivex.schedulers.Schedulers;
 
 import static android.view.View.GONE;
 
@@ -128,8 +128,7 @@ public class MapExpandedActivity extends BaseInjectorActivity {
         Track.TrackId trackid = new Track.TrackId(trackID);
         Track track = enviroCarDB.getTrack(trackid)
                 .subscribeOn(Schedulers.io())
-                .toBlocking()
-                .first();
+                .blockingFirst();
         this.track = track;
 
         trackMapOverlay = new TrackMapLayer(track);

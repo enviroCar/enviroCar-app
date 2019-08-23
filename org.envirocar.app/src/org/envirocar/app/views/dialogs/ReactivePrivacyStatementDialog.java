@@ -29,7 +29,8 @@ import org.envirocar.core.entity.PrivacyStatement;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.logging.Logger;
 
-import rx.Subscriber;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.disposables.Disposable;
 
 /**
  * @author dewall
@@ -62,7 +63,7 @@ public class ReactivePrivacyStatementDialog extends AbstractReactiveAcceptDialog
      * @return
      */
     @Override
-    protected MaterialDialog.Builder createDialogBuilder(Subscriber subscriber) {
+    protected MaterialDialog.Builder createDialogBuilder(ObservableEmitter<PrivacyStatement> subscriber) {
         return new MaterialDialog.Builder(activityContext)
                 .title(R.string.privacy_statement_title)
                 .content(createContentMarkup())

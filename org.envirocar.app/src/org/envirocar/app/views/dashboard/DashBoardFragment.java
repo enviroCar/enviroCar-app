@@ -105,11 +105,11 @@ import javax.inject.Inject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import rx.Scheduler;
-import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
-import rx.subscriptions.CompositeSubscription;
+import io.reactivex.Scheduler;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.observers.DisposableObserver;
+import io.reactivex.schedulers.Schedulers;
 
 import static android.view.View.GONE;
 
@@ -244,11 +244,11 @@ public class DashBoardFragment extends BaseInjectorFragment {
     protected ViewGroup bannerTransition;
     protected ViewGroup frameTransition;
     protected ViewGroup settingTransition;
-    protected CompositeSubscription subscriptions = new CompositeSubscription();
-    private final Scheduler.Worker mBackgroundWorker = Schedulers
-            .newThread().createWorker();
-    private final Scheduler.Worker mMainThreadWorker = AndroidSchedulers
-            .mainThread().createWorker();
+    protected CompositeDisposable subscriptions = new CompositeDisposable();
+
+    private final Scheduler.Worker mBackgroundWorker = Schedulers.newThread().createWorker();
+    private final Scheduler.Worker mMainThreadWorker = AndroidSchedulers.mainThread().createWorker();
+
     protected Double distance = 0.0;
     protected long timeInMillis = 0;
     protected Boolean localTCount = false, remoteTCount = false;
@@ -479,8 +479,8 @@ public class DashBoardFragment extends BaseInjectorFragment {
         LOG.info("onDestroyView()");
         super.onDestroyView();
 
-        if (!subscriptions.isUnsubscribed()) {
-            subscriptions.unsubscribe();
+        if (!subscriptions.isDisposed()) {
+            subscriptions.dispose();
         }
     }
 
@@ -685,14 +685,14 @@ public class DashBoardFragment extends BaseInjectorFragment {
         subscriptions.add(mDAOProvider.getTrackDAO().getTrackIdsObservable()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Subscriber<List<Track>>() {
+                .subscribeWith(new DisposableObserver<List<Track>>() {
                     @Override
                     public void onStart() {
                         LOG.info("onStart() of getUserCardDetails");
                     }
 
                     @Override
-                    public void onCompleted() {
+                    public void onComplete() {
 
                     }
 

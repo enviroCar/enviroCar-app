@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -24,16 +24,6 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
-import androidx.core.app.ActivityCompat;
-import androidx.fragment.app.Fragment;
-import androidx.core.content.FileProvider;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,13 +31,24 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.FileProvider;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
+
 import org.envirocar.app.BuildConfig;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.DAOProvider;
-import org.envirocar.app.handler.agreement.AgreementManager;
 import org.envirocar.app.handler.TrackDAOHandler;
 import org.envirocar.app.handler.TrackUploadHandler;
 import org.envirocar.app.handler.UserHandler;
+import org.envirocar.app.handler.agreement.AgreementManager;
 import org.envirocar.app.views.utils.DialogUtils;
 import org.envirocar.app.views.utils.ECAnimationUtils;
 import org.envirocar.core.entity.Track;
@@ -66,14 +67,11 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import rx.Observable;
-import rx.Scheduler;
-import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.exceptions.OnErrorThrowable;
-import rx.functions.Action0;
-import rx.functions.Func1;
-import rx.schedulers.Schedulers;
+import io.reactivex.Observable;
+import io.reactivex.Scheduler;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.observers.DisposableObserver;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * @author dewall
@@ -171,7 +169,7 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
     protected void exportTrack(Track track) {
 
         try {
-            if(checkStoragePermissions()){
+            if (checkStoragePermissions()) {
                 // Create an sharing intent.
                 Intent sharingIntent = new Intent(Intent.ACTION_SEND);
                 sharingIntent.setType("application/json");
@@ -186,7 +184,7 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
                 sharingIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 // Wrap the intent with a chooser.
                 startActivity(Intent.createChooser(sharingIntent, "Share via"));
-            }else{
+            } else {
                 requestStoragePermissions();
             }
 
@@ -242,7 +240,6 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
     }
 
 
-
     /**
      * Callback received when a permissions request has been completed.
      */
@@ -250,7 +247,7 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
         LOG.info("onRequestPermissionResult");
-        if(requestCode == REQUEST_STORAGE_PERMISSION_REQUEST_CODE){
+        if (requestCode == REQUEST_STORAGE_PERMISSION_REQUEST_CODE) {
             if (grantResults.length <= 0) {
                 // If user interaction was interrupted, the permission request is cancelled and you
                 // receive empty arrays.
@@ -310,9 +307,7 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
     protected void createDeleteTrackDialog(Track track) {
         // Get the up to date reference of the current track.
         // Create a dialog that deletes on click on the positive button the track.
-        final Track upToDateRef = mEnvirocarDB.getTrack(track.getTrackID())
-                .toBlocking()
-                .first();
+        final Track upToDateRef = mEnvirocarDB.getTrack(track.getTrackID()).blockingFirst();
 
         View contentView = getActivity().getLayoutInflater().inflate(
                 R.layout.fragment_tracklist_delete_track_dialog, null, false);
@@ -339,14 +334,11 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
 
     protected void showText(int imgResource, int textResource, int subtextResource) {
         if (mTrackList.isEmpty()) {
-            mMainThreadWorker.schedule(new Action0() {
-                @Override
-                public void call() {
-                    infoImg.setImageResource(imgResource);
-                    infoText.setText(textResource);
-                    infoSubtext.setText(subtextResource);
-                    ECAnimationUtils.animateShowView(getActivity(), infoView, R.anim.fade_in);
-                }
+            mMainThreadWorker.schedule(() -> {
+                infoImg.setImageResource(imgResource);
+                infoText.setText(textResource);
+                infoSubtext.setText(subtextResource);
+                ECAnimationUtils.animateShowView(getActivity(), infoView, R.anim.fade_in);
             });
         }
     }
@@ -355,20 +347,17 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
         LOG.info("deleteRemoteTrack()");
 
         mEnvirocarDB.getTrack(track.getTrackID())
-                .map(new Func1<Track, Boolean>() {
-                    @Override
-                    public Boolean call(Track upToDateRef) {
-                        if (upToDateRef.isLocalTrack()) {
-                            LOG.info("Track to delete is a local track");
-                            return false;
-                        }
+                .map(upToDateRef -> {
+                    if (upToDateRef.isLocalTrack()) {
+                        LOG.info("Track to delete is a local track");
+                        return false;
+                    }
 
-                        try {
-                            mTrackDAOHandler.deleteRemoteTrack(upToDateRef);
-                            return true;
-                        } catch (Exception e) {
-                            throw OnErrorThrowable.from(e);
-                        }
+                    try {
+                        mTrackDAOHandler.deleteRemoteTrack(upToDateRef);
+                        return true;
+                    } catch (Exception e) {
+                        throw e;
                     }
                 })
                 .subscribeOn(Schedulers.io())
@@ -395,8 +384,8 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
                 .subscribe(getDeleteTrackSubscriber(track));
     }
 
-    protected Subscriber<Boolean> getDeleteTrackSubscriber(final Track track) {
-        return new Subscriber<Boolean>() {
+    protected DisposableObserver<Boolean> getDeleteTrackSubscriber(final Track track) {
+        return new DisposableObserver<Boolean>() {
             @Override
             public void onStart() {
                 LOG.info(String.format("onStart() delete track -> [%s]", track.getName()));
@@ -404,7 +393,7 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
             }
 
             @Override
-            public void onCompleted() {
+            public void onComplete() {
                 LOG.info(String.format("onCompleted() delete track -> [%s]",
                         track.getName()));
             }

@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -54,9 +54,8 @@ import java.util.UUID;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import dagger.Provides;
-import rx.Observable;
-import rx.Subscriber;
+import io.reactivex.Observable;
+
 
 /**
  * The manager for cars.
@@ -118,13 +117,9 @@ public class CarPreferenceHandler {
     }
 
     public Observable<List<Car>> getAllDeserializedCars() {
-        return Observable.create(new Observable.OnSubscribe<List<Car>>() {
-            @Override
-            public void call(Subscriber<? super List<Car>> subscriber) {
-                subscriber.onStart();
-                subscriber.onNext(getDeserialzedCars());
-                subscriber.onCompleted();
-            }
+        return Observable.create(emitter -> {
+            emitter.onNext(getDeserialzedCars());
+            emitter.onComplete();
         });
     }
 
@@ -185,13 +180,15 @@ public class CarPreferenceHandler {
                     if (getCar().getId().equals(oldID))
                         setCar(car);
                     return car;
-                });
+                })
+                .toObservable();
     }
 
     private Observable<Track> updateCarIDsOfTracksObservable(String oldID, Car car) {
         return mEnviroCarDB.getAllTracksByCar(oldID, true)
-                .first()
-                .flatMap(tracks -> Observable.from(tracks))
+                .singleOrError()
+                .toObservable()
+                .flatMap(tracks -> Observable.fromIterable(tracks))
                 .map(track -> {
                     LOG.info("Track has been updated! -> [" + track.toString() + "]");
                     track.setCar(car);
@@ -465,7 +462,7 @@ public class CarPreferenceHandler {
     }
 
     @Produce
-    public NewCarTypeSelectedEvent produceCarTypeSelectedEvent(){
+    public NewCarTypeSelectedEvent produceCarTypeSelectedEvent() {
         return new NewCarTypeSelectedEvent(getCar());
     }
 

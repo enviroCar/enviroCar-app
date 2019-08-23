@@ -34,8 +34,9 @@ import org.envirocar.core.events.recording.RecordingNewMeasurementEvent;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.obd.service.BluetoothServiceState;
 
-import rx.Scheduler;
-import rx.android.schedulers.AndroidSchedulers;
+import io.reactivex.Scheduler;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+
 
 /**
  * @author dewall
@@ -43,9 +44,7 @@ import rx.android.schedulers.AndroidSchedulers;
 public class TrackDetailsProvider {
     private static final Logger LOGGER = Logger.getLogger(TrackDetailsProvider.class);
 
-
-    private final Scheduler.Worker mMainThreadWorker = AndroidSchedulers
-            .mainThread().createWorker();
+    private final Scheduler.Worker mMainThreadWorker = AndroidSchedulers.mainThread().createWorker();
 
     private MapLayer mTrackMapOverlay = new MapLayer();
 

@@ -2,7 +2,6 @@ package org.envirocar.app.views.login;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -28,10 +27,10 @@ import javax.inject.Inject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import rx.Scheduler;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
+import io.reactivex.Scheduler;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * TODO JavaDoc
@@ -60,7 +59,7 @@ public class SigninActivity extends BaseInjectorActivity {
     //
     private final Scheduler.Worker mainThreadWorker = AndroidSchedulers.mainThread().createWorker();
     private final Scheduler.Worker backgroundWorker = Schedulers.newThread().createWorker();
-    private Subscription loginSubscription;
+    private Disposable loginSubscription;
 
     @Override
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
@@ -86,6 +85,7 @@ public class SigninActivity extends BaseInjectorActivity {
 
     @OnClick(R.id.activity_signin_login_button)
     protected void onLoginClicked() {
+        LOG.info("Clicked on the login button");
         View focusView = null;
 
         // Reset errors

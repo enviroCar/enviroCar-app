@@ -36,10 +36,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import rx.Observable;
-import rx.Subscriber;
-import rx.exceptions.OnErrorThrowable;
-import rx.schedulers.Schedulers;
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.schedulers.Schedulers;
+
 
 /**
  * TODO JavaDoc
@@ -72,7 +73,7 @@ public class OBDConnectionHandler {
                     if (bluetoothDevice.fetchUuidsWithSdp())
                         return bluetoothDevice;
                     else
-                        throw OnErrorThrowable.from(new UUIDSanityCheckFailedException());
+                        throw new UUIDSanityCheckFailedException();
                 })
                 .concatMap(bluetoothDevice -> getUUIDList(bluetoothDevice))
                 .subscribeOn(Schedulers.io())
@@ -103,7 +104,8 @@ public class OBDConnectionHandler {
 
         return BroadcastUtils.createBroadcastObservable(context,
                 new IntentFilter(BluetoothDevice.ACTION_UUID))
-                .first()
+                .firstOrError()
+                .toObservable()
                 .map(intent -> {
                     LOG.info("getUUIDList(): map call");
 
@@ -139,15 +141,14 @@ public class OBDConnectionHandler {
 
     private Observable<BluetoothSocketWrapper> createOBDBluetoothObservable(
             BluetoothDevice device, List<UUID> uuids) {
-        return Observable.create(new Observable.OnSubscribe<BluetoothSocketWrapper>() {
-
+        return Observable.create(new ObservableOnSubscribe<BluetoothSocketWrapper>() {
             private BluetoothSocketWrapper socketWrapper;
 
             @Override
-            public void call(Subscriber<? super BluetoothSocketWrapper> subscriber) {
+            public void subscribe(ObservableEmitter<BluetoothSocketWrapper> emitter) throws Exception {
                 for (UUID uuid : uuids) {
                     // Stop if the subscriber is unsubscribed.
-                    if (subscriber.isUnsubscribed())
+                    if (emitter.isDisposed())
                         return;
 
                     try {
@@ -171,15 +172,15 @@ public class OBDConnectionHandler {
 
                     if (socketWrapper != null) {
                         LOG.info("successful connected");
-                        subscriber.onNext(socketWrapper);
+                        emitter.onNext(socketWrapper);
                         socketWrapper = null;
-                        subscriber.onCompleted();
+                        emitter.onComplete();
                         return;
                     }
                 }
 
                 if (socketWrapper == null) {
-                    subscriber.onError(new NoOBDSocketConnectedException());
+                    emitter.onError(new NoOBDSocketConnectedException());
                 }
             }
 

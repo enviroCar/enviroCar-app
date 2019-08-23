@@ -37,7 +37,8 @@ import java.util.Locale;
 
 import javax.inject.Inject;
 
-import rx.Subscription;
+import io.reactivex.disposables.Disposable;
+
 
 /**
  * Handles the text to speech output of the enviroCar app.
@@ -58,7 +59,7 @@ public class SpeechOutput implements LifecycleObserver {
 
     // preference subscription
     private boolean ttsEnabled = false;
-    private Subscription ttsPrefSubscription;
+    private Disposable ttsPrefSubscription;
 
     // gps satellite events
     private GpsSatelliteFix latestFix;
@@ -117,8 +118,8 @@ public class SpeechOutput implements LifecycleObserver {
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     protected void onDestroy() {
         // unsubscribe
-        if (ttsPrefSubscription != null && !ttsPrefSubscription.isUnsubscribed()) {
-            ttsPrefSubscription.unsubscribe();
+        if (ttsPrefSubscription != null && !ttsPrefSubscription.isDisposed()) {
+            ttsPrefSubscription.dispose();
         }
 
         // try to unregister from event bus.

@@ -40,8 +40,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import rx.Observable;
-import rx.Subscriber;
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
+
 
 /**
  * TODO JavaDoc
@@ -59,39 +61,34 @@ public class InterpolationMeasurementProvider extends AbstractMeasurementProvide
      */
     @Override
     public Observable<Measurement> measurements(long samplingRate) {
-        return Observable.create(new Observable.OnSubscribe<Measurement>() {
-            @Override
-            public void call(Subscriber<? super Measurement> subscriber) {
-                LOG.info("measurements(): start collecting data");
-                subscriber.onStart();
+        return Observable.create(emitter -> {
+            LOG.info("measurements(): start collecting data");
+            while (!emitter.isDisposed()) {
+                synchronized (InterpolationMeasurementProvider.this) {
+                    /**
+                     * wait the sampling rate
+                     */
+                    try {
+                        InterpolationMeasurementProvider.this.wait(samplingRate);
+                    } catch (InterruptedException e) {
+                        emitter.onError(e);
+                    }
 
-                while (!subscriber.isUnsubscribed()) {
-                    synchronized (InterpolationMeasurementProvider.this) {
-                        /**
-                         * wait the sampling rate
-                         */
-                        try {
-                            InterpolationMeasurementProvider.this.wait(samplingRate);
-                        } catch (InterruptedException e) {
-                            subscriber.onError(e);
+                    Measurement m = createMeasurement();
+
+                    if (OBDRecordingService.CURRENT_SERVICE_STATE == BluetoothServiceState.SERVICE_STARTED) {
+                        if (m != null && m.getLatitude() != null && m.getLongitude() != null && m.hasProperty(Measurement.PropertyKey.SPEED)) {
+                            emitter.onNext(m);
                         }
-
-                        Measurement m = createMeasurement();
-
-                        if (OBDRecordingService.CURRENT_SERVICE_STATE == BluetoothServiceState.SERVICE_STARTED) {
-                            if (m != null && m.getLatitude() != null && m.getLongitude() != null && m.hasProperty(Measurement.PropertyKey.SPEED)) {
-                                subscriber.onNext(m);
-                            }
-                        } else if (GPSOnlyRecordingService.CURRENT_SERVICE_STATE == BluetoothServiceState.SERVICE_STARTED) {
-                            if (m != null && m.getLatitude() != null && m.getLongitude() != null && GPSOnlyRecordingService.drivingDetected) {
-                                subscriber.onNext(m);
-                            }
+                    } else if (GPSOnlyRecordingService.CURRENT_SERVICE_STATE == BluetoothServiceState.SERVICE_STARTED) {
+                        if (m != null && m.getLatitude() != null && m.getLongitude() != null && GPSOnlyRecordingService.drivingDetected) {
+                            emitter.onNext(m);
                         }
                     }
                 }
-                LOG.info("measurements(): finished the collection of data.");
-                subscriber.onCompleted();
             }
+            LOG.info("measurements(): finished the collection of data.");
+            emitter.onComplete();
         });
     }
 

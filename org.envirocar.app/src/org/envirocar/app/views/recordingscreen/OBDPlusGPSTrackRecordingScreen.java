@@ -61,8 +61,8 @@ import javax.inject.Inject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import rx.Scheduler;
-import rx.android.schedulers.AndroidSchedulers;
+import io.reactivex.Scheduler;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 
 public class OBDPlusGPSTrackRecordingScreen extends BaseInjectorActivity {
     private static final Logger LOGGER = Logger.getLogger(OBDPlusGPSTrackRecordingScreen.class);

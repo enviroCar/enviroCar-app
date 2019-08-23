@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -20,7 +20,6 @@ package org.envirocar.app.handler;
 
 import android.content.Context;
 
-import org.envirocar.core.UserManager;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.exception.DataRetrievalFailureException;
 import org.envirocar.core.exception.DataUpdateFailureException;
@@ -39,10 +38,8 @@ import java.util.ArrayList;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import rx.Observable;
-import rx.Subscriber;
-import rx.exceptions.OnErrorThrowable;
-import rx.schedulers.Schedulers;
+import io.reactivex.Observable;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * TODO JavaDoc
@@ -79,8 +76,7 @@ public class TrackDAOHandler {
         return deleteLocalTrack(
                 enviroCarDB.getTrack(trackID)
                         .subscribeOn(Schedulers.io())
-                        .toBlocking()
-                        .first());
+                        .blockingFirst());
     }
 
     /**
@@ -140,12 +136,11 @@ public class TrackDAOHandler {
         LOGGER.info("deleteAllRemoteTracksLocally()");
         enviroCarDB.deleteAllRemoteTracks()
                 .subscribeOn(Schedulers.io())
-                .toBlocking()
-                .first();
+                .blockingFirst();
         return true;
     }
 
-    public Observable<Integer> getLocalTrackCount(){
+    public Observable<Integer> getLocalTrackCount() {
         return enviroCarDB.getAllLocalTracks(true)
                 .map(tracks -> tracks.size());
     }
@@ -169,19 +164,12 @@ public class TrackDAOHandler {
     }
 
     public Observable<Track> fetchRemoteTrackObservable(Track remoteTrack) {
-        return Observable.create(new Observable.OnSubscribe<Track>() {
-            @Override
-            public void call(Subscriber<? super Track> subscriber) {
-                try {
-                    subscriber.onNext(fetchRemoteTrack(remoteTrack));
-                    subscriber.onCompleted();
-                } catch (NotConnectedException e) {
-                    throw OnErrorThrowable.from(e);
-                } catch (DataRetrievalFailureException e) {
-                    throw OnErrorThrowable.from(e);
-                } catch (UnauthorizedException e) {
-                    throw OnErrorThrowable.from(e);
-                }
+        return Observable.create(emitter -> {
+            try {
+                emitter.onNext(fetchRemoteTrack(remoteTrack));
+                emitter.onComplete();
+            } catch (NotConnectedException | DataRetrievalFailureException | UnauthorizedException e) {
+                emitter.onError(e);
             }
         });
     }

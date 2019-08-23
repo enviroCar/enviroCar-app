@@ -26,7 +26,7 @@ import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.view.View;
 
-import com.f2prateek.rx.preferences.RxSharedPreferences;
+import com.f2prateek.rx.preferences2.RxSharedPreferences;
 import com.squareup.otto.Bus;
 
 import org.envirocar.app.R;

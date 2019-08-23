@@ -22,13 +22,14 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
-import com.f2prateek.rx.preferences.RxSharedPreferences;
+import com.f2prateek.rx.preferences2.RxSharedPreferences;
 import com.google.common.base.Preconditions;
 
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.utils.CarUtils;
 
-import rx.Observable;
+
+import io.reactivex.Observable;
 
 import static org.envirocar.app.notifications.NotificationHandler.context;
 

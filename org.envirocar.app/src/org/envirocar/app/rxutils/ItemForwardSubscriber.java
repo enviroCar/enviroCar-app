@@ -15,26 +15,34 @@
  *
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
- */
+ *//*
+
 package org.envirocar.app.rxutils;
 
-import rx.Subscriber;
 
+import org.reactivestreams.Subscriber;
+
+import io.reactivex.ObservableEmitter;
+
+*/
 /**
  * @author dewall
- */
-public class ItemForwardSubscriber<T> extends Subscriber<T> {
-    public static <T> ItemForwardSubscriber<T> create(Subscriber<T> subscriber) {
+ *//*
+
+public class ItemForwardSubscriber<T> implements ObservableEmitter<T> {
+    public static <T> ItemForwardSubscriber<T> create(ObservableEmitter<T> subscriber) {
         return new ItemForwardSubscriber<>(subscriber);
     }
 
     protected final Subscriber<T> subscriber;
 
-    /**
+    */
+/**
      * Constructor
      *
      * @param subscriber
-     */
+     *//*
+
     protected ItemForwardSubscriber(Subscriber<T> subscriber) {
         this.subscriber = subscriber;
     }
@@ -59,3 +67,4 @@ public class ItemForwardSubscriber<T> extends Subscriber<T> {
         subscriber.onNext(t);
     }
 }
+*/

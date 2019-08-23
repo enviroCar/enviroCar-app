@@ -50,11 +50,10 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import rx.Subscriber;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action0;
-import rx.schedulers.Schedulers;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.observers.DisposableObserver;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * TODO JavaDoc
@@ -97,7 +96,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
     private OBDDeviceListAdapter mNewDevicesArrayAdapter;
     private OBDDeviceListAdapter mPairedDevicesAdapter;
 
-    private Subscription mBTDiscoverySubscription;
+    private Disposable mBTDiscoverySubscription;
 
     @Nullable
     @Override
@@ -128,8 +127,8 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
 
     @Override
     public void onDestroy() {
-        if (mBTDiscoverySubscription != null && !mBTDiscoverySubscription.isUnsubscribed()) {
-            mBTDiscoverySubscription.unsubscribe();
+        if (mBTDiscoverySubscription != null && !mBTDiscoverySubscription.isDisposed()) {
+            mBTDiscoverySubscription.dispose();
         }
 
         super.onDestroy();
@@ -182,72 +181,68 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
         mBTDiscoverySubscription = mBluetoothHandler.startBluetoothDiscoveryOnlyUnpaired()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnUnsubscribe(new Action0() {
-                    @Override
-                    public void call() {
-                        LOGGER.info("Canceling bluetooth device discovery");
-                        mBluetoothHandler.stopBluetoothDeviceDiscovery();
-                    }
+                .doOnDispose(() -> {
+                    LOGGER.info("Canceling bluetooth device discovery");
+                    mBluetoothHandler.stopBluetoothDeviceDiscovery();
                 })
-                .subscribe(
-                        new Subscriber<BluetoothDevice>() {
-                            @Override
-                            public void onStart() {
-                                LOGGER.info("Blutooth discovery started.");
+                .subscribeWith(new DisposableObserver<BluetoothDevice>() {
 
-                                // Show the progressbar
-                                mProgressBar.setVisibility(View.VISIBLE);
+                    @Override
+                    public void onStart() {
+                        LOGGER.info("Blutooth discovery started.");
 
-                                // Set info view to "searching...".
-                                mNewDevicesInfoTextView.setText(R.string
-                                        .bluetooth_pairing_preference_info_searching_devices);
-                                showSnackbar(getString(R.string.obd_selection_discovery_started));
-                            }
+                        // Show the progressbar
+                        mProgressBar.setVisibility(View.VISIBLE);
 
-                            @Override
-                            public void onCompleted() {
-                                LOGGER.info("Bluetooth discovery finished.");
+                        // Set info view to "searching...".
+                        mNewDevicesInfoTextView.setText(R.string
+                                .bluetooth_pairing_preference_info_searching_devices);
+                        showSnackbar(getString(R.string.obd_selection_discovery_started));
+                    }
 
-                                // Dismiss the progressbar.
-                                mProgressBar.setVisibility(View.GONE);
+                    @Override
+                    public void onComplete() {
+                        LOGGER.info("Bluetooth discovery finished.");
 
-                                // If no devices found, set the corresponding textview to visibile.
-                                if (mNewDevicesArrayAdapter.isEmpty()) {
-                                    mNewDevicesInfoTextView.setText(R.string
-                                            .select_bluetooth_preference_info_no_device_found);
-                                } else if (mNewDevicesArrayAdapter.getCount() == 1) {
-                                    mNewDevicesInfoTextView.setText(R.string
-                                            .bluetooth_pairing_preference_info_device_found);
-                                } else {
-                                    String string = getString(R.string
-                                            .bluetooth_pairing_preference_info_devices_found);
-                                    mNewDevicesInfoTextView.setText(String.format(string,
-                                            Integer.toString(mNewDevicesArrayAdapter.getCount())));
-                                }
+                        // Dismiss the progressbar.
+                        mProgressBar.setVisibility(View.GONE);
 
-                                showSnackbar("Discovery Finished!");
-                            }
-
-                            @Override
-                            public void onError(Throwable e) {
-                                LOGGER.error("Error while discovering bluetooth devices", e);
-                            }
-
-                            @Override
-                            public void onNext(BluetoothDevice device) {
-                                LOGGER.info(String.format(
-                                        "Bluetooth device detected: [name=%s, address=%s]",
-                                        device.getName(), device.getAddress()));
-
-                                // if the discovered device is not already part of the list, then
-                                // add it to the list and add an entry to the array adapter.
-                                if (!mPairedDevicesAdapter.contains(device) &&
-                                        !mNewDevicesArrayAdapter.contains(device)) {
-                                    mNewDevicesArrayAdapter.add(device);
-                                }
-                            }
+                        // If no devices found, set the corresponding textview to visibile.
+                        if (mNewDevicesArrayAdapter.isEmpty()) {
+                            mNewDevicesInfoTextView.setText(R.string
+                                    .select_bluetooth_preference_info_no_device_found);
+                        } else if (mNewDevicesArrayAdapter.getCount() == 1) {
+                            mNewDevicesInfoTextView.setText(R.string
+                                    .bluetooth_pairing_preference_info_device_found);
+                        } else {
+                            String string = getString(R.string
+                                    .bluetooth_pairing_preference_info_devices_found);
+                            mNewDevicesInfoTextView.setText(String.format(string,
+                                    Integer.toString(mNewDevicesArrayAdapter.getCount())));
                         }
-                );
+
+                        showSnackbar("Discovery Finished!");
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        LOGGER.error("Error while discovering bluetooth devices", e);
+                    }
+
+                    @Override
+                    public void onNext(BluetoothDevice device) {
+                        LOGGER.info(String.format(
+                                "Bluetooth device detected: [name=%s, address=%s]",
+                                device.getName(), device.getAddress()));
+
+                        // if the discovered device is not already part of the list, then
+                        // add it to the list and add an entry to the array adapter.
+                        if (!mPairedDevicesAdapter.contains(device) &&
+                                !mNewDevicesArrayAdapter.contains(device)) {
+                            mNewDevicesArrayAdapter.add(device);
+                        }
+                    }
+                });
     }
 
     private void setupListViews() {

@@ -42,10 +42,10 @@ import javax.inject.Inject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import rx.Scheduler;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
+import io.reactivex.Scheduler;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * @author dewall
@@ -77,7 +77,7 @@ public class SignupActivity extends BaseInjectorActivity {
 
     private final Scheduler.Worker mainThreadWorker = AndroidSchedulers.mainThread().createWorker();
     private final Scheduler.Worker backgroundWorker = Schedulers.newThread().createWorker();
-    private Subscription registerSubscription;
+    private Disposable registerSubscription;
 
     @Override
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
@@ -112,7 +112,7 @@ public class SignupActivity extends BaseInjectorActivity {
         this.touCheckbox.setError(null);
 
         // We do not want to have dublicate registration processes.
-        if (this.registerSubscription != null && !this.registerSubscription.isUnsubscribed()) {
+        if (this.registerSubscription != null && !this.registerSubscription.isDisposed()) {
             return;
         }
 

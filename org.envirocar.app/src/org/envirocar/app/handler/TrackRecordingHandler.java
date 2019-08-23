@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -24,9 +24,9 @@ import android.content.Intent;
 
 import com.squareup.otto.Bus;
 
+import org.envirocar.app.R;
 import org.envirocar.app.handler.agreement.AgreementManager;
 import org.envirocar.app.main.BaseApplication;
-import org.envirocar.app.R;
 import org.envirocar.app.services.recording.GPSOnlyRecordingService;
 import org.envirocar.app.services.recording.OBDRecordingService;
 import org.envirocar.core.entity.Car;
@@ -50,13 +50,12 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import rx.Observable;
-import rx.Subscriber;
-import rx.Subscription;
-import rx.functions.Action0;
-import rx.functions.Func1;
-import rx.schedulers.Schedulers;
-import rx.subjects.PublishSubject;
+import io.reactivex.Observable;
+import io.reactivex.functions.Function;
+import io.reactivex.observers.DisposableObserver;
+import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subjects.PublishSubject;
+
 
 /**
  * TODO JavaDoc
@@ -102,13 +101,13 @@ public class TrackRecordingHandler {
         BaseApplication.get(context).getBaseApplicationComponent().inject(this);
     }
 
-    public Subscription startNewTrack(PublishSubject<Measurement> publishSubject) {
+    public DisposableObserver<Track> startNewTrack(PublishSubject<Measurement> publishSubject) {
         return getActiveTrackReference(true)
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
-                .subscribe(new Subscriber<Track>() {
+                .subscribeWith(new DisposableObserver<Track>() {
                     @Override
-                    public void onCompleted() {
+                    public void onComplete() {
                         LOGGER.info("onCompleted()");
                     }
 
@@ -119,22 +118,13 @@ public class TrackRecordingHandler {
 
                     @Override
                     public void onNext(Track track) {
-                        add(publishSubject.doOnUnsubscribe(new Action0() {
-                            @Override
-                            public void call() {
-                                LOGGER.info("doOnUnsubscribe(): finish current track.");
-                                finishCurrentTrack();
-                            }
-                        }).subscribe(new Subscriber
-                                <Measurement>() {
-                            @Override
-                            public void onStart() {
-                                super.onStart();
-                                LOGGER.info("Subscribed on Measurement publisher");
-                            }
+                        publishSubject.doOnDispose(() -> {
+                            LOGGER.info("doOnUnsubscribe(): finish current track.");
+                            finishCurrentTrack();
+                        }).subscribe(new DisposableObserver<Measurement>() {
 
                             @Override
-                            public void onCompleted() {
+                            public void onComplete() {
                                 LOGGER.info("NewMeasurementSubject onCompleted()");
                                 currentTrack = track;
                                 finishCurrentTrack();
@@ -150,7 +140,7 @@ public class TrackRecordingHandler {
                             @Override
                             public void onNext(Measurement measurement) {
                                 LOGGER.info("onNextMeasurement()");
-                                if (isUnsubscribed())
+                                if (isDisposed())
                                     return;
                                 LOGGER.info("Insert new measurement ");
 
@@ -165,7 +155,7 @@ public class TrackRecordingHandler {
                                     finishCurrentTrack();
                                 }
                             }
-                        }));
+                        });
                     }
                 });
     }
@@ -187,7 +177,7 @@ public class TrackRecordingHandler {
                 .flatMap(track -> track == null ?
                         mEnvirocarDB.getActiveTrackObservable(false) : Observable.just(track))
                 .flatMap(validateTrackRef(createNew))
-                        // Optimize it....
+                // Optimize it....
                 .map(track -> {
                     currentTrack = track;
                     return track;
@@ -203,63 +193,57 @@ public class TrackRecordingHandler {
      * @param createNew should create a new measurement when it is not matching the requirements.
      * @return a function that validates the requirements.
      */
-    private Func1<Track, Observable<Track>> validateTrackRef(boolean createNew) {
-        return new Func1<Track, Observable<Track>>() {
-            @Override
-            public Observable<Track> call(Track track) {
-                if (track != null && track.getTrackStatus() == Track.TrackStatus.FINISHED) {
-                    try {
-                        // Check whether the last unfinished track reference is too old to be
-                        // considered.
-                        if ((System.currentTimeMillis() - track.getEndTime() <
-                                DEFAULT_MAX_TIME_BETWEEN_MEASUREMENTS / 10))
-                            return Observable.just(track);
+    private Function<Track, Observable<Track>> validateTrackRef(boolean createNew) {
+        return track -> {
+            if (track != null && track.getTrackStatus() == Track.TrackStatus.FINISHED) {
+                try {
+                    // Check whether the last unfinished track reference is too old to be
+                    // considered.
+                    if ((System.currentTimeMillis() - track.getEndTime() <
+                            DEFAULT_MAX_TIME_BETWEEN_MEASUREMENTS / 10))
+                        return Observable.just(track);
 
-                        // TODO: Spatial Filtering...
+                    // TODO: Spatial Filtering...
 
-                        // trackreference is too old. Set it to finished.
-                        track.setTrackStatus(Track.TrackStatus.FINISHED);
-                        mEnvirocarDB.updateTrack(track);
-                        track = null;
-                    } catch (NoMeasurementsException e) {
-                        LOGGER.info("Last unfinished track ref does not contain any measurements." +
-                                " Delete the track");
+                    // trackreference is too old. Set it to finished.
+                    track.setTrackStatus(Track.TrackStatus.FINISHED);
+                    mEnvirocarDB.updateTrack(track);
+                    track = null;
+                } catch (NoMeasurementsException e) {
+                    LOGGER.info("Last unfinished track ref does not contain any measurements." +
+                            " Delete the track");
 
-                        // No Measurements in the last track and it cannot be considered as
-                        // active anymore. Therefore, delete the database entry.
-                        trackDAOHandler.deleteLocalTrack(track);
-                    }
+                    // No Measurements in the last track and it cannot be considered as
+                    // active anymore. Therefore, delete the database entry.
+                    trackDAOHandler.deleteLocalTrack(track);
                 }
+            }
 
 
-                if (track != null) {
-                    return Observable.just(track);
-                } else {
-                    // if there is no current reference cached or in the database, then create a new
-                    // one and persist it.
-                    return createNew ? createNewDatabaseTrackObservable() : Observable.just(null);
-                }
+            if (track != null) {
+                return Observable.just(track);
+            } else {
+                // if there is no current reference cached or in the database, then create a new
+                // one and persist it.
+                return createNew ? createNewDatabaseTrackObservable() : Observable.just(null);
             }
         };
     }
 
     private Observable<Track> createNewDatabaseTrackObservable() {
-        return Observable.create(new Observable.OnSubscribe<Track>() {
-            @Override
-            public void call(Subscriber<? super Track> subscriber) {
-                String date = format.format(new Date());
-                Car car = carHander.getCar();
+        return Observable.create(emitter -> {
+            String date = format.format(new Date());
+            Car car = carHander.getCar();
 
-                Track track = new TrackImpl();
-                track.setCar(car);
-                track.setName("Track " + date);
-                track.setDescription(String.format(
-                        mContext.getString(R.string.default_track_description), car
-                                != null ? car.getModel() : "null"));
+            Track track = new TrackImpl();
+            track.setCar(car);
+            track.setName("Track " + date);
+            track.setDescription(String.format(
+                    mContext.getString(R.string.default_track_description), car
+                            != null ? car.getModel() : "null"));
 
-                subscriber.onNext(track);
-            }
-        }).flatMap(track -> mEnvirocarDB.insertTrackObservable(track));
+            emitter.onNext(track);
+        }).flatMap(track -> mEnvirocarDB.insertTrackObservable((Track) track));
     }
 
     /**
@@ -270,8 +254,7 @@ public class TrackRecordingHandler {
         LOGGER.info("finishCurrentTrack()");
         finishCurrentTrackObservable()
                 .doOnError(throwable -> LOGGER.warn(throwable.getMessage(), throwable))
-                .toBlocking()
-                .first();
+                .blockingFirst();
     }
 
     /**
@@ -308,23 +291,22 @@ public class TrackRecordingHandler {
                 });
     }
 
-    public void finishTrackAutomatic(){
+    public void finishTrackAutomatic() {
         deleteMeasurementsAutomatic()
                 .doOnError(throwable -> LOGGER.warn(throwable.getMessage(), throwable))
-                .toBlocking()
-                .first();
+                .blockingFirst();
 
         finishCurrentTrack();
     }
 
-    private Observable<Track> deleteMeasurementsAutomatic(){
+    private Observable<Track> deleteMeasurementsAutomatic() {
         LOGGER.info("deleteMeasurementsAutomatic()");
         return getActiveTrackReference(false)
                 .flatMap(track -> {
                     if (track == null)
                         return Observable.just(null);
-                    long trackTrimDuration = PreferencesHandler.getTrackTrimDuration(mContext)*1000;
-                    mEnvirocarDB.automaticDeleteMeasurements(System.currentTimeMillis() - trackTrimDuration , track.getTrackID());
+                    long trackTrimDuration = PreferencesHandler.getTrackTrimDuration(mContext) * 1000;
+                    mEnvirocarDB.automaticDeleteMeasurements(System.currentTimeMillis() - trackTrimDuration, track.getTrackID());
                     return mEnvirocarDB.updateTrackObservable(track);
                 });
 
