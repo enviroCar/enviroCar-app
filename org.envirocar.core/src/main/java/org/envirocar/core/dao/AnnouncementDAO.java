@@ -26,7 +26,8 @@ import org.envirocar.core.exception.NotConnectedException;
 import java.io.IOException;
 import java.util.List;
 
-import rx.Observable;
+import io.reactivex.Observable;
+
 
 /**
  * TODO JavaDoc

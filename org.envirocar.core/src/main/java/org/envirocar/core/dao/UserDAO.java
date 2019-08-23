@@ -26,7 +26,7 @@ import org.envirocar.core.exception.NotConnectedException;
 import org.envirocar.core.exception.ResourceConflictException;
 import org.envirocar.core.exception.UnauthorizedException;
 
-import rx.Observable;
+import io.reactivex.Observable;
 
 /**
  * TODO JavaDoc

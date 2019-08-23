@@ -23,7 +23,8 @@ import org.envirocar.core.entity.UserStatistics;
 import org.envirocar.core.exception.DataRetrievalFailureException;
 import org.envirocar.core.exception.UnauthorizedException;
 
-import rx.Observable;
+import io.reactivex.Observable;
+
 
 /**
  * TODO JavaDoc
