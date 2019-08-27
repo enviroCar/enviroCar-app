@@ -27,6 +27,7 @@ import org.envirocar.obd.adapter.AposW3Adapter;
 import org.envirocar.obd.adapter.CarTrendAdapter;
 import org.envirocar.obd.adapter.ELM327Adapter;
 import org.envirocar.obd.adapter.OBDAdapter;
+import org.envirocar.obd.adapter.OBDLinkAdapter;
 import org.envirocar.obd.adapter.async.DriveDeckSportAdapter;
 import org.envirocar.obd.bluetooth.BluetoothSocketWrapper;
 import org.envirocar.obd.commands.PID;
@@ -49,6 +50,7 @@ import java.util.concurrent.TimeUnit;
 import io.reactivex.Observer;
 import io.reactivex.Scheduler;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 
 
@@ -64,8 +66,8 @@ public class OBDController {
     private static final Logger LOG = Logger.getLogger(OBDController.class);
     public static final long MAX_NODATA_TIME = 10000;
 
-    private Subscription initSubscription;
-    private Subscription dataSubscription;
+    private Disposable initSubscription;
+    private Disposable dataSubscription;
 
     private Queue<OBDAdapter> adapterCandidates = new ArrayDeque<>();
     private OBDAdapter obdAdapter;
@@ -121,6 +123,7 @@ public class OBDController {
     private void setupAdapterCandidates() {
         adapterCandidates.clear();
         adapterCandidates.offer(new ELM327Adapter());
+        adapterCandidates.offer(new OBDLinkAdapter());
         adapterCandidates.offer(new CarTrendAdapter());
         adapterCandidates.offer(new AposW3Adapter());
         adapterCandidates.offer(new DriveDeckSportAdapter());
@@ -172,15 +175,15 @@ public class OBDController {
      */
     private void startInitialization(boolean alreadyTried) {
         // start the observable and subscribe to it
-        this.obdAdapter.initialize(this.inputStream, this.outputStream)
+        this.initSubscription = this.obdAdapter.initialize(this.inputStream, this.outputStream)
                 .subscribeOn(Schedulers.io())
                 .observeOn(OBDSchedulers.scheduler())
                 .timeout(this.obdAdapter.getExpectedInitPeriod(), TimeUnit.MILLISECONDS)
-                .subscribe(getInitSubscriber(alreadyTried));
+                .subscribeWith(getInitSubscriber(alreadyTried));
     }
 
-    private Observer<Boolean> getInitSubscriber(boolean alreadyTried) {
-        return new Observer<Boolean>() {
+    private DisposableObserver<Boolean> getInitSubscriber(boolean alreadyTried) {
+        return new DisposableObserver<Boolean>() {
 
             @Override
             public void onError(Throwable e) {
@@ -225,12 +228,6 @@ public class OBDController {
                 LOG.info("Connecting has been initialized!");
             }
 
-
-            @Override
-            public void onSubscribe(Disposable d) {
-
-            }
-
             @Override
             public void onNext(Boolean b) {
                 LOG.info("Connection verified - starting data collection");
@@ -265,16 +262,16 @@ public class OBDController {
         this.connectionListener.onConnectionVerified();
 
         // start the observable with a timeout
-        this.obdAdapter.observe()
+        this.dataSubscription = this.obdAdapter.observe()
                 .subscribeOn(Schedulers.io())
                 .observeOn(OBDSchedulers.scheduler())
                 .timeout(MAX_NODATA_TIME, TimeUnit.MILLISECONDS)
-                .subscribe(getCollectingDataSubscriber());
+                .subscribeWith(getCollectingDataSubscriber());
 
     }
 
-    private Observer<DataResponse> getCollectingDataSubscriber() {
-        return new Observer<DataResponse>() {
+    private DisposableObserver<DataResponse> getCollectingDataSubscriber() {
+        return new DisposableObserver<DataResponse>() {
 
             @Override
             public void onError(Throwable e) {
@@ -295,11 +292,6 @@ public class OBDController {
                 LOG.info("onCompleted(): data collection");
                 //TODO implement equivalent notification method:
                 //dataListener.shutdown();
-            }
-
-            @Override
-            public void onSubscribe(Disposable d) {
-
             }
 
             @Override
@@ -393,11 +385,11 @@ public class OBDController {
          */
         userRequestedStop = true;
 
-        if (this.initSubscription != null) {
-            this.initSubscription.cancel();
+        if (this.initSubscription != null && !this.initSubscription.isDisposed()) {
+            this.initSubscription.dispose();
         }
-        if (this.dataSubscription != null) {
-            this.dataSubscription.cancel();
+        if (this.dataSubscription != null && !this.dataSubscription.isDisposed()) {
+            this.dataSubscription.dispose();
         }
     }
 }
