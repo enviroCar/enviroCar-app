@@ -21,34 +21,20 @@ package org.envirocar.app.handler;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.graphics.Bitmap;
 
 import com.squareup.otto.Bus;
-import com.squareup.otto.Produce;
 
-import org.envirocar.app.R;
-import org.envirocar.app.exception.NotLoggedInException;
 import org.envirocar.core.UserManager;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.entity.UserImpl;
 import org.envirocar.core.events.NewUserSettingsEvent;
-import org.envirocar.core.exception.MailNotConfirmedException;
-import org.envirocar.core.exception.UnauthorizedException;
 import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.remote.gravatar.GravatarUtils;
-
-import java.io.IOException;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.reactivex.Observable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Function;
-import io.reactivex.schedulers.Schedulers;
-
-import static android.content.Context.MODE_PRIVATE;
+import io.reactivex.Completable;
 
 /**
  * TODO JavaDoc
@@ -56,25 +42,21 @@ import static android.content.Context.MODE_PRIVATE;
  * @author dewall
  */
 @Singleton
-public class UserHandler implements UserManager {
+public class UserHandler extends AbstractCachable<User> implements UserManager {
     private static final Logger LOG = Logger.getLogger(UserHandler.class);
 
-    private static final String USERNAME = "username";
-    private static final String FIRSTNAME = "firstName";
-    private static final String LASTNAME = "lastName";
-    private static final String TOKEN = "token";
-    private static final String EMAIL = "email";
-    private static final String ACCEPTED_TERMS_OF_USE_VERSION = "acceptedTermsOfUseVersion";
-    private static final String USER_PREFERENCES = "userPrefs";
+    private static final String KEY_USERNAME = "username";
+    private static final String KEY_FIRSTNAME = "firstName";
+    private static final String KEY_LASTNAME = "lastName";
+    private static final String KEY_TOKEN = "token";
+    private static final String KEY_EMAIL = "email";
+    private static final String KEY_ACCEPTED_TERMS_OF_USE_VERSION = "acceptedTermsOfUseVersion";
+    private static final String KEY_USER_PREFERENCES = "userPrefs";
 
 
-    private final Context context;
     private final Bus bus;
     private final DAOProvider daoProvider;
     private final TrackDAOHandler trackDAOHandler;
-
-    private User mUser;
-    private Bitmap mGravatarBitmap;
 
     /**
      * Constructor.
@@ -83,7 +65,7 @@ public class UserHandler implements UserManager {
      */
     @Inject
     public UserHandler(@InjectApplicationScope Context context, Bus bus, DAOProvider daoProvider, TrackDAOHandler trackDAOHandler) {
-        this.context = context;
+        super(context, KEY_USER_PREFERENCES);
         this.bus = bus;
         this.daoProvider = daoProvider;
         this.trackDAOHandler = trackDAOHandler;
@@ -91,49 +73,32 @@ public class UserHandler implements UserManager {
         this.bus.register(this);
     }
 
-    /**
-     * Get the user
-     *
-     * @return user
-     */
     @Override
-    public User getUser() {
-        if (mUser == null) {
-            SharedPreferences prefs = getUserPreferences();
-            String username = prefs.getString(USERNAME, null);
-            String firstName = prefs.getString(FIRSTNAME, null);
-            String lastName = prefs.getString(LASTNAME, null);
-            String token = prefs.getString(TOKEN, null);
-            String mail = prefs.getString(EMAIL, null);
-            mUser = new UserImpl(username, token, mail, firstName, lastName);
-            mUser.setTermsOfUseVersion(prefs.getString(ACCEPTED_TERMS_OF_USE_VERSION, null));
-            mUser.setFirstName(firstName);
-            mUser.setLastName(lastName);
-        }
-        return mUser;
+    protected User readFromCache(SharedPreferences prefs) {
+        if (!prefs.contains(KEY_USERNAME))
+            return null;
+
+        String username = prefs.getString(KEY_USERNAME, null);
+        String firstName = prefs.getString(KEY_FIRSTNAME, null);
+        String lastName = prefs.getString(KEY_LASTNAME, null);
+        String token = prefs.getString(KEY_TOKEN, null);
+        String mail = prefs.getString(KEY_EMAIL, null);
+
+        User user = new UserImpl(username, token, mail, firstName, lastName);
+        user.setTermsOfUseVersion(prefs.getString(KEY_ACCEPTED_TERMS_OF_USE_VERSION, null));
+        return user;
     }
 
-    /**
-     * Set the user in the private user preferences
-     *
-     * @param user The user you want to set
-     */
     @Override
-    public void setUser(User user) {
-        // First set the user in the preferences
-        Editor e = getUserPreferences().edit();
-        e.putString(USERNAME, user.getUsername());
-        e.putString(FIRSTNAME, user.getFirstName());
-        e.putString(LASTNAME, user.getLastName());
-        e.putString(TOKEN, user.getToken());
-        e.putString(EMAIL, user.getMail());
-        e.putString(ACCEPTED_TERMS_OF_USE_VERSION, user.getTermsOfUseVersion());
+    protected void writeToCache(User user, SharedPreferences prefs) {
+        Editor e = prefs.edit();
+        e.putString(KEY_USERNAME, user.getUsername());
+        e.putString(KEY_FIRSTNAME, user.getFirstName());
+        e.putString(KEY_LASTNAME, user.getLastName());
+        e.putString(KEY_TOKEN, user.getToken());
+        e.putString(KEY_EMAIL, user.getMail());
+        e.putString(KEY_ACCEPTED_TERMS_OF_USE_VERSION, user.getTermsOfUseVersion());
         e.commit();
-
-        // Set the local user reference to the current user.
-        mUser = user;
-
-        bus.post(new NewUserSettingsEvent(user, true));
     }
 
     /**
@@ -142,156 +107,89 @@ public class UserHandler implements UserManager {
      *
      * @return
      */
-    @Override
     public boolean isLoggedIn() {
-        SharedPreferences prefs = getUserPreferences();
-        return prefs.contains(USERNAME) && prefs.contains(TOKEN);
-    }
-
-    public <T> Function<T, T> getIsLoggedIn() {
-        return t -> {
-            if (isLoggedIn())
-                return t;
-            else
-                throw new NotLoggedInException(context.getString(R.string.trackviews_not_logged_in));
-        };
+        return readFromCache() != null;
     }
 
     /**
-     * Logs out the user.
-     */
-    @Override
-    public void logOut() {
-        logOut(false);
-    }
-
-    public Observable<Boolean> logOutObservable() {
-        return Observable.just(isLoggedIn())
-                .observeOn(Schedulers.io())
-                .subscribeOn(AndroidSchedulers.mainThread())
-                .map(isLoggedIn -> {
-                    if (isLoggedIn) {
-                        logOut();
-                        return true;
-                    }
-                    throw new NotLoggedInException("Unable to log out. User is not logged in.");
-                });
-    }
-
-    private void logOut(boolean withoutEvent) {
-        // Removes all the preferences from the editor.
-        SharedPreferences prefs = getUserPreferences();
-        Editor e = prefs.edit();
-        if (prefs.contains(USERNAME))
-            e.remove(USERNAME);
-        if (prefs.contains(TOKEN))
-            e.remove(TOKEN);
-        if (prefs.contains(FIRSTNAME))
-            e.remove(FIRSTNAME);
-        if (prefs.contains(LASTNAME))
-            e.remove(LASTNAME);
-        if (prefs.contains(EMAIL))
-            e.remove(EMAIL);
-        if (prefs.contains(ACCEPTED_TERMS_OF_USE_VERSION))
-            e.remove(ACCEPTED_TERMS_OF_USE_VERSION);
-        e.commit();
-
-        // Remove the user instance.
-        mUser = null;
-        mGravatarBitmap = null;
-
-        // Delete all local representations of tracks that are already uploaded.
-        trackDAOHandler.deleteAllRemoteTracksLocally();
-
-        // Fire a new event on the event bus holding indicating that no logged in user exist.
-        if (!withoutEvent) {
-            bus.post(new NewUserSettingsEvent(null, false));
-        }
-    }
-
-    /**
-     * Method used for authentication (e.g. at loginscreen to verify user
-     * credentials
-     */
-    public void logIn(String user, String token, LoginCallback callback) {
-        User currentUser = getUser();
-
-        if (currentUser == null || currentUser.getToken() == null) {
-            User candidateUser = new UserImpl(user, token);
-            setUser(candidateUser);
-        }
-
-        try {
-            User result = daoProvider.getUserDAO().getUser(user);
-            result.setToken(token);
-            setUser(result);
-
-            // Successfully logged in. Inform the callback about this.
-            callback.onSuccess(result);
-            return;
-        } catch (UnauthorizedException e) {
-            LOG.warn(e.getMessage(), e);
-
-            logOut(true);
-            if (e instanceof MailNotConfirmedException) {
-                callback.onMailNotConfirmed();
-            } else {
-                // Password is incorrect. Inform the callback about this.
-                callback.onPasswordIncorrect(token);
-            }
-
-
-        } catch (Exception e) {
-            LOG.warn(e.getMessage(), e);
-
-            logOut(true);
-            // Unable to communicate with the server. Inform the callback about this.
-            callback.onUnableToCommunicateServer();
-        }
-    }
-
-
-    public Observable<Bitmap> getGravatarBitmapObservable() {
-        return Observable.just(true)
-                .map(aBoolean -> {
-                    if (isLoggedIn()) {
-                        // If the gravatar bitmap already exist, then return it.
-                        if (mGravatarBitmap != null)
-                            return mGravatarBitmap;
-
-                        // Else try to download the bitmap.
-                        // But first check whether all required credentials are valid.
-                        User user = getUser();
-                        String mail = user.getMail();
-                        if (mail == null || mail.equals("") || mail.isEmpty())
-                            return null;
-
-                        // Try to download the bitmap.
-                        try {
-                            mGravatarBitmap = GravatarUtils.downloadBitmap(user.getMail());
-                            return mGravatarBitmap;
-                        } catch (IOException e) {
-                            LOG.warn("Error while downloading Gravatar bitmap.", e);
-                            e.printStackTrace();
-                        }
-                    }
-
-                    return null;
-                });
-    }
-
-    /**
-     * Get a user object from the shared preferences
+     * Get the user
      *
-     * @return the user that is stored on the device
+     * @return user
      */
-    private SharedPreferences getUserPreferences() {
-        SharedPreferences userPrefs = context.getSharedPreferences(USER_PREFERENCES, MODE_PRIVATE);
-        return userPrefs;
+    public User getUser() {
+        return this.readFromCache();
     }
 
-    @Produce
-    public NewUserSettingsEvent produceNewUserSettingsEvent() {
-        return new NewUserSettingsEvent(getUser(), isLoggedIn());
+    /**
+     * Sets the user
+     *
+     * @param user
+     */
+    public void setUser(User user) {
+        this.writeToCache(user);
+    }
+
+    /**
+     * Handles the login as a completable
+     *
+     * @param user  username
+     * @param token user token
+     * @return
+     */
+    public Completable logIn(String user, String token) {
+        return this.logIn(user, token, true);
+    }
+
+    public Completable logIn(String user, String token, boolean withEvent) {
+        return Completable.create(emitter -> {
+            LOG.info("Trying to login user %s".format(user));
+            User candidateUser = new UserImpl(user, token);
+
+            // hack
+            writeToCache(candidateUser);
+
+            try {
+                User result = daoProvider.getUserDAO().getUser(user);
+                result.setToken(token);
+                writeToCache(result);
+
+                // Successfully logged in.
+                emitter.onComplete();
+                if (withEvent)
+                    bus.post(new NewUserSettingsEvent(result, true));
+            } catch (Exception e) {
+                LOG.warn(e.getMessage(), e);
+                logOut(true);
+                emitter.onError(e);
+            }
+        });
+    }
+
+    /**
+     * Handles the logout procedure
+     *
+     * @return a completable handling the logout
+     */
+    public Completable logOut() {
+        return logOut(true);
+    }
+
+    public Completable logOut(Boolean withEvent) {
+        return Completable.create(emitter -> {
+            LOG.info("Logging out current user.");
+            // Removes all the preferences from the editor.
+            resetCache();
+
+            // Delete all local representations of tracks that are already uploaded.
+            trackDAOHandler.deleteAllRemoteTracksLocally();
+
+            //set complete
+            emitter.onComplete();
+
+            // Fire a new event on the event bus holding indicating that no logged in user exist.
+            if (withEvent) {
+                bus.post(new NewUserSettingsEvent(null, false));
+            }
+        });
     }
 }

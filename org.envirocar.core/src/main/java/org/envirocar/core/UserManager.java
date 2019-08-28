@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -20,48 +20,54 @@ package org.envirocar.core;
 
 import org.envirocar.core.entity.User;
 
+import io.reactivex.Completable;
+
 /**
  * TODO JavaDoc
  *
  * @author dewall
  */
 public interface UserManager {
+
     /**
-     * Callback interface for the login process.
+     * Determines whether the user is logged in. A user is logged in when
+     * the application has a user as a variable.
+     *
+     * @return
      */
-    interface LoginCallback {
-        /**
-         * Called when the specific user has been successfully logged in.
-         *
-         * @param user the valid {@link User} instance that has been logged in.
-         */
-        void onSuccess(User user);
-
-        /**
-         * Called when the password is incorrect.
-         *
-         * @param password the incorrect password string.
-         */
-        void onPasswordIncorrect(String password);
-
-        /**
-         * Called when the Mail has not been confirmed
-         */
-        void onMailNotConfirmed();
-
-        /**
-         * Called when no connection could be established to the server.
-         */
-        void onUnableToCommunicateServer();
-    }
-
     boolean isLoggedIn();
 
-    void logOut();
-
-    void logIn(String user, String token, LoginCallback callback);
-
+    /**
+     * Get the user
+     *
+     * @return user
+     */
     User getUser();
 
+    /**
+     * Sets the user
+     *
+     * @param user
+     */
     void setUser(User user);
+
+    /**
+     * Handles the login as a completable
+     *
+     * @param user  username
+     * @param token user token
+     * @return
+     */
+    Completable logIn(String user, String token);
+
+    Completable logIn(String user, String token, boolean withEvent);
+
+    /**
+     * Handles the logout procedure
+     *
+     * @return a completable handling the logout
+     */
+    Completable logOut();
+
+    Completable logOut(Boolean withEvent);
 }

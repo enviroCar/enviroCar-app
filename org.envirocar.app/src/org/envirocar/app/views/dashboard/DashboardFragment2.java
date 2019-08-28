@@ -1,7 +1,6 @@
 package org.envirocar.app.views.dashboard;
 
 import android.bluetooth.BluetoothDevice;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -63,7 +62,7 @@ import butterknife.OnClick;
 import info.hoang8f.android.segmented.SegmentedGroup;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.observers.DisposableObserver;
+import io.reactivex.observers.DisposableCompletableObserver;
 import io.reactivex.schedulers.Schedulers;
 
 /**
@@ -176,13 +175,13 @@ public class DashboardFragment2 extends BaseInjectorFragment {
                     .positiveText(getString(R.string.menu_logout_envirocar_positive))
                     .negativeText(getString(R.string.menu_logout_envirocar_negative))
                     .content(getString(R.string.menu_logout_envirocar_content))
-                    .onPositive((dialog, which) -> userHandler.logOutObservable().subscribe(onLogoutSubscriber()))
+                    .onPositive((dialog, which) -> userHandler.logOut().subscribe(onLogoutSubscriber()))
                     .show();
         }
     }
 
-    private DisposableObserver<Boolean> onLogoutSubscriber() {
-        return new DisposableObserver<Boolean>() {
+    private DisposableCompletableObserver onLogoutSubscriber() {
+        return new DisposableCompletableObserver() {
             private MaterialDialog dialog = null;
             private User userTemp = null;
 
@@ -196,11 +195,6 @@ public class DashboardFragment2 extends BaseInjectorFragment {
                         .progress(true, 0)
                         .cancelable(false)
                         .show();
-            }
-
-            @Override
-            public void onNext(Boolean aBoolean) {
-                // nothing to do
             }
 
             @Override
@@ -265,7 +259,7 @@ public class DashboardFragment2 extends BaseInjectorFragment {
     @OnClick(R.id.fragment_dashboard_start_track_button)
     protected void onStartTrackButtonClicked() {
         LOG.info("Clicked on Start Track Button");
-        switch (this.modeSegmentedGroup.getCheckedRadioButtonId()){
+        switch (this.modeSegmentedGroup.getCheckedRadioButtonId()) {
             case R.id.fragment_dashboard_obd_mode_button:
                 BluetoothDevice device = bluetoothHandler.getSelectedBluetoothDevice();
 
@@ -350,6 +344,7 @@ public class DashboardFragment2 extends BaseInjectorFragment {
      */
     @Subscribe
     public void onReceiveNewCarTypeSelectedEvent(final NewCarTypeSelectedEvent event) {
+        LOG.info("Received NewCarTypeSelected event. Updating views.");
         // post on decor view to ensure that it gets executed when view has been inflated.
         runAfterInflation(() -> {
             if (event.mCar != null) {
