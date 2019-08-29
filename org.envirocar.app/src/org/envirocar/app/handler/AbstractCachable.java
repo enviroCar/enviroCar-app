@@ -26,7 +26,7 @@ public abstract class AbstractCachable<T> {
      *
      * @return object read from the cache.
      */
-    protected final T readFromCache() throws CacheEmptyException {
+    protected final T readFromCache() {
         return this.readFromCache(getSharedPreferences());
     }
 
@@ -36,7 +36,7 @@ public abstract class AbstractCachable<T> {
      * @param preferences the shared preferences
      * @return
      */
-    protected abstract T readFromCache(SharedPreferences preferences) throws CacheEmptyException;
+    protected abstract T readFromCache(SharedPreferences preferences);
 
     /**
      * Abstract method to write to the cache.
@@ -58,7 +58,7 @@ public abstract class AbstractCachable<T> {
      * Resets the cache.
      */
     protected void resetCache() {
-        this.getSharedPreferences().edit().clear();
+        this.getSharedPreferences().edit().clear().commit();
     }
 
     /**

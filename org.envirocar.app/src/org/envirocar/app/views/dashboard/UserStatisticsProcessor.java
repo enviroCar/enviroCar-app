@@ -88,8 +88,7 @@ public class UserStatisticsProcessor extends AbstractCachable<UserStatisticsProc
     }
 
     @Override
-    protected UserStatisticsHolder readFromCache() {
-        SharedPreferences prefs = getSharedPreferences();
+    protected UserStatisticsHolder readFromCache(SharedPreferences prefs) {
         String username = prefs.getString(PREF_KEY_USERNAME, null);
         int numTracks = prefs.getInt(PREF_KEY_NUMTRACKS, 0);
         double totalDistance = Double.parseDouble(prefs.getString(PREF_KEY_TOTALDISTANCE, "0.0"));
@@ -98,7 +97,7 @@ public class UserStatisticsProcessor extends AbstractCachable<UserStatisticsProc
     }
 
     @Override
-    protected void writeToCache(UserStatisticsHolder s) {
+    protected void writeToCache(UserStatisticsHolder s, SharedPreferences prefs) {
         SharedPreferences.Editor e = getSharedPreferences().edit();
         e.putString(PREF_KEY_USERNAME, s.username);
         e.putInt(PREF_KEY_NUMTRACKS, s.numTracks);

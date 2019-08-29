@@ -155,8 +155,9 @@ public class UserHandler extends AbstractCachable<User> implements UserManager {
 
                 // Successfully logged in.
                 emitter.onComplete();
-                if (withEvent)
+                if (withEvent) {
                     bus.post(new NewUserSettingsEvent(result, true));
+                }
             } catch (Exception e) {
                 LOG.warn(e.getMessage(), e);
                 logOut(true);
