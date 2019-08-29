@@ -83,7 +83,7 @@ public interface EnviroCarDB {
 
     Observable<Track> deleteTrackObservable(Track track);
 
-    Observable<Void> deleteAllRemoteTracks();
+    Observable<List<Track.TrackId>> deleteAllRemoteTracks();
 
     void insertMeasurement(Measurement measurement) throws MeasurementSerializationException;
 

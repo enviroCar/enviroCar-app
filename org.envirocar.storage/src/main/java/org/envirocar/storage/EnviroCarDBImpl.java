@@ -33,6 +33,7 @@ import org.envirocar.core.util.TrackMetadata;
 import org.json.JSONException;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -211,7 +212,7 @@ public class EnviroCarDBImpl implements EnviroCarDB {
     }
 
     @Override
-    public Observable<Void> deleteAllRemoteTracks() {
+    public Observable<List<Track.TrackId>> deleteAllRemoteTracks() {
         return briteDatabase.createQuery(TrackTable.TABLE_TRACK,
                 "SELECT " + TrackTable.KEY_TRACK_ID + ", " + TrackTable.KEY_REMOTE_ID +
                         " FROM " + TrackTable.TABLE_TRACK +
@@ -221,7 +222,7 @@ public class EnviroCarDBImpl implements EnviroCarDB {
                 .map(trackIds -> {
                     for (Track.TrackId trackId : trackIds)
                         deleteTrack(trackId);
-                    return null;
+                    return trackIds;
                 });
     }
 
@@ -374,8 +375,9 @@ public class EnviroCarDBImpl implements EnviroCarDB {
     private Observable<Track> fetchTrackObservable(String sql, boolean lazy) {
         return briteDatabase
                 .createQuery(TrackTable.TABLE_TRACK, sql)
-                .mapToOneOrDefault(TrackTable.MAPPER, null)
+                .mapToOne(TrackTable.MAPPER)
                 .take(1)
+                .timeout(100, TimeUnit.MILLISECONDS)
                 .compose(fetchTrackObservable(lazy));
     }
 

@@ -49,6 +49,9 @@ class TrackTable {
     public static final String KEY_TRACK_ID = "_id";
     public static final String KEY_TRACK_NAME = "name";
     public static final String KEY_TRACK_DESCRIPTION = "descr";
+    public static final String KEY_TRACK_START_TIME = "start_time";
+    public static final String KEY_TRACK_END_TIME = "end_time";
+    public static final String KEY_TRACK_LENGTH = "length";
     public static final String KEY_REMOTE_ID = "remoteId";
     public static final String KEY_TRACK_STATE = "state";
     public static final String KEY_TRACK_CAR_MANUFACTURER = "car_manufacturer";
@@ -60,22 +63,6 @@ class TrackTable {
     public static final String KEY_TRACK_CAR_ID = "carId";
     public static final String KEY_TRACK_METADATA = "trackMetadata";
 
-    public static final String[] ALL_TRACK_KEYS = new String[]{
-            KEY_TRACK_ID,
-            KEY_TRACK_NAME,
-            KEY_TRACK_DESCRIPTION,
-            KEY_REMOTE_ID,
-            KEY_TRACK_STATE,
-            KEY_TRACK_METADATA,
-            KEY_TRACK_CAR_MANUFACTURER,
-            KEY_TRACK_CAR_MODEL,
-            KEY_TRACK_CAR_FUEL_TYPE,
-            KEY_TRACK_CAR_ENGINE_DISPLACEMENT,
-            KEY_TRACK_CAR_YEAR,
-            KEY_TRACK_CAR_VIN,
-            KEY_TRACK_CAR_ID
-    };
-
     protected static final String CREATE =
             "create table " + TABLE_TRACK + " " +
                     "(" + KEY_TRACK_ID + " INTEGER primary key, " +
@@ -84,6 +71,9 @@ class TrackTable {
                     KEY_REMOTE_ID + " BLOB, " +
                     KEY_TRACK_STATE + " BLOB, " +
                     KEY_TRACK_METADATA + " BLOB, " +
+                    KEY_TRACK_LENGTH + " BLOB, " +
+                    KEY_TRACK_START_TIME + " BLOB, " +
+                    KEY_TRACK_END_TIME + " BLOB, " +
                     KEY_TRACK_CAR_MANUFACTURER + " BLOB, " +
                     KEY_TRACK_CAR_MODEL + " BLOB, " +
                     KEY_TRACK_CAR_FUEL_TYPE + " BLOB, " +
@@ -128,13 +118,15 @@ class TrackTable {
             values.put(KEY_REMOTE_ID, track.getRemoteID());
         }
         values.put(KEY_TRACK_STATE, track.getTrackStatus().toString());
+        values.put(KEY_TRACK_START_TIME, track.getStartTime());
+        values.put(KEY_TRACK_END_TIME, track.getEndTime());
+        values.put(KEY_TRACK_LENGTH, track.getLength());
         if (track.getCar() != null) {
             values.put(KEY_TRACK_CAR_MANUFACTURER, track.getCar().getManufacturer());
             values.put(KEY_TRACK_CAR_MODEL, track.getCar().getModel());
             values.put(KEY_TRACK_CAR_FUEL_TYPE, track.getCar().getFuelType().name());
             values.put(KEY_TRACK_CAR_ID, track.getCar().getId());
-            values.put(KEY_TRACK_CAR_ENGINE_DISPLACEMENT, track.getCar()
-                    .getEngineDisplacement());
+            values.put(KEY_TRACK_CAR_ENGINE_DISPLACEMENT, track.getCar().getEngineDisplacement());
             values.put(KEY_TRACK_CAR_YEAR, track.getCar().getConstructionYear());
         }
 
@@ -155,6 +147,9 @@ class TrackTable {
         track.setRemoteID(c.getString(c.getColumnIndex(KEY_REMOTE_ID)));
         track.setName(c.getString(c.getColumnIndex(KEY_TRACK_NAME)));
         track.setDescription(c.getString(c.getColumnIndex(KEY_TRACK_DESCRIPTION)));
+        track.setStartTime(c.getLong(c.getColumnIndex(KEY_TRACK_START_TIME)));
+        track.setEndTime(c.getLong(c.getColumnIndex(KEY_TRACK_END_TIME)));
+        track.setLength(c.getDouble(c.getColumnIndex(KEY_TRACK_LENGTH)));
 
         int statusColumn = c.getColumnIndex(KEY_TRACK_STATE);
         if (statusColumn != -1) {

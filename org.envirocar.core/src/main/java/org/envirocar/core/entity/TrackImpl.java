@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -26,11 +26,8 @@ import org.envirocar.core.trackprocessing.statistics.TrackStatisticsProcessor;
 import org.envirocar.core.trackprocessing.statistics.TrackStatisticsProvider;
 import org.envirocar.core.util.TrackMetadata;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * TODO JavaDoc
@@ -198,10 +195,7 @@ public class TrackImpl implements Track, TrackStatisticsProvider {
     }
 
     @Override
-    public Long getStartTime() throws NoMeasurementsException {
-        if (startTime == null) {
-            setStartTime(getFirstMeasurement().getTime());
-        }
+    public Long getStartTime() {
         return startTime;
     }
 
@@ -211,10 +205,7 @@ public class TrackImpl implements Track, TrackStatisticsProvider {
     }
 
     @Override
-    public Long getEndTime() throws NoMeasurementsException {
-        if (endTime == null) {
-            setEndTime(getLastMeasurement().getTime());
-        }
+    public Long getEndTime() {
         return endTime;
     }
 
@@ -224,17 +215,17 @@ public class TrackImpl implements Track, TrackStatisticsProvider {
     }
 
     @Override
-    public Double getLength(){
+    public Double getLength() {
         return this.length;
     }
 
     @Override
-    public void setLength(Double length){
+    public void setLength(Double length) {
         this.length = length;
     }
 
     @Override
-    public long getDuration() throws NoMeasurementsException {
+    public long getDuration() {
         return getEndTime() - getStartTime();
     }
 
@@ -310,8 +301,8 @@ public class TrackImpl implements Track, TrackStatisticsProvider {
 
     @Override
     public boolean hasProperty(Measurement.PropertyKey propertyKey) {
-        for(Measurement m : measurements){
-            if(m.hasProperty(propertyKey)) {
+        for (Measurement m : measurements) {
+            if (m.hasProperty(propertyKey)) {
                 return true;
             }
         }
@@ -321,8 +312,8 @@ public class TrackImpl implements Track, TrackStatisticsProvider {
     @Override
     public List<Measurement.PropertyKey> getSupportedProperties() {
         List<Measurement.PropertyKey> result = new ArrayList<>();
-        for(Measurement.PropertyKey key : Measurement.PropertyKey.values()){
-            if(hasProperty(key)){
+        for (Measurement.PropertyKey key : Measurement.PropertyKey.values()) {
+            if (hasProperty(key)) {
                 result.add(key);
             }
         }
@@ -341,48 +332,35 @@ public class TrackImpl implements Track, TrackStatisticsProvider {
             if (another.getDownloadState() == DownloadState.REMOTE) {
                 return -1;
             }
-        }
 
-        try {
+
             if (another.getStartTime() == null && another.getEndTime() == null) {
                 /*
                  * we cannot assume any ordering
-				 */
+                 */
                 return 0;
             }
-        } catch (NoMeasurementsException e) {
-            return 0;
-        }
 
-        try {
+
             if (this.getStartTime() == null) {
                 /*
                  * no measurements, this is probably a relatively new track
-				 */
+                 */
                 return -1;
             }
-        } catch (NoMeasurementsException e) {
-            return -1;
-        }
 
-        try {
+
             if (another.getStartTime() == null) {
                 /*
                  * no measurements, that is probably a relatively new track
-				 */
+                 */
                 return 1;
+
+
             }
-        } catch (NoMeasurementsException e) {
-            return 1;
         }
-
-        try {
-            return (this.getStartTime() < another.getStartTime() ? 1 : -1);
-        } catch (NoMeasurementsException e) {
-            return 0;
-        }
+        return (this.getStartTime() < another.getStartTime() ? 1 : -1);
     }
-
 
     @Override
     public boolean equals(Object o) {
@@ -454,7 +432,8 @@ public class TrackImpl implements Track, TrackStatisticsProvider {
     }
 
     @Override
-    public double getLiterPerHundredKm() throws FuelConsumptionException, NoMeasurementsException {
+    public double getLiterPerHundredKm() throws
+            FuelConsumptionException, NoMeasurementsException {
         if (literPerHundredKm == null) {
             literPerHundredKm = STATISTICS_PROCESSOR.getLiterPerHundredKm(
                     getFuelConsumptionPerHour(), getDuration(), getDistanceOfTrack());
