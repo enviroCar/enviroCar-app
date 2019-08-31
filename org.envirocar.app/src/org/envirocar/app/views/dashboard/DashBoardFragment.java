@@ -794,13 +794,13 @@ public class DashBoardFragment extends BaseInjectorFragment {
                     });
 
             // Update the Gravatar image.
-            mUserManager.getGravatarBitmapObservable()
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(bitmap -> {
-                        if (dashBoardUserImageView != null && dashBoardUserImageView.getVisibility() == View.VISIBLE && bitmap != null)
-                            dashBoardUserImageView.setImageBitmap(bitmap);
-                    });
+//            mUserManager.getGravatarBitmapObservable()
+//                    .subscribeOn(Schedulers.io())
+//                    .observeOn(AndroidSchedulers.mainThread())
+//                    .subscribe(bitmap -> {
+//                        if (dashBoardUserImageView != null && dashBoardUserImageView.getVisibility() == View.VISIBLE && bitmap != null)
+//                            dashBoardUserImageView.setImageBitmap(bitmap);
+//                    });
             // Update the new values of the exp toolbar content.
             mBackgroundWorker.schedule(() -> {
                 try {

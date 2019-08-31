@@ -16,6 +16,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.TextView;
@@ -23,6 +24,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.content.ContextCompat;
 
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -48,6 +51,7 @@ import org.envirocar.core.events.bluetooth.BluetoothDeviceSelectedEvent;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.core.events.gps.GpsStateChangedEvent;
 import org.envirocar.core.logging.Logger;
+import org.envirocar.core.utils.PermissionUtils;
 import org.envirocar.obd.events.TrackRecordingServiceStateChangedEvent;
 import org.envirocar.obd.service.BluetoothServiceState;
 
@@ -62,6 +66,7 @@ import butterknife.OnClick;
 import info.hoang8f.android.segmented.SegmentedGroup;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.observers.DisposableCompletableObserver;
 import io.reactivex.schedulers.Schedulers;
 
@@ -121,6 +126,11 @@ public class DashboardFragment2 extends BaseInjectorFragment {
     @BindView(R.id.fragment_dashboard_carselection_text_secondary)
     protected TextView carSelectionTextSecondary;
 
+    @BindView(R.id.fragment_dashboard_banner)
+    protected FrameLayout bannerLayout;
+    @BindView(R.id.fragment_dashboard_main_layout)
+    protected ConstraintLayout mainLayout;
+
     @BindView(R.id.fragment_dashboard_start_track_button)
     protected View startTrackButton;
 
@@ -129,6 +139,8 @@ public class DashboardFragment2 extends BaseInjectorFragment {
     protected UserHandler userHandler;
     @Inject
     protected BluetoothHandler bluetoothHandler;
+
+    private CompositeDisposable disposables;
 
     // some private variables
     private MaterialDialog connectingDialog;
@@ -143,6 +155,8 @@ public class DashboardFragment2 extends BaseInjectorFragment {
         super.onCreate(savedInstanceState);
         // for the login/register button
         setHasOptionsMenu(true);
+
+        this.disposables = new CompositeDisposable();
     }
 
     @Nullable
@@ -158,6 +172,23 @@ public class DashboardFragment2 extends BaseInjectorFragment {
         toolbar.inflateMenu(R.menu.menu_dashboard_logged_out);
         toolbar.getOverflowIcon().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
         RxToolbar.itemClicks(this.toolbar).subscribe(this::onToolbarItemClicked);
+
+        //
+        PermissionUtils.requestLocationPermissionIfRequired(getActivity())
+                .subscribeWith(new DisposableCompletableObserver() {
+                    @Override
+                    public void onComplete() {
+                        LOG.info("Accepted");
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        LOG.error(e);
+                    }
+                });
+
+        //
+        this.updateUserLogin(userHandler.getUser());
 
         return contentView;
     }
@@ -394,18 +425,7 @@ public class DashboardFragment2 extends BaseInjectorFragment {
 
     @Subscribe
     public void onNewUserSettingsEvent(final NewUserSettingsEvent event) {
-        runAfterInflation(() -> {
-            if (event.mIsLoggedIn) {
-                this.loggedInLayout.setVisibility(View.VISIBLE);
-                this.toolbar.getMenu().clear();
-                this.toolbar.inflateMenu(R.menu.menu_dashboard_logged_in);
-                this.textView.setText(event.mUser.getUsername());
-            } else {
-                this.loggedInLayout.setVisibility(View.GONE);
-                this.toolbar.getMenu().clear();
-                this.toolbar.inflateMenu(R.menu.menu_dashboard_logged_out);
-            }
-        });
+        runAfterInflation(() -> this.updateUserLogin(event.mUser));
     }
 
     @Subscribe
@@ -415,6 +435,33 @@ public class DashboardFragment2 extends BaseInjectorFragment {
             userDistanceTextView.setText(String.format("%s km", (int) event.totalDistance));
             userDurationTextView.setText(formatTimeForDashboard(event.totalDuration));
         });
+    }
+
+    private void updateUserLogin(User user) {
+        if (user != null) {
+            this.loggedInLayout.setVisibility(View.VISIBLE);
+            this.toolbar.getMenu().clear();
+            this.toolbar.inflateMenu(R.menu.menu_dashboard_logged_in);
+            this.textView.setText(user.getUsername());
+
+            ConstraintSet set = new ConstraintSet();
+            set.constrainPercentHeight(bannerLayout.getId(), 0.26f);
+            set.connect(bannerLayout.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 0);
+            set.connect(bannerLayout.getId(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END, 0);
+            set.connect(bannerLayout.getId(), ConstraintSet.TOP, toolbar.getId(), ConstraintSet.BOTTOM, 0);
+            set.applyTo(this.mainLayout);
+        } else {
+            this.loggedInLayout.setVisibility(View.GONE);
+            this.toolbar.getMenu().clear();
+            this.toolbar.inflateMenu(R.menu.menu_dashboard_logged_out);
+
+            ConstraintSet set = new ConstraintSet();
+            set.constrainPercentHeight(bannerLayout.getId(), 0.15f);
+            set.connect(bannerLayout.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 0);
+            set.connect(bannerLayout.getId(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END, 0);
+            set.connect(bannerLayout.getId(), ConstraintSet.TOP, toolbar.getId(), ConstraintSet.BOTTOM, 0);
+            set.applyTo(this.mainLayout);
+        }
     }
 
     private String formatTimeForDashboard(long millis) {

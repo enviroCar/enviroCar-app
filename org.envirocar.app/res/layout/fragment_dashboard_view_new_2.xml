@@ -8,6 +8,7 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/fragment_dashboard_main_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/white_cario"
@@ -23,6 +24,23 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <LinearLayout
+            android:id="@+id/fragment_dashboard_icon_layout"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:gravity="center"
+            android:background="@android:color/transparent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:src="@drawable/img_envirocar_logo_white" />
+
+        </LinearLayout>
+
         <ImageView
             android:id="@+id/activity_login_logo"
             android:layout_width="match_parent"
@@ -33,17 +51,18 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHeight_percent="0.06"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            android:visibility="invisible"/>
 
         <FrameLayout
-            android:id="@+id/frameLayout2"
+            android:id="@+id/fragment_dashboard_banner"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:background="@color/cario_color_primary"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHeight_percent="0.26"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/fragment_dashboard_toolbar"></FrameLayout>
+            app:layout_constraintTop_toBottomOf="@id/fragment_dashboard_toolbar" />
 
         <LinearLayout
             android:id="@+id/fragment_dashboard_logged_in_layout"
@@ -57,7 +76,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHeight_percent="0.20"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/frameLayout2"
+            app:layout_constraintTop_toTopOf="@+id/fragment_dashboard_banner"
             app:layout_constraintVertical_bias="0.01">
 
             <ImageView
@@ -98,11 +117,11 @@
             android:layout_marginEnd="24dp"
             app:cardCornerRadius="10dp"
             app:cardElevation="10dp"
-            app:layout_constraintBottom_toBottomOf="@+id/frameLayout2"
+            app:layout_constraintBottom_toBottomOf="@+id/fragment_dashboard_banner"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHeight_percent="0.12"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/frameLayout2">
+            app:layout_constraintTop_toBottomOf="@+id/fragment_dashboard_banner">
 
             <LinearLayout
                 android:layout_width="match_parent"
