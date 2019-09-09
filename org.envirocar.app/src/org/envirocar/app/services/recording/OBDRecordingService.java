@@ -23,7 +23,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.AsyncTask;
 import android.os.PowerManager;
 
 import com.squareup.otto.Produce;
@@ -200,44 +199,37 @@ public class OBDRecordingService extends AbstractRecordingService {
      * @param device the device to start a connection to.
      */
     private void startOBDConnection(final BluetoothDevice device) {
-        new AsyncTask<Void, Void, Void>() {
+        connectingSubscription = obdConnectionHandler.getOBDConnectionObservable(device)
+                .subscribeWith(new DisposableObserver<BluetoothSocketWrapper>() {
+                    @Override
+                    public void onStart() {
+                        LOG.info("onStart() connection");
 
-            @Override
-            protected Void doInBackground(Void... voids) {
-                connectingSubscription = obdConnectionHandler.getOBDConnectionObservable(device)
-                        .subscribeWith(new DisposableObserver<BluetoothSocketWrapper>() {
-                            @Override
-                            public void onStart() {
-                                LOG.info("onStart() connection");
+                        // Set remoteService state to STARTING and fire an event on the bus.
+                        CURRENT_SERVICE_STATE = BluetoothServiceState.SERVICE_STARTING;
+                        bus.post(new TrackRecordingServiceStateChangedEvent(CURRENT_SERVICE_STATE));
+                    }
 
-                                // Set remoteService state to STARTING and fire an event on the bus.
-                                CURRENT_SERVICE_STATE = BluetoothServiceState.SERVICE_STARTING;
-                                bus.post(new TrackRecordingServiceStateChangedEvent(CURRENT_SERVICE_STATE));
-                            }
+                    @Override
+                    public void onComplete() {
+                        LOG.info("onCompleted(): BluetoothSocketWrapper connection completed");
+                    }
 
-                            @Override
-                            public void onComplete() {
-                                LOG.info("onCompleted(): BluetoothSocketWrapper connection completed");
-                            }
+                    @Override
+                    public void onError(Throwable e) {
+                        LOG.error(e.getMessage(), e);
+                        dispose();
+                    }
 
-                            @Override
-                            public void onError(Throwable e) {
-                                LOG.error(e.getMessage(), e);
-                                dispose();
-                            }
-
-                            @Override
-                            public void onNext(BluetoothSocketWrapper socketWrapper) {
-                                LOG.info("startOBDConnection.onNext() socket successfully connected.");
-                                bluetoothSocketWrapper = socketWrapper;
-                                onDeviceConnected(bluetoothSocketWrapper);
-                                onComplete();
-                                dispose();
-                            }
-                        });
-                return null;
-            }
-        }.execute();
+                    @Override
+                    public void onNext(BluetoothSocketWrapper socketWrapper) {
+                        LOG.info("startOBDConnection.onNext() socket successfully connected.");
+                        bluetoothSocketWrapper = socketWrapper;
+                        onDeviceConnected(bluetoothSocketWrapper);
+                        onComplete();
+                        dispose();
+                    }
+                });
     }
 
     private void stopOBDConnection() {

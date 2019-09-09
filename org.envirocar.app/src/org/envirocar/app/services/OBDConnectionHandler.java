@@ -102,8 +102,7 @@ public class OBDConnectionHandler {
     private Observable<List<UUID>> getUUIDList(final BluetoothDevice device) {
         LOG.info(String.format("getUUIDList(%s)", device.getName()));
 
-        return BroadcastUtils.createBroadcastObservable(context,
-                new IntentFilter(BluetoothDevice.ACTION_UUID))
+        return BroadcastUtils.createBroadcastObservable(context, new IntentFilter(BluetoothDevice.ACTION_UUID))
                 .firstOrError()
                 .toObservable()
                 .map(intent -> {
