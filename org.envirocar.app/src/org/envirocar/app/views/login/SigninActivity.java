@@ -14,6 +14,7 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.envirocar.app.R;
+import org.envirocar.app.exception.LoginException;
 import org.envirocar.app.handler.DAOProvider;
 import org.envirocar.app.handler.UserHandler;
 import org.envirocar.app.handler.agreement.AgreementManager;
@@ -30,6 +31,7 @@ import butterknife.OnClick;
 import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.observers.DisposableCompletableObserver;
 import io.reactivex.schedulers.Schedulers;
 
 /**
@@ -59,6 +61,7 @@ public class SigninActivity extends BaseInjectorActivity {
     //
     private final Scheduler.Worker mainThreadWorker = AndroidSchedulers.mainThread().createWorker();
     private final Scheduler.Worker backgroundWorker = Schedulers.newThread().createWorker();
+
     private Disposable loginSubscription;
 
     @Override
@@ -127,67 +130,52 @@ public class SigninActivity extends BaseInjectorActivity {
 
     private void login(String username, String password) {
         // Create a dialog indicating the log in process.
-        final MaterialDialog dialog = new MaterialDialog.Builder(SigninActivity.this)
-                .title(R.string.activity_login_logging_in_dialog_title)
-                .progress(true, 0)
-                .cancelable(false)
-                .show();
+        userHandler.logIn(username, password)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new DisposableCompletableObserver() {
+                    private MaterialDialog dialog;
 
-        this.loginSubscription = backgroundWorker.schedule(() -> {
-            this.userHandler.logIn(username, password, new UserHandler.LoginCallback() {
-                @Override
-                public void onSuccess(User user) {
-                    dialog.dismiss();
-                    // Successfully logged in.
-                    mainThreadWorker.schedule(() -> {
-                        // If any error occurs, then set the focus on the error.
-                        if (user == null) {
-                            if (usernameEditText.getError() != null)
-                                usernameEditText.requestFocus();
-                            else
-                                passwordEditText.requestFocus();
-                            return;
-                        }
-
-                        // First, show a snackbar.
-                        Snackbar.make(logoImageView,
-                                String.format(getResources().getString(
-                                        R.string.welcome_message), user.getUsername()),
-                                Snackbar.LENGTH_LONG)
+                    @Override
+                    protected void onStart() {
+                        dialog = new MaterialDialog.Builder(SigninActivity.this)
+                                .title(R.string.activity_login_logging_in_dialog_title)
+                                .progress(true, 0)
+                                .cancelable(false)
                                 .show();
+                    }
 
+                    @Override
+                    public void onComplete() {
+                        dialog.dismiss();
+                        Snackbar.make(logoImageView, String.format(getResources().getString(
+                                R.string.welcome_message), username), Snackbar.LENGTH_LONG)
+                                .show();
                         finish();
-                    });
-                }
+                    }
 
-                @Override
-                public void onPasswordIncorrect(String password) {
-                    dialog.dismiss();
-                    mainThreadWorker.schedule(() ->
-                            passwordEditText.setError(
-                                    getString(R.string.error_incorrect_password)));
-                }
-
-                @Override
-                public void onMailNotConfirmed() {
-                    dialog.dismiss();
-                    mainThreadWorker.schedule(() ->
-                            new MaterialDialog.Builder(SigninActivity.this)
-                                    .cancelable(true)
-                                    .positiveText(R.string.ok)
-                                    .title(R.string.login_mail_not_confirmed_dialog_title)
-                                    .content(R.string.login_mail_not_confirmed_dialog_content)
-                                    .build().show());
-                }
-
-                @Override
-                public void onUnableToCommunicateServer() {
-                    dialog.dismiss();
-                    mainThreadWorker.schedule(() ->
-                            passwordEditText.setError(
-                                    getString(R.string.error_host_not_found)));
-                }
-            });
-        });
+                    @Override
+                    public void onError(Throwable e) {
+                        dialog.dismiss();
+                        if (e instanceof LoginException) {
+                            switch (((LoginException) e).getType()) {
+                                case PASSWORD_INCORRECT:
+                                    passwordEditText.setError(getString(R.string.error_incorrect_password));
+                                    break;
+                                case MAIL_NOT_CONFIREMED:
+                                    new MaterialDialog.Builder(SigninActivity.this)
+                                            .cancelable(true)
+                                            .positiveText(R.string.ok)
+                                            .title(R.string.login_mail_not_confirmed_dialog_title)
+                                            .content(R.string.login_mail_not_confirmed_dialog_content)
+                                            .build().show();
+                                    break;
+                                case UNABLE_TO_COMMUNICATE_WITH_SERVER:
+                                    passwordEditText.setError(getString(R.string.error_host_not_found));
+                                    break;
+                            }
+                        }
+                    }
+                });
     }
 }

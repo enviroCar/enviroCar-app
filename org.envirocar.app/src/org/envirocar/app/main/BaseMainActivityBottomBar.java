@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -25,12 +25,13 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.snackbar.Snackbar;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 import android.view.WindowManager;
 
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.snackbar.Snackbar;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.squareup.otto.Subscribe;
 
@@ -46,7 +47,6 @@ import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.app.services.AutomaticTrackRecordingService;
 import org.envirocar.app.views.OthersFragment;
 import org.envirocar.app.views.TroubleshootingFragment;
-import org.envirocar.app.views.dashboard.DashBoardFragment;
 import org.envirocar.app.views.dashboard.DashboardFragment2;
 import org.envirocar.app.views.tracklist.TrackListPagerFragment;
 import org.envirocar.core.events.TrackFinishedEvent;
@@ -99,42 +99,41 @@ public class BaseMainActivityBottomBar extends BaseInjectorActivity {
     private Scheduler.Worker mMainThreadWorker = AndroidSchedulers.mainThread().createWorker();
 
 
-
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = item -> {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-                switch (item.getItemId()) {
-                    case R.id.navigation_dashboard:
-                        if(selectedMenuItemID != 1){
-                            fragmentTransaction.replace(R.id.fragmentContainer, new DashboardFragment2());
-                            fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-                            fragmentTransaction.commit();
-                            selectedMenuItemID = 1;
-                        }
-                        return true;
-                    case R.id.navigation_my_tracks:
-                        if(selectedMenuItemID != 2){
-                            fragmentTransaction.replace(R.id.fragmentContainer, new TrackListPagerFragment());
-                            fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-                            fragmentTransaction.commit();
-                            selectedMenuItemID = 2;
-                        }
-                        return true;
-                    case R.id.navigation_others:
-                        if(selectedMenuItemID != 3){
-                            fragmentTransaction.replace(R.id.fragmentContainer, mOthersFragment);
-                            fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-                            fragmentTransaction.commit();
-                            selectedMenuItemID = 3;
-                        }
-                        return true;
+        switch (item.getItemId()) {
+            case R.id.navigation_dashboard:
+                if (selectedMenuItemID != 1) {
+                    fragmentTransaction.replace(R.id.fragmentContainer, new DashboardFragment2());
+                    fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+                    fragmentTransaction.commit();
+                    selectedMenuItemID = 1;
                 }
-                return false;
-            };
+                return true;
+            case R.id.navigation_my_tracks:
+                if (selectedMenuItemID != 2) {
+                    fragmentTransaction.replace(R.id.fragmentContainer, new TrackListPagerFragment());
+                    fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+                    fragmentTransaction.commit();
+                    selectedMenuItemID = 2;
+                }
+                return true;
+            case R.id.navigation_others:
+                if (selectedMenuItemID != 3) {
+                    fragmentTransaction.replace(R.id.fragmentContainer, mOthersFragment);
+                    fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+                    fragmentTransaction.commit();
+                    selectedMenuItemID = 3;
+                }
+                return true;
+        }
+        return false;
+    };
 
     @Override
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
-        MainActivityComponent mainActivityComponent =  baseApplicationComponent.plus(new MainActivityModule(this));
+        MainActivityComponent mainActivityComponent = baseApplicationComponent.plus(new MainActivityModule(this));
         mainActivityComponent.inject(this);
     }
 
@@ -237,12 +236,14 @@ public class BaseMainActivityBottomBar extends BaseInjectorActivity {
                 PreferencesHandler.getBackgroundHandlerEnabledObservable(this)
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(aBoolean -> {
-                            if (aBoolean) {
-                                if(!ServiceUtils.isServiceRunning(this, AutomaticTrackRecordingService.class)) AutomaticTrackRecordingService.startService(this);
-                            } else {
-                                if(ServiceUtils.isServiceRunning(this, AutomaticTrackRecordingService.class)) AutomaticTrackRecordingService.stopService(this);
-                            }
-                        })
+                                    if (aBoolean) {
+                                        if (!ServiceUtils.isServiceRunning(this, AutomaticTrackRecordingService.class))
+                                            AutomaticTrackRecordingService.startService(this);
+                                    } else {
+                                        if (ServiceUtils.isServiceRunning(this, AutomaticTrackRecordingService.class))
+                                            AutomaticTrackRecordingService.stopService(this);
+                                    }
+                                }, LOGGER::error)
         );
     }
 

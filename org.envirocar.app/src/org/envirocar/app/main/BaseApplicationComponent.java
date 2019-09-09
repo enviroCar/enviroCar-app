@@ -25,12 +25,14 @@ import org.envirocar.app.aidl.EnviroCarDataService;
 import org.envirocar.app.handler.DAOProvider;
 import org.envirocar.app.handler.LocationHandler;
 import org.envirocar.app.handler.TrackRecordingHandler;
+import org.envirocar.app.services.recording.RecordingNotification;
+import org.envirocar.app.recording.RecordingService;
+import org.envirocar.app.recording.strategy.RecordingStrategy;
 import org.envirocar.app.services.AutomaticTrackRecordingService;
 import org.envirocar.app.services.TrackUploadService;
 import org.envirocar.app.services.recording.AbstractRecordingService;
 import org.envirocar.app.services.recording.GPSOnlyRecordingService;
 import org.envirocar.app.services.recording.OBDRecordingService;
-import org.envirocar.app.services.recording.RecordingNotification;
 import org.envirocar.app.services.recording.SpeechOutput;
 import org.envirocar.app.views.OthersFragment;
 import org.envirocar.app.views.carselection.CarSelectionActivity;
@@ -53,6 +55,7 @@ import org.envirocar.app.views.settings.SettingsActivity;
 import org.envirocar.app.views.trackdetails.MapExpandedActivity;
 import org.envirocar.app.views.trackdetails.TrackDetailsActivity;
 import org.envirocar.app.views.trackdetails.TrackStatisticsActivity;
+import org.envirocar.core.UserManager;
 import org.envirocar.remote.dao.CacheAnnouncementsDAO;
 import org.envirocar.remote.dao.CacheCarDAO;
 import org.envirocar.remote.dao.CacheFuelingDAO;
@@ -116,6 +119,10 @@ public interface BaseApplicationComponent {
     void inject(DashboardFragment2 dashboardFragment2);
     void inject(LocationHandler locationHandler);
     void inject(UserStatisticsProcessor statisticsProcessor);
+    void inject(UserManager userManager);
+    void inject(RecordingService recordingService);
+    void inject(RecordingStrategy recordingStrategy);
+
 
     MainActivityComponent plus(MainActivityModule mainActivityModule);
 

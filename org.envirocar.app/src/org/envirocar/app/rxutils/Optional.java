@@ -7,6 +7,10 @@ package org.envirocar.app.rxutils;
 public class Optional<M> {
     private final M optional;
 
+    public static <T> Optional<T> create(T t){
+        return new Optional<>(t);
+    }
+
     /**
      * Constructor.
      *
