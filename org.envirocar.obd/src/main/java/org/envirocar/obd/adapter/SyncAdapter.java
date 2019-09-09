@@ -191,7 +191,8 @@ public abstract class SyncAdapter implements OBDAdapter {
                         subscriber.onNext(response);
                     }
                 } catch (IOException e) {
-                    subscriber.onError(e);
+                    if (!subscriber.isDisposed())
+                        subscriber.onError(e);
                 } catch (AdapterFailedException e) {
                     LOGGER.warn(e.getMessage(), e);
                     LOGGER.warn(String.format("Sent Command was: %s; Received response was: %s",
