@@ -110,7 +110,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
 
     @Override
     public TrackListRemoteCardAdapter getRecyclerViewAdapter() {
-        return new TrackListRemoteCardAdapter(getActivity(), mTrackList,
+        return new TrackListRemoteCardAdapter(mTrackList,
                 new OnTrackInteractionCallback() {
 
                     /**

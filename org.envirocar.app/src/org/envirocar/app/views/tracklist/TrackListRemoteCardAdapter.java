@@ -1,30 +1,26 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
 package org.envirocar.app.views.tracklist;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
-
-import androidx.annotation.NonNull;
 
 import com.mapbox.mapboxsdk.maps.MapView;
 
@@ -48,8 +44,7 @@ public class TrackListRemoteCardAdapter extends AbstractTrackListCardAdapter<
      * @param tracks   the list of tracks to show cards for.
      * @param callback
      */
-    public TrackListRemoteCardAdapter(Context context, List<Track> tracks,
-                                      OnTrackInteractionCallback callback) {
+    public TrackListRemoteCardAdapter(List<Track> tracks, OnTrackInteractionCallback callback) {
         super(tracks, callback);
     }
 
@@ -114,13 +109,13 @@ public class TrackListRemoteCardAdapter extends AbstractTrackListCardAdapter<
         //holder.mMapView.postInvalidate();
     }
 
-    public void onLowMemory(){
-        for(MapView mapView : mapViews){
+    public void onLowMemory() {
+        for (MapView mapView : mapViews) {
             mapView.onLowMemory();
         }
     }
 
-    public void onDestroy(){
+    public void onDestroy() {
         for (MapView mapView : mapViews) {
             mapView.onPause();
             mapView.onStop();

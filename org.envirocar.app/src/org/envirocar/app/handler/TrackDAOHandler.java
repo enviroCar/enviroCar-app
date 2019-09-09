@@ -23,7 +23,6 @@ import android.content.Context;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.exception.DataRetrievalFailureException;
 import org.envirocar.core.exception.DataUpdateFailureException;
-import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.exception.NotConnectedException;
 import org.envirocar.core.exception.TrackSerializationException;
 import org.envirocar.core.exception.UnauthorizedException;
@@ -176,29 +175,25 @@ public class TrackDAOHandler {
 
     public Track fetchRemoteTrack(Track remoteTrack) throws NotConnectedException,
             UnauthorizedException, DataRetrievalFailureException {
-        try {
-            Track downloadedTrack = daoProvider.getTrackDAO().getTrackById(remoteTrack
-                    .getRemoteID());
+        Track downloadedTrack = daoProvider.getTrackDAO().getTrackById(remoteTrack
+                .getRemoteID());
 
-            // Deep copy... TODO improve this.
-            remoteTrack.setName(downloadedTrack.getName());
-            remoteTrack.setDescription(downloadedTrack.getDescription());
-            remoteTrack.setMeasurements(new ArrayList<>(downloadedTrack.getMeasurements()));
-            remoteTrack.setCar(downloadedTrack.getCar());
-            remoteTrack.setTrackStatus(downloadedTrack.getTrackStatus());
-            remoteTrack.setMetadata(downloadedTrack.getMetadata());
+        // Deep copy... TODO improve this.
+        remoteTrack.setName(downloadedTrack.getName());
+        remoteTrack.setDescription(downloadedTrack.getDescription());
+        remoteTrack.setMeasurements(new ArrayList<>(downloadedTrack.getMeasurements()));
+        remoteTrack.setCar(downloadedTrack.getCar());
+        remoteTrack.setTrackStatus(downloadedTrack.getTrackStatus());
+        remoteTrack.setMetadata(downloadedTrack.getMetadata());
 
-            remoteTrack.setStartTime(downloadedTrack.getStartTime());
-            remoteTrack.setEndTime(downloadedTrack.getEndTime());
-            remoteTrack.setDownloadState(Track.DownloadState.DOWNLOADED);
-        } catch (NoMeasurementsException e) {
-            e.printStackTrace();
-        }
+        remoteTrack.setStartTime(downloadedTrack.getStartTime());
+        remoteTrack.setEndTime(downloadedTrack.getEndTime());
+        remoteTrack.setDownloadState(Track.DownloadState.DOWNLOADED);
 
         try {
             enviroCarDB.insertTrack(remoteTrack);
         } catch (TrackSerializationException e) {
-            e.printStackTrace();
+            LOGGER.error(e.getMessage(), e);
         }
         //        mDBAdapter.insertTrack(remoteTrack, true);
         return remoteTrack;
