@@ -13,6 +13,8 @@ import com.squareup.otto.Subscribe;
 import org.envirocar.algorithm.MeasurementProvider;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.PreferencesHandler;
+import org.envirocar.app.main.BaseApplicationComponent;
+import org.envirocar.app.recording.RecordingState;
 import org.envirocar.app.recording.TrackDatabaseSink;
 import org.envirocar.app.services.OBDConnectionHandler;
 import org.envirocar.app.services.recording.SpeechOutput;
@@ -84,7 +86,8 @@ public class OBDRecordingStrategy implements RecordingStrategy {
     /**
      * Constructor.
      */
-    public OBDRecordingStrategy(Car car) {
+    public OBDRecordingStrategy(BaseApplicationComponent injector, Car car) {
+        injector.inject(this);
         this.car = car;
 
         // set the car specific properties.
@@ -126,6 +129,11 @@ public class OBDRecordingStrategy implements RecordingStrategy {
         if (disposables != null && !disposables.isDisposed()) {
             disposables.dispose();
             disposables = null;
+        }
+
+        try {
+            eventBus.unregister(measurementProvider);
+        } catch (Exception e){
         }
 
         stopOBDConnectionRecognizer();
@@ -170,12 +178,14 @@ public class OBDRecordingStrategy implements RecordingStrategy {
         };
     }
 
+    private OBDController controller = null;
+
     private ObservableTransformer<BluetoothSocketWrapper, BluetoothSocketWrapper> verifyConnection() {
         return upstream -> upstream.flatMap(socket -> Observable.create(emitter -> {
             LOG.info(String.format("OBDConnectionService.onDeviceConntected(%s)", socket.getRemoteDeviceName()));
             speechOutput.doTextToSpeech("Connection established.");
             try {
-                OBDController controller = new OBDController(socket, new ConnectionListener() {
+                controller = new OBDController(socket, new ConnectionListener() {
                     int reconnectCount = 0;
 
                     @Override
@@ -218,6 +228,7 @@ public class OBDRecordingStrategy implements RecordingStrategy {
     private ObservableTransformer<BluetoothSocketWrapper, Measurement> receiveMeasurements() {
         return upstream -> {
             final Long samplingRate = PreferencesHandler.getSamplingRate(context) * 1000;
+            eventBus.register(measurementProvider);
             return upstream.flatMap(socket -> measurementProvider.measurements(samplingRate));
         };
     }

@@ -5,18 +5,13 @@ import android.app.Service;
 import androidx.lifecycle.LifecycleObserver;
 
 import org.envirocar.app.main.BaseApplicationComponent;
+import org.envirocar.app.recording.RecordingState;
 
 
 /**
  * @author dewall
  */
 public interface RecordingStrategy extends LifecycleObserver {
-
-    enum RecordingState {
-        RECORDING_INIT,
-        RECORDING_RUNNING,
-        RECORDING_STOPPED
-    }
 
     interface RecordingListener {
 
@@ -26,12 +21,12 @@ public interface RecordingStrategy extends LifecycleObserver {
     static RecordingStrategy createStrategy(String type, BaseApplicationComponent injector){
         RecordingStrategy strategy = null;
         if(type == "obd"){
-            strategy = new OBDRecordingStrategy();
+//            strategy = new OBDRecordingStrategy();
+//        }
+//        if( type == "gps"){
+//            strategy = new GPSRecordingStrategy();
         }
-        if( type == "gps"){
-            strategy = new GPSRecordingStrategy();
-        }
-        injector.inject(strategy);
+//        injector.inject(strategy);
         return strategy;
     }
 
