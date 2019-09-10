@@ -31,6 +31,8 @@ import org.envirocar.app.events.TrackDetailsProvider;
 import org.envirocar.app.handler.HandlerModule;
 import org.envirocar.app.handler.TemporaryFileManager;
 import org.envirocar.app.handler.TrackRecordingHandler;
+import org.envirocar.app.recording.TrackDatabaseSink;
+import org.envirocar.core.entity.Track;
 import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.app.services.OBDServiceModule;
 import org.envirocar.core.CacheDirectoryProvider;
@@ -154,6 +156,12 @@ public class BaseApplicationModule {
     @Singleton
     RxSharedPreferences provideRxSharedPreferences(SharedPreferences prefs){
         return RxSharedPreferences.create(prefs);
+    }
+
+    @Provides
+    @Singleton
+    TrackDatabaseSink provideTrackDatabaseSink(){
+        return new TrackDatabaseSink();
     }
 
     /**
