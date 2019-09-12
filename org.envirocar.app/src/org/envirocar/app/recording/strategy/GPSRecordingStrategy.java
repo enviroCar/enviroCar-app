@@ -26,7 +26,7 @@ import org.envirocar.app.BuildConfig;
 import org.envirocar.app.events.DrivingDetectedEvent;
 import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.app.recording.RecordingState;
-import org.envirocar.app.recording.TrackDatabaseSink;
+import org.envirocar.app.recording.provider.TrackDatabaseSink;
 import org.envirocar.app.rxutils.RxBroadcastReceiver;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Measurement;

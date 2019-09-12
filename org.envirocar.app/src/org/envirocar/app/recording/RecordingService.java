@@ -16,26 +16,23 @@ import android.os.IBinder;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
-import org.envirocar.app.handler.CarPreferenceHandler;
-import org.envirocar.app.injection.BaseInjectorService;
-import org.envirocar.app.main.BaseApplicationComponent;
+import org.envirocar.app.injection.ScopedBaseInjectorService;
+import org.envirocar.app.main.BaseApplication;
 import org.envirocar.app.main.BaseMainActivityBottomBar;
 import org.envirocar.app.notifications.ServiceStateForNotification;
-import org.envirocar.app.recording.strategy.OBDRecordingStrategy;
+import org.envirocar.app.recording.events.RecordingStateEvent;
 import org.envirocar.app.recording.strategy.RecordingStrategy;
-import org.envirocar.app.services.recording.RecordingNotification;
-import org.envirocar.app.services.recording.SpeechOutput;
+import org.envirocar.app.recording.notification.RecordingNotification;
+import org.envirocar.app.recording.notification.SpeechOutput;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.utils.ServiceUtils;
-
-import java.lang.annotation.Target;
 
 import javax.inject.Inject;
 
 /**
  * @author dewall
  */
-public class RecordingService extends BaseInjectorService {
+public class RecordingService extends ScopedBaseInjectorService {
     private static final Logger LOG = Logger.getLogger(RecordingService.class);
     private static final String CHANNEL_ID = "envirocar_recording_channel";
 
@@ -48,11 +45,11 @@ public class RecordingService extends BaseInjectorService {
 
     // Injected variables
     @Inject
-    protected CarPreferenceHandler carPreferences;
-    @Inject
     protected SpeechOutput speechOutput;
     @Inject
     protected RecordingNotification recordingNotification;
+    @Inject
+    protected RecordingStrategy.Factory recordingFactory;
 
     private RecordingStrategy recordingStrategy;
 
@@ -74,9 +71,13 @@ public class RecordingService extends BaseInjectorService {
         }
     };
 
+
     @Override
-    protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
-        baseApplicationComponent.inject(this);
+    protected void setupServiceComponent() {
+        BaseApplication.get(this)
+                .getBaseApplicationComponent()
+                .plus(new RecordingModule())
+                .inject(this);
     }
 
     @Nullable
@@ -107,7 +108,7 @@ public class RecordingService extends BaseInjectorService {
         showNotification(ServiceStateForNotification.UNCONNECTED);
 
         // Select recording algorithm and start
-        this.recordingStrategy = new OBDRecordingStrategy(getBaseApplicationComponent(), carPreferences.getCar());
+        this.recordingStrategy = recordingFactory.create();
         getLifecycle().addObserver(recordingStrategy);
         recordingStrategy.startRecording(this, recordingState -> {
             RECORDING_STATE = recordingState;
@@ -122,6 +123,7 @@ public class RecordingService extends BaseInjectorService {
                     showNotification(ServiceStateForNotification.CONNECTED);
                     break;
             }
+            bus.post(new RecordingStateEvent(recordingState));
         });
 
         return START_NOT_STICKY;
@@ -143,7 +145,7 @@ public class RecordingService extends BaseInjectorService {
         PendingIntent pIntent = PendingIntent.getActivity(this, (int) System.currentTimeMillis(), i, 0);
 
         String channelId = "";
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             channelId = createChannel();
         }
 
@@ -164,7 +166,7 @@ public class RecordingService extends BaseInjectorService {
         channel.enableLights(true);
         channel.setLightColor(Color.BLUE);
 
-        if(notificationManager != null){
+        if (notificationManager != null) {
             notificationManager.createNotificationChannel(channel);
         } else {
             stopSelf();

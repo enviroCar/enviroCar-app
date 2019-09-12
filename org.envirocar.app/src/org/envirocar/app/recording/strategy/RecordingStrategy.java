@@ -14,8 +14,11 @@ import org.envirocar.app.recording.RecordingState;
 public interface RecordingStrategy extends LifecycleObserver {
 
     interface RecordingListener {
-
         void onRecordingStateChanged(RecordingState recordingState);
+    }
+
+    interface Factory {
+        RecordingStrategy create();
     }
 
     static RecordingStrategy createStrategy(String type, BaseApplicationComponent injector){
