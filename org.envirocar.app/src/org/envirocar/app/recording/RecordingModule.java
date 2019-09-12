@@ -1,7 +1,86 @@
 package org.envirocar.app.recording;
 
+import android.content.Context;
+
+import com.squareup.otto.Bus;
+
+import org.envirocar.algorithm.MeasurementProvider;
+import org.envirocar.app.handler.BluetoothHandler;
+import org.envirocar.app.handler.CarPreferenceHandler;
+import org.envirocar.app.handler.InterpolationMeasurementProvider;
+import org.envirocar.app.handler.PreferencesHandler;
+import org.envirocar.app.recording.notification.RecordingNotification;
+import org.envirocar.app.recording.notification.SpeechOutput;
+import org.envirocar.app.recording.provider.LocationProvider;
+import org.envirocar.app.recording.provider.TrackDatabaseSink;
+import org.envirocar.app.recording.strategy.GPSRecordingStrategy;
+import org.envirocar.app.recording.strategy.OBDRecordingStrategy;
+import org.envirocar.app.recording.strategy.RecordingStrategy;
+import org.envirocar.app.services.OBDConnectionHandler;
+import org.envirocar.core.injection.InjectApplicationScope;
+import org.envirocar.storage.EnviroCarDB;
+
 import dagger.Module;
+import dagger.Provides;
 
 @Module
 public class RecordingModule {
+
+    @Provides
+    @RecordingScope
+    public SpeechOutput provideSpeechOutput(@InjectApplicationScope Context context, Bus eventBus) {
+        return new SpeechOutput(context, eventBus);
+    }
+
+    @Provides
+    @RecordingScope
+    public MeasurementProvider provideMeasurementProvider() {
+        return new InterpolationMeasurementProvider();
+    }
+
+    @Provides
+    @RecordingScope
+    public TrackDatabaseSink provideTrackDatabaseSink(@InjectApplicationScope Context context,
+                                                      CarPreferenceHandler carHandler, EnviroCarDB enviroCarDB) {
+        return new TrackDatabaseSink(context, carHandler, enviroCarDB);
+    }
+
+    @Provides
+    @RecordingScope
+    public OBDConnectionHandler provideOBDConnectionHandler(@InjectApplicationScope Context context) {
+        return new OBDConnectionHandler(context);
+    }
+
+    @Provides
+    @RecordingScope
+    public LocationProvider provideLocationProvider(@InjectApplicationScope Context context, Bus eventBus) {
+        return new LocationProvider(context, eventBus);
+    }
+
+    @Provides
+    @RecordingScope
+    public RecordingNotification provideRecordingNotification(@InjectApplicationScope Context context, Bus eventBus) {
+        return new RecordingNotification(context, eventBus);
+    }
+
+    @Provides
+    @RecordingScope
+    public RecordingStrategy.Factory provideRecordingStrategyFactory(
+            @InjectApplicationScope Context context, Bus eventBus, SpeechOutput speechOutput, BluetoothHandler bluetoothHandler,
+            OBDConnectionHandler obdConnectionHandler, MeasurementProvider measurementProvider,
+            TrackDatabaseSink trackDatabaseSink, LocationProvider locationProvider,
+            CarPreferenceHandler carPreferenceHandler) {
+        return () -> {
+            int type = PreferencesHandler.getPreviouslySelectedRecordingType(context);
+            switch (type) {
+                default:
+                case 1:
+                    return new OBDRecordingStrategy(context, eventBus, speechOutput,
+                            bluetoothHandler, obdConnectionHandler, measurementProvider,
+                            trackDatabaseSink, locationProvider, carPreferenceHandler);
+                case 2:
+                    return new GPSRecordingStrategy(carPreferenceHandler.getCar());
+            }
+        };
+    }
 }
