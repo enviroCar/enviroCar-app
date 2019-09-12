@@ -1,38 +1,45 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
-package org.envirocar.app.events;
+package org.envirocar.app.recording.provider;
 
-import android.content.Context;
 import android.location.Location;
 import android.os.SystemClock;
+
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleObserver;
+import androidx.lifecycle.OnLifecycleEvent;
 
 import com.squareup.otto.Bus;
 import com.squareup.otto.Produce;
 import com.squareup.otto.Subscribe;
 
-import org.envirocar.app.services.recording.GPSOnlyRecordingService;
-import org.envirocar.app.services.recording.OBDRecordingService;
+import org.envirocar.app.events.AvrgSpeedUpdateEvent;
+import org.envirocar.app.events.DistanceValueUpdateEvent;
+import org.envirocar.app.events.GPSSpeedChangeEvent;
+import org.envirocar.app.events.StartingTimeEvent;
+import org.envirocar.app.events.TrackPathOverlayEvent;
+import org.envirocar.app.recording.RecordingService;
+import org.envirocar.app.recording.RecordingState;
 import org.envirocar.app.views.trackdetails.MapLayer;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.events.recording.RecordingNewMeasurementEvent;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.obd.service.BluetoothServiceState;
 
 import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -41,8 +48,8 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 /**
  * @author dewall
  */
-public class TrackDetailsProvider {
-    private static final Logger LOGGER = Logger.getLogger(TrackDetailsProvider.class);
+public class RecordingDetailsProvider implements LifecycleObserver {
+    private static final Logger LOG = Logger.getLogger(RecordingDetailsProvider.class);
 
     private final Scheduler.Worker mMainThreadWorker = AndroidSchedulers.mainThread().createWorker();
 
@@ -59,25 +66,43 @@ public class TrackDetailsProvider {
     private Location mLastLocation;
     private Location mCurrentLocation;
 
-    private final Bus mBus;
+    private final Bus eventBus;
 
     /**
      * Constructor.
      *
      * @param bus
      */
-    public TrackDetailsProvider(Bus bus, Context context) {
-        this.mBus = bus;
-        // we do not need to register on the bus!
+    public RecordingDetailsProvider(Bus bus) {
+        this.eventBus = bus;
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
+    protected void onCreate(){
+        try {
+            this.eventBus.register(this);
+        } catch (IllegalArgumentException e){
+            LOG.error("RecordingDetailsProvider was already registered.", e);
+        }
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+    protected void onDestroy(){
+        try {
+            this.eventBus.unregister(this);
+        } catch (IllegalArgumentException e) {
+            LOG.info("RecordingDetailsProvider was not registered on event bus.");
+        }
+        clear();
     }
 
     @Subscribe
     public void onReceiveNewMeasurementEvent(RecordingNewMeasurementEvent event) {
-        LOGGER.debug(String.format("Received event: %s", event.toString()));
+        LOG.debug(String.format("Received event: %s", event.toString()));
 
         if (mNumMeasurements == 0) {
             mStartingBaseTime = SystemClock.elapsedRealtime();
-            mBus.post(new StartingTimeEvent(mStartingBaseTime, true));
+            eventBus.post(new StartingTimeEvent(mStartingBaseTime, true));
         }
 
         mNumMeasurements++;
@@ -86,15 +111,15 @@ public class TrackDetailsProvider {
         updateDistance(event.mMeasurement);
         updateAverageSpeed(event.mMeasurement);
         updatePathOverlay(event.mMeasurement);
-        if(OBDRecordingService.CURRENT_SERVICE_STATE == BluetoothServiceState.SERVICE_STARTED
-                && event.mMeasurement.hasProperty(Measurement.PropertyKey.GPS_SPEED) ){
+        if (RecordingService.RECORDING_STATE == RecordingState.RECORDING_RUNNING
+                && event.mMeasurement.hasProperty(Measurement.PropertyKey.GPS_SPEED)) {
             GPSSpeed = event.mMeasurement.getProperty(Measurement.PropertyKey.GPS_SPEED);
-            mBus.post(produceGPSSpeedEvent());
+            eventBus.post(produceGPSSpeedEvent());
         }
     }
 
     @Produce
-    public GPSSpeedChangeEvent produceGPSSpeedEvent(){
+    public GPSSpeedChangeEvent produceGPSSpeedEvent() {
         return new GPSSpeedChangeEvent(GPSSpeed);
     }
 
@@ -122,7 +147,7 @@ public class TrackDetailsProvider {
 
     private void updatePathOverlay(Measurement measurement) {
         mMainThreadWorker.schedule(() -> {
-            LOGGER.info("Map being updated with new points: " + measurement.getLatitude() + measurement.getLongitude() );
+            LOG.info("Map being updated with new points: " + measurement.getLatitude() + measurement.getLongitude());
             mTrackMapOverlay.addPoint(measurement.getLatitude(), measurement.getLongitude());
         });
     }
@@ -155,7 +180,7 @@ public class TrackDetailsProvider {
             // update the distance value
             if (res[0] > 0) {
                 mDistanceValue += res[0] / 1000;
-                mBus.post(provideDistanceValue());
+                eventBus.post(provideDistanceValue());
             }
             mLastLocation = mCurrentLocation;
             mCurrentLocation = null;
@@ -166,20 +191,16 @@ public class TrackDetailsProvider {
      * @param measurement
      */
     private void updateAverageSpeed(Measurement measurement) {
-        if (OBDRecordingService.CURRENT_SERVICE_STATE == BluetoothServiceState.SERVICE_STARTED &&
-                measurement.hasProperty(Measurement.PropertyKey.SPEED)){
-            mTotalSpeed += measurement.getProperty(Measurement.PropertyKey.SPEED);
+        if (RecordingService.RECORDING_STATE == RecordingState.RECORDING_RUNNING) {
+            double speedValue = measurement.hasProperty(Measurement.PropertyKey.SPEED) ?
+                    measurement.getProperty(Measurement.PropertyKey.SPEED) :
+                    measurement.getProperty(Measurement.PropertyKey.GPS_SPEED);
+
+            mTotalSpeed += speedValue;
             mAvrgSpeed = (int) mTotalSpeed / mNumMeasurements;
-            mBus.post(provideAverageSpeed());
-        }
-        else if (GPSOnlyRecordingService.CURRENT_SERVICE_STATE == BluetoothServiceState.SERVICE_STARTED &&
-                measurement.hasProperty(Measurement.PropertyKey.GPS_SPEED)){
-            mTotalSpeed += measurement.getProperty(Measurement.PropertyKey.GPS_SPEED);
-            mAvrgSpeed = (int) mTotalSpeed / mNumMeasurements;
-            mBus.post(provideAverageSpeed());
+            eventBus.post(provideAverageSpeed());
         }
     }
-
 
     public void clear() {
         mMainThreadWorker.schedule(() -> {
@@ -193,6 +214,5 @@ public class TrackDetailsProvider {
             mCurrentLocation = null;
         });
     }
-
 
 }

@@ -12,6 +12,7 @@ import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.app.recording.notification.RecordingNotification;
 import org.envirocar.app.recording.notification.SpeechOutput;
 import org.envirocar.app.recording.provider.LocationProvider;
+import org.envirocar.app.recording.provider.RecordingDetailsProvider;
 import org.envirocar.app.recording.provider.TrackDatabaseSink;
 import org.envirocar.app.recording.strategy.GPSRecordingStrategy;
 import org.envirocar.app.recording.strategy.OBDRecordingStrategy;
@@ -40,9 +41,9 @@ public class RecordingModule {
 
     @Provides
     @RecordingScope
-    public TrackDatabaseSink provideTrackDatabaseSink(@InjectApplicationScope Context context,
-                                                      CarPreferenceHandler carHandler, EnviroCarDB enviroCarDB) {
-        return new TrackDatabaseSink(context, carHandler, enviroCarDB);
+    public TrackDatabaseSink provideTrackDatabaseSink(
+            @InjectApplicationScope Context context, CarPreferenceHandler carHandler, EnviroCarDB enviroCarDB, Bus eventBus) {
+        return new TrackDatabaseSink(context, carHandler, enviroCarDB, eventBus);
     }
 
     @Provides
@@ -61,6 +62,12 @@ public class RecordingModule {
     @RecordingScope
     public RecordingNotification provideRecordingNotification(@InjectApplicationScope Context context, Bus eventBus) {
         return new RecordingNotification(context, eventBus);
+    }
+
+    @Provides
+    @RecordingScope
+    public RecordingDetailsProvider provideTrackDetailsProvider(Bus eventBus) {
+        return new RecordingDetailsProvider(eventBus);
     }
 
     @Provides

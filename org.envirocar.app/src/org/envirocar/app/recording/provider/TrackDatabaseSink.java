@@ -2,12 +2,15 @@ package org.envirocar.app.recording.provider;
 
 import android.content.Context;
 
+import com.squareup.otto.Bus;
+
 import org.envirocar.app.R;
 import org.envirocar.app.handler.CarPreferenceHandler;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.entity.TrackImpl;
+import org.envirocar.core.events.recording.RecordingNewMeasurementEvent;
 import org.envirocar.core.exception.MeasurementSerializationException;
 import org.envirocar.core.exception.TrackSerializationException;
 import org.envirocar.core.logging.Logger;
@@ -30,9 +33,10 @@ public class TrackDatabaseSink {
     private static final Logger LOG = Logger.getLogger(TrackDatabaseSink.class);
     private static final DateFormat format = SimpleDateFormat.getDateTimeInstance();
 
-    protected Context context;
-    protected CarPreferenceHandler carHandler;
-    protected EnviroCarDB enviroCarDB;
+    private final Context context;
+    private final CarPreferenceHandler carHandler;
+    private final EnviroCarDB enviroCarDB;
+    private final Bus eventBus;
 
     /**
      * Constructor.
@@ -41,10 +45,11 @@ public class TrackDatabaseSink {
      * @param carHandler
      * @param enviroCarDB
      */
-    public TrackDatabaseSink(Context context, CarPreferenceHandler carHandler, EnviroCarDB enviroCarDB) {
+    public TrackDatabaseSink(Context context, CarPreferenceHandler carHandler, EnviroCarDB enviroCarDB, Bus eventBus) {
         this.context = context;
         this.carHandler = carHandler;
         this.enviroCarDB = enviroCarDB;
+        this.eventBus = eventBus;
     }
 
     /**
@@ -97,6 +102,7 @@ public class TrackDatabaseSink {
                             // update track in databse
                             track.getMeasurements().add(measurement);
                             enviroCarDB.updateTrack(track);
+                            eventBus.post(new RecordingNewMeasurementEvent(measurement));
                             LOG.info("Measurement stored");
                         } catch (MeasurementSerializationException e) {
                             LOG.error(e.getMessage(), e);

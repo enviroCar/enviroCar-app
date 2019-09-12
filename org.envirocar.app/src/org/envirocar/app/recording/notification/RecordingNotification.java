@@ -18,11 +18,15 @@
  */
 package org.envirocar.app.recording.notification;
 
+import android.annotation.TargetApi;
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.SystemClock;
 import android.widget.RemoteViews;
 
@@ -41,6 +45,8 @@ import org.envirocar.app.events.StartingTimeEvent;
 import org.envirocar.app.main.BaseMainActivityBottomBar;
 import org.envirocar.app.notifications.NotificationActionHolder;
 import org.envirocar.app.notifications.ServiceStateForNotification;
+import org.envirocar.app.recording.RecordingState;
+import org.envirocar.app.recording.events.RecordingStateEvent;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.obd.events.TrackRecordingServiceStateChangedEvent;
 import org.envirocar.obd.service.BluetoothServiceState;
@@ -57,7 +63,7 @@ public class RecordingNotification implements LifecycleObserver {
     private static final DecimalFormat DECIMAL_FORMATTER = new DecimalFormat("###.#");
 
     // Channel_ID required for newer version
-    protected static final String CHANNEL_ID = "channel1";
+    private static final String DEFAULT_CHANNEL_ID = "com.envirocar.app.recording.notification";
     private static final int notificationId = 181;
 
     // Injected variables
@@ -68,6 +74,7 @@ public class RecordingNotification implements LifecycleObserver {
     private final Bus eventBus;
     private final Class screenClass;
     private final NotificationManager notificationManager;
+    private final String channelId;
 
     // Stats of the recording
     private BluetoothServiceState bluetoothServiceState;
@@ -75,6 +82,7 @@ public class RecordingNotification implements LifecycleObserver {
     private double distanceValue = 0.0;
     private long startingTime = 0;
     private boolean isTrackStarted = false;
+    private RecordingState recordingState = RecordingState.RECORDING_STOPPED;
 
     // currently visible notification
     private Notification notification;
@@ -89,6 +97,7 @@ public class RecordingNotification implements LifecycleObserver {
         this.eventBus = eventBus;
         this.notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         this.screenClass = BaseMainActivityBottomBar.class;
+        this.channelId = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ? createChannel() : "";
     }
 
     /**
@@ -124,7 +133,7 @@ public class RecordingNotification implements LifecycleObserver {
     public void onReceiveServiceStateChangedEvent(TrackRecordingServiceStateChangedEvent event) {
         this.bluetoothServiceState = event.mState;
         if (event.mState == BluetoothServiceState.SERVICE_STARTED) {
-            this.startingTime = SystemClock.elapsedRealtime();
+
         } else if (event.mState == BluetoothServiceState.SERVICE_STOPPED) {
             this.cancel();
         }
@@ -165,6 +174,17 @@ public class RecordingNotification implements LifecycleObserver {
         refresh();
     }
 
+    @Subscribe
+    public void onRecordingStateEvent(RecordingStateEvent event) {
+        this.recordingState = event.recordingState;
+        if(this.recordingState == RecordingState.RECORDING_RUNNING) {
+            this.startingTime = SystemClock.elapsedRealtime();
+            refresh();
+        } else {
+            cancel();
+        }
+    }
+
     /**
      * Refreshes the notification.
      */
@@ -190,7 +210,7 @@ public class RecordingNotification implements LifecycleObserver {
         smallLayout.setChronometer(R.id.notification_timertext, startingTime, "%s", isTrackStarted);
 
         // create new Notification
-        this.notification = new NotificationCompat.Builder(this.context, CHANNEL_ID)
+        this.notification = new NotificationCompat.Builder(this.context, DEFAULT_CHANNEL_ID)
                 .setSmallIcon(ServiceStateForNotification.CONNECTED.getIcon())
                 .setContentIntent(pIntent)
                 .setCustomContentView(smallLayout)
@@ -198,7 +218,8 @@ public class RecordingNotification implements LifecycleObserver {
                 .setAutoCancel(true).build();
 
         // notify change
-        this.notificationManager.notify(notificationId, this.notification);
+        if (recordingState == RecordingState.RECORDING_RUNNING)
+            this.notificationManager.notify(notificationId, this.notification);
     }
 
     /**
@@ -206,5 +227,20 @@ public class RecordingNotification implements LifecycleObserver {
      */
     private void cancel() {
         this.notificationManager.cancel(notificationId);
+    }
+
+    @TargetApi(26)
+    private synchronized String createChannel() {
+        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationChannel channel = new NotificationChannel(DEFAULT_CHANNEL_ID, "recording notification state", NotificationManager.IMPORTANCE_LOW);
+        channel.setDescription("Recording Notification");
+        channel.enableLights(true);
+        channel.setLightColor(Color.BLUE);
+
+        if (notificationManager != null) {
+            notificationManager.createNotificationChannel(channel);
+        }
+
+        return DEFAULT_CHANNEL_ID;
     }
 }

@@ -21,6 +21,7 @@ import org.envirocar.app.main.BaseApplication;
 import org.envirocar.app.main.BaseMainActivityBottomBar;
 import org.envirocar.app.notifications.ServiceStateForNotification;
 import org.envirocar.app.recording.events.RecordingStateEvent;
+import org.envirocar.app.recording.provider.RecordingDetailsProvider;
 import org.envirocar.app.recording.strategy.RecordingStrategy;
 import org.envirocar.app.recording.notification.RecordingNotification;
 import org.envirocar.app.recording.notification.SpeechOutput;
@@ -48,6 +49,8 @@ public class RecordingService extends ScopedBaseInjectorService {
     protected SpeechOutput speechOutput;
     @Inject
     protected RecordingNotification recordingNotification;
+    @Inject
+    protected RecordingDetailsProvider recordingDetailsProvider;
     @Inject
     protected RecordingStrategy.Factory recordingFactory;
 
@@ -93,6 +96,7 @@ public class RecordingService extends ScopedBaseInjectorService {
 
         getLifecycle().addObserver(this.speechOutput);
         getLifecycle().addObserver(this.recordingNotification);
+        getLifecycle().addObserver(this.recordingDetailsProvider);
 
         // Register a new BroadcastReceiver that waits for incoming actions issued from the notification.
         IntentFilter notificationClickedFilter = new IntentFilter();
@@ -156,7 +160,7 @@ public class RecordingService extends ScopedBaseInjectorService {
                 .setContentIntent(pIntent)
                 .setAutoCancel(true).build();
 
-        startForeground(181, notification);
+        startForeground(182, notification);
     }
 
     @TargetApi(26)
