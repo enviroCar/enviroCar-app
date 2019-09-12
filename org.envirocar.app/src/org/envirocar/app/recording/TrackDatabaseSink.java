@@ -2,8 +2,6 @@ package org.envirocar.app.recording;
 
 import android.content.Context;
 
-import com.squareup.otto.Bus;
-
 import org.envirocar.app.R;
 import org.envirocar.app.handler.CarPreferenceHandler;
 import org.envirocar.core.entity.Car;
@@ -14,6 +12,7 @@ import org.envirocar.core.exception.MeasurementSerializationException;
 import org.envirocar.core.exception.TrackSerializationException;
 import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.logging.Logger;
+import org.envirocar.core.utils.LocationUtils;
 import org.envirocar.storage.EnviroCarDB;
 
 import java.text.DateFormat;
@@ -42,7 +41,6 @@ public class TrackDatabaseSink {
     @Inject
     protected EnviroCarDB enviroCarDB;
 
-
     /**
      * @return
      */
@@ -54,11 +52,12 @@ public class TrackDatabaseSink {
             public void onNext(Measurement measurement) {
                 if (isDisposed())
                     return;
+                LOG.info("Storing new measurement into database");
 
                 // If not rack exists, then create one.
                 if (track == null) {
                     try {
-                        track = createNewTrack();
+                        track = createNewTrack(measurement.getTime());
                         emitter.onNext(track);
                     } catch (TrackSerializationException e) {
                         LOG.error("Unable to create track instance", e);
@@ -66,11 +65,26 @@ public class TrackDatabaseSink {
                     }
                 }
 
-                measurement.setTrackId(track.getTrackID());
-                track.getMeasurements().add(measurement);
-
                 try {
+                    // inserting measurement
+                    measurement.setTrackId(track.getTrackID());
                     enviroCarDB.insertMeasurement(measurement);
+
+                    // updating track information
+                    track.setEndTime(measurement.getTime());
+
+                    // update distance
+                    int numOfTracks = track.getMeasurements().size();
+                    if (numOfTracks > 0) {
+                        Measurement lastMeasurement = track.getMeasurements().get(numOfTracks - 1);
+                        double distanceToLast = LocationUtils.getDistance(lastMeasurement, measurement);
+                        track.setLength(track.getLength() + distanceToLast);
+                    }
+
+                    // update track in databse
+                    track.getMeasurements().add(measurement);
+                    enviroCarDB.updateTrack(track);
+                    LOG.info("Measurement stored");
                 } catch (MeasurementSerializationException e) {
                     LOG.error(e.getMessage(), e);
                     onError(e);
@@ -92,28 +106,31 @@ public class TrackDatabaseSink {
         }));
     }
 
-    private Track createNewTrack() throws TrackSerializationException {
+    private Track createNewTrack(long startTime) throws TrackSerializationException {
         String date = format.format(new Date());
         Car car = carHandler.getCar();
 
         Track track = new TrackImpl();
         track.setCar(car);
         track.setName("Track " + date);
-        track.setDescription(String.format(context.getString(R.string.default_track_description),
-                car != null ? car.getModel() : "null"));
+        track.setDescription(String.format(context.getString(R.string.default_track_description), car != null ? car.getModel() : "null"));
+        track.setLength(0.0);
+        track.setStartTime(startTime);
+
 
         enviroCarDB.insertTrack(track);
         return track;
     }
 
+
     private void finishTrack(Track track) {
         LOG.info(String.format("Finishing current track %s", track.getDescription()));
 
-        track.setTrackStatus(Track.TrackStatus.FINISHED);
         if (track.getMeasurements().size() <= 1) {
             LOG.info("Track had not enough measurements. Deleting track.");
             enviroCarDB.deleteTrack(track);
         } else {
+            track.setTrackStatus(Track.TrackStatus.FINISHED);
             enviroCarDB.updateTrack(track);
         }
     }
