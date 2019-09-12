@@ -21,11 +21,6 @@ package org.envirocar.app.services;
 import android.content.Context;
 import android.os.PowerManager;
 
-import org.envirocar.algorithm.MeasurementProvider;
-import org.envirocar.app.handler.InterpolationMeasurementProvider;
-import org.envirocar.app.main.BaseApplication;
-import org.envirocar.app.services.recording.RecordingNotification;
-import org.envirocar.app.services.recording.SpeechOutput;
 import org.envirocar.core.injection.InjectApplicationScope;
 
 import javax.inject.Singleton;
@@ -46,32 +41,32 @@ public class OBDServiceModule {
                 .newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "org.envirocar.app:wakelock");
     }
 
-    @Singleton
-    @Provides
-    MeasurementProvider provideMeasurementProvider() {
-        return new InterpolationMeasurementProvider();
-    }
+//    @Singleton
+//    @Provides
+//    MeasurementProvider provideMeasurementProvider() {
+//        return new InterpolationMeasurementProvider();
+//    }
 
-    @Singleton
-    @Provides
-    OBDConnectionHandler provideOBDConnectionHandler(@InjectApplicationScope Context context) {
-        return new OBDConnectionHandler(context);
-    }
+//    @Singleton
+//    @Provides
+//    OBDConnectionHandler provideOBDConnectionHandler(@InjectApplicationScope Context context) {
+//        return new OBDConnectionHandler(context);
+//    }
 
-    @Singleton
-    @Provides
-    SpeechOutput provideSpeechOutput(@InjectApplicationScope Context context) {
-        SpeechOutput speechOutput = new SpeechOutput(context);
-        ((BaseApplication) context).getBaseApplicationComponent().inject(speechOutput);
-        return speechOutput;
-    }
+//    @Singleton
+//    @Provides
+//    SpeechOutput provideSpeechOutput(@InjectApplicationScope Context context) {
+//        SpeechOutput speechOutput = new SpeechOutput(context);
+//        ((BaseApplication) context).getBaseApplicationComponent().inject(speechOutput);
+//        return speechOutput;
+//    }
 
-    @Singleton
-    @Provides
-    RecordingNotification provideRecordingNotification(@InjectApplicationScope Context context) {
-        RecordingNotification recordingNotification = new RecordingNotification(context);
-        ((BaseApplication) context).getBaseApplicationComponent().inject(recordingNotification);
-        return recordingNotification;
-    }
+//    @Singleton
+//    @Provides
+//    RecordingNotification provideRecordingNotification(@InjectApplicationScope Context context) {
+//        RecordingNotification recordingNotification = new RecordingNotification(context);
+//        ((BaseApplication) context).getBaseApplicationComponent().inject(recordingNotification);
+//        return recordingNotification;
+//    }
 
 }

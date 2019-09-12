@@ -40,6 +40,7 @@ import javax.inject.Inject;
  */
 public abstract class BaseInjectorService extends LifecycleService {
 
+
     // Injected variables.
     @Inject
     protected Bus bus;
@@ -56,6 +57,11 @@ public abstract class BaseInjectorService extends LifecycleService {
         injectDependencies(getBaseApplicationComponent());
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+    }
 
     /**
      * Gets the BaseApplicationComponent for injection.

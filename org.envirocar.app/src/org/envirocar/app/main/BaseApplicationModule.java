@@ -27,12 +27,10 @@ import com.f2prateek.rx.preferences2.RxSharedPreferences;
 import com.squareup.otto.Bus;
 import com.squareup.otto.ThreadEnforcer;
 
-import org.envirocar.app.events.TrackDetailsProvider;
+import org.envirocar.app.recording.provider.RecordingDetailsProvider;
 import org.envirocar.app.handler.HandlerModule;
 import org.envirocar.app.handler.TemporaryFileManager;
 import org.envirocar.app.handler.TrackRecordingHandler;
-import org.envirocar.app.recording.TrackDatabaseSink;
-import org.envirocar.core.entity.Track;
 import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.app.services.OBDServiceModule;
 import org.envirocar.core.CacheDirectoryProvider;
@@ -144,10 +142,6 @@ public class BaseApplicationModule {
 
     @Provides
     @Singleton
-    TrackDetailsProvider provideTrackDetailsProvider() { return new TrackDetailsProvider(mBus, mAppContext); }
-
-    @Provides
-    @Singleton
     SharedPreferences provideSharedPreferences(@InjectApplicationScope Context context){
         return PreferenceManager.getDefaultSharedPreferences(context);
     }
@@ -158,12 +152,6 @@ public class BaseApplicationModule {
         return RxSharedPreferences.create(prefs);
     }
 
-    @Provides
-    @Singleton
-    TrackDatabaseSink provideTrackDatabaseSink(){
-        return new TrackDatabaseSink();
-    }
-
     /**
      * Provides the CacheDirectoryProvider.
      *
@@ -171,8 +159,7 @@ public class BaseApplicationModule {
      */
     @Provides
     @Singleton
-    public CacheDirectoryProvider provideCacheDirectoryProvider(
-            @InjectApplicationScope Context context) {
+    public CacheDirectoryProvider provideCacheDirectoryProvider(@InjectApplicationScope Context context) {
         return () -> Util.resolveCacheFolder(context);
     }
 

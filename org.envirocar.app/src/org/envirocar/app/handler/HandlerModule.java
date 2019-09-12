@@ -18,6 +18,9 @@
  */
 package org.envirocar.app.handler;
 
+
+import org.envirocar.core.UserManager;
+
 import javax.inject.Singleton;
 
 import dagger.Module;
@@ -33,7 +36,7 @@ public class HandlerModule {
 
     @Provides
     @Singleton
-    org.envirocar.core.UserManager provideUserManagerImpl(UserHandler userHandler) {
+    UserManager provideUserManagerImpl(UserHandler userHandler) {
         return userHandler;
     }
 

@@ -25,14 +25,10 @@ import org.envirocar.app.aidl.EnviroCarDataService;
 import org.envirocar.app.handler.DAOProvider;
 import org.envirocar.app.handler.LocationHandler;
 import org.envirocar.app.handler.TrackRecordingHandler;
-import org.envirocar.app.recording.TrackDatabaseSink;
-import org.envirocar.app.recording.strategy.OBDRecordingStrategy;
-import org.envirocar.app.services.recording.RecordingNotification;
-import org.envirocar.app.recording.RecordingService;
-import org.envirocar.app.recording.strategy.RecordingStrategy;
+import org.envirocar.app.recording.RecordingComponent;
+import org.envirocar.app.recording.RecordingModule;
 import org.envirocar.app.services.AutomaticTrackRecordingService;
 import org.envirocar.app.services.TrackUploadService;
-import org.envirocar.app.services.recording.SpeechOutput;
 import org.envirocar.app.views.OthersFragment;
 import org.envirocar.app.views.carselection.CarSelectionActivity;
 import org.envirocar.app.views.carselection.CarSelectionAddCarFragment;
@@ -78,7 +74,9 @@ import retrofit2.Retrofit;
 
 @Singleton
 @Component(
-        modules = BaseApplicationModule.class
+        modules = {
+                BaseApplicationModule.class
+        }
 )
 public interface BaseApplicationComponent {
 
@@ -105,20 +103,21 @@ public interface BaseApplicationComponent {
     void inject(OthersFragment othersFragment);
     void inject(TrackTrimDurationPreference trackTrimDurationPreference);
     void inject(EnviroCarDataService enviroCarDataService);
-    void inject(SpeechOutput speechOutput);
-    void inject(RecordingNotification recordingNotification);
+//    void inject(SpeechOutput speechOutput);
+//    void inject(RecordingNotification recordingNotification);
     void inject(SigninActivity loginActivity);
     void inject(SignupActivity registerActivity);
     void inject(LocationHandler locationHandler);
     void inject(UserStatisticsProcessor statisticsProcessor);
     void inject(UserManager userManager);
-    void inject(RecordingService recordingService);
-    void inject(OBDRecordingStrategy recordingStrategy);
+//    void inject(RecordingService recordingService);
+//    void inject(OBDRecordingStrategy recordingStrategy);
     void inject(DashboardFragment2 dashboardFragment);
-    void inject(TrackDatabaseSink trackDatabaseSink);
+//    void inject(TrackDatabaseSink trackDatabaseSink);
 
 
     MainActivityComponent plus(MainActivityModule mainActivityModule);
+    RecordingComponent plus(RecordingModule recordingModule);
 
 
     CacheCarDAO getCacheCarDAO();
