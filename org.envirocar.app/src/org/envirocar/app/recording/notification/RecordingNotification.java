@@ -1,22 +1,22 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
-package org.envirocar.app.services.recording;
+package org.envirocar.app.recording.notification;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -47,8 +47,6 @@ import org.envirocar.obd.service.BluetoothServiceState;
 
 import java.text.DecimalFormat;
 
-import javax.inject.Inject;
-
 /**
  * TODO JavaDoc
  *
@@ -63,11 +61,11 @@ public class RecordingNotification implements LifecycleObserver {
     private static final int notificationId = 181;
 
     // Injected variables
-    @Inject
-    protected Bus eventBus;
+
 
     // context information
     private final Context context;
+    private final Bus eventBus;
     private final Class screenClass;
     private final NotificationManager notificationManager;
 
@@ -86,8 +84,9 @@ public class RecordingNotification implements LifecycleObserver {
      *
      * @param context
      */
-    public RecordingNotification(final Context context) {
+    public RecordingNotification(Context context, Bus eventBus) {
         this.context = context;
+        this.eventBus = eventBus;
         this.notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         this.screenClass = BaseMainActivityBottomBar.class;
     }
@@ -96,7 +95,7 @@ public class RecordingNotification implements LifecycleObserver {
      * Handles onCreate events of the bounded observer.
      */
     @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
-    protected void onCreate(){
+    protected void onCreate() {
         this.eventBus.register(this);
     }
 
@@ -104,11 +103,11 @@ public class RecordingNotification implements LifecycleObserver {
      * Handles onDestroy lifecycle events of the bounded observer.
      */
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-    protected void onDestroy(){
+    protected void onDestroy() {
         // unregister from event bus
         try {
             this.eventBus.unregister(this);
-        } catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             LOG.info("RecordingNotification was not registered on event bus.");
         }
 
@@ -126,7 +125,7 @@ public class RecordingNotification implements LifecycleObserver {
         this.bluetoothServiceState = event.mState;
         if (event.mState == BluetoothServiceState.SERVICE_STARTED) {
             this.startingTime = SystemClock.elapsedRealtime();
-        } else if (event.mState == BluetoothServiceState.SERVICE_STOPPED){
+        } else if (event.mState == BluetoothServiceState.SERVICE_STOPPED) {
             this.cancel();
         }
         refresh();
@@ -205,7 +204,7 @@ public class RecordingNotification implements LifecycleObserver {
     /**
      * Deletes the recording notification
      */
-    private void cancel(){
+    private void cancel() {
         this.notificationManager.cancel(notificationId);
     }
 }

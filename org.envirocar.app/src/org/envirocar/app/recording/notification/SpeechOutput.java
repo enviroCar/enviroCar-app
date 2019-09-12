@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
-package org.envirocar.app.services.recording;
+package org.envirocar.app.recording.notification;
 
 import android.content.Context;
 import android.speech.tts.TextToSpeech;
@@ -29,6 +29,7 @@ import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.handler.PreferencesHandler;
+import org.envirocar.app.recording.RecordingScope;
 import org.envirocar.core.events.gps.GpsSatelliteFix;
 import org.envirocar.core.events.gps.GpsSatelliteFixEvent;
 import org.envirocar.core.logging.Logger;
@@ -48,10 +49,8 @@ import io.reactivex.disposables.Disposable;
 public class SpeechOutput implements LifecycleObserver {
     private static final Logger LOG = Logger.getLogger(SpeechOutput.class);
 
-    @Inject
-    protected Bus eventBus;
-
-    private Context context;
+    private final Bus eventBus;
+    private final Context context;
 
     // text to speech variables
     private boolean ttsAvailable = false;
@@ -69,8 +68,9 @@ public class SpeechOutput implements LifecycleObserver {
      *
      * @param context
      */
-    public SpeechOutput(Context context) {
+    public SpeechOutput(Context context, Bus eventBus) {
         this.context = context;
+        this.eventBus = eventBus;
 
         // init
         this.tts = new TextToSpeech(context, status -> {

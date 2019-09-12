@@ -4,7 +4,6 @@ import android.app.Service;
 import android.content.Context;
 
 import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.OnLifecycleEvent;
 
 import com.squareup.otto.Bus;
@@ -12,12 +11,13 @@ import com.squareup.otto.Subscribe;
 
 import org.envirocar.algorithm.MeasurementProvider;
 import org.envirocar.app.handler.BluetoothHandler;
+import org.envirocar.app.handler.CarPreferenceHandler;
 import org.envirocar.app.handler.PreferencesHandler;
-import org.envirocar.app.main.BaseApplicationComponent;
 import org.envirocar.app.recording.RecordingState;
-import org.envirocar.app.recording.TrackDatabaseSink;
+import org.envirocar.app.recording.notification.SpeechOutput;
+import org.envirocar.app.recording.provider.LocationProvider;
+import org.envirocar.app.recording.provider.TrackDatabaseSink;
 import org.envirocar.app.services.OBDConnectionHandler;
-import org.envirocar.app.services.recording.SpeechOutput;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
@@ -25,7 +25,6 @@ import org.envirocar.core.events.gps.GpsLocationChangedEvent;
 import org.envirocar.core.exception.FuelConsumptionException;
 import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.exception.UnsupportedFuelTypeException;
-import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.trackprocessing.consumption.ConsumptionAlgorithm;
 import org.envirocar.core.trackprocessing.consumption.LoadBasedEnergyConsumptionAlgorithm;
@@ -39,11 +38,10 @@ import org.envirocar.obd.exception.AllAdaptersFailedException;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-import javax.inject.Inject;
-
 import io.reactivex.Observable;
 import io.reactivex.ObservableTransformer;
 import io.reactivex.Scheduler;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.DisposableObserver;
@@ -56,21 +54,15 @@ public class OBDRecordingStrategy implements RecordingStrategy {
     private static final Logger LOG = Logger.getLogger(OBDRecordingStrategy.class);
     protected static final int MAX_RECONNECT_COUNT = 2;
 
-    @Inject
-    @InjectApplicationScope
     protected Context context;
-    @Inject
     protected Bus eventBus;
-    @Inject
     protected SpeechOutput speechOutput;
-    @Inject
     protected BluetoothHandler bluetoothHandler;
-    @Inject
     protected OBDConnectionHandler obdConnectionHandler;
-    @Inject
     protected MeasurementProvider measurementProvider;
-    @Inject
     protected TrackDatabaseSink trackDatabaseSink;
+    protected LocationProvider locationProvider;
+    protected CarPreferenceHandler carPreferenceHandler;
 
     //
     private CompositeDisposable disposables = new CompositeDisposable();
@@ -78,7 +70,6 @@ public class OBDRecordingStrategy implements RecordingStrategy {
     private OBDConnectionRecognizer recognizer = new OBDConnectionRecognizer();
 
     // computation algorithms
-    private final Car car;
     private ConsumptionAlgorithm consumptionAlgorithm;
     private CalculatedMAFWithStaticVolumetricEfficiency mafAlgorithm;
     private LoadBasedEnergyConsumptionAlgorithm energyConsumptionAlgorithm;
@@ -86,11 +77,23 @@ public class OBDRecordingStrategy implements RecordingStrategy {
     /**
      * Constructor.
      */
-    public OBDRecordingStrategy(BaseApplicationComponent injector, Car car) {
-        injector.inject(this);
-        this.car = car;
+    public OBDRecordingStrategy(
+            Context context, Bus eventBus, SpeechOutput speechOutput, BluetoothHandler bluetoothHandler,
+            OBDConnectionHandler obdConnectionHandler, MeasurementProvider measurementProvider,
+            TrackDatabaseSink trackDatabaseSink, LocationProvider locationProvider,
+            CarPreferenceHandler carPreferenceHandler) {
+        this.context = context;
+        this.eventBus = eventBus;
+        this.speechOutput = speechOutput;
+        this.bluetoothHandler = bluetoothHandler;
+        this.obdConnectionHandler = obdConnectionHandler;
+        this.measurementProvider = measurementProvider;
+        this.trackDatabaseSink = trackDatabaseSink;
+        this.locationProvider = locationProvider;
+        this.carPreferenceHandler = carPreferenceHandler;
 
         // set the car specific properties.
+        Car car = carPreferenceHandler.getCar();
         this.consumptionAlgorithm = ConsumptionAlgorithm.fromFuelType(car.getFuelType());
         this.mafAlgorithm = new CalculatedMAFWithStaticVolumetricEfficiency(car);
         this.energyConsumptionAlgorithm = new LoadBasedEnergyConsumptionAlgorithm(car.getFuelType());
@@ -121,6 +124,12 @@ public class OBDRecordingStrategy implements RecordingStrategy {
                         .observeOn(Schedulers.io())
                         .doOnDispose(() -> listener.onRecordingStateChanged(RecordingState.RECORDING_STOPPED))
                         .subscribeWith(initializeObserver()));
+
+        disposables.add(
+                locationProvider.startLocating()
+                        .subscribeOn(AndroidSchedulers.mainThread())
+                        .observeOn(Schedulers.io())
+                        .subscribe(() -> LOG.info("Completed"), LOG::error));
     }
 
     @Override
@@ -133,7 +142,7 @@ public class OBDRecordingStrategy implements RecordingStrategy {
 
         try {
             eventBus.unregister(measurementProvider);
-        } catch (Exception e){
+        } catch (Exception e) {
         }
 
         stopOBDConnectionRecognizer();
@@ -151,7 +160,7 @@ public class OBDRecordingStrategy implements RecordingStrategy {
                 try {
                     recognizer = new OBDConnectionRecognizer();
                     eventBus.register(recognizer);
-                } catch (Exception e){
+                } catch (Exception e) {
                     LOG.error(e.getMessage(), e);
                 }
             }
@@ -178,14 +187,13 @@ public class OBDRecordingStrategy implements RecordingStrategy {
         };
     }
 
-    private OBDController controller = null;
 
     private ObservableTransformer<BluetoothSocketWrapper, BluetoothSocketWrapper> verifyConnection() {
         return upstream -> upstream.flatMap(socket -> Observable.create(emitter -> {
             LOG.info(String.format("OBDConnectionService.onDeviceConntected(%s)", socket.getRemoteDeviceName()));
             speechOutput.doTextToSpeech("Connection established.");
             try {
-                controller = new OBDController(socket, new ConnectionListener() {
+                OBDController controller = new OBDController(socket, new ConnectionListener() {
                     int reconnectCount = 0;
 
                     @Override
@@ -228,7 +236,10 @@ public class OBDRecordingStrategy implements RecordingStrategy {
     private ObservableTransformer<BluetoothSocketWrapper, Measurement> receiveMeasurements() {
         return upstream -> {
             final Long samplingRate = PreferencesHandler.getSamplingRate(context) * 1000;
-            eventBus.register(measurementProvider);
+            try {
+                eventBus.register(measurementProvider);
+            } catch (Exception e) {
+            }
             return upstream.flatMap(socket -> measurementProvider.measurements(samplingRate));
         };
     }
@@ -269,11 +280,11 @@ public class OBDRecordingStrategy implements RecordingStrategy {
         });
     }
 
-    private void stopOBDConnectionRecognizer(){
+    private void stopOBDConnectionRecognizer() {
         try {
             eventBus.unregister(recognizer);
             recognizer = null;
-        } catch (Exception ex){
+        } catch (Exception ex) {
             LOG.error(ex.getMessage(), ex);
         }
     }
