@@ -58,11 +58,11 @@ public class RecordingModule {
         return new LocationProvider(context, eventBus);
     }
 
-    @Provides
-    @RecordingScope
-    public RecordingNotification provideRecordingNotification(@InjectApplicationScope Context context, Bus eventBus) {
-        return new RecordingNotification(context, eventBus);
-    }
+//    @Provides
+//    @RecordingScope
+//    public RecordingNotification provideRecordingNotification(@InjectApplicationScope Context context, Bus eventBus) {
+//        return new RecordingNotification(context, eventBus);
+//    }
 
     @Provides
     @RecordingScope

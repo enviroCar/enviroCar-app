@@ -45,6 +45,7 @@ import org.envirocar.app.events.StartingTimeEvent;
 import org.envirocar.app.main.BaseMainActivityBottomBar;
 import org.envirocar.app.notifications.NotificationActionHolder;
 import org.envirocar.app.notifications.ServiceStateForNotification;
+import org.envirocar.app.recording.RecordingService;
 import org.envirocar.app.recording.RecordingState;
 import org.envirocar.app.recording.events.RecordingStateEvent;
 import org.envirocar.core.logging.Logger;
@@ -70,7 +71,7 @@ public class RecordingNotification implements LifecycleObserver {
 
 
     // context information
-    private final Context context;
+    private final RecordingService context;
     private final Bus eventBus;
     private final Class screenClass;
     private final NotificationManager notificationManager;
@@ -90,10 +91,9 @@ public class RecordingNotification implements LifecycleObserver {
     /**
      * Constructor.
      *
-     * @param context
      */
-    public RecordingNotification(Context context, Bus eventBus) {
-        this.context = context;
+    public RecordingNotification(RecordingService recordingService, Bus eventBus) {
+        this.context = recordingService;
         this.eventBus = eventBus;
         this.notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         this.screenClass = BaseMainActivityBottomBar.class;
@@ -106,6 +106,7 @@ public class RecordingNotification implements LifecycleObserver {
     @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
     protected void onCreate() {
         this.eventBus.register(this);
+        this.refresh();
     }
 
     /**
@@ -177,7 +178,7 @@ public class RecordingNotification implements LifecycleObserver {
     @Subscribe
     public void onRecordingStateEvent(RecordingStateEvent event) {
         this.recordingState = event.recordingState;
-        if(this.recordingState == RecordingState.RECORDING_RUNNING) {
+        if (this.recordingState == RecordingState.RECORDING_RUNNING) {
             this.startingTime = SystemClock.elapsedRealtime();
             refresh();
         } else {
@@ -188,7 +189,39 @@ public class RecordingNotification implements LifecycleObserver {
     /**
      * Refreshes the notification.
      */
-    private void refresh() {
+    private synchronized void refresh() {
+        if (recordingState == RecordingState.RECORDING_RUNNING) {
+            refreshRunning();
+        } else {
+            refreshStopped();
+        }
+    }
+
+    private synchronized void refreshStopped() {
+        ServiceStateForNotification state = null;
+        if (recordingState == RecordingState.RECORDING_STOPPED) {
+            state = ServiceStateForNotification.UNCONNECTED;
+        } else {
+            state = ServiceStateForNotification.CONNECTING;
+        }
+
+        Intent i = new Intent(context, BaseMainActivityBottomBar.class);
+        PendingIntent pIntent = PendingIntent.getActivity(context, (int) System.currentTimeMillis(), i, 0);
+
+        this.notification = new NotificationCompat.Builder(context, channelId)
+                .setContentTitle(context.getString(state.getTitle()))
+                .setContentText(context.getString(state.getSubText()))
+                .setSmallIcon(state.getIcon())
+                .setContentIntent(pIntent)
+                .setAutoCancel(true).build();
+
+        this.context.startForeground(this.notificationId, this.notification);
+    }
+
+    private synchronized void refreshRunning() {
+        if (recordingState != RecordingState.RECORDING_RUNNING)
+            return;
+
         Intent intent = new Intent(this.context, this.screenClass);
 
         // use System.currentTimeMillis() to have a unique ID for the pending intent
@@ -218,8 +251,7 @@ public class RecordingNotification implements LifecycleObserver {
                 .setAutoCancel(true).build();
 
         // notify change
-        if (recordingState == RecordingState.RECORDING_RUNNING)
-            this.notificationManager.notify(notificationId, this.notification);
+        context.startForeground(notificationId, this.notification);
     }
 
     /**

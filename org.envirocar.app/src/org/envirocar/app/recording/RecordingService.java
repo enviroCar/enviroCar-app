@@ -16,6 +16,8 @@ import android.os.IBinder;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
+import com.squareup.otto.Bus;
+
 import org.envirocar.app.injection.ScopedBaseInjectorService;
 import org.envirocar.app.main.BaseApplication;
 import org.envirocar.app.main.BaseMainActivityBottomBar;
@@ -48,13 +50,14 @@ public class RecordingService extends ScopedBaseInjectorService {
     @Inject
     protected SpeechOutput speechOutput;
     @Inject
-    protected RecordingNotification recordingNotification;
+    protected Bus eventBus;
     @Inject
     protected RecordingDetailsProvider recordingDetailsProvider;
     @Inject
     protected RecordingStrategy.Factory recordingFactory;
 
     private RecordingStrategy recordingStrategy;
+    private RecordingNotification recordingNotification;
 
     // Broadcast receiver that handles the stopping of the track that could be issued by the
     // corresponding notification of the notification bar.
@@ -73,7 +76,6 @@ public class RecordingService extends ScopedBaseInjectorService {
             }
         }
     };
-
 
     @Override
     protected void setupServiceComponent() {
@@ -94,6 +96,8 @@ public class RecordingService extends ScopedBaseInjectorService {
         LOG.info("Creating RecordingService.");
         super.onCreate();
 
+        this.recordingNotification = new RecordingNotification(this, eventBus);
+
         getLifecycle().addObserver(this.speechOutput);
         getLifecycle().addObserver(this.recordingNotification);
         getLifecycle().addObserver(this.recordingDetailsProvider);
@@ -109,24 +113,11 @@ public class RecordingService extends ScopedBaseInjectorService {
         LOG.info("Starting service with following intent: " + intent);
         super.onStartCommand(intent, flags, startId);
 
-        showNotification(ServiceStateForNotification.UNCONNECTED);
-
         // Select recording algorithm and start
         this.recordingStrategy = recordingFactory.create();
         getLifecycle().addObserver(recordingStrategy);
         recordingStrategy.startRecording(this, recordingState -> {
             RECORDING_STATE = recordingState;
-            switch (recordingState) {
-                case RECORDING_INIT:
-                    showNotification(ServiceStateForNotification.CONNECTING);
-                    break;
-                case RECORDING_STOPPED:
-                    showNotification(ServiceStateForNotification.UNCONNECTED);
-                    break;
-                case RECORDING_RUNNING:
-                    showNotification(ServiceStateForNotification.CONNECTED);
-                    break;
-            }
             bus.post(new RecordingStateEvent(recordingState));
         });
 
@@ -142,40 +133,7 @@ public class RecordingService extends ScopedBaseInjectorService {
             recordingStrategy.stopRecording();
             recordingStrategy = null;
         }
-    }
 
-    private void showNotification(ServiceStateForNotification state) {
-        Intent i = new Intent(this, BaseMainActivityBottomBar.class);
-        PendingIntent pIntent = PendingIntent.getActivity(this, (int) System.currentTimeMillis(), i, 0);
-
-        String channelId = "";
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            channelId = createChannel();
-        }
-
-        Notification notification = new NotificationCompat.Builder(this, channelId)
-                .setContentTitle(getBaseContext().getString(state.getTitle()))
-                .setContentText(getBaseContext().getString(state.getSubText()))
-                .setSmallIcon(state.getIcon())
-                .setContentIntent(pIntent)
-                .setAutoCancel(true).build();
-
-        startForeground(182, notification);
-    }
-
-    @TargetApi(26)
-    private synchronized String createChannel() {
-        NotificationManager notificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
-        NotificationChannel channel = new NotificationChannel(CHANNEL_ID, "recording notification state", NotificationManager.IMPORTANCE_LOW);
-        channel.enableLights(true);
-        channel.setLightColor(Color.BLUE);
-
-        if (notificationManager != null) {
-            notificationManager.createNotificationChannel(channel);
-        } else {
-            stopSelf();
-        }
-
-        return CHANNEL_ID;
+        this.unregisterReceiver(broadcastReceiver);
     }
 }
