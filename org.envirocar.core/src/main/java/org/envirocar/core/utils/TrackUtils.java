@@ -100,13 +100,13 @@ public class TrackUtils {
         return -1;
     }
 
-    private static boolean isSpatialObfuscated(Measurement measurement, Track track)
+    public static final boolean isSpatialObfuscated(Measurement measurement, Track track)
             throws NoMeasurementsException {
-        return (Util.getDistance(track.getFirstMeasurement(), measurement) <= OBFUSCATION_DISTANCE_KM)
-                || (Util.getDistance(track.getLastMeasurement(), measurement) <= OBFUSCATION_DISTANCE_KM);
+        return (LocationUtils.getDistance(track.getFirstMeasurement(), measurement) <= OBFUSCATION_DISTANCE_KM)
+                || (LocationUtils.getDistance(track.getLastMeasurement(), measurement) <= OBFUSCATION_DISTANCE_KM);
     }
 
-    private static boolean isTemporalObfuscated(Measurement measurement, Track track)
+    public static final boolean isTemporalObfuscated(Measurement measurement, Track track)
             throws NoMeasurementsException {
         return (measurement.getTime() - track.getStartTime() <= OBFUSCATION_TIME_MS ||
                 track.getEndTime() - measurement.getTime() <= OBFUSCATION_TIME_MS);

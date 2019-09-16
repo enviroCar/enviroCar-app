@@ -195,11 +195,6 @@ public class BaseMainActivityBottomBar extends BaseInjectorActivity {
     }
 
     @Override
-    public void finish() {
-//        super.finish();
-    }
-
-    @Override
     protected void onResume() {
         LOGGER.info("BaseMainActivityBottomBar : onResume()");
         super.onResume();

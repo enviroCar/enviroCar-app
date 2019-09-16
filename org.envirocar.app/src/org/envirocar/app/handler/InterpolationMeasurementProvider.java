@@ -23,8 +23,6 @@ import android.location.Location;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.algorithm.AbstractMeasurementProvider;
-import org.envirocar.app.services.recording.GPSOnlyRecordingService;
-import org.envirocar.app.services.recording.OBDRecordingService;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.MeasurementImpl;
 import org.envirocar.core.events.gps.GpsDOP;
@@ -33,7 +31,6 @@ import org.envirocar.core.events.gps.GpsLocationChangedEvent;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.obd.events.PropertyKeyEvent;
 import org.envirocar.obd.events.Timestamped;
-import org.envirocar.obd.service.BluetoothServiceState;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -75,14 +72,9 @@ public class InterpolationMeasurementProvider extends AbstractMeasurementProvide
 
                     Measurement m = createMeasurement();
 
-                    if (OBDRecordingService.CURRENT_SERVICE_STATE == BluetoothServiceState.SERVICE_STARTED) {
-                        if (m != null && m.getLatitude() != null && m.getLongitude() != null && m.hasProperty(Measurement.PropertyKey.SPEED)) {
-                            emitter.onNext(m);
-                        }
-                    } else if (GPSOnlyRecordingService.CURRENT_SERVICE_STATE == BluetoothServiceState.SERVICE_STARTED) {
-                        if (m != null && m.getLatitude() != null && m.getLongitude() != null && GPSOnlyRecordingService.drivingDetected) {
-                            emitter.onNext(m);
-                        }
+                    if (m != null && m.getLatitude() != null && m.getLongitude() != null && (m.hasProperty(Measurement.PropertyKey.SPEED) || m.hasProperty(Measurement.PropertyKey.GPS_SPEED))) {
+                        LOG.info("Emitting next measuremnet");
+                        emitter.onNext(m);
                     }
                 }
             }
@@ -103,6 +95,7 @@ public class InterpolationMeasurementProvider extends AbstractMeasurementProvide
 
         for (Measurement.PropertyKey pk : this.bufferedResponses.keySet()) {
             appendToMeasurement(pk, this.bufferedResponses.get(pk), m);
+            LOG.info("append key " + pk.toString());
         }
 
         /**

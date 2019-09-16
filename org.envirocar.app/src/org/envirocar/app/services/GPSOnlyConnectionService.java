@@ -68,7 +68,7 @@
 //import org.envirocar.app.events.DistanceValueUpdateEvent;
 //import org.envirocar.app.events.DrivingDetectedEvent;
 //import org.envirocar.app.events.StartingTimeEvent;
-//import org.envirocar.app.events.TrackDetailsProvider;
+//import org.envirocar.app.recording.provider.RecordingDetailsProvider;
 //import org.envirocar.app.handler.CarPreferenceHandler;
 //import org.envirocar.app.handler.LocationHandler;
 //import org.envirocar.app.handler.PreferencesHandler;
@@ -136,7 +136,7 @@
 //    @Inject
 //    protected LocationHandler mLocationHandler;
 //    @Inject
-//    protected TrackDetailsProvider mTrackDetailsProvider;
+//    protected RecordingDetailsProvider mTrackDetailsProvider;
 //    @Inject
 //    protected PowerManager.WakeLock mWakeLock;
 //    @Inject

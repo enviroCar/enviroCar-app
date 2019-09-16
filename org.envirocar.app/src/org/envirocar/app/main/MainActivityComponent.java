@@ -18,7 +18,7 @@
  */
 package org.envirocar.app.main;
 
-import org.envirocar.app.views.dashboard.DashBoardFragment;
+import org.envirocar.app.views.dashboard.DashboardFragment2;
 import org.envirocar.app.views.recordingscreen.TempomatFragment;
 import org.envirocar.app.views.recordingscreen.TrackMapFragment;
 import org.envirocar.app.views.recordingscreen.GPSOnlyTrackRecordingScreen;
@@ -43,7 +43,7 @@ public interface MainActivityComponent {
     void inject(TrackListLocalCardFragment trackListLocalCardFragment);
     void inject(TrackListPagerFragment trackListPagerFragment);
     void inject(TrackListRemoteCardFragment trackListRemoteCardFragment);
-    void inject(DashBoardFragment dashBoardFragment);
+    void inject(DashboardFragment2 dashBoardFragment);
     void inject(OBDPlusGPSTrackRecordingScreen obdPlusGPSTrackRecordingScreen);
     void inject(GPSOnlyTrackRecordingScreen gpsOnlyTrackRecordingScreen);
 

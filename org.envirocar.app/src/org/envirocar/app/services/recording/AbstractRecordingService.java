@@ -26,7 +26,7 @@
 //import androidx.core.app.NotificationCompat;
 //
 //import org.envirocar.algorithm.MeasurementProvider;
-//import org.envirocar.app.events.TrackDetailsProvider;
+//import org.envirocar.app.recording.provider.RecordingDetailsProvider;
 //import org.envirocar.app.handler.CarPreferenceHandler;
 //import org.envirocar.app.handler.LocationHandler;
 //import org.envirocar.app.handler.TrackRecordingHandler;
@@ -52,7 +52,7 @@
 //    @Inject
 //    protected LocationHandler locationHandler;
 //    @Inject
-//    protected TrackDetailsProvider trackDetailsProvider;
+//    protected RecordingDetailsProvider trackDetailsProvider;
 //    @Inject
 //    protected PowerManager.WakeLock wakeLock;
 //    @Inject

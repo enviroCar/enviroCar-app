@@ -144,12 +144,13 @@ public abstract class AbstractTrackListCardAdapter<E extends
                     mMainThreadWorker.schedule(() -> holder.mDuration.setText(date));
 
                     // Set the tracklength parameter.
-                    double distanceOfTrack = ((TrackStatisticsProvider) track).getDistanceOfTrack();
+
+                    double distanceOfTrack = track.getLength();
                     String tracklength = String.format("%s km", DECIMAL_FORMATTER_TWO.format(
                             distanceOfTrack));
                     mMainThreadWorker.schedule(() -> holder.mDistance.setText(tracklength));
 
-                } catch (NoMeasurementsException e) {
+                } catch (Exception e) {
                     LOG.warn(e.getMessage(), e);
                     mMainThreadWorker.schedule(() -> {
                         holder.mDistance.setText("0 km");

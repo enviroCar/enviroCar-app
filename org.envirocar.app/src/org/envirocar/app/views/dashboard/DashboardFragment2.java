@@ -38,8 +38,9 @@ import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.UserHandler;
 import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.app.main.BaseApplicationComponent;
-import org.envirocar.app.services.recording.GPSOnlyRecordingService;
-import org.envirocar.app.services.recording.OBDRecordingService;
+import org.envirocar.app.recording.RecordingService;
+import org.envirocar.app.recording.RecordingState;
+import org.envirocar.app.recording.events.RecordingStateEvent;
 import org.envirocar.app.views.carselection.CarSelectionActivity;
 import org.envirocar.app.views.login.SigninActivity;
 import org.envirocar.app.views.obdselection.OBDSelectionActivity;
@@ -294,7 +295,7 @@ public class DashboardFragment2 extends BaseInjectorFragment {
             case R.id.fragment_dashboard_obd_mode_button:
                 BluetoothDevice device = bluetoothHandler.getSelectedBluetoothDevice();
 
-                Intent obdRecordingIntent = new Intent(getActivity(), OBDRecordingService.class);
+                Intent obdRecordingIntent = new Intent(getActivity(), RecordingService.class);
                 this.connectingDialog = new MaterialDialog.Builder(getActivity())
                         .iconRes(R.drawable.ic_bluetooth_searching_black_24dp)
                         .title(R.string.dashboard_connecting)
@@ -308,7 +309,7 @@ public class DashboardFragment2 extends BaseInjectorFragment {
                 ContextCompat.startForegroundService(getActivity(), obdRecordingIntent);
                 break;
             case R.id.fragment_dashboard_gps_mode_button:
-                Intent gpsOnlyIntent = new Intent(getActivity(), GPSOnlyRecordingService.class);
+                Intent gpsOnlyIntent = new Intent(getActivity(), RecordingService.class);
                 ContextCompat.startForegroundService(getActivity(), gpsOnlyIntent);
                 break;
             default:
@@ -348,6 +349,21 @@ public class DashboardFragment2 extends BaseInjectorFragment {
                 .observeOn(AndroidSchedulers.mainThread())
                 .map(state -> {
                     if (state == BluetoothServiceState.SERVICE_STARTED) {
+                        getActivity().startActivity(new Intent(getActivity(), OBDPlusGPSTrackRecordingScreen.class));
+                    }
+                    return state;
+                })
+                .subscribe(this::updateStartTrackButton, LOG::error);
+    }
+
+    @Subscribe
+    public void onRecordingStateEvent(RecordingStateEvent event){
+        LOG.info("Retrieve Recording State Event: " + event.toString());
+        Observable.just(event.recordingState)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .map(state -> {
+                    if (state == RecordingState.RECORDING_RUNNING){
                         getActivity().startActivity(new Intent(getActivity(), OBDPlusGPSTrackRecordingScreen.class));
                     }
                     return state;
@@ -498,6 +514,10 @@ public class DashboardFragment2 extends BaseInjectorFragment {
                 break;
         }
         this.startTrackButton.setEnabled(setEnabled);
+    }
+
+    private void updateStartTrackButton(RecordingState state){
+
     }
 
     private void updateStartTrackButton(BluetoothServiceState state) {

@@ -76,7 +76,8 @@
         <activity
             android:name=".views.HelpActivity"
             android:screenOrientation="portrait" />
-        <activity android:name=".main.BaseMainActivityBottomBar"
+        <activity
+            android:name=".main.BaseMainActivityBottomBar"
             android:screenOrientation="portrait" />
 
         <!-- Services -->

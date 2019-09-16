@@ -73,6 +73,7 @@ public class SigninActivity extends BaseInjectorActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signin);
+        getWindow().setNavigationBarColor(getResources().getColor(R.color.cario_color_primary_dark));
 
         // inject the views
         ButterKnife.bind(this);

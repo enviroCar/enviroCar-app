@@ -48,7 +48,8 @@ import org.envirocar.app.main.BaseApplicationComponent;
 import org.envirocar.app.main.BaseMainActivityBottomBar;
 import org.envirocar.app.main.MainActivityComponent;
 import org.envirocar.app.main.MainActivityModule;
-import org.envirocar.app.services.recording.GPSOnlyRecordingService;
+import org.envirocar.app.recording.RecordingService;
+import org.envirocar.app.recording.RecordingState;
 import org.envirocar.core.events.gps.GpsSatelliteFixEvent;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.obd.events.TrackRecordingServiceStateChangedEvent;
@@ -115,7 +116,7 @@ public class GPSOnlyTrackRecordingScreen extends BaseInjectorActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_obdplus_gpstrack_recording_screen);
         //if the track recording service is stopped then finish this activity and goback to bottombar main activity
-        if(GPSOnlyRecordingService.CURRENT_SERVICE_STATE == BluetoothServiceState.SERVICE_STOPPED){
+        if(RecordingService.RECORDING_STATE == RecordingState.RECORDING_STOPPED){
             startActivity(new Intent(GPSOnlyTrackRecordingScreen.this, BaseMainActivityBottomBar.class));
             finish();
         }
@@ -138,7 +139,7 @@ public class GPSOnlyTrackRecordingScreen extends BaseInjectorActivity {
         fragmentTransaction.commit();
 
         initAnimations();
-        updateDrivingViews(GPSOnlyRecordingService.drivingDetected);
+//        updateDrivingViews(RecordingService.drivingDetected);
     }
 
     @Override
@@ -146,7 +147,7 @@ public class GPSOnlyTrackRecordingScreen extends BaseInjectorActivity {
         super.onResume();
 
         //if the track recording service is stopped then finish this activity and goback to bottombar main activity
-        if(GPSOnlyRecordingService.CURRENT_SERVICE_STATE == BluetoothServiceState.SERVICE_STOPPED){
+        if(RecordingService.RECORDING_STATE == RecordingState.RECORDING_STOPPED){
             startActivity(new Intent(GPSOnlyTrackRecordingScreen.this, BaseMainActivityBottomBar.class));
             finish();
         }

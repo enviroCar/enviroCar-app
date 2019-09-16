@@ -43,9 +43,8 @@ import org.envirocar.app.handler.TrackDAOHandler;
 import org.envirocar.app.handler.UserHandler;
 import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.app.main.BaseApplicationComponent;
+import org.envirocar.app.recording.RecordingService;
 import org.envirocar.app.services.AutomaticTrackRecordingService;
-import org.envirocar.app.services.recording.GPSOnlyRecordingService;
-import org.envirocar.app.services.recording.OBDRecordingService;
 import org.envirocar.app.views.logbook.LogbookActivity;
 import org.envirocar.app.views.settings.SettingsActivity;
 import org.envirocar.app.views.utils.DialogUtils;
@@ -290,8 +289,7 @@ public class OthersFragment extends BaseInjectorFragment {
 
     private void shutdownEnviroCar() {
         AutomaticTrackRecordingService.stopService(getActivity());
-        OBDRecordingService.stopService(getActivity());
-        GPSOnlyRecordingService.stopService(getActivity());
+        RecordingService.stopService(getActivity());
 
         mMainThreadWorker.schedule(() -> {
             System.runFinalizersOnExit(true);

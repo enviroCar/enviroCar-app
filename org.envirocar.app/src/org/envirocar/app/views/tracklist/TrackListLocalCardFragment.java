@@ -323,8 +323,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
 
             @Override
             public void subscribe(ObservableEmitter<Track> emitter) throws Exception {
-                DisposableObserver<Track> disposableObserver = mTrackUploadHandler.uploadTracksObservable(tracks, false,
-                        getActivity())
+                DisposableObserver<Track> disposableObserver = mTrackUploadHandler.uploadTracksObservable(tracks, false, getActivity())
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribeWith(new DisposableObserver<Track>() {

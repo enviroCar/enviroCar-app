@@ -31,6 +31,7 @@ import org.envirocar.core.exception.ResourceConflictException;
 import org.envirocar.core.exception.UnauthorizedException;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.util.Util;
+import org.envirocar.core.utils.TrackUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -278,14 +279,14 @@ public class EnvirocarServiceUtils {
                     /*
                      * ignore early and late
                      */
-                    if (isTemporalObfuscationCandidate(measurement, track)) {
+                    if (TrackUtils.isTemporalObfuscated(measurement, track)) {
                         continue;
                     }
 
                     /*
                      * ignore distance
                      */
-                    if (isSpatialObfuscationCandidate(measurement, track)) {
+                    if (TrackUtils.isSpatialObfuscated(measurement, track)) {
                         if (wasAtLeastOneTimeNotObfuscated) {
                             privateCandidates.add(measurement);
                             nonPrivateMeasurements.add(measurement);
@@ -322,23 +323,4 @@ public class EnvirocarServiceUtils {
         return track;
     }
 
-    /**
-     * TODO a circular criteria could lead to
-     *
-     * @param measurement
-     * @param track
-     * @return
-     */
-    private static boolean isSpatialObfuscationCandidate(Measurement measurement, Track track)
-            throws NoMeasurementsException {
-        return (Util.getDistance(track.getFirstMeasurement(), measurement) <= 0.25)
-                || (Util.getDistance(track.getLastMeasurement(), measurement) <= 0.25);
-    }
-
-    private static boolean isTemporalObfuscationCandidate(Measurement measurement, Track track)
-            throws
-            NoMeasurementsException {
-        return (measurement.getTime() - track.getStartTime() <= 60000 ||
-                track.getEndTime() - measurement.getTime() <= 60000);
-    }
 }

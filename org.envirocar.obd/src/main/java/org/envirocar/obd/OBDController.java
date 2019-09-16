@@ -174,6 +174,8 @@ public class OBDController {
      * The init times out after a pre-defined period.
      */
     private void startInitialization(boolean alreadyTried) {
+        LOG.info("startInitialization()");
+
         // start the observable and subscribe to it
         this.initSubscription = this.obdAdapter.initialize(this.inputStream, this.outputStream)
                 .subscribeOn(Schedulers.io())
@@ -258,9 +260,6 @@ public class OBDController {
     private void startCollectingData() {
         LOG.info("OBDController.startCollectingData()");
 
-        //inform the listener about the successful conn
-        this.connectionListener.onConnectionVerified();
-
         // start the observable with a timeout
         this.dataSubscription = this.obdAdapter.observe()
                 .subscribeOn(Schedulers.io())
@@ -268,10 +267,16 @@ public class OBDController {
                 .timeout(MAX_NODATA_TIME, TimeUnit.MILLISECONDS)
                 .subscribeWith(getCollectingDataSubscriber());
 
+        //inform the listener about the successful conn
+        this.connectionListener.onConnectionVerified();
     }
 
     private DisposableObserver<DataResponse> getCollectingDataSubscriber() {
         return new DisposableObserver<DataResponse>() {
+            @Override
+            protected void onStart() {
+                LOG.info("OnStart()");
+            }
 
             @Override
             public void onError(Throwable e) {
@@ -296,6 +301,7 @@ public class OBDController {
 
             @Override
             public void onNext(DataResponse dataResponse) {
+                LOG.info("Pushing to event bus");
                 pushToEventBus(dataResponse);
             }
         };

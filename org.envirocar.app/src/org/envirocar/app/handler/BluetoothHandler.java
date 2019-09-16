@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -33,7 +33,7 @@ import com.google.common.base.Preconditions;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Produce;
 
-import org.envirocar.app.services.recording.OBDRecordingService;
+import org.envirocar.app.recording.RecordingService;
 import org.envirocar.core.events.bluetooth.BluetoothDeviceDiscoveredEvent;
 import org.envirocar.core.events.bluetooth.BluetoothDeviceSelectedEvent;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
@@ -41,7 +41,6 @@ import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.utils.BroadcastUtils;
 import org.envirocar.core.utils.ServiceUtils;
-import org.reactivestreams.Subscription;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -151,16 +150,16 @@ public class BluetoothHandler {
      * Starts the connection to the bluetooth device if not already active.
      */
     public void startOBDConnectionService() {
-        if (!ServiceUtils.isServiceRunning(context, OBDRecordingService.class))
+        if (!ServiceUtils.isServiceRunning(context, RecordingService.class))
             context.getApplicationContext()
-                    .startService(new Intent(context, OBDRecordingService.class));
+                    .startService(new Intent(context, RecordingService.class));
     }
 
 
     public void stopOBDConnectionService() {
-        if (ServiceUtils.isServiceRunning(context, OBDRecordingService.class)) {
+        if (ServiceUtils.isServiceRunning(context, RecordingService.class)) {
             context.getApplicationContext()
-                    .stopService(new Intent(context, OBDRecordingService.class));
+                    .stopService(new Intent(context, RecordingService.class));
         }
 
         ActivityManager amgr = (ActivityManager) context.getSystemService(Context
@@ -182,12 +181,12 @@ public class BluetoothHandler {
     }
 
     @Produce
-    public BluetoothStateChangedEvent produceBluetoothStateChangedEvent(){
+    public BluetoothStateChangedEvent produceBluetoothStateChangedEvent() {
         return new BluetoothStateChangedEvent(isBluetoothEnabled(), getSelectedBluetoothDevice());
     }
 
     @Produce
-    public BluetoothDeviceSelectedEvent produceBluetoothDeviceSelectedEvent(){
+    public BluetoothDeviceSelectedEvent produceBluetoothDeviceSelectedEvent() {
         return new BluetoothDeviceSelectedEvent(getSelectedBluetoothDevice());
     }
 

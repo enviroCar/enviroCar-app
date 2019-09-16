@@ -22,9 +22,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.ObservableTransformer;
-import io.reactivex.observers.DisposableObserver;
 
 /**
  * @author dewall
@@ -37,6 +37,7 @@ public class TrackDatabaseSink {
     private final CarPreferenceHandler carHandler;
     private final EnviroCarDB enviroCarDB;
     private final Bus eventBus;
+    private Track track;
 
     /**
      * Constructor.
@@ -56,73 +57,48 @@ public class TrackDatabaseSink {
      * @return
      */
     public ObservableTransformer<Measurement, Track> storeInDatabase() {
-        return upstream -> Observable.create((ObservableOnSubscribe<Track>) emitter ->
-                upstream.subscribeWith(new DisposableObserver<Measurement>() {
-                    private Track track;
+        return upstream -> upstream.flatMap(measurement -> Observable.create((ObservableOnSubscribe<Track>) emitter -> {
+            LOG.info("Storing new measurement into database");
 
-                    @Override
-                    protected void onStart() {
-                        emitter.setCancellable(() -> finishTrack(track));
-                    }
+            // If not rack exists, then create one.
+            if (track == null) {
+                try {
+                    track = createNewTrack(measurement.getTime());
+                    emitter.onNext(track);
+                } catch (TrackSerializationException e) {
+                    LOG.error("Unable to create track instance", e);
+                    emitter.onError(e);
+                }
+            }
 
-                    @Override
-                    public void onNext(Measurement measurement) {
-                        if (isDisposed())
-                            return;
+            try {
+                // inserting measurement
+                measurement.setTrackId(track.getTrackID());
+                enviroCarDB.insertMeasurement(measurement);
 
-                        LOG.info("Storing new measurement into database");
+                // updating track information
+                track.setEndTime(measurement.getTime());
 
-                        // If not rack exists, then create one.
-                        if (track == null) {
-                            try {
-                                track = createNewTrack(measurement.getTime());
-                                emitter.onNext(track);
-                            } catch (TrackSerializationException e) {
-                                LOG.error("Unable to create track instance", e);
-                                dispose();
-                            }
-                        }
+                // update distance
+                int numOfTracks = track.getMeasurements().size();
+                if (numOfTracks > 0) {
+                    Measurement lastMeasurement = track.getMeasurements().get(numOfTracks - 1);
+                    double distanceToLast = LocationUtils.getDistance(lastMeasurement, measurement);
+                    track.setLength(track.getLength() + distanceToLast);
+                }
 
-                        try {
-                            // inserting measurement
-                            measurement.setTrackId(track.getTrackID());
-                            enviroCarDB.insertMeasurement(measurement);
-
-                            // updating track information
-                            track.setEndTime(measurement.getTime());
-
-                            // update distance
-                            int numOfTracks = track.getMeasurements().size();
-                            if (numOfTracks > 0) {
-                                Measurement lastMeasurement = track.getMeasurements().get(numOfTracks - 1);
-                                double distanceToLast = LocationUtils.getDistance(lastMeasurement, measurement);
-                                track.setLength(track.getLength() + distanceToLast);
-                            }
-
-                            // update track in databse
-                            track.getMeasurements().add(measurement);
-                            enviroCarDB.updateTrack(track);
-                            eventBus.post(new RecordingNewMeasurementEvent(measurement));
-                            LOG.info("Measurement stored");
-                        } catch (MeasurementSerializationException e) {
-                            LOG.error(e.getMessage(), e);
-                            onError(e);
-                            dispose();
-                        }
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        LOG.error(e);
-                        finishTrack(track);
-                    }
-
-                    @Override
-                    public void onComplete() {
-                        LOG.info("Track has been finished. Finalizing track in database");
-                        finishTrack(track);
-                    }
-                }));
+                // update track in databse
+                track.getMeasurements().add(measurement);
+                enviroCarDB.updateTrack(track);
+                eventBus.post(new RecordingNewMeasurementEvent(measurement));
+                LOG.info("Measurement stored");
+            } catch (MeasurementSerializationException e) {
+                LOG.error(e.getMessage(), e);
+                emitter.onError(e);
+            }
+        }))
+                .doOnDispose(() -> finishTrack(track))
+                .doOnComplete(() -> finishTrack(track));
     }
 
     private Track createNewTrack(long startTime) throws TrackSerializationException {
@@ -140,8 +116,9 @@ public class TrackDatabaseSink {
         return track;
     }
 
-
     private void finishTrack(Track track) {
+        if (track == null)
+            return;
         LOG.info(String.format("Finishing current track %s", track.getDescription()));
 
         if (track.getMeasurements().size() <= 1) {
@@ -151,6 +128,7 @@ public class TrackDatabaseSink {
             track.setTrackStatus(Track.TrackStatus.FINISHED);
             enviroCarDB.updateTrack(track);
         }
+        this.track = null;
     }
 
 }

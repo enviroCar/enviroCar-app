@@ -47,7 +47,8 @@ import org.envirocar.app.events.StartingTimeEvent;
 import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.app.handler.TrackRecordingHandler;
 import org.envirocar.app.injection.BaseInjectorActivity;
-import org.envirocar.app.services.recording.OBDRecordingService;
+import org.envirocar.app.recording.RecordingService;
+import org.envirocar.app.recording.RecordingState;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.core.events.gps.GpsSatelliteFixEvent;
 import org.envirocar.core.logging.Logger;
@@ -119,7 +120,7 @@ public class OBDPlusGPSTrackRecordingScreen extends BaseInjectorActivity {
         setContentView(R.layout.activity_obdplus_gpstrack_recording_screen);
 
         //if the track recording service is stopped then finish this activity and goback to bottombar main activity
-        if(OBDRecordingService.CURRENT_SERVICE_STATE == BluetoothServiceState.SERVICE_STOPPED){
+        if(RecordingService.RECORDING_STATE == RecordingState.RECORDING_STOPPED){
             startActivity(new Intent(OBDPlusGPSTrackRecordingScreen.this, BaseMainActivityBottomBar.class));
             finish();
         }
@@ -143,10 +144,11 @@ public class OBDPlusGPSTrackRecordingScreen extends BaseInjectorActivity {
 
     @Override
     protected void onResume() {
+        LOGGER.info("onResume()");
         super.onResume();
 
         //if the track recording service is stopped then finish this activity and goback to bottombar main activity
-        if(OBDRecordingService.CURRENT_SERVICE_STATE == BluetoothServiceState.SERVICE_STOPPED){
+        if(RecordingService.RECORDING_STATE == RecordingState.RECORDING_STOPPED){
             startActivity(new Intent(OBDPlusGPSTrackRecordingScreen.this, BaseMainActivityBottomBar.class));
             finish();
         }

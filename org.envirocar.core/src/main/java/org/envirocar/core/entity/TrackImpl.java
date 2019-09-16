@@ -35,7 +35,6 @@ import java.util.List;
  * @author dewall
  */
 public class TrackImpl implements Track, TrackStatisticsProvider {
-    private static final Logger LOG = Logger.getLogger(TrackImpl.class);
     private TrackStatisticsProcessor STATISTICS_PROCESSOR;
 
     protected TrackId trackID;

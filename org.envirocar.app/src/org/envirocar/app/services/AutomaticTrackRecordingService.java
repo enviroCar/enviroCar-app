@@ -46,8 +46,9 @@ import org.envirocar.app.injection.BaseInjectorService;
 import org.envirocar.app.main.BaseApplicationComponent;
 import org.envirocar.app.notifications.NotificationHandler;
 import org.envirocar.app.notifications.ServiceStateForNotification;
-import org.envirocar.app.services.recording.GPSOnlyRecordingService;
-import org.envirocar.app.services.recording.OBDRecordingService;
+import org.envirocar.app.recording.RecordingService;
+import org.envirocar.app.recording.RecordingState;
+import org.envirocar.app.recording.strategy.RecordingStrategy;
 import org.envirocar.core.events.NewCarTypeSelectedEvent;
 import org.envirocar.core.events.bluetooth.BluetoothDeviceSelectedEvent;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
@@ -335,7 +336,7 @@ public class AutomaticTrackRecordingService extends BaseInjectorService {
         if (defaultAdapter != null && !defaultAdapter.isEnabled()) return;
 
         // Set the Notification
-        if (OBDRecordingService.CURRENT_SERVICE_STATE != BluetoothServiceState.SERVICE_STARTED
+        if (RecordingService.RECORDING_STATE != RecordingState.RECORDING_RUNNING
                 && this.mBluetoothHandler.isBluetoothEnabled()) {
             // State: No OBD device selected.
             if (mBluetoothHandler.getSelectedBluetoothDevice() == null) {
@@ -375,6 +376,8 @@ public class AutomaticTrackRecordingService extends BaseInjectorService {
         if (!mLocationHandler.isGPSEnabled()) return;
 
         // Set the Notification
+        // TODO
+/*
         if (GPSOnlyRecordingService.CURRENT_SERVICE_STATE != BluetoothServiceState.SERVICE_STARTED) {
             if (mCarManager.getCar() == null) {
                 NotificationHandler.setRecordingState(ServiceStateForNotification.NO_CAR_SELECTED);
@@ -382,6 +385,7 @@ public class AutomaticTrackRecordingService extends BaseInjectorService {
                 NotificationHandler.setRecordingState(ServiceStateForNotification.NOT_STARTED);
             }
         }
+*/
 
         setGPSAutoConnect();
     }
@@ -491,29 +495,29 @@ public class AutomaticTrackRecordingService extends BaseInjectorService {
     @Subscribe
     public void onReceiveNewCarTypeSelectedEvent(NewCarTypeSelectedEvent event) {
         LOGGER.info(String.format("onReceiveNewCarTypeSelectedEvent(): %s", event.toString()));
-        if (recordingTypeSelected == 1) {
-            if (OBDRecordingService.CURRENT_SERVICE_STATE != BluetoothServiceState.SERVICE_STARTED) {
-                if (event.mCar == null) {
-                    updateNotificationState(ServiceStateForNotification.NO_CAR_SELECTED);
-                } else if (OBDRecordingService.CURRENT_SERVICE_STATE == BluetoothServiceState
-                        .SERVICE_STOPPED) {
-                    updateNotificationState(ServiceStateForNotification.UNCONNECTED);
-                }
-            }
-        } else {
-            if (GPSOnlyRecordingService.CURRENT_SERVICE_STATE != BluetoothServiceState.SERVICE_STARTED) {
-                if (!hasCarSelected) {
-                    NotificationHandler.setRecordingState(ServiceStateForNotification.NO_CAR_SELECTED);
-                } else {
-                    NotificationHandler.setRecordingState(ServiceStateForNotification.NOT_STARTED);
-                }
-            }
-        }
+//        if (recordingTypeSelected == 1) {
+//            if (OBDRecordingService.CURRENT_SERVICE_STATE != BluetoothServiceState.SERVICE_STARTED) {
+//                if (event.mCar == null) {
+//                    updateNotificationState(ServiceStateForNotification.NO_CAR_SELECTED);
+//                } else if (OBDRecordingService.CURRENT_SERVICE_STATE == BluetoothServiceState
+//                        .SERVICE_STOPPED) {
+//                    updateNotificationState(ServiceStateForNotification.UNCONNECTED);
+//                }
+//            }
+//        } else {
+//            if (GPSOnlyRecordingService.CURRENT_SERVICE_STATE != BluetoothServiceState.SERVICE_STARTED) {
+//                if (!hasCarSelected) {
+//                    NotificationHandler.setRecordingState(ServiceStateForNotification.NO_CAR_SELECTED);
+//                } else {
+//                    NotificationHandler.setRecordingState(ServiceStateForNotification.NOT_STARTED);
+//                }
+//            }
+//        }
 
     }
 
     private void updateNotificationState(ServiceStateForNotification state) {
-        if (OBDRecordingService.CURRENT_SERVICE_STATE == BluetoothServiceState.SERVICE_STOPPED) {
+        if (RecordingService.RECORDING_STATE == RecordingState.RECORDING_STOPPED) {
             if (mBluetoothHandler.getSelectedBluetoothDevice() == null) {
                 NotificationHandler.setRecordingState(ServiceStateForNotification.NO_OBD_SELECTED);
             } else if (mCarManager.getCar() == null) {
@@ -576,8 +580,7 @@ public class AutomaticTrackRecordingService extends BaseInjectorService {
                                     "the selected OBD adapter.");
 
                             getApplicationContext().startService(
-                                    new Intent(getApplicationContext(), OBDRecordingService
-                                            .class));
+                                    new Intent(getApplicationContext(), RecordingService.class));
 
                         }
 
@@ -691,11 +694,11 @@ public class AutomaticTrackRecordingService extends BaseInjectorService {
      */
     private void startGPSOnlyConnectionService() {
         if (!ServiceUtils
-                .isServiceRunning(getApplicationContext(), OBDRecordingService.class)) {
+                .isServiceRunning(getApplicationContext(), RecordingService.class)) {
 
             // Start the GPS Only Connection Service
             getApplicationContext().startService(
-                    new Intent(getApplicationContext(), OBDRecordingService.class));
+                    new Intent(getApplicationContext(), RecordingService.class));
 
         }
     }
@@ -706,11 +709,11 @@ public class AutomaticTrackRecordingService extends BaseInjectorService {
      */
     private void startOBDConnectionService() {
         if (!ServiceUtils
-                .isServiceRunning(getApplicationContext(), OBDRecordingService.class)) {
+                .isServiceRunning(getApplicationContext(), RecordingService.class)) {
 
             // Start the OBD Connection Service
             getApplicationContext().startService(
-                    new Intent(getApplicationContext(), OBDRecordingService.class));
+                    new Intent(getApplicationContext(), RecordingService.class));
 
         }
     }

@@ -28,7 +28,7 @@
 //import com.squareup.otto.Produce;
 //import com.squareup.otto.Subscribe;
 //
-//import org.envirocar.app.events.TrackDetailsProvider;
+//import org.envirocar.app.recording.provider.RecordingDetailsProvider;
 //import org.envirocar.app.handler.BluetoothHandler;
 //import org.envirocar.app.handler.LocationHandler;
 //import org.envirocar.app.handler.PreferencesHandler;
@@ -99,7 +99,7 @@
 //    @Inject
 //    protected OBDConnectionHandler obdConnectionHandler;
 //    @Inject
-//    protected TrackDetailsProvider trackDetailsProvider;
+//    protected RecordingDetailsProvider trackDetailsProvider;
 //
 //    // Member fields required for the connection to the OBD device.
 //    private OBDController obdController;

@@ -1,39 +1,39 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
 package org.envirocar.app.views.tracklist;
 
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.viewpager.widget.ViewPager;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 
-import org.envirocar.app.main.BaseApplication;
-import org.envirocar.app.main.BaseApplicationComponent;
-import org.envirocar.app.main.MainActivityComponent;
-import org.envirocar.app.main.MainActivityModule;
 import org.envirocar.app.R;
 import org.envirocar.app.injection.BaseInjectorFragment;
+import org.envirocar.app.main.BaseApplication;
+import org.envirocar.app.main.BaseApplicationComponent;
+import org.envirocar.app.main.MainActivityModule;
 import org.envirocar.core.logging.Logger;
 
 import butterknife.BindView;
@@ -128,8 +128,10 @@ public class TrackListPagerFragment extends BaseInjectorFragment {
 
     @Override
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
-        MainActivityComponent mainActivityComponent =  BaseApplication.get(getActivity()).getBaseApplicationComponent().plus(new MainActivityModule(getActivity()));
-        mainActivityComponent.inject(this);
+        BaseApplication.get(getActivity())
+                .getBaseApplicationComponent()
+                .plus(new MainActivityModule(getActivity()))
+                .inject(this);
     }
 
     /**

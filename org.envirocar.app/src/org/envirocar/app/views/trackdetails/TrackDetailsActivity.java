@@ -98,9 +98,9 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
     public static void navigate(Activity activity, View transition, int trackID) {
         Intent intent = new Intent(activity, TrackDetailsActivity.class);
         intent.putExtra(EXTRA_TRACKID, trackID);
-        ActivityOptionsCompat options = ActivityOptionsCompat
-                .makeBasic();
-        ActivityCompat.startActivity(activity, intent, options.toBundle());
+        activity.startActivity(intent);
+//        ActivityOptionsCompat options = ActivityOptionsCompat.makeBasic();
+//        ActivityCompat.startActivity(activity, intent, options.toBundle());
     }
 
     static {
@@ -227,7 +227,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            finish();
+//            finish();
         }
         return super.onOptionsItemSelected(item);
     }

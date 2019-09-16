@@ -103,9 +103,8 @@ public class OBDRecordingStrategy implements RecordingStrategy {
     protected void onDestroy() {
         LOG.info("Destroying OBDRecordingStrategy");
 
-        if (disposables != null && !disposables.isDisposed()) {
-            disposables.dispose();
-            disposables = null;
+        if (disposables != null) {
+            disposables.clear();
         }
     }
 
@@ -114,16 +113,51 @@ public class OBDRecordingStrategy implements RecordingStrategy {
         this.listener = listener;
 
         // Establishing bluetooth connection -> returns BluetoothSocketWrapper with connection.
+//        disposables.add(
+//                obdConnectionHandler.getOBDConnectionObservable(bluetoothHandler.getSelectedBluetoothDevice())
+//                        .compose(verifyConnection())
+//                        .compose(receiveMeasurements())
+//                        .compose(enhanceMeasurements())
+//                        .doOnDispose(() -> LOG.info("DISPOSED"))
+//                        .compose(trackDatabaseSink.storeInDatabase())
+//                        .subscribeOn(Schedulers.io())
+//                        .observeOn(Schedulers.io())
+//                        .doOnDispose(() -> {
+//                            LOG.info("OBDCONNECTION HAS BEEN DISPOSED");
+//                            listener.onRecordingStateChanged(RecordingState.RECORDING_STOPPED);
+//                        })
+//                        .subscribeWith(initializeObserver()));
+
         disposables.add(
                 obdConnectionHandler.getOBDConnectionObservable(bluetoothHandler.getSelectedBluetoothDevice())
                         .compose(verifyConnection())
+                        .doOnDispose(() -> LOG.info("DISPOSED!!!!!!!"))
                         .compose(receiveMeasurements())
+                        .doOnDispose(() -> LOG.info("DISPOSED2!!!!!!!"))
                         .compose(enhanceMeasurements())
+                        .doOnDispose(() -> LOG.info("DISPOSED3!!!!!!!"))
                         .compose(trackDatabaseSink.storeInDatabase())
+                        .doOnDispose(() -> LOG.info("DISPOSED4!!!!!!!"))
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.io())
-                        .doOnDispose(() -> listener.onRecordingStateChanged(RecordingState.RECORDING_STOPPED))
-                        .subscribeWith(initializeObserver()));
+                        .subscribeWith(new DisposableObserver<Track>() {
+                            @Override
+                            public void onNext(Track bluetoothSocketWrapper) {
+                                LOG.info("ON NEXT!!!!");
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+
+                            }
+
+                            @Override
+                            public void onComplete() {
+
+                            }
+                        })
+
+        );
 
         disposables.add(
                 locationProvider.startLocating()
@@ -135,9 +169,8 @@ public class OBDRecordingStrategy implements RecordingStrategy {
     @Override
     public void stopRecording() {
         LOG.info("Stopping the track recording.");
-        if (disposables != null && !disposables.isDisposed()) {
-            disposables.dispose();
-            disposables = null;
+        if (disposables != null) {
+            disposables.clear();
         }
 
         try {
@@ -190,14 +223,22 @@ public class OBDRecordingStrategy implements RecordingStrategy {
 
     private ObservableTransformer<BluetoothSocketWrapper, BluetoothSocketWrapper> verifyConnection() {
         return upstream -> upstream.flatMap(socket -> Observable.create(emitter -> {
+            if (emitter.isDisposed())
+                return;
+
             LOG.info(String.format("OBDConnectionService.onDeviceConntected(%s)", socket.getRemoteDeviceName()));
             speechOutput.doTextToSpeech("Connection established.");
             try {
+
                 OBDController controller = new OBDController(socket, new ConnectionListener() {
                     int reconnectCount = 0;
 
                     @Override
                     public void onConnectionVerified() {
+                        if (emitter.isDisposed()) {
+                            LOG.info("verifyConnection(): Emitter has been disposed before.");
+                            return;
+                        }
                         LOG.info("Connection verified. Starting to read measurements.");
                         listener.onRecordingStateChanged(RecordingState.RECORDING_RUNNING);
                         emitter.onNext(socket);
@@ -216,6 +257,10 @@ public class OBDRecordingStrategy implements RecordingStrategy {
 
                     @Override
                     public void requestConnectionRetry(IOException e) {
+                        if (emitter.isDisposed()) {
+                            LOG.info("emitter.has been disposed");
+                            return;
+                        }
                         if (reconnectCount++ >= MAX_RECONNECT_COUNT) {
                             LOG.warn("Max count of reconnecctes reaced", e);
                         } else {
@@ -225,7 +270,21 @@ public class OBDRecordingStrategy implements RecordingStrategy {
                     }
                 }, eventBus);
 
-                emitter.setCancellable(() -> controller.shutdown());
+                disposables.add(new Disposable() {
+                    private boolean isDisposed = false;
+
+                    @Override
+                    public void dispose() {
+                        controller.shutdown();
+                        isDisposed = true;
+                    }
+
+                    @Override
+                    public boolean isDisposed() {
+                        return isDisposed;
+                    }
+                });
+//                emitter.setCancellable(() -> controller.shutdown());
             } catch (IOException e) {
                 LOG.error(e.getMessage(), e);
                 emitter.onError(e);
@@ -285,7 +344,6 @@ public class OBDRecordingStrategy implements RecordingStrategy {
             eventBus.unregister(recognizer);
             recognizer = null;
         } catch (Exception ex) {
-            LOG.error(ex.getMessage(), ex);
         }
     }
 

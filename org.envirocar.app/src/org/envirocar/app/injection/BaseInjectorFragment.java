@@ -91,7 +91,6 @@ public abstract class BaseInjectorFragment extends Fragment {
             mBus.register(this);
             mIsRegistered = true;
         }
-
     }
 
     @Override

@@ -39,6 +39,7 @@ import java.util.UUID;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 
@@ -66,8 +67,7 @@ public class OBDConnectionHandler {
     /**
      * @param device the device to start a connection to.
      */
-    public Observable<BluetoothSocketWrapper> getOBDConnectionObservable(
-            final BluetoothDevice device) {
+    public Observable<BluetoothSocketWrapper> getOBDConnectionObservable(final BluetoothDevice device) {
         return Observable.just(device)
                 .map(bluetoothDevice -> {
                     if (bluetoothDevice.fetchUuidsWithSdp())
@@ -152,12 +152,12 @@ public class OBDConnectionHandler {
 
                     try {
                         LOG.info("Trying to create native bleutooth socket");
-                        socketWrapper = new NativeBluetoothSocket(device
-                                .createRfcommSocketToServiceRecord(uuid));
+                        socketWrapper = new NativeBluetoothSocket(device.createInsecureRfcommSocketToServiceRecord(uuid));
                     } catch (IOException e) {
                         LOG.warn(e.getMessage(), e);
                         continue;
                     }
+
 
                     try {
                         connectSocket();
@@ -168,6 +168,12 @@ public class OBDConnectionHandler {
                         shutdownSocket(socketWrapper);
                         socketWrapper = null;
                     }
+                    if (emitter.isDisposed()){
+                        if(socketWrapper != null){
+                            socketWrapper.shutdown();
+                        }
+                        return;
+                    }
 
                     if (socketWrapper != null) {
                         LOG.info("successful connected");
@@ -177,6 +183,26 @@ public class OBDConnectionHandler {
                         return;
                     }
                 }
+
+                emitter.setDisposable(new Disposable() {
+                    @Override
+                    public void dispose() {
+                        LOG.info("Disposing createOBDBluetoothObservable");
+                        try {
+                            if (socketWrapper != null) {
+                                shutdownSocket(socketWrapper);
+                                socketWrapper = null;
+                            }
+                        } catch (Exception e){
+                            LOG.error(e);
+                        }
+                    }
+
+                    @Override
+                    public boolean isDisposed() {
+                        return emitter.isDisposed();
+                    }
+                });
 
                 if (socketWrapper == null) {
                     emitter.onError(new NoOBDSocketConnectedException());
@@ -194,8 +220,7 @@ public class OBDConnectionHandler {
                             + e.getMessage(), e);
 
                     //try the fallback
-                    socketWrapper = new FallbackBluetoothSocket(
-                            socketWrapper.getUnderlyingSocket());
+                    socketWrapper = new FallbackBluetoothSocket(socketWrapper.getUnderlyingSocket());
                     Thread.sleep(500);
                     socketWrapper.connect();
                 }
