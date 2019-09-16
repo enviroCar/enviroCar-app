@@ -117,4 +117,7 @@
 
     <string name="submit">Submit</string>
 
+    <!-- Splashscreen -->
+    <string name="activity_splashscreen_subtitle">Start Today. \nJoin the Community.</string>
+
 </resources>

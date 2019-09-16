@@ -76,27 +76,20 @@
         <activity
             android:name=".views.HelpActivity"
             android:screenOrientation="portrait" />
+        <activity android:name=".main.BaseMainActivityBottomBar"
+            android:screenOrientation="portrait" />
 
         <!-- Services -->
+        <service android:name=".recording.RecordingService"
+            android:enabled="true"/>
+
         <service
             android:name=".services.AutomaticTrackRecordingService"
             android:enabled="true" />
-        <!--<service-->
-        <!--android:name=".services.OBDConnectionService"-->
-        <!--android:enabled="true" />-->
         <service
             android:name=".services.TrackUploadService"
             android:enabled="true" />
-        <!--<service-->
-        <!--android:name=".services.GPSOnlyConnectionService"-->
-        <!--android:enabled="true" />-->
 
-        <service
-            android:name=".services.recording.OBDRecordingService"
-            android:enabled="true" />
-        <service
-            android:name=".services.recording.GPSOnlyRecordingService"
-            android:enabled="true" />
         <service
             android:name=".aidl.EnviroCarDataService"
             android:enabled="true"
@@ -120,7 +113,7 @@
         </receiver>
 
         <activity
-            android:name=".main.BaseMainActivityBottomBar"
+            android:name=".views.SplashScreenActivity"
             android:label="@string/app_name"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
