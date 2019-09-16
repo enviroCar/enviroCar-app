@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -31,18 +31,18 @@ import android.graphics.Color;
 import android.os.Build;
 import android.preference.PreferenceManager;
 
-
 import com.mapbox.mapboxsdk.Mapbox;
 
-import org.acra.*;
-import org.acra.annotation.*;
+import org.acra.ACRA;
+import org.acra.BuildConfig;
+import org.acra.annotation.AcraCore;
 import org.envirocar.app.handler.LocationHandler;
 import org.envirocar.app.handler.PreferenceConstants;
 import org.envirocar.app.notifications.NotificationHandler;
 import org.envirocar.app.views.dashboard.UserStatisticsProcessor;
+import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.logging.ACRASenderFactory;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.util.Util;
 import org.envirocar.remote.service.AnnouncementsService;
 import org.envirocar.remote.service.CarService;
@@ -64,7 +64,6 @@ public class BaseApplication extends Application {
 
     BaseApplicationComponent baseApplicationComponent;
     protected BroadcastReceiver mScreenReceiver;
-    protected BroadcastReceiver mGPSReceiver;
 
     private String CHANNEL_ID = "channel1";
 
@@ -84,9 +83,9 @@ public class BaseApplication extends Application {
     @Inject
     protected Context context;
     @Inject
-    protected LocationHandler locationHandler;
-    @Inject
     protected UserStatisticsProcessor statisticsProcessor;
+    @Inject
+    protected LocationHandler locationHandler;
 
     private SharedPreferences.OnSharedPreferenceChangeListener preferenceListener
             = (sharedPreferences, key) -> {
@@ -137,24 +136,7 @@ public class BaseApplication extends Application {
             }
         };
 
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(Intent.ACTION_SCREEN_ON);
-        filter.addAction(Intent.ACTION_SCREEN_OFF);
-        registerReceiver(mScreenReceiver, filter);
 
-
-        mGPSReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                if (intent.getAction().matches("android.location.PROVIDERS_CHANGED")) {
-                    LOGGER.info("GPS PROVIDER CHANGED");
-                }
-            }
-        };
-
-        IntentFilter filter2 = new IntentFilter();
-        filter.addAction("android.location.PROVIDERS_CHANGED");
-        registerReceiver(mGPSReceiver, filter2);
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         boolean obfus = prefs.getBoolean(PreferenceConstants.OBFUSCATE_POSITION, false);
@@ -164,21 +146,6 @@ public class BaseApplication extends Application {
         Logger.initialize(Util.getVersionString(this),
                 prefs.getBoolean(PreferenceConstants.ENABLE_DEBUG_LOGGING, false));
 
-        // Android O requires a Notification Channel.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationManager mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-
-            // Set the Notification Channel for the Notification Manager.
-            String name = "General";
-            String description = "General Notifications";
-            int importance = NotificationManager.IMPORTANCE_LOW;
-
-            NotificationChannel mChannel = new NotificationChannel(CHANNEL_ID, name, importance);
-            mChannel.setDescription(description);
-            mChannel.enableLights(true);
-            mChannel.setLightColor(Color.BLUE);
-            mNotificationManager.createNotificationChannel(mChannel);
-        }
 
     }
 
@@ -187,8 +154,6 @@ public class BaseApplication extends Application {
         super.onTerminate();
         if (mScreenReceiver != null)
             unregisterReceiver(mScreenReceiver);
-        if (mGPSReceiver != null)
-            unregisterReceiver(mGPSReceiver);
     }
 
     @Override
@@ -214,5 +179,6 @@ public class BaseApplication extends Application {
     public static BaseApplication get(Context context) {
         return (BaseApplication) context.getApplicationContext();
     }
+
 
 }

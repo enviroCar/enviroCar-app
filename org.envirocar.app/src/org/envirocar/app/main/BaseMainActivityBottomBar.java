@@ -133,8 +133,9 @@ public class BaseMainActivityBottomBar extends BaseInjectorActivity {
 
     @Override
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
-        MainActivityComponent mainActivityComponent = baseApplicationComponent.plus(new MainActivityModule(this));
-        mainActivityComponent.inject(this);
+        baseApplicationComponent
+                .plus(new MainActivityModule(this))
+                .inject(this);
     }
 
     @Override
@@ -172,8 +173,7 @@ public class BaseMainActivityBottomBar extends BaseInjectorActivity {
         };
 
 
-        registerReceiver(errorInformationReceiver, new IntentFilter(TroubleshootingFragment
-                .INTENT));
+        registerReceiver(errorInformationReceiver, new IntentFilter(TroubleshootingFragment.INTENT));
     }
 
     @Override
@@ -185,7 +185,18 @@ public class BaseMainActivityBottomBar extends BaseInjectorActivity {
         //first init
         firstInit();
 
-        checkKeepScreenOn();
+//        checkKeepScreenOn();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        LOGGER.info("BaseMainActivityBottomBar : onSaveInstanceState");
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public void finish() {
+//        super.finish();
     }
 
     @Override
@@ -202,7 +213,6 @@ public class BaseMainActivityBottomBar extends BaseInjectorActivity {
         super.onDestroy();
 
         this.unregisterReceiver(errorInformationReceiver);
-
         mTemporaryFileManager.shutdown();
 
         if (!subscriptions.isDisposed()) {
@@ -228,23 +238,21 @@ public class BaseMainActivityBottomBar extends BaseInjectorActivity {
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(aBoolean -> {
                             checkKeepScreenOn();
-                        })
-        );
+                        }));
 
         // Start Background handler
         subscriptions.add(
                 PreferencesHandler.getBackgroundHandlerEnabledObservable(this)
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(aBoolean -> {
-                                    if (aBoolean) {
-                                        if (!ServiceUtils.isServiceRunning(this, AutomaticTrackRecordingService.class))
-                                            AutomaticTrackRecordingService.startService(this);
-                                    } else {
-                                        if (ServiceUtils.isServiceRunning(this, AutomaticTrackRecordingService.class))
-                                            AutomaticTrackRecordingService.stopService(this);
-                                    }
-                                }, LOGGER::error)
-        );
+                            if (aBoolean) {
+                                if (!ServiceUtils.isServiceRunning(this, AutomaticTrackRecordingService.class))
+                                    AutomaticTrackRecordingService.startService(this);
+                            } else {
+                                if (ServiceUtils.isServiceRunning(this, AutomaticTrackRecordingService.class))
+                                    AutomaticTrackRecordingService.stopService(this);
+                            }
+                        }, LOGGER::error));
     }
 
     private void checkKeepScreenOn() {
