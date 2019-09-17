@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
-package org.envirocar.app.services;
+package org.envirocar.app.recording.strategy.obd;
 
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
@@ -109,10 +109,8 @@ public class OBDConnectionHandler {
                     LOG.info("getUUIDList(): map call");
 
                     // Get the device and the UUID provided by the incoming intent.
-                    BluetoothDevice deviceExtra = intent
-                            .getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                    Parcelable[] uuidExtra = intent
-                            .getParcelableArrayExtra(BluetoothDevice.EXTRA_UUID);
+                    BluetoothDevice deviceExtra = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                    Parcelable[] uuidExtra = intent.getParcelableArrayExtra(BluetoothDevice.EXTRA_UUID);
 
                     // If the received broadcast does not belong to this receiver,
                     // skip it.
@@ -125,11 +123,13 @@ public class OBDConnectionHandler {
                     LOG.info(String.format("Adding default UUID: %s", EMBEDDED_BOARD_SPP));
                     res.add(EMBEDDED_BOARD_SPP);
 
+                    // TODO
                     // Create a uuid for every string and return it
                     for (Parcelable uuid : uuidExtra) {
                         UUID next = UUID.fromString(uuid.toString());
                         if (!res.contains(next)) {
                             res.add(next);
+                            break;
                         }
                     }
 
@@ -151,7 +151,7 @@ public class OBDConnectionHandler {
                         return;
 
                     try {
-                        LOG.info("Trying to create native bleutooth socket");
+                        LOG.info("Trying to create native bluetooth socket");
                         socketWrapper = new NativeBluetoothSocket(device.createInsecureRfcommSocketToServiceRecord(uuid));
                     } catch (IOException e) {
                         LOG.warn(e.getMessage(), e);

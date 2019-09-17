@@ -6,10 +6,9 @@ import com.squareup.otto.Bus;
 
 import org.envirocar.algorithm.MeasurementProvider;
 import org.envirocar.app.handler.BluetoothHandler;
-import org.envirocar.app.handler.CarPreferenceHandler;
+import org.envirocar.app.handler.preferences.CarPreferenceHandler;
 import org.envirocar.app.handler.InterpolationMeasurementProvider;
 import org.envirocar.app.handler.PreferencesHandler;
-import org.envirocar.app.recording.notification.RecordingNotification;
 import org.envirocar.app.recording.notification.SpeechOutput;
 import org.envirocar.app.recording.provider.LocationProvider;
 import org.envirocar.app.recording.provider.RecordingDetailsProvider;
@@ -17,7 +16,7 @@ import org.envirocar.app.recording.provider.TrackDatabaseSink;
 import org.envirocar.app.recording.strategy.GPSRecordingStrategy;
 import org.envirocar.app.recording.strategy.OBDRecordingStrategy;
 import org.envirocar.app.recording.strategy.RecordingStrategy;
-import org.envirocar.app.services.OBDConnectionHandler;
+import org.envirocar.app.recording.strategy.obd.OBDConnectionHandler;
 import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.storage.EnviroCarDB;
 

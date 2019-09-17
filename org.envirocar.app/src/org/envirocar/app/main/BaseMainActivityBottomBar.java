@@ -37,12 +37,12 @@ import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.R;
 import org.envirocar.app.handler.BluetoothHandler;
-import org.envirocar.app.handler.CarPreferenceHandler;
+import org.envirocar.app.handler.preferences.CarPreferenceHandler;
 import org.envirocar.app.handler.DAOProvider;
 import org.envirocar.app.handler.PreferenceConstants;
 import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.app.handler.TemporaryFileManager;
-import org.envirocar.app.handler.UserHandler;
+import org.envirocar.app.handler.preferences.UserHandler;
 import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.app.services.AutomaticTrackRecordingService;
 import org.envirocar.app.views.OthersFragment;
@@ -140,7 +140,7 @@ public class BaseMainActivityBottomBar extends BaseInjectorActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        LOGGER.info("BaseMainActivityBottomBar : onCreate");
+//        LOGGER.info("BaseMainActivityBottomBar : onCreate");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_base_main_bottom_bar);
         ButterKnife.bind(this);

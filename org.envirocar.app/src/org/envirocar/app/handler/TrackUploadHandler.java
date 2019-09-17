@@ -28,6 +28,8 @@ import org.envirocar.app.exception.GPSOnlyTrackCannotUploadException;
 import org.envirocar.app.exception.NotLoggedInException;
 import org.envirocar.app.exception.TrackAlreadyUploadedException;
 import org.envirocar.app.handler.agreement.AgreementManager;
+import org.envirocar.app.handler.preferences.CarPreferenceHandler;
+import org.envirocar.app.handler.preferences.UserHandler;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.exception.NoMeasurementsException;
@@ -36,7 +38,6 @@ import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.utils.TrackUtils;
 import org.envirocar.storage.EnviroCarDB;
-import org.reactivestreams.Subscriber;
 
 import java.util.List;
 
@@ -46,7 +47,6 @@ import javax.inject.Singleton;
 import io.reactivex.Observable;
 import io.reactivex.ObservableOperator;
 import io.reactivex.ObservableTransformer;
-import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Function;
 import io.reactivex.observers.DisposableObserver;

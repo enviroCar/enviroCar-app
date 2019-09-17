@@ -1,4 +1,4 @@
-package org.envirocar.app.handler;
+package org.envirocar.app.handler.preferences;
 
 import android.content.Context;
 import android.content.SharedPreferences;

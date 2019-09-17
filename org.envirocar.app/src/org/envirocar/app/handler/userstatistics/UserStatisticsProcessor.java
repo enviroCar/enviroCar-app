@@ -10,7 +10,7 @@ import com.squareup.otto.Bus;
 import com.squareup.otto.Produce;
 import com.squareup.otto.Subscribe;
 
-import org.envirocar.app.handler.AbstractCachable;
+import org.envirocar.app.handler.preferences.AbstractCachable;
 import org.envirocar.app.handler.DAOProvider;
 import org.envirocar.app.handler.TrackDAOHandler;
 import org.envirocar.core.UserManager;
@@ -23,7 +23,6 @@ import org.envirocar.core.logging.Logger;
 import org.envirocar.core.trackprocessing.statistics.TrackStatisticsProvider;
 import org.envirocar.storage.EnviroCarDB;
 
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;

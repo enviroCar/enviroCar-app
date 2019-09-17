@@ -30,8 +30,8 @@ import android.widget.ListView;
 
 import org.envirocar.app.main.BaseApplicationComponent;
 import org.envirocar.app.R;
-import org.envirocar.app.handler.CarPreferenceHandler;
-import org.envirocar.app.handler.UserHandler;
+import org.envirocar.app.handler.preferences.CarPreferenceHandler;
+import org.envirocar.app.handler.preferences.UserHandler;
 import org.envirocar.app.views.utils.ECAnimationUtils;
 import org.envirocar.core.entity.Car;
 import org.envirocar.app.injection.BaseInjectorActivity;

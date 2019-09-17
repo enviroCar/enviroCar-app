@@ -36,7 +36,7 @@ import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.R;
 import org.envirocar.app.handler.BluetoothHandler;
-import org.envirocar.app.handler.UserHandler;
+import org.envirocar.app.handler.preferences.UserHandler;
 import org.envirocar.app.handler.userstatistics.UserStatisticsUpdateEvent;
 import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.app.main.BaseApplicationComponent;

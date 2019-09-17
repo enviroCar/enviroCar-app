@@ -27,7 +27,7 @@
 //
 //import org.envirocar.algorithm.MeasurementProvider;
 //import org.envirocar.app.recording.provider.RecordingDetailsProvider;
-//import org.envirocar.app.handler.CarPreferenceHandler;
+//import org.envirocar.app.handler.preferences.CarPreferenceHandler;
 //import org.envirocar.app.handler.LocationHandler;
 //import org.envirocar.app.handler.TrackRecordingHandler;
 //import org.envirocar.app.injection.BaseInjectorService;

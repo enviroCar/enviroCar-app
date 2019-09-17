@@ -25,7 +25,7 @@ import org.envirocar.app.R;
 import org.envirocar.app.exception.NotAcceptedTermsOfUseException;
 import org.envirocar.app.exception.NotLoggedInException;
 import org.envirocar.app.handler.DAOProvider;
-import org.envirocar.app.handler.UserHandler;
+import org.envirocar.app.handler.preferences.UserHandler;
 import org.envirocar.app.views.dialogs.ReactivePrivacyStatementDialog;
 import org.envirocar.app.views.dialogs.ReactiveTermsOfUseDialog;
 import org.envirocar.core.entity.PrivacyStatement;

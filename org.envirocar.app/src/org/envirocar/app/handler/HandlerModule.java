@@ -19,6 +19,7 @@
 package org.envirocar.app.handler;
 
 
+import org.envirocar.app.handler.preferences.UserHandler;
 import org.envirocar.core.UserManager;
 
 import javax.inject.Singleton;

@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
-package org.envirocar.app.handler;
+package org.envirocar.app.handler.preferences;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -28,6 +28,8 @@ import com.squareup.otto.Bus;
 import com.squareup.otto.Produce;
 import com.squareup.otto.Subscribe;
 
+import org.envirocar.app.handler.DAOProvider;
+import org.envirocar.app.handler.PreferenceConstants;
 import org.envirocar.core.ContextInternetAccessProvider;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Track;

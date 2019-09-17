@@ -35,7 +35,7 @@
 //import org.envirocar.app.handler.TrackRecordingHandler;
 //import org.envirocar.app.main.BaseApplicationComponent;
 //import org.envirocar.app.notifications.ServiceStateForNotification;
-//import org.envirocar.app.services.OBDConnectionHandler;
+//import org.envirocar.app.recording.strategy.obd.OBDConnectionHandler;
 //import org.envirocar.core.entity.Car;
 //import org.envirocar.core.entity.Measurement;
 //import org.envirocar.core.events.gps.GpsLocationChangedEvent;

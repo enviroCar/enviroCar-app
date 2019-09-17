@@ -5,7 +5,7 @@ import android.content.Context;
 import com.squareup.otto.Bus;
 
 import org.envirocar.app.R;
-import org.envirocar.app.handler.CarPreferenceHandler;
+import org.envirocar.app.handler.preferences.CarPreferenceHandler;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
@@ -22,7 +22,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.ObservableTransformer;
 

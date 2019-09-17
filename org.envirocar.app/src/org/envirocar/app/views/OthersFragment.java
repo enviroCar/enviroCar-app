@@ -40,7 +40,7 @@ import org.envirocar.app.BuildConfig;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.app.handler.TrackDAOHandler;
-import org.envirocar.app.handler.UserHandler;
+import org.envirocar.app.handler.preferences.UserHandler;
 import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.app.main.BaseApplicationComponent;
 import org.envirocar.app.recording.RecordingService;

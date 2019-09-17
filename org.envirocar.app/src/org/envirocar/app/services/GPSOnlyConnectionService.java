@@ -69,7 +69,7 @@
 //import org.envirocar.app.events.DrivingDetectedEvent;
 //import org.envirocar.app.events.StartingTimeEvent;
 //import org.envirocar.app.recording.provider.RecordingDetailsProvider;
-//import org.envirocar.app.handler.CarPreferenceHandler;
+//import org.envirocar.app.handler.preferences.CarPreferenceHandler;
 //import org.envirocar.app.handler.LocationHandler;
 //import org.envirocar.app.handler.PreferencesHandler;
 //import org.envirocar.app.handler.TrackRecordingHandler;

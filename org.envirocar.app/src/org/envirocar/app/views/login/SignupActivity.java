@@ -24,7 +24,7 @@ import com.afollestad.materialdialogs.MaterialDialog;
 
 import org.envirocar.app.R;
 import org.envirocar.app.handler.DAOProvider;
-import org.envirocar.app.handler.UserHandler;
+import org.envirocar.app.handler.preferences.UserHandler;
 import org.envirocar.app.handler.agreement.AgreementManager;
 import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.app.main.BaseApplicationComponent;

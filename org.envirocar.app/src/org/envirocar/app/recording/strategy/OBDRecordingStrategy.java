@@ -11,13 +11,13 @@ import com.squareup.otto.Subscribe;
 
 import org.envirocar.algorithm.MeasurementProvider;
 import org.envirocar.app.handler.BluetoothHandler;
-import org.envirocar.app.handler.CarPreferenceHandler;
+import org.envirocar.app.handler.preferences.CarPreferenceHandler;
 import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.app.recording.RecordingState;
 import org.envirocar.app.recording.notification.SpeechOutput;
 import org.envirocar.app.recording.provider.LocationProvider;
 import org.envirocar.app.recording.provider.TrackDatabaseSink;
-import org.envirocar.app.services.OBDConnectionHandler;
+import org.envirocar.app.recording.strategy.obd.OBDConnectionHandler;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;

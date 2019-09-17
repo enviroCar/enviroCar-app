@@ -46,7 +46,7 @@ import android.widget.TextView;
 
 import org.envirocar.app.R;
 import org.envirocar.app.handler.BluetoothHandler;
-import org.envirocar.app.handler.CarPreferenceHandler;
+import org.envirocar.app.handler.preferences.CarPreferenceHandler;
 import org.envirocar.app.handler.PreferenceConstants;
 import org.envirocar.app.views.reportissue.CheckBoxItem;
 import org.envirocar.app.views.reportissue.CheckboxBaseAdapter;

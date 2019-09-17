@@ -39,7 +39,7 @@ import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.BuildConfig;
 import org.envirocar.app.handler.BluetoothHandler;
-import org.envirocar.app.handler.CarPreferenceHandler;
+import org.envirocar.app.handler.preferences.CarPreferenceHandler;
 import org.envirocar.app.handler.LocationHandler;
 import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.app.injection.BaseInjectorService;
@@ -48,7 +48,6 @@ import org.envirocar.app.notifications.NotificationHandler;
 import org.envirocar.app.notifications.ServiceStateForNotification;
 import org.envirocar.app.recording.RecordingService;
 import org.envirocar.app.recording.RecordingState;
-import org.envirocar.app.recording.strategy.RecordingStrategy;
 import org.envirocar.core.events.NewCarTypeSelectedEvent;
 import org.envirocar.core.events.bluetooth.BluetoothDeviceSelectedEvent;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
@@ -56,7 +55,6 @@ import org.envirocar.core.events.gps.GpsStateChangedEvent;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.utils.ServiceUtils;
 import org.envirocar.obd.events.TrackRecordingServiceStateChangedEvent;
-import org.envirocar.obd.service.BluetoothServiceState;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -73,6 +71,9 @@ import io.reactivex.schedulers.Schedulers;
 
 import static org.envirocar.app.notifications.NotificationHandler.context;
 
+/**
+ * @author dewall
+ */
 public class AutomaticTrackRecordingService extends BaseInjectorService {
     private static final Logger LOGGER = Logger.getLogger(AutomaticTrackRecordingService.class);
 

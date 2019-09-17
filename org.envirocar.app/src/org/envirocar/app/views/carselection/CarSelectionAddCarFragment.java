@@ -44,7 +44,7 @@ import androidx.appcompat.widget.Toolbar;
 import com.jakewharton.rxbinding3.appcompat.RxToolbar;
 
 import org.envirocar.app.R;
-import org.envirocar.app.handler.CarPreferenceHandler;
+import org.envirocar.app.handler.preferences.CarPreferenceHandler;
 import org.envirocar.app.handler.DAOProvider;
 import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.app.main.BaseApplicationComponent;
