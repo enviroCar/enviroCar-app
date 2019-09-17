@@ -112,52 +112,16 @@ public class OBDRecordingStrategy implements RecordingStrategy {
     public void startRecording(Service service, RecordingListener listener) {
         this.listener = listener;
 
-        // Establishing bluetooth connection -> returns BluetoothSocketWrapper with connection.
-//        disposables.add(
-//                obdConnectionHandler.getOBDConnectionObservable(bluetoothHandler.getSelectedBluetoothDevice())
-//                        .compose(verifyConnection())
-//                        .compose(receiveMeasurements())
-//                        .compose(enhanceMeasurements())
-//                        .doOnDispose(() -> LOG.info("DISPOSED"))
-//                        .compose(trackDatabaseSink.storeInDatabase())
-//                        .subscribeOn(Schedulers.io())
-//                        .observeOn(Schedulers.io())
-//                        .doOnDispose(() -> {
-//                            LOG.info("OBDCONNECTION HAS BEEN DISPOSED");
-//                            listener.onRecordingStateChanged(RecordingState.RECORDING_STOPPED);
-//                        })
-//                        .subscribeWith(initializeObserver()));
-
         disposables.add(
                 obdConnectionHandler.getOBDConnectionObservable(bluetoothHandler.getSelectedBluetoothDevice())
                         .compose(verifyConnection())
-                        .doOnDispose(() -> LOG.info("DISPOSED!!!!!!!"))
                         .compose(receiveMeasurements())
-                        .doOnDispose(() -> LOG.info("DISPOSED2!!!!!!!"))
                         .compose(enhanceMeasurements())
-                        .doOnDispose(() -> LOG.info("DISPOSED3!!!!!!!"))
                         .compose(trackDatabaseSink.storeInDatabase())
-                        .doOnDispose(() -> LOG.info("DISPOSED4!!!!!!!"))
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.io())
-                        .subscribeWith(new DisposableObserver<Track>() {
-                            @Override
-                            public void onNext(Track bluetoothSocketWrapper) {
-                                LOG.info("ON NEXT!!!!");
-                            }
-
-                            @Override
-                            public void onError(Throwable e) {
-
-                            }
-
-                            @Override
-                            public void onComplete() {
-
-                            }
-                        })
-
-        );
+                        .doOnDispose(() -> listener.onRecordingStateChanged(RecordingState.RECORDING_STOPPED))
+                        .subscribeWith(initializeObserver()));
 
         disposables.add(
                 locationProvider.startLocating()
