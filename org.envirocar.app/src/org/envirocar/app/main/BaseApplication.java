@@ -20,14 +20,10 @@ package org.envirocar.app.main;
 
 import android.annotation.TargetApi;
 import android.app.Application;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.os.Build;
 import android.preference.PreferenceManager;
 
@@ -39,7 +35,7 @@ import org.acra.annotation.AcraCore;
 import org.envirocar.app.handler.LocationHandler;
 import org.envirocar.app.handler.PreferenceConstants;
 import org.envirocar.app.notifications.NotificationHandler;
-import org.envirocar.app.views.dashboard.UserStatisticsProcessor;
+import org.envirocar.app.handler.userstatistics.UserStatisticsProcessor;
 import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.logging.ACRASenderFactory;
 import org.envirocar.core.logging.Logger;

@@ -33,7 +33,7 @@ import org.envirocar.app.views.OthersFragment;
 import org.envirocar.app.views.carselection.CarSelectionActivity;
 import org.envirocar.app.views.carselection.CarSelectionAddCarFragment;
 import org.envirocar.app.views.dashboard.DashboardFragment2;
-import org.envirocar.app.views.dashboard.UserStatisticsProcessor;
+import org.envirocar.app.handler.userstatistics.UserStatisticsProcessor;
 import org.envirocar.app.views.logbook.LogbookActivity;
 import org.envirocar.app.views.logbook.LogbookAddFuelingFragment;
 import org.envirocar.app.views.login.SigninActivity;
