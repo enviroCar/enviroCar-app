@@ -1,4 +1,4 @@
-package org.envirocar.app.views.dashboard;
+package org.envirocar.app.handler.userstatistics;
 
 import com.google.common.base.MoreObjects;
 

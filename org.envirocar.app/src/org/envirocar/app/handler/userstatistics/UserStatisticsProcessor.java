@@ -1,8 +1,11 @@
-package org.envirocar.app.views.dashboard;
+package org.envirocar.app.handler.userstatistics;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import androidx.annotation.NonNull;
+
+import com.google.common.base.MoreObjects;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Produce;
 import com.squareup.otto.Subscribe;
@@ -19,6 +22,9 @@ import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.trackprocessing.statistics.TrackStatisticsProvider;
 import org.envirocar.storage.EnviroCarDB;
+
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
@@ -62,6 +68,17 @@ public class UserStatisticsProcessor extends AbstractCachable<UserStatisticsProc
 
         private boolean isLoggedIn() {
             return username != null && !username.equals("");
+        }
+
+        @NonNull
+        @Override
+        public String toString() {
+            return MoreObjects.toStringHelper(this)
+                    .add("Username", username)
+                    .add("numTracks", numTracks)
+                    .add("totalDuration", totalDuration)
+                    .add("totalDistance", totalDistance)
+                    .toString();
         }
     }
 
@@ -127,6 +144,7 @@ public class UserStatisticsProcessor extends AbstractCachable<UserStatisticsProc
                 .observeOn(AndroidSchedulers.mainThread())
                 .flatMap(tracks -> Observable.fromIterable(tracks))
                 .map(this::updateStatistics)
+                .debounce(1000, TimeUnit.MILLISECONDS)
                 .subscribe(this::onNextStatistics, LOG::error);
     }
 
@@ -161,12 +179,13 @@ public class UserStatisticsProcessor extends AbstractCachable<UserStatisticsProc
 
         holder.totalDuration += track.getDurationMillis();
         holder.numTracks++;
+        writeToCache(holder);
         return holder;
     }
 
     private void onNextStatistics(UserStatisticsHolder o) {
+        LOG.info("Computed new user statistics: " + o.toString());
         // Write statistics to cache and throw an event.
-        this.writeToCache(o);
         this.bus.post(new UserStatisticsUpdateEvent(o.numTracks, o.totalDistance, o.totalDuration));
     }
 
