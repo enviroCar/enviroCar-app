@@ -18,6 +18,7 @@ import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
@@ -36,6 +37,7 @@ import com.squareup.otto.Subscribe;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.UserHandler;
+import org.envirocar.app.handler.userstatistics.UserStatisticsUpdateEvent;
 import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.app.main.BaseApplicationComponent;
 import org.envirocar.app.recording.RecordingService;
@@ -97,6 +99,9 @@ public class DashboardFragment2 extends BaseInjectorFragment {
     protected View userDurationLayout;
     @BindView(R.id.fragment_dashboard_user_duration_textview)
     protected TextView userDurationTextView;
+    @BindView(R.id.fragment_dashboard_user_statistics_progress)
+    protected ProgressBar userStatProgressBar;
+
 
     @BindView(R.id.fragment_dashboard_indicator_view)
     protected ViewGroup indicatorView;
@@ -142,6 +147,7 @@ public class DashboardFragment2 extends BaseInjectorFragment {
     protected BluetoothHandler bluetoothHandler;
 
     private CompositeDisposable disposables;
+    private boolean statisticsKnown = false;
 
     // some private variables
     private MaterialDialog connectingDialog;
@@ -192,6 +198,12 @@ public class DashboardFragment2 extends BaseInjectorFragment {
         this.updateUserLogin(userHandler.getUser());
 
         return contentView;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        this.updateStatisticsVisibility(this.statisticsKnown);
     }
 
     private void onToolbarItemClicked(MenuItem menuItem) {
@@ -357,13 +369,13 @@ public class DashboardFragment2 extends BaseInjectorFragment {
     }
 
     @Subscribe
-    public void onRecordingStateEvent(RecordingStateEvent event){
+    public void onRecordingStateEvent(RecordingStateEvent event) {
         LOG.info("Retrieve Recording State Event: " + event.toString());
         Observable.just(event.recordingState)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .map(state -> {
-                    if (state == RecordingState.RECORDING_RUNNING){
+                    if (state == RecordingState.RECORDING_RUNNING) {
                         getActivity().startActivity(new Intent(getActivity(), OBDPlusGPSTrackRecordingScreen.class));
                     }
                     return state;
@@ -441,20 +453,29 @@ public class DashboardFragment2 extends BaseInjectorFragment {
 
     @Subscribe
     public void onNewUserSettingsEvent(final NewUserSettingsEvent event) {
-        runAfterInflation(() -> this.updateUserLogin(event.mUser));
+        runAfterInflation(() -> {
+            this.statisticsKnown = false;
+            this.updateUserLogin(event.mUser);
+        });
     }
 
     @Subscribe
     public void onUserStatisticsUpdateEvent(final UserStatisticsUpdateEvent event) {
         runAfterInflation(() -> {
-            userTracksTextView.setText("" + event.numTracks);
+            this.statisticsKnown = true;
+            updateStatisticsVisibility(true);
+            userTracksTextView.setText(String.format("%s", event.numTracks));
             userDistanceTextView.setText(String.format("%s km", (int) event.totalDistance));
             userDurationTextView.setText(formatTimeForDashboard(event.totalDuration));
         });
     }
 
     private void updateUserLogin(User user) {
+
         if (user != null) {
+            // show progress bar
+            updateStatisticsVisibility(this.statisticsKnown);
+
             this.loggedInLayout.setVisibility(View.VISIBLE);
             this.toolbar.getMenu().clear();
             this.toolbar.inflateMenu(R.menu.menu_dashboard_logged_in);
@@ -467,6 +488,9 @@ public class DashboardFragment2 extends BaseInjectorFragment {
             set.connect(bannerLayout.getId(), ConstraintSet.TOP, toolbar.getId(), ConstraintSet.BOTTOM, 0);
             set.applyTo(this.mainLayout);
         } else {
+            // show progress bar
+            updateStatisticsVisibility(this.statisticsKnown);
+
             this.loggedInLayout.setVisibility(View.GONE);
             this.toolbar.getMenu().clear();
             this.toolbar.inflateMenu(R.menu.menu_dashboard_logged_out);
@@ -478,6 +502,18 @@ public class DashboardFragment2 extends BaseInjectorFragment {
             set.connect(bannerLayout.getId(), ConstraintSet.TOP, toolbar.getId(), ConstraintSet.BOTTOM, 0);
             set.applyTo(this.mainLayout);
         }
+    }
+
+    private void updateStatisticsVisibility(boolean statisticsKnown) {
+        // update progress bar visibility
+        int progressBarVisibility = statisticsKnown ? View.GONE : View.VISIBLE;
+        userStatProgressBar.setVisibility(progressBarVisibility);
+
+        // update statistics visibility
+        int statisticsVisibility = statisticsKnown ? View.VISIBLE : View.INVISIBLE;
+        userTracksLayout.setVisibility(statisticsVisibility);
+        userDistanceLayout.setVisibility(statisticsVisibility);
+        userDurationLayout.setVisibility(statisticsVisibility);
     }
 
     private String formatTimeForDashboard(long millis) {
@@ -516,7 +552,7 @@ public class DashboardFragment2 extends BaseInjectorFragment {
         this.startTrackButton.setEnabled(setEnabled);
     }
 
-    private void updateStartTrackButton(RecordingState state){
+    private void updateStartTrackButton(RecordingState state) {
 
     }
 

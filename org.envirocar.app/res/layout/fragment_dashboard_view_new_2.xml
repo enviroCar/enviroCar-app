@@ -2,12 +2,12 @@
 
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true">
 
-    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/fragment_dashboard_main_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -108,20 +108,26 @@
 
         </LinearLayout>
 
-
         <androidx.cardview.widget.CardView
             android:id="@+id/cardView2"
             android:layout_width="wrap_content"
-            android:layout_height="0dp"
+            android:layout_height="76dp"
             android:layout_marginStart="24dp"
             android:layout_marginEnd="24dp"
             app:cardCornerRadius="10dp"
             app:cardElevation="10dp"
             app:layout_constraintBottom_toBottomOf="@+id/fragment_dashboard_banner"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHeight_percent="0.12"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/fragment_dashboard_banner">
+
+            <ProgressBar
+                android:id="@+id/fragment_dashboard_user_statistics_progress"
+                style="?android:attr/progressBarStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:visibility="gone" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -252,9 +258,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="30dp"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="40dp"
             android:layout_marginRight="30dp"
-            android:layout_marginBottom="10dp"
+            android:layout_marginBottom="16dp"
             android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
@@ -506,7 +512,7 @@
         <androidx.cardview.widget.CardView
             android:id="@+id/fragment_dashboard_start_track_button"
             android:layout_width="0dp"
-            android:layout_height="47dp"
+            android:layout_height="48dp"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="24dp"
             android:layout_marginBottom="24dp"
@@ -529,6 +535,8 @@
                 android:textColor="@color/white_cario" />
 
         </androidx.cardview.widget.CardView>
+
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
