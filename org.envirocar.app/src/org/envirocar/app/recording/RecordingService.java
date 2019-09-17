@@ -119,6 +119,10 @@ public class RecordingService extends ScopedBaseInjectorService {
         recordingStrategy.startRecording(this, recordingState -> {
             RECORDING_STATE = recordingState;
             bus.post(new RecordingStateEvent(recordingState));
+
+            if(recordingState == RecordingState.RECORDING_STOPPED){
+                stopSelf();
+            }
         });
 
         return START_NOT_STICKY;

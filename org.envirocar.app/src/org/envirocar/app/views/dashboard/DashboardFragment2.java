@@ -204,6 +204,10 @@ public class DashboardFragment2 extends BaseInjectorFragment {
     public void onResume() {
         super.onResume();
         this.updateStatisticsVisibility(this.statisticsKnown);
+
+        if(RecordingService.RECORDING_STATE == RecordingState.RECORDING_RUNNING){
+            OBDPlusGPSTrackRecordingScreen.start(getContext());
+        }
     }
 
     private void onToolbarItemClicked(MenuItem menuItem) {
@@ -361,7 +365,7 @@ public class DashboardFragment2 extends BaseInjectorFragment {
                 .observeOn(AndroidSchedulers.mainThread())
                 .map(state -> {
                     if (state == BluetoothServiceState.SERVICE_STARTED) {
-                        getActivity().startActivity(new Intent(getActivity(), OBDPlusGPSTrackRecordingScreen.class));
+                        OBDPlusGPSTrackRecordingScreen.start(getContext());
                     }
                     return state;
                 })
@@ -374,13 +378,7 @@ public class DashboardFragment2 extends BaseInjectorFragment {
         Observable.just(event.recordingState)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .map(state -> {
-                    if (state == RecordingState.RECORDING_RUNNING) {
-                        getActivity().startActivity(new Intent(getActivity(), OBDPlusGPSTrackRecordingScreen.class));
-                    }
-                    return state;
-                })
-                .subscribe(this::updateStartTrackButton, LOG::error);
+                .subscribe(this::updateByRecordingState, LOG::error);
     }
 
     /**
@@ -552,8 +550,24 @@ public class DashboardFragment2 extends BaseInjectorFragment {
         this.startTrackButton.setEnabled(setEnabled);
     }
 
-    private void updateStartTrackButton(RecordingState state) {
-
+    private void updateByRecordingState(RecordingState state) {
+        switch (state) {
+            case RECORDING_INIT:
+                break;
+            case RECORDING_RUNNING:
+                if (this.connectingDialog != null) {
+                    this.connectingDialog.dismiss();
+                    this.connectingDialog = null;
+                }
+                getActivity().startActivity(new Intent(getActivity(), OBDPlusGPSTrackRecordingScreen.class));
+                break;
+            case RECORDING_STOPPED:
+                if (this.connectingDialog != null) {
+                    this.connectingDialog.dismiss();
+                    this.connectingDialog = null;
+                }
+                break;
+        }
     }
 
     private void updateStartTrackButton(BluetoothServiceState state) {

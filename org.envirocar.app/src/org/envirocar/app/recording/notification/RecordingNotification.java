@@ -198,7 +198,7 @@ public class RecordingNotification implements LifecycleObserver {
     }
 
     private synchronized void refreshStopped() {
-        ServiceStateForNotification state = null;
+        ServiceStateForNotification state ;
         if (recordingState == RecordingState.RECORDING_STOPPED) {
             state = ServiceStateForNotification.UNCONNECTED;
         } else {

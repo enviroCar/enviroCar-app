@@ -143,6 +143,8 @@ public class OBDRecordingStrategy implements RecordingStrategy {
         }
 
         stopOBDConnectionRecognizer();
+
+        listener.onRecordingStateChanged(RecordingState.RECORDING_STOPPED);
     }
 
     private DisposableObserver<Track> initializeObserver() {
@@ -347,7 +349,7 @@ public class OBDRecordingStrategy implements RecordingStrategy {
 
         @Subscribe
         public void onReceiveSpeedUpdateEvent(SpeedUpdateEvent event) {
-            LOG.info("Received speed update, no stop required via mOBDCheckerSubscription!");
+            LOG.info("Received speed update, no stop required via OBD Connection Recognizer!");
             if (mOBDCheckerSubscription != null) {
                 mOBDCheckerSubscription.dispose();
                 mOBDCheckerSubscription = null;
