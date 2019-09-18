@@ -6,9 +6,9 @@ import com.squareup.otto.Bus;
 
 import org.envirocar.algorithm.MeasurementProvider;
 import org.envirocar.app.handler.BluetoothHandler;
-import org.envirocar.app.handler.preferences.CarPreferenceHandler;
 import org.envirocar.app.handler.InterpolationMeasurementProvider;
 import org.envirocar.app.handler.PreferencesHandler;
+import org.envirocar.app.handler.preferences.CarPreferenceHandler;
 import org.envirocar.app.recording.notification.SpeechOutput;
 import org.envirocar.app.recording.provider.LocationProvider;
 import org.envirocar.app.recording.provider.RecordingDetailsProvider;
@@ -74,8 +74,7 @@ public class RecordingModule {
     public RecordingStrategy.Factory provideRecordingStrategyFactory(
             @InjectApplicationScope Context context, Bus eventBus, SpeechOutput speechOutput, BluetoothHandler bluetoothHandler,
             OBDConnectionHandler obdConnectionHandler, MeasurementProvider measurementProvider,
-            TrackDatabaseSink trackDatabaseSink, LocationProvider locationProvider,
-            CarPreferenceHandler carPreferenceHandler) {
+            TrackDatabaseSink trackDatabaseSink, LocationProvider locationProvider, CarPreferenceHandler carPreferenceHandler) {
         return () -> {
             int type = PreferencesHandler.getPreviouslySelectedRecordingType(context);
             switch (type) {
@@ -85,7 +84,7 @@ public class RecordingModule {
                             bluetoothHandler, obdConnectionHandler, measurementProvider,
                             trackDatabaseSink, locationProvider, carPreferenceHandler);
                 case 2:
-                    return new GPSRecordingStrategy(carPreferenceHandler.getCar());
+                    return new GPSRecordingStrategy(context, eventBus, measurementProvider, trackDatabaseSink, carPreferenceHandler);
             }
         };
     }

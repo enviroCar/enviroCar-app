@@ -161,7 +161,7 @@
 //
 //
 //    @Override
-//    protected void startRecording() {
+//    protected void startDetection() {
 //        // Get the default device
 //        BluetoothDevice device = bluetoothHandler.getSelectedBluetoothDevice();
 //        if (device != null) {

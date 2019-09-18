@@ -85,7 +85,7 @@
             android:enabled="true"/>
 
         <service
-            android:name=".services.AutomaticTrackRecordingService"
+            android:name=".services.autoconnect.AutoRecordingService"
             android:enabled="true" />
         <service
             android:name=".services.TrackUploadService"

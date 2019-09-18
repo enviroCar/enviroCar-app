@@ -23,7 +23,7 @@ import android.content.Context;
 import android.content.Intent;
 
 import org.envirocar.app.R;
-import org.envirocar.app.services.AutomaticTrackRecordingService;
+import org.envirocar.app.services.autoconnect.AutoRecordingService;
 
 /**
  * TODO JavaDoc
@@ -84,7 +84,7 @@ public enum ServiceStateForNotification implements ServiceStateContentForNotific
             return new NotificationActionHolder(
                     R.drawable.ic_play_arrow_black_24dp,
                     R.string.notification_not_started_action,
-                    getPendingIntent(AutomaticTrackRecordingService.ACTION_START_TRACK_RECORDING, context));
+                    getPendingIntent(AutoRecordingService.ACTION_START_TRACK_RECORDING, context));
         }
     },
     UNCONNECTED {
@@ -108,7 +108,7 @@ public enum ServiceStateForNotification implements ServiceStateContentForNotific
             return new NotificationActionHolder(
                     R.drawable.ic_bluetooth_searching_black_24dp,
                     R.string.notification_unconnected_action,
-                    getPendingIntent(AutomaticTrackRecordingService.ACTION_START_BT_DISCOVERY, context));
+                    getPendingIntent(AutoRecordingService.ACTION_START_BT_DISCOVERY, context));
         }
     },
     DISCOVERING {
@@ -132,7 +132,7 @@ public enum ServiceStateForNotification implements ServiceStateContentForNotific
             return new NotificationActionHolder(
                     R.drawable.ic_close_black_24dp,
                     R.string.notification_discovering_action,
-                    getPendingIntent(AutomaticTrackRecordingService.ACTION_STOP_BT_DISCOVERY, context));
+                    getPendingIntent(AutoRecordingService.ACTION_STOP_BT_DISCOVERY, context));
         }
     },
     CONNECTING {
@@ -172,7 +172,7 @@ public enum ServiceStateForNotification implements ServiceStateContentForNotific
             return new NotificationActionHolder(
                     R.drawable.ic_close_black_24dp,
                     R.string.notification_connected_action,
-                    getPendingIntent(AutomaticTrackRecordingService.ACTION_STOP_TRACK_RECORDING, context));
+                    getPendingIntent(AutoRecordingService.ACTION_STOP_TRACK_RECORDING, context));
         }
     },
     STOPPING {

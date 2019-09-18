@@ -27,7 +27,9 @@ import org.envirocar.app.handler.LocationHandler;
 import org.envirocar.app.handler.TrackRecordingHandler;
 import org.envirocar.app.recording.RecordingComponent;
 import org.envirocar.app.recording.RecordingModule;
-import org.envirocar.app.services.AutomaticTrackRecordingService;
+import org.envirocar.app.services.autoconnect.AutoRecordingComponent;
+import org.envirocar.app.services.autoconnect.AutoRecordingModule;
+import org.envirocar.app.services.autoconnect.AutoRecordingService;
 import org.envirocar.app.services.TrackUploadService;
 import org.envirocar.app.views.OthersFragment;
 import org.envirocar.app.views.carselection.CarSelectionActivity;
@@ -82,7 +84,7 @@ public interface BaseApplicationComponent {
 
     void inject(BaseApplication baseApplication);
     void inject(TrackRecordingHandler trackRecordingHandler);
-    void inject(AutomaticTrackRecordingService automaticTrackRecordingService);
+    void inject(AutoRecordingService automaticTrackRecordingService);
     void inject(TrackUploadService trackUploadService);
     void inject(CarSelectionActivity carSelectionActivity);
     void inject(CarSelectionAddCarFragment carSelectionAddCarFragment);
@@ -118,6 +120,7 @@ public interface BaseApplicationComponent {
 
     MainActivityComponent plus(MainActivityModule mainActivityModule);
     RecordingComponent plus(RecordingModule recordingModule);
+    AutoRecordingComponent plus(AutoRecordingModule autoRecordingModule);
 
 
     CacheCarDAO getCacheCarDAO();

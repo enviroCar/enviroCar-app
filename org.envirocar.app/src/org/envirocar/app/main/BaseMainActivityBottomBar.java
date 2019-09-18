@@ -44,7 +44,7 @@ import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.app.handler.TemporaryFileManager;
 import org.envirocar.app.handler.preferences.UserHandler;
 import org.envirocar.app.injection.BaseInjectorActivity;
-import org.envirocar.app.services.AutomaticTrackRecordingService;
+import org.envirocar.app.services.autoconnect.AutoRecordingService;
 import org.envirocar.app.views.OthersFragment;
 import org.envirocar.app.views.TroubleshootingFragment;
 import org.envirocar.app.views.dashboard.DashboardFragment2;
@@ -241,11 +241,11 @@ public class BaseMainActivityBottomBar extends BaseInjectorActivity {
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(aBoolean -> {
                             if (aBoolean) {
-                                if (!ServiceUtils.isServiceRunning(this, AutomaticTrackRecordingService.class))
-                                    AutomaticTrackRecordingService.startService(this);
+                                if (!ServiceUtils.isServiceRunning(this, AutoRecordingService.class))
+                                    AutoRecordingService.startService(this);
                             } else {
-                                if (ServiceUtils.isServiceRunning(this, AutomaticTrackRecordingService.class))
-                                    AutomaticTrackRecordingService.stopService(this);
+                                if (ServiceUtils.isServiceRunning(this, AutoRecordingService.class))
+                                    AutoRecordingService.stopService(this);
                             }
                         }, LOGGER::error));
     }

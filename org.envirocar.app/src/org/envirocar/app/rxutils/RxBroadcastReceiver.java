@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 
+import org.envirocar.core.logging.Logger;
+
 import java.lang.ref.WeakReference;
 
 import io.reactivex.Emitter;
@@ -17,6 +19,7 @@ import io.reactivex.disposables.Disposable;
  * @author dewall
  */
 public class RxBroadcastReceiver implements ObservableOnSubscribe<Intent>, Disposable {
+    private static final Logger LOG = Logger.getLogger(RxBroadcastReceiver.class);
 
     private final WeakReference<Context> weakContext;
     private final IntentFilter intentFilter;
@@ -47,6 +50,7 @@ public class RxBroadcastReceiver implements ObservableOnSubscribe<Intent>, Dispo
         this.broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
+                LOG.info("RECEIVED INTENT", intent.getAction());
                 emitter.onNext(intent);
             }
         };

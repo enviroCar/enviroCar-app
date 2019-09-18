@@ -204,7 +204,7 @@
 //    }
 //
 //    @Override
-//    protected void startRecording() {
+//    protected void startDetection() {
 //        // Start the GPS Recording
 //        CURRENT_SERVICE_STATE = BluetoothServiceState.SERVICE_STARTED;
 //        this.bus.post(new TrackRecordingServiceStateChangedEvent(BluetoothServiceState.SERVICE_STARTED));

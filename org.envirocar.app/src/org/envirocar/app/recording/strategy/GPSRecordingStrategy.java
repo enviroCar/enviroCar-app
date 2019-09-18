@@ -25,6 +25,7 @@ import org.envirocar.algorithm.MeasurementProvider;
 import org.envirocar.app.BuildConfig;
 import org.envirocar.app.events.DrivingDetectedEvent;
 import org.envirocar.app.handler.PreferencesHandler;
+import org.envirocar.app.handler.preferences.CarPreferenceHandler;
 import org.envirocar.app.recording.RecordingState;
 import org.envirocar.app.recording.provider.TrackDatabaseSink;
 import org.envirocar.app.rxutils.RxBroadcastReceiver;
@@ -32,7 +33,6 @@ import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.events.gps.GpsLocationChangedEvent;
-import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.trackprocessing.consumption.LoadBasedEnergyConsumptionAlgorithm;
 
@@ -40,8 +40,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-
-import javax.inject.Inject;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
@@ -60,21 +58,15 @@ public class GPSRecordingStrategy implements LifecycleObserver, RecordingStrateg
     private static final Logger LOG = Logger.getLogger(OBDRecordingStrategy.class);
     private static final String TRANSITIONS_RECEIVER_ACTION = BuildConfig.APPLICATION_ID + "TRANSITIONS_RECEIVER_ACTION";
 
-    @Inject
-    @InjectApplicationScope
-    protected Context context;
-    @Inject
-    protected Bus eventBus;
-    @Inject
-    protected MeasurementProvider measurementProvider;
-    @Inject
-    protected TrackDatabaseSink trackDatabaseSink;
+    private final Context context;
+    private final Bus eventBus;
+    private final MeasurementProvider measurementProvider;
+    private final TrackDatabaseSink trackDatabaseSink;
 
     private RecordingListener listener;
     private CompositeDisposable disposables = new CompositeDisposable();
 
     //
-    private Car car;
     private LoadBasedEnergyConsumptionAlgorithm energyConsumptionAlgorithm;
     private PendingIntent activityTransitionIntent;
     private GPSOnlyConnectionRecognizer recognizer;
@@ -87,11 +79,16 @@ public class GPSRecordingStrategy implements LifecycleObserver, RecordingStrateg
 
     /**
      * Constructor.
-     *
-     * @param car
      */
-    public GPSRecordingStrategy(Car car) {
-        this.car = car;
+    public GPSRecordingStrategy(Context context, Bus eventBus, MeasurementProvider measurementProvider,
+                                TrackDatabaseSink trackDatabaseSink, CarPreferenceHandler carPreferences) {
+        this.context = context;
+        this.eventBus = eventBus;
+        this.measurementProvider = measurementProvider;
+        this.trackDatabaseSink = trackDatabaseSink;
+
+        // set the car specific properties.
+        Car car = carPreferences.getCar();
         this.energyConsumptionAlgorithm = new LoadBasedEnergyConsumptionAlgorithm(car.getFuelType());
     }
 
@@ -105,6 +102,19 @@ public class GPSRecordingStrategy implements LifecycleObserver, RecordingStrateg
     protected void onDestroy() {
         LOG.info("Destroying GPSRecordingStrategy");
         this.stopRecording();
+
+        if (disposables != null){
+            disposables.clear();
+        }
+
+        try {
+            eventBus.unregister(measurementProvider);
+        } catch (Exception e){
+        }
+
+        stopGPSConnectionRecognizer();
+
+        listener.onRecordingStateChanged(RecordingState.RECORDING_STOPPED);
     }
 
     @Override
@@ -112,7 +122,7 @@ public class GPSRecordingStrategy implements LifecycleObserver, RecordingStrateg
         this.listener = listener;
 
         Intent activityTransitionIntent = new Intent(TRANSITIONS_RECEIVER_ACTION);
-        this.activityTransitionIntent = PendingIntent.getBroadcast(context, 0, activityTransitionIntent, 0);
+        this.activityTransitionIntent = PendingIntent.getBroadcast(service, 0, activityTransitionIntent, 0);
 
         IntentFilter intentFilter = new IntentFilter(TRANSITIONS_RECEIVER_ACTION);
         disposables.add(RxBroadcastReceiver.create(context, intentFilter)
@@ -217,7 +227,7 @@ public class GPSRecordingStrategy implements LifecycleObserver, RecordingStrateg
 
 
     private void initTransitionsOfInterest() {
-        List<Integer> activities = Arrays.asList(DetectedActivity.IN_VEHICLE);
+        List<Integer> activities = Arrays.asList(DetectedActivity.IN_VEHICLE, DetectedActivity.ON_FOOT, DetectedActivity.STILL);
 
         List<ActivityTransition> transitions = new ArrayList<>();
         for (int activity : activities) {
@@ -273,6 +283,7 @@ public class GPSRecordingStrategy implements LifecycleObserver, RecordingStrateg
                 LOG.error(e.getMessage(), e);
                 listener.onRecordingStateChanged(RecordingState.RECORDING_STOPPED);
                 stopGPSConnectionRecognizer();
+                track = null;
             }
 
             @Override
@@ -280,6 +291,7 @@ public class GPSRecordingStrategy implements LifecycleObserver, RecordingStrateg
                 LOG.info("Finished the recording of the track.");
                 listener.onRecordingStateChanged(RecordingState.RECORDING_STOPPED);
                 stopGPSConnectionRecognizer();
+                track = null;
             }
         };
     }

@@ -44,7 +44,7 @@ import org.envirocar.app.handler.preferences.UserHandler;
 import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.app.main.BaseApplicationComponent;
 import org.envirocar.app.recording.RecordingService;
-import org.envirocar.app.services.AutomaticTrackRecordingService;
+import org.envirocar.app.services.autoconnect.AutoRecordingService;
 import org.envirocar.app.views.logbook.LogbookActivity;
 import org.envirocar.app.views.settings.SettingsActivity;
 import org.envirocar.app.views.utils.DialogUtils;
@@ -288,7 +288,7 @@ public class OthersFragment extends BaseInjectorFragment {
 
 
     private void shutdownEnviroCar() {
-        AutomaticTrackRecordingService.stopService(getActivity());
+        AutoRecordingService.stopService(getActivity());
         RecordingService.stopService(getActivity());
 
         mMainThreadWorker.schedule(() -> {

@@ -24,6 +24,7 @@ import android.content.Intent;
 import android.preference.PreferenceManager;
 
 import org.envirocar.app.handler.PreferenceConstants;
+import org.envirocar.app.services.autoconnect.AutoRecordingService;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.utils.ServiceUtils;
 
@@ -50,7 +51,7 @@ public class SystemStartupReceiver extends BroadcastReceiver {
     }
 
     /**
-     * Starts the AutomaticTrackRecordingService if the preference is setted and the remoteService is not already
+     * Starts the AutoRecordingService if the preference is setted and the remoteService is not already
      * running.
      *
      * @param context the context of the current scope.
@@ -63,11 +64,11 @@ public class SystemStartupReceiver extends BroadcastReceiver {
         // If autostart remoteService is on and the remoteService is not already running,
         // then start the background remoteService.
         if (autoStartService && !ServiceUtils.isServiceRunning(
-                context, AutomaticTrackRecordingService.class)) {
-            Intent startIntent = new Intent(context, AutomaticTrackRecordingService.class);
+                context, AutoRecordingService.class)) {
+            Intent startIntent = new Intent(context, AutoRecordingService.class);
             context.startService(startIntent);
         }else if(!autoStartService){
-            AutomaticTrackRecordingService.stopService(context);
+            AutoRecordingService.stopService(context);
         }
     }
 

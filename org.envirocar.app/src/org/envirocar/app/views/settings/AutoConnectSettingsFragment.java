@@ -33,7 +33,7 @@ import org.envirocar.app.R;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.PreferenceConstants;
 import org.envirocar.app.main.BaseApplication;
-import org.envirocar.app.services.AutomaticTrackRecordingService;
+import org.envirocar.app.services.autoconnect.AutoRecordingService;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.utils.ServiceUtils;
@@ -94,8 +94,8 @@ public class AutoConnectSettingsFragment extends PreferenceFragment {
             if (isChecked) {
                 mSearchIntervalPreference.setEnabled(mAutoConnectPrefrence.isChecked());
                 if(!ServiceUtils.isServiceRunning(
-                        context, AutomaticTrackRecordingService.class)) {
-                    Intent startIntent = new Intent(context, AutomaticTrackRecordingService.class);
+                        context, AutoRecordingService.class)) {
+                    Intent startIntent = new Intent(context, AutoRecordingService.class);
                     context.startService(startIntent);
                 }
             } else {

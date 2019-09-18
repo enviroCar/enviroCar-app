@@ -116,7 +116,7 @@
 //        this.showNotification(ServiceStateForNotification.CONNECTING);
 //
 //        // Start the recording
-//        this.startRecording();
+//        this.startDetection();
 //
 //        return START_NOT_STICKY;
 //    }
@@ -169,7 +169,7 @@
 //    /**
 //     *
 //     */
-//    protected abstract void startRecording();
+//    protected abstract void startDetection();
 //
 //
 //    /**
