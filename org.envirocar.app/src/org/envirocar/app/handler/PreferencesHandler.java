@@ -158,7 +158,6 @@ public class PreferencesHandler implements PreferenceConstants {
                 .edit()
                 .putString(PREF_RECORDING_TYPE, recordingType.toString())
                 .apply();
-
     }
 
     public static void setPreviouslySelectedRecordingType(Context context, int index) {

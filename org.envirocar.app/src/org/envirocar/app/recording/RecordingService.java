@@ -1,36 +1,28 @@
 package org.envirocar.app.recording;
 
-import android.annotation.TargetApi;
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Color;
-import android.os.Build;
 import android.os.IBinder;
 
 import androidx.annotation.Nullable;
-import androidx.core.app.NotificationCompat;
 
 import com.squareup.otto.Bus;
 
 import org.envirocar.app.injection.ScopedBaseInjectorService;
 import org.envirocar.app.main.BaseApplication;
-import org.envirocar.app.main.BaseMainActivityBottomBar;
-import org.envirocar.app.notifications.ServiceStateForNotification;
 import org.envirocar.app.recording.events.RecordingStateEvent;
-import org.envirocar.app.recording.provider.RecordingDetailsProvider;
-import org.envirocar.app.recording.strategy.RecordingStrategy;
 import org.envirocar.app.recording.notification.RecordingNotification;
 import org.envirocar.app.recording.notification.SpeechOutput;
+import org.envirocar.app.recording.provider.RecordingDetailsProvider;
+import org.envirocar.app.recording.strategy.RecordingStrategy;
+import org.envirocar.app.rxutils.RxBroadcastReceiver;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.utils.ServiceUtils;
 
 import javax.inject.Inject;
+
+import io.reactivex.disposables.CompositeDisposable;
 
 /**
  * @author dewall
@@ -59,23 +51,8 @@ public class RecordingService extends ScopedBaseInjectorService {
     private RecordingStrategy recordingStrategy;
     private RecordingNotification recordingNotification;
 
-    // Broadcast receiver that handles the stopping of the track that could be issued by the
-    // corresponding notification of the notification bar.
-    private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+    private CompositeDisposable disposables = new CompositeDisposable();
 
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-
-            // Received action matches the command for stopping the recording process of a track.
-            if (ACTION_STOP_TRACK_RECORDING.equals(action)) {
-                LOG.info("Received Broadcast: Stop Track Recording.");
-
-                // Finish the current track.
-                recordingStrategy.stopRecording();
-            }
-        }
-    };
 
     @Override
     protected void setupServiceComponent() {
@@ -103,9 +80,19 @@ public class RecordingService extends ScopedBaseInjectorService {
         getLifecycle().addObserver(this.recordingDetailsProvider);
 
         // Register a new BroadcastReceiver that waits for incoming actions issued from the notification.
-        IntentFilter notificationClickedFilter = new IntentFilter();
-        notificationClickedFilter.addAction(ACTION_STOP_TRACK_RECORDING);
-        registerReceiver(broadcastReceiver, notificationClickedFilter);
+        IntentFilter notificationClickedFilter = new IntentFilter(ACTION_STOP_TRACK_RECORDING);
+        disposables.add(RxBroadcastReceiver.create(this, notificationClickedFilter)
+                .doOnNext(intent -> {
+                    String action = intent.getAction();
+                    // Received action matches the command for stopping the recording process of a track.
+                    if (ACTION_STOP_TRACK_RECORDING.equals(action)) {
+                        LOG.info("Received Broadcast: Stop Track Recording.");
+                        // Finish the current track.
+                        recordingStrategy.stopRecording();
+                    }
+                })
+                .doOnError(LOG::error)
+                .subscribe());
     }
 
     @Override
@@ -120,7 +107,7 @@ public class RecordingService extends ScopedBaseInjectorService {
             RECORDING_STATE = recordingState;
             bus.post(new RecordingStateEvent(recordingState));
 
-            if(recordingState == RecordingState.RECORDING_STOPPED){
+            if (recordingState == RecordingState.RECORDING_STOPPED) {
                 stopSelf();
             }
         });
@@ -138,6 +125,8 @@ public class RecordingService extends ScopedBaseInjectorService {
             recordingStrategy = null;
         }
 
-        this.unregisterReceiver(broadcastReceiver);
+        if (disposables != null) {
+            disposables.clear();
+        }
     }
 }

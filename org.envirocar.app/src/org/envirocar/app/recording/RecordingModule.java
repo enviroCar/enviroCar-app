@@ -76,15 +76,16 @@ public class RecordingModule {
             OBDConnectionHandler obdConnectionHandler, MeasurementProvider measurementProvider,
             TrackDatabaseSink trackDatabaseSink, LocationProvider locationProvider, CarPreferenceHandler carPreferenceHandler) {
         return () -> {
-            int type = PreferencesHandler.getPreviouslySelectedRecordingType(context);
-            switch (type) {
+            RecordingType recordingType = PreferencesHandler.getSelectedRecordingTypeObservable(context).blockingFirst();
+            switch (recordingType) {
                 default:
-                case 1:
+                case OBD_ADAPTER_BASED:
                     return new OBDRecordingStrategy(context, eventBus, speechOutput,
                             bluetoothHandler, obdConnectionHandler, measurementProvider,
                             trackDatabaseSink, locationProvider, carPreferenceHandler);
-                case 2:
-                    return new GPSRecordingStrategy(context, eventBus, measurementProvider, trackDatabaseSink, carPreferenceHandler);
+                case ACTIVITY_RECOGNITION_BASED:
+                    return new GPSRecordingStrategy(context, eventBus, measurementProvider,
+                            trackDatabaseSink, carPreferenceHandler);
             }
         };
     }

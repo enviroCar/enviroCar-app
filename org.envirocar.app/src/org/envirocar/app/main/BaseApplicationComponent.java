@@ -84,7 +84,6 @@ public interface BaseApplicationComponent {
 
     void inject(BaseApplication baseApplication);
     void inject(TrackRecordingHandler trackRecordingHandler);
-    void inject(AutoRecordingService automaticTrackRecordingService);
     void inject(TrackUploadService trackUploadService);
     void inject(CarSelectionActivity carSelectionActivity);
     void inject(CarSelectionAddCarFragment carSelectionAddCarFragment);
