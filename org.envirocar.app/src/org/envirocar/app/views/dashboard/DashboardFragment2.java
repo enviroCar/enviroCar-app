@@ -36,12 +36,14 @@ import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.R;
 import org.envirocar.app.handler.BluetoothHandler;
+import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.app.handler.preferences.UserHandler;
 import org.envirocar.app.handler.userstatistics.UserStatisticsUpdateEvent;
 import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.app.main.BaseApplicationComponent;
 import org.envirocar.app.recording.RecordingService;
 import org.envirocar.app.recording.RecordingState;
+import org.envirocar.app.recording.RecordingType;
 import org.envirocar.app.recording.events.RecordingStateEvent;
 import org.envirocar.app.views.carselection.CarSelectionActivity;
 import org.envirocar.app.views.login.SigninActivity;
@@ -182,20 +184,18 @@ public class DashboardFragment2 extends BaseInjectorFragment {
 
         //
         PermissionUtils.requestLocationPermissionIfRequired(getActivity())
-                .subscribeWith(new DisposableCompletableObserver() {
-                    @Override
-                    public void onComplete() {
-                        LOG.info("Accepted");
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        LOG.error(e);
-                    }
-                });
+                .doOnComplete(() -> LOG.info("Accepted"))
+                .doOnError(LOG::error)
+                .subscribe();
 
         //
         this.updateUserLogin(userHandler.getUser());
+
+        // set recording state
+        PreferencesHandler.getSelectedRecordingTypeObservable(getContext())
+                .doOnNext(this::setRecordingMode)
+                .doOnError(LOG::error)
+                .blockingFirst();
 
         return contentView;
     }
@@ -205,7 +205,7 @@ public class DashboardFragment2 extends BaseInjectorFragment {
         super.onResume();
         this.updateStatisticsVisibility(this.statisticsKnown);
 
-        if(RecordingService.RECORDING_STATE == RecordingState.RECORDING_RUNNING){
+        if (RecordingService.RECORDING_STATE == RecordingState.RECORDING_RUNNING) {
             OBDPlusGPSTrackRecordingScreen.start(getContext());
         }
     }
@@ -267,10 +267,26 @@ public class DashboardFragment2 extends BaseInjectorFragment {
     public void onModeChangedClicked(CompoundButton button, boolean checked) {
         if (!checked)
             return;
+        RecordingType selectedRT = button.getId() == R.id.fragment_dashboard_obd_mode_button ?
+                RecordingType.OBD_ADAPTER_BASED : RecordingType.ACTIVITY_RECOGNITION_BASED;
+
         LOG.info("Mode selected " + button.getText());
 
+        // adjust the ui
+        this.setRecordingMode(selectedRT);
+
+        // update the selected recording type
+        PreferencesHandler.setSelectedRecordingType(getContext(), selectedRT);
+    }
+
+    private void setRecordingMode(RecordingType selectedRT){
         // check whether OBD is visible or not.
-        int visibility = button.getId() == R.id.fragment_dashboard_obd_mode_button ? View.VISIBLE : View.GONE;
+        int visibility = selectedRT == RecordingType.OBD_ADAPTER_BASED ? View.VISIBLE : View.GONE;
+
+        if (visibility == View.GONE){
+            gpsModeRadioButton.setChecked(true);
+            obdModeRadioButton.setChecked(false);
+        }
 
         // shared transition set
         TransitionSet transitionSet = new TransitionSet()
