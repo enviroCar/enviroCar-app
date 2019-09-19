@@ -18,6 +18,8 @@
  */
 package org.envirocar.app.handler;
 
+import org.envirocar.app.recording.RecordingType;
+
 /**
  * TODO JavaDoc
  *
@@ -44,6 +46,7 @@ public interface PreferenceConstants {
     int DEFAULT_BLUETOOTH_DISCOVERY_INTERVAL = 60;
     int DEFAULT_TRACK_TRIM_DURATION = 110;
     boolean DEFAULT_BLUETOOTH_AUTOCONNECT = false;
+    RecordingType DEFAULT_RECORDING_TYPE = RecordingType.OBD_ADAPTER_BASED;
 
 
     String PREFERENCE_TAG_CAR = "pref_selected_car";
@@ -70,5 +73,7 @@ public interface PreferenceConstants {
 
     String PREF_PREV_VIEW_TYPE_GENERAL_RECORDING_SCREEN = "pref_prev_view_type_general_recording_type";
     String PREF_PREV_VIEW_TYPE_METER_RECORDING_SCREEN = "pref_prev_view_type_meter_recording_type";
+
+    String PREF_RECORDING_TYPE = "pref_recording_type";
 
 }
