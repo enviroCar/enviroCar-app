@@ -22,6 +22,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import com.f2prateek.rx.preferences2.Preference;
 import com.f2prateek.rx.preferences2.RxSharedPreferences;
 import com.google.common.base.Preconditions;
 
@@ -40,7 +41,7 @@ import static org.envirocar.app.notifications.NotificationHandler.context;
  */
 public class PreferencesHandler implements PreferenceConstants {
 
-    public static final boolean DEFAULT_BLUETOOTH_AUTOCONNECT = false;
+    public static final Boolean DEFAULT_BLUETOOTH_AUTOCONNECT = false;
     public static final boolean DEFAULT_DISPLAY_STAYS_ACTIVE = false;
     public static final boolean DEFAULT_TEXT_TO_SPEECH = false;
     public static final boolean DEFAULT_BLUETOOTH_SERVICE_AUTOSTART = true;
@@ -170,7 +171,9 @@ public class PreferencesHandler implements PreferenceConstants {
     }
 
     public static Observable<Boolean> getAutoconnectObservable(final Context context) {
-        return RxSharedPreferences.create(getSharedPreferences(context))
+        Preference<Boolean> aBoolean = getRxSharedPreferences(context).getBoolean(PREF_BLUETOOTH_AUTOCONNECT, DEFAULT_BLUETOOTH_AUTOCONNECT);
+        boolean b = aBoolean.get();
+        return getRxSharedPreferences(context)
                 .getBoolean(PREF_BLUETOOTH_AUTOCONNECT, DEFAULT_BLUETOOTH_AUTOCONNECT)
                 .asObservable();
     }
@@ -261,17 +264,17 @@ public class PreferencesHandler implements PreferenceConstants {
                 .asObservable();
     }
 
-    public static Observable<Car> getSelectedCarObsevable() {
+    public static Observable<Car> getSelectedCarObservable() {
         return getRxSharedPreferences(context)
                 .getString(PREFERENCE_TAG_CAR, "")
                 .asObservable()
                 .map(s -> s != "" ? CarUtils.instantiateCar(s) : null);
     }
 
-    public static Observable<Car> getSelectedCarObsevable(Context context) {
+    public static Observable<Car> getSelectedCarObservable(Context context) {
         return getRxSharedPreferences(context)
-                .getString(PREFERENCE_TAG_CAR, "")
+                .getString(PREFERENCE_TAG_CAR)
                 .asObservable()
-                .map(s -> s != "" ? CarUtils.instantiateCar(s) : null);
+                .map(CarUtils::instantiateCar);
     }
 }

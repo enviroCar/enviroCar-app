@@ -145,9 +145,6 @@ public class AutoRecordingService extends ScopedBaseInjectorService implements A
         }
     }
 
-
-
-
     @Override
     public void onPreconditionUpdate(AutoRecordingStrategy.PreconditionType preconditionType) {
         switch (preconditionType) {
@@ -252,6 +249,9 @@ public class AutoRecordingService extends ScopedBaseInjectorService implements A
         if (this.autoStrategy != null) {
             this.autoStrategy.stop();
             getLifecycle().removeObserver(this.autoStrategy);
+        }
+        if (!this.isAutoConnectEnabled){
+            return;
         }
 
         this.autoStrategy = this.factory.create();

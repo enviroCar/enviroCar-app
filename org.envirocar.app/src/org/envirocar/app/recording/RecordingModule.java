@@ -84,7 +84,7 @@ public class RecordingModule {
                             bluetoothHandler, obdConnectionHandler, measurementProvider,
                             trackDatabaseSink, locationProvider, carPreferenceHandler);
                 case ACTIVITY_RECOGNITION_BASED:
-                    return new GPSRecordingStrategy(context, eventBus, measurementProvider,
+                    return new GPSRecordingStrategy(context, eventBus, locationProvider, measurementProvider,
                             trackDatabaseSink, carPreferenceHandler);
             }
         };

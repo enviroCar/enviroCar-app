@@ -11,6 +11,7 @@ import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.PreferencesHandler;
+import org.envirocar.core.events.NewCarTypeSelectedEvent;
 import org.envirocar.core.events.bluetooth.BluetoothDeviceSelectedEvent;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.core.events.gps.GpsStateChangedEvent;
@@ -82,10 +83,6 @@ public class OBDAutoRecordingStrategy implements AutoRecordingStrategy {
     public void run(AutoRecordingCallback callback) {
         this.callback = callback;
 
-        disposables.add(PreferencesHandler.getSelectedCarObsevable(service)
-                .doOnNext(car -> this.isCarSelected = car != null)
-                .doOnError(LOG::error)
-                .subscribe());
         disposables.add(PreferencesHandler.getDiscoveryIntervalObservable(service)
                 .doOnNext(interval -> {
                     this.discoveryInterval = interval;
@@ -120,22 +117,29 @@ public class OBDAutoRecordingStrategy implements AutoRecordingStrategy {
     }
 
     @Subscribe
+    public void onCarSelectedEvent(NewCarTypeSelectedEvent event) {
+        LOG.info("Received event. %s", event.toString());
+        this.isCarSelected = event.mCar != null;
+        checkPrecodinitions();
+    }
+
+    @Subscribe
     public void onReceiveBluetoothStateChangedEvent(BluetoothStateChangedEvent event) {
-        LOG.info(String.format("Received event. %s", event.toString()));
+        LOG.info("Received event. %s", event.toString());
         this.isBTEnabled = event.isBluetoothEnabled;
         checkPrecodinitions();
     }
 
     @Subscribe
     public void onReceiveGpsStatusChangedEvent(GpsStateChangedEvent event) {
-        LOG.info(String.format("Received event. %s", event.toString()));
+        LOG.info("Received event. %s", event.toString());
         this.isGPSEnabled = event.mIsGPSEnabled;
         checkPrecodinitions();
     }
 
     @Subscribe
     public void onReceiveBluetoothDeviceSelectedEvent(BluetoothDeviceSelectedEvent event) {
-        LOG.info(String.format("Received event. %s", event.toString()));
+        LOG.info("Received event. %s", event.toString());
         this.isBTSelected = event.mDevice != null;
         checkPrecodinitions();
     }
