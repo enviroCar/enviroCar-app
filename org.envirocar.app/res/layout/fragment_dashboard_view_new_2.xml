@@ -53,141 +53,13 @@
             <FrameLayout
                 android:id="@+id/fragment_dashboard_banner"
                 android:layout_width="0dp"
-                android:layout_height="200dp"
+                android:layout_height="0dp"
                 android:background="@color/cario_color_primary"
+                app:layout_constraintHeight_percent=".25"
+                app:layout_constraintHeight_min="180dp"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent" />
-
-            <LinearLayout
-                android:id="@+id/fragment_dashboard_logged_in_layout"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_marginTop="8dp"
-                android:gravity="bottom"
-                android:orientation="vertical"
-                android:visibility="visible"
-                app:layout_constraintBottom_toTopOf="@+id/cardView2"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/fragment_dashboard_banner">
-
-                <ImageView
-                    android:id="@+id/imageView3"
-                    android:layout_width="wrap_content"
-                    android:layout_height="0dp"
-                    android:layout_gravity="center|bottom"
-                    android:layout_weight="4"
-                    android:padding="2dp"
-                    android:src="@drawable/user_male"
-                    android:tint="@color/cario_color_primary_dark" />
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/fragment_dashboard_username"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_gravity="center|bottom"
-                    android:layout_marginBottom="16dp"
-                    android:layout_weight="1"
-                    android:fontFamily="@font/roboto"
-                    android:gravity="center"
-                    android:text="Username"
-                    android:textColor="@color/white_cario"
-                    android:textStyle="bold"
-                    app:autoSizeMaxTextSize="18sp"
-                    app:autoSizeMinTextSize="12sp"
-                    app:autoSizeStepGranularity="1sp"
-                    app:autoSizeTextType="uniform" />
-
-            </LinearLayout>
-
-            <!--        <ImageView-->
-            <!--            android:id="@+id/activity_login_logo"-->
-            <!--            android:layout_width="match_parent"-->
-            <!--            android:layout_height="0dp"-->
-            <!--            android:layout_gravity="center"-->
-            <!--            android:layout_margin="4dp"-->
-            <!--            android:src="@drawable/img_envirocar_logo_white"-->
-            <!--            app:layout_constraintEnd_toEndOf="parent"-->
-            <!--            app:layout_constraintHeight_percent="0.06"-->
-            <!--            app:layout_constraintStart_toStartOf="parent"-->
-            <!--            app:layout_constraintTop_toTopOf="parent"-->
-            <!--            android:visibility="invisible"/>-->
-
-
-            <LinearLayout
-                android:id="@+id/fragment_dashboard_indicator_view"
-                android:layout_width="0dp"
-                android:layout_height="60dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="8dp"
-                android:gravity="center"
-                android:orientation="horizontal"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/fragment_dashboard_mode_selector">
-
-
-                <ImageView
-                    android:id="@+id/fragment_dashboard_indicator_bluetooth"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="center"
-                    android:layout_marginLeft="8dp"
-                    android:layout_marginRight="8dp"
-                    android:adjustViewBounds="true"
-                    android:background="@drawable/btn_dashboard_circle"
-                    android:backgroundTint="@color/dashboard_indicator_selector"
-                    android:src="@drawable/ic_bluetooth_black_24dp"
-                    android:tint="@color/white_cario" />
-
-                <ImageView
-                    android:id="@+id/fragment_dashboard_indicator_obd"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="center"
-                    android:layout_marginLeft="8dp"
-                    android:layout_marginRight="8dp"
-                    android:adjustViewBounds="true"
-                    android:background="@drawable/btn_dashboard_circle"
-                    android:backgroundTint="@color/dashboard_indicator_selector"
-                    android:scaleType="fitCenter"
-                    android:src="@drawable/ic_obd"
-                    android:tint="@color/white_cario" />
-
-                <ImageView
-                    android:id="@+id/fragment_dashboard_indicator_gps"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="center"
-                    android:layout_marginLeft="8dp"
-                    android:layout_marginRight="8dp"
-                    android:adjustViewBounds="true"
-                    android:background="@drawable/btn_dashboard_circle"
-                    android:backgroundTint="@color/dashboard_indicator_selector"
-                    android:scaleType="fitCenter"
-                    android:src="@drawable/ic_gps"
-                    android:tint="@color/white_cario" />
-
-                <ImageView
-                    android:id="@+id/fragment_dashboard_indicator_car"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="center"
-                    android:layout_marginLeft="8dp"
-                    android:layout_marginRight="8dp"
-                    android:adjustViewBounds="true"
-                    android:background="@drawable/btn_dashboard_circle"
-                    android:backgroundTint="@color/dashboard_indicator_selector"
-                    android:scaleType="fitCenter"
-                    android:src="@drawable/ic_drive_eta_black_24dp"
-                    android:tint="@color/white_cario" />
-
-            </LinearLayout>
-
-
-
 
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardView2"
@@ -337,6 +209,128 @@
                     android:visibility="gone" />
             </androidx.cardview.widget.CardView>
 
+            <LinearLayout
+                android:id="@+id/fragment_dashboard_logged_in_layout"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginTop="8dp"
+                android:gravity="bottom"
+                android:orientation="vertical"
+                android:visibility="visible"
+                app:layout_constraintHeight_percent=""
+                app:layout_constraintBottom_toTopOf="@+id/cardView2"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/fragment_dashboard_banner">
+
+                <ImageView
+                    android:id="@+id/imageView3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:layout_gravity="center|bottom"
+                    android:layout_weight="4"
+                    android:padding="2dp"
+                    android:src="@drawable/user_male"
+                    android:tint="@color/cario_color_primary_dark" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/fragment_dashboard_username"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_gravity="center|bottom"
+                    android:layout_marginBottom="16dp"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/roboto"
+                    android:gravity="center"
+                    android:text="Username"
+                    android:textColor="@color/white_cario"
+                    android:textStyle="bold"
+                    app:autoSizeMaxTextSize="18sp"
+                    app:autoSizeMinTextSize="12sp"
+                    app:autoSizeStepGranularity="1sp"
+                    app:autoSizeTextType="uniform" />
+
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:id="@+id/fragment_dashboard_indicator_view"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="8dp"
+                android:gravity="center"
+                android:orientation="horizontal"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHeight_percent="0.09"
+                app:layout_constraintHeight_max="50dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/fragment_dashboard_mode_selector">
+
+
+                <ImageView
+                    android:id="@+id/fragment_dashboard_indicator_bluetooth"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginRight="8dp"
+                    android:adjustViewBounds="true"
+                    android:background="@drawable/btn_dashboard_circle"
+                    android:backgroundTint="@color/dashboard_indicator_selector"
+                    android:src="@drawable/ic_bluetooth_black_24dp"
+                    android:tint="@color/white_cario" />
+
+                <ImageView
+                    android:id="@+id/fragment_dashboard_indicator_obd"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginRight="8dp"
+                    android:adjustViewBounds="true"
+                    android:background="@drawable/btn_dashboard_circle"
+                    android:backgroundTint="@color/dashboard_indicator_selector"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_obd"
+                    android:tint="@color/white_cario" />
+
+                <ImageView
+                    android:id="@+id/fragment_dashboard_indicator_gps"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginRight="8dp"
+                    android:adjustViewBounds="true"
+                    android:background="@drawable/btn_dashboard_circle"
+                    android:backgroundTint="@color/dashboard_indicator_selector"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_gps"
+                    android:tint="@color/white_cario" />
+
+                <ImageView
+                    android:id="@+id/fragment_dashboard_indicator_car"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginRight="8dp"
+                    android:adjustViewBounds="true"
+                    android:background="@drawable/btn_dashboard_circle"
+                    android:backgroundTint="@color/dashboard_indicator_selector"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_drive_eta_black_24dp"
+                    android:tint="@color/white_cario" />
+
+            </LinearLayout>
+
+
+
+
+
+
             <androidx.cardview.widget.CardView
                 android:id="@+id/fragment_dashboard_obdselection_layout"
                 android:layout_width="0dp"
@@ -365,13 +359,7 @@
                         android:src="@drawable/ic_bluetooth_searching_black_24dp"
                         android:tint="@color/white_cario" />
 
-                    <ImageView
-                        android:layout_width="32sp"
-                        android:layout_height="32sp"
-                        android:layout_gravity="right|center_vertical"
-                        android:layout_marginRight="8dp"
-                        android:src="@drawable/ic_action_arrow_foward"
-                        android:tint="@color/cario_color_primary_dark" />
+
 
                     <LinearLayout
                         android:layout_width="0dp"
@@ -408,6 +396,14 @@
 
                     </LinearLayout>
 
+                    <ImageView
+                        android:layout_width="32sp"
+                        android:layout_height="32sp"
+                        android:layout_gravity="right|center_vertical"
+                        android:layout_marginRight="8dp"
+                        android:src="@drawable/ic_action_arrow_foward"
+                        android:tint="@color/cario_color_primary_dark" />
+
                 </LinearLayout>
 
             </androidx.cardview.widget.CardView>
@@ -439,13 +435,6 @@
                         android:src="@drawable/ic_drive_eta_black_24dp"
                         android:tint="@color/white_cario" />
 
-                    <ImageView
-                        android:layout_width="32sp"
-                        android:layout_height="32sp"
-                        android:layout_gravity="right|center_vertical"
-                        android:layout_marginRight="8dp"
-                        android:src="@drawable/ic_action_arrow_foward"
-                        android:tint="@color/cario_color_primary_dark" />
 
                     <LinearLayout
                         android:layout_width="0dp"
@@ -481,65 +470,20 @@
                             app:autoSizeTextType="uniform" />
 
                     </LinearLayout>
+
+                    <ImageView
+                        android:layout_width="32sp"
+                        android:layout_height="32sp"
+                        android:layout_gravity="right|center_vertical"
+                        android:layout_marginRight="8dp"
+                        android:src="@drawable/ic_action_arrow_foward"
+                        android:tint="@color/cario_color_primary_dark" />
+
                 </LinearLayout>
 
             </androidx.cardview.widget.CardView>
 
-            <androidx.cardview.widget.CardView
-                android:id="@+id/fragment_dashboard_start_track_button"
-                android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:layout_marginTop="24dp"
-                android:layout_marginBottom="24dp"
-                android:clickable="true"
-                android:foreground="?android:attr/selectableItemBackground"
-                app:cardBackgroundColor="@color/dashboard_button_selector"
-                app:cardCornerRadius="25dp"
-                app:cardElevation="10dp"
-                app:layout_constraintBottom_toBottomOf="@id/guideline_bottom"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/fragment_dashboard_carselection_layout"
-                app:layout_constraintWidth_percent="0.65">
 
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:layout_gravity="center"
-                    android:layout_marginLeft="32dp"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginRight="32dp"
-                    android:layout_marginBottom="8dp"
-                    android:gravity="center"
-                    android:maxLines="1"
-                    android:text="@string/dashboard_start_track"
-                    android:textColor="@color/white_cario"
-                    app:autoSizeMaxTextSize="15sp"
-                    app:autoSizeMinTextSize="7sp"
-                    app:autoSizeTextType="uniform" />
-
-            </androidx.cardview.widget.CardView>
-
-            <androidx.constraintlayout.widget.Guideline
-                android:id="@+id/guideline_left"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                app:layout_constraintGuide_percent="0.10" />
-
-            <androidx.constraintlayout.widget.Guideline
-                android:id="@+id/guideline_right"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                app:layout_constraintGuide_percent="0.90" />
-
-            <androidx.constraintlayout.widget.Guideline
-                android:id="@+id/guideline_bottom"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                app:layout_constraintGuide_percent="0.90" />
 
             <info.hoang8f.android.segmented.SegmentedGroup xmlns:segmentedgroup="http://schemas.android.com/apk/res-auto"
                 android:id="@+id/fragment_dashboard_mode_selector"
@@ -576,6 +520,65 @@
                     android:text="GPS Only" />
 
             </info.hoang8f.android.segmented.SegmentedGroup>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/fragment_dashboard_start_track_button"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="40dp"
+                android:paddingBottom="24dp"
+                android:clickable="true"
+                android:foreground="?android:attr/selectableItemBackground"
+                app:cardBackgroundColor="@color/dashboard_button_selector"
+                app:cardCornerRadius="25dp"
+                app:cardElevation="10dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/fragment_dashboard_carselection_layout"
+                app:layout_constraintWidth_percent="0.65">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="32dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginRight="32dp"
+                    android:layout_marginBottom="8dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:text="@string/dashboard_start_track"
+                    android:textColor="@color/white_cario"
+                    app:autoSizeMaxTextSize="15sp"
+                    app:autoSizeMinTextSize="7sp"
+                    app:autoSizeTextType="uniform" />
+
+            </androidx.cardview.widget.CardView>
+
+            <FrameLayout
+                android:id="@+id/fragment_dashboard_space_bottom"
+                android:layout_width="0dp"
+                android:layout_height="24dp"
+                app:layout_constraintTop_toBottomOf="@id/fragment_dashboard_start_track_button"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"/>
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline_left"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.10" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline_right"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.90" />
+
+
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
