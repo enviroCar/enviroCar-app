@@ -2,7 +2,6 @@
 
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true">
@@ -13,6 +12,16 @@
         android:layout_height="match_parent"
         android:background="@color/white_cario"
         android:orientation="vertical">
+
+        <FrameLayout
+            android:id="@+id/fragment_dashboard_banner"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:background="@color/cario_color_primary"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHeight_percent="0.26"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/fragment_dashboard_toolbar" />
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/fragment_dashboard_toolbar"
@@ -37,32 +46,25 @@
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="30dp"
-                android:src="@drawable/img_envirocar_logo_white" />
+                android:src="@drawable/img_envirocar_logo_white"
+                android:scaleType="fitCenter"/>
 
         </LinearLayout>
 
-        <ImageView
-            android:id="@+id/activity_login_logo"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_gravity="center"
-            android:layout_margin="4dp"
-            android:src="@drawable/img_envirocar_logo_white"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHeight_percent="0.06"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:visibility="invisible"/>
+<!--        <ImageView-->
+<!--            android:id="@+id/activity_login_logo"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="0dp"-->
+<!--            android:layout_gravity="center"-->
+<!--            android:layout_margin="4dp"-->
+<!--            android:src="@drawable/img_envirocar_logo_white"-->
+<!--            app:layout_constraintEnd_toEndOf="parent"-->
+<!--            app:layout_constraintHeight_percent="0.06"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintTop_toTopOf="parent"-->
+<!--            android:visibility="invisible"/>-->
 
-        <FrameLayout
-            android:id="@+id/fragment_dashboard_banner"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:background="@color/cario_color_primary"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHeight_percent="0.26"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/fragment_dashboard_toolbar" />
+
 
         <LinearLayout
             android:id="@+id/fragment_dashboard_logged_in_layout"
@@ -110,15 +112,13 @@
 
         <androidx.cardview.widget.CardView
             android:id="@+id/cardView2"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="76dp"
-            android:layout_marginStart="24dp"
-            android:layout_marginEnd="24dp"
             app:cardCornerRadius="10dp"
             app:cardElevation="10dp"
             app:layout_constraintBottom_toBottomOf="@+id/fragment_dashboard_banner"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="@id/guideline_right"
+            app:layout_constraintStart_toStartOf="@id/guideline_left"
             app:layout_constraintTop_toBottomOf="@+id/fragment_dashboard_banner">
 
             <ProgressBar
@@ -132,7 +132,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_margin="8dp"
+                android:layout_margin="7dp"
                 android:orientation="horizontal">
 
                 <LinearLayout
@@ -155,7 +155,7 @@
                         android:textColor="#000000"
                         android:textStyle="bold"
                         app:autoSizeMaxTextSize="20sp"
-                        app:autoSizeMinTextSize="15sp"
+                        app:autoSizeMinTextSize="10sp"
                         app:autoSizeTextType="uniform" />
 
                     <androidx.appcompat.widget.AppCompatTextView
@@ -167,11 +167,12 @@
                         android:layout_marginRight="8dp"
                         android:gravity="center"
                         android:maxLines="1"
-                        android:singleLine="true"
                         android:text="User Tracks"
+                        android:fontFamily="@font/roboto_medium"
                         app:autoSizeMaxTextSize="11sp"
-                        app:autoSizeMinTextSize="7sp"
-                        app:autoSizeTextType="uniform" />
+                        app:autoSizeMinTextSize="2sp"
+                        app:autoSizeTextType="uniform"
+                        app:autoSizeStepGranularity="1sp"/>
 
                 </LinearLayout>
 
@@ -195,7 +196,7 @@
                         android:textColor="#000000"
                         android:textStyle="bold"
                         app:autoSizeMaxTextSize="20sp"
-                        app:autoSizeMinTextSize="15sp"
+                        app:autoSizeMinTextSize="10sp"
                         app:autoSizeTextType="uniform" />
 
                     <androidx.appcompat.widget.AppCompatTextView
@@ -203,12 +204,14 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:layout_marginTop="6dp"
+                        android:paddingLeft="2dp"
+                        android:paddingRight="2dp"
                         android:gravity="center"
                         android:maxLines="1"
-                        android:singleLine="true"
                         android:text="Total Distance"
+                        android:fontFamily="@font/roboto_medium"
                         app:autoSizeMaxTextSize="11sp"
-                        app:autoSizeMinTextSize="7sp"
+                        app:autoSizeMinTextSize="2sp"
                         app:autoSizeTextType="uniform" />
 
                 </LinearLayout>
@@ -233,7 +236,7 @@
                         android:textColor="#000000"
                         android:textStyle="bold"
                         app:autoSizeMaxTextSize="20sp"
-                        app:autoSizeMinTextSize="15sp"
+                        app:autoSizeMinTextSize="10sp"
                         app:autoSizeTextType="uniform" />
 
                     <androidx.appcompat.widget.AppCompatTextView
@@ -243,15 +246,19 @@
                         android:layout_marginTop="6dp"
                         android:gravity="center"
                         android:maxLines="1"
-                        android:singleLine="true"
+                        android:paddingLeft="2dp"
+                        android:paddingRight="2dp"
                         android:text="Total Duration"
+                        android:fontFamily="@font/roboto_medium"
                         app:autoSizeMaxTextSize="11sp"
-                        app:autoSizeMinTextSize="7sp"
+                        app:autoSizeMinTextSize="2sp"
                         app:autoSizeTextType="uniform" />
 
                 </LinearLayout>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
+
+
 
         <info.hoang8f.android.segmented.SegmentedGroup xmlns:segmentedgroup="http://schemas.android.com/apk/res-auto"
             android:id="@+id/fragment_dashboard_mode_selector"
@@ -292,14 +299,13 @@
         <LinearLayout
             android:id="@+id/fragment_dashboard_indicator_view"
             android:layout_width="0dp"
-            android:layout_height="0dp"
+            android:layout_height="60dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="8dp"
             android:gravity="center"
             android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHeight_percent="0.08"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/fragment_dashboard_mode_selector">
 
@@ -513,7 +519,6 @@
             android:id="@+id/fragment_dashboard_start_track_button"
             android:layout_width="0dp"
             android:layout_height="48dp"
-            android:layout_centerHorizontal="true"
             android:layout_marginTop="24dp"
             android:layout_marginBottom="24dp"
             android:clickable="true"
@@ -521,22 +526,50 @@
             app:cardBackgroundColor="@color/dashboard_button_selector"
             app:cardCornerRadius="25dp"
             app:cardElevation="10dp"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/fragment_dashboard_carselection_layout"
+            app:layout_constraintBottom_toBottomOf="@id/guideline_bottom"
             app:layout_constraintWidth_percent="0.65">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
                 android:layout_gravity="center"
                 android:text="@string/dashboard_start_track"
-                android:textColor="@color/white_cario" />
+                android:textColor="@color/white_cario"
+                android:layout_marginLeft="32dp"
+                android:layout_marginRight="32dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:maxLines="1"
+                android:gravity="center"
+                app:autoSizeMaxTextSize="15sp"
+                app:autoSizeMinTextSize="7sp"
+                app:autoSizeTextType="uniform" />
 
         </androidx.cardview.widget.CardView>
 
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_left"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.10" />
 
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_right"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.90" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_bottom"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.90"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
