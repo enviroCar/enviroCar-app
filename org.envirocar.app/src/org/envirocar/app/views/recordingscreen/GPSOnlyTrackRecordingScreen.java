@@ -83,8 +83,6 @@ public class GPSOnlyTrackRecordingScreen extends BaseInjectorActivity {
     protected TextView mDistanceText;
     @BindView(R.id.mSpeedText)
     protected TextView mSpeedText;
-    @BindView(R.id.switchMetersButton)
-    protected LinearLayout switchMetersButton;
     @BindView(R.id.trackDetailsContainer)
     protected LinearLayout trackDetailsContainer;
     @BindView(R.id.trackMapContainer)
@@ -129,7 +127,6 @@ public class GPSOnlyTrackRecordingScreen extends BaseInjectorActivity {
                 .getDefaultSharedPreferences(this)
                 .getBoolean(PreferenceConstants.DISPLAY_STAYS_ACTIV, false));
 
-        switchMetersButton.setVisibility(View.GONE);
         displayBluetoothCarDriving.setText(R.string.driving);
         mBluetoothImage.setImageResource(R.drawable.not_driving);
 

@@ -27,6 +27,7 @@ import org.envirocar.app.events.DrivingDetectedEvent;
 import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.app.handler.preferences.CarPreferenceHandler;
 import org.envirocar.app.recording.RecordingState;
+import org.envirocar.app.recording.provider.LocationProvider;
 import org.envirocar.app.recording.provider.TrackDatabaseSink;
 import org.envirocar.app.rxutils.RxBroadcastReceiver;
 import org.envirocar.core.entity.Car;
@@ -46,6 +47,7 @@ import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.ObservableTransformer;
 import io.reactivex.Scheduler;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.DisposableObserver;
@@ -58,10 +60,12 @@ public class GPSRecordingStrategy implements LifecycleObserver, RecordingStrateg
     private static final Logger LOG = Logger.getLogger(OBDRecordingStrategy.class);
     private static final String TRANSITIONS_RECEIVER_ACTION = BuildConfig.APPLICATION_ID + "TRANSITIONS_RECEIVER_ACTION";
 
+    // final injected variables
     private final Context context;
     private final Bus eventBus;
     private final MeasurementProvider measurementProvider;
     private final TrackDatabaseSink trackDatabaseSink;
+    private final LocationProvider locationProvider;
 
     private RecordingListener listener;
     private CompositeDisposable disposables = new CompositeDisposable();
@@ -80,12 +84,13 @@ public class GPSRecordingStrategy implements LifecycleObserver, RecordingStrateg
     /**
      * Constructor.
      */
-    public GPSRecordingStrategy(Context context, Bus eventBus, MeasurementProvider measurementProvider,
+    public GPSRecordingStrategy(Context context, Bus eventBus, LocationProvider locationProvider, MeasurementProvider measurementProvider,
                                 TrackDatabaseSink trackDatabaseSink, CarPreferenceHandler carPreferences) {
         this.context = context;
         this.eventBus = eventBus;
         this.measurementProvider = measurementProvider;
         this.trackDatabaseSink = trackDatabaseSink;
+        this.locationProvider = locationProvider;
 
         // set the car specific properties.
         Car car = carPreferences.getCar();
@@ -126,6 +131,8 @@ public class GPSRecordingStrategy implements LifecycleObserver, RecordingStrateg
 
         IntentFilter intentFilter = new IntentFilter(TRANSITIONS_RECEIVER_ACTION);
         disposables.add(RxBroadcastReceiver.create(context, intentFilter)
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
                 .compose(checkDrivingState())
                 .compose(receiveMeasurements())
                 .compose(enhanceMeasurements())
@@ -134,6 +141,12 @@ public class GPSRecordingStrategy implements LifecycleObserver, RecordingStrateg
                 .observeOn(Schedulers.io())
                 .doOnDispose(() -> listener.onRecordingStateChanged(RecordingState.RECORDING_STOPPED))
                 .subscribeWith(recordingObserver()));
+
+        disposables.add(
+                locationProvider.startLocating()
+                        .subscribeOn(AndroidSchedulers.mainThread())
+                        .observeOn(Schedulers.io())
+                        .subscribe(() -> LOG.info("Completed"), LOG::error));
 
         /// Init transitions
         this.initTransitionsOfInterest();
@@ -180,7 +193,6 @@ public class GPSRecordingStrategy implements LifecycleObserver, RecordingStrateg
 
                     for (ActivityTransitionEvent event : result.getTransitionEvents()) {
                         LOG.info("Received Broadcast: " + event.getTransitionType() + " " + event.getActivityType());
-                        Toast.makeText(context, "Received Broadcast: " + event.getTransitionType() + " " + event.getActivityType(), Toast.LENGTH_LONG).show();
                         if (event.getTransitionType() == ActivityTransition.ACTIVITY_TRANSITION_ENTER) {
                             listener.onRecordingStateChanged(RecordingState.RECORDING_RUNNING);
                             drivingDetected = true;
@@ -189,16 +201,16 @@ public class GPSRecordingStrategy implements LifecycleObserver, RecordingStrateg
                                 stopDrivingFuture.dispose();
                                 stopDrivingFuture = null;
                             }
+
+                            emitter.onNext(action);
                         } else if (event.getTransitionType() == ActivityTransition.ACTIVITY_TRANSITION_EXIT) {
                             eventBus.post(new DrivingDetectedEvent(false));
                             stopDrivingFuture = stoppingWorker.schedule(() -> stopRecording(),
                                     1000 * trackTrimDuration, TimeUnit.MILLISECONDS);
                         }
                     }
-                    emitter.onNext(action);
                 }
             }
-
         }));
     }
 
@@ -206,6 +218,10 @@ public class GPSRecordingStrategy implements LifecycleObserver, RecordingStrateg
         // this is the first access to the measurement objects push it further
         return upstream -> {
             Long samplingRate = PreferencesHandler.getSamplingRate(context) * 1000;
+            try {
+                eventBus.register(measurementProvider);
+            } catch (Exception e) {
+            }
             return upstream.flatMap(aString -> measurementProvider.measurements(samplingRate));
         };
     }
@@ -227,7 +243,7 @@ public class GPSRecordingStrategy implements LifecycleObserver, RecordingStrateg
 
 
     private void initTransitionsOfInterest() {
-        List<Integer> activities = Arrays.asList(DetectedActivity.IN_VEHICLE, DetectedActivity.ON_FOOT, DetectedActivity.STILL);
+        List<Integer> activities = Arrays.asList(DetectedActivity.IN_VEHICLE, DetectedActivity.STILL);
 
         List<ActivityTransition> transitions = new ArrayList<>();
         for (int activity : activities) {

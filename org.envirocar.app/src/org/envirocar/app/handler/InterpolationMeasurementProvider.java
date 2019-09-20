@@ -72,7 +72,9 @@ public class InterpolationMeasurementProvider extends AbstractMeasurementProvide
 
                     Measurement m = createMeasurement();
 
-                    if (m != null && m.getLatitude() != null && m.getLongitude() != null && (m.hasProperty(Measurement.PropertyKey.SPEED) || m.hasProperty(Measurement.PropertyKey.GPS_SPEED))) {
+                    if (m != null && m.getLatitude() != null && m.getLongitude() != null &&
+                            (m.hasProperty(Measurement.PropertyKey.SPEED) ||
+                                    m.hasProperty(Measurement.PropertyKey.GPS_SPEED))) {
                         LOG.info("Emitting next measuremnet");
                         emitter.onNext(m);
                     }
@@ -262,8 +264,7 @@ public class InterpolationMeasurementProvider extends AbstractMeasurementProvide
         Location location = loc.mLocation;
         long now = System.currentTimeMillis();
 
-        newPosition(new Position(now,
-                location.getLatitude(), location.getLongitude()));
+        newPosition(new Position(now, location.getLatitude(), location.getLongitude()));
 
         if (location.hasAccuracy()) {
             consider(new PropertyKeyEvent(Measurement.PropertyKey.GPS_ACCURACY, location
