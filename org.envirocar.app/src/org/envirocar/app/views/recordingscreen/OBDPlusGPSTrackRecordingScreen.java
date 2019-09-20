@@ -90,8 +90,6 @@ public class OBDPlusGPSTrackRecordingScreen extends BaseInjectorActivity {
     protected TextView mDistanceText;
     @BindView(R.id.mSpeedText)
     protected TextView mSpeedText;
-    @BindView(R.id.switchMetersButton)
-    protected LinearLayout switchMetersButton;
     @BindView(R.id.trackDetailsContainer)
     protected LinearLayout trackDetailsContainer;
     @BindView(R.id.trackMapContainer)
@@ -146,7 +144,6 @@ public class OBDPlusGPSTrackRecordingScreen extends BaseInjectorActivity {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.add(R.id.trackMapContainer, new TrackMapFragment());
         fragmentTransaction.add(R.id.trackSingleMeterContainer, new TempomatFragment());
-        fragmentTransaction.add(R.id.trackMultipleMeterContainer, new MultipleMetersViewFragment());
         fragmentTransaction.commit();
 
         initAnimations();
@@ -223,14 +220,6 @@ public class OBDPlusGPSTrackRecordingScreen extends BaseInjectorActivity {
         updateTheDisplayViewsGeneral();
     }
 
-    @OnClick(R.id.switchMetersButton)
-    protected void onSwitchMetersButtonClicked() {
-        if (viewTypeMeter == 1) viewTypeMeter = 2;
-        else viewTypeMeter = 1;
-        PreferencesHandler.setPreviousViewTypeMeterRecordingScreen(this, viewTypeMeter);
-        updateTheDisplayViewsMeter();
-    }
-
     @OnClick(R.id.stopTrackRecordingButton)
     protected void onStopTrackRecordingButtonClicked() {
         new MaterialDialog.Builder(this)
@@ -270,8 +259,6 @@ public class OBDPlusGPSTrackRecordingScreen extends BaseInjectorActivity {
         viewTypeInGeneral = PreferencesHandler.getPreviousViewTypeGeneralRecordingScreen(this);
         viewTypeMeter = PreferencesHandler.getPreviousViewTypeMeterRecordingScreen(this);
 
-        if (viewTypeInGeneral == 2) switchMetersButton.setVisibility(View.GONE);
-        else switchMetersButton.setVisibility(View.VISIBLE);
 
         if (viewTypeInGeneral == 2) {
             animateViewTransition(trackMapContainer, R.anim.translate_slide_in_right_card, false);
@@ -294,8 +281,6 @@ public class OBDPlusGPSTrackRecordingScreen extends BaseInjectorActivity {
     private void updateTheDisplayViewsMeter() {
         viewTypeMeter = PreferencesHandler.getPreviousViewTypeMeterRecordingScreen(this);
 
-        if (viewTypeInGeneral == 2) switchMetersButton.setVisibility(View.GONE);
-        else switchMetersButton.setVisibility(View.VISIBLE);
 
         if (viewTypeMeter == 1) {
             animateViewTransition(trackMultipleMeterContainer, R.anim.translate_slide_out_right_card, true);
@@ -311,8 +296,6 @@ public class OBDPlusGPSTrackRecordingScreen extends BaseInjectorActivity {
         viewTypeInGeneral = PreferencesHandler.getPreviousViewTypeGeneralRecordingScreen(this);
         viewTypeMeter = PreferencesHandler.getPreviousViewTypeMeterRecordingScreen(this);
 
-        if (viewTypeInGeneral == 2) switchMetersButton.setVisibility(View.GONE);
-        else switchMetersButton.setVisibility(View.VISIBLE);
 
         if (viewTypeInGeneral == 2) {
             animateViewTransition(trackMapContainer, R.anim.translate_slide_in_top_fragment, false);
