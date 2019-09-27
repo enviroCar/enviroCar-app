@@ -496,7 +496,7 @@ public class DashboardFragment2 extends BaseInjectorFragment {
             this.textView.setText(user.getUsername());
 
             ConstraintSet set = new ConstraintSet();
-            set.constrainPercentHeight(bannerLayout.getId(), 0.26f);
+            set.constrainPercentHeight(bannerLayout.getId(), 0.25f);
             set.connect(bannerLayout.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 0);
             set.connect(bannerLayout.getId(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END, 0);
             set.connect(bannerLayout.getId(), ConstraintSet.TOP, toolbar.getId(), ConstraintSet.BOTTOM, 0);
@@ -510,7 +510,7 @@ public class DashboardFragment2 extends BaseInjectorFragment {
             this.toolbar.inflateMenu(R.menu.menu_dashboard_logged_out);
 
             ConstraintSet set = new ConstraintSet();
-            set.constrainPercentHeight(bannerLayout.getId(), 0.15f);
+            set.constrainPercentHeight(bannerLayout.getId(), 0.115f);
             set.connect(bannerLayout.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 0);
             set.connect(bannerLayout.getId(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END, 0);
             set.connect(bannerLayout.getId(), ConstraintSet.TOP, toolbar.getId(), ConstraintSet.BOTTOM, 0);
