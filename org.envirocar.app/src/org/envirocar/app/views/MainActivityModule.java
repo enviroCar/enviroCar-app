@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
-package org.envirocar.app.main;
+package org.envirocar.app.views;
 
 
 import android.app.Activity;
@@ -24,7 +24,7 @@ import android.content.Context;
 
 import com.mapbox.mapboxsdk.Mapbox;
 
-import org.envirocar.app.views.OthersFragment;
+import org.envirocar.app.views.others.OthersFragment;
 import org.envirocar.app.views.dashboard.DashboardFragment2;
 import org.envirocar.app.views.tracklist.TrackListPagerFragment;
 import org.envirocar.core.injection.InjectActivityScope;

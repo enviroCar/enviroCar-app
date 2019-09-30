@@ -34,7 +34,6 @@ import org.acra.BuildConfig;
 import org.acra.annotation.AcraCore;
 import org.envirocar.app.handler.LocationHandler;
 import org.envirocar.app.handler.PreferenceConstants;
-import org.envirocar.app.main.DaggerBaseApplicationComponent;
 import org.envirocar.app.notifications.NotificationHandler;
 import org.envirocar.app.handler.userstatistics.UserStatisticsProcessor;
 import org.envirocar.core.injection.InjectApplicationScope;

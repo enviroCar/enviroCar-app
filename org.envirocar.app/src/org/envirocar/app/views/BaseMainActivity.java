@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
-package org.envirocar.app.main;
+package org.envirocar.app.views;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -46,8 +46,8 @@ import org.envirocar.app.handler.TemporaryFileManager;
 import org.envirocar.app.handler.preferences.UserPreferenceHandler;
 import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.app.services.autoconnect.AutoRecordingService;
-import org.envirocar.app.views.OthersFragment;
-import org.envirocar.app.views.TroubleshootingFragment;
+import org.envirocar.app.views.others.OthersFragment;
+import org.envirocar.app.views.others.TroubleshootingFragment;
 import org.envirocar.app.views.dashboard.DashboardFragment2;
 import org.envirocar.app.views.tracklist.TrackListPagerFragment;
 import org.envirocar.core.events.TrackFinishedEvent;
@@ -63,9 +63,9 @@ import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 
-public class BaseMainActivityBottomBar extends BaseInjectorActivity {
+public class BaseMainActivity extends BaseInjectorActivity {
 
-    private static final Logger LOGGER = Logger.getLogger(BaseMainActivityBottomBar.class);
+    private static final Logger LOGGER = Logger.getLogger(BaseMainActivity.class);
 
     private static final String TROUBLESHOOTING_TAG = "TROUBLESHOOTING";
 
@@ -141,7 +141,7 @@ public class BaseMainActivityBottomBar extends BaseInjectorActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-//        LOGGER.info("BaseMainActivityBottomBar : onCreate");
+//        LOGGER.info("BaseMainActivity : onCreate");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_base_main_bottom_bar);
         ButterKnife.bind(this);
@@ -179,7 +179,7 @@ public class BaseMainActivityBottomBar extends BaseInjectorActivity {
 
     @Override
     protected void onPause() {
-        LOGGER.info("BaseMainActivityBottomBar : onPause");
+        LOGGER.info("BaseMainActivity : onPause");
         super.onPause();
         this.paused = false;
 
@@ -191,13 +191,13 @@ public class BaseMainActivityBottomBar extends BaseInjectorActivity {
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        LOGGER.info("BaseMainActivityBottomBar : onSaveInstanceState");
+        LOGGER.info("BaseMainActivity : onSaveInstanceState");
         super.onSaveInstanceState(outState);
     }
 
     @Override
     protected void onResume() {
-        LOGGER.info("BaseMainActivityBottomBar : onResume()");
+        LOGGER.info("BaseMainActivity : onResume()");
         super.onResume();
         // Check whether the screen is required to keep the screen on.
         checkKeepScreenOn();
@@ -205,7 +205,7 @@ public class BaseMainActivityBottomBar extends BaseInjectorActivity {
 
     @Override
     protected void onDestroy() {
-        LOGGER.info("BaseMainActivityBottomBar : onDestroy()");
+        LOGGER.info("BaseMainActivity : onDestroy()");
         super.onDestroy();
 
         this.unregisterReceiver(errorInformationReceiver);

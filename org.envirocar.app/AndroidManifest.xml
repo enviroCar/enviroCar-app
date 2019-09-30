@@ -68,16 +68,16 @@
             android:name=".views.settings.SettingsActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".views.SendLogFileActivity"
+            android:name=".views.others.SendLogFileActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".views.logbook.LogbookActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".views.HelpActivity"
+            android:name=".views.others.HelpActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".main.BaseMainActivityBottomBar"
+            android:name=".views.BaseMainActivity"
             android:screenOrientation="portrait" />
 
         <!-- Services -->

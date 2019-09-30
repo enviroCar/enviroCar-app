@@ -45,9 +45,9 @@ import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.app.handler.TrackRecordingHandler;
 import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.app.BaseApplicationComponent;
-import org.envirocar.app.main.BaseMainActivityBottomBar;
-import org.envirocar.app.main.MainActivityComponent;
-import org.envirocar.app.main.MainActivityModule;
+import org.envirocar.app.views.BaseMainActivity;
+import org.envirocar.app.views.MainActivityComponent;
+import org.envirocar.app.views.MainActivityModule;
 import org.envirocar.app.recording.RecordingService;
 import org.envirocar.app.recording.RecordingState;
 import org.envirocar.core.events.gps.GpsSatelliteFixEvent;
@@ -115,7 +115,7 @@ public class GPSOnlyTrackRecordingScreen extends BaseInjectorActivity {
         setContentView(R.layout.activity_obdplus_gpstrack_recording_screen);
         //if the track recording service is stopped then finish this activity and goback to bottombar main activity
         if(RecordingService.RECORDING_STATE == RecordingState.RECORDING_STOPPED){
-            startActivity(new Intent(GPSOnlyTrackRecordingScreen.this, BaseMainActivityBottomBar.class));
+            startActivity(new Intent(GPSOnlyTrackRecordingScreen.this, BaseMainActivity.class));
             finish();
         }
 
@@ -145,7 +145,7 @@ public class GPSOnlyTrackRecordingScreen extends BaseInjectorActivity {
 
         //if the track recording service is stopped then finish this activity and goback to bottombar main activity
         if(RecordingService.RECORDING_STATE == RecordingState.RECORDING_STOPPED){
-            startActivity(new Intent(GPSOnlyTrackRecordingScreen.this, BaseMainActivityBottomBar.class));
+            startActivity(new Intent(GPSOnlyTrackRecordingScreen.this, BaseMainActivity.class));
             finish();
         }
     }

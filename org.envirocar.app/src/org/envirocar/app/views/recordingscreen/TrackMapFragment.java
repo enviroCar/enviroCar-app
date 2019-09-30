@@ -56,8 +56,8 @@ import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.BaseApplicationComponent;
-import org.envirocar.app.main.MainActivityComponent;
-import org.envirocar.app.main.MainActivityModule;
+import org.envirocar.app.views.MainActivityComponent;
+import org.envirocar.app.views.MainActivityModule;
 import org.envirocar.app.R;
 import org.envirocar.app.events.TrackPathOverlayEvent;
 import org.envirocar.app.injection.BaseInjectorFragment;

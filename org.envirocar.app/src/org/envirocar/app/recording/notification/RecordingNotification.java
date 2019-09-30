@@ -42,7 +42,7 @@ import org.envirocar.app.R;
 import org.envirocar.app.events.AvrgSpeedUpdateEvent;
 import org.envirocar.app.events.DistanceValueUpdateEvent;
 import org.envirocar.app.events.StartingTimeEvent;
-import org.envirocar.app.main.BaseMainActivityBottomBar;
+import org.envirocar.app.views.BaseMainActivity;
 import org.envirocar.app.notifications.NotificationActionHolder;
 import org.envirocar.app.notifications.ServiceStateForNotification;
 import org.envirocar.app.recording.RecordingService;
@@ -96,7 +96,7 @@ public class RecordingNotification implements LifecycleObserver {
         this.context = recordingService;
         this.eventBus = eventBus;
         this.notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        this.screenClass = BaseMainActivityBottomBar.class;
+        this.screenClass = BaseMainActivity.class;
         this.channelId = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ? createChannel() : "";
     }
 
@@ -205,7 +205,7 @@ public class RecordingNotification implements LifecycleObserver {
             state = ServiceStateForNotification.CONNECTING;
         }
 
-        Intent i = new Intent(context, BaseMainActivityBottomBar.class);
+        Intent i = new Intent(context, BaseMainActivity.class);
         PendingIntent pIntent = PendingIntent.getActivity(context, (int) System.currentTimeMillis(), i, 0);
 
         this.notification = new NotificationCompat.Builder(context, channelId)

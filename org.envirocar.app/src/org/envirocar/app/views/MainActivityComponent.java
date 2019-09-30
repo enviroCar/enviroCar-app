@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
-package org.envirocar.app.main;
+package org.envirocar.app.views;
 
 import org.envirocar.app.views.dashboard.DashboardFragment2;
 import org.envirocar.app.views.recordingscreen.TempomatFragment;
@@ -37,7 +37,7 @@ import dagger.Subcomponent;
 )
 public interface MainActivityComponent {
 
-    void inject(BaseMainActivityBottomBar baseMainActivity);
+    void inject(BaseMainActivity baseMainActivity);
     void inject(TempomatFragment tempomatFragment);
     void inject(TrackMapFragment trackMapFragment);
     void inject(TrackListLocalCardFragment trackListLocalCardFragment);

@@ -2,7 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".main.BaseMainActivityBottomBar">
+    tools:context=".views.BaseMainActivity">
 
     <item
         android:id="@+id/dashboard_action_logout"

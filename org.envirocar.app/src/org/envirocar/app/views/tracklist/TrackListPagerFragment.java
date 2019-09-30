@@ -33,7 +33,7 @@ import org.envirocar.app.R;
 import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.app.BaseApplication;
 import org.envirocar.app.BaseApplicationComponent;
-import org.envirocar.app.main.MainActivityModule;
+import org.envirocar.app.views.MainActivityModule;
 import org.envirocar.core.logging.Logger;
 
 import butterknife.BindView;

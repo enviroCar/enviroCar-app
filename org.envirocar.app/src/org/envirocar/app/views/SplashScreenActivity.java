@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import org.envirocar.app.R;
-import org.envirocar.app.main.BaseMainActivityBottomBar;
 import org.envirocar.core.logging.Logger;
 
 import java.util.concurrent.TimeUnit;
@@ -48,7 +47,7 @@ public class SplashScreenActivity extends Activity {
     }
 
     private void startMainActivity(){
-        Intent intent = new Intent(this, BaseMainActivityBottomBar.class);
+        Intent intent = new Intent(this, BaseMainActivity.class);
         this.startActivity(intent);
         finish();
     }

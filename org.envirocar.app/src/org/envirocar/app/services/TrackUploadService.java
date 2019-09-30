@@ -37,7 +37,7 @@ import org.envirocar.app.handler.TrackRecordingHandler;
 import org.envirocar.app.handler.TrackUploadHandler;
 import org.envirocar.app.injection.BaseInjectorService;
 import org.envirocar.app.BaseApplicationComponent;
-import org.envirocar.app.main.BaseMainActivityBottomBar;
+import org.envirocar.app.views.BaseMainActivity;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.storage.EnviroCarDB;
@@ -322,10 +322,10 @@ public class TrackUploadService extends BaseInjectorService {
 
         forgroundNotification.bigContentView = bigView;
 
-        Intent intent = new Intent(getBaseContext(), BaseMainActivityBottomBar.class);
+        Intent intent = new Intent(getBaseContext(), BaseMainActivity.class);
 
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-        stackBuilder.addParentStack(BaseMainActivityBottomBar.class);
+        stackBuilder.addParentStack(BaseMainActivity.class);
         stackBuilder.addNextIntent(intent);
 
         PendingIntent resultIntent = stackBuilder.getPendingIntent(0, PendingIntent
