@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
-package org.envirocar.remote.serializer;
+package org.envirocar.remote.serde;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -37,7 +37,7 @@ import java.text.ParseException;
 /**
  * @author dewall
  */
-public class FuelingSerializer implements JsonSerializer<Fueling>, JsonDeserializer<Fueling> {
+public class FuelingSerde implements JsonSerializer<Fueling>, JsonDeserializer<Fueling> {
 
     @Override
     public JsonElement serialize(Fueling src, Type typeOfSrc, JsonSerializationContext context) {

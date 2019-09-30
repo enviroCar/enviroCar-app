@@ -55,7 +55,7 @@ import org.envirocar.core.entity.Track;
 import org.envirocar.core.exception.NotConnectedException;
 import org.envirocar.core.exception.UnauthorizedException;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.remote.serializer.TrackSerializer;
+import org.envirocar.remote.serde.TrackSerde;
 import org.envirocar.storage.EnviroCarDB;
 
 import java.io.IOException;
@@ -173,11 +173,11 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
                 // Create an sharing intent.
                 Intent sharingIntent = new Intent(Intent.ACTION_SEND);
                 sharingIntent.setType("application/json");
-                //  Uri shareBody = Uri.fromFile(TrackSerializer.exportTrack(track).getFile());
+                //  Uri shareBody = Uri.fromFile(TrackSerde.exportTrack(track).getFile());
                 Uri shareBody = FileProvider.getUriForFile(
                         getActivity(),
                         getActivity().getApplicationContext()
-                                .getPackageName() + ".provider", TrackSerializer.exportTrack(track).getFile());
+                                .getPackageName() + ".provider", TrackSerde.exportTrack(track).getFile());
                 sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT,
                         "EnviroCar Track " + track.getName());
                 sharingIntent.putExtra(android.content.Intent.EXTRA_STREAM, shareBody);

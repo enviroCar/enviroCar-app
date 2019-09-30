@@ -1,4 +1,4 @@
-package org.envirocar.remote.serializer;
+package org.envirocar.remote.serde;
 
 import com.google.gson.JsonObject;
 

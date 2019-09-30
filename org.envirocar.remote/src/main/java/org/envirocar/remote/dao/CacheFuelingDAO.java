@@ -28,8 +28,7 @@ import org.envirocar.core.entity.Announcement;
 import org.envirocar.core.entity.Fueling;
 import org.envirocar.core.exception.DataRetrievalFailureException;
 import org.envirocar.core.exception.NotConnectedException;
-import org.envirocar.remote.serializer.FuelingSerializer;
-import org.reactivestreams.Subscriber;
+import org.envirocar.remote.serde.FuelingSerde;
 
 import java.io.IOException;
 import java.util.List;
@@ -37,8 +36,6 @@ import java.util.List;
 import javax.inject.Inject;
 
 import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
-import io.reactivex.ObservableOnSubscribe;
 
 
 /**
@@ -50,7 +47,7 @@ public class CacheFuelingDAO extends AbstractCacheDAO implements FuelingDAO {
     private static final String FUELING_CACHE = "fuelings";
 
     private static final Gson GSON = new GsonBuilder()
-            .registerTypeAdapter(Fueling.class, new FuelingSerializer()).create();
+            .registerTypeAdapter(Fueling.class, new FuelingSerde()).create();
 
     @Inject
     public CacheFuelingDAO() {

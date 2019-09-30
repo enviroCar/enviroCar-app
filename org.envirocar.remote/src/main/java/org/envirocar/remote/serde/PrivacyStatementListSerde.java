@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
-package org.envirocar.remote.serializer;
+package org.envirocar.remote.serde;
 
 
 import org.envirocar.core.entity.PrivacyStatement;
@@ -26,12 +26,12 @@ import org.envirocar.core.entity.PrivacyStatement;
  *
  * @author dewall
  */
-public class PrivacyStatementListDeserializer extends AbstractSimpleListSerde<PrivacyStatement> {
+public class PrivacyStatementListSerde extends AbstractSimpleListSerde<PrivacyStatement> {
 
     /**
      * Constructor.
 p     */
-    public PrivacyStatementListDeserializer() {
+    public PrivacyStatementListSerde() {
         super(PrivacyStatement.KEY_PRIVACY_STATEMENT, PrivacyStatement.class);
     }
 }

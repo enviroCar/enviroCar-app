@@ -59,7 +59,7 @@ public class CacheAnnouncementsDAO extends AbstractCacheDAO implements Announcem
     //    @Override
     //    public List<Announcement> getAllAnnouncements() throws DataRetrievalFailureException {
     //        Gson gson = new GsonBuilder()
-    //                .registerTypeAdapter(Announcement.class, new AnnouncementSerializer())
+    //                .registerTypeAdapter(Announcement.class, new AnnouncementSerde())
     //                .create();
     //        try {
     //            return gson.fromJson(readCache(CACHE_FILE_NAME),

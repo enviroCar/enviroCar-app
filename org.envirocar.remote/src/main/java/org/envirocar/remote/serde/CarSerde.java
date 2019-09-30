@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
-package org.envirocar.remote.serializer;
+package org.envirocar.remote.serde;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -35,8 +35,8 @@ import java.lang.reflect.Type;
 /**
  * @author dewall
  */
-public class CarSerializer implements JsonSerializer<Car>, JsonDeserializer<Car> {
-    private static final Logger LOG = Logger.getLogger(CarSerializer.class);
+public class CarSerde implements JsonSerializer<Car>, JsonDeserializer<Car> {
+    private static final Logger LOG = Logger.getLogger(CarSerde.class);
 
     @Override
     public JsonElement serialize(Car src, Type typeOfSrc, JsonSerializationContext context) {

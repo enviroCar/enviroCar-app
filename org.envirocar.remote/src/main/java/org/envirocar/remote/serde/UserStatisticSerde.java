@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
-package org.envirocar.remote.serializer;
+package org.envirocar.remote.serde;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
@@ -57,7 +57,7 @@ import java.util.Map;
  *
  * @author dewall
  */
-public class UserStatisticDeserializer implements JsonDeserializer<UserStatistics> {
+public class UserStatisticSerde implements JsonDeserializer<UserStatistics> {
 
     @Override
     public UserStatistics deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext

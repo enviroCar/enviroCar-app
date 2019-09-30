@@ -31,20 +31,20 @@ import org.envirocar.core.entity.TermsOfUse;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.entity.UserStatistics;
-import org.envirocar.remote.serializer.AnnouncementSerializer;
-import org.envirocar.remote.serializer.CarListDeserializer;
-import org.envirocar.remote.serializer.CarSerializer;
-import org.envirocar.remote.serializer.FuelingListSerializer;
-import org.envirocar.remote.serializer.FuelingSerializer;
-import org.envirocar.remote.serializer.MeasurementSerializer;
-import org.envirocar.remote.serializer.PrivacyStatementListDeserializer;
-import org.envirocar.remote.serializer.PrivacyStatementSerde;
-import org.envirocar.remote.serializer.RemoteTrackListDeserializer;
-import org.envirocar.remote.serializer.TermsOfUseListSerializer;
-import org.envirocar.remote.serializer.TermsOfUseSerializer;
-import org.envirocar.remote.serializer.TrackSerializer;
-import org.envirocar.remote.serializer.UserSerializer;
-import org.envirocar.remote.serializer.UserStatisticDeserializer;
+import org.envirocar.remote.serde.AnnouncementSerde;
+import org.envirocar.remote.serde.CarListSerde;
+import org.envirocar.remote.serde.CarSerde;
+import org.envirocar.remote.serde.FuelingListSerde;
+import org.envirocar.remote.serde.FuelingSerde;
+import org.envirocar.remote.serde.MeasurementSerde;
+import org.envirocar.remote.serde.PrivacyStatementListSerde;
+import org.envirocar.remote.serde.PrivacyStatementSerde;
+import org.envirocar.remote.serde.RemoteTrackListSerde;
+import org.envirocar.remote.serde.TermsOfUseListSerde;
+import org.envirocar.remote.serde.TermsOfUseSerde;
+import org.envirocar.remote.serde.TrackSerde;
+import org.envirocar.remote.serde.UserSerde;
+import org.envirocar.remote.serde.UserStatisticSerde;
 
 import java.util.List;
 
@@ -63,14 +63,14 @@ public class SerializationModule {
 
     @Provides
     @Singleton
-    protected UserSerializer provideUserSerializer() {
-        return new UserSerializer();
+    protected UserSerde provideUserSerializer() {
+        return new UserSerde();
     }
 
     @Provides
     @Singleton
-    protected UserStatisticDeserializer provideUserStatisticDeserializer() {
-        return new UserStatisticDeserializer();
+    protected UserStatisticSerde provideUserStatisticDeserializer() {
+        return new UserStatisticSerde();
     }
 
     @Provides
@@ -82,20 +82,20 @@ public class SerializationModule {
 
     @Provides
     @Singleton
-    protected CarListDeserializer provideCarListDeserializer() {
-        return new CarListDeserializer();
+    protected CarListSerde provideCarListDeserializer() {
+        return new CarListSerde();
     }
 
     @Provides
     @Singleton
-    protected TrackSerializer provideTrackSerializer() {
-        return new TrackSerializer();
+    protected TrackSerde provideTrackSerializer() {
+        return new TrackSerde();
     }
 
     @Provides
     @Singleton
-    protected MeasurementSerializer provideMeasurementSerializer() {
-        return new MeasurementSerializer();
+    protected MeasurementSerde provideMeasurementSerializer() {
+        return new MeasurementSerde();
     }
 
     @Provides
@@ -107,14 +107,14 @@ public class SerializationModule {
 
     @Provides
     @Singleton
-    protected RemoteTrackListDeserializer provideRemoteTrackListDeserializer() {
-        return new RemoteTrackListDeserializer();
+    protected RemoteTrackListSerde provideRemoteTrackListDeserializer() {
+        return new RemoteTrackListSerde();
     }
 
     @Provides
     @Singleton
-    protected TermsOfUseSerializer provideTermsOfUseSerializer() {
-        return new TermsOfUseSerializer();
+    protected TermsOfUseSerde provideTermsOfUseSerializer() {
+        return new TermsOfUseSerde();
     }
 
     @Provides
@@ -133,26 +133,26 @@ public class SerializationModule {
 
     @Provides
     @Singleton
-    protected PrivacyStatementListDeserializer providePrivacyStatementListDeserializer(){
-        return new PrivacyStatementListDeserializer();
+    protected PrivacyStatementListSerde providePrivacyStatementListDeserializer(){
+        return new PrivacyStatementListSerde();
     }
 
     @Provides
     @Singleton
-    protected TermsOfUseListSerializer provideTermsOfUseListSerializer() {
-        return new TermsOfUseListSerializer();
+    protected TermsOfUseListSerde provideTermsOfUseListSerializer() {
+        return new TermsOfUseListSerde();
     }
 
     @Provides
     @Singleton
-    protected AnnouncementSerializer provideAnnouncementSerializer() {
-        return new AnnouncementSerializer();
+    protected AnnouncementSerde provideAnnouncementSerializer() {
+        return new AnnouncementSerde();
     }
 
     @Provides
     @Singleton
-    protected FuelingSerializer provideFuelingSerializer() {
-        return new FuelingSerializer();
+    protected FuelingSerde provideFuelingSerializer() {
+        return new FuelingSerde();
     }
 
     @Provides
@@ -164,23 +164,23 @@ public class SerializationModule {
 
     @Provides
     @Singleton
-    protected FuelingListSerializer provideFuelingListSerializer() {
-        return new FuelingListSerializer();
+    protected FuelingListSerde provideFuelingListSerializer() {
+        return new FuelingListSerde();
     }
 
     @Provides
     @Singleton
-    protected Gson provideGson(UserSerializer userSerializer, UserStatisticDeserializer userStatisticDeserializer, TypeToken<List<Car>> carListTypeToken,
-                               CarListDeserializer carListDeserializer, TrackSerializer trackSerializer, MeasurementSerializer measurementSerializer,
-                               TypeToken<List<Track>> trackListTypeToken, RemoteTrackListDeserializer remoteTrackListDeserializer, TermsOfUseSerializer termsOfUseSerializer,
-                               TypeToken<List<TermsOfUse>> termsOfUseListTypeToken, TermsOfUseListSerializer termsOfUseListSerializer, AnnouncementSerializer announcementSerializer,
-                               FuelingSerializer fuelingSerializer, TypeToken<List<Fueling>> fuelingListTypeToken, FuelingListSerializer fuelingListSerializer,
-                               TypeToken<List<PrivacyStatement>> privacyStatementTypeToken, PrivacyStatementListDeserializer privacyStatementListDeserializer,
+    protected Gson provideGson(UserSerde userSerializer, UserStatisticSerde userStatisticDeserializer, TypeToken<List<Car>> carListTypeToken,
+                               CarListSerde carListDeserializer, TrackSerde trackSerializer, MeasurementSerde measurementSerializer,
+                               TypeToken<List<Track>> trackListTypeToken, RemoteTrackListSerde remoteTrackListDeserializer, TermsOfUseSerde termsOfUseSerializer,
+                               TypeToken<List<TermsOfUse>> termsOfUseListTypeToken, TermsOfUseListSerde termsOfUseListSerializer, AnnouncementSerde announcementSerializer,
+                               FuelingSerde fuelingSerializer, TypeToken<List<Fueling>> fuelingListTypeToken, FuelingListSerde fuelingListSerializer,
+                               TypeToken<List<PrivacyStatement>> privacyStatementTypeToken, PrivacyStatementListSerde privacyStatementListDeserializer,
                                PrivacyStatementSerde privacyStatementSerde) {
         return new GsonBuilder()
                 .registerTypeAdapter(User.class, userSerializer)
                 .registerTypeAdapter(UserStatistics.class, userStatisticDeserializer)
-                .registerTypeAdapter(Car.class, new CarSerializer())
+                .registerTypeAdapter(Car.class, new CarSerde())
                 .registerTypeAdapter(carListTypeToken.getType(), carListDeserializer)
                 .registerTypeAdapter(Track.class, trackSerializer)
                 .registerTypeAdapter(Measurement.class, measurementSerializer)

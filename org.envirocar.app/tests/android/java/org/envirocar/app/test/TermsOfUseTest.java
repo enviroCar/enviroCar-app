@@ -26,7 +26,7 @@ import java.io.IOException;
 import junit.framework.Assert;
 
 import org.envirocar.core.entity.TermsOfUse;
-import org.envirocar.remote.serializer.TermsOfUseSerializer;
+import org.envirocar.remote.serde.TermsOfUseSerde;
 import org.json.JSONException;
 import org.junit.Test;
 
@@ -36,7 +36,7 @@ public class TermsOfUseTest extends ResourceLoadingTestCase {
 	@Test
 	public void testTermsOfUseInstanceParsing() throws JSONException, IOException {
 		JsonElement gson = new Gson().fromJson(readJsonAsset("/terms_of_use_instance_mockup.json"), JsonElement.class);
-		TermsOfUse tou = new TermsOfUseSerializer().deserialize(gson, null, null);
+		TermsOfUse tou = new TermsOfUseSerde().deserialize(gson, null, null);
 		
 		Assert.assertTrue("Unexpected issuedDate", tou.getIssuedDate().equals("2022-06-09"));
 		Assert.assertTrue("Unexpected contents", tou.getContents().equals("v50..."));

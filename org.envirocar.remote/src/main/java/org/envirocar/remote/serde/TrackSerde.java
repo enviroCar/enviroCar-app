@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
-package org.envirocar.remote.serializer;
+package org.envirocar.remote.serde;
 
 
 import com.google.gson.Gson;
@@ -83,8 +83,8 @@ import static org.envirocar.core.entity.Measurement.PropertyKey.THROTTLE_POSITON
 /**
  * @author dewall
  */
-public class TrackSerializer extends AbstractJsonSerde implements JsonSerializer<Track>, JsonDeserializer<Track> {
-    private static final Logger LOG = Logger.getLogger(TrackSerializer.class);
+public class TrackSerde extends AbstractJsonSerde implements JsonSerializer<Track>, JsonDeserializer<Track> {
+    private static final Logger LOG = Logger.getLogger(TrackSerde.class);
 
 
     public static final Set<Measurement.PropertyKey> supportedPhenomenons = new HashSet<>();
@@ -286,7 +286,7 @@ public class TrackSerializer extends AbstractJsonSerde implements JsonSerializer
         writer.setIndent("  ");
 
         Gson gson = new GsonBuilder()
-                .registerTypeAdapter(Track.class, new TrackSerializer())
+                .registerTypeAdapter(Track.class, new TrackSerde())
                 .create();
         gson.toJson(track, Track.class, writer);
 
