@@ -26,6 +26,7 @@ import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.remote.service.EnviroCarService;
 import org.envirocar.remote.util.AuthenticationInterceptor;
 import org.envirocar.remote.util.JsonContentTypeInterceptor;
+import org.envirocar.remote.util.LanguageHeaderInterceptor;
 
 import java.util.concurrent.TimeUnit;
 
@@ -66,13 +67,15 @@ public class RemoteModule {
     @Provides
     @Singleton
     protected OkHttpClient provideOkHttpClient(AuthenticationInterceptor authInterceptor,
-                                               JsonContentTypeInterceptor jsonInterceptor) {
+                                               JsonContentTypeInterceptor jsonInterceptor,
+                                               LanguageHeaderInterceptor languageInterceptor) {
         OkHttpClient client = new OkHttpClient.Builder()
                 .connectTimeout(300, TimeUnit.SECONDS)  // connect timeout
                 .writeTimeout(300, TimeUnit.SECONDS)    // write timeout
                 .readTimeout(300, TimeUnit.SECONDS)     // socket timeout
                 .addInterceptor(authInterceptor)
                 .addInterceptor(jsonInterceptor)
+                .addInterceptor(languageInterceptor)
                 .build();
         return client;
     }
