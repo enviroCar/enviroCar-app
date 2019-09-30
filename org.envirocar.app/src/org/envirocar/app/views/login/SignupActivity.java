@@ -264,7 +264,7 @@ public class SignupActivity extends BaseInjectorActivity {
                 }),
                 new Pair<>("Privacy Policy", v -> {
                     LOG.info("Privacy Policy clicked. Showing dialog");
-                    showTermsOfUseDialog();
+                    showPrivacyStatementDialog();
                 })
         );
 
@@ -302,7 +302,8 @@ public class SignupActivity extends BaseInjectorActivity {
 
     private void showPrivacyStatementDialog() {
         LOG.info("Show Privacy Statement dialog");
-        // TODO
+        agreementManager.showLatestPrivacyStatementDialogObservable(this)
+                .subscribe(ps -> LOG.info("Closed Dialog"));
     }
 
 }

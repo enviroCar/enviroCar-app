@@ -31,9 +31,9 @@ import retrofit2.http.Path;
  */
 public interface PrivacyStatementService {
 
-    @GET("privacyStatement")
+    @GET("privacyStatements")
     Call<List<PrivacyStatement>> getPrivacyStatements();
 
-    @GET("privacyStatement/{id}")
+    @GET("privacyStatements/{id}")
     Call<PrivacyStatement> getPrivacyStatement(@Path("id") String id);
 }

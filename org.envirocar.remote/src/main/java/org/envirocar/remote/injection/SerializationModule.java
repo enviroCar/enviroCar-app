@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -26,6 +26,7 @@ import org.envirocar.core.entity.Announcement;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Fueling;
 import org.envirocar.core.entity.Measurement;
+import org.envirocar.core.entity.PrivacyStatement;
 import org.envirocar.core.entity.TermsOfUse;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.entity.User;
@@ -36,6 +37,8 @@ import org.envirocar.remote.serializer.CarSerializer;
 import org.envirocar.remote.serializer.FuelingListSerializer;
 import org.envirocar.remote.serializer.FuelingSerializer;
 import org.envirocar.remote.serializer.MeasurementSerializer;
+import org.envirocar.remote.serializer.PrivacyStatementListDeserializer;
+import org.envirocar.remote.serializer.PrivacyStatementSerde;
 import org.envirocar.remote.serializer.RemoteTrackListDeserializer;
 import org.envirocar.remote.serializer.TermsOfUseListSerializer;
 import org.envirocar.remote.serializer.TermsOfUseSerializer;
@@ -123,6 +126,19 @@ public class SerializationModule {
 
     @Provides
     @Singleton
+    protected TypeToken<List<PrivacyStatement>> providePrivacyStatementListTypeToken() {
+        return new TypeToken<List<PrivacyStatement>>() {
+        };
+    }
+
+    @Provides
+    @Singleton
+    protected PrivacyStatementListDeserializer providePrivacyStatementListDeserializer(){
+        return new PrivacyStatementListDeserializer();
+    }
+
+    @Provides
+    @Singleton
     protected TermsOfUseListSerializer provideTermsOfUseListSerializer() {
         return new TermsOfUseListSerializer();
     }
@@ -158,7 +174,9 @@ public class SerializationModule {
                                CarListDeserializer carListDeserializer, TrackSerializer trackSerializer, MeasurementSerializer measurementSerializer,
                                TypeToken<List<Track>> trackListTypeToken, RemoteTrackListDeserializer remoteTrackListDeserializer, TermsOfUseSerializer termsOfUseSerializer,
                                TypeToken<List<TermsOfUse>> termsOfUseListTypeToken, TermsOfUseListSerializer termsOfUseListSerializer, AnnouncementSerializer announcementSerializer,
-                               FuelingSerializer fuelingSerializer, TypeToken<List<Fueling>> fuelingListTypeToken, FuelingListSerializer fuelingListSerializer) {
+                               FuelingSerializer fuelingSerializer, TypeToken<List<Fueling>> fuelingListTypeToken, FuelingListSerializer fuelingListSerializer,
+                               TypeToken<List<PrivacyStatement>> privacyStatementTypeToken, PrivacyStatementListDeserializer privacyStatementListDeserializer,
+                               PrivacyStatementSerde privacyStatementSerde) {
         return new GsonBuilder()
                 .registerTypeAdapter(User.class, userSerializer)
                 .registerTypeAdapter(UserStatistics.class, userStatisticDeserializer)
@@ -169,6 +187,8 @@ public class SerializationModule {
                 .registerTypeAdapter(trackListTypeToken.getType(), remoteTrackListDeserializer)
                 .registerTypeAdapter(TermsOfUse.class, termsOfUseSerializer)
                 .registerTypeAdapter(termsOfUseListTypeToken.getType(), termsOfUseListSerializer)
+                .registerTypeAdapter(PrivacyStatement.class, privacyStatementSerde)
+                .registerTypeAdapter(privacyStatementTypeToken.getType(), privacyStatementListDeserializer)
                 .registerTypeAdapter(Announcement.class, announcementSerializer)
                 .registerTypeAdapter(Fueling.class, fuelingSerializer)
                 .registerTypeAdapter(fuelingListTypeToken.getType(), fuelingListSerializer)

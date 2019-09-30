@@ -137,6 +137,13 @@ public class AgreementManager {
                 });
     }
 
+    public Observable<PrivacyStatement> showLatestPrivacyStatementDialogObservable(Activity activity){
+        return getRemotePrivacyStatementObservable()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .flatMap(privacyStatement -> new ReactivePrivacyStatementDialog(activity, privacyStatement).asObservable());
+    }
+
     private Observable<PrivacyStatement> getRemotePrivacyStatementObservable() {
         return mDAOProvider.getPrivacyStatementDAO()
                 .getPrivacyStatementsObservable()
