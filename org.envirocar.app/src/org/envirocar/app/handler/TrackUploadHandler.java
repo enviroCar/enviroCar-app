@@ -29,7 +29,7 @@ import org.envirocar.app.exception.NotLoggedInException;
 import org.envirocar.app.exception.TrackAlreadyUploadedException;
 import org.envirocar.app.handler.agreement.AgreementManager;
 import org.envirocar.app.handler.preferences.CarPreferenceHandler;
-import org.envirocar.app.handler.preferences.UserHandler;
+import org.envirocar.app.handler.preferences.UserPreferenceHandler;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.exception.NoMeasurementsException;
@@ -68,7 +68,7 @@ public class TrackUploadHandler {
     private final CarPreferenceHandler mCarManager;
     private final DAOProvider mDAOProvider;
     private final TrackDAOHandler trackDAOHandler;
-    private final UserHandler mUserManager;
+    private final UserPreferenceHandler mUserManager;
     private final AgreementManager mAgreementManager;
 
     /**
@@ -83,7 +83,7 @@ public class TrackUploadHandler {
             CarPreferenceHandler carPreferenceHandler,
             DAOProvider daoProvider,
             TrackDAOHandler trackDAOHandler,
-            UserHandler userHandler,
+            UserPreferenceHandler userHandler,
             AgreementManager agreementManager) {
         this.mContext = context;
         this.mEnviroCarDB = enviroCarDB;

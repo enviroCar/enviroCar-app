@@ -44,8 +44,8 @@ import io.reactivex.Completable;
  * @author dewall
  */
 @Singleton
-public class UserHandler extends AbstractCachable<User> implements UserManager {
-    private static final Logger LOG = Logger.getLogger(UserHandler.class);
+public class UserPreferenceHandler extends AbstractCachable<User> implements UserManager {
+    private static final Logger LOG = Logger.getLogger(UserPreferenceHandler.class);
 
     private static final String KEY_USERNAME = "username";
     private static final String KEY_FIRSTNAME = "firstName";
@@ -66,7 +66,7 @@ public class UserHandler extends AbstractCachable<User> implements UserManager {
      * @param context the context of the current scope.
      */
     @Inject
-    public UserHandler(@InjectApplicationScope Context context, Bus bus, DAOProvider daoProvider, TrackDAOHandler trackDAOHandler) {
+    public UserPreferenceHandler(@InjectApplicationScope Context context, Bus bus, DAOProvider daoProvider, TrackDAOHandler trackDAOHandler) {
         super(context, KEY_USER_PREFERENCES);
         this.bus = bus;
         this.daoProvider = daoProvider;

@@ -103,7 +103,7 @@ ext {
     gson = 'com.google.code.gson:gson:2.8.5'
     //guava = 'com.google.guava:guava:18.0'
     findBugs = 'com.google.code.findbugs:jsr305:3.0.2'
-    playServicesLocation = 'com.google.android.gms:play-services-location:16.0.0'
+    playServicesLocation = 'com.google.android.gms:play-services-location:17.0.0'
 
     //acra
     acra = 'ch.acra:acra-core:5.1.3'

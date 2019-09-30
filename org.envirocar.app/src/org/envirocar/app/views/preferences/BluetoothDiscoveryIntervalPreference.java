@@ -27,7 +27,7 @@ import android.view.View;
 import android.widget.NumberPicker;
 import android.widget.TextView;
 
-import org.envirocar.app.main.BaseApplication;
+import org.envirocar.app.BaseApplication;
 import org.envirocar.app.R;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.app.handler.PreferenceConstants;

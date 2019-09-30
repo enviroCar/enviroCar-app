@@ -5,10 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import org.envirocar.app.R;
-import org.envirocar.app.injection.BaseInjectorActivity;
-import org.envirocar.app.main.BaseApplicationComponent;
 import org.envirocar.app.main.BaseMainActivityBottomBar;
-import org.envirocar.app.views.carselection.CarSelectionActivity;
 import org.envirocar.core.logging.Logger;
 
 import java.util.concurrent.TimeUnit;

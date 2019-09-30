@@ -1,6 +1,6 @@
 package org.envirocar.app.injection;
 
-import org.envirocar.app.main.BaseApplicationComponent;
+import org.envirocar.app.BaseApplicationComponent;
 
 /**
  * @author dewall

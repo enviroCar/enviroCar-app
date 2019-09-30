@@ -27,8 +27,8 @@ import androidx.lifecycle.LifecycleService;
 
 import com.squareup.otto.Bus;
 
-import org.envirocar.app.main.BaseApplication;
-import org.envirocar.app.main.BaseApplicationComponent;
+import org.envirocar.app.BaseApplication;
+import org.envirocar.app.BaseApplicationComponent;
 
 import javax.inject.Inject;
 

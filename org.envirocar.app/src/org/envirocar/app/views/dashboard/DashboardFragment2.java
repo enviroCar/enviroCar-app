@@ -37,10 +37,10 @@ import com.squareup.otto.Subscribe;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.PreferencesHandler;
-import org.envirocar.app.handler.preferences.UserHandler;
+import org.envirocar.app.handler.preferences.UserPreferenceHandler;
 import org.envirocar.app.handler.userstatistics.UserStatisticsUpdateEvent;
 import org.envirocar.app.injection.BaseInjectorFragment;
-import org.envirocar.app.main.BaseApplicationComponent;
+import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.recording.RecordingService;
 import org.envirocar.app.recording.RecordingState;
 import org.envirocar.app.recording.RecordingType;
@@ -144,7 +144,7 @@ public class DashboardFragment2 extends BaseInjectorFragment {
 
     // injected variables
     @Inject
-    protected UserHandler userHandler;
+    protected UserPreferenceHandler userHandler;
     @Inject
     protected BluetoothHandler bluetoothHandler;
 

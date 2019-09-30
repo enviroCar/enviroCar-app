@@ -10,7 +10,7 @@ import androidx.annotation.Nullable;
 import com.squareup.otto.Bus;
 
 import org.envirocar.app.injection.ScopedBaseInjectorService;
-import org.envirocar.app.main.BaseApplication;
+import org.envirocar.app.BaseApplication;
 import org.envirocar.app.recording.events.RecordingStateEvent;
 import org.envirocar.app.recording.notification.RecordingNotification;
 import org.envirocar.app.recording.notification.SpeechOutput;

@@ -25,7 +25,7 @@ import org.envirocar.app.R;
 import org.envirocar.app.exception.NotAcceptedTermsOfUseException;
 import org.envirocar.app.exception.NotLoggedInException;
 import org.envirocar.app.handler.DAOProvider;
-import org.envirocar.app.handler.preferences.UserHandler;
+import org.envirocar.app.handler.preferences.UserPreferenceHandler;
 import org.envirocar.app.views.dialogs.ReactivePrivacyStatementDialog;
 import org.envirocar.app.views.dialogs.ReactiveTermsOfUseDialog;
 import org.envirocar.core.entity.PrivacyStatement;
@@ -58,13 +58,12 @@ import io.reactivex.schedulers.Schedulers;
 @Singleton
 public class AgreementManager {
     private static final Logger LOG = Logger.getLogger(AgreementManager.class);
-    // Mutex for locking when downloading.
-    private final Object mMutex = new Object();
+
     protected List<TermsOfUse> list;
 
     // Injected variables.
     private final Context mContext;
-    private final UserHandler mUserManager;
+    private final UserPreferenceHandler mUserManager;
     private final DAOProvider mDAOProvider;
 
     private TermsOfUse current;
@@ -75,7 +74,7 @@ public class AgreementManager {
      * @param context
      */
     @Inject
-    public AgreementManager(@InjectApplicationScope Context context, UserHandler
+    public AgreementManager(@InjectApplicationScope Context context, UserPreferenceHandler
             userHandler, DAOProvider daoProvider) {
         this.mContext = context;
         this.mUserManager = userHandler;
@@ -143,7 +142,6 @@ public class AgreementManager {
                 .getPrivacyStatementsObservable()
                 .map(checkNullElseThrowNotConnected())
                 .map(privacyStatements -> {
-
                     try {
                         String id = privacyStatements.get(0).getId();
                         PrivacyStatement inst = mDAOProvider.getPrivacyStatementDAO().getPrivacyStatement(id);

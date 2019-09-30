@@ -20,8 +20,8 @@ package org.envirocar.app.handler;
 
 import android.content.Context;
 
-import org.envirocar.app.main.BaseApplication;
-import org.envirocar.app.main.BaseApplicationComponent;
+import org.envirocar.app.BaseApplication;
+import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.core.CacheDirectoryProvider;
 import org.envirocar.core.InternetAccessProvider;
 import org.envirocar.core.dao.AnnouncementDAO;

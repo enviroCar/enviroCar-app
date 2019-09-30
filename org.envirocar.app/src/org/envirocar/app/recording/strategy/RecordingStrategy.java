@@ -4,7 +4,6 @@ import android.app.Service;
 
 import androidx.lifecycle.LifecycleObserver;
 
-import org.envirocar.app.main.BaseApplicationComponent;
 import org.envirocar.app.recording.RecordingState;
 
 

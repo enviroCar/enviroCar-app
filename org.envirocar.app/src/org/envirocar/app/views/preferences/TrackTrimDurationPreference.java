@@ -28,7 +28,7 @@ import android.widget.NumberPicker;
 
 import org.envirocar.app.R;
 import org.envirocar.app.handler.PreferenceConstants;
-import org.envirocar.app.main.BaseApplication;
+import org.envirocar.app.BaseApplication;
 import org.envirocar.core.logging.Logger;
 
 import butterknife.BindView;

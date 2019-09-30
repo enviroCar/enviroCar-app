@@ -31,7 +31,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.common.base.Preconditions;
 
 import org.envirocar.app.R;
-import org.envirocar.app.main.BaseApplication;
+import org.envirocar.app.BaseApplication;
 import org.envirocar.app.main.MainActivityComponent;
 import org.envirocar.app.main.MainActivityModule;
 import org.envirocar.app.views.trackdetails.TrackDetailsActivity;

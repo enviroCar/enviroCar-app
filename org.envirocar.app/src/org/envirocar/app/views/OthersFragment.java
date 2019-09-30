@@ -40,9 +40,9 @@ import org.envirocar.app.BuildConfig;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.app.handler.TrackDAOHandler;
-import org.envirocar.app.handler.preferences.UserHandler;
+import org.envirocar.app.handler.preferences.UserPreferenceHandler;
 import org.envirocar.app.injection.BaseInjectorFragment;
-import org.envirocar.app.main.BaseApplicationComponent;
+import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.recording.RecordingService;
 import org.envirocar.app.services.autoconnect.AutoRecordingService;
 import org.envirocar.app.views.logbook.LogbookActivity;
@@ -69,7 +69,7 @@ public class OthersFragment extends BaseInjectorFragment {
     private static final Logger LOGGER = Logger .getLogger(OthersFragment.class);
 
     @Inject
-    protected UserHandler mUserManager;
+    protected UserPreferenceHandler mUserManager;
     @Inject
     protected TrackDAOHandler mTrackDAOHandler;
 

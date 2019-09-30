@@ -31,8 +31,8 @@ import androidx.viewpager.widget.ViewPager;
 
 import org.envirocar.app.R;
 import org.envirocar.app.injection.BaseInjectorFragment;
-import org.envirocar.app.main.BaseApplication;
-import org.envirocar.app.main.BaseApplicationComponent;
+import org.envirocar.app.BaseApplication;
+import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.main.MainActivityModule;
 import org.envirocar.core.logging.Logger;
 

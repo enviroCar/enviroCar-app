@@ -27,7 +27,7 @@ import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.app.injection.ScopedBaseInjectorService;
-import org.envirocar.app.main.BaseApplication;
+import org.envirocar.app.BaseApplication;
 import org.envirocar.app.notifications.NotificationHandler;
 import org.envirocar.app.notifications.ServiceStateForNotification;
 import org.envirocar.app.recording.RecordingService;

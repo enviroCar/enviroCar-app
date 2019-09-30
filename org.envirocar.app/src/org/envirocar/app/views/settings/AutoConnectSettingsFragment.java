@@ -32,7 +32,7 @@ import com.squareup.otto.Bus;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.PreferenceConstants;
-import org.envirocar.app.main.BaseApplication;
+import org.envirocar.app.BaseApplication;
 import org.envirocar.app.services.autoconnect.AutoRecordingService;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.injection.InjectApplicationScope;

@@ -36,7 +36,7 @@ import org.envirocar.app.R;
 import org.envirocar.app.handler.TrackRecordingHandler;
 import org.envirocar.app.handler.TrackUploadHandler;
 import org.envirocar.app.injection.BaseInjectorService;
-import org.envirocar.app.main.BaseApplicationComponent;
+import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.main.BaseMainActivityBottomBar;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.logging.Logger;

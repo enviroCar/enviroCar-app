@@ -47,7 +47,7 @@ import org.envirocar.app.R;
 import org.envirocar.app.handler.DAOProvider;
 import org.envirocar.app.handler.TrackDAOHandler;
 import org.envirocar.app.handler.TrackUploadHandler;
-import org.envirocar.app.handler.preferences.UserHandler;
+import org.envirocar.app.handler.preferences.UserPreferenceHandler;
 import org.envirocar.app.handler.agreement.AgreementManager;
 import org.envirocar.app.views.utils.DialogUtils;
 import org.envirocar.app.views.utils.ECAnimationUtils;
@@ -81,7 +81,7 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
     private static final Logger LOG = Logger.getLogger(AbstractTrackListCardFragment.class);
 
     @Inject
-    protected UserHandler mUserManager;
+    protected UserPreferenceHandler mUserManager;
     @Inject
     protected EnviroCarDB mEnvirocarDB;
     @Inject

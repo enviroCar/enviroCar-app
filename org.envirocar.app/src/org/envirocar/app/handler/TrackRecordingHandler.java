@@ -26,8 +26,8 @@ import com.squareup.otto.Bus;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.agreement.AgreementManager;
 import org.envirocar.app.handler.preferences.CarPreferenceHandler;
-import org.envirocar.app.handler.preferences.UserHandler;
-import org.envirocar.app.main.BaseApplication;
+import org.envirocar.app.handler.preferences.UserPreferenceHandler;
+import org.envirocar.app.BaseApplication;
 import org.envirocar.app.recording.RecordingService;
 import org.envirocar.app.rxutils.Optional;
 import org.envirocar.core.entity.Car;
@@ -80,7 +80,7 @@ public class TrackRecordingHandler {
     @Inject
     protected TrackDAOHandler trackDAOHandler;
     @Inject
-    protected UserHandler mUserManager;
+    protected UserPreferenceHandler mUserManager;
     @Inject
     protected AgreementManager mAgreementManager;
     @Inject

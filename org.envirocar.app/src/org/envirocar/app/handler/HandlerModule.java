@@ -19,7 +19,7 @@
 package org.envirocar.app.handler;
 
 
-import org.envirocar.app.handler.preferences.UserHandler;
+import org.envirocar.app.handler.preferences.UserPreferenceHandler;
 import org.envirocar.core.UserManager;
 
 import javax.inject.Singleton;
@@ -37,7 +37,7 @@ public class HandlerModule {
 
     @Provides
     @Singleton
-    UserManager provideUserManagerImpl(UserHandler userHandler) {
+    UserManager provideUserManagerImpl(UserPreferenceHandler userHandler) {
         return userHandler;
     }
 

@@ -16,10 +16,10 @@ import com.google.android.material.snackbar.Snackbar;
 import org.envirocar.app.R;
 import org.envirocar.app.exception.LoginException;
 import org.envirocar.app.handler.DAOProvider;
-import org.envirocar.app.handler.preferences.UserHandler;
+import org.envirocar.app.handler.preferences.UserPreferenceHandler;
 import org.envirocar.app.handler.agreement.AgreementManager;
 import org.envirocar.app.injection.BaseInjectorActivity;
-import org.envirocar.app.main.BaseApplicationComponent;
+import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.core.logging.Logger;
 
 import javax.inject.Inject;
@@ -43,7 +43,7 @@ public class SigninActivity extends BaseInjectorActivity {
 
     // Inject Dependencies
     @Inject
-    protected UserHandler userHandler;
+    protected UserPreferenceHandler userHandler;
     @Inject
     protected DAOProvider daoProvider;
     @Inject

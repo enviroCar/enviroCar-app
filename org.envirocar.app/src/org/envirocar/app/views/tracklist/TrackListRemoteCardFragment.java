@@ -25,7 +25,7 @@ import android.view.View;
 
 import com.squareup.otto.Subscribe;
 
-import org.envirocar.app.main.BaseApplication;
+import org.envirocar.app.BaseApplication;
 import org.envirocar.app.main.MainActivityComponent;
 import org.envirocar.app.main.MainActivityModule;
 import org.envirocar.app.R;

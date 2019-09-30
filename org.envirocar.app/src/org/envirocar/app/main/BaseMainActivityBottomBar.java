@@ -35,6 +35,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.squareup.otto.Subscribe;
 
+import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.preferences.CarPreferenceHandler;
@@ -42,7 +43,7 @@ import org.envirocar.app.handler.DAOProvider;
 import org.envirocar.app.handler.PreferenceConstants;
 import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.app.handler.TemporaryFileManager;
-import org.envirocar.app.handler.preferences.UserHandler;
+import org.envirocar.app.handler.preferences.UserPreferenceHandler;
 import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.app.services.autoconnect.AutoRecordingService;
 import org.envirocar.app.views.OthersFragment;
@@ -70,7 +71,7 @@ public class BaseMainActivityBottomBar extends BaseInjectorActivity {
 
     // Injected variables
     @Inject
-    protected UserHandler mUserManager;
+    protected UserPreferenceHandler mUserManager;
     @Inject
     protected CarPreferenceHandler mCarManager;
     @Inject

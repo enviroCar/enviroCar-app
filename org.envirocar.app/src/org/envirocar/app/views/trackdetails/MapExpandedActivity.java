@@ -33,7 +33,7 @@ import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
 import org.envirocar.app.R;
 import org.envirocar.app.injection.BaseInjectorActivity;
-import org.envirocar.app.main.BaseApplicationComponent;
+import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.logging.Logger;

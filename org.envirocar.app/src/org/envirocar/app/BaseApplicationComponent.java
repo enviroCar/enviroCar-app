@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
-package org.envirocar.app.main;
+package org.envirocar.app;
 
 
 import com.squareup.sqlbrite3.SqlBrite;
@@ -25,11 +25,12 @@ import org.envirocar.app.aidl.EnviroCarDataService;
 import org.envirocar.app.handler.DAOProvider;
 import org.envirocar.app.handler.LocationHandler;
 import org.envirocar.app.handler.TrackRecordingHandler;
+import org.envirocar.app.main.MainActivityComponent;
+import org.envirocar.app.main.MainActivityModule;
 import org.envirocar.app.recording.RecordingComponent;
 import org.envirocar.app.recording.RecordingModule;
 import org.envirocar.app.services.autoconnect.AutoRecordingComponent;
 import org.envirocar.app.services.autoconnect.AutoRecordingModule;
-import org.envirocar.app.services.autoconnect.AutoRecordingService;
 import org.envirocar.app.services.TrackUploadService;
 import org.envirocar.app.views.OthersFragment;
 import org.envirocar.app.views.carselection.CarSelectionActivity;

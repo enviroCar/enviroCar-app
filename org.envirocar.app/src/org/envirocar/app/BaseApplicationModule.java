@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
-package org.envirocar.app.main;
+package org.envirocar.app;
 
 import android.app.Application;
 import android.content.Context;
@@ -27,7 +27,6 @@ import com.f2prateek.rx.preferences2.RxSharedPreferences;
 import com.squareup.otto.Bus;
 import com.squareup.otto.ThreadEnforcer;
 
-import org.envirocar.app.recording.provider.RecordingDetailsProvider;
 import org.envirocar.app.handler.HandlerModule;
 import org.envirocar.app.handler.TemporaryFileManager;
 import org.envirocar.app.handler.TrackRecordingHandler;

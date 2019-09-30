@@ -87,50 +87,50 @@ public class PreferencesHandler implements PreferenceConstants {
     }
 
 
-    public static int getLocalTrackCount(Context context) {
-        return PreferenceManager.getDefaultSharedPreferences(context)
-                .getInt(PREF_LOCAL_TRACK_COUNT, 0);
-    }
-
-    public static void setLocalTrackCount(Context context, int count) {
-        PreferenceManager.getDefaultSharedPreferences(context).edit().putInt(PREF_LOCAL_TRACK_COUNT, count).apply();
-    }
-
-    public static Double getTotalDistanceTravelledOfUser(Context context) {
-        return Double.valueOf(PreferenceManager.getDefaultSharedPreferences(context)
-                .getFloat(PREF_TOTAL_DIST_TRAVELLED, 0.0f));
-    }
-
-    public static void setTotalDistanceTravelledOfUser(Context context, Double distance) {
-        PreferenceManager.getDefaultSharedPreferences(context).edit().putFloat(PREF_TOTAL_DIST_TRAVELLED, distance.floatValue()).apply();
-    }
-
-    public static String getTotalTime(Context context) {
-        return PreferenceManager.getDefaultSharedPreferences(context)
-                .getString(PREF_TOTAL_TIME, "");
-    }
-
-    public static void setTotalTime(Context context, String time) {
-        PreferenceManager.getDefaultSharedPreferences(context).edit().putString(PREF_TOTAL_TIME, time).apply();
-    }
-
-    public static int getUploadedTrackCount(Context context) {
-        return PreferenceManager.getDefaultSharedPreferences(context)
-                .getInt(PREF_UPLOADED_TRACK_COUNT, 0);
-    }
-
-    public static void setUploadedTrackCount(Context context, int count) {
-        PreferenceManager.getDefaultSharedPreferences(context).edit().putInt(PREF_UPLOADED_TRACK_COUNT, count).apply();
-    }
-
-    public static int getGlobalTrackCount(Context context) {
-        return PreferenceManager.getDefaultSharedPreferences(context)
-                .getInt(PREF_GLOBAL_TRACK_COUNT, 0);
-    }
-
-    public static void setGlobalTrackCount(Context context, int count) {
-        PreferenceManager.getDefaultSharedPreferences(context).edit().putInt(PREF_GLOBAL_TRACK_COUNT, count).apply();
-    }
+//    public static int getLocalTrackCount(Context context) {
+//        return PreferenceManager.getDefaultSharedPreferences(context)
+//                .getInt(PREF_LOCAL_TRACK_COUNT, 0);
+//    }
+//
+//    public static void setLocalTrackCount(Context context, int count) {
+//        PreferenceManager.getDefaultSharedPreferences(context).edit().putInt(PREF_LOCAL_TRACK_COUNT, count).apply();
+//    }
+//
+//    public static Double getTotalDistanceTravelledOfUser(Context context) {
+//        return Double.valueOf(PreferenceManager.getDefaultSharedPreferences(context)
+//                .getFloat(PREF_TOTAL_DIST_TRAVELLED, 0.0f));
+//    }
+//
+//    public static void setTotalDistanceTravelledOfUser(Context context, Double distance) {
+//        PreferenceManager.getDefaultSharedPreferences(context).edit().putFloat(PREF_TOTAL_DIST_TRAVELLED, distance.floatValue()).apply();
+//    }
+//
+//    public static String getTotalTime(Context context) {
+//        return PreferenceManager.getDefaultSharedPreferences(context)
+//                .getString(PREF_TOTAL_TIME, "");
+//    }
+//
+//    public static void setTotalTime(Context context, String time) {
+//        PreferenceManager.getDefaultSharedPreferences(context).edit().putString(PREF_TOTAL_TIME, time).apply();
+//    }
+//
+//    public static int getUploadedTrackCount(Context context) {
+//        return PreferenceManager.getDefaultSharedPreferences(context)
+//                .getInt(PREF_UPLOADED_TRACK_COUNT, 0);
+//    }
+//
+//    public static void setUploadedTrackCount(Context context, int count) {
+//        PreferenceManager.getDefaultSharedPreferences(context).edit().putInt(PREF_UPLOADED_TRACK_COUNT, count).apply();
+//    }
+//
+//    public static int getGlobalTrackCount(Context context) {
+//        return PreferenceManager.getDefaultSharedPreferences(context)
+//                .getInt(PREF_GLOBAL_TRACK_COUNT, 0);
+//    }
+//
+//    public static void setGlobalTrackCount(Context context, int count) {
+//        PreferenceManager.getDefaultSharedPreferences(context).edit().putInt(PREF_GLOBAL_TRACK_COUNT, count).apply();
+//    }
 
     public static void resetTrackCounts(Context context) {
         PreferenceManager.getDefaultSharedPreferences(context).edit().putInt(PREF_LOCAL_TRACK_COUNT, 0)
@@ -264,17 +264,4 @@ public class PreferencesHandler implements PreferenceConstants {
                 .asObservable();
     }
 
-    public static Observable<Car> getSelectedCarObservable() {
-        return getRxSharedPreferences(context)
-                .getString(PREFERENCE_TAG_CAR, "")
-                .asObservable()
-                .map(s -> s != "" ? CarUtils.instantiateCar(s) : null);
-    }
-
-    public static Observable<Car> getSelectedCarObservable(Context context) {
-        return getRxSharedPreferences(context)
-                .getString(PREFERENCE_TAG_CAR)
-                .asObservable()
-                .map(CarUtils::instantiateCar);
-    }
 }

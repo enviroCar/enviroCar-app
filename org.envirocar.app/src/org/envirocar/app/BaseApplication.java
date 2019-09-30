@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
-package org.envirocar.app.main;
+package org.envirocar.app;
 
 import android.annotation.TargetApi;
 import android.app.Application;
@@ -34,6 +34,7 @@ import org.acra.BuildConfig;
 import org.acra.annotation.AcraCore;
 import org.envirocar.app.handler.LocationHandler;
 import org.envirocar.app.handler.PreferenceConstants;
+import org.envirocar.app.main.DaggerBaseApplicationComponent;
 import org.envirocar.app.notifications.NotificationHandler;
 import org.envirocar.app.handler.userstatistics.UserStatisticsProcessor;
 import org.envirocar.core.injection.InjectApplicationScope;
@@ -60,8 +61,6 @@ public class BaseApplication extends Application {
 
     BaseApplicationComponent baseApplicationComponent;
     protected BroadcastReceiver mScreenReceiver;
-
-    private String CHANNEL_ID = "channel1";
 
     @Inject
     protected UserService userService;
@@ -175,6 +174,5 @@ public class BaseApplication extends Application {
     public static BaseApplication get(Context context) {
         return (BaseApplication) context.getApplicationContext();
     }
-
 
 }

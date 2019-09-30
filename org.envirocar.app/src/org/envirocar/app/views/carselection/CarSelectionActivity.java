@@ -28,10 +28,10 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-import org.envirocar.app.main.BaseApplicationComponent;
+import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.preferences.CarPreferenceHandler;
-import org.envirocar.app.handler.preferences.UserHandler;
+import org.envirocar.app.handler.preferences.UserPreferenceHandler;
 import org.envirocar.app.views.utils.ECAnimationUtils;
 import org.envirocar.core.entity.Car;
 import org.envirocar.app.injection.BaseInjectorActivity;
@@ -84,7 +84,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
     @Inject
     protected CarPreferenceHandler mCarManager;
     @Inject
-    protected UserHandler mUserHandler;
+    protected UserPreferenceHandler mUserHandler;
 
     private CarSelectionAddCarFragment addCarFragment;
 

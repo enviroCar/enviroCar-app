@@ -24,10 +24,10 @@ import com.afollestad.materialdialogs.MaterialDialog;
 
 import org.envirocar.app.R;
 import org.envirocar.app.handler.DAOProvider;
-import org.envirocar.app.handler.preferences.UserHandler;
+import org.envirocar.app.handler.preferences.UserPreferenceHandler;
 import org.envirocar.app.handler.agreement.AgreementManager;
 import org.envirocar.app.injection.BaseInjectorActivity;
-import org.envirocar.app.main.BaseApplicationComponent;
+import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.entity.UserImpl;
 import org.envirocar.core.exception.DataUpdateFailureException;
@@ -55,7 +55,7 @@ public class SignupActivity extends BaseInjectorActivity {
 
     // Inject Dependencies
     @Inject
-    protected UserHandler userHandler;
+    protected UserPreferenceHandler userHandler;
     @Inject
     protected DAOProvider daoProvider;
     @Inject

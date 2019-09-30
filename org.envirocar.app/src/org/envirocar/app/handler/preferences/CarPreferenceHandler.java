@@ -24,6 +24,10 @@ import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.widget.Toast;
 
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleObserver;
+import androidx.lifecycle.OnLifecycleEvent;
+
 import com.squareup.otto.Bus;
 import com.squareup.otto.Produce;
 import com.squareup.otto.Subscribe;
@@ -63,13 +67,13 @@ import io.reactivex.Observable;
  * The manager for cars.
  */
 @Singleton
-public class CarPreferenceHandler {
+public class CarPreferenceHandler implements LifecycleObserver {
     private static final Logger LOG = Logger.getLogger(CarPreferenceHandler.class);
     private static final String PREFERENCE_TAG_DOWNLOADED = "cars_downloaded";
 
     private final Context mContext;
     private final Bus mBus;
-    private final UserHandler mUserManager;
+    private final UserPreferenceHandler mUserManager;
     private final DAOProvider mDAOProvider;
     private final EnviroCarDB mEnviroCarDB;
     private final SharedPreferences mSharedPreferences;
@@ -85,7 +89,7 @@ public class CarPreferenceHandler {
      * @param context the context of the activity or application.
      */
     @Inject
-    public CarPreferenceHandler(@InjectApplicationScope Context context, Bus bus, UserHandler
+    public CarPreferenceHandler(@InjectApplicationScope Context context, Bus bus, UserPreferenceHandler
             userManager, DAOProvider daoProvider, EnviroCarDB enviroCarDB,
                                 SharedPreferences sharedPreferences) {
         this.mContext = context;
@@ -116,6 +120,16 @@ public class CarPreferenceHandler {
                 mDeserialzedCars.add(CarUtils.instantiateCar(serializedCar));
             }
         }
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
+    protected void onCreate(){
+
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+    protected void onDestroy(){
+
     }
 
     public Observable<List<Car>> getAllDeserializedCars() {
