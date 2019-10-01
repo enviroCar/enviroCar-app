@@ -164,7 +164,10 @@ public class AutoRecordingService extends ScopedBaseInjectorService implements A
     @Override
     public void onRecordingTypeConditionsMet() {
         LOG.info("Conditions to start a track are satisfied. Starting the recording service");
-        this.autoStrategy.stop();
+        if(this.autoStrategy != null) {
+            this.autoStrategy.stop();
+            this.autoStrategy = null;
+        }
         this.startRecordingService();
     }
 
@@ -185,13 +188,16 @@ public class AutoRecordingService extends ScopedBaseInjectorService implements A
         LOG.info("Received event [%s]", event.toString());
         switch (event.recordingState) {
             case RECORDING_INIT:
-                this.autoStrategy.stop();
+                if(this.autoStrategy != null) {
+                    this.autoStrategy.stop();
+                    this.autoStrategy = null;
+                }
                 break;
             case RECORDING_RUNNING:
                 stopSelf();
                 break;
             case RECORDING_STOPPED:
-
+                // TODO ??
                 break;
         }
     }
