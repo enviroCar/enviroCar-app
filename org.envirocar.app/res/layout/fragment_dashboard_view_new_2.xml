@@ -203,6 +203,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:visibility="gone" />
+
             </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView
@@ -272,6 +273,7 @@
                     app:autoSizeMinTextSize="12sp"
                     app:autoSizeStepGranularity="1sp"
                     app:autoSizeTextType="uniform" />
+
             </LinearLayout>
 
             <LinearLayout
@@ -343,6 +345,7 @@
                     android:scaleType="fitCenter"
                     android:src="@drawable/ic_drive_eta_black_24dp"
                     android:tint="@color/white_cario" />
+
             </LinearLayout>
 
             <androidx.cardview.widget.CardView
@@ -540,10 +543,9 @@
                 app:cardBackgroundColor="@color/dashboard_button_selector"
                 app:cardCornerRadius="25dp"
                 app:cardElevation="10dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/fragment_dashboard_carselection_layout"
-                app:layout_constraintWidth_percent="0.65">
+                app:layout_constraintEnd_toEndOf="@id/guideline_settings_header_right"
+                app:layout_constraintStart_toStartOf="@id/guideline_settings_header_left"
+                app:layout_constraintTop_toBottomOf="@+id/fragment_dashboard_carselection_layout">
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:layout_width="match_parent"
