@@ -31,7 +31,6 @@
             android:layout_height="30dp"
             android:scaleType="fitCenter"
             android:src="@drawable/img_envirocar_logo_white" />
-
     </LinearLayout>
 
     <ScrollView
@@ -116,7 +115,6 @@
                             app:autoSizeMinTextSize="2sp"
                             app:autoSizeStepGranularity="1sp"
                             app:autoSizeTextType="uniform" />
-
                     </LinearLayout>
 
                     <LinearLayout
@@ -156,7 +154,6 @@
                             app:autoSizeMaxTextSize="11sp"
                             app:autoSizeMinTextSize="2sp"
                             app:autoSizeTextType="uniform" />
-
                     </LinearLayout>
 
                     <LinearLayout
@@ -196,7 +193,6 @@
                             app:autoSizeMaxTextSize="11sp"
                             app:autoSizeMinTextSize="2sp"
                             app:autoSizeTextType="uniform" />
-
                     </LinearLayout>
                 </LinearLayout>
 
@@ -207,6 +203,35 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:visibility="gone" />
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardViewSettings"
+                android:layout_width="0dp"
+                android:layout_height="26dp"
+                android:layout_marginTop="24dp"
+                app:cardBackgroundColor="@color/cario_color_primary_dark"
+                app:cardCornerRadius="10dp"
+                app:cardElevation="10dp"
+                app:layout_constraintLeft_toRightOf="@id/guideline_settings_header_left"
+                app:layout_constraintRight_toLeftOf="@id/guideline_settings_header_right"
+                app:layout_constraintTop_toBottomOf="@+id/cardView2">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="@string/dashboard_recording_settings_header"
+                    android:gravity="center"
+                    android:textColor="@color/white"
+                    android:layout_marginHorizontal="24dp"
+                    android:textStyle="bold"
+                    android:maxLines="1"
+                    app:autoSizeMinTextSize="15sp"
+                    app:autoSizeMaxTextSize="20sp"
+                    app:autoSizeStepGranularity="1sp"
+                    app:autoSizeTextType="uniform" />
+
             </androidx.cardview.widget.CardView>
 
             <LinearLayout
@@ -247,9 +272,7 @@
                     app:autoSizeMinTextSize="12sp"
                     app:autoSizeStepGranularity="1sp"
                     app:autoSizeTextType="uniform" />
-
             </LinearLayout>
-
 
             <LinearLayout
                 android:id="@+id/fragment_dashboard_indicator_view"
@@ -265,7 +288,6 @@
                 app:layout_constraintHeight_max="50dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/fragment_dashboard_mode_selector">
-
 
                 <ImageView
                     android:id="@+id/fragment_dashboard_indicator_bluetooth"
@@ -321,13 +343,7 @@
                     android:scaleType="fitCenter"
                     android:src="@drawable/ic_drive_eta_black_24dp"
                     android:tint="@color/white_cario" />
-
             </LinearLayout>
-
-
-
-
-
 
             <androidx.cardview.widget.CardView
                 android:id="@+id/fragment_dashboard_obdselection_layout"
@@ -356,8 +372,6 @@
                         android:padding="8dp"
                         android:src="@drawable/ic_bluetooth_searching_black_24dp"
                         android:tint="@color/white_cario" />
-
-
 
                     <LinearLayout
                         android:layout_width="0dp"
@@ -403,7 +417,6 @@
                         android:tint="@color/cario_color_primary_dark" />
 
                 </LinearLayout>
-
             </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView
@@ -432,7 +445,6 @@
                         android:padding="8dp"
                         android:src="@drawable/ic_drive_eta_black_24dp"
                         android:tint="@color/white_cario" />
-
 
                     <LinearLayout
                         android:layout_width="0dp"
@@ -478,24 +490,21 @@
                         android:tint="@color/cario_color_primary_dark" />
 
                 </LinearLayout>
-
             </androidx.cardview.widget.CardView>
-
-
 
             <info.hoang8f.android.segmented.SegmentedGroup xmlns:segmentedgroup="http://schemas.android.com/apk/res-auto"
                 android:id="@+id/fragment_dashboard_mode_selector"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="30dp"
-                android:layout_marginTop="40dp"
+                android:layout_marginTop="16dp"
                 android:layout_marginRight="30dp"
                 android:layout_marginBottom="16dp"
                 android:orientation="horizontal"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/cardView2"
+                app:layout_constraintTop_toBottomOf="@+id/cardViewSettings"
                 segmentedgroup:sc_border_width="2dp"
                 segmentedgroup:sc_corner_radius="10dp"
                 segmentedgroup:sc_tint_color="@color/cario_color_primary_dark">
@@ -576,9 +585,20 @@
                 android:orientation="vertical"
                 app:layout_constraintGuide_percent="0.90" />
 
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline_settings_header_left"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.20"/>
 
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline_settings_header_right"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.80"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
-
     </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

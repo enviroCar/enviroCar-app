@@ -45,16 +45,15 @@ import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
-import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
+import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.app.injection.BaseInjectorActivity;
-import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
@@ -352,12 +351,8 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
                 mConsumptionText.setTextColor(Color.RED);
             }
 
-        } catch (FuelConsumptionException e) {
-            e.printStackTrace();
-        } catch (NoMeasurementsException e) {
-            e.printStackTrace();
-        } catch (UnsupportedFuelTypeException e) {
-            e.printStackTrace();
+        } catch (FuelConsumptionException | NoMeasurementsException | UnsupportedFuelTypeException e) {
+            LOG.error(e);
         }
     }
 

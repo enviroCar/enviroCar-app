@@ -29,6 +29,8 @@
     <string name="dashboard_connecting_find_template">Suche nach OBD \'%s\'.</string>
     <string name="dashboard_connecting_found_template">\'%s\' gefunden. Stelle Verbindung her.</string>
 
+    <string name="dashboard_recording_settings_header">Einstellungen</string>
+
     <string name="dashboard_dialog_stop_track">Aufzeichnung beenden?</string>
     <string name="dashboard_dialog_stop_track_content">Möchten Sie wirklich die Aufzeichung beenden und die derzeitige Fahrt finalisieren?</string>
     <string name="dashboard_dialog_obd_not_found">OBD Adapter nicht gefunden</string>
