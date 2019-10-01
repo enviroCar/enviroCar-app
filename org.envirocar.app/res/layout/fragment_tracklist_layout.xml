@@ -50,6 +50,8 @@
         android:layout_marginBottom="10dp"
         android:weightSum="2"
         android:orientation="horizontal"
+        segmentedgroup:sc_tint_color="@color/cario_color_primary"
+        segmentedgroup:sc_checked_text_color="@color/white_cario"
         segmentedgroup:sc_border_width="2dp"
         segmentedgroup:sc_corner_radius="10dp">
 
@@ -59,6 +61,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/track_list_local_tracks"
+            android:checked="true"
             style="@style/RadioButton" />
 
         <RadioButton

@@ -545,7 +545,7 @@
                 app:cardElevation="10dp"
                 app:layout_constraintEnd_toEndOf="@id/guideline_settings_header_right"
                 app:layout_constraintStart_toStartOf="@id/guideline_settings_header_left"
-                app:layout_constraintTop_toBottomOf="@+id/fragment_dashboard_carselection_layout">
+                app:layout_constraintTop_toBottomOf="@+id/fragment_dashboard_carselection_layout" >
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:layout_width="match_parent"
