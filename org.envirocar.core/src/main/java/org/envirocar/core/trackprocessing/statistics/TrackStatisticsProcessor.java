@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -20,12 +20,12 @@ package org.envirocar.core.trackprocessing.statistics;
 
 import android.location.Location;
 
-import org.envirocar.core.trackprocessing.consumption.ConsumptionAlgorithm;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.exception.FuelConsumptionException;
 import org.envirocar.core.exception.UnsupportedFuelTypeException;
 import org.envirocar.core.logging.Logger;
+import org.envirocar.core.trackprocessing.consumption.ConsumptionAlgorithm;
 
 import java.util.List;
 
@@ -92,8 +92,7 @@ public class TrackStatisticsProcessor {
         return co2Avg;
     }
 
-    public Double getFuelConsumptionPerHour(List<Measurement> measurements) throws
-            FuelConsumptionException {
+    public Double getFuelConsumptionPerHour(List<Measurement> measurements) throws FuelConsumptionException {
         double consumption = 0.0;
         if (consumptionAlgorithm == null) {
             return null;
@@ -106,18 +105,22 @@ public class TrackStatisticsProcessor {
                 consideredCount++;
             } catch (UnsupportedFuelTypeException e) {
                 LOG.debug(e.getMessage());
-                //                throw new FuelConsumptionException(e);
+            } catch (FuelConsumptionException e) {
+                // no action required.
             }
         }
 
         LOG.info(String.format("%s of %s measurements used for consumption/hour calculation",
                 consideredCount, measurements.size()));
 
+        if (consideredCount <= 0) {
+            throw new FuelConsumptionException("No fuel consumption computation possible. No values with required parameters");
+        }
+
         return consumption / consideredCount;
     }
 
-    public double getLiterPerHundredKm(double consumptionPerHour, double durationInMillis,
-                                       double lengthOfTrack) {
+    public double getLiterPerHundredKm(double consumptionPerHour, double durationInMillis, double lengthOfTrack) {
         return consumptionPerHour * durationInMillis / (1000 * 60 * 60) / lengthOfTrack * 100;
     }
 

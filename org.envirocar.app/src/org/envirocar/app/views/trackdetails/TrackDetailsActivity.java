@@ -90,8 +90,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
     private static final String EXTRA_TITLE = "org.envirocar.app.extraTitle";
     private static final DecimalFormat DECIMAL_FORMATTER_TWO_DIGITS = new DecimalFormat("#.##");
     private static final DateFormat DATE_FORMAT = DateFormat.getDateTimeInstance();
-    private static final DateFormat UTC_DATE_FORMATTER = new SimpleDateFormat("HH:mm:ss", Locale
-            .ENGLISH);
+    private static final DateFormat UTC_DATE_FORMATTER = new SimpleDateFormat("HH:mm:ss", Locale.ENGLISH);
 
     public static void navigate(Activity activity, View transition, int trackID) {
         Intent intent = new Intent(activity, TrackDetailsActivity.class);
@@ -174,6 +173,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
         super.onCreate(savedInstanceState);
         initActivityTransition();
         setContentView(R.layout.activity_track_details_layout);
+
         // Inject all annotated views.
         ButterKnife.bind(this);
         mMapView.onCreate(savedInstanceState);
@@ -192,7 +192,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
                 .blockingFirst();
         this.track = track;
 
-        trackMapOverlay = new TrackMapLayer(track);
+        this.trackMapOverlay = new TrackMapLayer(track);
 
         String itemTitle = track.getName();
         CollapsingToolbarLayout collapsingToolbarLayout = findViewById(R.id.collapsing_toolbar);
@@ -256,26 +256,20 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
      */
     private void initMapView() {
         final LatLngBounds viewBbox = trackMapOverlay.getViewBoundingBox();
-        mMapView.getMapAsync(new OnMapReadyCallback() {
-            @Override
-            public void onMapReady(@NonNull MapboxMap tep) {
+        mMapView.getMapAsync(tep -> {
 
-                tep.getUiSettings().setLogoEnabled(false);
-                tep.getUiSettings().setAttributionEnabled(false);
-                tep.setStyle(new Style.Builder().fromUrl("https://api.maptiler.com/maps/basic/style.json?key=YJCrA2NeKXX45f8pOV6c "), new Style.OnStyleLoaded() {
-                    @Override
-                    public void onStyleLoaded(@NonNull Style style) {
-                        mapStyle = style;
-                        style.addSource(trackMapOverlay.getGeoJsonSource());
-                        style.addLayer(trackMapOverlay.getLineLayer());
-                        tep.moveCamera(CameraUpdateFactory.newLatLngBounds(viewBbox, 50));
-                        setUpStartStopIcons(style);
-                    }
-                });
-                mapboxMap = tep;
-                mapboxMap.setMaxZoomPreference(trackMapOverlay.getMaxZoom());
-                mapboxMap.setMinZoomPreference(trackMapOverlay.getMinZoom());
-            }
+            tep.getUiSettings().setLogoEnabled(false);
+            tep.getUiSettings().setAttributionEnabled(false);
+            tep.setStyle(new Style.Builder().fromUrl("https://api.maptiler.com/maps/basic/style.json?key=YJCrA2NeKXX45f8pOV6c "), style -> {
+                mapStyle = style;
+                style.addSource(trackMapOverlay.getGeoJsonSource());
+                style.addLayer(trackMapOverlay.getLineLayer());
+                tep.moveCamera(CameraUpdateFactory.newLatLngBounds(viewBbox, 50));
+                setUpStartStopIcons(style);
+            });
+            mapboxMap = tep;
+            mapboxMap.setMaxZoomPreference(trackMapOverlay.getMaxZoom());
+            mapboxMap.setMinZoomPreference(trackMapOverlay.getMinZoom());
         });
     }
 
@@ -341,12 +335,16 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
                 mCo2Container.setVisibility(View.GONE);
                 descriptionTv.setText(R.string.gps_track_details);
             } else if (track.getCar().getFuelType() == Car.FuelType.GASOLINE || PreferencesHandler.isDieselConsumptionEnabled(this)) {
-                mEmissionText.setText(DECIMAL_FORMATTER_TWO_DIGITS.format(((TrackStatisticsProvider) track).getGramsPerKm()) + " g/km");
+                TrackStatisticsProvider statsProvider = (TrackStatisticsProvider) track;
 
                 // set consumption text.
-                String fuelConsumptionText = DECIMAL_FORMATTER_TWO_DIGITS.format(((TrackStatisticsProvider) track).getFuelConsumptionPerHour());
-                String litrePerHundredKmText = DECIMAL_FORMATTER_TWO_DIGITS.format(((TrackStatisticsProvider) track).getLiterPerHundredKm());
-                mConsumptionText.setText(String.format("%s l/h\n%s l/100 km", fuelConsumptionText, litrePerHundredKmText));
+                String fuelConsumptionText = DECIMAL_FORMATTER_TWO_DIGITS.format(statsProvider.getFuelConsumptionPerHour());
+                String litrePerHundredKmText = DECIMAL_FORMATTER_TWO_DIGITS.format(statsProvider.getLiterPerHundredKm());
+                this.mConsumptionText.setText(String.format("%s l/h\n%s l/100 km", fuelConsumptionText, litrePerHundredKmText));
+
+                // set emissions
+                String emissions = DECIMAL_FORMATTER_TWO_DIGITS.format(statsProvider.getGramsPerKm());
+                this.mEmissionText.setText(String.format("%s g/km", emissions));
             } else {
                 mEmissionText.setText(R.string.track_list_details_diesel_not_supported);
                 mConsumptionText.setText(R.string.track_list_details_diesel_not_supported);

@@ -406,10 +406,8 @@ public class TrackImpl implements Track, TrackStatisticsProvider {
 
     @Override
     public double getDistanceOfTrack() {
-        if (distanceOfTrack == null && STATISTICS_PROCESSOR != null) {
+        if ((distanceOfTrack == null || distanceOfTrack == 0.0) && STATISTICS_PROCESSOR != null) {
             distanceOfTrack = STATISTICS_PROCESSOR.computeDistanceOfTrack(getMeasurements());
-        } else {
-            return 0.0;
         }
         return distanceOfTrack;
     }
@@ -444,8 +442,7 @@ public class TrackImpl implements Track, TrackStatisticsProvider {
     public double getGramsPerKm() throws FuelConsumptionException, NoMeasurementsException,
             UnsupportedFuelTypeException {
         if (gramsPerKm == null) {
-            gramsPerKm = STATISTICS_PROCESSOR.getGramsPerKm(getLiterPerHundredKm(), getCar()
-                    .getFuelType());
+            gramsPerKm = STATISTICS_PROCESSOR.getGramsPerKm(getLiterPerHundredKm(), getCar().getFuelType());
         }
         return gramsPerKm;
     }
