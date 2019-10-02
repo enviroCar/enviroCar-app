@@ -10,9 +10,9 @@ import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.algorithm.MeasurementProvider;
+import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.preferences.CarPreferenceHandler;
-import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.app.recording.RecordingState;
 import org.envirocar.app.recording.notification.SpeechOutput;
 import org.envirocar.app.recording.provider.LocationProvider;
@@ -260,7 +260,7 @@ public class OBDRecordingStrategy implements RecordingStrategy {
 
     private ObservableTransformer<BluetoothSocketWrapper, Measurement> receiveMeasurements() {
         return upstream -> {
-            final Long samplingRate = PreferencesHandler.getSamplingRate(context) * 1000;
+            final Long samplingRate = ApplicationSettings.getSamplingRate(context) * 1000;
             try {
                 eventBus.register(measurementProvider);
             } catch (Exception e) {

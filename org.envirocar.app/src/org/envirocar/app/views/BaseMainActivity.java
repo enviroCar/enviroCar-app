@@ -37,18 +37,17 @@ import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
+import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.app.handler.BluetoothHandler;
-import org.envirocar.app.handler.preferences.CarPreferenceHandler;
 import org.envirocar.app.handler.DAOProvider;
-import org.envirocar.app.handler.PreferenceConstants;
-import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.app.handler.TemporaryFileManager;
+import org.envirocar.app.handler.preferences.CarPreferenceHandler;
 import org.envirocar.app.handler.preferences.UserPreferenceHandler;
 import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.app.services.autoconnect.AutoRecordingService;
+import org.envirocar.app.views.dashboard.DashboardFragment2;
 import org.envirocar.app.views.others.OthersFragment;
 import org.envirocar.app.views.others.TroubleshootingFragment;
-import org.envirocar.app.views.dashboard.DashboardFragment2;
 import org.envirocar.app.views.tracklist.TrackListPagerFragment;
 import org.envirocar.core.events.TrackFinishedEvent;
 import org.envirocar.core.exception.NoMeasurementsException;
@@ -230,7 +229,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
     private void addPreferenceSubscriptions() {
         // Keep screen active setting;
         subscriptions.add(
-                PreferencesHandler.getDisplayStaysActiveObservable(this)
+                ApplicationSettings.getDisplayStaysActiveObservable(this)
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(aBoolean -> {
                             checkKeepScreenOn();
@@ -238,7 +237,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
 
         // Start Background handler
         subscriptions.add(
-                PreferencesHandler.getBackgroundHandlerEnabledObservable(this)
+                ApplicationSettings.getBackgroundHandlerEnabledObservable(this)
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(aBoolean -> {
                             if (aBoolean) {
@@ -252,9 +251,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
     }
 
     private void checkKeepScreenOn() {
-        if (PreferenceManager
-                .getDefaultSharedPreferences(this)
-                .getBoolean(PreferenceConstants.DISPLAY_STAYS_ACTIV, false)) {
+        if (ApplicationSettings.getDisplayStaysActiveObservable(this).blockingFirst()) {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
             this.navigationBottomBar.setKeepScreenOn(true);
         } else {

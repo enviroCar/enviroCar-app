@@ -5,7 +5,6 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.widget.Toast;
 
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
@@ -24,7 +23,7 @@ import com.squareup.otto.Subscribe;
 import org.envirocar.algorithm.MeasurementProvider;
 import org.envirocar.app.BuildConfig;
 import org.envirocar.app.events.DrivingDetectedEvent;
-import org.envirocar.app.handler.PreferencesHandler;
+import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.app.handler.preferences.CarPreferenceHandler;
 import org.envirocar.app.recording.RecordingState;
 import org.envirocar.app.recording.provider.LocationProvider;
@@ -152,7 +151,7 @@ public class GPSRecordingStrategy implements LifecycleObserver, RecordingStrateg
         this.initTransitionsOfInterest();
 
         // subscribe for preference changes
-        disposables.add(PreferencesHandler.getTrackTrimDurationObservable(context)
+        disposables.add(ApplicationSettings.getTrackTrimDurationObservable(context)
                 .doOnNext(newDuration -> this.trackTrimDuration = newDuration)
                 .subscribe());
     }
@@ -217,7 +216,7 @@ public class GPSRecordingStrategy implements LifecycleObserver, RecordingStrateg
     private ObservableTransformer<String, Measurement> receiveMeasurements() {
         // this is the first access to the measurement objects push it further
         return upstream -> {
-            Long samplingRate = PreferencesHandler.getSamplingRate(context) * 1000;
+            Long samplingRate = ApplicationSettings.getSamplingRate(context) * 1000;
             try {
                 eventBus.register(measurementProvider);
             } catch (Exception e) {

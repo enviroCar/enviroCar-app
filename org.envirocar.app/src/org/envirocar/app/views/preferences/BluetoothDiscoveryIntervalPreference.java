@@ -29,8 +29,8 @@ import android.widget.TextView;
 
 import org.envirocar.app.BaseApplication;
 import org.envirocar.app.R;
+import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.app.handler.PreferenceConstants;
 
 import butterknife.ButterKnife;
 import butterknife.BindView;
@@ -156,9 +156,7 @@ public class BluetoothDiscoveryIntervalPreference extends DialogPreference {
         }
 
         if(time == -1){
-            time = getSharedPreferences().getInt(PreferenceConstants
-                    .PREF_BLUETOOTH_DISCOVERY_INTERVAL, PreferenceConstants
-                    .DEFAULT_BLUETOOTH_DISCOVERY_INTERVAL);
+            time = ApplicationSettings.getDiscoveryIntervalObservable(getContext()).blockingFirst();
         }
 
         if (time != -1){
@@ -181,9 +179,8 @@ public class BluetoothDiscoveryIntervalPreference extends DialogPreference {
             int time = mMinutePicker.getValue() * 60 + mSecondsPicker.getValue() * 10;
             persistInt(time);
 
-            getSharedPreferences().edit()
-                    .putInt(PreferenceConstants.PREF_BLUETOOTH_DISCOVERY_INTERVAL, time)
-                    .apply();
+            // set the discovery interval
+            ApplicationSettings.setDiscoveryInterval(getContext(), time);
         }
     }
 

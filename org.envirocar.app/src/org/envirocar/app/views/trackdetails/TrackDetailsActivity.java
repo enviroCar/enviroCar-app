@@ -52,7 +52,7 @@ import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
-import org.envirocar.app.handler.PreferencesHandler;
+import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Measurement;
@@ -333,7 +333,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
                 mConsumptionContainer.setVisibility(View.GONE);
                 mCo2Container.setVisibility(View.GONE);
                 descriptionTv.setText(R.string.gps_track_details);
-            } else if (track.getCar().getFuelType() == Car.FuelType.GASOLINE || PreferencesHandler.isDieselConsumptionEnabled(this)) {
+            } else if (track.getCar().getFuelType() == Car.FuelType.GASOLINE || ApplicationSettings.isDieselConsumptionEnabled(this)) {
                 TrackStatisticsProvider statsProvider = (TrackStatisticsProvider) track;
 
                 // set consumption text.

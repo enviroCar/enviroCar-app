@@ -20,9 +20,9 @@ package org.envirocar.app.views.recordingscreen;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.SystemClock;
-import android.preference.PreferenceManager;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -36,21 +36,20 @@ import androidx.fragment.app.FragmentTransaction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.squareup.otto.Subscribe;
 
+import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
 import org.envirocar.app.events.AvrgSpeedUpdateEvent;
 import org.envirocar.app.events.DistanceValueUpdateEvent;
 import org.envirocar.app.events.StartingTimeEvent;
-import org.envirocar.app.handler.PreferenceConstants;
-import org.envirocar.app.handler.PreferencesHandler;
+import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.app.handler.TrackRecordingHandler;
 import org.envirocar.app.injection.BaseInjectorActivity;
-import org.envirocar.app.BaseApplicationComponent;
-import org.envirocar.app.views.BaseMainActivity;
-import org.envirocar.app.views.MainActivityComponent;
-import org.envirocar.app.views.MainActivityModule;
 import org.envirocar.app.recording.RecordingService;
 import org.envirocar.app.recording.RecordingState;
 import org.envirocar.app.recording.events.RecordingStateEvent;
+import org.envirocar.app.views.BaseMainActivity;
+import org.envirocar.app.views.MainActivityComponent;
+import org.envirocar.app.views.MainActivityModule;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.core.events.gps.GpsSatelliteFixEvent;
 import org.envirocar.core.logging.Logger;
@@ -67,7 +66,8 @@ import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
 public class OBDPlusGPSTrackRecordingScreen extends BaseInjectorActivity {
-    private static final Logger LOGGER = Logger.getLogger(OBDPlusGPSTrackRecordingScreen.class);
+    private static final Logger LOG = Logger.getLogger(OBDPlusGPSTrackRecordingScreen.class);
+    private static final String PREF_PREVIOUS_SELECTED_VIEW = "pref_previous_selected_view_obd";
 
     /**
      * Starts this activity.
@@ -96,8 +96,6 @@ public class OBDPlusGPSTrackRecordingScreen extends BaseInjectorActivity {
     protected LinearLayout trackMapContainer;
     @BindView(R.id.trackSingleMeterContainer)
     protected LinearLayout trackSingleMeterContainer;
-    @BindView(R.id.trackMultipleMeterContainer)
-    protected LinearLayout trackMultipleMeterContainer;
     @BindView(R.id.stopTrackRecordingButton)
     protected LinearLayout stopTrackRecordingButton;
 
@@ -137,9 +135,8 @@ public class OBDPlusGPSTrackRecordingScreen extends BaseInjectorActivity {
         ButterKnife.bind(this);
 
         // set keep screen on setting
-        this.trackDetailsContainer.setKeepScreenOn(PreferenceManager
-                .getDefaultSharedPreferences(this)
-                .getBoolean(PreferenceConstants.DISPLAY_STAYS_ACTIV, false));
+        boolean keepScreenOn = ApplicationSettings.getDisplayStaysActiveObservable(this).blockingFirst();
+        this.trackDetailsContainer.setKeepScreenOn(keepScreenOn);
 
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.add(R.id.trackMapContainer, new TrackMapFragment());
@@ -151,7 +148,7 @@ public class OBDPlusGPSTrackRecordingScreen extends BaseInjectorActivity {
 
     @Override
     protected void onResume() {
-        LOGGER.info("onResume()");
+        LOG.info("onResume()");
         super.onResume();
 
         //if the track recording service is stopped then finish this activity and goback to bottombar main activity
@@ -163,13 +160,13 @@ public class OBDPlusGPSTrackRecordingScreen extends BaseInjectorActivity {
 
     @Subscribe
     public void onReceiveBluetoothStateChangedEvent(BluetoothStateChangedEvent event) {
-        LOGGER.info(String.format("Received event: %s", event.toString()));
+        LOG.info(String.format("Received event: %s", event.toString()));
         mMainThreadWorker.schedule(() -> updateBluetoothViews(event.isBluetoothEnabled));
     }
 
     @Subscribe
     public void onRecordingStateEvent(RecordingStateEvent event) {
-        LOGGER.info(String.format("Received event: %s", event.toString()));
+        LOG.info(String.format("Received event: %s", event.toString()));
         Observable.just(event.recordingState)
                 .subscribeOn(AndroidSchedulers.mainThread())
                 .filter(recordingState -> recordingState == RecordingState.RECORDING_STOPPED)
@@ -197,7 +194,7 @@ public class OBDPlusGPSTrackRecordingScreen extends BaseInjectorActivity {
 
     @Subscribe
     public void onReceiveGpsSatelliteFixEvent(GpsSatelliteFixEvent event) {
-        LOGGER.info(String.format("Received event: %s", event.toString()));
+        LOG.info(String.format("Received event: %s", event.toString()));
         updateLocationViews(event.mGpsSatelliteFix.isFix());
     }
 
@@ -214,10 +211,10 @@ public class OBDPlusGPSTrackRecordingScreen extends BaseInjectorActivity {
 
     @OnClick(R.id.switchViewsButton)
     protected void onSwitchViewsButtonClicked() {
-        if (viewTypeInGeneral == 1) viewTypeInGeneral = 2;
-        else viewTypeInGeneral = 1;
-        PreferencesHandler.setPreviousViewTypeGeneralRecordingScreen(this, viewTypeInGeneral);
-        updateTheDisplayViewsGeneral();
+        int selectedView = (getPreviousSelectedView() == 1) ? 2 : 1;
+        LOG.info("Switching views to %s", "" + selectedView);
+        this.setPreviousSelectedView(selectedView);
+        updateTheDisplayViewsGeneral(selectedView);
     }
 
     @OnClick(R.id.stopTrackRecordingButton)
@@ -255,56 +252,38 @@ public class OBDPlusGPSTrackRecordingScreen extends BaseInjectorActivity {
         }
     }
 
-    private void updateTheDisplayViewsGeneral() {
-        viewTypeInGeneral = PreferencesHandler.getPreviousViewTypeGeneralRecordingScreen(this);
-        viewTypeMeter = PreferencesHandler.getPreviousViewTypeMeterRecordingScreen(this);
-
-
-        if (viewTypeInGeneral == 2) {
-            animateViewTransition(trackMapContainer, R.anim.translate_slide_in_right_card, false);
-            if (trackMultipleMeterContainer.getVisibility() == View.VISIBLE)
-                animateViewTransition(trackMultipleMeterContainer, R.anim.translate_slide_out_left_card, true);
-            if (trackSingleMeterContainer.getVisibility() == View.VISIBLE)
-                animateViewTransition(trackSingleMeterContainer, R.anim.translate_slide_out_left_card, true);
+    private void updateTheDisplayViewsGeneral(int selectedView) {
+        if (selectedView == 2) {
+            animateViewTransition(trackMapContainer, R.anim.translate_slide_in_left_card, false);
+            animateViewTransition(trackSingleMeterContainer, R.anim.translate_slide_out_right_card, true);
         } else {
-            if (viewTypeMeter == 1) {
-                animateViewTransition(trackMapContainer, R.anim.translate_slide_out_right_card, true);
-                animateViewTransition(trackSingleMeterContainer, R.anim.translate_slide_in_left_card, false);
-            } else {
-                animateViewTransition(trackMapContainer, R.anim.translate_slide_out_right_card, true);
-                animateViewTransition(trackMultipleMeterContainer, R.anim.translate_slide_in_left_card, false);
-            }
-        }
-
-    }
-
-    private void updateTheDisplayViewsMeter() {
-        viewTypeMeter = PreferencesHandler.getPreviousViewTypeMeterRecordingScreen(this);
-
-
-        if (viewTypeMeter == 1) {
-            animateViewTransition(trackMultipleMeterContainer, R.anim.translate_slide_out_right_card, true);
-            animateViewTransition(trackSingleMeterContainer, R.anim.translate_slide_in_left_card, false);
-        } else {
-            animateViewTransition(trackMultipleMeterContainer, R.anim.translate_slide_in_right_card, false);
-            animateViewTransition(trackSingleMeterContainer, R.anim.translate_slide_out_left_card, true);
+            animateViewTransition(trackMapContainer, R.anim.translate_slide_out_left_card, true);
+            animateViewTransition(trackSingleMeterContainer, R.anim.translate_slide_in_right_card, false);
         }
     }
 
     private void initAnimations() {
         animateViewTransition(trackDetailsContainer, R.anim.translate_slide_in_bottom_fragment, false);
-        viewTypeInGeneral = PreferencesHandler.getPreviousViewTypeGeneralRecordingScreen(this);
-        viewTypeMeter = PreferencesHandler.getPreviousViewTypeMeterRecordingScreen(this);
-
-
-        if (viewTypeInGeneral == 2) {
+        if (getPreviousSelectedView() == 2) {
             animateViewTransition(trackMapContainer, R.anim.translate_slide_in_top_fragment, false);
-        } else if (viewTypeMeter == 1) {
-            animateViewTransition(trackSingleMeterContainer, R.anim.translate_slide_in_top_fragment, false);
         } else {
-            animateViewTransition(trackMultipleMeterContainer, R.anim.translate_slide_in_top_fragment, false);
+            animateViewTransition(trackSingleMeterContainer, R.anim.translate_slide_in_top_fragment, false);
         }
 
+    }
+
+    private int getPreviousSelectedView() {
+        return getClassPreferences().getInt(PREF_PREVIOUS_SELECTED_VIEW, 1);
+    }
+
+    private void setPreviousSelectedView(int selectedView) {
+        getClassPreferences().edit()
+                .putInt(PREF_PREVIOUS_SELECTED_VIEW, selectedView)
+                .commit();
+    }
+
+    private SharedPreferences getClassPreferences() {
+        return getSharedPreferences(getClass().getSimpleName(), MODE_PRIVATE);
     }
 
     /**

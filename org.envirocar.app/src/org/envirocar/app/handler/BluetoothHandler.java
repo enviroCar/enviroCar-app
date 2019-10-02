@@ -28,6 +28,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.util.Pair;
 
 import com.google.common.base.Preconditions;
 import com.squareup.otto.Bus;
@@ -202,20 +203,14 @@ public class BluetoothHandler {
             return null;
 
         // Get the preferences of the device.
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        String deviceName = preferences.getString(
-                PreferenceConstants.PREF_BLUETOOTH_NAME,
-                PreferenceConstants.PREF_EMPTY);
-        String deviceAddress = preferences.getString(
-                PreferenceConstants.PREF_BLUETOOTH_ADDRESS,
-                PreferenceConstants.PREF_EMPTY);
+        Pair<String, String> bluetoothDevice = ApplicationSettings.getSelectedBluetoothAdapterObservable(context).blockingFirst();
 
         // If the device address is not empty and the device is still a paired device, get the
         // corresponding BluetoothDevice and return it.
-        if (!deviceAddress.equals(PreferenceConstants.PREF_EMPTY)) {
+        if (!bluetoothDevice.second.equals("")) {
             Set<BluetoothDevice> devices = getPairedBluetoothDevices();
             for (BluetoothDevice device : devices) {
-                if (device.getAddress().equals(deviceAddress))
+                if (device.getAddress().equals(bluetoothDevice.second))
                     return device;
             }
 
@@ -227,28 +222,9 @@ public class BluetoothHandler {
     }
 
     public void setSelectedBluetoothDevice(BluetoothDevice selectedDevice) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-
-        boolean success = preferences.edit()
-                .remove(PreferenceConstants.PREF_BLUETOOTH_NAME)
-                .remove(PreferenceConstants.PREF_BLUETOOTH_ADDRESS)
-                .commit();
-
-        if (selectedDevice != null) {
-            // Update the shared preference entry for the bluetooth selection tag.
-            success &= preferences.edit()
-                    .putString(PreferenceConstants.PREF_BLUETOOTH_NAME,
-                            selectedDevice.getName())
-                    .putString(PreferenceConstants.PREF_BLUETOOTH_ADDRESS,
-                            selectedDevice.getAddress())
-                    .commit();
-        }
-
-        if (success) {
-            LOGGER.info("Successfully updated shared preferences");
-            bus.post(new BluetoothDeviceSelectedEvent(selectedDevice));
-        }
-
+        ApplicationSettings.setSelectedBluetoothAdapter(context, selectedDevice);
+        LOGGER.info("Successfully updated shared preferences");
+        bus.post(new BluetoothDeviceSelectedEvent(selectedDevice));
     }
 
     /**
@@ -680,14 +656,6 @@ public class BluetoothHandler {
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
-    }
-
-    public void startService() {
-
-    }
-
-    public void stopService() {
-
     }
 
     /**

@@ -36,7 +36,7 @@ import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.R;
 import org.envirocar.app.handler.BluetoothHandler;
-import org.envirocar.app.handler.PreferencesHandler;
+import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.app.handler.preferences.UserPreferenceHandler;
 import org.envirocar.app.handler.userstatistics.UserStatisticsUpdateEvent;
 import org.envirocar.app.injection.BaseInjectorFragment;
@@ -192,7 +192,7 @@ public class DashboardFragment2 extends BaseInjectorFragment {
         this.updateUserLogin(userHandler.getUser());
 
         // set recording state
-        PreferencesHandler.getSelectedRecordingTypeObservable(getContext())
+        ApplicationSettings.getSelectedRecordingTypeObservable(getContext())
                 .doOnNext(this::setRecordingMode)
                 .doOnError(LOG::error)
                 .blockingFirst();
@@ -276,7 +276,7 @@ public class DashboardFragment2 extends BaseInjectorFragment {
         this.setRecordingMode(selectedRT);
 
         // update the selected recording type
-        PreferencesHandler.setSelectedRecordingType(getContext(), selectedRT);
+        ApplicationSettings.setSelectedRecordingType(getContext(), selectedRT);
     }
 
     private void setRecordingMode(RecordingType selectedRT){

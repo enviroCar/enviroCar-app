@@ -29,13 +29,13 @@ import android.view.View;
 import com.f2prateek.rx.preferences2.RxSharedPreferences;
 import com.squareup.otto.Bus;
 
-import org.envirocar.app.R;
-import org.envirocar.app.handler.BluetoothHandler;
-import org.envirocar.app.handler.PreferenceConstants;
 import org.envirocar.app.BaseApplication;
+import org.envirocar.app.R;
+import org.envirocar.app.handler.ApplicationSettings;
+import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.services.autoconnect.AutoRecordingService;
-import org.envirocar.core.logging.Logger;
 import org.envirocar.core.injection.InjectApplicationScope;
+import org.envirocar.core.logging.Logger;
 import org.envirocar.core.utils.ServiceUtils;
 
 import javax.inject.Inject;
@@ -74,11 +74,11 @@ public class AutoConnectSettingsFragment extends PreferenceFragment {
 
         // Get all preferences
         mBackgroundServicePreference = (CheckBoxPreference) getPreferenceScreen()
-                .findPreference(PreferenceConstants.PREF_BLUETOOTH_SERVICE_AUTOSTART);
+                .findPreference(ApplicationSettings.PREF_BACKGROUND_PROCESS);
         mAutoConnectPrefrence = (CheckBoxPreference)  getPreferenceScreen()
-                .findPreference(PreferenceConstants.PREF_BLUETOOTH_AUTOCONNECT);
+                .findPreference(ApplicationSettings.PREF_AUTOMATIC_RECORDING);
         mSearchIntervalPreference = getPreferenceScreen()
-                .findPreference(PreferenceConstants.PREF_BLUETOOTH_DISCOVERY_INTERVAL);
+                .findPreference(ApplicationSettings.PREF_SEARCH_INTERVAL);
 
     }
 

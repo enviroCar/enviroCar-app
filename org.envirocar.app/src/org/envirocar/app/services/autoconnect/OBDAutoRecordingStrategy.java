@@ -9,8 +9,8 @@ import androidx.lifecycle.OnLifecycleEvent;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
+import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.app.handler.BluetoothHandler;
-import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.core.events.NewCarTypeSelectedEvent;
 import org.envirocar.core.events.bluetooth.BluetoothDeviceSelectedEvent;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
@@ -49,7 +49,7 @@ public class OBDAutoRecordingStrategy implements AutoRecordingStrategy {
     private boolean isBTSelected = false;
 
     // settings
-    private int discoveryInterval = PreferencesHandler.DEFAULT_BLUETOOTH_DISCOVERY_INTERVAL;
+    private int discoveryInterval = ApplicationSettings.DEFAULT_BLUETOOTH_DISCOVERY_INTERVAL;
 
     // preferences
     private Disposable detectionDisposable;
@@ -83,7 +83,7 @@ public class OBDAutoRecordingStrategy implements AutoRecordingStrategy {
     public void run(AutoRecordingCallback callback) {
         this.callback = callback;
 
-        disposables.add(PreferencesHandler.getDiscoveryIntervalObservable(service)
+        disposables.add(ApplicationSettings.getDiscoveryIntervalObservable(service)
                 .doOnNext(interval -> {
                     this.discoveryInterval = interval;
                     updateDetectionObservable();

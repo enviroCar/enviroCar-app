@@ -23,11 +23,11 @@ import android.content.Intent;
 
 import com.squareup.otto.Bus;
 
+import org.envirocar.app.BaseApplication;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.agreement.AgreementManager;
 import org.envirocar.app.handler.preferences.CarPreferenceHandler;
 import org.envirocar.app.handler.preferences.UserPreferenceHandler;
-import org.envirocar.app.BaseApplication;
 import org.envirocar.app.recording.RecordingService;
 import org.envirocar.app.rxutils.Optional;
 import org.envirocar.core.entity.Car;
@@ -216,7 +216,7 @@ public class TrackRecordingHandler {
                 .flatMap(track -> {
                     if (track == null)
                         return Observable.just(null);
-                    long trackTrimDuration = PreferencesHandler.getTrackTrimDuration(mContext) * 1000;
+                    long trackTrimDuration = ApplicationSettings.getTrackTrimDurationObservable(mContext).blockingFirst() * 1000;
                     mEnvirocarDB.automaticDeleteMeasurements(System.currentTimeMillis() - trackTrimDuration, track.getTrackID());
                     return mEnvirocarDB.updateTrackObservable(track);
                 });

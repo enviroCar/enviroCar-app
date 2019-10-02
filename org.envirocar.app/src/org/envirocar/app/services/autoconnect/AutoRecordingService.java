@@ -25,7 +25,7 @@ import android.os.IBinder;
 
 import com.squareup.otto.Subscribe;
 
-import org.envirocar.app.handler.PreferencesHandler;
+import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.app.injection.ScopedBaseInjectorService;
 import org.envirocar.app.BaseApplication;
 import org.envirocar.app.notifications.NotificationHandler;
@@ -72,9 +72,9 @@ public class AutoRecordingService extends ScopedBaseInjectorService implements A
     protected AutoRecordingStrategy.Factory factory;
 
 
-    private boolean isAutoConnectEnabled = PreferencesHandler.DEFAULT_BLUETOOTH_AUTOCONNECT;
-    private int mDiscoveryInterval = PreferencesHandler.DEFAULT_BLUETOOTH_DISCOVERY_INTERVAL;
-    private RecordingType recordingType = PreferencesHandler.DEFAULT_RECORDING_TYPE;
+    private boolean isAutoConnectEnabled = ApplicationSettings.DEFAULT_BLUETOOTH_AUTOCONNECT;
+    private int mDiscoveryInterval = ApplicationSettings.DEFAULT_BLUETOOTH_DISCOVERY_INTERVAL;
+    private RecordingType recordingType = ApplicationSettings.DEFAULT_RECORDING_TYPE;
 
     private CompositeDisposable disposables = new CompositeDisposable();
     private AutoRecordingStrategy autoStrategy = null;
@@ -105,7 +105,7 @@ public class AutoRecordingService extends ScopedBaseInjectorService implements A
         this.bus.register(this);
 
         // Get the required preference settings.
-        this.mDiscoveryInterval = PreferencesHandler.getDiscoveryInterval(context);
+        this.mDiscoveryInterval = ApplicationSettings.getDiscoveryInterval(context);
 
         // Register a new BroadcastReceiver that waits for different incoming actions issued from
         // the notification.
@@ -236,13 +236,13 @@ public class AutoRecordingService extends ScopedBaseInjectorService implements A
 
     private void initPreferenceSubscriptions() {
 //        disposables.add(
-//                PreferencesHandler.getSelectedRecordingTypeObservable(getApplicationContext())
+//                ApplicationSettings.getSelectedRecordingTypeObservable(getApplicationContext())
 //                        .doOnNext(recordingType ->)
 //                        .doOnError(LOG::error)
 //                        .subscribe());
 
         disposables.add(
-                PreferencesHandler.getAutoconnectObservable(this)
+                ApplicationSettings.getAutoconnectObservable(this)
                         .doOnNext(isAutoConnectEnabled -> {
                             this.isAutoConnectEnabled = isAutoConnectEnabled;
                             updateAutoRecording();

@@ -33,7 +33,6 @@ import com.squareup.otto.Produce;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.handler.DAOProvider;
-import org.envirocar.app.handler.PreferenceConstants;
 import org.envirocar.core.ContextInternetAccessProvider;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Track;
@@ -71,6 +70,10 @@ public class CarPreferenceHandler implements LifecycleObserver {
     private static final Logger LOG = Logger.getLogger(CarPreferenceHandler.class);
     private static final String PREFERENCE_TAG_DOWNLOADED = "cars_downloaded";
 
+    private static final String PREF_CAR_SELECTED = "pref_selected_car";
+    private static final String PREF_CARS_OF_USER = "pref_user_cars";
+    private static final String PREF_CAR_HASH_CODE = "pref_car_hash_code";
+
     private final Context mContext;
     private final Bus mBus;
     private final UserPreferenceHandler mUserManager;
@@ -102,12 +105,9 @@ public class CarPreferenceHandler implements LifecycleObserver {
         // no unregister required because it is applications scoped.
         this.mBus.register(this);
 
-        mSelectedCar = CarUtils.instantiateCar(sharedPreferences.getString(PreferenceConstants
-                .PREFERENCE_TAG_CAR, null));
-
         // Get the serialized car strings of all added cars.
-        mSerializedCarStrings = sharedPreferences
-                .getStringSet(PreferenceConstants.PREFERENCE_TAG_CARS, new HashSet<>());
+        this.mSelectedCar = CarUtils.instantiateCar(sharedPreferences.getString(PREF_CAR_SELECTED, null));
+        this.mSerializedCarStrings = sharedPreferences.getStringSet(PREF_CARS_OF_USER, new HashSet<>());
 
         // Instantiate the cars from the set of serialized strings.
         mDeserialzedCars = new HashSet<>();
@@ -123,12 +123,12 @@ public class CarPreferenceHandler implements LifecycleObserver {
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
-    protected void onCreate(){
+    protected void onCreate() {
 
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-    protected void onDestroy(){
+    protected void onDestroy() {
 
     }
 
@@ -412,12 +412,12 @@ public class CarPreferenceHandler implements LifecycleObserver {
         // First, delete the entry set of serialized car strings. Very important here to note is
         // that there has to be a commit happen before setting the next string set.
         boolean deleteSuccess = PreferenceManager.getDefaultSharedPreferences(mContext).edit()
-                .remove(PreferenceConstants.PREFERENCE_TAG_CARS)
+                .remove(PREF_CARS_OF_USER)
                 .commit();
 
         // then set the new string set.
         boolean insertSuccess = PreferenceManager.getDefaultSharedPreferences(mContext).edit()
-                .putStringSet(PreferenceConstants.PREFERENCE_TAG_CARS, mSerializedCarStrings)
+                .putStringSet(PREF_CARS_OF_USER, mSerializedCarStrings)
                 .commit();
 
         if (deleteSuccess && insertSuccess)
@@ -445,9 +445,8 @@ public class CarPreferenceHandler implements LifecycleObserver {
             // Set the new selected car type and hashcode.
             boolean insertSuccess = PreferenceManager.getDefaultSharedPreferences(mContext)
                     .edit()
-                    .putString(PreferenceConstants.PREFERENCE_TAG_CAR,
-                            CarUtils.serializeCar(mSelectedCar))
-                    .putInt(PreferenceConstants.CAR_HASH_CODE, mSelectedCar.hashCode())
+                    .putString(PREF_CAR_SELECTED, CarUtils.serializeCar(mSelectedCar))
+                    .putInt(PREF_CAR_HASH_CODE, mSelectedCar.hashCode())
                     .commit();
 
             if (insertSuccess)
@@ -472,8 +471,8 @@ public class CarPreferenceHandler implements LifecycleObserver {
     private boolean removeSelectedCarState() {
         // Delete the entry of the selected car and its hash code.
         return mSharedPreferences.edit()
-                .remove(PreferenceConstants.PREFERENCE_TAG_CAR)
-                .remove(PreferenceConstants.CAR_HASH_CODE)
+                .remove(PREF_CAR_SELECTED)
+                .remove(PREF_CAR_HASH_CODE)
                 .commit();
     }
 

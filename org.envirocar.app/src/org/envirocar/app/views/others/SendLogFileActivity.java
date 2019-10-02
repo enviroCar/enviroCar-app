@@ -32,6 +32,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.preference.PreferenceManager;
+import android.util.Pair;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,9 +46,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import org.envirocar.app.R;
+import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.preferences.CarPreferenceHandler;
-import org.envirocar.app.handler.PreferenceConstants;
 import org.envirocar.app.views.reportissue.CheckBoxItem;
 import org.envirocar.app.views.reportissue.CheckboxBaseAdapter;
 import org.envirocar.core.entity.Car;
@@ -318,15 +319,15 @@ public class SendLogFileActivity extends AppCompatActivity {
      */
     protected String getCarBluetoothNames(){
         StringBuilder stringBuilder = new StringBuilder();
-        Car car = CarUtils.instantiateCar(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString(PreferenceConstants
-                .PREFERENCE_TAG_CAR, null));
+        Car car = mCarPrefHandler.getCar();
         stringBuilder.append("Car Details: ");
         if(car!=null)
             stringBuilder.append(car.getManufacturer() + " " + car.getModel());
         else
             stringBuilder.append("No Car Selected.");
-        stringBuilder.append("\nBluetooth Adapter: " + PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString(PreferenceConstants
-                .PREF_BLUETOOTH_NAME, null));
+        Pair<String, String> btNameAddress = ApplicationSettings.getSelectedBluetoothAdapterObservable(this).blockingFirst();
+        stringBuilder.append("\nBluetooth Adapter: ");
+        stringBuilder.append(btNameAddress.first);
         stringBuilder.append("\n");
         return stringBuilder.toString();
     }

@@ -27,8 +27,8 @@ import android.view.View;
 import android.widget.NumberPicker;
 
 import org.envirocar.app.R;
-import org.envirocar.app.handler.PreferenceConstants;
 import org.envirocar.app.BaseApplication;
+import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.core.logging.Logger;
 
 import butterknife.BindView;
@@ -145,9 +145,7 @@ public class TrackTrimDurationPreference extends DialogPreference {
         }
 
         if(time == -1){
-            time = getSharedPreferences().getInt(PreferenceConstants
-                    .PREF_TRACK_CUT_DURATION, PreferenceConstants
-                    .DEFAULT_TRACK_TRIM_DURATION);
+            time = ApplicationSettings.getTrackTrimDurationObservable(getContext()).blockingFirst();
         }
 
         if (time != -1){
@@ -170,9 +168,7 @@ public class TrackTrimDurationPreference extends DialogPreference {
             int time = mMinutePicker.getValue() * 60 + mSecondsPicker.getValue();
             persistInt(time);
 
-            getSharedPreferences().edit()
-                    .putInt(PreferenceConstants.PREF_TRACK_CUT_DURATION, time)
-                    .apply();
+            ApplicationSettings.setTrackTrimDurationObservable(getContext(), time);
         }
     }
 

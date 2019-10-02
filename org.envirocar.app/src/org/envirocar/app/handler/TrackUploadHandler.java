@@ -234,7 +234,7 @@ public class TrackUploadHandler {
     private Function<Track, Track> asObfuscatedTrackWhenChecked() {
         return track -> {
             LOG.info("asObfuscatedTrackWhenChecked()");
-            if (PreferencesHandler.isObfuscationEnabled(mContext)) {
+            if (ApplicationSettings.isObfuscationEnabled(mContext)) {
                 LOG.info(String.format("obfuscation is enabled. Obfuscating track with %s " +
                         "measurements.", "" + track.getMeasurements().size()));
                 return TrackUtils.getObfuscatedTrack(track);

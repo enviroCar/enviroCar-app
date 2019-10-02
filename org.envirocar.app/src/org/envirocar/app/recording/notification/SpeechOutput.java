@@ -28,15 +28,12 @@ import androidx.lifecycle.OnLifecycleEvent;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
-import org.envirocar.app.handler.PreferencesHandler;
-import org.envirocar.app.recording.RecordingScope;
+import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.core.events.gps.GpsSatelliteFix;
 import org.envirocar.core.events.gps.GpsSatelliteFixEvent;
 import org.envirocar.core.logging.Logger;
 
 import java.util.Locale;
-
-import javax.inject.Inject;
 
 import io.reactivex.disposables.Disposable;
 
@@ -105,7 +102,7 @@ public class SpeechOutput implements LifecycleObserver {
     protected void onCreate() {
         // subscription that handles preference changes
         ttsPrefSubscription =
-                PreferencesHandler.getTextToSpeechObservable(this.context)
+                ApplicationSettings.getTextToSpeechObservable(this.context)
                         .subscribe(aBoolean -> ttsEnabled = aBoolean);
 
         LOG.info("Registering on eventBus");

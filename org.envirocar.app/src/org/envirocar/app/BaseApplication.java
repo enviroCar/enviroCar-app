@@ -23,6 +23,7 @@ import android.app.Application;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.preference.PreferenceManager;
@@ -32,10 +33,11 @@ import com.mapbox.mapboxsdk.Mapbox;
 import org.acra.ACRA;
 import org.acra.BuildConfig;
 import org.acra.annotation.AcraCore;
+import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.app.handler.LocationHandler;
-import org.envirocar.app.handler.PreferenceConstants;
-import org.envirocar.app.notifications.NotificationHandler;
 import org.envirocar.app.handler.userstatistics.UserStatisticsProcessor;
+import org.envirocar.app.notifications.NotificationHandler;
+import org.envirocar.app.rxutils.RxBroadcastReceiver;
 import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.logging.ACRASenderFactory;
 import org.envirocar.core.logging.Logger;
@@ -50,13 +52,15 @@ import org.envirocar.remote.service.UserService;
 
 import javax.inject.Inject;
 
+import io.reactivex.disposables.CompositeDisposable;
+
 
 /**
  * @author dewall
  */
 @AcraCore(buildConfigClass = BuildConfig.class, reportSenderFactoryClasses = ACRASenderFactory.class)
 public class BaseApplication extends Application {
-    private static final Logger LOGGER = Logger.getLogger(BaseApplication.class);
+    private static final Logger LOG = Logger.getLogger(BaseApplication.class);
 
     BaseApplicationComponent baseApplicationComponent;
     protected BroadcastReceiver mScreenReceiver;
@@ -81,13 +85,8 @@ public class BaseApplication extends Application {
     @Inject
     protected LocationHandler locationHandler;
 
-    private SharedPreferences.OnSharedPreferenceChangeListener preferenceListener
-            = (sharedPreferences, key) -> {
-        if (PreferenceConstants.ENABLE_DEBUG_LOGGING.equals(key)) {
-            Logger.initialize(Util.getVersionString(BaseApplication.this),
-                    sharedPreferences.getBoolean(PreferenceConstants.ENABLE_DEBUG_LOGGING, false));
-        }
-    };
+
+    private CompositeDisposable disposables = new CompositeDisposable();
 
     @Override
     public void onCreate() {
@@ -110,60 +109,73 @@ public class BaseApplication extends Application {
         EnviroCarService.setUserService(userService);
         NotificationHandler.context = context;
 
-        SharedPreferences preferences = PreferenceManager
-                .getDefaultSharedPreferences(getApplicationContext());
-        preferences.registerOnSharedPreferenceChangeListener(preferenceListener);
-
         // Initialize ACRA
         ACRA.init(this);
 
-        mScreenReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
-                    // do whatever you need to do here
-                    LOGGER.info("SCREEN IS OFF");
-                } else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
-                    // and do whatever you need to do here
-                    LOGGER.info("SCREEN IS ON");
-                }
-            }
-        };
+        // debug logging setting listener
+        this.disposables.add(
+                ApplicationSettings.getDebugLoggingObservable(this)
+                        .doOnNext(this::setDebugLogging)
+                        .doOnError(LOG::error)
+                        .subscribe());
 
+        // obfuscation setting changed listener
+        this.disposables.add(
+                ApplicationSettings.getObfuscationObservable(this)
+                        .doOnNext(bool -> LOG.info("Obfuscation enabled: %s", bool.toString()))
+                        .doOnError(LOG::error)
+                        .subscribe());
 
-
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        boolean obfus = prefs.getBoolean(PreferenceConstants.OBFUSCATE_POSITION, false);
-
-        LOGGER.info("Obfuscation enabled? " + obfus);
-
-        Logger.initialize(Util.getVersionString(this),
-                prefs.getBoolean(PreferenceConstants.ENABLE_DEBUG_LOGGING, false));
-
-
+        // register Intentfilter for logging screen changes
+        IntentFilter screenIntentFilter = new IntentFilter();
+        screenIntentFilter.addAction(Intent.ACTION_SCREEN_OFF);
+        screenIntentFilter.addAction(Intent.ACTION_SCREEN_ON);
+        this.disposables.add(
+                RxBroadcastReceiver.create(this, screenIntentFilter)
+                        .doOnNext(intent -> {
+                            if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
+                                // do whatever you need to do here
+                                LOG.info("SCREEN IS OFF");
+                            } else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
+                                // and do whatever you need to do here
+                                LOG.info("SCREEN IS ON");
+                            }
+                        })
+                        .doOnError(LOG::error)
+                        .subscribe());
     }
 
     @Override
     public void onTerminate() {
         super.onTerminate();
-        if (mScreenReceiver != null)
+        if (mScreenReceiver != null) {
             unregisterReceiver(mScreenReceiver);
+        }
+
+        if (disposables != null) {
+            disposables.clear();
+        }
     }
 
     @Override
     public void onLowMemory() {
         super.onLowMemory();
-        LOGGER.info("onLowMemory called");
+        LOG.info("onLowMemory called");
     }
 
     @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
     @Override
     public void onTrimMemory(int level) {
         super.onTrimMemory(level);
-        LOGGER.info("onTrimMemory called");
-        LOGGER.info("maxMemory: " + Runtime.getRuntime().maxMemory());
-        LOGGER.info("totalMemory: " + Runtime.getRuntime().totalMemory());
-        LOGGER.info("freeMemory: " + Runtime.getRuntime().freeMemory());
+        LOG.info("onTrimMemory called");
+        LOG.info("maxMemory: " + Runtime.getRuntime().maxMemory());
+        LOG.info("totalMemory: " + Runtime.getRuntime().totalMemory());
+        LOG.info("freeMemory: " + Runtime.getRuntime().freeMemory());
+    }
+
+    private void setDebugLogging(Boolean isDebugLoggingEnabled) {
+        LOG.info("Received change in debug log level. Is enabled=", isDebugLoggingEnabled.toString());
+        Logger.initialize(Util.getVersionString(BaseApplication.this), isDebugLoggingEnabled);
     }
 
     public BaseApplicationComponent getBaseApplicationComponent() {

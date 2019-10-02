@@ -38,7 +38,7 @@ import com.afollestad.materialdialogs.MaterialDialog;
 
 import org.envirocar.app.BuildConfig;
 import org.envirocar.app.R;
-import org.envirocar.app.handler.PreferencesHandler;
+import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.app.handler.TrackDAOHandler;
 import org.envirocar.app.handler.preferences.UserPreferenceHandler;
 import org.envirocar.app.injection.BaseInjectorFragment;
@@ -317,9 +317,6 @@ public class OthersFragment extends BaseInjectorFragment {
                 mTrackDAOHandler.deleteAllRemoteTracksLocally();
                 // Close the dialog.
                 dialog.dismiss();
-
-                //remove pref count statistics
-                PreferencesHandler.resetTrackCounts(getActivity());
 
                 mMainThreadWorker.schedule(() -> {
                     // Show a snackbar that indicates the finished logout

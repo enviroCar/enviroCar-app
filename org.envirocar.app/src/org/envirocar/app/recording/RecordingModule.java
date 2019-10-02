@@ -5,9 +5,9 @@ import android.content.Context;
 import com.squareup.otto.Bus;
 
 import org.envirocar.algorithm.MeasurementProvider;
+import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.InterpolationMeasurementProvider;
-import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.app.handler.preferences.CarPreferenceHandler;
 import org.envirocar.app.recording.notification.SpeechOutput;
 import org.envirocar.app.recording.provider.LocationProvider;
@@ -76,7 +76,7 @@ public class RecordingModule {
             OBDConnectionHandler obdConnectionHandler, MeasurementProvider measurementProvider,
             TrackDatabaseSink trackDatabaseSink, LocationProvider locationProvider, CarPreferenceHandler carPreferenceHandler) {
         return () -> {
-            RecordingType recordingType = PreferencesHandler.getSelectedRecordingTypeObservable(context).blockingFirst();
+            RecordingType recordingType = ApplicationSettings.getSelectedRecordingTypeObservable(context).blockingFirst();
             switch (recordingType) {
                 default:
                 case OBD_ADAPTER_BASED:
