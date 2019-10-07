@@ -172,7 +172,7 @@ public class DashboardFragment2 extends BaseInjectorFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         // Inflate view first
-        View contentView = inflater.inflate(R.layout.fragment_dashboard_view_new_2, container, false);
+        View contentView = inflater.inflate(R.layout.fragment_dashboard_view_new, container, false);
 
         // Bind views
         ButterKnife.bind(this, contentView);
