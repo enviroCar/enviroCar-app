@@ -104,11 +104,14 @@ public class DashboardFragment2 extends BaseInjectorFragment {
     @BindView(R.id.fragment_dashboard_user_statistics_progress)
     protected ProgressBar userStatProgressBar;
 
-
     @BindView(R.id.fragment_dashboard_indicator_view)
     protected ViewGroup indicatorView;
+    @BindView(R.id.fragment_dashboard_indicator_bluetooth_layout)
+    protected View bluetoothIndicatorLayout;
     @BindView(R.id.fragment_dashboard_indicator_bluetooth)
     protected ImageView bluetoothIndicator;
+    @BindView(R.id.fragment_dashboard_indicator_obd_layout)
+    protected View obdIndicatorLayout;
     @BindView(R.id.fragment_dashboard_indicator_obd)
     protected ImageView obdIndicator;
     @BindView(R.id.fragment_dashboard_indicator_gps)
@@ -301,8 +304,8 @@ public class DashboardFragment2 extends BaseInjectorFragment {
 
         // indicator transition
         TransitionManager.beginDelayedTransition(this.indicatorView, transitionSet);
-        this.bluetoothIndicator.setVisibility(visibility);
-        this.obdIndicator.setVisibility(visibility);
+        this.bluetoothIndicatorLayout.setVisibility(visibility);
+        this.obdIndicatorLayout.setVisibility(visibility);
     }
 
     // OnClick Handler
