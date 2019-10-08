@@ -26,8 +26,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.util.Pair;
 
 import com.google.common.base.Preconditions;
@@ -35,12 +33,12 @@ import com.squareup.otto.Bus;
 import com.squareup.otto.Produce;
 
 import org.envirocar.app.recording.RecordingService;
+import org.envirocar.app.rxutils.RxBroadcastReceiver;
 import org.envirocar.core.events.bluetooth.BluetoothDeviceDiscoveredEvent;
 import org.envirocar.core.events.bluetooth.BluetoothDeviceSelectedEvent;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.core.utils.BroadcastUtils;
 import org.envirocar.core.utils.ServiceUtils;
 
 import java.lang.reflect.InvocationTargetException;
@@ -342,8 +340,7 @@ public class BluetoothHandler {
             filter.addAction(BluetoothDevice.ACTION_FOUND);
             filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
 
-            mDiscoverySubscription = BroadcastUtils
-                    .createBroadcastObservable(context, filter)
+            mDiscoverySubscription = RxBroadcastReceiver.create(context, filter)
                     .subscribeWith(new DisposableObserver<Intent>() {
 
                         @Override
