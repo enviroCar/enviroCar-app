@@ -18,6 +18,7 @@
  */
 package org.envirocar.app.injection;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import android.view.MenuItem;
@@ -71,4 +72,5 @@ public abstract class BaseInjectorActivity extends AppCompatActivity {
         super.onOptionsItemSelected(item);
         return false;
     }
+
 }

@@ -25,6 +25,8 @@ import org.envirocar.app.aidl.EnviroCarDataService;
 import org.envirocar.app.handler.DAOProvider;
 import org.envirocar.app.handler.LocationHandler;
 import org.envirocar.app.handler.TrackRecordingHandler;
+import org.envirocar.app.injection.component.RecordingScreenComponent;
+import org.envirocar.app.injection.module.RecordingScreenModule;
 import org.envirocar.app.views.MainActivityComponent;
 import org.envirocar.app.views.MainActivityModule;
 import org.envirocar.app.recording.RecordingComponent;
@@ -118,9 +120,10 @@ public interface BaseApplicationComponent {
 //    void inject(TrackDatabaseSink trackDatabaseSink);
 
 
-    MainActivityComponent plus(MainActivityModule mainActivityModule);
-    RecordingComponent plus(RecordingModule recordingModule);
-    AutoRecordingComponent plus(AutoRecordingModule autoRecordingModule);
+    MainActivityComponent plus(MainActivityModule module);
+    RecordingComponent plus(RecordingModule module);
+    AutoRecordingComponent plus(AutoRecordingModule module);
+    RecordingScreenComponent plus(RecordingScreenModule module);
 
 
     CacheCarDAO getCacheCarDAO();

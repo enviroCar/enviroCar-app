@@ -26,34 +26,25 @@
     tools:context=".views.recordingscreen.OBDPlusGPSTrackRecordingScreen">
 
     <LinearLayout
-        android:id="@+id/trackMapContainer"
+        android:id="@+id/activity_recscreen_trackmap_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/trackDetailsContainer"
+        android:layout_above="@+id/activity_recscreen_trackdetails_container"
         android:layout_alignParentTop="true"
         android:orientation="horizontal"
         android:visibility="gone" />
 
     <LinearLayout
-        android:id="@+id/trackSingleMeterContainer"
+        android:id="@+id/activity_recscreen_tempomat_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/trackDetailsContainer"
+        android:layout_above="@+id/activity_recscreen_trackdetails_container"
         android:layout_alignParentTop="true"
         android:orientation="horizontal"
         android:visibility="gone" />
 
     <LinearLayout
-        android:id="@+id/trackMultipleMeterContainer"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@+id/trackDetailsContainer"
-        android:layout_alignParentTop="true"
-        android:orientation="horizontal"
-        android:visibility="gone" />
-
-    <LinearLayout
-        android:id="@+id/trackDetailsContainer"
+        android:id="@+id/activity_recscreen_trackdetails_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
@@ -85,11 +76,12 @@
                     android:orientation="vertical">
 
                     <ImageView
-                        android:id="@+id/mGpsImage"
+                        android:id="@+id/activity_recscreen_trackdetails_gps"
                         android:layout_width="25dp"
                         android:layout_height="25dp"
-                        android:src="@drawable/ic_location_on_white_24dp"
-                        android:tint="@color/white" />
+                        android:src="@drawable/recscreen_gps_drawable"
+                        android:tint="@color/white"
+                        android:enabled="false"/>
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -110,14 +102,14 @@
                     android:orientation="vertical">
 
                     <ImageView
-                        android:id="@+id/mBluetoothImage"
+                        android:id="@+id/activity_recscreen_trackdetails_bluetooth"
                         android:layout_width="25dp"
                         android:layout_height="25dp"
-                        android:src="@drawable/ic_bluetooth_white_24dp"
+                        android:src="@drawable/recscreen_bluetooth_drawable"
                         android:tint="@color/white" />
 
                     <TextView
-                        android:id="@+id/displayBluetoothCarDriving"
+                        android:id="@+id/activity_recscreen_trackdetails_bluetooth_text"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
@@ -125,9 +117,7 @@
                         android:textColor="@color/white"
                         android:textSize="12sp" />
 
-
                 </LinearLayout>
-
             </LinearLayout>
 
             <LinearLayout
@@ -141,7 +131,7 @@
                 android:paddingBottom="15dp">
 
                 <Chronometer
-                    android:id="@+id/mTimerText"
+                    android:id="@+id/activity_recscreen_trackdetails_timer"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
@@ -181,11 +171,11 @@
                     android:orientation="vertical">
 
                     <TextView
-                        android:id="@+id/mSpeedText"
+                        android:id="@+id/activity_recscreen_trackdetails_speed"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
-                        android:text="0 Km/h"
+                        android:text="0 km/h"
                         android:textColor="@color/white"
                         android:textSize="16sp" />
 
@@ -193,7 +183,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
-                        android:text="Avg Speed"
+                        android:text="Ø Speed"
                         android:textColor="@color/white"
                         android:textSize="12sp" />
 
@@ -207,7 +197,7 @@
                     android:orientation="vertical">
 
                     <TextView
-                        android:id="@+id/mDistanceText"
+                        android:id="@+id/activity_recscreen_trackdetails_distance"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
@@ -224,19 +214,17 @@
                         android:textSize="12sp" />
 
                 </LinearLayout>
-
             </LinearLayout>
-
         </LinearLayout>
 
         <RelativeLayout
-            android:id="@+id/stopSwitchButtonsContainer"
+            android:id="@+id/activity_recscreen_trackdetails_buttons"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="10dp">
 
             <LinearLayout
-                android:id="@+id/stopTrackRecordingButton"
+                android:id="@+id/activity_recscreen_stopbutton"
                 android:layout_width="60dp"
                 android:layout_height="60dp"
                 android:layout_centerInParent="true"
@@ -256,7 +244,7 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/switchViewsButton"
+                android:id="@+id/activity_recscreen_switchbutton"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
                 android:layout_alignParentEnd="true"

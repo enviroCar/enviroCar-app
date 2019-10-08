@@ -48,7 +48,7 @@ import org.envirocar.app.recording.events.RecordingStateEvent;
 import org.envirocar.app.views.carselection.CarSelectionActivity;
 import org.envirocar.app.views.login.SigninActivity;
 import org.envirocar.app.views.obdselection.OBDSelectionActivity;
-import org.envirocar.app.views.recordingscreen.OBDPlusGPSTrackRecordingScreen;
+import org.envirocar.app.views.recordingscreen.RecordingScreenActivity;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.events.NewCarTypeSelectedEvent;
 import org.envirocar.core.events.NewUserSettingsEvent;
@@ -209,7 +209,7 @@ public class DashboardFragment2 extends BaseInjectorFragment {
         this.updateStatisticsVisibility(this.statisticsKnown);
 
         if (RecordingService.RECORDING_STATE == RecordingState.RECORDING_RUNNING) {
-            OBDPlusGPSTrackRecordingScreen.start(getContext());
+            RecordingScreenActivity.navigate(getContext());
         }
     }
 
@@ -384,7 +384,7 @@ public class DashboardFragment2 extends BaseInjectorFragment {
                 .observeOn(AndroidSchedulers.mainThread())
                 .map(state -> {
                     if (state == BluetoothServiceState.SERVICE_STARTED) {
-                        OBDPlusGPSTrackRecordingScreen.start(getContext());
+                        RecordingScreenActivity.navigate(getContext());
                     }
                     return state;
                 })
@@ -578,7 +578,7 @@ public class DashboardFragment2 extends BaseInjectorFragment {
                     this.connectingDialog.dismiss();
                     this.connectingDialog = null;
                 }
-                getActivity().startActivity(new Intent(getActivity(), OBDPlusGPSTrackRecordingScreen.class));
+                RecordingScreenActivity.navigate(getContext());
                 break;
             case RECORDING_STOPPED:
                 if (this.connectingDialog != null) {

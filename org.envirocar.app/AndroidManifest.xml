@@ -125,12 +125,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+<!--        <activity-->
+<!--            android:name=".views.recordingscreen.OBDPlusGPSTrackRecordingScreen"-->
+<!--            android:launchMode="singleTop"-->
+<!--            android:screenOrientation="portrait" />-->
+<!--        <activity-->
+<!--            android:name=".views.recordingscreen.GPSOnlyTrackRecordingScreen"-->
+<!--            android:launchMode="singleTop"-->
+<!--            android:screenOrientation="portrait" />-->
         <activity
-            android:name=".views.recordingscreen.OBDPlusGPSTrackRecordingScreen"
-            android:launchMode="singleTop"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".views.recordingscreen.GPSOnlyTrackRecordingScreen"
+            android:name=".views.recordingscreen.RecordingScreenActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait" />
 
