@@ -308,16 +308,16 @@
                         android:layout_gravity="center"
                         android:layout_marginLeft="8dp"
                         android:layout_marginRight="8dp"
-                        android:adjustViewBounds="true"
                         android:layout_weight="1"
+                        android:adjustViewBounds="true"
                         android:background="@drawable/btn_dashboard_circle"
                         android:backgroundTint="@color/dashboard_indicator_selector"
                         android:src="@drawable/ic_bluetooth_black_24dp"
                         android:tint="@color/white_cario"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintDimensionRatio="1:1"
                         app:layout_constraintLeft_toLeftOf="parent"
-                        app:layout_constraintDimensionRatio="H, 1:1" />
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"/>
 
                     <org.envirocar.app.views.utils.SizeSyncTextView
                         android:id="@+id/fragment_dashboard_indicator_bluetooth_text"
@@ -355,17 +355,17 @@
                         android:layout_gravity="center"
                         android:layout_marginLeft="8dp"
                         android:layout_marginRight="8dp"
-                        android:adjustViewBounds="true"
                         android:layout_weight="1"
+                        android:adjustViewBounds="true"
                         android:background="@drawable/btn_dashboard_circle"
                         android:backgroundTint="@color/dashboard_indicator_selector"
                         android:scaleType="fitCenter"
                         android:src="@drawable/ic_obd"
                         android:tint="@color/white_cario"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintDimensionRatio="1:1"
                         app:layout_constraintLeft_toLeftOf="parent"
-                        app:layout_constraintDimensionRatio="H, 1:1"/>
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
 
                     <org.envirocar.app.views.utils.SizeSyncTextView
                         android:id="@+id/fragment_dashboard_indicator_obd_text"
@@ -403,17 +403,18 @@
                         android:layout_gravity="center"
                         android:layout_marginLeft="8dp"
                         android:layout_marginRight="8dp"
-                        android:adjustViewBounds="true"
                         android:layout_weight="1"
+                        android:adjustViewBounds="true"
                         android:background="@drawable/btn_dashboard_circle"
                         android:backgroundTint="@color/dashboard_indicator_selector"
                         android:scaleType="fitCenter"
                         android:src="@drawable/ic_gps"
                         android:tint="@color/white_cario"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintDimensionRatio="1:1"
                         app:layout_constraintLeft_toLeftOf="parent"
-                        app:layout_constraintDimensionRatio="H, 1:1"/>
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintBottom_toTopOf="@id/fragment_dashboard_indicator_gps_text"
+                        app:layout_constraintTop_toTopOf="parent" />
 
                     <org.envirocar.app.views.utils.SizeSyncTextView
                         android:id="@+id/fragment_dashboard_indicator_gps_text"
@@ -451,17 +452,18 @@
                         android:layout_gravity="center"
                         android:layout_marginLeft="8dp"
                         android:layout_marginRight="8dp"
-                        android:adjustViewBounds="true"
                         android:layout_weight="1"
+                        android:adjustViewBounds="true"
                         android:background="@drawable/btn_dashboard_circle"
                         android:backgroundTint="@color/dashboard_indicator_selector"
                         android:scaleType="fitCenter"
                         android:src="@drawable/ic_drive_eta_black_24dp"
                         android:tint="@color/white_cario"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintDimensionRatio="1:1"
                         app:layout_constraintLeft_toLeftOf="parent"
-                        app:layout_constraintDimensionRatio="H, 1:1" />
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintBottom_toTopOf="@id/fragment_dashboard_indicator_car_text"
+                        app:layout_constraintTop_toTopOf="parent" />
 
                     <org.envirocar.app.views.utils.SizeSyncTextView
                         android:id="@+id/fragment_dashboard_indicator_car_text"
@@ -475,6 +477,7 @@
                         android:textColor="#000000"
                         android:maxLines="1"
                         android:text="@string/car"
+                        android:foregroundGravity="center"
                         app:autoSizeMinTextSize="10sp"
                         app:autoSizeMaxTextSize="15sp"
                         app:autoSizeTextType="uniform"
