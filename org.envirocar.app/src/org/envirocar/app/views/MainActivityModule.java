@@ -24,8 +24,8 @@ import android.content.Context;
 
 import com.mapbox.mapboxsdk.Mapbox;
 
+import org.envirocar.app.views.dashboard.DashboardFragment;
 import org.envirocar.app.views.others.OthersFragment;
-import org.envirocar.app.views.dashboard.DashboardFragment2;
 import org.envirocar.app.views.tracklist.TrackListPagerFragment;
 import org.envirocar.core.injection.InjectActivityScope;
 
@@ -64,8 +64,8 @@ public class MainActivityModule {
     }
 
     @Provides
-    public DashboardFragment2 provideDashBoardFragment(){
-        return new DashboardFragment2();
+    public DashboardFragment provideDashBoardFragment(){
+        return new DashboardFragment();
     }
 
     @Provides

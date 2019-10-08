@@ -1,5 +1,6 @@
 package org.envirocar.app.views.dashboard;
 
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.graphics.Color;
@@ -10,6 +11,7 @@ import android.transition.ChangeBounds;
 import android.transition.Slide;
 import android.transition.TransitionManager;
 import android.transition.TransitionSet;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -34,13 +36,13 @@ import com.google.android.material.snackbar.Snackbar;
 import com.jakewharton.rxbinding3.appcompat.RxToolbar;
 import com.squareup.otto.Subscribe;
 
+import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
-import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.ApplicationSettings;
+import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.preferences.UserPreferenceHandler;
 import org.envirocar.app.handler.userstatistics.UserStatisticsUpdateEvent;
 import org.envirocar.app.injection.BaseInjectorFragment;
-import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.recording.RecordingService;
 import org.envirocar.app.recording.RecordingState;
 import org.envirocar.app.recording.RecordingType;
@@ -49,6 +51,7 @@ import org.envirocar.app.views.carselection.CarSelectionActivity;
 import org.envirocar.app.views.login.SigninActivity;
 import org.envirocar.app.views.obdselection.OBDSelectionActivity;
 import org.envirocar.app.views.recordingscreen.RecordingScreenActivity;
+import org.envirocar.app.views.utils.SizeSyncTextView;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.events.NewCarTypeSelectedEvent;
 import org.envirocar.core.events.NewUserSettingsEvent;
@@ -60,6 +63,8 @@ import org.envirocar.core.utils.PermissionUtils;
 import org.envirocar.obd.events.TrackRecordingServiceStateChangedEvent;
 import org.envirocar.obd.service.BluetoothServiceState;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
@@ -78,8 +83,8 @@ import io.reactivex.schedulers.Schedulers;
 /**
  * @author dewall
  */
-public class DashboardFragment2 extends BaseInjectorFragment {
-    private static final Logger LOG = Logger.getLogger(DashboardFragment2.class);
+public class DashboardFragment extends BaseInjectorFragment {
+    private static final Logger LOG = Logger.getLogger(DashboardFragment.class);
 
     // View Injections
     @BindView(R.id.fragment_dashboard_toolbar)
@@ -119,6 +124,15 @@ public class DashboardFragment2 extends BaseInjectorFragment {
     @BindView(R.id.fragment_dashboard_indicator_car)
     protected ImageView carIndicator;
 
+    @BindView(R.id.fragment_dashboard_indicator_bluetooth_text)
+    protected SizeSyncTextView bluetoothIndicatorText;
+    @BindView(R.id.fragment_dashboard_indicator_obd_text)
+    protected SizeSyncTextView obdIndicatorText;
+    @BindView(R.id.fragment_dashboard_indicator_gps_text)
+    protected SizeSyncTextView gpsIndicatorText;
+    @BindView(R.id.fragment_dashboard_indicator_car_text)
+    protected SizeSyncTextView carIndicatorText;
+
     @BindView(R.id.fragment_dashboard_mode_selector)
     protected SegmentedGroup modeSegmentedGroup;
     @BindView(R.id.fragment_dashboard_obd_mode_button)
@@ -156,6 +170,7 @@ public class DashboardFragment2 extends BaseInjectorFragment {
 
     // some private variables
     private MaterialDialog connectingDialog;
+    private List<SizeSyncTextView> indicatorSyncGroup;
 
     @Override
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
@@ -193,6 +208,9 @@ public class DashboardFragment2 extends BaseInjectorFragment {
 
         //
         this.updateUserLogin(userHandler.getUser());
+
+        // init the text size synchronization
+        initTextSynchronization();
 
         // set recording state
         ApplicationSettings.getSelectedRecordingTypeObservable(getContext())
@@ -282,11 +300,11 @@ public class DashboardFragment2 extends BaseInjectorFragment {
         ApplicationSettings.setSelectedRecordingType(getContext(), selectedRT);
     }
 
-    private void setRecordingMode(RecordingType selectedRT){
+    private void setRecordingMode(RecordingType selectedRT) {
         // check whether OBD is visible or not.
         int visibility = selectedRT == RecordingType.OBD_ADAPTER_BASED ? View.VISIBLE : View.GONE;
 
-        if (visibility == View.GONE){
+        if (visibility == View.GONE) {
             gpsModeRadioButton.setChecked(true);
             obdModeRadioButton.setChecked(false);
         }
@@ -602,6 +620,33 @@ public class DashboardFragment2 extends BaseInjectorFragment {
                 break;
             default:
                 break;
+        }
+    }
+
+    private void initTextSynchronization() {
+        // text size synchonization grp for indicators
+        this.indicatorSyncGroup = new ArrayList<>();
+        this.indicatorSyncGroup.add(bluetoothIndicatorText);
+        this.indicatorSyncGroup.add(obdIndicatorText);
+        this.indicatorSyncGroup.add(gpsIndicatorText);
+        this.indicatorSyncGroup.add(carIndicatorText);
+
+        SizeSyncTextView.OnTextSizeChangedListener listener =
+                new SizeSyncTextView.OnTextSizeChangedListener() {
+                    @SuppressLint("RestrictedApi")
+                    @Override
+                    public void onTextSizeChanged(SizeSyncTextView view, float size) {
+                        for (SizeSyncTextView textView : indicatorSyncGroup) {
+                            if (!textView.equals(view) && textView.getText() != view.getText()) {
+                                textView.setAutoSizeTextTypeUniformWithPresetSizes(
+                                        new int[]{(int) size}, TypedValue.COMPLEX_UNIT_PX);
+                            }
+                        }
+                    }
+                };
+
+        for (SizeSyncTextView textView : indicatorSyncGroup) {
+            textView.setOnTextSizeChangedListener(listener);
         }
     }
 }
