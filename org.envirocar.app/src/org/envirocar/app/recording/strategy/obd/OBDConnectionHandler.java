@@ -25,8 +25,9 @@ import android.os.Parcelable;
 
 import org.envirocar.app.exception.NoOBDSocketConnectedException;
 import org.envirocar.app.exception.UUIDSanityCheckFailedException;
+import org.envirocar.app.rxutils.RxBroadcastReceiver;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.core.utils.BroadcastUtils;
+import org.envirocar.obd.OBDSchedulers;
 import org.envirocar.obd.bluetooth.BluetoothSocketWrapper;
 import org.envirocar.obd.bluetooth.FallbackBluetoothSocket;
 import org.envirocar.obd.bluetooth.NativeBluetoothSocket;
@@ -35,11 +36,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.ObservableSource;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
 
@@ -50,8 +55,7 @@ import io.reactivex.schedulers.Schedulers;
  */
 public class OBDConnectionHandler {
     private static final Logger LOG = Logger.getLogger(OBDConnectionHandler.class);
-    private static final UUID EMBEDDED_BOARD_SPP = UUID
-            .fromString("00001101-0000-1000-8000-00805F9B34FB");
+    private static final UUID EMBEDDED_BOARD_SPP = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
     private final Context context;
 
@@ -76,8 +80,8 @@ public class OBDConnectionHandler {
                         throw new UUIDSanityCheckFailedException();
                 })
                 .concatMap(bluetoothDevice -> getUUIDList(bluetoothDevice))
-                .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.io())
+                .subscribeOn(OBDSchedulers.scheduler())
+                .observeOn(OBDSchedulers.scheduler())
                 .concatMap(uuids -> createOBDBluetoothObservable(device, uuids));
     }
 
@@ -101,8 +105,15 @@ public class OBDConnectionHandler {
      */
     private Observable<List<UUID>> getUUIDList(final BluetoothDevice device) {
         LOG.info(String.format("getUUIDList(%s)", device.getName()));
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
-        return BroadcastUtils.createBroadcastObservable(context, new IntentFilter(BluetoothDevice.ACTION_UUID))
+        return RxBroadcastReceiver.create(context, new IntentFilter(BluetoothDevice.ACTION_UUID))
+                .subscribeOn(AndroidSchedulers.mainThread())
+                .observeOn(AndroidSchedulers.mainThread())
                 .firstOrError()
                 .toObservable()
                 .map(intent -> {
@@ -112,8 +123,7 @@ public class OBDConnectionHandler {
                     BluetoothDevice deviceExtra = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                     Parcelable[] uuidExtra = intent.getParcelableArrayExtra(BluetoothDevice.EXTRA_UUID);
 
-                    // If the received broadcast does not belong to this receiver,
-                    // skip it.
+                    // If the received broadcast does not belong to this receiver, skip it.
                     if (!deviceExtra.getAddress().equals(device.getAddress()))
                         return null;
 
@@ -135,6 +145,17 @@ public class OBDConnectionHandler {
 
                     // return the result list
                     return res;
+                })
+                .timeout(5000, TimeUnit.MILLISECONDS)
+                .onErrorResumeNext(throwable -> {
+                    return Observable.create(emitter -> {
+                        // Result list to return
+                        List<UUID> res = new ArrayList<UUID>();
+
+                        LOG.info(String.format("Adding default UUID: %s", EMBEDDED_BOARD_SPP));
+                        res.add(EMBEDDED_BOARD_SPP);
+                        emitter.onNext(res);
+                    });
                 });
     }
 

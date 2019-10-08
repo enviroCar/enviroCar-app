@@ -31,6 +31,7 @@ import org.envirocar.core.trackprocessing.consumption.LoadBasedEnergyConsumption
 import org.envirocar.core.trackprocessing.statistics.CalculatedMAFWithStaticVolumetricEfficiency;
 import org.envirocar.obd.ConnectionListener;
 import org.envirocar.obd.OBDController;
+import org.envirocar.obd.OBDSchedulers;
 import org.envirocar.obd.bluetooth.BluetoothSocketWrapper;
 import org.envirocar.obd.events.SpeedUpdateEvent;
 import org.envirocar.obd.exception.AllAdaptersFailedException;
@@ -118,8 +119,8 @@ public class OBDRecordingStrategy implements RecordingStrategy {
                         .compose(receiveMeasurements())
                         .compose(enhanceMeasurements())
                         .compose(trackDatabaseSink.storeInDatabase())
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(Schedulers.io())
+                        .subscribeOn(Schedulers.newThread())
+                        .observeOn(OBDSchedulers.scheduler())
                         .doOnDispose(() -> listener.onRecordingStateChanged(RecordingState.RECORDING_STOPPED))
                         .subscribeWith(initializeObserver()));
 
