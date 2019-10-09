@@ -69,7 +69,7 @@ public class ApplicationSettings {
     public static final String PREF_GPS_BASED_TRACKING = "pref_gps_based_tracking";
 
     // General Settings settings
-    public static Observable<Boolean> getAutomaticUploadOfTracksObservable(Context context){
+    public static Observable<Boolean> getAutomaticUploadOfTracksObservable(Context context) {
         return getRxSharedPreferences(context)
                 .getBoolean(PREF_AUTOMATIC_UPLOAD_OF_TRACKS, DEFAULT_AUTOMATIC_UPLOAD_OF_TRACKS)
                 .asObservable();
@@ -186,8 +186,6 @@ public class ApplicationSettings {
     }
 
     public static final String PREF_RECORDING_TYPE = "pref_recording_type";
-    public static final String PREF_PREV_VIEW_TYPE_GENERAL_RECORDING_SCREEN = "2202";
-    public static final String PREF_PREV_VIEW_TYPE_METER_RECORDING_SCREEN = "4u32848";
     public static final RecordingType DEFAULT_RECORDING_TYPE = RecordingType.OBD_ADAPTER_BASED;
 
     private static final String PREF_SELECTED_BLUETOOTH_NAME = "pref_selected_bluetooth_name";
@@ -215,10 +213,22 @@ public class ApplicationSettings {
     }
 
     public static void setSelectedBluetoothAdapter(Context context, BluetoothDevice device) {
+        if (device == null) {
+            resetSelectedBluetoothAdapter(context);
+        } else {
+            getSharedPreferences(context)
+                    .edit()
+                    .putString(PREF_SELECTED_BLUETOOTH_NAME, device.getName())
+                    .putString(PREF_SELECTED_BLUETOOTH_ADDRESS, device.getAddress())
+                    .apply();
+        }
+    }
+
+    public static void resetSelectedBluetoothAdapter(Context context){
         getSharedPreferences(context)
                 .edit()
-                .putString(PREF_SELECTED_BLUETOOTH_NAME, device.getName())
-                .putString(PREF_SELECTED_BLUETOOTH_ADDRESS, device.getAddress())
+                .remove(PREF_SELECTED_BLUETOOTH_NAME)
+                .remove(PREF_SELECTED_BLUETOOTH_ADDRESS)
                 .apply();
     }
 
