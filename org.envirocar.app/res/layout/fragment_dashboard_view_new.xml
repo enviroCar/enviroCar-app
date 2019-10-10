@@ -317,6 +317,7 @@
                         app:layout_constraintDimensionRatio="1:1"
                         app:layout_constraintLeft_toLeftOf="parent"
                         app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintBottom_toTopOf="@id/fragment_dashboard_indicator_bluetooth_text"
                         app:layout_constraintTop_toTopOf="parent"/>
 
                     <org.envirocar.app.views.utils.SizeSyncTextView
@@ -365,6 +366,7 @@
                         app:layout_constraintDimensionRatio="1:1"
                         app:layout_constraintLeft_toLeftOf="parent"
                         app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintBottom_toTopOf="@id/fragment_dashboard_indicator_obd_text"
                         app:layout_constraintTop_toTopOf="parent" />
 
                     <org.envirocar.app.views.utils.SizeSyncTextView
