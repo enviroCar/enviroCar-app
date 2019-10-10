@@ -16,8 +16,11 @@
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
-package org.envirocar.app.views;
+package org.envirocar.app.injection.component;
 
+import org.envirocar.app.injection.module.MainActivityModule;
+import org.envirocar.app.injection.scopes.PerActivity;
+import org.envirocar.app.views.BaseMainActivity;
 import org.envirocar.app.views.dashboard.DashboardFragment;
 import org.envirocar.app.views.recordingscreen.TempomatFragment;
 import org.envirocar.app.views.recordingscreen.TrackMapFragment;
@@ -30,18 +33,22 @@ import dagger.Subcomponent;
 /**
  * @author Sai Krishna
  */
-@Subcomponent(
-        modules = MainActivityModule.class
-)
+@PerActivity
+@Subcomponent(modules = MainActivityModule.class)
 public interface MainActivityComponent {
 
     void inject(BaseMainActivity baseMainActivity);
-    void inject(TempomatFragment tempomatFragment);
-    void inject(TrackMapFragment trackMapFragment);
-    void inject(TrackListLocalCardFragment trackListLocalCardFragment);
-    void inject(TrackListPagerFragment trackListPagerFragment);
-    void inject(TrackListRemoteCardFragment trackListRemoteCardFragment);
-    void inject(DashboardFragment dashBoardFragment);
 
+    void inject(TempomatFragment tempomatFragment);
+
+    void inject(TrackMapFragment trackMapFragment);
+
+    void inject(TrackListLocalCardFragment trackListLocalCardFragment);
+
+    void inject(TrackListPagerFragment trackListPagerFragment);
+
+    void inject(TrackListRemoteCardFragment trackListRemoteCardFragment);
+
+    void inject(DashboardFragment dashBoardFragment);
 
 }

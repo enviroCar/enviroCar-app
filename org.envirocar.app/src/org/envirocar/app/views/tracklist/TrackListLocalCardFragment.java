@@ -32,8 +32,8 @@ import com.google.common.base.Preconditions;
 
 import org.envirocar.app.R;
 import org.envirocar.app.BaseApplication;
-import org.envirocar.app.views.MainActivityComponent;
-import org.envirocar.app.views.MainActivityModule;
+import org.envirocar.app.injection.component.MainActivityComponent;
+import org.envirocar.app.injection.module.MainActivityModule;
 import org.envirocar.app.views.trackdetails.TrackDetailsActivity;
 import org.envirocar.app.views.utils.DialogUtils;
 import org.envirocar.app.views.utils.ECAnimationUtils;

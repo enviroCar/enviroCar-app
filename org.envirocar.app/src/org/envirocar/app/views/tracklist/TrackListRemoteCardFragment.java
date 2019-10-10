@@ -26,8 +26,8 @@ import android.view.View;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.BaseApplication;
-import org.envirocar.app.views.MainActivityComponent;
-import org.envirocar.app.views.MainActivityModule;
+import org.envirocar.app.injection.component.MainActivityComponent;
+import org.envirocar.app.injection.module.MainActivityModule;
 import org.envirocar.app.R;
 import org.envirocar.app.views.trackdetails.TrackDetailsActivity;
 import org.envirocar.app.views.utils.ECAnimationUtils;

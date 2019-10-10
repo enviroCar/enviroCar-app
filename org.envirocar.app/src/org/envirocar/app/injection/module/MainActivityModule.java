@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
-package org.envirocar.app.views;
+package org.envirocar.app.injection.module;
 
 
 import android.app.Activity;
@@ -24,6 +24,7 @@ import android.content.Context;
 
 import com.mapbox.mapboxsdk.Mapbox;
 
+import org.envirocar.app.injection.scopes.PerActivity;
 import org.envirocar.app.views.dashboard.DashboardFragment;
 import org.envirocar.app.views.others.OthersFragment;
 import org.envirocar.app.views.tracklist.TrackListPagerFragment;
@@ -51,8 +52,8 @@ public class MainActivityModule {
         this.mActivity = activity;
     }
 
-
     @Provides
+    @PerActivity
     public Activity provideActivity() {
         return mActivity;
     }
@@ -64,21 +65,25 @@ public class MainActivityModule {
     }
 
     @Provides
+    @PerActivity
     public DashboardFragment provideDashBoardFragment(){
         return new DashboardFragment();
     }
 
     @Provides
+    @PerActivity
     public TrackListPagerFragment provideTrackListPagerFragment(){
         return new TrackListPagerFragment();
     }
 
     @Provides
+    @PerActivity
     public OthersFragment provideOthersFragment(){
         return new OthersFragment();
     }
 
     @Provides
+    @PerActivity
     public Mapbox provideMapBox() {
         return Mapbox.getInstance(mActivity, "");
     }

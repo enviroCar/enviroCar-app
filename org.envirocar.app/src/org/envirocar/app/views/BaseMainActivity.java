@@ -44,6 +44,7 @@ import org.envirocar.app.handler.TemporaryFileManager;
 import org.envirocar.app.handler.preferences.CarPreferenceHandler;
 import org.envirocar.app.handler.preferences.UserPreferenceHandler;
 import org.envirocar.app.injection.BaseInjectorActivity;
+import org.envirocar.app.injection.module.MainActivityModule;
 import org.envirocar.app.services.autoconnect.AutoRecordingService;
 import org.envirocar.app.views.dashboard.DashboardFragment;
 import org.envirocar.app.views.others.OthersFragment;
@@ -62,8 +63,10 @@ import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 
+/**
+ * @authro dewall
+ */
 public class BaseMainActivity extends BaseInjectorActivity {
-
     private static final Logger LOGGER = Logger.getLogger(BaseMainActivity.class);
 
     private static final String TROUBLESHOOTING_TAG = "TROUBLESHOOTING";
@@ -79,10 +82,14 @@ public class BaseMainActivity extends BaseInjectorActivity {
     protected DAOProvider mDAOProvider;
     @Inject
     protected BluetoothHandler mBluetoothHandler;
+
+    // activity scoped
     @Inject
-    protected TrackListPagerFragment mTrackListPagerFragment;
+    protected DashboardFragment dashboardFragment;
     @Inject
-    protected OthersFragment mOthersFragment;
+    protected TrackListPagerFragment tracklIstPagerFragment;
+    @Inject
+    protected OthersFragment othersFragment;
     @Inject
     protected Mapbox mapbox;
 
@@ -95,7 +102,6 @@ public class BaseMainActivity extends BaseInjectorActivity {
     private BroadcastReceiver errorInformationReceiver;
     private boolean paused;
 
-
     private Scheduler.Worker mMainThreadWorker = AndroidSchedulers.mainThread().createWorker();
 
 
@@ -105,7 +111,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
         switch (item.getItemId()) {
             case R.id.navigation_dashboard:
                 if (selectedMenuItemID != 1) {
-                    fragmentTransaction.replace(R.id.fragmentContainer, new DashboardFragment());
+                    fragmentTransaction.replace(R.id.fragmentContainer, dashboardFragment);
                     fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
                     fragmentTransaction.commit();
                     selectedMenuItemID = 1;
@@ -113,7 +119,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
                 return true;
             case R.id.navigation_my_tracks:
                 if (selectedMenuItemID != 2) {
-                    fragmentTransaction.replace(R.id.fragmentContainer, new TrackListPagerFragment());
+                    fragmentTransaction.replace(R.id.fragmentContainer, tracklIstPagerFragment);
                     fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
                     fragmentTransaction.commit();
                     selectedMenuItemID = 2;
@@ -121,7 +127,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
                 return true;
             case R.id.navigation_others:
                 if (selectedMenuItemID != 3) {
-                    fragmentTransaction.replace(R.id.fragmentContainer, mOthersFragment);
+                    fragmentTransaction.replace(R.id.fragmentContainer, othersFragment);
                     fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
                     fragmentTransaction.commit();
                     selectedMenuItemID = 3;
