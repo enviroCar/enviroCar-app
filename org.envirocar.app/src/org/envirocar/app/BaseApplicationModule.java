@@ -36,7 +36,7 @@ import org.envirocar.core.CacheDirectoryProvider;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.util.Util;
 import org.envirocar.app.handler.DAOProvider;
-import org.envirocar.remote.injection.RemoteModule;
+import org.envirocar.remote.injection.modules.RemoteModule;
 import org.envirocar.storage.DatabaseModule;
 
 import javax.inject.Singleton;

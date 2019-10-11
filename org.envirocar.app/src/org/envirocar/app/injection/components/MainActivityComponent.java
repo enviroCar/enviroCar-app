@@ -16,9 +16,9 @@
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
-package org.envirocar.app.injection.component;
+package org.envirocar.app.injection.components;
 
-import org.envirocar.app.injection.module.MainActivityModule;
+import org.envirocar.app.injection.modules.MainActivityModule;
 import org.envirocar.app.injection.scopes.PerActivity;
 import org.envirocar.app.views.BaseMainActivity;
 import org.envirocar.app.views.dashboard.DashboardFragment;

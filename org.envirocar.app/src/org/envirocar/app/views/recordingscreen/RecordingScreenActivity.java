@@ -26,7 +26,7 @@ import org.envirocar.app.events.StartingTimeEvent;
 import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.app.handler.TrackRecordingHandler;
 import org.envirocar.app.injection.BaseInjectorActivity;
-import org.envirocar.app.injection.module.RecordingScreenModule;
+import org.envirocar.app.injection.modules.RecordingScreenModule;
 import org.envirocar.app.recording.RecordingService;
 import org.envirocar.app.recording.RecordingState;
 import org.envirocar.app.recording.RecordingType;

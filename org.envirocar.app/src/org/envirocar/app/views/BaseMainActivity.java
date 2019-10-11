@@ -44,7 +44,7 @@ import org.envirocar.app.handler.TemporaryFileManager;
 import org.envirocar.app.handler.preferences.CarPreferenceHandler;
 import org.envirocar.app.handler.preferences.UserPreferenceHandler;
 import org.envirocar.app.injection.BaseInjectorActivity;
-import org.envirocar.app.injection.module.MainActivityModule;
+import org.envirocar.app.injection.modules.MainActivityModule;
 import org.envirocar.app.services.autoconnect.AutoRecordingService;
 import org.envirocar.app.views.dashboard.DashboardFragment;
 import org.envirocar.app.views.others.OthersFragment;

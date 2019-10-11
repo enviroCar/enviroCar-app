@@ -1,4 +1,4 @@
-package org.envirocar.app.injection.module;
+package org.envirocar.app.injection.modules;
 
 import org.envirocar.app.injection.scopes.PerActivity;
 import org.envirocar.app.views.recordingscreen.TempomatFragment;

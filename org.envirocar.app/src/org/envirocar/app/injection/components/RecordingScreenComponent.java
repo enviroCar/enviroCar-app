@@ -1,6 +1,6 @@
-package org.envirocar.app.injection.component;
+package org.envirocar.app.injection.components;
 
-import org.envirocar.app.injection.module.RecordingScreenModule;
+import org.envirocar.app.injection.modules.RecordingScreenModule;
 import org.envirocar.app.injection.scopes.PerActivity;
 import org.envirocar.app.views.recordingscreen.RecordingScreenActivity;
 import org.envirocar.app.views.recordingscreen.TempomatFragment;
