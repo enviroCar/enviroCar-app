@@ -30,6 +30,7 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.common.base.Preconditions;
 
+import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
 import org.envirocar.app.BaseApplication;
 import org.envirocar.app.injection.components.MainActivityComponent;
@@ -61,9 +62,10 @@ import io.reactivex.schedulers.Schedulers;
  *
  * @author dewall
  */
-public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
-        TrackListLocalCardAdapter> {
+public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<TrackListLocalCardAdapter> {
     private static final Logger LOG = Logger.getLogger(TrackListLocalCardFragment.class);
+
+
 
     /**
      *
@@ -78,6 +80,11 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
     private Disposable uploadTrackSubscription;
 
     @Override
+    protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
+        baseApplicationComponent.inject(this);
+    }
+
+    @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         MainActivityComponent mainActivityComponent = BaseApplication.get(getActivity()).getBaseApplicationComponent().plus(new MainActivityModule(getActivity()));
@@ -88,6 +95,8 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
     public void onResume() {
         LOG.info("onResume()");
         super.onResume();
+
+        loadDataset();
 
         mFAB.setOnClickListener(v -> DialogUtils.createDefaultDialogBuilder(getActivity(),
                 R.string.track_list_upload_all_tracks_title,

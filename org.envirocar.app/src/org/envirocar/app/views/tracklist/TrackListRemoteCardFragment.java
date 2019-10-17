@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -20,15 +20,17 @@ package org.envirocar.app.views.tracklist;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
-import androidx.annotation.Nullable;
 import android.view.View;
+
+import androidx.annotation.Nullable;
 
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.BaseApplication;
+import org.envirocar.app.BaseApplicationComponent;
+import org.envirocar.app.R;
 import org.envirocar.app.injection.components.MainActivityComponent;
 import org.envirocar.app.injection.modules.MainActivityModule;
-import org.envirocar.app.R;
 import org.envirocar.app.views.trackdetails.TrackDetailsActivity;
 import org.envirocar.app.views.utils.ECAnimationUtils;
 import org.envirocar.core.entity.Track;
@@ -49,8 +51,8 @@ import io.reactivex.schedulers.Schedulers;
 /**
  * @author dewall
  */
-public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
-        TrackListRemoteCardAdapter> implements TrackListLocalCardFragment.OnTrackUploadedListener {
+public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<TrackListRemoteCardAdapter>
+        implements TrackListLocalCardFragment.OnTrackUploadedListener {
     private static final Logger LOG = Logger.getLogger(TrackListRemoteCardFragment.class);
 
     private CompositeDisposable subscriptions = new CompositeDisposable();
@@ -59,17 +61,24 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
     private boolean hasLoadedStored = false;
     private boolean isSorted = false;
 
+    @Override
+    protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
+        baseApplicationComponent.inject(this);
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        MainActivityComponent mainActivityComponent =  BaseApplication.get(getActivity()).getBaseApplicationComponent().plus(new MainActivityModule(getActivity()));
+        MainActivityComponent mainActivityComponent = BaseApplication.get(getActivity()).getBaseApplicationComponent().plus(new MainActivityModule(getActivity()));
         mainActivityComponent.inject(this);
+        setRetainInstance(true);
     }
 
     @Override
     public void onResume() {
         super.onResume();
+
+        loadDataset();
 
         if (mUserManager.isLoggedIn()) {
             mRecyclerView.setVisibility(View.VISIBLE);
@@ -194,7 +203,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
                 .subscribe(new DisposableObserver<Track>() {
 
                     @Override
-                    public void onComplete () {
+                    public void onComplete() {
                         holder.mProgressCircle.beginFinalAnimation();
                         holder.mProgressCircle.attachListener(() -> {
                             // When the visualization is finished, then Init the
@@ -226,6 +235,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
                     }
                 });
     }
+
 
     private final class LoadRemoteTracksTask extends AsyncTask<Void, Void, Void> {
         @Override

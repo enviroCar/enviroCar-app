@@ -49,6 +49,7 @@ import org.envirocar.app.handler.TrackDAOHandler;
 import org.envirocar.app.handler.TrackUploadHandler;
 import org.envirocar.app.handler.preferences.UserPreferenceHandler;
 import org.envirocar.app.handler.agreement.AgreementManager;
+import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.app.views.utils.DialogUtils;
 import org.envirocar.app.views.utils.ECAnimationUtils;
 import org.envirocar.core.entity.Track;
@@ -76,8 +77,7 @@ import io.reactivex.schedulers.Schedulers;
 /**
  * @author dewall
  */
-public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapter>
-        extends Fragment {
+public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapter> extends BaseInjectorFragment {
     private static final Logger LOG = Logger.getLogger(AbstractTrackListCardFragment.class);
 
     @Inject
