@@ -45,6 +45,7 @@ import org.envirocar.app.views.login.SigninActivity;
 import org.envirocar.app.views.login.SignupActivity;
 import org.envirocar.app.views.obdselection.OBDSelectionActivity;
 import org.envirocar.app.views.obdselection.OBDSelectionFragment;
+import org.envirocar.app.views.others.SendLogFileActivity;
 import org.envirocar.app.views.preferences.BluetoothDiscoveryIntervalPreference;
 import org.envirocar.app.views.preferences.BluetoothPairingPreference;
 import org.envirocar.app.views.preferences.SelectBluetoothPreference;
@@ -119,6 +120,8 @@ public interface BaseApplicationComponent {
     void inject(DashboardFragment dashboardFragment);
 //    void inject(TrackDatabaseSink trackDatabaseSink);
 
+    // new
+    void inject(SendLogFileActivity activity);
 
     MainActivityComponent plus(MainActivityModule module);
     RecordingComponent plus(RecordingModule module);

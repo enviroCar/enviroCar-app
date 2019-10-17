@@ -45,10 +45,12 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.preferences.CarPreferenceHandler;
+import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.app.views.reportissue.CheckBoxItem;
 import org.envirocar.app.views.reportissue.CheckboxBaseAdapter;
 import org.envirocar.core.entity.Car;
@@ -78,7 +80,7 @@ import butterknife.ButterKnife;
  *
  * @author matthes rieke
  */
-public class SendLogFileActivity extends AppCompatActivity {
+public class SendLogFileActivity extends BaseInjectorActivity {
 
     private static final Logger LOG = Logger.getLogger(SendLogFileActivity.class);
     private static final String REPORTING_EMAIL = "envirocar@52north.org";
@@ -116,6 +118,11 @@ public class SendLogFileActivity extends AppCompatActivity {
     protected List<String> subjectTags;
     protected List<String> bodyTags;
     protected String extraInfo;
+
+    @Override
+    protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
+        baseApplicationComponent.inject(this);
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
