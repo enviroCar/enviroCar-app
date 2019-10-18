@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -72,13 +72,13 @@ public class ResponseParser {
 
         if (isSearching(dataString)) {
             throw new AdapterSearchingException();
-        }
-        else if (isNoDataCommand(dataString)) {
+        } else if (isNoDataCommand(dataString)) {
             throw new NoDataReceivedException("NODATA was received");
         }
 
         int[] buffer = new int[data.length / 2];
         boolean error = false;
+
         PID pid = null;
         while (index + length <= data.length) {
             String tmp = new String(data, index, length);
@@ -95,14 +95,16 @@ public class ResponseParser {
                 if (error || pid == null) {
                     throw new InvalidCommandResponseException(pid == null ? tmp : pid.toString());
                 }
-            }
+            } else {
+                if (error || pid == null){
+                    throw new InvalidCommandResponseException(pid == null ? tmp : pid.toString());
+                }
 
-            else {
                 /*
                  * this is a hex number
                  */
-                buffer[index/2] = Integer.parseInt(tmp, 16);
-                if (buffer[index/2] < 0) {
+                buffer[index / 2] = Integer.parseInt(tmp, 16);
+                if (buffer[index / 2] < 0) {
                     throw new InvalidCommandResponseException(pid.toString());
                 }
             }
@@ -158,8 +160,8 @@ public class ResponseParser {
             case O2_LAMBDA_PROBE_7_CURRENT:
             case O2_LAMBDA_PROBE_8_CURRENT:
                 return new LambdaProbeCurrentResponse(
-                        ((processedData[4]*256d) + processedData[5])/256d - 128,
-                        ((processedData[2]*256d) + processedData[3]) / 32768d);
+                        ((processedData[4] * 256d) + processedData[5]) / 256d - 128,
+                        ((processedData[2] * 256d) + processedData[3]) / 32768d);
         }
 
         return new GenericDataResponse(pid, processedData, rawData);
