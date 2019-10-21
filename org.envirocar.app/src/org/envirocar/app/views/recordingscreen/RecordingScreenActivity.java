@@ -160,6 +160,18 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
     }
 
     @Override
+    protected void onPause() {
+        LOG.info("Pausing RecordingSCreenActivity");
+        super.onPause();
+
+        //
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.remove(this.trackMapFragment);
+        fragmentTransaction.remove(this.tempomatFragment);
+        fragmentTransaction.commit();
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
     }
