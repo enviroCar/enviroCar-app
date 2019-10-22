@@ -20,4 +20,6 @@
 -->
 <resources>
     <string name="app_name">core</string>
+    <string name="fuel_type_gasoline">Gasoline</string>
+    <string name="fuel_type_diesel">Diesel</string>
 </resources>

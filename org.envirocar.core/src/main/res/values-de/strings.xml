@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">core</string>
+    <string name="fuel_type_gasoline">Benzin</string>
+    <string name="fuel_type_diesel">Diesel</string>
+</resources>
