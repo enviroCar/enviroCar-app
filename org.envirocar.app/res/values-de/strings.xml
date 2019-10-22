@@ -26,10 +26,10 @@
     <string name="cancel">Abbrechen</string>
 
     <string name="fuel_type">Treibstoff Art</string>
-    <string name="car">Auto</string>
+    <string name="car">Fahrzeug</string>
 
     <string name="menu_delete">Löschen</string>
-	<string name="default_track_description">Fahrt mit Auto %s.</string>
+	<string name="default_track_description">Fahrt mit Fahrzeug %s.</string>
 
     <string name="gasoline">Benzin</string>
     <string name="diesel">Diesel</string>
@@ -58,9 +58,9 @@
 	<string name="send_log_comments_label">(Kommentar)</string>
 	<string name="send_log_time_past_hint">(vergangene Zeit seit Problem)</string>
 
-    <string name="track_finished">Track abgeschlossen: </string>
-    <string name="track_finishing_failed">Abschließen des Tracks fehlgeschlagen</string>
-    <string name="track_finished_no_measurements">Der abzuschließende Track enthielt keine Messungen</string>
+    <string name="track_finished">Fahrt abgeschlossen: </string>
+    <string name="track_finishing_failed">Abschließen der Fahrt fehlgeschlagen</string>
+    <string name="track_finished_no_measurements">Die abzuschließende Fahrt enthielt keine Messungen</string>
 	<string name="general_error_please_report">Programmfehler - Bitte melden Sie das Problem</string>
 
     <string name="submit">Absenden</string>
