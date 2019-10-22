@@ -115,7 +115,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle("Select a Car");
+        getSupportActionBar().setTitle(R.string.car_selection_header);
 
         setupListView();
     }

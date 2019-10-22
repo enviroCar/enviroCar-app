@@ -117,8 +117,8 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
         holder.mFirstLineText.setText(String.format("%s - %s", car.getManufacturer(), car
                 .getModel()));
         holder.mYearText.setText(Integer.toString(car.getConstructionYear()));
-        holder.mGasolineText.setText(car.getFuelType().toString());
-        holder.mEngineText.setText(String.format("%s ccm",
+        holder.mGasolineText.setText(mContext.getString(car.getFuelType().getStringResource()));
+        holder.mEngineText.setText(String.format("%s cm³",
                 Integer.toString(car.getEngineDisplacement())));
 
         // If this car is the selected car, then set the radio button checked.
