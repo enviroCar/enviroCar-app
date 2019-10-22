@@ -28,7 +28,7 @@ import io.reactivex.Completable;
  */
 @RecordingScope
 public class LocationProvider {
-    private static final Logger LOGGER = Logger.getLogger(LocationHandler.class);
+    private static final Logger LOGGER = Logger.getLogger(LocationProvider.class);
 
     private static final String GPGSA = "$GPGSA";
     private static final String NMEA_SEP = ",";
