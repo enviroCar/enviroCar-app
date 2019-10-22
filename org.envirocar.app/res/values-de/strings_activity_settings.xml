@@ -25,13 +25,15 @@
 
     <string name="pref_optional_features">Optionale Features</string>
 
+    <string name="pref_settings_title">Einstellungen</string>
+
     <string name="pref_version">Version</string>
     <string name="pref_other">Anderes</string>
 
     <string name="settings_optional">Optionale Einstellungen</string>
     <string name="settings_optional_sub">Samplingrate, Debug Logging, etc.</string>
 
-    <string name="settings_other">Andere Einstellungen</string>
+    <string name="settings_other">Appinfos</string>
     <string name="settings_other_sub">Version, Linzenzen, etc.</string>
 
     <!-- General Settings-->
@@ -43,7 +45,7 @@
     <string name="pref_imperial_unit_summary">Imperiale Maßeinheiten (Meilen) für die Anzeige nutzen</string>
     <string name="pref_obfuscate_track_summary">Nur Messungen, die ab einer Entfernung von 250 Metern zum Start/Ziel sowie eine Minute nach Beginn und vor Ende der Route stattfanden, hochladen.</string>
     <string name="pref_text_to_speech">Sprachliche Ankündigungen</string>
-    <string name="pref_text_to_speech_summary">Ermöglicht die spracheliche Ausgabe von spezifischen Ereignissen, wie z.B. OBD-Verbindung hergestellt oder Aufzeichnung wurde beendet.</string>
+    <string name="pref_text_to_speech_summary">Ermöglicht die sprachliche Ausgabe von spezifischen Ereignissen, wie z.B. OBD-Verbindung hergestellt oder Aufzeichnung wurde beendet.</string>
 
     <!-- OBD-Settings -->
     <string name="pref_obd_settings">OBD Adapter Einstellungen</string>
@@ -59,11 +61,19 @@
     <string name="pref_bluetooth_discovery_interval">Suchinterval (Automatisches Verbinden)</string>
     <string name="pref_bluetooth_discovery_interval_summary">Definiert das Suchinterval, bei dem das Gerät nach dem OBDII Adapter sucht. Beachte: ein höherer Wert bedeutet auch ein höherer Akkuverbrauch.</string>
 
+    <!-- Auto-connect Settings -->
+    <string name="settings_autoconnect_title">Auto-connect Einstellungen</string>
+    <string name="settings_autoconnect_subtitle">OBD Auto-connect, GPS Auto-connect etc.</string>
+
     <!-- Optional Settings -->
     <string name="sampling_rate_title">Sampling Rate (in sekunden)</string>
     <string name="sampling_rate_summary">Das Zeit-Delta zwischen zwei MEssungen in Sekunden (aktueller Wert: %s). HINWEIS: Je niedriger der Wert, desto größer ist die Datenmenge. Ändern Sie diesen Wert nur dann, wenn Sie such auch der Konsequenzen bewusst sind.</string>
     <string name="enable_debug_logging">Debug-Protokollierung aktivieren</string>
     <string name="enable_debug_logging_summary">Erhöhung der Protokollierungsstufe (in der Ausgabe/Problembericht verwendet).</string>
+
+    <string name="pref_track_cut_duration">GPS Trimmdauer</string>
+    <string name="pref_track_cut_duration_summary">GPS-basierte Tracks werden automatisch gestoppt, wenn der Benutzer nicht fährt. Allerdings hat es eine gewisse Latenzzeit bei der Erkennung. Daher werden Fahrten gemäß dieser Latenzzeiten beschnitten und überflüssige Daten gelöscht.</string>
+
 
     <!-- Other Settings -->
     <string name="pref_licenses">Licensen</string>

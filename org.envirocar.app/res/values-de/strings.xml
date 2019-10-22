@@ -25,7 +25,7 @@
 
     <string name="cancel">Abbrechen</string>
 
-    <string name="fuel_type">Treibstoff Art</string>
+    <string name="fuel_type">Kraftstoffart</string>
     <string name="car">Fahrzeug</string>
 
     <string name="menu_delete">Löschen</string>
@@ -64,5 +64,36 @@
 	<string name="general_error_please_report">Programmfehler - Bitte melden Sie das Problem</string>
 
     <string name="submit">Absenden</string>
+
+    <!-- ################# -->
+    <!-- Send Error Report -->
+    <string name="report_issue_header">Fehler melden</string>
+    <string name="report_issue_text">
+        Zeitstempel werden automatisch in die Protokolle aufgenommen. Das Senden von Berichten an uns hilft uns,
+        unerwartetes Verhalten oder Abstürze zu reproduzieren. Das macht enviroCar besser und stabiler.
+        Klicken Sie auf die Schaltfläche Senden unten, um diesen Bericht per E-Mail an uns zu senden.</string>
+    <string name="report_issue_bottom_text">Diese Funktion verwendet die Standardeinstellung \"Senden an\".
+        Wenn Sie es mit Ihrem E-Mail-Client aufrufen, können Sie den Bericht ganz einfach per E-Mail versenden.
+        Wenn Sie keinen E-Mail-Client installiert haben, können Sie die Protokolldatei auf einem PC speichern,
+        z.B. über Bluetooth oder USB. \n\nIn solchen Fällen bitten wir Sie, das Berichtspaket manuell einzusenden.
+        Sie werden an den folgenden Stellen aufbewahrt:</string>
+    <string name="report_issue_desc_text">Eine detailliertere Beschreibung</string>
+    <string name="report_issue_button">Bericht Absenden</string>
+
+    <string-array name="report_issue_subject_header">
+        <item>Absturz der App</item>
+        <item>Plötzliche Verzögerungen</item>
+        <item>App reagierte nicht</item>
+        <item>Eine Komponente funktioniert nicht wie erwartet</item>
+        <item>Anfrage zur Integration einer Funktionalität</item>
+    </string-array>
+
+    <string-array name="report_issue_subject_tags">
+        <item>[CRASH]</item>
+        <item>[LAG]</item>
+        <item>[UNRES]</item>
+        <item>[UNEXPECTED BEHAVIOR]</item>
+        <item>[FEATURE REQ]</item>
+    </string-array>
 
 </resources>

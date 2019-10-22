@@ -135,7 +135,7 @@
                 android:paddingTop="15dp"
                 android:paddingRight="25dp"
                 android:paddingBottom="15dp"
-                android:text="Send Report"
+                android:text="@string/report_issue_button"
                 android:textAllCaps="true"
                 android:textSize="15sp" />
 

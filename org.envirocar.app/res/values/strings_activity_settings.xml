@@ -25,14 +25,12 @@
     <string name="pref_version">Version</string>
     <string name="pref_other">Other</string>
 
-    <string name="settings_title">Settings</string>
-    <string name="autoconnect_settings">Auto-connect Settings</string>
-    <string name="autoconnect_settings_sum">OBD Auto-connect, GPS Auto-connect etc.</string>
+    <string name="pref_settings_title">Settings</string>
 
     <string name="settings_optional">Optional Settings</string>
     <string name="settings_optional_sub">Sampling rate, Debug Logging, etc.</string>
 
-    <string name="settings_other">Other Settings</string>
+    <string name="settings_other">Appinfos</string>
     <string name="settings_other_sub">Version, Licenses, etc.</string>
 
 
@@ -62,8 +60,9 @@
     <string name="pref_bluetooth_discovery_interval">Discovery Interval</string>
     <string name="pref_bluetooth_discovery_interval_summary">The search interval at which the device searches for the selected OBD-II device. Note: the higher the value, the more the battery gets drained.</string>
 
-   <string name="pref_track_cut_duration">Track Trim Duration</string>
-    <string name="pref_track_cut_duration_summary">GPS based tracks will be stopped automatically on detecting that the user is NOT DRIVING. However it has some latency in detecting. So we cut the track for that duration. Change this, if you know/feel that latency.</string>
+    <!-- Auto-connect Settings -->
+    <string name="settings_autoconnect_title">Auto-connect Settings</string>
+    <string name="settings_autoconnect_subtitle">OBD Auto-connect, GPS Auto-connect etc.</string>
 
     <!-- Optional Settings -->
     <string name="sampling_rate_title">Sampling Rate (sec)</string>
@@ -72,7 +71,13 @@
     <string name="enable_debug_logging">Enable Debug Logging</string>
     <string name="enable_debug_logging_summary">Increase the log level (used in issue/problem reports)</string>
 
+    <string name="pref_track_cut_duration">Track Trim Duration</string>
+    <string name="pref_track_cut_duration_summary">GPS based tracks will be stopped automatically on detecting that the user is NOT DRIVING. However it has some latency in detecting. So we cut the track for that duration. Change this, if you know that latency.</string>
+
+
     <!-- Other Settings -->
     <string name="pref_licenses">Lizenzes</string>
+
+
 
 </resources>
