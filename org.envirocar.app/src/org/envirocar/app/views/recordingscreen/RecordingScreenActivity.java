@@ -30,6 +30,7 @@ import org.envirocar.app.injection.modules.RecordingScreenModule;
 import org.envirocar.app.recording.RecordingService;
 import org.envirocar.app.recording.RecordingState;
 import org.envirocar.app.recording.RecordingType;
+import org.envirocar.app.recording.events.RecordingStateEvent;
 import org.envirocar.app.views.BaseMainActivity;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.core.events.gps.GpsSatelliteFixEvent;
@@ -265,6 +266,14 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
                 .doOnNext(e -> speedText.setText(String.format("%s km/h", Integer.toString(e.mAvrgSpeed))))
                 .doOnError(LOG::error)
                 .subscribe();
+    }
+
+    @Subscribe
+    public void onRecordingStateEvent(RecordingStateEvent event){
+        LOG.info("Received event: %s", event.toString());
+        if (event.recordingState == RecordingState.RECORDING_STOPPED){
+            runOnUiThread(() -> this.finish());
+        }
     }
 
     /**
