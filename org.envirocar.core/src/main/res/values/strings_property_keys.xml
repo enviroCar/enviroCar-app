@@ -28,7 +28,7 @@
     <string name="property_key_intake_temp">Intake Temperature</string>
     <string name="property_key_intake_pressure">Intake Pressure</string>
     <string name="property_key_engine_fuel_rate">Engine Fuel Rate</string>
-    <string name="property_key_co2">CO2</string>
+    <string name="property_key_co2">CO\u2082</string>
     <string name="property_key_consumption">Consumption</string>
     <string name="property_key_energy_consumption">Energy Consumption</string>
     <string name="property_key_energy_co2_emission">Energy Consumption CO2</string>
@@ -38,9 +38,9 @@
     <string name="property_key_gps_speed">GPS Speed</string>
     <string name="property_key_gps_bearing">GPS Bearing</string>
     <string name="property_key_gps_altitude">GPS Altitude</string>
-    <string name="property_key_gps_pdop">GPS PDOP</string>
-    <string name="property_key_gps_hdop">GPS HDOP</string>
-    <string name="property_key_gps_vdop">GPS VDOP</string>
+    <string name="property_key_gps_pdop">GPS Position (PDOP)</string>
+    <string name="property_key_gps_hdop">GPS Horizontalrichtung (HDOP)</string>
+    <string name="property_key_gps_vdop">GPS Vertikalrichtung (VDOP)</string>
     <string name="property_key_lambda_voltage">O2 Lambda Voltage</string>
     <string name="property_key_lambda_voltage_er">O2 Lambda Voltage ER</string>
     <string name="property_key_lambda_current">O2 Lambda Current</string>
