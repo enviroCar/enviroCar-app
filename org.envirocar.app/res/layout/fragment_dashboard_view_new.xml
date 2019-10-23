@@ -735,7 +735,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:checked="true"
-                        android:text="OBD + GPS" />
+                        android:text="@string/dashboard_mode_obd_and_gps" />
 
                     <RadioButton
                         android:id="@+id/fragment_dashboard_gps_mode_button"
@@ -743,10 +743,9 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="GPS Only" />
+                        android:text="@string/dashboard_mode_gps_only" />
 
                 </info.hoang8f.android.segmented.SegmentedGroup>
-
             </androidx.constraintlayout.widget.ConstraintLayout>
         </FrameLayout>
     </androidx.core.widget.NestedScrollView>
