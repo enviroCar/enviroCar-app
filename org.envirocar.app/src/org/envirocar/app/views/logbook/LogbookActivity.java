@@ -119,7 +119,7 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
 
         // Initializes the Toolbar.
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("Logbook");
+        getSupportActionBar().setTitle(R.string.logbook_title);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 

@@ -337,6 +337,7 @@ public class OBDRecordingStrategy implements RecordingStrategy {
 
         @Subscribe
         public void onReceiveGpsLocationChangedEvent(GpsLocationChangedEvent event) {
+            LOG.info("Received GPS Update. no stop required via OBD Connection Recognizer");
             if (mGPSCheckerSubscription != null) {
                 mGPSCheckerSubscription.dispose();
                 mGPSCheckerSubscription = null;

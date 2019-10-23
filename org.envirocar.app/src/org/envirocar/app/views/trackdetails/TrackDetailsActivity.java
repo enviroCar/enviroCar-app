@@ -68,6 +68,7 @@ import org.envirocar.storage.EnviroCarDB;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -322,8 +323,12 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
                             .getDistanceOfTrack())));
             mDurationText.setText(text);
 
-            mDescriptionText.setText(track.getDescription());
-            mCarText.setText(CarUtils.carToStringWithLinebreak(track.getCar()));
+
+            String ee = new SimpleDateFormat("EEEE").format(new Date(track.getStartTime()));
+
+            Car car = track.getCar();
+            mDescriptionText.setText(String.format(getString(R.string.track_list_details_subtitle_template), car.getManufacturer(), car.getModel(), ee));
+            mCarText.setText(CarUtils.carToStringWithLinebreak(track.getCar(), this));
             mBeginText.setText(DATE_FORMAT.format(new Date(track.getStartTime())));
             mEndText.setText(DATE_FORMAT.format(new Date(track.getEndTime())));
 

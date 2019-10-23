@@ -132,17 +132,14 @@ public class SendLogFileActivity extends BaseInjectorActivity {
 
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle("Report an Issue");
+        getSupportActionBar().setTitle(R.string.report_issue_header);
 
-        AsyncTask.execute(new Runnable() {
-            @Override
-            public void run() {
-                subjectHeaders = Arrays.asList(getResources().getStringArray(R.array.report_issue_subject_header));
-                bodyHeaders = Arrays.asList(getResources().getStringArray(R.array.report_issue_body_header));
-                subjectTags = Arrays.asList(getResources().getStringArray(R.array.report_issue_subject_tags));
-                bodyTags = Arrays.asList(getResources().getStringArray(R.array.report_issue_body_tags));
-                set();
-            }
+        AsyncTask.execute(() -> {
+            subjectHeaders = Arrays.asList(getResources().getStringArray(R.array.report_issue_subject_header));
+            bodyHeaders = Arrays.asList(getResources().getStringArray(R.array.report_issue_body_header));
+            subjectTags = Arrays.asList(getResources().getStringArray(R.array.report_issue_subject_tags));
+            bodyTags = Arrays.asList(getResources().getStringArray(R.array.report_issue_body_tags));
+            set();
         });
 
         File reportBundle = null;

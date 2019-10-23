@@ -54,6 +54,14 @@ public class TrackListPagerFragment extends BaseInjectorFragment {
 
     private TrackListPagerAdapter trackListPageAdapter;
 
+    @Override
+    protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
+        BaseApplication.get(getActivity())
+                .getBaseApplicationComponent()
+                .plus(new MainActivityModule(getActivity()))
+                .inject(this);
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -86,27 +94,12 @@ public class TrackListPagerFragment extends BaseInjectorFragment {
     public void onResume() {
         LOG.info("onResume()");
         super.onResume();
-//        if (mViewPager.getCurrentItem() == 0) {
-//            trackListPageAdapter.localCardFragment.loadDataset();
-//        } else {
-//            trackListPageAdapter.remoteCardFragment.loadDataset();
-//        }
     }
 
     @Override
     public void onDestroyView() {
         LOG.info("onDestroyView()");
         super.onDestroyView();
-//        trackListPageAdapter.localCardFragment.onDestroyView();
-//        trackListPageAdapter.remoteCardFragment.onDestroyView();
-    }
-
-    @Override
-    protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
-        BaseApplication.get(getActivity())
-                .getBaseApplicationComponent()
-                .plus(new MainActivityModule(getActivity()))
-                .inject(this);
     }
 
     /**

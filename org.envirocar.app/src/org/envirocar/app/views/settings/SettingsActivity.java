@@ -106,7 +106,7 @@ public class SettingsActivity extends BaseInjectorActivity {
      */
     @OnClick(R.id.fragment_settings_main_general_settings)
     protected void onClickGeneralSettings() {
-        getSupportActionBar().setTitle(R.string.pref_general_settings);
+        getSupportActionBar().setTitle(R.string.pref_settings_general);
         createAndShowSettingsFragment(R.xml.preferences_general);
     }
 
@@ -116,7 +116,7 @@ public class SettingsActivity extends BaseInjectorActivity {
      */
     @OnClick(R.id.fragment_settings_main_obd_settings)
     protected void onClickOBDSettings() {
-        getSupportActionBar().setTitle(R.string.autoconnect_settings);
+        getSupportActionBar().setTitle(R.string.settings_autoconnect_title);
         showFragment(new AutoConnectSettingsFragment());
     }
 
@@ -127,13 +127,13 @@ public class SettingsActivity extends BaseInjectorActivity {
 
     @OnClick(R.id.fragment_settings_main_optional_settings)
     protected void onClickOptionalSettings() {
-        getSupportActionBar().setTitle(R.string.settings_optional);
+        getSupportActionBar().setTitle(R.string.pref_settings_optional);
         createAndShowSettingsFragment(R.xml.preferences_optional);
     }
 
     @OnClick(R.id.fragment_settings_main_other_settings)
     protected void onClickOtherSettings() {
-        getSupportActionBar().setTitle(R.string.settings_other);
+        getSupportActionBar().setTitle(R.string.pref_settings_other);
         showFragment(new OtherSettingsFragment());
     }
 

@@ -56,6 +56,8 @@ import org.envirocar.app.views.settings.SettingsActivity;
 import org.envirocar.app.views.trackdetails.MapExpandedActivity;
 import org.envirocar.app.views.trackdetails.TrackDetailsActivity;
 import org.envirocar.app.views.trackdetails.TrackStatisticsActivity;
+import org.envirocar.app.views.tracklist.TrackListLocalCardFragment;
+import org.envirocar.app.views.tracklist.TrackListRemoteCardFragment;
 import org.envirocar.core.UserManager;
 import org.envirocar.remote.dao.CacheAnnouncementsDAO;
 import org.envirocar.remote.dao.CacheCarDAO;
@@ -79,56 +81,58 @@ import dagger.Component;
 import retrofit2.Retrofit;
 
 @Singleton
-@Component(
-        modules = {
-                BaseApplicationModule.class
-        }
-)
+@Component(modules = { BaseApplicationModule.class })
 public interface BaseApplicationComponent {
 
     void inject(BaseApplication baseApplication);
     void inject(TrackRecordingHandler trackRecordingHandler);
-    void inject(TrackUploadService trackUploadService);
-    void inject(CarSelectionActivity carSelectionActivity);
-    void inject(CarSelectionAddCarFragment carSelectionAddCarFragment);
-    void inject(LogbookActivity logbookActivity);
-    void inject(LogbookAddFuelingFragment logbookAddFuelingFragment);
-    void inject(OBDSelectionActivity obdSelectionActivity);
-    void inject(OBDSelectionFragment obdSelectionFragment);
+
     void inject(BluetoothDiscoveryIntervalPreference bluetoothDiscoveryIntervalPreference);
     void inject(BluetoothPairingPreference bluetoothPairingPreference);
     void inject(SelectBluetoothPreference selectBluetoothPreference);
     void inject(Tempomat tempomat);
-    void inject(AutoConnectSettingsFragment autoConnectSettingsFragment);
-    void inject(SettingsActivity settingsActivity);
-    void inject(TrackDetailsActivity trackDetailsActivity);
-    void inject(TrackStatisticsActivity trackStatisticsActivity);
+
     void inject(MapExpandedActivity mapExpandedActivity);
     void inject(DAOProvider daoProvider);
-    void inject(OthersFragment othersFragment);
+
     void inject(TrackTrimDurationPreference trackTrimDurationPreference);
-    void inject(EnviroCarDataService enviroCarDataService);
-//    void inject(SpeechOutput speechOutput);
-//    void inject(RecordingNotification recordingNotification);
-    void inject(SigninActivity loginActivity);
-    void inject(SignupActivity registerActivity);
+
     void inject(LocationHandler locationHandler);
     void inject(UserStatisticsProcessor statisticsProcessor);
     void inject(UserManager userManager);
-//    void inject(RecordingService recordingService);
-//    void inject(OBDRecordingStrategy recordingStrategy);
-    void inject(DashboardFragment dashboardFragment);
-//    void inject(TrackDatabaseSink trackDatabaseSink);
 
-    // new
+    // activity injections
     void inject(SendLogFileActivity activity);
+    void inject(LogbookActivity logbookActivity);
+    void inject(SigninActivity loginActivity);
+    void inject(SignupActivity registerActivity);
+    void inject(CarSelectionActivity carSelectionActivity);
+    void inject(OBDSelectionActivity obdSelectionActivity);
+    void inject(TrackDetailsActivity trackDetailsActivity);
+    void inject(TrackStatisticsActivity trackStatisticsActivity);
+    void inject(SettingsActivity settingsActivity);
 
+    // fragment injections
+    void inject(DashboardFragment dashboardFragment);
+    void inject(TrackListLocalCardFragment fragment);
+    void inject(TrackListRemoteCardFragment fragment);
+    void inject(CarSelectionAddCarFragment carSelectionAddCarFragment);
+    void inject(LogbookAddFuelingFragment logbookAddFuelingFragment);
+    void inject(AutoConnectSettingsFragment autoConnectSettingsFragment);
+    void inject(OBDSelectionFragment obdSelectionFragment);
+    void inject(OthersFragment othersFragment);
+
+    // service injections
+    void inject(TrackUploadService trackUploadService);
+    void inject(EnviroCarDataService enviroCarDataService);
+
+    // module extensions
     MainActivityComponent plus(MainActivityModule module);
     RecordingComponent plus(RecordingModule module);
     AutoRecordingComponent plus(AutoRecordingModule module);
     RecordingScreenComponent plus(RecordingScreenModule module);
 
-
+    // injection getter
     CacheCarDAO getCacheCarDAO();
     RemoteCarDAO getRemoteCarDAO();
     RemoteTrackDAO getRemoteTrackDAO();

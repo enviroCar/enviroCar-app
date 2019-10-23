@@ -18,6 +18,7 @@
  */
 package org.envirocar.core.utils;
 
+import android.content.Context;
 import android.util.Base64;
 import android.util.Base64InputStream;
 import android.util.Base64OutputStream;
@@ -104,7 +105,7 @@ public class CarUtils {
         return null;
     }
 
-    public static String carToStringWithLinebreak(Car car) {
+    public static String carToStringWithLinebreak(Car car, Context context) {
         StringBuilder sb = new StringBuilder();
         sb.append(car.getManufacturer());
         sb.append(" - ");
@@ -112,10 +113,10 @@ public class CarUtils {
         sb.append("\n");
         sb.append(car.getConstructionYear());
         sb.append(", ");
-        sb.append(car.getFuelType());
+        sb.append(context.getString(car.getFuelType().getStringResource()));
         sb.append(", ");
         sb.append(car.getEngineDisplacement());
-        sb.append("cc");
+        sb.append("cm³");
         return sb.toString();
     }
 

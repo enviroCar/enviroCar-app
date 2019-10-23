@@ -33,8 +33,7 @@ import io.reactivex.Observable;
  */
 public interface UserStatisticsDAO {
 
-    UserStatistics getUserStatistics(User user)
-            throws DataRetrievalFailureException, UnauthorizedException;
+    UserStatistics getUserStatistics(User user) throws DataRetrievalFailureException, UnauthorizedException;
 
     Observable<UserStatistics> getUserStatisticsObservable(String user);
 }

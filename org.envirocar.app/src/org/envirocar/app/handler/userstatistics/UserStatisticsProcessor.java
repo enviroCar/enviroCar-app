@@ -10,13 +10,14 @@ import com.squareup.otto.Bus;
 import com.squareup.otto.Produce;
 import com.squareup.otto.Subscribe;
 
-import org.envirocar.app.handler.preferences.AbstractCachable;
 import org.envirocar.app.handler.DAOProvider;
 import org.envirocar.app.handler.TrackDAOHandler;
+import org.envirocar.app.handler.preferences.AbstractCachable;
 import org.envirocar.core.UserManager;
 import org.envirocar.core.dao.TrackDAO;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.events.NewUserSettingsEvent;
+import org.envirocar.core.events.TrackDeletedEvent;
 import org.envirocar.core.events.TrackFinishedEvent;
 import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.logging.Logger;
@@ -47,6 +48,7 @@ public class UserStatisticsProcessor extends AbstractCachable<UserStatisticsProc
 
     protected static final class UserStatisticsHolder {
         private String username;
+
         private int numTracks;
         private long totalDuration;
         private double totalDistance;
@@ -156,6 +158,11 @@ public class UserStatisticsProcessor extends AbstractCachable<UserStatisticsProc
                 .subscribe(this::onNextStatistics, LOG::error);
     }
 
+    @Subscribe
+    public void onTrackDeletedEvent(TrackDeletedEvent event){
+
+    }
+
     @Produce
     public UserStatisticsUpdateEvent produceUserStatisticsUpdateEvent() {
         UserStatisticsHolder s = readFromCache();
@@ -165,6 +172,7 @@ public class UserStatisticsProcessor extends AbstractCachable<UserStatisticsProc
     private void resetStatistics(String username) {
         UserStatisticsHolder s = new UserStatisticsHolder(username, 0, 0, 0);
         this.writeToCache(s);
+        bus.post(new UserStatisticsUpdateEvent(s.numTracks, s.totalDistance, s.totalDuration));
     }
 
     private UserStatisticsHolder updateStatistics(Track track) {
@@ -180,6 +188,10 @@ public class UserStatisticsProcessor extends AbstractCachable<UserStatisticsProc
         holder.numTracks++;
         writeToCache(holder);
         return holder;
+    }
+
+    private void onAddTrackToStatistics(Track track){
+
     }
 
     private void onNextStatistics(UserStatisticsHolder o) {

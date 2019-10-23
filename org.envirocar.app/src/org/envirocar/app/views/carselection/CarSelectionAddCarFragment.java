@@ -140,8 +140,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
             savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
 
-        View view = inflater.inflate(
-                R.layout.activity_car_selection_newcar_fragment, container, false);
+        View view = inflater.inflate(R.layout.activity_car_selection_newcar_fragment, container, false);
         ButterKnife.bind(this, view);
 
         // Get the display size in pixels

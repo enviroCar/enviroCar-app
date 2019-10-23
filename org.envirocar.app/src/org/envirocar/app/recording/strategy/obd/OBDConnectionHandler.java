@@ -136,7 +136,7 @@ public class OBDConnectionHandler {
                         UUID next = UUID.fromString(uuid.toString());
                         if (!res.contains(next)) {
                             res.add(next);
-                            break;
+//                            break;
                         }
                     }
 
