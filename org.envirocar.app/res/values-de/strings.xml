@@ -20,6 +20,10 @@
 
 -->
 <resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- ################# -->
+    <!--  General Strings  -->
+    <!-- ################# -->
+    <string name="login_register">Einloggen/Registrieren</string>
     <string name="today">Heute</string>
     <string name="yesterday">Gestern</string>
 
@@ -67,6 +71,7 @@
 
     <!-- ################# -->
     <!-- Send Error Report -->
+    <!-- ################# -->
     <string name="report_issue_header">Fehler melden</string>
     <string name="report_issue_text">
         Zeitstempel werden automatisch in die Protokolle aufgenommen. Das Senden von Berichten an uns hilft uns,
@@ -79,7 +84,6 @@
         Sie werden an den folgenden Stellen aufbewahrt:</string>
     <string name="report_issue_desc_text">Eine detailliertere Beschreibung</string>
     <string name="report_issue_button">Bericht Absenden</string>
-
     <string-array name="report_issue_subject_header">
         <item>Absturz der App</item>
         <item>Plötzliche Verzögerungen</item>
@@ -87,7 +91,6 @@
         <item>Eine Komponente funktioniert nicht wie erwartet</item>
         <item>Anfrage zur Integration einer Funktionalität</item>
     </string-array>
-
     <string-array name="report_issue_subject_tags">
         <item>[CRASH]</item>
         <item>[LAG]</item>
