@@ -21,7 +21,7 @@
 -->
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <PreferenceCategory android:title="@string/pref_general_settings">
+    <PreferenceCategory android:title="@string/pref_settings_general">
         <CheckBoxPreference
             android:key="pref_always_upload"
             android:title="@string/pref_always_upload"
@@ -38,7 +38,7 @@
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="pref_privacy"
-            android:summary="@string/pref_obfuscate_track_summary"
+            android:summary="@string/pref_obfuscate_track"
             android:title="@string/pref_obfuscate_track_summary"/>
         <CheckBoxPreference
             android:defaultValue="false"
