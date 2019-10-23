@@ -7,6 +7,15 @@
     android:background="@color/white_cario"
     android:orientation="vertical">
 
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/fragment_dashboard_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@color/cario_color_primary"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <LinearLayout
         android:id="@+id/fragment_dashboard_icon_layout"
         android:layout_width="match_parent"
@@ -24,15 +33,6 @@
             android:src="@drawable/img_envirocar_logo_white" />
     </LinearLayout>
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/fragment_dashboard_toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:background="@color/cario_color_primary"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <androidx.core.widget.NestedScrollView
         android:id="@+id/fragment_dashboard_scrollview"
         android:layout_width="match_parent"
@@ -42,12 +42,12 @@
 
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="700dp">
+            android:layout_height="650dp">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/fragment_dashboard_main_layout"
                 android:layout_width="match_parent"
-                android:layout_height="700dp"
+                android:layout_height="650dp"
                 android:background="@color/white_cario"
                 android:orientation="vertical"
                 android:visibility="visible">
