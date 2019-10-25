@@ -112,7 +112,11 @@ public class ResponseParser {
             index += length;
         }
 
-        return createDataResponse(pid, buffer, data);
+        try {
+            return createDataResponse(pid, buffer, data);
+        } catch (Exception e){
+            throw new UnmatchedResponseException(e);
+        }
     }
 
     private DataResponse createDataResponse(PID pid, int[] processedData, byte[] rawData) {

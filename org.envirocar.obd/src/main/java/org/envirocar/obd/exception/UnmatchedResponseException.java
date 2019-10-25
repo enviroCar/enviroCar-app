@@ -27,4 +27,8 @@ public class UnmatchedResponseException extends Exception {
         super("no further information available");
     }
 
+    public UnmatchedResponseException(Exception e){
+        super(e);
+    }
+
 }
