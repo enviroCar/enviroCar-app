@@ -56,7 +56,7 @@ public abstract class SyncAdapter implements OBDAdapter {
 
     private static final Logger LOGGER = Logger.getLogger(SyncAdapter.class.getName());
 
-    protected static final long ADAPTER_TRY_PERIOD = 20000;
+    protected static final long ADAPTER_TRY_PERIOD = 100000;
 
     private static final char COMMAND_SEND_END = '\r';
     private static final char COMMAND_RECEIVE_END = '>';
@@ -136,6 +136,14 @@ public abstract class SyncAdapter implements OBDAdapter {
                                 analyzedSuccessfully = analyzedSuccessfully | analyzeMetadataResponse(resp, cc);
                             } catch (InterruptedException e) {
                                 LOGGER.warn(e.getMessage());
+                            } catch (Exception e){
+                                // retry
+                                commandExecutor.execute(cc);
+                                Thread.sleep(750);
+                                LOGGER.info("Retrieving initial phase response...");
+                                byte[] resp = commandExecutor.retrieveLatestResponse();
+                                LOGGER.info("Retrieved initial phase response: " + Base64.encodeToString(resp, Base64.DEFAULT));
+                                analyzedSuccessfully = analyzedSuccessfully | analyzeMetadataResponse(resp, cc);
                             }
 
                         } else {

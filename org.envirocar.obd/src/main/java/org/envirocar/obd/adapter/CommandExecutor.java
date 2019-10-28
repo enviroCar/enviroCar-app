@@ -138,9 +138,18 @@ public class CommandExecutor {
 
         if (byteArray.length == 0) {
             LOGGER.info("Unexpected empty line anomaly detected. Try to read next line.");
-            baos.reset();
-            readUntilLineEnd(baos);
-            byteArray = baos.toByteArray();
+//            baos.reset();
+
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+            }
+
+            if (isDataAvailable()){
+                readUntilLineEnd(baos);
+                byteArray = baos.toByteArray();
+            }
+
         }
 
         if (LOGGER.isEnabled(currentLogLevel)) {
@@ -148,6 +157,14 @@ public class CommandExecutor {
         }
 
         return byteArray;
+    }
+
+    public boolean isDataAvailable(){
+        try {
+            return inputStream.available() > 0;
+        } catch (Exception e){
+            return false;
+        }
     }
 
     private void readUntilLineEnd(ByteArrayOutputStream baos) throws IOException, StreamFinishedException {
