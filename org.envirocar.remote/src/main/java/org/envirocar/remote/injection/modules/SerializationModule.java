@@ -30,6 +30,7 @@ import org.envirocar.core.entity.PrivacyStatement;
 import org.envirocar.core.entity.TermsOfUse;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.entity.User;
+import org.envirocar.core.entity.UserStatistic;
 import org.envirocar.core.entity.UserStatistics;
 import org.envirocar.remote.serde.AnnouncementSerde;
 import org.envirocar.remote.serde.CarListSerde;
@@ -44,7 +45,7 @@ import org.envirocar.remote.serde.TermsOfUseListSerde;
 import org.envirocar.remote.serde.TermsOfUseSerde;
 import org.envirocar.remote.serde.TrackSerde;
 import org.envirocar.remote.serde.UserSerde;
-import org.envirocar.remote.serde.UserStatisticSerde;
+import org.envirocar.remote.serde.UserStatisticsSerde;
 
 import java.util.List;
 
@@ -69,8 +70,8 @@ public class SerializationModule {
 
     @Provides
     @Singleton
-    protected UserStatisticSerde provideUserStatisticDeserializer() {
-        return new UserStatisticSerde();
+    protected UserStatisticsSerde provideUserStatisticDeserializer() {
+        return new UserStatisticsSerde();
     }
 
     @Provides
@@ -170,7 +171,7 @@ public class SerializationModule {
 
     @Provides
     @Singleton
-    protected Gson provideGson(UserSerde userSerializer, UserStatisticSerde userStatisticDeserializer, TypeToken<List<Car>> carListTypeToken,
+    protected Gson provideGson(UserSerde userSerializer, UserStatisticsSerde userStatisticDeserializer, TypeToken<List<Car>> carListTypeToken,
                                CarListSerde carListDeserializer, TrackSerde trackSerializer, MeasurementSerde measurementSerializer,
                                TypeToken<List<Track>> trackListTypeToken, RemoteTrackListSerde remoteTrackListDeserializer, TermsOfUseSerde termsOfUseSerializer,
                                TypeToken<List<TermsOfUse>> termsOfUseListTypeToken, TermsOfUseListSerde termsOfUseListSerializer, AnnouncementSerde announcementSerializer,
@@ -192,6 +193,7 @@ public class SerializationModule {
                 .registerTypeAdapter(Announcement.class, announcementSerializer)
                 .registerTypeAdapter(Fueling.class, fuelingSerializer)
                 .registerTypeAdapter(fuelingListTypeToken.getType(), fuelingListSerializer)
+                .registerTypeAdapter(UserStatistic.class, new UserStatisticsSerde())
                 .create();
     }
 }

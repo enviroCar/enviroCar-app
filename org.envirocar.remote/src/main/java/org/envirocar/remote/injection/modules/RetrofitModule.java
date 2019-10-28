@@ -98,4 +98,5 @@ public class RetrofitModule {
     protected PrivacyStatementService providePrivacyStatement(Retrofit retrofit) {
         return retrofit.create(PrivacyStatementService.class);
     }
+
 }
