@@ -53,6 +53,12 @@ import io.reactivex.schedulers.Schedulers;
 public class SignupActivity extends BaseInjectorActivity {
     private static final Logger LOG = Logger.getLogger(SignupActivity.class);
 
+    public static void startActivity(Context context){
+        Intent intent = new Intent(context, SignupActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+        context.startActivity(intent);
+    }
+
     // Inject Dependencies
     @Inject
     protected UserPreferenceHandler userHandler;

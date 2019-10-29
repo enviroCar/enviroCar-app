@@ -235,8 +235,7 @@ public class DashboardFragment extends BaseInjectorFragment {
         LOG.info(String.format("Toolbar - Clicked on %s", menuItem.getTitle()));
         if (menuItem.getItemId() == R.id.dashboard_action_login) {
             // starting the login activity
-            Intent intent = new Intent(getActivity(), SigninActivity.class);
-            getActivity().startActivity(intent);
+            SigninActivity.startActivity(getContext());
         } else if (menuItem.getItemId() == R.id.dashboard_action_logout) {
             // show a logout dialog
             new MaterialDialog.Builder(getActivity())

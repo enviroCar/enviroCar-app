@@ -13,13 +13,13 @@ import androidx.core.app.ActivityOptionsCompat;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.android.material.snackbar.Snackbar;
 
+import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
 import org.envirocar.app.exception.LoginException;
 import org.envirocar.app.handler.DAOProvider;
-import org.envirocar.app.handler.preferences.UserPreferenceHandler;
 import org.envirocar.app.handler.agreement.AgreementManager;
+import org.envirocar.app.handler.preferences.UserPreferenceHandler;
 import org.envirocar.app.injection.BaseInjectorActivity;
-import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.core.logging.Logger;
 
 import javax.inject.Inject;
@@ -27,7 +27,6 @@ import javax.inject.Inject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.DisposableCompletableObserver;
@@ -40,6 +39,12 @@ import io.reactivex.schedulers.Schedulers;
  */
 public class SigninActivity extends BaseInjectorActivity {
     private static final Logger LOG = Logger.getLogger(SigninActivity.class);
+
+    public static void startActivity(Context context){
+        Intent intent = new Intent(context, SigninActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+        context.startActivity(intent);
+    }
 
     // Inject Dependencies
     @Inject
@@ -56,10 +61,6 @@ public class SigninActivity extends BaseInjectorActivity {
     protected EditText passwordEditText;
     @BindView(R.id.activity_login_logo)
     protected ImageView logoImageView;
-
-    //
-    private final Scheduler.Worker mainThreadWorker = AndroidSchedulers.mainThread().createWorker();
-    private final Scheduler.Worker backgroundWorker = Schedulers.newThread().createWorker();
 
     private Disposable loginSubscription;
 
@@ -78,12 +79,22 @@ public class SigninActivity extends BaseInjectorActivity {
         ButterKnife.bind(this);
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if (loginSubscription != null && !loginSubscription.isDisposed()) {
+            loginSubscription.dispose();
+        }
+    }
+
     @OnClick(R.id.activity_signin_register_button)
     protected void onSwitchToRegisterClicked() {
         ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
                 this, logoImageView, "imageMain");
-        Intent in = new Intent(this, SignupActivity.class);
-        startActivity(in, options.toBundle());
+
+        // start Signup activity.
+        SignupActivity.startActivity(this);
     }
 
     @OnClick(R.id.activity_signin_login_button)
@@ -130,7 +141,7 @@ public class SigninActivity extends BaseInjectorActivity {
 
     private void login(String username, String password) {
         // Create a dialog indicating the log in process.
-        userHandler.logIn(username, password)
+        this.loginSubscription = userHandler.logIn(username, password)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(new DisposableCompletableObserver() {
