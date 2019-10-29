@@ -23,6 +23,14 @@
     <!-- ################# -->
     <!--  General Strings  -->
     <!-- ################# -->
+    <string name="username">Nutzername</string>
+    <string name="password">Passwort</string>
+    <string name="confirm_password">Passwort bestätigen</string>
+    <string name="login">Anmelden</string>
+    <string name="sign_in">Anmeldung</string>
+    <string name="sign_up">Registrierung</string>
+    <string name="email">E-Mail</string>
+
     <string name="login_register">Einloggen/Registrieren</string>
     <string name="today">Heute</string>
     <string name="yesterday">Gestern</string>

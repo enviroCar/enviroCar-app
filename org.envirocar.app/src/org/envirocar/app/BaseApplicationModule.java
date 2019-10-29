@@ -31,6 +31,7 @@ import org.envirocar.app.handler.HandlerModule;
 import org.envirocar.app.handler.TemporaryFileManager;
 import org.envirocar.app.handler.TrackRecordingHandler;
 import org.envirocar.app.injection.modules.RepositoryModule;
+import org.envirocar.app.injection.modules.SchedulerModule;
 import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.app.services.OBDServiceModule;
 import org.envirocar.core.CacheDirectoryProvider;
@@ -63,7 +64,8 @@ import io.reactivex.schedulers.Schedulers;
                 DatabaseModule.class,
                 HandlerModule.class,
                 OBDServiceModule.class,
-                RepositoryModule.class
+                RepositoryModule.class,
+                SchedulerModule.class
         }
 
 )

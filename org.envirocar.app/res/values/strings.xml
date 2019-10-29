@@ -23,6 +23,14 @@
     <!-- ################# -->
     <!--  General Strings  -->
     <!-- ################# -->
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="login">Login</string>
+    <string name="sign_in">Sign In</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="email">E-Mail</string>
+
     <string name="login_register">Login/Register</string>
     <string name="today">Today</string>
     <string name="yesterday">Yesterday</string>
@@ -105,6 +113,11 @@
 
     <!-- Splashscreen -->
     <string name="activity_splashscreen_subtitle">Start Today. \nJoin the Community.</string>
+
+    <!-- ################# -->
+    <!-- Sign In / Sign Up -->
+    <!-- ################# -->
+
 
 
     <!-- ################# -->
