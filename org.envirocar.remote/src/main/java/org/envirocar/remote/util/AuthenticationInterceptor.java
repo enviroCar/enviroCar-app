@@ -42,7 +42,7 @@ public class AuthenticationInterceptor implements Interceptor {
     /**
      * Constructor.
      *
-     * @param userManager the user manager.
+     * @param userManager the getUserStatistic manager.
      */
     @Inject
     public AuthenticationInterceptor(UserManager userManager) {

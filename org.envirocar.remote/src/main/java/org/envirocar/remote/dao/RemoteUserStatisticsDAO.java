@@ -49,8 +49,8 @@ public class RemoteUserStatisticsDAO extends BaseRemoteDAO<UserDAO, UserService>
      * Constructor.
      *
      * @param cacheDao    the cache dao for users.
-     * @param userService the user service.
-     * @param userManager the user manager.
+     * @param userService the getUserStatistic service.
+     * @param userManager the getUserStatistic manager.
      */
     @Inject
     public RemoteUserStatisticsDAO(CacheUserDAO cacheDao, UserService userService, UserManager

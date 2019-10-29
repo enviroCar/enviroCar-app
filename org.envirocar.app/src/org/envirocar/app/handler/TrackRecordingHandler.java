@@ -39,7 +39,7 @@ import org.envirocar.core.logging.Logger;
 import org.envirocar.core.utils.ServiceUtils;
 import org.envirocar.obd.events.TrackRecordingServiceStateChangedEvent;
 import org.envirocar.obd.service.BluetoothServiceState;
-import org.envirocar.storage.EnviroCarDB;
+import org.envirocar.core.EnviroCarDB;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;

@@ -24,6 +24,7 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.squareup.sqlbrite3.BriteDatabase;
 
+import org.envirocar.core.EnviroCarDB;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.exception.MeasurementSerializationException;

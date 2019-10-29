@@ -30,19 +30,26 @@ import com.squareup.otto.ThreadEnforcer;
 import org.envirocar.app.handler.HandlerModule;
 import org.envirocar.app.handler.TemporaryFileManager;
 import org.envirocar.app.handler.TrackRecordingHandler;
+import org.envirocar.app.injection.modules.RepositoryModule;
 import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.app.services.OBDServiceModule;
 import org.envirocar.core.CacheDirectoryProvider;
+import org.envirocar.core.injection.InjectIOScheduler;
+import org.envirocar.core.injection.InjectUIScheduler;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.util.Util;
 import org.envirocar.app.handler.DAOProvider;
 import org.envirocar.remote.injection.modules.RemoteModule;
+import org.envirocar.remote.repository.RemoteRepository;
 import org.envirocar.storage.DatabaseModule;
 
 import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
+import io.reactivex.Scheduler;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * A module for application-specific dependencies which require a Application-
@@ -55,7 +62,8 @@ import dagger.Provides;
                 RemoteModule.class,
                 DatabaseModule.class,
                 HandlerModule.class,
-                OBDServiceModule.class
+                OBDServiceModule.class,
+                RepositoryModule.class
         }
 
 )
@@ -161,6 +169,5 @@ public class BaseApplicationModule {
     public CacheDirectoryProvider provideCacheDirectoryProvider(@InjectApplicationScope Context context) {
         return () -> Util.resolveCacheFolder(context);
     }
-
 
 }

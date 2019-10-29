@@ -203,7 +203,7 @@ public class SignupActivity extends BaseInjectorActivity {
                 newUser.setMail(email);
                 daoProvider.getUserDAO().createUser(newUser);
 
-                // Successfully created the user
+                // Successfully created the getUserStatistic
                 mainThreadWorker.schedule(() -> {
                     // Dismiss the progress dialog.
                     dialog.dismiss();

@@ -45,6 +45,7 @@ import org.envirocar.remote.serde.TermsOfUseListSerde;
 import org.envirocar.remote.serde.TermsOfUseSerde;
 import org.envirocar.remote.serde.TrackSerde;
 import org.envirocar.remote.serde.UserSerde;
+import org.envirocar.remote.serde.UserStatisticSerde;
 import org.envirocar.remote.serde.UserStatisticsSerde;
 
 import java.util.List;
@@ -193,7 +194,7 @@ public class SerializationModule {
                 .registerTypeAdapter(Announcement.class, announcementSerializer)
                 .registerTypeAdapter(Fueling.class, fuelingSerializer)
                 .registerTypeAdapter(fuelingListTypeToken.getType(), fuelingListSerializer)
-                .registerTypeAdapter(UserStatistic.class, new UserStatisticsSerde())
+                .registerTypeAdapter(UserStatistic.class, new UserStatisticSerde())
                 .create();
     }
 }

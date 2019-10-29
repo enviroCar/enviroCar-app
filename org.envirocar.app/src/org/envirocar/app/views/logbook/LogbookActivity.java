@@ -142,7 +142,7 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
             }
         });
 
-        // When the user is logged in, then download its fuelings. Otherwise, show a "not logged
+        // When the getUserStatistic is logged in, then download its fuelings. Otherwise, show a "not logged
         // in" notification.
         if (userManager.isLoggedIn()) {
             downloadFuelings();

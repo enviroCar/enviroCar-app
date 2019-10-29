@@ -107,7 +107,7 @@ public class LocationHandler {
                 // here to request the missing permissions, and then overriding
                 //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
                 //                                          int[] grantResults)
-                // to handle the case where the user grants the permission. See the documentation
+                // to handle the case where the getUserStatistic grants the permission. See the documentation
                 // for ActivityCompat#requestPermissions for more details.
                 return;
             }

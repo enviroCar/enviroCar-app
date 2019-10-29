@@ -196,7 +196,7 @@ public class OthersFragment extends BaseInjectorFragment {
                 ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
                         Manifest.permission.WRITE_EXTERNAL_STORAGE);
 
-        // Provide an additional rationale to the user. This would happen if the user denied the
+        // Provide an additional rationale to the getUserStatistic. This would happen if the getUserStatistic denied the
         // request previously, but didn't check the "Don't ask again" checkbox.
         if (shouldProvideRationale) {
             LOGGER.debug("Requesting File Permission. Displaying permission rationale to provide additional context.");
@@ -218,7 +218,7 @@ public class OthersFragment extends BaseInjectorFragment {
         } else {
             LOGGER.debug("Requesting permission");
             // Request permission. It's possible this can be auto answered if device policy
-            // sets the permission in a given state or the user denied the permission
+            // sets the permission in a given state or the getUserStatistic denied the permission
             // previously and checked "Never ask again".
             ActivityCompat.requestPermissions(getActivity(),
                     new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
@@ -236,7 +236,7 @@ public class OthersFragment extends BaseInjectorFragment {
         //LOG.debug("onRequestPermissionResult");
         if (requestCode == REQUEST_PERMISSIONS_REQUEST_CODE) {
             if (grantResults.length <= 0) {
-                // If user interaction was interrupted, the permission request is cancelled and you
+                // If getUserStatistic interaction was interrupted, the permission request is cancelled and you
                 // receive empty arrays.
                // LOG.debug("User interaction was cancelled.");
             } else if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -244,13 +244,13 @@ public class OthersFragment extends BaseInjectorFragment {
             } else {
                 // Permission denied.
 
-                // Notify the user via a SnackBar that they have rejected a core permission for the
+                // Notify the getUserStatistic via a SnackBar that they have rejected a core permission for the
                 // app, which makes the Activity useless. In a real app, core permissions would
                 // typically be best requested during a welcome-screen flow.
 
                 // Additionally, it is important to remember that a permission might have been
-                // rejected without asking the user for permission (device policy or "Never ask
-                // again" prompts). Therefore, a user interface affordance is typically implemented
+                // rejected without asking the getUserStatistic for permission (device policy or "Never ask
+                // again" prompts). Therefore, a getUserStatistic interface affordance is typically implemented
                 // when permissions are denied. Otherwise, your app could appear unresponsive to
                 // touches or interactions which have required permissions.
                 showSnackbar(R.string.permission_denied_explanation,
@@ -310,10 +310,10 @@ public class OthersFragment extends BaseInjectorFragment {
             User user = mUserManager.getUser();
 
             mBackgroundWorker.schedule(() -> {
-                // Log out the user
+                // Log out the getUserStatistic
                 mUserManager.logOut();
 
-                // Finally, delete all tracks that are associated to the previous user.
+                // Finally, delete all tracks that are associated to the previous getUserStatistic.
                 mTrackDAOHandler.deleteAllRemoteTracksLocally();
                 // Close the dialog.
                 dialog.dismiss();

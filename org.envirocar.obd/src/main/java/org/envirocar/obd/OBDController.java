@@ -380,7 +380,7 @@ public class OBDController {
      * This object is no longer executable, a new instance has to
      * be created.
      * <p>
-     * Only use this if the stop is from high-level (e.g. user request)
+     * Only use this if the stop is from high-level (e.g. getUserStatistic request)
      * and NOT on any kind of exception
      */
     public void shutdown() {

@@ -173,24 +173,24 @@ public class AgreementManager {
         LOG.info("Check whether the Privacy Statement has been accepted.");
         return privacyStatement -> {
             User user = checkUserLoggedInAndReturn();
-            LOG.info("Retrieved privacy statement for user [%s] with version [%s]",
+            LOG.info("Retrieved privacy statement for getUserStatistic [%s] with version [%s]",
                     user.getUsername(), user.getPrivacyStatementVersion());
 
             boolean hasAccepted = privacyStatement.getIssuedDate().equals(user.getTermsOfUseVersion());
 
-            // if the user has accepted, then just return the statement
+            // if the getUserStatistic has accepted, then just return the statement
             if (hasAccepted) {
                 return Observable.just(privacyStatement);
             }
 
-            // if the user has not accepted, then check whether to show a dialog.
+            // if the getUserStatistic has not accepted, then check whether to show a dialog.
             if (activity != null) {
                 return createPrivacyStatementObservable(user, privacyStatement, activity);
             }
 
             // if no dialog is possible, throw an exception
             else {
-                throw new NotAcceptedTermsOfUseException("The user has not accepted the terms of use");
+                throw new NotAcceptedTermsOfUseException("The getUserStatistic has not accepted the terms of use");
             }
         };
     }
@@ -199,12 +199,12 @@ public class AgreementManager {
         LOG.info("checkTermsOfUseAcceptance()");
         return termsOfUse -> {
             User user = checkUserLoggedInAndReturn();
-            LOG.info(String.format("Retrieved terms of use for user [%s] with terms of" +
+            LOG.info(String.format("Retrieved terms of use for getUserStatistic [%s] with terms of" +
                     " use version [%s]", user.getUsername(), user.getTermsOfUseVersion()));
 
             boolean hasAccepted = termsOfUse.getIssuedDate().equals(user.getTermsOfUseVersion());
 
-            // If the user has accepted, then just return the generic type
+            // If the getUserStatistic has accepted, then just return the generic type
             if (hasAccepted) {
                 return Observable.just(termsOfUse);
             }
@@ -214,7 +214,7 @@ public class AgreementManager {
             }
             // Otherwise, throw an exception.
             else {
-                throw new NotAcceptedTermsOfUseException("The user has not accepted the terms of use");
+                throw new NotAcceptedTermsOfUseException("The getUserStatistic has not accepted the terms of use");
             }
         };
     }
@@ -232,7 +232,7 @@ public class AgreementManager {
         return new ReactiveTermsOfUseDialog(activity, user, currentTermsOfUse)
                 .asObservable()
                 .map(termsOfUse -> {
-                    LOG.info("TermsOfUseDialog: the user has accepted the ToU.");
+                    LOG.info("TermsOfUseDialog: the getUserStatistic has accepted the ToU.");
 
                     try {
                         // set the terms of use
@@ -294,7 +294,7 @@ public class AgreementManager {
          * Constructor.
          *
          * @param agreementManager the manager for the terms of use.
-         * @param activity         the activity for the case when the user has not accepted the
+         * @param activity         the activity for the case when the getUserStatistic has not accepted the
          *                         terms of use. Then it creates a Dialog for acceptance.
          */
         public TermsOfUseValidator(AgreementManager agreementManager, Activity activity) {

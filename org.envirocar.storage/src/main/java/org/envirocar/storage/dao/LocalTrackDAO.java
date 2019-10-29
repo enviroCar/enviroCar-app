@@ -20,7 +20,7 @@ package org.envirocar.storage.dao;
 
 import org.envirocar.core.dao.TrackDAO;
 import org.envirocar.core.entity.Track;
-import org.envirocar.storage.EnviroCarDB;
+import org.envirocar.core.EnviroCarDB;
 
 import java.util.List;
 

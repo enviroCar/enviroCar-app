@@ -340,7 +340,7 @@ public abstract class AbstractTrackListCardAdapter<E extends
 
     /**
      * Remote track view holder that only contains the views that can be filled with information
-     * of a remote track list. (i.e. users/{user}/tracks)
+     * of a remote track list. (i.e. users/{getUserStatistic}/tracks)
      */
     static class RemoteTrackCardViewHolder extends TrackCardViewHolder {
 

@@ -59,6 +59,7 @@ import org.envirocar.app.views.trackdetails.TrackStatisticsActivity;
 import org.envirocar.app.views.tracklist.TrackListLocalCardFragment;
 import org.envirocar.app.views.tracklist.TrackListRemoteCardFragment;
 import org.envirocar.core.UserManager;
+import org.envirocar.core.interactor.GetUserStatistic;
 import org.envirocar.remote.dao.CacheAnnouncementsDAO;
 import org.envirocar.remote.dao.CacheCarDAO;
 import org.envirocar.remote.dao.CacheFuelingDAO;
@@ -125,6 +126,9 @@ public interface BaseApplicationComponent {
     // service injections
     void inject(TrackUploadService trackUploadService);
     void inject(EnviroCarDataService enviroCarDataService);
+
+    // interactors
+    void inject(GetUserStatistic getUserStatistic);
 
     // module extensions
     MainActivityComponent plus(MainActivityModule module);

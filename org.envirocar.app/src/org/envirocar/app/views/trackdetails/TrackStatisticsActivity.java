@@ -37,7 +37,7 @@ import org.envirocar.app.R;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
 import org.envirocar.app.injection.BaseInjectorActivity;
-import org.envirocar.storage.EnviroCarDB;
+import org.envirocar.core.EnviroCarDB;
 
 import java.util.ArrayList;
 import java.util.List;

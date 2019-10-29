@@ -48,8 +48,8 @@ public interface CarService {
     @GET("sensors/")
     Observable<List<Car>> getAllCarsObservable(@Query("page") int page);
 
-    @GET("users/{user}/sensors/")
-    Call<List<Car>> getAllCars(@Path("user") String user);
+    @GET("users/{getUserStatistic}/sensors/")
+    Call<List<Car>> getAllCars(@Path("getUserStatistic") String user);
 
     @POST("sensors")
     Call<Car> createCar(@Body Car car);

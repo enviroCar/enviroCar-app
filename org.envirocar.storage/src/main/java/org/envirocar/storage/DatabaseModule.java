@@ -26,6 +26,7 @@ import androidx.sqlite.db.framework.*;
 import com.squareup.sqlbrite3.BriteDatabase;
 import com.squareup.sqlbrite3.SqlBrite;
 
+import org.envirocar.core.EnviroCarDB;
 import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.logging.Logger;
 

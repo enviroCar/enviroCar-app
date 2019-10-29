@@ -22,11 +22,11 @@ public class UserTest extends ResourceLoadingTestCase {
 
 //	@Test
 //	public void testUserParsing() throws IOException, JSONException {
-//		User user = User.fromJson(readJsonAsset("/user_mockup.json"));
+//		User getUserStatistic = User.fromJson(readJsonAsset("/user_mockup.json"));
 //
-//		Assert.assertTrue("missing touVersion", user.getTouVersion() != null);
-//		Assert.assertTrue("unexpected acceptedTermsOfUseVersion", user.getTouVersion().equals("2013-10-02"));
-//		Assert.assertTrue("unexpected username", user.getUsername().equals("matthes"));
+//		Assert.assertTrue("missing touVersion", getUserStatistic.getTouVersion() != null);
+//		Assert.assertTrue("unexpected acceptedTermsOfUseVersion", getUserStatistic.getTouVersion().equals("2013-10-02"));
+//		Assert.assertTrue("unexpected username", getUserStatistic.getUsername().equals("matthes"));
 //	}
 	
 }

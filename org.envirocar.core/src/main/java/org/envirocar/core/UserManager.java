@@ -30,22 +30,22 @@ import io.reactivex.Completable;
 public interface UserManager {
 
     /**
-     * Determines whether the user is logged in. A user is logged in when
-     * the application has a user as a variable.
+     * Determines whether the getUserStatistic is logged in. A getUserStatistic is logged in when
+     * the application has a getUserStatistic as a variable.
      *
      * @return
      */
     boolean isLoggedIn();
 
     /**
-     * Get the user
+     * Get the getUserStatistic
      *
-     * @return user
+     * @return getUserStatistic
      */
     User getUser();
 
     /**
-     * Sets the user
+     * Sets the getUserStatistic
      *
      * @param user
      */
@@ -55,7 +55,7 @@ public interface UserManager {
      * Handles the login as a completable
      *
      * @param user  username
-     * @param token user token
+     * @param token getUserStatistic token
      * @return
      */
     Completable logIn(String user, String token);

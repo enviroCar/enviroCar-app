@@ -52,7 +52,7 @@ public class ReactivePrivacyStatementDialog extends AbstractReactiveAcceptDialog
      * Constructor.
      *
      * @param activityContext the context of the currently visible activity
-     * @param user            the user entity
+     * @param user            the getUserStatistic entity
      * @param entity          the entity to show the dialog for.
      */
     public ReactivePrivacyStatementDialog(Activity activityContext, User user, PrivacyStatement entity) {

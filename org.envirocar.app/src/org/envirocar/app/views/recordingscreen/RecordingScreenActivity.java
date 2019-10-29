@@ -195,7 +195,10 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
                 .content(R.string.dashboard_dialog_stop_track_content)
                 .negativeText(R.string.cancel)
                 .positiveText(R.string.ok)
-                .onPositive((dialog, which) -> trackRecordingHandler.finishCurrentTrack())
+                .onPositive((dialog, which) -> {
+                    trackRecordingHandler.finishCurrentTrack();
+                    finish();
+                })
                 .show();
     }
 

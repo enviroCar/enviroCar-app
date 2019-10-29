@@ -15,7 +15,7 @@ import org.envirocar.core.exception.MeasurementSerializationException;
 import org.envirocar.core.exception.TrackSerializationException;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.utils.LocationUtils;
-import org.envirocar.storage.EnviroCarDB;
+import org.envirocar.core.EnviroCarDB;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;

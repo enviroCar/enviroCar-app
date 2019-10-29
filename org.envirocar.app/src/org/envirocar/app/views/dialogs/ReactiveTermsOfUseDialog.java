@@ -88,8 +88,8 @@ public class ReactiveTermsOfUseDialog extends AbstractReactiveAcceptDialog<Terms
     /**
      * Creates the dialog for accepting the terms of use.
      *
-     * @param onPositive the action that gets called when the user accepts the terms of use.
-     * @param onNegative the action that gets called when the user rejects the terms of use.
+     * @param onPositive the action that gets called when the getUserStatistic accepts the terms of use.
+     * @param onNegative the action that gets called when the getUserStatistic rejects the terms of use.
      * @return the created dialog instance.
      */
     private MaterialDialog.Builder createAcceptDialogBuilder(Spanned content, Runnable onPositive, Runnable onNegative) {

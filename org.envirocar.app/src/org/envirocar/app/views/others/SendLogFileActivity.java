@@ -232,7 +232,7 @@ public class SendLogFileActivity extends BaseInjectorActivity {
     }
 
     /**
-     * In case no checkbox has been ticked, a dialog is created urging the user to do so,
+     * In case no checkbox has been ticked, a dialog is created urging the getUserStatistic to do so,
      * else continue
      * @param reportBundle
      */
@@ -371,7 +371,7 @@ public class SendLogFileActivity extends BaseInjectorActivity {
     }
 
     /**
-     * read the user defined edit fields.
+     * read the getUserStatistic defined edit fields.
      *
      * @return a string acting as the contents of the email
      */

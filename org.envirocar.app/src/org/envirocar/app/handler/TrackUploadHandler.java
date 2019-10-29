@@ -37,7 +37,7 @@ import org.envirocar.core.exception.TrackWithNoValidCarException;
 import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.utils.TrackUtils;
-import org.envirocar.storage.EnviroCarDB;
+import org.envirocar.core.EnviroCarDB;
 
 import java.util.List;
 
@@ -106,11 +106,11 @@ public class TrackUploadHandler {
             LOG.info("uploadTrackObservable() start uploading.");
 //                subscriber.onStart();
 
-            // Create a dialog with which the user can accept the terms of use.
+            // Create a dialog with which the getUserStatistic can accept the terms of use.
             DisposableObserver disposable = Observable.just(track)
                     // Verify whether the TermsOfUSe have been accepted.
                     // When the TermsOfUse have not been accepted, create an
-                    // Dialog to accept and continue when the user has accepted.
+                    // Dialog to accept and continue when the getUserStatistic has accepted.
                     .compose(AgreementManager.TermsOfUseValidator.create(mAgreementManager, activity))
                     // Continue when the TermsOfUse has been accepted, otherwise
                     // throw an error
@@ -167,8 +167,8 @@ public class TrackUploadHandler {
      * Returns an observable that uploads a list of tracks. If a track did not contain enough
      * measurements, i.e. the track obfuscation is throwing a {@link NoMeasurementsException},
      * then it returns null to its subscriber. In case when the terms of use has not been
-     * accepted for the specific user and the input parameter is not null, then it automatically
-     * creates a dialog where the user can accept the terms of use.
+     * accepted for the specific getUserStatistic and the input parameter is not null, then it automatically
+     * creates a dialog where the getUserStatistic can accept the terms of use.
      *
      * @param tracks                the list of tracks to upload.
      * @param abortOnNoMeasurements if true, then it also closes the complete stream. Otherwise,

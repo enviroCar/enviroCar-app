@@ -35,7 +35,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
-import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -57,7 +56,7 @@ import org.envirocar.core.exception.NotConnectedException;
 import org.envirocar.core.exception.UnauthorizedException;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.remote.serde.TrackSerde;
-import org.envirocar.storage.EnviroCarDB;
+import org.envirocar.core.EnviroCarDB;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -210,7 +209,7 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
                 ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
                         Manifest.permission.WRITE_EXTERNAL_STORAGE);
 
-        // Provide an additional rationale to the user. This would happen if the user denied the
+        // Provide an additional rationale to the getUserStatistic. This would happen if the getUserStatistic denied the
         // request previously, but didn't check the "Don't ask again" checkbox.
         if (shouldProvideRationale) {
             LOG.debug("Requesting Storage permission. Displaying permission rationale to provide additional context.");
@@ -231,7 +230,7 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
         } else {
             LOG.info("Requesting permission");
             // Request permission. It's possible this can be auto answered if device policy
-            // sets the permission in a given state or the user denied the permission
+            // sets the permission in a given state or the getUserStatistic denied the permission
             // previously and checked "Never ask again".
             ActivityCompat.requestPermissions(getActivity(),
                     new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
@@ -249,7 +248,7 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
         LOG.info("onRequestPermissionResult");
         if (requestCode == REQUEST_STORAGE_PERMISSION_REQUEST_CODE) {
             if (grantResults.length <= 0) {
-                // If user interaction was interrupted, the permission request is cancelled and you
+                // If getUserStatistic interaction was interrupted, the permission request is cancelled and you
                 // receive empty arrays.
                 LOG.info("User interaction was cancelled.");
             } else if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -393,7 +392,7 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
                         track.getName()), e);
 
                 if (e instanceof UnauthorizedException) {
-                    LOG.error("The logged in user is not authorized to do that.", e);
+                    LOG.error("The logged in getUserStatistic is not authorized to do that.", e);
                     showSnackbar(R.string.track_list_deleting_track_unauthorized);
                 } else if (e instanceof NotConnectedException) {
                     LOG.error("Not connected", e);

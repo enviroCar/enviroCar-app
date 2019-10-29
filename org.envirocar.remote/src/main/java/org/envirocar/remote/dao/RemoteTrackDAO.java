@@ -167,9 +167,9 @@ public class RemoteTrackDAO extends BaseRemoteDAO<TrackDAO, TrackService> implem
             NotConnectedException, UnauthorizedException {
         LOG.info("createTrack()");
 
-        // check whether the user is logged in
+        // check whether the getUserStatistic is logged in
         if (!userManager.isLoggedIn()) {
-            throw new UnauthorizedException("The user is not logged in");
+            throw new UnauthorizedException("The getUserStatistic is not logged in");
         }
 
         // Initiate the remoteService and its call

@@ -239,7 +239,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
                 .flatMap(cars -> {
                     Observable<List<Car>> carsObs = Observable.just(cars);
                     if (mUserHandler.isLoggedIn() && !mCarManager.isDownloaded()) {
-                        LOG.info("Loading Cars: user has not downloaded its remote cars. " +
+                        LOG.info("Loading Cars: getUserStatistic has not downloaded its remote cars. " +
                                 "Trying to fetch these.");
                         carsObs = carsObs.concatWith(mCarManager.downloadRemoteCarsOfUser());
                     }

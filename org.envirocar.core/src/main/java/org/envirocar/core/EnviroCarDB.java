@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
-package org.envirocar.storage;
+package org.envirocar.core;
 
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;

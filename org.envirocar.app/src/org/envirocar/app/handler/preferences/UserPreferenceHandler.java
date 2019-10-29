@@ -104,8 +104,8 @@ public class UserPreferenceHandler extends AbstractCachable<User> implements Use
     }
 
     /**
-     * Determines whether the user is logged in. A user is logged in when
-     * the application has a user as a variable.
+     * Determines whether the getUserStatistic is logged in. A getUserStatistic is logged in when
+     * the application has a getUserStatistic as a variable.
      *
      * @return
      */
@@ -114,16 +114,16 @@ public class UserPreferenceHandler extends AbstractCachable<User> implements Use
     }
 
     /**
-     * Get the user
+     * Get the getUserStatistic
      *
-     * @return user
+     * @return getUserStatistic
      */
     public User getUser() {
         return this.readFromCache();
     }
 
     /**
-     * Sets the user
+     * Sets the getUserStatistic
      *
      * @param user
      */
@@ -135,7 +135,7 @@ public class UserPreferenceHandler extends AbstractCachable<User> implements Use
      * Handles the login as a completable
      *
      * @param user  username
-     * @param token user token
+     * @param token getUserStatistic token
      * @return
      */
     public Completable logIn(String user, String token) {
@@ -144,7 +144,7 @@ public class UserPreferenceHandler extends AbstractCachable<User> implements Use
 
     public Completable logIn(String user, String token, boolean withEvent) {
         return Completable.create(emitter -> {
-            LOG.info("Trying to login user %s".format(user));
+            LOG.info("Trying to login getUserStatistic %s".format(user));
             User candidateUser = new UserImpl(user, token);
 
             // hack
@@ -179,7 +179,7 @@ public class UserPreferenceHandler extends AbstractCachable<User> implements Use
 
     public Completable logOut(Boolean withEvent) {
         return Completable.create(emitter -> {
-            LOG.info("Logging out current user.");
+            LOG.info("Logging out current getUserStatistic.");
             // Removes all the preferences from the editor.
             resetCache();
 
@@ -189,7 +189,7 @@ public class UserPreferenceHandler extends AbstractCachable<User> implements Use
             //set complete
             emitter.onComplete();
 
-            // Fire a new event on the event bus holding indicating that no logged in user exist.
+            // Fire a new event on the event bus holding indicating that no logged in getUserStatistic exist.
             if (withEvent) {
                 bus.post(new NewUserSettingsEvent(null, false));
             }

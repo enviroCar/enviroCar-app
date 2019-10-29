@@ -37,7 +37,7 @@ import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.storage.EnviroCarDB;
+import org.envirocar.core.EnviroCarDB;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;

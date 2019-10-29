@@ -18,7 +18,7 @@ import org.envirocar.app.recording.strategy.OBDRecordingStrategy;
 import org.envirocar.app.recording.strategy.RecordingStrategy;
 import org.envirocar.app.recording.strategy.obd.OBDConnectionHandler;
 import org.envirocar.core.injection.InjectApplicationScope;
-import org.envirocar.storage.EnviroCarDB;
+import org.envirocar.core.EnviroCarDB;
 
 import dagger.Module;
 import dagger.Provides;
