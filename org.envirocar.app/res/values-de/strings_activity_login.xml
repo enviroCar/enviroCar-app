@@ -54,5 +54,7 @@
     <string name="register_success_dialog_title">Du bist nur einen Schritt entfernt.....</string>
     <string name="register_success_dialog_content">Sie sind nur einen Schritt davon entfernt, Ihr Konto bei enviroCar zu aktivieren. Bitte überprüfen Sie Ihre Mails, um die Registrierung abzuschließen.</string>
 
-    <string name="register_acknowledge_text">I acknowledge I have read and agree to enviroCar\'s Terms and Conditions and enviroCar\'s Privacy Policy</string>
+    <string name="register_acknowledge_text">Ich stimme den Allgemeinen Nutzungsbedingungen von enviroCar zu. Die Bestimmungen zu Datenschutz habe ich zur Kenntnis genommen.</string>
+    <string name="privacy_statement">Datenschutz</string>
+    <string name="terms_and_conditions">Nutzungsbedingungen</string>
 </resources>

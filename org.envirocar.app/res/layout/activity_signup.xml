@@ -135,7 +135,7 @@
         <TextView
             android:id="@+id/activity_signup_tou_text"
             android:layout_width="270dp"
-            android:layout_height="63dp"
+            android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginLeft="8dp"
             android:layout_marginTop="28dp"
@@ -208,8 +208,5 @@
                 android:textColor="@color/white_cario" />
 
         </LinearLayout>
-
-
     </androidx.constraintlayout.widget.ConstraintLayout>
-
 </ScrollView>

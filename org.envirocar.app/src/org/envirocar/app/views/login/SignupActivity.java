@@ -22,12 +22,12 @@ import androidx.annotation.NonNull;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 
+import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.DAOProvider;
-import org.envirocar.app.handler.preferences.UserPreferenceHandler;
 import org.envirocar.app.handler.agreement.AgreementManager;
+import org.envirocar.app.handler.preferences.UserPreferenceHandler;
 import org.envirocar.app.injection.BaseInjectorActivity;
-import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.entity.UserImpl;
 import org.envirocar.core.exception.DataUpdateFailureException;
@@ -53,7 +53,7 @@ import io.reactivex.schedulers.Schedulers;
 public class SignupActivity extends BaseInjectorActivity {
     private static final Logger LOG = Logger.getLogger(SignupActivity.class);
 
-    public static void startActivity(Context context){
+    public static void startActivity(Context context) {
         Intent intent = new Intent(context, SignupActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
         context.startActivity(intent);
@@ -101,6 +101,14 @@ public class SignupActivity extends BaseInjectorActivity {
 
         // make terms of use and privacy statement clickable
         this.makeClickableTextLinks();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (registerSubscription != null && !registerSubscription.isDisposed()) {
+            registerSubscription.dispose();
+        }
     }
 
     @OnClick(R.id.activity_signup_login_button)
@@ -262,13 +270,14 @@ public class SignupActivity extends BaseInjectorActivity {
         });
     }
 
-    private void makeClickableTextLinks(){
+    private void makeClickableTextLinks() {
+
         List<Pair<String, View.OnClickListener>> clickableStrings = Arrays.asList(
-                new Pair<>("Terms and Conditions", v -> {
+                new Pair<>(getString(R.string.terms_and_conditions), v -> {
                     LOG.info("Terms and Conditions clicked. Showing dialog");
                     showTermsOfUseDialog();
                 }),
-                new Pair<>("Privacy Policy", v -> {
+                new Pair<>(getString(R.string.privacy_statement), v -> {
                     LOG.info("Privacy Policy clicked. Showing dialog");
                     showPrivacyStatementDialog();
                 })
