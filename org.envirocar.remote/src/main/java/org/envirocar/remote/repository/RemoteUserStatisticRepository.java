@@ -1,6 +1,5 @@
 package org.envirocar.remote.repository;
 
-import org.envirocar.core.entity.User;
 import org.envirocar.core.entity.UserStatistic;
 import org.envirocar.core.repository.UserStatisticRepository;
 import org.envirocar.remote.service.UserService;
@@ -31,8 +30,8 @@ public class RemoteUserStatisticRepository extends RemoteRepository<UserService>
     }
 
     @Override
-    public Observable<UserStatistic> user(User user) {
-        Call<UserStatistic> call = userService.getUserStatistic(user.getUsername());
+    public Observable<UserStatistic> getUserStatistic(String username) {
+        Call<UserStatistic> call = userService.getUserStatistic(username);
         return wrapObservableHandling(() -> wrapExecuteCallReturnBody(call));
     }
 

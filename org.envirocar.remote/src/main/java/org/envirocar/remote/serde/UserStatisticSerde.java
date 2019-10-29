@@ -19,9 +19,13 @@ public class UserStatisticSerde implements JsonDeserializer<UserStatistic> {
     @Override
     public UserStatistic deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
         JsonObject jsonObject = json.getAsJsonObject();
-        int trackCount = jsonObject.get(UserStatistic.KEY_TRACKCOUNT).getAsInt();
+
+        int trackCount = 0;
+        if (jsonObject.has(UserStatistic.KEY_TRACKCOUNT)) {
+            trackCount = jsonObject.get(UserStatistic.KEY_TRACKCOUNT).getAsInt();
+        }
         double distance = jsonObject.get(UserStatistic.KEY_DISTANCE).getAsDouble();
-        double duration = jsonObject.get(UserStatistic.KEY_DURATION).getAsDouble();
+        double duration = jsonObject.get(UserStatistic.KEY_DURATION).getAsDouble() * 60 * 60 * 1000;
 
         return new UserStatisticImpl(trackCount, distance, duration);
     }

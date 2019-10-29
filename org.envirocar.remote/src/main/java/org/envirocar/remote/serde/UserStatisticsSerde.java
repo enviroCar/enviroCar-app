@@ -37,7 +37,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Class that deserializes the user statistics of
+ * Class that deserializes the getUserStatistic statistics of
  * <code>{
  * "statistics": [
  * {

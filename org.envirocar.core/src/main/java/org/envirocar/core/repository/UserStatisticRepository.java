@@ -13,9 +13,9 @@ public interface UserStatisticRepository {
     /**
      * Get an {@link Observable} which will emit the userstatistic for a given {@link User}.
      *
-     * @param user the user to retrieve the statistics for.
+     * @param username the user to retrieve the statistics for.
      */
-    Observable<UserStatistic> user(final User user);
+    Observable<UserStatistic> getUserStatistic(final String username);
 
 }
     

@@ -15,22 +15,19 @@ import org.envirocar.app.handler.TrackDAOHandler;
 import org.envirocar.app.handler.preferences.AbstractCachable;
 import org.envirocar.core.UserManager;
 import org.envirocar.core.dao.TrackDAO;
-import org.envirocar.core.entity.Track;
+import org.envirocar.core.entity.User;
+import org.envirocar.core.entity.internal.AggregatedUserStatistic;
 import org.envirocar.core.events.NewUserSettingsEvent;
 import org.envirocar.core.events.TrackDeletedEvent;
 import org.envirocar.core.events.TrackFinishedEvent;
 import org.envirocar.core.injection.InjectApplicationScope;
+import org.envirocar.core.interactor.GetAggregatedUserStatistic;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.core.trackprocessing.statistics.TrackStatisticsProvider;
-import org.envirocar.storage.EnviroCarDB;
-
-import java.util.concurrent.TimeUnit;
+import org.envirocar.core.EnviroCarDB;
 
 import javax.inject.Inject;
 
-import io.reactivex.Observable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.schedulers.Schedulers;
+import io.reactivex.observers.DisposableObserver;
 
 
 /**
@@ -88,21 +85,24 @@ public class UserStatisticsProcessor extends AbstractCachable<UserStatisticsProc
     private final TrackDAOHandler trackDAOHandler;
     private final TrackDAO trackDAO;
     private final EnviroCarDB enviroCarDB;
-    private final Bus bus;
+    private final Bus eventBus;
+    private final GetAggregatedUserStatistic userStatisticInteractor;
+
 
     /**
      * Default constructor.
      */
     @Inject
-    public UserStatisticsProcessor(@InjectApplicationScope Context context, UserManager userManager, DAOProvider daoProvider, TrackDAOHandler trackDAOHandler, EnviroCarDB enviroCarDB, Bus bus) {
+    public UserStatisticsProcessor(@InjectApplicationScope Context context, GetAggregatedUserStatistic userStatisticInteractor, UserManager userManager, DAOProvider daoProvider, TrackDAOHandler trackDAOHandler, EnviroCarDB enviroCarDB, Bus bus) {
         super(context, USER_STATISTICS_PREFS);
         this.context = context;
         this.userManager = userManager;
         this.trackDAOHandler = trackDAOHandler;
         this.enviroCarDB = enviroCarDB;
         this.trackDAO = daoProvider.getTrackDAO();
-        this.bus = bus;
-        this.bus.register(this);
+        this.eventBus = bus;
+        this.eventBus.register(this);
+        this.userStatisticInteractor = userStatisticInteractor;
     }
 
     @Override
@@ -126,41 +126,30 @@ public class UserStatisticsProcessor extends AbstractCachable<UserStatisticsProc
 
     @Subscribe
     public void onNewUserSettingsEvent(NewUserSettingsEvent event) {
-        LOG.info(String.format("New User statistics received %s. Updating statistics.", event.toString()));
+        LOG.info("New User settings received %s. Updating statistics.", event.toString());
         UserStatisticsHolder s = readFromCache();
         if (event.mIsLoggedIn == s.isLoggedIn()) {
             return;
         }
 
-        // reset statistics cache
-        this.resetStatistics(event.mIsLoggedIn ? event.mUser.getUsername() : null);
-
-        enviroCarDB.getAllLocalTracks(true)
-                .compose(listObservable -> {
-                    if (event.mIsLoggedIn)
-                        return listObservable.mergeWith(trackDAO.getTrackIdsObservable(5000, 1));
-                    return listObservable;
-                })
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .flatMap(tracks -> Observable.fromIterable(tracks))
-                .map(this::updateStatistics)
-                .debounce(1000, TimeUnit.MILLISECONDS)
-                .subscribe(this::onNextStatistics, LOG::error);
+        // reset and update statistics cache
+        String username = event.mIsLoggedIn ? event.mUser.getUsername() : null;
+        this.resetStatistics(username);
+        this.updateUserStatistics(username);
     }
 
     @Subscribe
     public void onTrackFinishedEvent(TrackFinishedEvent event) {
-        Observable.just(event.mTrack)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .map(this::updateStatistics)
-                .subscribe(this::onNextStatistics, LOG::error);
+        LOG.info("Received event: %s", event.toString());
+        User user = userManager.getUser();
+        this.updateUserStatistics(user != null ? user.getUsername() : null);
     }
 
     @Subscribe
-    public void onTrackDeletedEvent(TrackDeletedEvent event){
-
+    public void onTrackDeletedEvent(TrackDeletedEvent event) {
+        LOG.info("Received event: %s", event.toString());
+        User user = userManager.getUser();
+        this.updateUserStatistics(user != null ? user.getUsername() : null);
     }
 
     @Produce
@@ -169,36 +158,34 @@ public class UserStatisticsProcessor extends AbstractCachable<UserStatisticsProc
         return new UserStatisticsUpdateEvent(s.numTracks, s.totalDistance, s.totalDuration);
     }
 
+    private void updateUserStatistics(String username){
+        userStatisticInteractor.execute(new DisposableObserver<AggregatedUserStatistic>() {
+            @Override
+            public void onNext(AggregatedUserStatistic userStatistic) {
+                UserStatisticsHolder holder = new UserStatisticsHolder(username,
+                        userStatistic.getNumTracks(),
+                        (long) userStatistic.getTotalDuration(),
+                        userStatistic.getTotalDistance());
+                writeToCache(holder);
+                eventBus.post(new UserStatisticsUpdateEvent(holder.numTracks, holder.totalDistance, holder.totalDuration));
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                LOG.error(e);
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        }, new GetAggregatedUserStatistic.Params(username));
+    }
+
     private void resetStatistics(String username) {
         UserStatisticsHolder s = new UserStatisticsHolder(username, 0, 0, 0);
         this.writeToCache(s);
-        bus.post(new UserStatisticsUpdateEvent(s.numTracks, s.totalDistance, s.totalDuration));
+        eventBus.post(new UserStatisticsUpdateEvent(s.numTracks, s.totalDistance, s.totalDuration));
     }
-
-    private UserStatisticsHolder updateStatistics(Track track) {
-        UserStatisticsHolder holder = readFromCache();
-
-        if (track.getLength() != null) {
-            holder.totalDistance += track.getLength();
-        } else {
-            holder.totalDistance += ((TrackStatisticsProvider) track).getDistanceOfTrack();
-        }
-
-        holder.totalDuration += track.getDurationMillis();
-        holder.numTracks++;
-        writeToCache(holder);
-        return holder;
-    }
-
-    private void onAddTrackToStatistics(Track track){
-
-    }
-
-    private void onNextStatistics(UserStatisticsHolder o) {
-        LOG.info("Computed new user statistics: " + o.toString());
-        // Write statistics to cache and throw an event.
-        this.bus.post(new UserStatisticsUpdateEvent(o.numTracks, o.totalDistance, o.totalDuration));
-    }
-
 
 }
