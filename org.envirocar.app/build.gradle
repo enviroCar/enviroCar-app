@@ -13,6 +13,7 @@ dependencies {
     implementation rootProject.ext.supportLifecycleExtension
     implementation rootProject.ext.supportLifecycleRuntime
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    //implementation rootProject.ext.androidxPreference
     annotationProcessor rootProject.ext.supportLifecycleCompiler
 
     // Dependency injection, view injection, event bus ...
