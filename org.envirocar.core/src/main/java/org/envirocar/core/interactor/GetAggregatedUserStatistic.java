@@ -51,7 +51,7 @@ public class GetAggregatedUserStatistic extends Interactor<AggregatedUserStatist
                             result.setTotalDistance(result.getTotalDistance() + track.getLength());
                             result.setTotalDuration(result.getTotalDuration() + track.getDuration());
                         }
-                    }).subscribe();
+                    }).blockingFirst();
 
             emitter.onNext(result);
             emitter.onComplete();

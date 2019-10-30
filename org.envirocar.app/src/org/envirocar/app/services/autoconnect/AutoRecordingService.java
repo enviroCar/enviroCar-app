@@ -148,6 +148,8 @@ public class AutoRecordingService extends ScopedBaseInjectorService implements A
     @Override
     public void onPreconditionUpdate(AutoRecordingStrategy.PreconditionType preconditionType) {
         switch (preconditionType) {
+            case SATISFIED:
+                break;
             case BT_DISABLED:
                 break;
             case GPS_DISABLED:
@@ -235,12 +237,6 @@ public class AutoRecordingService extends ScopedBaseInjectorService implements A
     }
 
     private void initPreferenceSubscriptions() {
-//        disposables.add(
-//                ApplicationSettings.getSelectedRecordingTypeObservable(getApplicationContext())
-//                        .doOnNext(recordingType ->)
-//                        .doOnError(LOG::error)
-//                        .subscribe());
-
         disposables.add(
                 ApplicationSettings.getAutoconnectObservable(this)
                         .doOnNext(isAutoConnectEnabled -> {
