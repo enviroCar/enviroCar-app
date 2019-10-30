@@ -95,21 +95,6 @@
     <string name="dashboard_signin_prompt">Sign in to upload your tracks</string>
 
 
-
-
-
-    <string-array name="report_issue_body_header">
-        <item>Internet was enabled</item>
-        <item>GPS was enabled</item>
-        <item>During Active Track</item>
-    </string-array>
-
-    <string-array name="report_issue_body_tags">
-        <item>[IN-EN]</item>
-        <item>[GPS-EN]</item>
-        <item>[ACTIVE-TRACK]</item>
-    </string-array>
-
     <string name="submit">Submit</string>
 
     <!-- Splashscreen -->
@@ -125,6 +110,10 @@
     <!-- Send Error Report -->
     <!-- ################# -->
     <string name="report_issue_header">Report an Issue</string>
+    <string name="report_issue_summary">Summary of what went wrong</string>
+    <string name="report_issue_time_since_crash">Time since crash:</string>
+    <string name="report_issue_minutes">in minutes</string>
+
     <string name="report_issue_text">
         Timestamps are automatically included in the logs. Sending us reports helps us reproduce unexpected behavior or crashes.
         This makes enviroCar better and more stable. Click the send button below to email this report to us.</string>

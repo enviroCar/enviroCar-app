@@ -82,6 +82,10 @@
     <!-- Send Error Report -->
     <!-- ################# -->
     <string name="report_issue_header">Fehler melden</string>
+    <string name="report_issue_summary">Kurzbeschreibung</string>
+    <string name="report_issue_time_since_crash">Ungefährer Zeitpunkt:</string>
+    <string name="report_issue_minutes">10:00</string>
+
     <string name="report_issue_text">
         Zeitstempel werden automatisch in die Protokolle aufgenommen. Das Senden von Berichten an uns hilft uns,
         unerwartetes Verhalten oder Abstürze zu reproduzieren. Das macht enviroCar besser und stabiler.

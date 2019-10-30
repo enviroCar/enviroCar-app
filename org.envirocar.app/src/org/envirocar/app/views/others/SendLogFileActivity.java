@@ -114,9 +114,7 @@ public class SendLogFileActivity extends BaseInjectorActivity {
 
     protected List<CheckBoxItem> checkBoxItems;
     protected List<String> subjectHeaders;
-    protected List<String> bodyHeaders;
     protected List<String> subjectTags;
-    protected List<String> bodyTags;
     protected String extraInfo;
 
     @Override
@@ -136,9 +134,7 @@ public class SendLogFileActivity extends BaseInjectorActivity {
 
         AsyncTask.execute(() -> {
             subjectHeaders = Arrays.asList(getResources().getStringArray(R.array.report_issue_subject_header));
-            bodyHeaders = Arrays.asList(getResources().getStringArray(R.array.report_issue_body_header));
             subjectTags = Arrays.asList(getResources().getStringArray(R.array.report_issue_subject_tags));
-            bodyTags = Arrays.asList(getResources().getStringArray(R.array.report_issue_body_tags));
             set();
         });
 
@@ -190,7 +186,6 @@ public class SendLogFileActivity extends BaseInjectorActivity {
     public void setCheckBoxes(){
         List<String> totalList = new ArrayList<>();
         totalList.addAll(subjectHeaders);
-        totalList.addAll(bodyHeaders);
         for (int i = 0; i < totalList.size(); i++) {
             CheckBoxItem temp = new CheckBoxItem();
             temp.setChecked(false);
@@ -354,23 +349,6 @@ public class SendLogFileActivity extends BaseInjectorActivity {
     }
 
     /**
-     * @return the string containing the body tags
-     */
-    protected String createBodyTags(){
-        StringBuilder bodyT = new StringBuilder();
-        bodyT.append("Tags: ");
-        for(int i=0;i<bodyTags.size();i++)
-        {
-            CheckBoxItem dto = checkBoxItems.get(i+subjectTags.size());
-            if(dto.isChecked())
-            {
-                bodyT.append(bodyTags.get(i));
-            }
-        }
-        return bodyT.toString();
-    }
-
-    /**
      * read the getUserStatistic defined edit fields.
      *
      * @return a string acting as the contents of the email
@@ -378,9 +356,6 @@ public class SendLogFileActivity extends BaseInjectorActivity {
     private String createEmailContents() {
         StringBuilder sb = new StringBuilder();
         sb.append("A new Issue Report has been created:");
-        sb.append(Util.NEW_LINE_CHAR);
-        sb.append(Util.NEW_LINE_CHAR);
-        sb.append(createBodyTags());
         sb.append(Util.NEW_LINE_CHAR);
         sb.append(Util.NEW_LINE_CHAR);
         sb.append(getVersionNames());
