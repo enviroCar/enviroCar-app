@@ -530,14 +530,6 @@
                             android:src="@drawable/ic_bluetooth_searching_black_24dp"
                             android:tint="@color/white_cario" />
 
-                        <ImageView
-                            android:layout_width="32sp"
-                            android:layout_height="32sp"
-                            android:layout_gravity="right|center_vertical"
-                            android:layout_marginRight="8dp"
-                            android:src="@drawable/ic_action_arrow_foward"
-                            android:tint="@color/cario_color_primary_dark" />
-
                         <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
@@ -573,6 +565,14 @@
 
                         </LinearLayout>
 
+                        <ImageView
+                            android:layout_width="32sp"
+                            android:layout_height="32sp"
+                            android:layout_gravity="right|center_vertical"
+                            android:layout_marginRight="8dp"
+                            android:src="@drawable/ic_action_arrow_foward"
+                            android:tint="@color/cario_color_primary_dark" />
+
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
@@ -602,14 +602,6 @@
                             android:padding="8dp"
                             android:src="@drawable/ic_drive_eta_black_24dp"
                             android:tint="@color/white_cario" />
-
-                        <ImageView
-                            android:layout_width="32sp"
-                            android:layout_height="32sp"
-                            android:layout_gravity="right|center_vertical"
-                            android:layout_marginRight="8dp"
-                            android:src="@drawable/ic_action_arrow_foward"
-                            android:tint="@color/cario_color_primary_dark" />
 
                         <LinearLayout
                             android:layout_width="0dp"
@@ -645,6 +637,14 @@
                                 app:autoSizeTextType="uniform" />
 
                         </LinearLayout>
+
+                        <ImageView
+                            android:layout_width="32sp"
+                            android:layout_height="32sp"
+                            android:layout_gravity="right|center_vertical"
+                            android:layout_marginRight="8dp"
+                            android:src="@drawable/ic_action_arrow_foward"
+                            android:tint="@color/cario_color_primary_dark" />
 
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
