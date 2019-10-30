@@ -21,6 +21,7 @@ import org.envirocar.app.rxutils.RxBroadcastReceiver;
 import org.envirocar.core.logging.Logger;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -71,6 +72,7 @@ public class GPSAutoRecordingStrategy implements AutoRecordingStrategy {
         // Activity recognition stuff
         Intent intent = new Intent(TRANSITIONS_RECEIVER_ACTION);
         this.pendingIntent = PendingIntent.getBroadcast(service, 0, intent, 0);
+        setupActivityTransitions();
         this.disposables.add(
                 RxBroadcastReceiver.create(service, new IntentFilter(TRANSITIONS_RECEIVER_ACTION))
                         .doOnNext(this::onReceiveTransitionIntent)
@@ -80,7 +82,7 @@ public class GPSAutoRecordingStrategy implements AutoRecordingStrategy {
 
     @Override
     public void stop() {
-
+        removeActivityTransitions();
     }
 
     private void onReceiveTransitionIntent(Intent intent) {
@@ -97,31 +99,45 @@ public class GPSAutoRecordingStrategy implements AutoRecordingStrategy {
         }
     }
 
-//    /**
-//     * Sets up {@link ActivityTransitionRequest}'s for the sample app, and registers callbacks for them
-//     * with a custom {@link BroadcastReceiver}
-//     */
-//    private void setupActivityTransitions() {
-//        List<ActivityTransition> transitions = new ArrayList<>();
-//
-//        transitions.add(
-//                new ActivityTransition.Builder()
-//                        .setActivityType(DetectedActivity.IN_VEHICLE)
-//                        .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
-//                        .build());
-//
-//        ActivityTransitionRequest request = new ActivityTransitionRequest(transitions);
-//
-//        // Register for Transitions Updates.
-//        Task<Void> task = ActivityRecognition.getClient(this).requestActivityTransitionUpdates(request, mPendingIntent);
-//        task.addOnSuccessListener(result -> LOG.info("Transitions Api was successfully registered."));
-//        task.addOnFailureListener(e -> LOG.warn("Transitions Api could not be registered: " + e, null));
-//    }
-//
-//    private void removeActivityTransitions() {
-//        // Unregister the transitions:
-//        ActivityRecognition.getClient(this).removeActivityTransitionUpdates(mPendingIntent)
-//                .addOnSuccessListener(aVoid -> LOG.info("Transitions successfully unregistered."))
-//                .addOnFailureListener(e -> LOG.warn("Transitions could not be unregistered: " + e));
-//    }
+    /**
+     * Sets up {@link ActivityTransitionRequest}'s for the sample app, and registers callbacks for them
+     * with a custom {@link BroadcastReceiver}
+     */
+    private void setupActivityTransitions() {
+        List<ActivityTransition> transitions = new ArrayList<>();
+        List<Integer> activities = Arrays.asList(
+                DetectedActivity.IN_VEHICLE,
+                DetectedActivity.WALKING,
+                DetectedActivity.STILL,
+                DetectedActivity.RUNNING
+        );
+
+        for (int activity : activities){
+            transitions.add(
+                    new ActivityTransition.Builder()
+                            .setActivityType(activity)
+                            .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
+                            .build());
+            transitions.add(
+                    new ActivityTransition.Builder()
+                            .setActivityType(activity)
+                            .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
+                            .build());
+        }
+
+
+        ActivityTransitionRequest request = new ActivityTransitionRequest(transitions);
+
+        // Register for Transitions Updates.
+        Task<Void> task = ActivityRecognition.getClient(service).requestActivityTransitionUpdates(request, pendingIntent);
+        task.addOnSuccessListener(result -> LOG.info("Transitions Api was successfully registered."));
+        task.addOnFailureListener(e -> LOG.warn("Transitions Api could not be registered: " + e, null));
+    }
+
+    private void removeActivityTransitions() {
+        // Unregister the transitions:
+        ActivityRecognition.getClient(service).removeActivityTransitionUpdates(pendingIntent)
+                .addOnSuccessListener(aVoid -> LOG.info("Transitions successfully unregistered."))
+                .addOnFailureListener(e -> LOG.warn("Transitions could not be unregistered: " + e));
+    }
 }
