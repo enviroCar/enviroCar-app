@@ -24,13 +24,17 @@ import android.content.SharedPreferences.Editor;
 
 import com.squareup.otto.Bus;
 
+import org.envirocar.app.exception.LoginException;
 import org.envirocar.app.handler.DAOProvider;
 import org.envirocar.app.handler.TrackDAOHandler;
 import org.envirocar.core.UserManager;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.entity.UserImpl;
 import org.envirocar.core.events.NewUserSettingsEvent;
+import org.envirocar.core.exception.MailNotConfirmedException;
+import org.envirocar.core.exception.UnauthorizedException;
 import org.envirocar.core.injection.InjectApplicationScope;
+import org.envirocar.core.interactor.LoginUser;
 import org.envirocar.core.logging.Logger;
 
 import javax.inject.Inject;
@@ -150,20 +154,31 @@ public class UserPreferenceHandler extends AbstractCachable<User> implements Use
             // hack
             writeToCache(candidateUser);
 
+            boolean success = false;
             try {
                 User result = daoProvider.getUserDAO().getUser(user);
                 result.setToken(token);
                 writeToCache(result);
 
                 // Successfully logged in.
+                success = true;
                 emitter.onComplete();
                 if (withEvent) {
                     bus.post(new NewUserSettingsEvent(result, true));
                 }
+            } catch (MailNotConfirmedException e){
+                LOG.warn(e.getMessage(), e);
+                emitter.onError(new LoginException(e.getMessage(), LoginException.ErrorType.MAIL_NOT_CONFIREMED));
+            } catch (UnauthorizedException e){
+                LOG.warn(e.getMessage(), e);
+                emitter.onError(new LoginException(e.getMessage(), LoginException.ErrorType.PASSWORD_INCORRECT));
             } catch (Exception e) {
                 LOG.warn(e.getMessage(), e);
-                logOut(true);
                 emitter.onError(e);
+            } finally {
+                if(!success){
+                    logoutInternal(false);
+                }
             }
         });
     }
@@ -179,20 +194,22 @@ public class UserPreferenceHandler extends AbstractCachable<User> implements Use
 
     public Completable logOut(Boolean withEvent) {
         return Completable.create(emitter -> {
-            LOG.info("Logging out current getUserStatistic.");
-            // Removes all the preferences from the editor.
-            resetCache();
-
-            // Delete all local representations of tracks that are already uploaded.
-            trackDAOHandler.deleteAllRemoteTracksLocally();
-
-            //set complete
+            logoutInternal(withEvent);
             emitter.onComplete();
-
-            // Fire a new event on the event bus holding indicating that no logged in getUserStatistic exist.
-            if (withEvent) {
-                bus.post(new NewUserSettingsEvent(null, false));
-            }
         });
+    }
+
+    private void logoutInternal(Boolean withEvent) {
+        LOG.info("Logging out current getUserStatistic.");
+        // Removes all the preferences from the editor.
+        resetCache();
+
+        // Delete all local representations of tracks that are already uploaded.
+        trackDAOHandler.deleteAllRemoteTracksLocally();
+
+        // Fire a new event on the event bus holding indicating that no logged in getUserStatistic exist.
+        if (withEvent) {
+            bus.post(new NewUserSettingsEvent(null, false));
+        }
     }
 }
