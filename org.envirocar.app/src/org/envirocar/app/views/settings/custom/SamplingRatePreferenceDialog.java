@@ -49,7 +49,7 @@ public class SamplingRatePreferenceDialog extends PreferenceDialogFragmentCompat
 
         DialogPreference preference = getPreference();
         if (preference instanceof SamplingRatePreference){
-            int value = ((SamplingRatePreference) preference).getSamplingRate();
+            int value = ((SamplingRatePreference) preference).getTime();
             numberPicker.setValue(value);
         }
     }
@@ -61,7 +61,7 @@ public class SamplingRatePreferenceDialog extends PreferenceDialogFragmentCompat
 
             DialogPreference preference = getPreference();
             if (preference instanceof SamplingRatePreference) {
-                ((SamplingRatePreference) preference).setSamplingRate(currentSeconds);
+                ((SamplingRatePreference) preference).setTime(currentSeconds);
             }
 
             ApplicationSettings.setSamplingRate(getActivity(), currentSeconds);
