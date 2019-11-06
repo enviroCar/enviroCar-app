@@ -3,22 +3,27 @@ package org.envirocar.app.views.settings.custom;
 import android.content.Context;
 import android.util.AttributeSet;
 
+import androidx.annotation.Nullable;
 import androidx.preference.DialogPreference;
 
 import org.envirocar.app.R;
-import org.envirocar.app.handler.ApplicationSettings;
 
 /**
  * @author dewall
  */
-public class GPSTrimDurationPreference extends DialogPreference implements TimePickerPreferenceDialog.TimePickerPreference {
+public class AutoConnectIntervalPreference extends DialogPreference implements TimePickerPreferenceDialog.TimePickerPreference {
 
-    public GPSTrimDurationPreference(Context context) {
-        super(context);
+    public AutoConnectIntervalPreference(Context context) {
+        this(context, null);
     }
 
-    public GPSTrimDurationPreference(Context context, AttributeSet attrs) {
+    public AutoConnectIntervalPreference(Context context, AttributeSet attrs) {
         super(context, attrs);
+    }
+
+    @Override
+    protected void onSetInitialValue(@Nullable Object defaultValue) {
+        super.onSetInitialValue(defaultValue);
     }
 
     @Override
@@ -28,7 +33,7 @@ public class GPSTrimDurationPreference extends DialogPreference implements TimeP
 
     @Override
     public int getTime() {
-        return getPersistedInt(ApplicationSettings.DEFAULT_TRACK_TRIM_DURATION);
+        return getPersistedInt(10);
     }
 
     @Override

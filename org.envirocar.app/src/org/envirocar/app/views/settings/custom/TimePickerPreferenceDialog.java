@@ -14,8 +14,6 @@ import org.envirocar.app.R;
 import org.envirocar.app.handler.ApplicationSettings;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -29,11 +27,7 @@ public class TimePickerPreferenceDialog extends PreferenceDialogFragmentCompat {
     }
 
     public static TimePickerPreferenceDialog newInstance(String key) {
-        return newInstance(key, null);
-    }
-
-    public static TimePickerPreferenceDialog newInstance(String key, String[] displaySeconds) {
-        final TimePickerPreferenceDialog dialog = new TimePickerPreferenceDialog(displaySeconds);
+        final TimePickerPreferenceDialog dialog = new TimePickerPreferenceDialog();
         final Bundle b = new Bundle(1);
         b.putString(ARG_KEY, key);
         dialog.setArguments(b);
@@ -53,27 +47,17 @@ public class TimePickerPreferenceDialog extends PreferenceDialogFragmentCompat {
         }
     };
 
-
     // The seconds and minutes the timepicker have to show
     private int currentSeconds;
     private int currentMinutes;
 
-    private String[] displaySeconds;
 
-    @BindView(R.id.bluetooth_discovery_interval_preference_numberpicker_text)
-    protected TextView mText;
-    @BindView(R.id.bluetooth_discovery_interval_preference_numberpicker_min)
+    @BindView(R.id.preference_timepicker_text)
+    protected TextView text;
+    @BindView(R.id.preference_timepicker_minutes_picker)
     protected NumberPicker minutePicker;
-    @BindView(R.id.bluetooth_discovery_interval_preference_numberpicker_sec)
+    @BindView(R.id.preference_timepicker_seconds_picker)
     protected NumberPicker secondsPicker;
-
-    public TimePickerPreferenceDialog() {
-        this(null);
-    }
-
-    public TimePickerPreferenceDialog(String[] displaySeconds) {
-        this.displaySeconds = displaySeconds;
-    }
 
     @Override
     protected void onBindDialogView(View view) {
@@ -83,14 +67,14 @@ public class TimePickerPreferenceDialog extends PreferenceDialogFragmentCompat {
         ButterKnife.bind(this, view);
 
         // Set the textview text
-        mText.setText(R.string.pref_bt_discovery_interval_explanation);
+        this.text.setText(R.string.pref_bt_discovery_interval_explanation);
 
         // set the settings for the minute NumberPicker.
-        minutePicker.setMinValue(0);
-        minutePicker.setMaxValue(5);
-        minutePicker.setOnLongPressUpdateInterval(100);
-        minutePicker.setFormatter(FORMATTER_TWO_DIGITS);
-        minutePicker.setOnValueChangedListener((picker, oldVal, newVal) -> {
+        this.minutePicker.setMinValue(0);
+        this.minutePicker.setMaxValue(10);
+        this.minutePicker.setOnLongPressUpdateInterval(100);
+        this.minutePicker.setFormatter(FORMATTER_TWO_DIGITS);
+        this.minutePicker.setOnValueChangedListener((picker, oldVal, newVal) -> {
             int minValue = minutePicker.getMinValue();
             int maxValue = minutePicker.getMaxValue();
 
@@ -99,13 +83,13 @@ public class TimePickerPreferenceDialog extends PreferenceDialogFragmentCompat {
         });
 
         // set the settings for the seconds number picker.
-        secondsPicker.setMinValue(0);
-        secondsPicker.setMaxValue(5);
-        if (displaySeconds != null)
-            secondsPicker.setDisplayedValues(displaySeconds);
-        secondsPicker.setOnLongPressUpdateInterval(100);
-        secondsPicker.setFormatter(FORMATTER_TWO_DIGITS);
-        secondsPicker.setOnValueChangedListener((spinner, oldVal, newVal) -> {
+        this.secondsPicker.setMinValue(0);
+        this.secondsPicker.setMaxValue(59);
+//        if (this.displaySeconds != null)
+//            this.secondsPicker.setDisplayedValues(displaySeconds);
+        this.secondsPicker.setOnLongPressUpdateInterval(100);
+        this.secondsPicker.setFormatter(FORMATTER_TWO_DIGITS);
+        this.secondsPicker.setOnValueChangedListener((spinner, oldVal, newVal) -> {
             int minValue = secondsPicker.getMinValue();
             int maxValue = secondsPicker.getMaxValue();
             if (oldVal == maxValue && newVal == minValue) {
@@ -140,7 +124,7 @@ public class TimePickerPreferenceDialog extends PreferenceDialogFragmentCompat {
             int minutes = (time - seconds) / 60;
 
             currentMinutes = minutes;
-            currentSeconds = seconds / 10;
+            currentSeconds = seconds;
 
             secondsPicker.setValue(currentSeconds);
             minutePicker.setValue(currentMinutes);
@@ -153,7 +137,7 @@ public class TimePickerPreferenceDialog extends PreferenceDialogFragmentCompat {
             currentMinutes = minutePicker.getValue();
             currentSeconds = secondsPicker.getValue();
 
-            int time = minutePicker.getValue() * 60 + secondsPicker.getValue() * 10;
+            int time = minutePicker.getValue() * 60 + secondsPicker.getValue();
 
             // save the result
             DialogPreference preference = getPreference();
