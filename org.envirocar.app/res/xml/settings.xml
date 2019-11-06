@@ -3,61 +3,61 @@
 
     <PreferenceCategory android:title="@string/pref_settings_general">
         <CheckBoxPreference
-            android:key="pref_always_upload"
+            android:key="@string/prefkey_always_upload"
             android:title="@string/pref_always_upload"
             android:summary="@string/pref_always_upload_sub"/>
         <CheckBoxPreference
-            android:key="pref_display_always_activ"
+            android:key="@string/prefkey_display_always_activ"
             android:title="@string/pref_display_always_activ"
             android:summary="@string/pref_display_always_activ_sub"/>
         <CheckBoxPreference
             android:defaultValue="false"
-            android:key="pref_text_to_speech"
+            android:key="@string/pref_text_to_speech"
             android:summary="@string/pref_text_to_speech_summary"
             android:title="@string/pref_text_to_speech" />
         <CheckBoxPreference
-            android:key="pref_imperial_unit"
+            android:key="@string/prefkey_imperial_unit"
             android:summary="@string/pref_imperial_unit_summary"
             android:title="@string/imperial_unit"
             android:enabled="false"
             android:visibility="gone"/>
         <CheckBoxPreference
             android:defaultValue="true"
-            android:key="pref_privacy"
+            android:key="@string/prefkey_privacy"
             android:summary="@string/pref_obfuscate_track_summary"
             android:title="@string/pref_obfuscate_track"/>
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="Recording">
+    <PreferenceCategory android:title="@string/pref_obd_recording">
         <org.envirocar.app.views.settings.custom.SamplingRatePreference
             android:defaultValue="5"
             android:inputType="number"
-            android:key="pref_samplingrate"
+            android:key="@string/prefkey_samplingrate"
             android:maxLength="8"
             android:summary="@string/sampling_rate_summary"
             android:title="@string/sampling_rate_title" />
         <CheckBoxPreference
-            android:key="pref_automatic_recording"
+            android:key="@string/prefkey_automatic_recording"
             android:summary="@string/pref_bluetooth_auto_connect_summary"
             android:title="@string/pref_bluetooth_auto_connect" />
         <org.envirocar.app.views.settings.custom.AutoConnectIntervalPreference
-            android:key="pref_search_interval"
+            android:key="@string/prefkey_search_interval"
             android:summary="@string/pref_bluetooth_discovery_interval_summary"
             android:defaultValue="60"
             android:title="@string/pref_bluetooth_discovery_interval"/>
-    </PreferenceCategory>
-    <PreferenceCategory android:title="Beta Features">
         <CheckBoxPreference
-            android:key="pref_enable_diesel_consumption"
+            android:key="@string/prefkey_enable_diesel_consumption"
             android:summary="@string/preference_beta_diesel_consumption_sum"
             android:title="@string/preference_beta_diesel_consumption"/>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/pref_gps_recording">
         <CheckBoxPreference
-            android:key="pref_enable_gps_based_track_recording"
+            android:key="@string/prefkey_enable_gps_based_track_recording"
             android:defaultValue="false"
             android:summary="@string/preference_beta_enable_gps_based_track_recording_sum"
             android:title="@string/preference_beta_enable_gps_based_track_recording"/>
         <org.envirocar.app.views.settings.custom.GPSTrimDurationPreference
-            android:key="pref_track_cut_duration"
+            android:key="@string/prefkey_track_cut_duration"
             android:summary="@string/pref_track_cut_duration_summary"
             android:defaultValue="110"
             android:title="@string/pref_track_cut_duration"/>
@@ -65,7 +65,7 @@
 
     <PreferenceCategory android:title="Debugging">
         <CheckBoxPreference
-            android:key="pref_enable_debug_logging"
+            android:key="@string/prefkey_enable_debug_logging"
             android:summary="@string/enable_debug_logging_summary"
             android:title="@string/enable_debug_logging"/>
     </PreferenceCategory>

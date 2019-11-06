@@ -19,6 +19,9 @@
 
 -->
 <resources>
+    <string name="pref_obd_recording">OBD Mode</string>
+    <string name="pref_gps_recording">GPS Mode</string>
+
     <!-- Settings Activity -->
     <string name="pref_settings_general">General Settings</string>
     <string name="pref_settings_general_summary">Display, Verbal Announcements, Automatic Upload ...</string>
@@ -59,8 +62,8 @@
     <string name="settings_autoconnect_subtitle">OBD Auto-connect, GPS Auto-connect etc.</string>
 
     <!-- Optional Settings -->
-    <string name="sampling_rate_title">Sampling Rate (sec)</string>
-    <string name="sampling_rate_summary">The time delta between two measurements in seconds (current value: %s). Note: the lower the value, the bigger the data volume. Only consider changing if you are aware of the consequences.</string>
+    <string name="sampling_rate_title">Sampling Rate</string>
+    <string name="sampling_rate_summary">The time delta between two measurements in seconds. The lower the value, the bigger the data volume. Only consider changing if you are aware of the consequences.</string>
     <string name="enable_debug_logging">Enable Debug Logging</string>
     <string name="enable_debug_logging_summary">Increase the log level (used in issue/problem reports)</string>
     <string name="pref_track_cut_duration">Track Trim Duration</string>
@@ -71,7 +74,7 @@
     <string name="preference_beta_diesel_consumption_sum">Enables the estimation of consumption values for diesel. NOTE: This feature is just a beta feature.</string>
 
     <string name="preference_beta_enable_gps_based_track_recording">Enable GPS based track recording</string>
-    <string name="preference_beta_enable_gps_based_track_recording_sum">Enables an option to record GPS based tracks, which do not require OBD-II adapter. NOTE: This feature is just a beta feature.</string>
+    <string name="preference_beta_enable_gps_based_track_recording_sum">Activates an additional recording mode that enables the recording of plain GPS based tracks that does not require an OBD-II adapter.\n\nNOTE: This feature is just a beta feature.</string>
 
     <!-- Other Settings -->
     <string name="pref_licenses">Licenses</string>

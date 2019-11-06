@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
 
     Copyright (C) 2013 - 2019 the enviroCar community
 
@@ -19,9 +18,16 @@
     with the enviroCar app. If not, see http://www.gnu.org/licenses/.
 
 -->
-<androidx.appcompat.widget.Toolbar style="@style/ToolBarStyle"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.appcompat.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="@color/blue_dark_cario"
-    android:orientation="vertical" />
+    android:layout_height="50dp"
+    android:gravity="center"
+    android:background="@color/cario_color_primary">
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:src="@drawable/img_envirocar_logo_white"
+        />
+
+</androidx.appcompat.widget.Toolbar>
