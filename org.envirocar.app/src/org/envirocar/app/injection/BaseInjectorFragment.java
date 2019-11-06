@@ -40,18 +40,18 @@ import javax.inject.Inject;
 public abstract class BaseInjectorFragment extends Fragment {
     private static final String TAG = BaseInjectorFragment.class.getSimpleName();
 
-    private static final Field mChildFragmentManagerFieldOfFragment;
+//    private static final Field mChildFragmentManagerFieldOfFragment;
 
-    static {
-        Field f = null;
-        try {
-            f = Fragment.class.getDeclaredField("mChildFragmentManager");
-            f.setAccessible(true);
-        } catch (NoSuchFieldException e) {
-            Log.e(TAG, "Error while getting the declared mChildFragmentManager field", e);
-        }
-        mChildFragmentManagerFieldOfFragment = f;
-    }
+//    static {
+//        Field f = null;
+//        try {
+//            f = Fragment.class.getDeclaredField("mChildFragmentManager");
+//            f.setAccessible(true);
+//        } catch (NoSuchFieldException e) {
+//            Log.e(TAG, "Error while getting the declared mChildFragmentManager field", e);
+//        }
+//        mChildFragmentManagerFieldOfFragment = f;
+//    }
 
     /**
      * The event bus allows publish-subscribe-style communication. It dispatches
@@ -97,11 +97,11 @@ public abstract class BaseInjectorFragment extends Fragment {
     public void onDetach() {
         Log.d(TAG, "onDetach() fragment");
         super.onDetach();
-        try {
-            mChildFragmentManagerFieldOfFragment.set(this, null);
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            mChildFragmentManagerFieldOfFragment.set(this, null);
+//        } catch (IllegalAccessException e) {
+//            e.printStackTrace();
+//        }
 
         if(mIsRegistered) {
             mBus.unregister(this);
