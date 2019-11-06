@@ -40,6 +40,7 @@
         <item name="android:actionMenuTextColor">@color/white</item>
         <!--<item name="android:textColorSecondary">@color/white</item>-->
 
+        <item name="alertDialogTheme">@style/DialogStyle</item>
     </style>
 
 
@@ -79,5 +80,7 @@
         <item name="theme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
     </style>
 
-
+    <style name="DialogStyle" parent="Theme.AppCompat.Light.Dialog">
+        <item name="colorAccent">@color/blue_dark_cario</item>
+    </style>
 </resources>

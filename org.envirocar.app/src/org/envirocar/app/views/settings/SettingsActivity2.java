@@ -1,11 +1,13 @@
 package org.envirocar.app.views.settings;
 
 import android.os.Bundle;
+import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.DialogFragment;
+import androidx.preference.CheckBoxPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
@@ -15,26 +17,15 @@ import org.envirocar.app.views.settings.custom.GPSTrimDurationPreference;
 import org.envirocar.app.views.settings.custom.SamplingRatePreference;
 import org.envirocar.app.views.settings.custom.TimePickerPreferenceDialog;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-
 /**
  * @author dewall
  */
 public class SettingsActivity2 extends AppCompatActivity {
 
-    @BindView(R.id.activity_settings_toolbar)
-    protected Toolbar toolbar;
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
-        ButterKnife.bind(this);
-
-        // set toolbar
-        setSupportActionBar(toolbar);
-        toolbar.setTitle(R.string.settings);
 
         // add the settingsfragment
         getSupportFragmentManager()
@@ -44,9 +35,40 @@ public class SettingsActivity2 extends AppCompatActivity {
     }
 
     public static class SettingsFragment extends PreferenceFragmentCompat {
+
+        private Preference automaticRecording;
+        private Preference searchInterval;
+        private Preference enableGPSMode;
+        private Preference gpsTrimDuration;
+
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             addPreferencesFromResource(R.xml.settings);
+        }
+
+        @Override
+        public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+            super.onViewCreated(view, savedInstanceState);
+
+            // find all preferences
+            this.automaticRecording = findPreference(getString(R.string.prefkey_automatic_recording));
+            this.searchInterval = findPreference(getString(R.string.prefkey_search_interval));
+            this.enableGPSMode = findPreference(getString(R.string.prefkey_enable_gps_based_track_recording));
+            this.gpsTrimDuration = findPreference(getString(R.string.prefkey_track_cut_duration));
+
+            // set initial state
+            this.searchInterval.setEnabled(((CheckBoxPreference) automaticRecording).isChecked());
+            this.gpsTrimDuration.setVisible(((CheckBoxPreference) enableGPSMode).isChecked());
+
+            // set preference change listener
+            this.automaticRecording.setOnPreferenceChangeListener((preference, newValue) -> {
+                searchInterval.setEnabled((boolean) newValue);
+                return true;
+            });
+            this.enableGPSMode.setOnPreferenceChangeListener(((preference, newValue) -> {
+                gpsTrimDuration.setVisible((boolean) newValue);
+                return true;
+            }));
         }
 
         @Override
