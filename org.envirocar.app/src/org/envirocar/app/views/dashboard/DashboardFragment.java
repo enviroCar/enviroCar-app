@@ -1,6 +1,7 @@
 package org.envirocar.app.views.dashboard;
 
 import android.annotation.SuppressLint;
+import android.app.Application;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.graphics.Color;
@@ -300,6 +301,10 @@ public class DashboardFragment extends BaseInjectorFragment {
     }
 
     private void setRecordingMode(RecordingType selectedRT) {
+        if (!ApplicationSettings.isGPSBasedTrackingEnabled(getContext())){
+            modeSegmentedGroup.setVisibility(View.GONE);
+        }
+
         // check whether OBD is visible or not.
         int visibility = selectedRT == RecordingType.OBD_ADAPTER_BASED ? View.VISIBLE : View.GONE;
 
