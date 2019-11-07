@@ -12,6 +12,8 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
 import org.envirocar.app.R;
+import org.envirocar.app.handler.ApplicationSettings;
+import org.envirocar.app.recording.RecordingType;
 import org.envirocar.app.views.settings.custom.AutoConnectIntervalPreference;
 import org.envirocar.app.views.settings.custom.GPSTrimDurationPreference;
 import org.envirocar.app.views.settings.custom.SamplingRatePreference;
@@ -57,15 +59,18 @@ public class SettingsActivity2 extends AppCompatActivity {
             this.gpsTrimDuration = findPreference(getString(R.string.prefkey_track_cut_duration));
 
             // set initial state
-            this.searchInterval.setEnabled(((CheckBoxPreference) automaticRecording).isChecked());
+            this.searchInterval.setVisible(((CheckBoxPreference) automaticRecording).isChecked());
             this.gpsTrimDuration.setVisible(((CheckBoxPreference) enableGPSMode).isChecked());
 
             // set preference change listener
             this.automaticRecording.setOnPreferenceChangeListener((preference, newValue) -> {
-                searchInterval.setEnabled((boolean) newValue);
+                searchInterval.setVisible((boolean) newValue);
                 return true;
             });
             this.enableGPSMode.setOnPreferenceChangeListener(((preference, newValue) -> {
+                if (!(boolean) newValue) {
+                    ApplicationSettings.setSelectedRecordingType(getContext(), RecordingType.OBD_ADAPTER_BASED);
+                }
                 gpsTrimDuration.setVisible((boolean) newValue);
                 return true;
             }));

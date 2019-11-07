@@ -27,6 +27,7 @@ import android.util.Pair;
 import com.f2prateek.rx.preferences2.RxSharedPreferences;
 import com.google.common.base.Preconditions;
 
+import org.envirocar.app.R;
 import org.envirocar.app.recording.RecordingType;
 
 import io.reactivex.Observable;
@@ -48,6 +49,7 @@ public class ApplicationSettings {
     public static final int DEFAULT_BLUETOOTH_DISCOVERY_INTERVAL = 60;
     public static final int DEFAULT_TRACK_TRIM_DURATION = 110;
     public static final boolean DEFAULT_DEBUG_LOGGING = false;
+    public static final int DEFAULT_SAMPLING_RATE = 5;
 
     // General Settings
     public static final String PREF_AUTOMATIC_UPLOAD_OF_TRACKS = "pref_automatic_upload_tracks";
@@ -62,7 +64,7 @@ public class ApplicationSettings {
     public static final String PREF_SEARCH_INTERVAL = "pref_search_interval";
 
     // Optional Settings
-    public static final String PREF_SAMPLING_RATE = "pref_sampling_rate";
+    public static final String PREF_SAMPLING_RATE = "pref_samplingrate";
     public static final String PREF_DEBUG_LOGGING = "pref_debug_logging";
     public static final String PREF_DIESEL_ESTIMATION = "pref_diesel_estimation";
     public static final String PREF_TRACK_TRIM_DURATION = "pref_track_trim_duration";
@@ -142,14 +144,21 @@ public class ApplicationSettings {
     }
 
     // Optional Settings
-    public static Long getSamplingRate(Context context) {
-        return Long.parseLong(getSharedPreferences(context).getString(PREF_SAMPLING_RATE, "5"));
+    public static int getSamplingRate(Context context) {
+        return getSharedPreferences(context).getInt(PREF_SAMPLING_RATE, DEFAULT_SAMPLING_RATE);
     }
 
-    public static Observable<Long> getRxSharedSamplingRate(Context context) {
+    public static void setSamplingRate(Context context, int samplingRate) {
+        getSharedPreferences(context)
+                .edit()
+                .putInt(PREF_SAMPLING_RATE, samplingRate)
+                .apply();
+    }
+
+    public static Observable<Integer> getRxSharedSamplingRate(Context context) {
         return getRxSharedPreferences(context)
-                .getString(PREF_SAMPLING_RATE, "5")
-                .asObservable().map(s -> Long.parseLong(s));
+                .getInteger(PREF_SAMPLING_RATE, DEFAULT_SAMPLING_RATE)
+                .asObservable();
     }
 
     public static Observable<Boolean> getDebugLoggingObservable(Context context) {
@@ -182,7 +191,8 @@ public class ApplicationSettings {
 
     public static boolean isGPSBasedTrackingEnabled(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context)
-                .getBoolean(PREF_GPS_BASED_TRACKING, DEFAULT_PREF_ENABLE_GPS_BASED_TRACK_RECORDING);
+                .getBoolean(context.getString(R.string.prefkey_enable_gps_based_track_recording),
+                        DEFAULT_PREF_ENABLE_GPS_BASED_TRACK_RECORDING);
     }
 
     public static final String PREF_RECORDING_TYPE = "pref_recording_type";
@@ -224,7 +234,7 @@ public class ApplicationSettings {
         }
     }
 
-    public static void resetSelectedBluetoothAdapter(Context context){
+    public static void resetSelectedBluetoothAdapter(Context context) {
         getSharedPreferences(context)
                 .edit()
                 .remove(PREF_SELECTED_BLUETOOTH_NAME)
