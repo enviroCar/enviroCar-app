@@ -1,7 +1,6 @@
 package org.envirocar.app.views.dashboard;
 
 import android.annotation.SuppressLint;
-import android.app.Application;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.graphics.Color;
@@ -159,6 +158,8 @@ public class DashboardFragment extends BaseInjectorFragment {
 
     @BindView(R.id.fragment_dashboard_start_track_button)
     protected View startTrackButton;
+    @BindView(R.id.fragment_dashboard_start_track_button_text)
+    protected TextView startTrackButtonText;
 
     // injected variables
     @Inject
@@ -226,10 +227,6 @@ public class DashboardFragment extends BaseInjectorFragment {
     public void onResume() {
         super.onResume();
         this.updateStatisticsVisibility(this.statisticsKnown);
-
-        if (RecordingService.RECORDING_STATE == RecordingState.RECORDING_RUNNING) {
-            RecordingScreenActivity.navigate(getContext());
-        }
     }
 
     private void onToolbarItemClicked(MenuItem menuItem) {
@@ -301,7 +298,7 @@ public class DashboardFragment extends BaseInjectorFragment {
     }
 
     private void setRecordingMode(RecordingType selectedRT) {
-        if (!ApplicationSettings.isGPSBasedTrackingEnabled(getContext())){
+        if (!ApplicationSettings.isGPSBasedTrackingEnabled(getContext())) {
             modeSegmentedGroup.setVisibility(View.GONE);
         }
 
@@ -348,6 +345,11 @@ public class DashboardFragment extends BaseInjectorFragment {
     @OnClick(R.id.fragment_dashboard_start_track_button)
     protected void onStartTrackButtonClicked() {
         LOG.info("Clicked on Start Track Button");
+        if (RecordingService.RECORDING_STATE == RecordingState.RECORDING_RUNNING){
+            RecordingScreenActivity.navigate(getContext());
+            return;
+        }
+
         switch (this.modeSegmentedGroup.getCheckedRadioButtonId()) {
             case R.id.fragment_dashboard_obd_mode_button:
                 BluetoothDevice device = bluetoothHandler.getSelectedBluetoothDevice();
@@ -510,7 +512,6 @@ public class DashboardFragment extends BaseInjectorFragment {
     }
 
     private void updateUserLogin(User user) {
-
         if (user != null) {
             // show progress bar
             updateStatisticsVisibility(this.statisticsKnown);
@@ -577,19 +578,32 @@ public class DashboardFragment extends BaseInjectorFragment {
 
     private void updateStartTrackButton() {
         boolean setEnabled = false;
-        switch (this.modeSegmentedGroup.getCheckedRadioButtonId()) {
-            case R.id.fragment_dashboard_gps_mode_button:
-                setEnabled = (!this.carIndicator.isEnabled()
-                        && !this.gpsIndicator.isEnabled());
+        switch (RecordingService.RECORDING_STATE) {
+            case RECORDING_RUNNING:
+                this.startTrackButtonText.setText(R.string.dashboard_goto_track);
+                this.startTrackButton.setEnabled(true);
                 break;
-            case R.id.fragment_dashboard_obd_mode_button:
-                setEnabled = (!this.bluetoothIndicator.isEnabled()
-                        && !this.gpsIndicator.isEnabled()
-                        && !this.obdIndicator.isEnabled()
-                        && !this.carIndicator.isEnabled());
+            case RECORDING_INIT:
+                this.startTrackButtonText.setText(R.string.dashboard_track_is_starting);
+                this.startTrackButton.setEnabled(true);
+                break;
+            case RECORDING_STOPPED:
+                switch (this.modeSegmentedGroup.getCheckedRadioButtonId()) {
+                    case R.id.fragment_dashboard_gps_mode_button:
+                        setEnabled = (!this.carIndicator.isEnabled()
+                                && !this.gpsIndicator.isEnabled());
+                        break;
+                    case R.id.fragment_dashboard_obd_mode_button:
+                        setEnabled = (!this.bluetoothIndicator.isEnabled()
+                                && !this.gpsIndicator.isEnabled()
+                                && !this.obdIndicator.isEnabled()
+                                && !this.carIndicator.isEnabled());
+                        break;
+                }
+                this.startTrackButtonText.setText(R.string.dashboard_start_track);
+                this.startTrackButton.setEnabled(setEnabled);
                 break;
         }
-        this.startTrackButton.setEnabled(setEnabled);
     }
 
     private void updateByRecordingState(RecordingState state) {
@@ -600,8 +614,8 @@ public class DashboardFragment extends BaseInjectorFragment {
                 if (this.connectingDialog != null) {
                     this.connectingDialog.dismiss();
                     this.connectingDialog = null;
+                    RecordingScreenActivity.navigate(getContext());
                 }
-                RecordingScreenActivity.navigate(getContext());
                 break;
             case RECORDING_STOPPED:
                 if (this.connectingDialog != null) {
