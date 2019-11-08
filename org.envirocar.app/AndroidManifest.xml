@@ -65,9 +65,6 @@
             android:name=".views.login.SignupActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".views.settings.SettingsActivity"
-            android:screenOrientation="portrait" />
-        <activity
             android:name=".views.others.SendLogFileActivity"
             android:screenOrientation="portrait" />
         <activity
@@ -79,18 +76,19 @@
         <activity
             android:name=".views.BaseMainActivity"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".views.settings.SettingsActivity2"
+            android:screenOrientation="portrait" />
 
         <!-- Services -->
         <service android:name=".recording.RecordingService"
             android:enabled="true"/>
-
         <service
             android:name=".services.autoconnect.AutoRecordingService"
             android:enabled="true" />
         <service
             android:name=".services.TrackUploadService"
             android:enabled="true" />
-
         <service
             android:name=".aidl.EnviroCarDataService"
             android:enabled="true"

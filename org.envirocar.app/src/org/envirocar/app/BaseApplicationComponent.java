@@ -46,13 +46,9 @@ import org.envirocar.app.views.login.SignupActivity;
 import org.envirocar.app.views.obdselection.OBDSelectionActivity;
 import org.envirocar.app.views.obdselection.OBDSelectionFragment;
 import org.envirocar.app.views.others.SendLogFileActivity;
-import org.envirocar.app.views.preferences.BluetoothDiscoveryIntervalPreference;
 import org.envirocar.app.views.preferences.BluetoothPairingPreference;
 import org.envirocar.app.views.preferences.SelectBluetoothPreference;
-import org.envirocar.app.views.preferences.Tempomat;
-import org.envirocar.app.views.preferences.TrackTrimDurationPreference;
-import org.envirocar.app.views.settings.AutoConnectSettingsFragment;
-import org.envirocar.app.views.settings.SettingsActivity;
+import org.envirocar.app.views.recordingscreen.Tempomat;
 import org.envirocar.app.views.trackdetails.MapExpandedActivity;
 import org.envirocar.app.views.trackdetails.TrackDetailsActivity;
 import org.envirocar.app.views.trackdetails.TrackStatisticsActivity;
@@ -88,15 +84,12 @@ public interface BaseApplicationComponent {
     void inject(BaseApplication baseApplication);
     void inject(TrackRecordingHandler trackRecordingHandler);
 
-    void inject(BluetoothDiscoveryIntervalPreference bluetoothDiscoveryIntervalPreference);
     void inject(BluetoothPairingPreference bluetoothPairingPreference);
     void inject(SelectBluetoothPreference selectBluetoothPreference);
     void inject(Tempomat tempomat);
 
     void inject(MapExpandedActivity mapExpandedActivity);
     void inject(DAOProvider daoProvider);
-
-    void inject(TrackTrimDurationPreference trackTrimDurationPreference);
 
     void inject(LocationHandler locationHandler);
     void inject(UserStatisticsProcessor statisticsProcessor);
@@ -111,7 +104,6 @@ public interface BaseApplicationComponent {
     void inject(OBDSelectionActivity obdSelectionActivity);
     void inject(TrackDetailsActivity trackDetailsActivity);
     void inject(TrackStatisticsActivity trackStatisticsActivity);
-    void inject(SettingsActivity settingsActivity);
 
     // fragment injections
     void inject(DashboardFragment dashboardFragment);
@@ -119,7 +111,6 @@ public interface BaseApplicationComponent {
     void inject(TrackListRemoteCardFragment fragment);
     void inject(CarSelectionAddCarFragment carSelectionAddCarFragment);
     void inject(LogbookAddFuelingFragment logbookAddFuelingFragment);
-    void inject(AutoConnectSettingsFragment autoConnectSettingsFragment);
     void inject(OBDSelectionFragment obdSelectionFragment);
     void inject(OthersFragment othersFragment);
 
