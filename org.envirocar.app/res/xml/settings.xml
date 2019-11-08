@@ -12,7 +12,7 @@
             android:title="@string/pref_always_upload"
             app:iconSpaceReserved="false" />
         <CheckBoxPreference
-            android:key="@string/prefkey_display_always_activ"
+            android:key="@string/prefkey_display_always_active"
             android:summary="@string/pref_display_always_activ_sub"
             android:title="@string/pref_display_always_activ"
             app:iconSpaceReserved="false" />
@@ -22,13 +22,13 @@
             android:summary="@string/pref_text_to_speech_summary"
             android:title="@string/pref_text_to_speech"
             app:iconSpaceReserved="false" />
-<!--        <CheckBoxPreference-->
-<!--            android:enabled="false"-->
-<!--            android:key="@string/prefkey_imperial_unit"-->
-<!--            android:summary="@string/pref_imperial_unit_summary"-->
-<!--            android:title="@string/imperial_unit"-->
-<!--            android:visibility="gone"-->
-<!--            app:iconSpaceReserved="false" />-->
+        <!--        <CheckBoxPreference-->
+        <!--            android:enabled="false"-->
+        <!--            android:key="@string/prefkey_imperial_unit"-->
+        <!--            android:summary="@string/pref_imperial_unit_summary"-->
+        <!--            android:title="@string/imperial_unit"-->
+        <!--            android:visibility="gone"-->
+        <!--            app:iconSpaceReserved="false" />-->
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="@string/prefkey_privacy"
@@ -45,7 +45,8 @@
             app:iconSpaceReserved="false" />
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="@string/pref_obd_recording"
+    <PreferenceCategory
+        android:title="@string/pref_obd_recording"
         app:iconSpaceReserved="false">
         <CheckBoxPreference
             android:key="@string/prefkey_automatic_recording"
@@ -73,9 +74,15 @@
             android:summary="@string/preference_beta_enable_gps_based_track_recording_sum"
             android:title="@string/preference_beta_enable_gps_based_track_recording"
             app:iconSpaceReserved="false" />
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="@string/prefkey_gps_mode_ar"
+            android:summary="@string/pref_gps_mode_ar_summary"
+            android:title="@string/pref_gps_mode_ar_title"
+            app:iconSpaceReserved="false" />
         <org.envirocar.app.views.settings.custom.GPSTrimDurationPreference
             android:defaultValue="110"
-            android:key="@string/prefkey_track_cut_duration"
+            android:key="@string/prefkey_track_trim_duration"
             android:summary="@string/pref_track_cut_duration_summary"
             android:title="@string/pref_track_cut_duration"
             app:iconSpaceReserved="false" />

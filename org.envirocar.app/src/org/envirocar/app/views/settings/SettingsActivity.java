@@ -22,7 +22,7 @@ import org.envirocar.app.views.settings.custom.TimePickerPreferenceDialog;
 /**
  * @author dewall
  */
-public class SettingsActivity2 extends AppCompatActivity {
+public class SettingsActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -42,6 +42,7 @@ public class SettingsActivity2 extends AppCompatActivity {
         private Preference searchInterval;
         private Preference enableGPSMode;
         private Preference gpsTrimDuration;
+        private Preference gpsAutoRecording;
 
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -56,11 +57,13 @@ public class SettingsActivity2 extends AppCompatActivity {
             this.automaticRecording = findPreference(getString(R.string.prefkey_automatic_recording));
             this.searchInterval = findPreference(getString(R.string.prefkey_search_interval));
             this.enableGPSMode = findPreference(getString(R.string.prefkey_enable_gps_based_track_recording));
-            this.gpsTrimDuration = findPreference(getString(R.string.prefkey_track_cut_duration));
+            this.gpsTrimDuration = findPreference(getString(R.string.prefkey_track_trim_duration));
+            this.gpsAutoRecording = findPreference(getString(R.string.prefkey_gps_mode_ar));
 
             // set initial state
             this.searchInterval.setVisible(((CheckBoxPreference) automaticRecording).isChecked());
             this.gpsTrimDuration.setVisible(((CheckBoxPreference) enableGPSMode).isChecked());
+            this.gpsAutoRecording.setVisible(((CheckBoxPreference) enableGPSMode).isChecked());
 
             // set preference change listener
             this.automaticRecording.setOnPreferenceChangeListener((preference, newValue) -> {
@@ -72,6 +75,7 @@ public class SettingsActivity2 extends AppCompatActivity {
                     ApplicationSettings.setSelectedRecordingType(getContext(), RecordingType.OBD_ADAPTER_BASED);
                 }
                 gpsTrimDuration.setVisible((boolean) newValue);
+                gpsAutoRecording.setVisible((boolean) newValue);
                 return true;
             }));
         }

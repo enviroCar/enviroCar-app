@@ -140,7 +140,7 @@
     <!--  Preference Keys  -->
     <!-- ################# -->
     <string name="prefkey_enable_debug_logging" tools:ignore="MissingTranslation">pref_enable_debug_logging</string>
-    <string name="prefkey_track_cut_duration" tools:ignore="MissingTranslation">pref_track_cut_duration</string>
+    <string name="prefkey_track_trim_duration" tools:ignore="MissingTranslation">pref_track_cut_duration</string>
     <string name="prefkey_enable_gps_based_track_recording" tools:ignore="MissingTranslation">pref_enable_gps_based_track_recording</string>
     <string name="prefkey_enable_diesel_consumption" tools:ignore="MissingTranslation">pref_enable_diesel_consumption</string>
     <string name="prefkey_search_interval" tools:ignore="MissingTranslation">pref_search_interval</string>
@@ -149,7 +149,7 @@
     <string name="prefkey_privacy" tools:ignore="MissingTranslation">pref_privacy</string>
     <string name="prefkey_imperial_unit" tools:ignore="MissingTranslation">pref_imperial_unit</string>
     <string name="prefkey_text_to_speech" tools:ignore="MissingTranslation">pref_text_to_speech</string>
-    <string name="prefkey_display_always_activ" tools:ignore="MissingTranslation">pref_display_always_activ</string>
+    <string name="prefkey_display_always_active" tools:ignore="MissingTranslation">pref_display_always_active</string>
     <string name="prefkey_always_upload" tools:ignore="MissingTranslation">pref_always_upload</string>
-
+    <string name="prefkey_gps_mode_ar" tools:ignore="MissingTranslation">prefkey_gps_mode_ar</string>
 </resources>

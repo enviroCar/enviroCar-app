@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -25,24 +25,24 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
-import androidx.annotation.NonNull;
-import com.google.android.material.snackbar.Snackbar;
-import androidx.core.app.ActivityCompat;
-import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
-import com.afollestad.materialdialogs.MaterialDialog;
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.fragment.app.Fragment;
 
+import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.android.material.snackbar.Snackbar;
+
+import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.BuildConfig;
 import org.envirocar.app.R;
-import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.app.handler.TrackDAOHandler;
 import org.envirocar.app.handler.preferences.UserPreferenceHandler;
 import org.envirocar.app.injection.BaseInjectorFragment;
-import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.recording.RecordingService;
 import org.envirocar.app.services.autoconnect.AutoRecordingService;
 import org.envirocar.app.views.logbook.LogbookActivity;
@@ -66,7 +66,7 @@ import io.reactivex.schedulers.Schedulers;
  * A simple {@link Fragment} subclass.
  */
 public class OthersFragment extends BaseInjectorFragment {
-    private static final Logger LOGGER = Logger .getLogger(OthersFragment.class);
+    private static final Logger LOGGER = Logger.getLogger(OthersFragment.class);
 
     @Inject
     protected UserPreferenceHandler mUserManager;
@@ -88,13 +88,12 @@ public class OthersFragment extends BaseInjectorFragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_others, container, false);
 
-        ButterKnife.bind(this,view);
+        ButterKnife.bind(this, view);
 
-        if(mUserManager.isLoggedIn()){
+        if (mUserManager.isLoggedIn()) {
             othersLogOut.setVisibility(View.VISIBLE);
             othersLogOutDivider.setVisibility(View.VISIBLE);
-        }
-        else{
+        } else {
             othersLogOut.setVisibility(View.GONE);
             othersLogOutDivider.setVisibility(View.GONE);
         }
@@ -129,11 +128,11 @@ public class OthersFragment extends BaseInjectorFragment {
 
     @OnClick(R.id.othersReportIssue)
     protected void onReportIssueClicked() {
-        if(checkPermissions()){
+        if (checkPermissions()) {
             //access granted
             Intent intent = new Intent(getActivity(), SendLogFileActivity.class);
             startActivity(intent);
-        }else{
+        } else {
             requestPermissions();
         }
     }
@@ -238,7 +237,7 @@ public class OthersFragment extends BaseInjectorFragment {
             if (grantResults.length <= 0) {
                 // If getUserStatistic interaction was interrupted, the permission request is cancelled and you
                 // receive empty arrays.
-               // LOG.debug("User interaction was cancelled.");
+                // LOG.debug("User interaction was cancelled.");
             } else if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 LOGGER.debug("Permission granted, updates requested, starting the logging procedure");
             } else {

@@ -46,146 +46,140 @@ public class ApplicationSettings {
     public static final boolean DEFAULT_BLUETOOTH_SERVICE_AUTOSTART = true;
     public static final boolean DEFAULT_PREF_ENABLE_GPS_BASED_TRACK_RECORDING = false;
     public static final boolean DEFAULT_AUTOMATIC_UPLOAD_OF_TRACKS = false;
+    public static final boolean DEFAULT_OBFUSCATION = false;
     public static final int DEFAULT_BLUETOOTH_DISCOVERY_INTERVAL = 60;
     public static final int DEFAULT_TRACK_TRIM_DURATION = 110;
     public static final boolean DEFAULT_DEBUG_LOGGING = false;
     public static final int DEFAULT_SAMPLING_RATE = 5;
 
-    // General Settings
-    public static final String PREF_AUTOMATIC_UPLOAD_OF_TRACKS = "pref_automatic_upload_tracks";
-    public static final String PREF_DISPLAY_STAYS_ACTIVE = "pref_display_stays_active";
-    public static final String PREF_USE_IMPERIAL_UNITS = "pref_use_imperial_unit";
-    public static final String PREF_OBFUSCATE_TRACK = "pref_obfuscate_track";
-    public static final String PREF_TEXT_TO_SPEECH = "pref_text_to_speech";
-
-    // Auto-recording Settings
-    public static final String PREF_BACKGROUND_PROCESS = "pref_background_progress";
-    public static final String PREF_AUTOMATIC_RECORDING = "pref_automatic_recording";
-    public static final String PREF_SEARCH_INTERVAL = "pref_search_interval";
-
-    // Optional Settings
-    public static final String PREF_SAMPLING_RATE = "pref_samplingrate";
-    public static final String PREF_DEBUG_LOGGING = "pref_debug_logging";
-    public static final String PREF_DIESEL_ESTIMATION = "pref_diesel_estimation";
-    public static final String PREF_TRACK_TRIM_DURATION = "pref_track_trim_duration";
-    public static final String PREF_GPS_BASED_TRACKING = "pref_gps_based_tracking";
+//    // General Settings
+//    public static final String PREF_AUTOMATIC_UPLOAD_OF_TRACKS = "pref_automatic_upload_tracks";
+//    public static final String PREF_DISPLAY_STAYS_ACTIVE = "pref_display_stays_active";
+//    public static final String PREF_USE_IMPERIAL_UNITS = "pref_use_imperial_unit";
+//    public static final String PREF_OBFUSCATE_TRACK = "pref_obfuscate_track";
+//    public static final String PREF_TEXT_TO_SPEECH = "pref_text_to_speech";
+//
+//    // Auto-recording Settings
+//    public static final String PREF_BACKGROUND_PROCESS = "pref_background_progress";
+//    public static final String PREF_AUTOMATIC_RECORDING = "pref_automatic_recording";
+//    public static final String PREF_SEARCH_INTERVAL = "pref_search_interval";
+//
+//    // Optional Settings
+//    public static final String PREF_SAMPLING_RATE = "pref_samplingrate";
+//    public static final String PREF_DEBUG_LOGGING = "pref_debug_logging";
+//    public static final String PREF_DIESEL_ESTIMATION = "pref_diesel_estimation";
+//    public static final String PREF_TRACK_TRIM_DURATION = "pref_track_trim_duration";
+//    public static final String PREF_GPS_BASED_TRACKING = "pref_gps_based_tracking";
 
     // General Settings settings
     public static Observable<Boolean> getAutomaticUploadOfTracksObservable(Context context) {
         return getRxSharedPreferences(context)
-                .getBoolean(PREF_AUTOMATIC_UPLOAD_OF_TRACKS, DEFAULT_AUTOMATIC_UPLOAD_OF_TRACKS)
+                .getBoolean(s(context, R.string.prefkey_always_upload), DEFAULT_AUTOMATIC_UPLOAD_OF_TRACKS)
                 .asObservable();
     }
 
     public static boolean isDisplayStaysActive(Context context) {
-        return getSharedPreferences(context).getBoolean(PREF_DISPLAY_STAYS_ACTIVE, DEFAULT_BLUETOOTH_AUTOCONNECT);
+        return getSharedPreferences(context).getBoolean(s(context, R.string.prefkey_display_always_active), DEFAULT_BLUETOOTH_AUTOCONNECT);
     }
 
     public static Observable<Boolean> getDisplayStaysActiveObservable(Context context) {
         return getRxSharedPreferences(context)
-                .getBoolean(PREF_DISPLAY_STAYS_ACTIVE, DEFAULT_DISPLAY_STAYS_ACTIVE)
+                .getBoolean(s(context, R.string.prefkey_display_always_active), DEFAULT_DISPLAY_STAYS_ACTIVE)
                 .asObservable();
     }
 
     public static boolean isObfuscationEnabled(Context context) {
-        return getSharedPreferences(context).getBoolean(PREF_OBFUSCATE_TRACK, false);
+        return getSharedPreferences(context).getBoolean(s(context, R.string.prefkey_privacy), DEFAULT_OBFUSCATION);
     }
 
     public static Observable<Boolean> getObfuscationObservable(Context context) {
         return getRxSharedPreferences(context)
-                .getBoolean(PREF_OBFUSCATE_TRACK, false)
+                .getBoolean(s(context, R.string.prefkey_privacy), false)
                 .asObservable();
     }
 
     public static boolean isTextToSpeechEnabled(Context context) {
-        return getSharedPreferences(context).getBoolean(PREF_TEXT_TO_SPEECH, DEFAULT_TEXT_TO_SPEECH);
+        return getSharedPreferences(context).getBoolean(s(context, R.string.prefkey_text_to_speech), DEFAULT_TEXT_TO_SPEECH);
     }
 
     public static Observable<Boolean> getTextToSpeechObservable(Context context) {
         return getRxSharedPreferences(context)
-                .getBoolean(PREF_TEXT_TO_SPEECH, DEFAULT_TEXT_TO_SPEECH)
-                .asObservable();
-    }
-
-    // Auto-Recording settings
-    public static Observable<Boolean> getBackgroundHandlerEnabledObservable(final Context context) {
-        return RxSharedPreferences.create(getSharedPreferences(context))
-                .getBoolean(PREF_BACKGROUND_PROCESS, DEFAULT_BLUETOOTH_SERVICE_AUTOSTART)
+                .getBoolean(s(context, R.string.prefkey_text_to_speech), DEFAULT_TEXT_TO_SPEECH)
                 .asObservable();
     }
 
     public static boolean isAutorecordingEnabled(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context)
-                .getBoolean(PREF_AUTOMATIC_RECORDING, DEFAULT_BLUETOOTH_AUTOCONNECT);
+                .getBoolean(s(context, R.string.prefkey_automatic_recording), DEFAULT_BLUETOOTH_AUTOCONNECT);
     }
 
-    public static Observable<Boolean> getAutoconnectObservable(final Context context) {
+    public static Observable<Boolean> getAutoconnectEnabledObservable(final Context context) {
         return getRxSharedPreferences(context)
-                .getBoolean(PREF_AUTOMATIC_RECORDING, DEFAULT_BLUETOOTH_AUTOCONNECT)
+                .getBoolean(s(context, R.string.prefkey_automatic_recording), DEFAULT_BLUETOOTH_AUTOCONNECT)
                 .asObservable();
     }
 
     public static int getDiscoveryInterval(Context context) {
         return getSharedPreferences(context)
-                .getInt(PREF_SEARCH_INTERVAL, DEFAULT_BLUETOOTH_DISCOVERY_INTERVAL);
+                .getInt(s(context, R.string.prefkey_search_interval), DEFAULT_BLUETOOTH_DISCOVERY_INTERVAL);
     }
 
     public static Observable<Integer> getDiscoveryIntervalObservable(Context context) {
         return getRxSharedPreferences(context)
-                .getInteger(PREF_SEARCH_INTERVAL, DEFAULT_BLUETOOTH_DISCOVERY_INTERVAL)
+                .getInteger(s(context, R.string.prefkey_search_interval), DEFAULT_BLUETOOTH_DISCOVERY_INTERVAL)
                 .asObservable();
     }
 
     public static void setDiscoveryInterval(Context context, int discoveryInterval) {
         getSharedPreferences(context)
                 .edit()
-                .putInt(PREF_SEARCH_INTERVAL, discoveryInterval)
+                .putInt(s(context, R.string.prefkey_search_interval), discoveryInterval)
                 .apply();
     }
 
     // Optional Settings
     public static int getSamplingRate(Context context) {
-        return getSharedPreferences(context).getInt(PREF_SAMPLING_RATE, DEFAULT_SAMPLING_RATE);
+        return getSharedPreferences(context).getInt(s(context, R.string.prefkey_samplingrate), DEFAULT_SAMPLING_RATE);
     }
 
     public static void setSamplingRate(Context context, int samplingRate) {
         getSharedPreferences(context)
                 .edit()
-                .putInt(PREF_SAMPLING_RATE, samplingRate)
+                .putInt(s(context, R.string.prefkey_samplingrate), samplingRate)
                 .apply();
     }
 
     public static Observable<Integer> getRxSharedSamplingRate(Context context) {
         return getRxSharedPreferences(context)
-                .getInteger(PREF_SAMPLING_RATE, DEFAULT_SAMPLING_RATE)
+                .getInteger(s(context, R.string.prefkey_samplingrate), DEFAULT_SAMPLING_RATE)
                 .asObservable();
     }
 
     public static Observable<Boolean> getDebugLoggingObservable(Context context) {
         return getRxSharedPreferences(context)
-                .getBoolean(PREF_DEBUG_LOGGING, DEFAULT_DEBUG_LOGGING)
+                .getBoolean(s(context, R.string.prefkey_enable_debug_logging), DEFAULT_DEBUG_LOGGING)
                 .asObservable();
     }
 
     public static boolean isDieselConsumptionEnabled(Context context) {
-        return getSharedPreferences(context).getBoolean(PREF_DIESEL_ESTIMATION, false);
+        return getSharedPreferences(context).getBoolean(s(context, R.string.prefkey_enable_diesel_consumption), false);
     }
 
     public static Observable<Boolean> getDieselConsumptionObservable(Context context) {
         return getRxSharedPreferences(context)
-                .getBoolean(PREF_DIESEL_ESTIMATION, false)
+                .getBoolean(s(context, R.string.prefkey_enable_diesel_consumption), false)
                 .asObservable();
     }
 
     public static Observable<Integer> getTrackTrimDurationObservable(final Context context) {
         return RxSharedPreferences.create(getSharedPreferences(context))
-                .getInteger(PREF_TRACK_TRIM_DURATION, DEFAULT_TRACK_TRIM_DURATION)
+                .getInteger(s(context, R.string.prefkey_track_trim_duration), DEFAULT_TRACK_TRIM_DURATION)
                 .asObservable();
     }
 
     public static void setTrackTrimDurationObservable(final Context context, int trackTrimDuration) {
         getSharedPreferences(context).edit()
-                .putInt(PREF_TRACK_TRIM_DURATION, trackTrimDuration)
+                .putInt(s(context, R.string.prefkey_track_trim_duration), trackTrimDuration)
                 .apply();
     }
 
@@ -249,6 +243,10 @@ public class ApplicationSettings {
     public static SharedPreferences getSharedPreferences(Context context) {
         Preconditions.checkNotNull(context, "Input context cannot be null.");
         return PreferenceManager.getDefaultSharedPreferences(context);
+    }
+
+    private static final String s(Context context, int id){
+        return context.getString(id);
     }
 
 }

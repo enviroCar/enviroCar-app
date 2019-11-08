@@ -87,4 +87,7 @@
     <string name="pref_version">Version</string>
     <string name="pref_other">Anderes</string>
 
+    <string name="pref_gps_mode_ar_title">Automatische GPS Aufzeichnung</string>
+    <string name="pref_gps_mode_ar_summary">Aktiviert die automatische Aufzeichnung von GPS-basierten Fahrten basierend auf Mechanismen der Aktivitätserkennung.\n\nHinweis: Diese Androidfunktion läuft bei einigen Smartphonemodellen nicht zuverlässig.</string>
+
 </resources>
