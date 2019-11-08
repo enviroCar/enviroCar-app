@@ -261,7 +261,7 @@ public class OBDRecordingStrategy implements RecordingStrategy {
 
     private ObservableTransformer<BluetoothSocketWrapper, Measurement> receiveMeasurements() {
         return upstream -> {
-            final Long samplingRate = ApplicationSettings.getSamplingRate(context) * 1000;
+            final int samplingRate = ApplicationSettings.getSamplingRate(context) * 1000;
             try {
                 eventBus.register(measurementProvider);
             } catch (Exception e) {

@@ -216,7 +216,7 @@ public class GPSRecordingStrategy implements LifecycleObserver, RecordingStrateg
     private ObservableTransformer<String, Measurement> receiveMeasurements() {
         // this is the first access to the measurement objects push it further
         return upstream -> {
-            Long samplingRate = ApplicationSettings.getSamplingRate(context) * 1000;
+            final int samplingRate = ApplicationSettings.getSamplingRate(context) * 1000;
             try {
                 eventBus.register(measurementProvider);
             } catch (Exception e) {

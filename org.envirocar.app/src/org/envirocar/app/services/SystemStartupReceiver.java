@@ -57,7 +57,7 @@ public class SystemStartupReceiver extends BroadcastReceiver {
      */
     public void startAutomaticTrackRecordingService(Context context) {
         // Get the preference related to the autoconnection.
-        boolean autoStartService = ApplicationSettings.getAutoconnectObservable(context).blockingFirst();
+        boolean autoStartService = ApplicationSettings.getAutoconnectEnabledObservable(context).blockingFirst();
 
         // If autostart remoteService is on and the remoteService is not already running,
         // then start the background remoteService.

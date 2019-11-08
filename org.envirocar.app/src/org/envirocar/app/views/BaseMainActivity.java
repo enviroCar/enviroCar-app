@@ -243,7 +243,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
 
         // Start Background handler
         subscriptions.add(
-                ApplicationSettings.getBackgroundHandlerEnabledObservable(this)
+                ApplicationSettings.getAutoconnectEnabledObservable(this)
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(aBoolean -> {
                             if (aBoolean) {

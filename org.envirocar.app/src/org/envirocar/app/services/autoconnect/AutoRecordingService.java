@@ -149,6 +149,7 @@ public class AutoRecordingService extends ScopedBaseInjectorService implements A
     public void onPreconditionUpdate(AutoRecordingStrategy.PreconditionType preconditionType) {
         switch (preconditionType) {
             case SATISFIED:
+                NotificationHandler.closeNotification();
                 break;
             case BT_DISABLED:
                 break;
@@ -238,7 +239,7 @@ public class AutoRecordingService extends ScopedBaseInjectorService implements A
 
     private void initPreferenceSubscriptions() {
         disposables.add(
-                ApplicationSettings.getAutoconnectObservable(this)
+                ApplicationSettings.getAutoconnectEnabledObservable(this)
                         .doOnNext(isAutoConnectEnabled -> {
                             this.isAutoConnectEnabled = isAutoConnectEnabled;
                             updateAutoRecording();
