@@ -112,7 +112,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
             case R.id.navigation_dashboard:
                 if (selectedMenuItemID != 1) {
                     fragmentTransaction.replace(R.id.fragmentContainer, dashboardFragment);
-                    fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+//                    fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
                     fragmentTransaction.commit();
                     selectedMenuItemID = 1;
                 }
@@ -120,7 +120,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
             case R.id.navigation_my_tracks:
                 if (selectedMenuItemID != 2) {
                     fragmentTransaction.replace(R.id.fragmentContainer, tracklIstPagerFragment);
-                    fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+//                    fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
                     fragmentTransaction.commit();
                     selectedMenuItemID = 2;
                 }
@@ -128,7 +128,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
             case R.id.navigation_others:
                 if (selectedMenuItemID != 3) {
                     fragmentTransaction.replace(R.id.fragmentContainer, othersFragment);
-                    fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+//                    fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
                     fragmentTransaction.commit();
                     selectedMenuItemID = 3;
                 }

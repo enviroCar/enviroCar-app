@@ -327,9 +327,7 @@ public class OthersFragment extends BaseInjectorFragment {
                     othersLogOut.setVisibility(View.GONE);
                     othersLogOutDivider.setVisibility(View.GONE);
                 });
-
             });
-
         }
     }
 

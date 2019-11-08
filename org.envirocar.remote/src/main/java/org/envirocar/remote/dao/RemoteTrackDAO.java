@@ -88,13 +88,15 @@ public class RemoteTrackDAO extends BaseRemoteDAO<TrackDAO, TrackService> implem
 
     @Override
     public Observable<Track> getTrackByIdObservable(final String id) {
-        return Observable.create(subscriber -> {
+        return Observable.create(emitter -> {
+            if (emitter.isDisposed())
+                return;
             try {
                 Track remoteTracks = getTrackById(id);
-                subscriber.onNext(remoteTracks);
-                subscriber.onComplete();
+                emitter.onNext(remoteTracks);
+                emitter.onComplete();
             } catch (Exception e) {
-                subscriber.onError(e);
+                emitter.onError(e);
             }
         });
     }
@@ -204,6 +206,8 @@ public class RemoteTrackDAO extends BaseRemoteDAO<TrackDAO, TrackService> implem
     @Override
     public Observable<Track> createTrackObservable(Track track) {
         return Observable.create(emitter -> {
+            if (emitter.isDisposed())
+                return;
             LOG.info("call: creating remote track.");
             try {
                 emitter.onNext(createTrack(track));
@@ -255,12 +259,15 @@ public class RemoteTrackDAO extends BaseRemoteDAO<TrackDAO, TrackService> implem
     @Override
     public Observable<List<Track>> getTrackIdsObservable() {
         return Observable.create(emitter -> {
+            if (emitter.isDisposed())
+                return;
             try {
                 List<Track> remoteTrackIds = getTrackIds();
                 emitter.onNext(remoteTrackIds);
                 emitter.onComplete();
             } catch (Exception e) {
-                emitter.onError(e);
+                if (!emitter.isDisposed())
+                    emitter.onError(e);
             }
         });
     }
@@ -268,6 +275,8 @@ public class RemoteTrackDAO extends BaseRemoteDAO<TrackDAO, TrackService> implem
     @Override
     public Observable<List<Track>> getTrackIdsObservable(final int limit, final int page) {
         return Observable.create(emitter -> {
+            if (emitter.isDisposed())
+                return;
             try {
                 List<Track> remoteTracks = getTrackIds(limit, page);
                 emitter.onNext(remoteTracks);
@@ -305,6 +314,8 @@ public class RemoteTrackDAO extends BaseRemoteDAO<TrackDAO, TrackService> implem
     @Override
     public Observable<List<Track>> getTrackIdsWithLimitObservable(final int limit) {
         return Observable.create(emitter -> {
+            if (emitter.isDisposed())
+                return;
             try {
                 List<Track> remoteTracks = getTrackIdsWithLimit(limit);
                 emitter.onNext(remoteTracks);
