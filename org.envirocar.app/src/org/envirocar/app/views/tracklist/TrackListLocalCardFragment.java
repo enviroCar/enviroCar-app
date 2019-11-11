@@ -30,9 +30,9 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.common.base.Preconditions;
 
+import org.envirocar.app.BaseApplication;
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
-import org.envirocar.app.BaseApplication;
 import org.envirocar.app.injection.components.MainActivityComponent;
 import org.envirocar.app.injection.modules.MainActivityModule;
 import org.envirocar.app.views.trackdetails.TrackDetailsActivity;
@@ -64,7 +64,6 @@ import io.reactivex.schedulers.Schedulers;
  */
 public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<TrackListLocalCardAdapter> {
     private static final Logger LOG = Logger.getLogger(TrackListLocalCardFragment.class);
-
 
 
     /**
@@ -170,7 +169,8 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
                         mRecyclerViewAdapter.removeItem(track);
                         mRecyclerViewAdapter.notifyDataSetChanged();
 
-                        onTrackUploadedListener.onTrackUploaded(track);
+                        if (onTrackUploadedListener != null)
+                            onTrackUploadedListener.onTrackUploaded(track);
                     }
                 });
     }
@@ -296,9 +296,8 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
 
                             @Override
                             public void onComplete() {
-                                emitter.onComplete();
-
                                 if (dialog != null) dialog.dismiss();
+                                emitter.onComplete();
                             }
 
                             @Override
@@ -312,6 +311,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
                             @Override
                             public void onNext(Track track) {
                                 LOG.info("onNext() track has been successfully uploaded.");
+                                if (dialog != null) dialog.dismiss();
                                 emitter.onNext(track);
                                 emitter.onComplete();
                             }
