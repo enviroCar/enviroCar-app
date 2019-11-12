@@ -280,8 +280,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<T
                         public void onNext(List<Track> tracks) {
                             LOG.info("onNext(" + tracks.size() + ") locally stored tracks");
                             for (Track track : tracks) {
-                                if (track.getMeasurements() != null &&
-                                        !track.getMeasurements().isEmpty()) {
+                                if (track.getMeasurements() != null && !track.getMeasurements().isEmpty()) {
                                     if (mTrackList.contains(track)) {
                                         mTrackList.set(mTrackList.indexOf(track), track);
                                     } else {

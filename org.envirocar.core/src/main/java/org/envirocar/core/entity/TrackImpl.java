@@ -119,6 +119,7 @@ public class TrackImpl implements Track, TrackStatisticsProvider {
         track.setTrackStatus(trackStatus);
         track.setMeasurements(new ArrayList<>(measurements));
         track.setLazyMeasurements(isLazyLoadingMeasurements);
+        track.setLength(length);
         return track;
     }
 
