@@ -40,6 +40,7 @@ dependencies {
 
     // Third party
     implementation rootProject.ext.apacheCommons
+    implementation rootProject.ext.materialDialogs
 }
 
 
