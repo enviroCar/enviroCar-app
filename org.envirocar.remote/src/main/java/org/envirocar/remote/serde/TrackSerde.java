@@ -162,7 +162,6 @@ public class TrackSerde extends AbstractJsonSerde implements JsonSerializer<Trac
 
         JsonObject result = new JsonObject();
         result.addProperty(Track.KEY_TRACK_TYPE, "FeatureCollection");
-        result.addProperty(Track.KEY_TRACK_LENGTH, src.getLength());
         result.add(Track.KEY_TRACK_PROPERTIES, trackProperties);
         result.add(Track.KEY_TRACK_FEATURES, trackFeatures);
 
