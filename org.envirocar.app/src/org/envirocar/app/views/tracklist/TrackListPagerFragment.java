@@ -26,7 +26,6 @@ import android.view.ViewGroup;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
@@ -72,6 +71,27 @@ public class TrackListPagerFragment extends BaseInjectorFragment {
         trackListPageAdapter = new TrackListPagerAdapter(getChildFragmentManager());
         mViewPager.setAdapter(trackListPageAdapter);
         mViewPager.setSaveFromParentEnabled(false);
+
+        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                if (position == 0) {
+                    trackListSegmentedGroup.check(R.id.localSegmentedButton);
+                } else {
+                    trackListSegmentedGroup.check(R.id.uploadedSegmentedButton);
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
         trackListSegmentedGroup.check(R.id.localSegmentedButton);
 
         trackListSegmentedGroup.setOnCheckedChangeListener((radioGroup, i) -> {
@@ -101,6 +121,7 @@ public class TrackListPagerFragment extends BaseInjectorFragment {
         LOG.info("onDestroyView()");
         super.onDestroyView();
     }
+
 
     /**
      * @author dewall
