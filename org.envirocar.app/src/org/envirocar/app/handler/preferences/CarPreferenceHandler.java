@@ -202,8 +202,6 @@ public class CarPreferenceHandler implements LifecycleObserver {
 
     private Observable<Track> updateCarIDsOfTracksObservable(String oldID, Car car) {
         return mEnviroCarDB.getAllTracksByCar(oldID, true)
-                .singleOrError()
-                .toObservable()
                 .flatMap(tracks -> Observable.fromIterable(tracks))
                 .map(track -> {
                     LOG.info("Track has been updated! -> [" + track.toString() + "]");

@@ -25,8 +25,12 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.AttributeSet;
+import android.view.View;
 import android.view.WindowManager;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
@@ -41,6 +45,7 @@ import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.DAOProvider;
 import org.envirocar.app.handler.TemporaryFileManager;
+import org.envirocar.app.handler.agreement.AgreementManager;
 import org.envirocar.app.handler.preferences.CarPreferenceHandler;
 import org.envirocar.app.handler.preferences.UserPreferenceHandler;
 import org.envirocar.app.injection.BaseInjectorActivity;
@@ -59,9 +64,11 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.reactivex.Observable;
 import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * @authro dewall
@@ -87,11 +94,13 @@ public class BaseMainActivity extends BaseInjectorActivity {
     @Inject
     protected DashboardFragment dashboardFragment;
     @Inject
-    protected TrackListPagerFragment tracklIstPagerFragment;
+    protected TrackListPagerFragment trackListPagerFragment;
     @Inject
     protected OthersFragment othersFragment;
     @Inject
     protected Mapbox mapbox;
+    @Inject
+    protected AgreementManager agreementManager;
 
     @BindView(R.id.navigation)
     protected BottomNavigationView navigationBottomBar;
@@ -112,15 +121,13 @@ public class BaseMainActivity extends BaseInjectorActivity {
             case R.id.navigation_dashboard:
                 if (selectedMenuItemID != 1) {
                     fragmentTransaction.replace(R.id.fragmentContainer, dashboardFragment);
-//                    fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
                     fragmentTransaction.commit();
                     selectedMenuItemID = 1;
                 }
                 return true;
             case R.id.navigation_my_tracks:
                 if (selectedMenuItemID != 2) {
-                    fragmentTransaction.replace(R.id.fragmentContainer, tracklIstPagerFragment);
-//                    fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+                    fragmentTransaction.replace(R.id.fragmentContainer, trackListPagerFragment);
                     fragmentTransaction.commit();
                     selectedMenuItemID = 2;
                 }
@@ -128,7 +135,6 @@ public class BaseMainActivity extends BaseInjectorActivity {
             case R.id.navigation_others:
                 if (selectedMenuItemID != 3) {
                     fragmentTransaction.replace(R.id.fragmentContainer, othersFragment);
-//                    fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
                     fragmentTransaction.commit();
                     selectedMenuItemID = 3;
                 }
@@ -178,6 +184,11 @@ public class BaseMainActivity extends BaseInjectorActivity {
             }
         };
 
+        // Check whether newest TermsOfUse have been accepted.
+//        Observable.just(true)
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(Schedulers.io())
+
 
         registerReceiver(errorInformationReceiver, new IntentFilter(TroubleshootingFragment.INTENT));
     }
@@ -206,6 +217,17 @@ public class BaseMainActivity extends BaseInjectorActivity {
         super.onResume();
         // Check whether the screen is required to keep the screen on.
         checkKeepScreenOn();
+
+        Observable.just(true)
+                .filter(bool -> mUserManager.isLoggedIn())
+                .compose(new AgreementManager.TermsOfUseValidator<>(agreementManager, this))
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .doOnNext(bool -> {
+                    LOGGER.info("SUCCESSFUL");
+                })
+                .doOnError(LOGGER::error)
+                .subscribe();
     }
 
     @Override
@@ -298,6 +320,4 @@ public class BaseMainActivity extends BaseInjectorActivity {
     private void showSnackbar(String info) {
         Snackbar.make(navigationBottomBar, info, Snackbar.LENGTH_LONG).show();
     }
-
-
 }

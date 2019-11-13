@@ -136,7 +136,7 @@ public abstract class SyncAdapter implements OBDAdapter {
                                 analyzedSuccessfully = analyzedSuccessfully | analyzeMetadataResponse(resp, cc);
                             } catch (InterruptedException e) {
                                 LOGGER.warn(e.getMessage());
-                            } catch (Exception e){
+                            } catch (Exception e) {
                                 // retry
                                 commandExecutor.execute(cc);
                                 Thread.sleep(750);
@@ -153,7 +153,8 @@ public abstract class SyncAdapter implements OBDAdapter {
                 }
             } catch (IOException | AdapterFailedException e) {
                 LOGGER.error("Some unexpected error occured", e);
-                subscriber.onError(e);
+                if (!subscriber.isDisposed())
+                    subscriber.onError(e);
             } catch (StreamFinishedException e) {
                 LOGGER.warn("The stream was closed unexpectedly: " + e.getMessage());
                 subscriber.onComplete();

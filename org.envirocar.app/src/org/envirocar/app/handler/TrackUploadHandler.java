@@ -30,6 +30,7 @@ import org.envirocar.app.exception.TrackAlreadyUploadedException;
 import org.envirocar.app.handler.agreement.AgreementManager;
 import org.envirocar.app.handler.preferences.CarPreferenceHandler;
 import org.envirocar.app.handler.preferences.UserPreferenceHandler;
+import org.envirocar.core.EnviroCarDB;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.exception.NoMeasurementsException;
@@ -37,7 +38,6 @@ import org.envirocar.core.exception.TrackWithNoValidCarException;
 import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.utils.TrackUtils;
-import org.envirocar.core.EnviroCarDB;
 
 import java.util.List;
 
@@ -114,7 +114,7 @@ public class TrackUploadHandler {
                     .compose(AgreementManager.TermsOfUseValidator.create(mAgreementManager, activity))
                     // Continue when the TermsOfUse has been accepted, otherwise
                     // throw an error
-                    .flatMap(track1 -> uploadTrack(track1))
+                    .flatMap(this::uploadTrack)
                     // Only forward the results to the real subscriber.
                     .subscribeWith(new DisposableObserver<Track>() {
                         @Override
@@ -125,12 +125,13 @@ public class TrackUploadHandler {
 
                         @Override
                         public void onError(Throwable e) {
-
+                            LOG.error(e);
+                            emitter.onError(e);
                         }
 
                         @Override
                         public void onComplete() {
-
+                            emitter.onComplete();
                         }
                     });
 
@@ -184,10 +185,8 @@ public class TrackUploadHandler {
         return Observable.just(tracks)
                 .compose(AgreementManager.TermsOfUseValidator.create(mAgreementManager, activity))
                 .flatMap(tracks1 -> Observable.fromIterable(tracks1))
-                .concatMap(track -> uploadTrack(track)
-                        .firstOrError()
-                        .toObservable()
-                        .lift(getUploadTracksOperator(abortOnNoMeasurements)));
+                .concatMap(track -> uploadTrack(track));
+//                        .lift(getUploadTracksOperator(abortOnNoMeasurements)));
     }
 
     private Observable<Track> uploadTrack(Track track) {

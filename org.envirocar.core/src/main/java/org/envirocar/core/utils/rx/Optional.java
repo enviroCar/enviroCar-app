@@ -1,4 +1,4 @@
-package org.envirocar.app.rxutils;
+package org.envirocar.core.utils.rx;
 
 /**
  * @param <M> the optional parameter type

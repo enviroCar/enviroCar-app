@@ -61,7 +61,7 @@ public class CacheTermsOfUseDAO extends AbstractCacheDAO implements TermsOfUseDA
 
 
     //	@Override
-    //	public TermsOfUse getTermsOfUse() throws TermsOfUseRetrievalException {
+    //	public TermsOfUse getLatestTermsOfUse() throws TermsOfUseRetrievalException {
     //		try {
     //			return TermsOfUse.fromJson(readCache(LIST_CACHE_FILE_NAME));
     //		} catch (IOException e) {

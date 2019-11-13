@@ -64,15 +64,13 @@ public class RemoteUserStatisticsDAO extends BaseRemoteDAO<UserDAO, UserService>
         Call<UserStatistics> userStatistics = userService.getUserStatistics(user.getUsername());
 
         try {
-            Response<UserStatistics> userStatisticsResponse = userStatistics.execute();
+            Response<UserStatistics> response = userStatistics.execute();
 
-            if (userStatisticsResponse.isSuccessful()) {
-                return userStatisticsResponse.body();
+            if (response.isSuccessful()) {
+                return response.body();
             } else {
                 // If the execution was successful, then throw an exception.
-                int responseCode = userStatisticsResponse.code();
-                EnvirocarServiceUtils.assertStatusCode(responseCode, userStatisticsResponse
-                        .errorBody().string());
+                EnvirocarServiceUtils.assertStatusCode(response);
                 return null;
             }
 

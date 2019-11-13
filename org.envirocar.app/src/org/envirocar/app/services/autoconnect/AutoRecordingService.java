@@ -129,7 +129,7 @@ public class AutoRecordingService extends ScopedBaseInjectorService implements A
         super.onStartCommand(intent, flags, startId);
         LOG.info("onStartCommand()");
         this.updateAutoRecording();
-        return START_NOT_STICKY;
+        return START_STICKY;
     }
 
 

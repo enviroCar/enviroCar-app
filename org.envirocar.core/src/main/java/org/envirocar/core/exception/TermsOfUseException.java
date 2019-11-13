@@ -16,19 +16,19 @@
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
-package org.envirocar.app.exception;
+package org.envirocar.core.exception;
 
 /**
  * TODO JavaDoc
  *
  * @author dewall
  */
-public class NotAcceptedTermsOfUseException extends Exception {
+public class TermsOfUseException extends Exception {
 
     /**
      * Constructor.
      */
-    public NotAcceptedTermsOfUseException() {
+    public TermsOfUseException() {
         super("User has not accepted the terms of use.");
     }
 
@@ -37,7 +37,7 @@ public class NotAcceptedTermsOfUseException extends Exception {
      *
      * @param detailMessage the error message.
      */
-    public NotAcceptedTermsOfUseException(String detailMessage) {
+    public TermsOfUseException(String detailMessage) {
         super(detailMessage);
     }
 }

@@ -34,7 +34,7 @@ public class GetUserStatistic extends Interactor<UserStatistic, GetUserStatistic
     }
 
     @Override
-    Observable<UserStatistic> buildObservable(Params params) {
+    protected Observable<UserStatistic> buildObservable(Params params) {
         Preconditions.checkNotNull(params);
         return this.repository.getUserStatistic(params.username);
     }

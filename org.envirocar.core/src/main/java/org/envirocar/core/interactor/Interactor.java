@@ -44,5 +44,5 @@ public abstract class Interactor<Result, Parameters> {
         }
     }
 
-    abstract Observable<Result> buildObservable(Parameters parameters);
+    protected abstract Observable<Result> buildObservable(Parameters parameters);
 }

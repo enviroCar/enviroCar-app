@@ -71,23 +71,22 @@ public class RemoteAnnouncementsDAO extends BaseRemoteDAO<AnnouncementDAO, Annou
 
         try {
             // Execute the call
-            Response<List<Announcement>> allAnnouncementsResponse = allAnnouncementsCall.execute();
+            Response<List<Announcement>> response = allAnnouncementsCall.execute();
 
             // assert the response code when it was not successful
-            if (!allAnnouncementsResponse.isSuccessful()) {
-                EnvirocarServiceUtils.assertStatusCode(allAnnouncementsResponse.code(),
-                        allAnnouncementsResponse.message());
+            if (!response.isSuccessful()) {
+                EnvirocarServiceUtils.assertStatusCode(response);
                 return null;
             }
 
             // Store the announcements into the cache
             if (cacheDao != null) {
                 LOG.info("Store the announcments into the cache DAO");
-                cacheDao.saveAnnouncements(allAnnouncementsResponse.body());
+                cacheDao.saveAnnouncements(response.body());
             }
 
             // return the list of announcements.
-            return allAnnouncementsResponse.body();
+            return response.body();
         } catch (IOException e) {
             throw new NotConnectedException(e);
         } catch (Exception e) {

@@ -111,19 +111,19 @@ public class RemoteTrackDAO extends BaseRemoteDAO<TrackDAO, TrackService> implem
 
         try {
             // Execute the request call.
-            Response<ResponseBody> allTracksCountResponse = allTracksCountCall.execute();
+            Response<ResponseBody> response = allTracksCountCall.execute();
 
             // If the request call was not successful, then assert the status code and throw an
             // exceptiom
-            if (!allTracksCountResponse.isSuccessful()) {
-                EnvirocarServiceUtils.assertStatusCode(allTracksCountResponse.code(),
-                        allTracksCountResponse.errorBody().toString());
+            if (!response.isSuccessful()) {
+                EnvirocarServiceUtils.assertStatusCode(response.code(),
+                        response.errorBody().toString(), response.body().string());
                 return null;
             }
 
             // Get the page count with a track limit of 1 per page (?limit=1). This corresponds
             // to the number of global tracks and return it.
-            int pageCount = EnvirocarServiceUtils.resolvePageCount(allTracksCountResponse);
+            int pageCount = EnvirocarServiceUtils.resolvePageCount(response);
             LOG.info(String.format("getTotalTrackCount() with a tracksize of %s", "" + pageCount));
             return pageCount;
         } catch (IOException e) {
@@ -142,19 +142,18 @@ public class RemoteTrackDAO extends BaseRemoteDAO<TrackDAO, TrackService> implem
 
         try {
             // Execute the request call.
-            Response<ResponseBody> allTracksCountResponse = allTracksCountCall.execute();
+            Response<ResponseBody> response = allTracksCountCall.execute();
 
             // If the request call was not successful, then assert the status code and throw an
             // exceptiom
-            if (!allTracksCountResponse.isSuccessful()) {
-                EnvirocarServiceUtils.assertStatusCode(allTracksCountResponse.code(),
-                        allTracksCountResponse.errorBody().toString());
+            if (!response.isSuccessful()) {
+                EnvirocarServiceUtils.assertStatusCode(response);
                 return null;
             }
 
             // Get the page count with a track limit of 1 per page (?limit=1). This corresponds
             // to the number of global tracks and return it.
-            int pageCount = EnvirocarServiceUtils.resolvePageCount(allTracksCountResponse);
+            int pageCount = EnvirocarServiceUtils.resolvePageCount(response);
             LOG.info(String.format("getTotalTrackCount() with a tracksize of %s", pageCount));
             return pageCount;
         } catch (IOException e) {
@@ -180,16 +179,17 @@ public class RemoteTrackDAO extends BaseRemoteDAO<TrackDAO, TrackService> implem
                 trackService.uploadTrack(userManager.getUser().getUsername(), track);
 
         try {
-            Response<ResponseBody> uploadTrackResponse = uploadTrackCall.execute();
+            Response<ResponseBody> response = uploadTrackCall.execute();
 
-            if (!uploadTrackResponse.isSuccessful()) {
-                LOG.severe("Error while uploading track: " + uploadTrackResponse.message());
-                EnvirocarServiceUtils.assertStatusCode(uploadTrackResponse.code(),
-                        uploadTrackResponse.message());
+            if (!response.isSuccessful()) {
+                LOG.severe("Error while uploading track: " + response.message());
+                LOG.severe(response.errorBody().string());
+                EnvirocarServiceUtils.assertStatusCode(response.code(),
+                        response.message(), response.errorBody().string());
             }
 
             // Resolve the location where the track is stored.
-            String location = EnvirocarServiceUtils.resolveRemoteLocation(uploadTrackResponse);
+            String location = EnvirocarServiceUtils.resolveRemoteLocation(response);
             LOG.info("Uploaded remote location: " + location);
 
             // Set the remoteID ...
@@ -243,8 +243,7 @@ public class RemoteTrackDAO extends BaseRemoteDAO<TrackDAO, TrackService> implem
 
             if (!remoteTracksResponse.isSuccessful()) {
                 LOG.severe("Error while retrieving the list of remote tracks");
-                EnvirocarServiceUtils.assertStatusCode(remoteTracksResponse.code(),
-                        remoteTracksResponse.message());
+                EnvirocarServiceUtils.assertStatusCode(remoteTracksResponse);
             }
 
             // Return the list of remotetracks.
@@ -295,15 +294,14 @@ public class RemoteTrackDAO extends BaseRemoteDAO<TrackDAO, TrackService> implem
                 .getUsername(), limit);
 
         try {
-            Response<List<Track>> remoteTracksResponse = remoteTrackCall.execute();
+            Response<List<Track>> response = remoteTrackCall.execute();
 
-            if (!remoteTracksResponse.isSuccessful()) {
+            if (!response.isSuccessful()) {
                 LOG.severe("Error while retrieving the list of remote tracks with limit " + limit);
-                EnvirocarServiceUtils.assertStatusCode(remoteTracksResponse.code(),
-                        remoteTracksResponse.message());
+                EnvirocarServiceUtils.assertStatusCode(response);
             }
 
-            return remoteTracksResponse.body();
+            return response.body();
         } catch (IOException e) {
             throw new NotConnectedException(e);
         } catch (ResourceConflictException e) {
@@ -347,13 +345,12 @@ public class RemoteTrackDAO extends BaseRemoteDAO<TrackDAO, TrackService> implem
 
         try {
             // Execute the call
-            Response<ResponseBody> deleteTrackResponse = deleteTrackCall.execute();
+            Response<ResponseBody> response = deleteTrackCall.execute();
 
             // Check whether the call was successful or not
-            if (!deleteTrackResponse.isSuccessful()) {
+            if (!response.isSuccessful()) {
                 LOG.warn(String.format("deleteLocalTrack(): Error while deleting remote track."));
-                EnvirocarServiceUtils.assertStatusCode(deleteTrackResponse.code(),
-                        deleteTrackResponse.message());
+                EnvirocarServiceUtils.assertStatusCode(response);
             }
         } catch (IOException e) {
             throw new NotConnectedException(e);

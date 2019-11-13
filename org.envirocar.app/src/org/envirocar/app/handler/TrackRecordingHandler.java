@@ -29,7 +29,7 @@ import org.envirocar.app.handler.agreement.AgreementManager;
 import org.envirocar.app.handler.preferences.CarPreferenceHandler;
 import org.envirocar.app.handler.preferences.UserPreferenceHandler;
 import org.envirocar.app.recording.RecordingService;
-import org.envirocar.app.rxutils.Optional;
+import org.envirocar.core.utils.rx.Optional;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.entity.TrackImpl;
@@ -359,7 +359,7 @@ public class TrackRecordingHandler {
             } else {
                 // if there is no current reference cached or in the database, then create a new
                 // one and persist it.
-                return createNew ? createNewDatabaseTrackObservable().singleOrError() : Single.just(null);
+                return createNew ? createNewDatabaseTrackObservable().singleOrError() : Single.just(new TrackImpl());
             }
         };
     }

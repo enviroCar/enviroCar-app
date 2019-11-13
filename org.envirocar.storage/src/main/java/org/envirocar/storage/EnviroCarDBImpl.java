@@ -33,6 +33,7 @@ import org.envirocar.core.logging.Logger;
 import org.envirocar.core.util.TrackMetadata;
 import org.json.JSONException;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -41,6 +42,7 @@ import javax.inject.Singleton;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableTransformer;
+import io.reactivex.functions.Function;
 
 
 /**
@@ -173,13 +175,13 @@ public class EnviroCarDBImpl implements EnviroCarDB {
 
     @Override
     public Observable<Track> updateTrackObservable(Track track) {
-        return Observable.create(emitter -> {
-            if (updateTrack(track)) {
-                LOG.info("Track [%s] has been successfully updated.", track.toString());
-                emitter.onNext(track);
-            }
-            emitter.onComplete();
-        });
+        return Observable.just(track)
+                .map((Function<Track, Track>) track1 -> {
+                    if (updateTrack(track1)) {
+                        LOG.info("Track [%s] has been successfully updated.", track1.getDescription());
+                    }
+                    return track1;
+                });
     }
 
     @Override
@@ -393,9 +395,18 @@ public class EnviroCarDBImpl implements EnviroCarDB {
     }
 
     private Observable<List<Track>> fetchTracksObservable(String sql, boolean lazy) {
-        return briteDatabase.createQuery(TrackTable.TABLE_TRACK, sql)
-                .mapToList(TrackTable.MAPPER)
-                .compose(fetchTracks(lazy));
+        Observable<List<Track>> listObservable = Observable.create(emitter -> {
+            Cursor query = briteDatabase.getReadableDatabase().query(sql);
+
+            ArrayList<Track> tracks = new ArrayList<>();
+            for (query.moveToFirst(); !query.isAfterLast(); query.moveToNext()) {
+                tracks.add(TrackTable.MAPPER.apply(query));
+            }
+
+            emitter.onNext(tracks);
+            emitter.onComplete();
+        });
+        return listObservable.compose(fetchTracks(lazy));
     }
 
     private ObservableTransformer<List<Track>, List<Track>> fetchTracks(boolean lazy) {

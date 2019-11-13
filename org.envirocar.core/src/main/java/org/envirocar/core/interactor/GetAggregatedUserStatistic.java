@@ -32,7 +32,7 @@ public class GetAggregatedUserStatistic extends Interactor<AggregatedUserStatist
     }
 
     @Override
-    Observable<AggregatedUserStatistic> buildObservable(GetAggregatedUserStatistic.Params params) {
+    protected Observable<AggregatedUserStatistic> buildObservable(GetAggregatedUserStatistic.Params params) {
         Preconditions.checkNotNull(params);
         return Observable.create(emitter -> {
             AggregatedUserStatistic result = new AggregatedUserStatistic();

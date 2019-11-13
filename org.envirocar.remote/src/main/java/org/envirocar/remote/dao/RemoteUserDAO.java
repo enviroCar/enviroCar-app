@@ -104,12 +104,12 @@ public class RemoteUserDAO extends BaseRemoteDAO<UserDAO, UserService> implement
 
         try {
             // execute the call
-            Response<ResponseBody> userResponse = userCall.execute();
+            Response<ResponseBody> response = userCall.execute();
 
             // If the execution was not a success, then throw an error.
-            if (!userResponse.isSuccessful()) {
+            if (!response.isSuccessful()) {
                 LOG.severe("updateUser(): Error while updating remote getUserStatistic");
-                EnvirocarServiceUtils.assertStatusCode(userResponse.code(), userResponse.message());
+                EnvirocarServiceUtils.assertStatusCode(response);
             }
         } catch (IOException e) {
             throw new DataUpdateFailureException(e);

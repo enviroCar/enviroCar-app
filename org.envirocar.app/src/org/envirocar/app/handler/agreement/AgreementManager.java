@@ -22,12 +22,13 @@ import android.app.Activity;
 import android.content.Context;
 
 import org.envirocar.app.R;
-import org.envirocar.app.exception.NotAcceptedTermsOfUseException;
+import org.envirocar.core.exception.TermsOfUseException;
 import org.envirocar.app.exception.NotLoggedInException;
 import org.envirocar.app.handler.DAOProvider;
 import org.envirocar.app.handler.preferences.UserPreferenceHandler;
-import org.envirocar.app.views.dialogs.ReactivePrivacyStatementDialog;
-import org.envirocar.app.views.dialogs.ReactiveTermsOfUseDialog;
+import org.envirocar.core.utils.rx.dialogs.AbstractReactiveAcceptDialog;
+import org.envirocar.core.utils.rx.dialogs.ReactivePrivacyStatementDialog;
+import org.envirocar.core.utils.rx.dialogs.ReactiveTermsOfUseDialog;
 import org.envirocar.core.entity.PrivacyStatement;
 import org.envirocar.core.entity.TermsOfUse;
 import org.envirocar.core.entity.User;
@@ -112,7 +113,7 @@ public class AgreementManager {
         return getRemoteTermsOfUseObservable()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .flatMap(termsOfUse -> new ReactiveTermsOfUseDialog(activity, termsOfUse).asObservable());
+                .flatMap(termsOfUse -> new ReactiveTermsOfUseDialog(activity, termsOfUse, getTermsOfUseParams(null)).asObservable());
     }
 
     private Observable<TermsOfUse> getRemoteTermsOfUseObservable() {
@@ -137,11 +138,11 @@ public class AgreementManager {
                 });
     }
 
-    public Observable<PrivacyStatement> showLatestPrivacyStatementDialogObservable(Activity activity){
+    public Observable<PrivacyStatement> showLatestPrivacyStatementDialogObservable(Activity activity) {
         return getRemotePrivacyStatementObservable()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .flatMap(privacyStatement -> new ReactivePrivacyStatementDialog(activity, privacyStatement).asObservable());
+                .flatMap(privacyStatement -> new ReactivePrivacyStatementDialog(activity, privacyStatement, getPrivacyStatementParams(null)).asObservable());
     }
 
     private Observable<PrivacyStatement> getRemotePrivacyStatementObservable() {
@@ -190,7 +191,7 @@ public class AgreementManager {
 
             // if no dialog is possible, throw an exception
             else {
-                throw new NotAcceptedTermsOfUseException("The getUserStatistic has not accepted the terms of use");
+                throw new TermsOfUseException("The getUserStatistic has not accepted the terms of use");
             }
         };
     }
@@ -205,7 +206,7 @@ public class AgreementManager {
             boolean hasAccepted = termsOfUse.getIssuedDate().equals(user.getTermsOfUseVersion());
 
             // If the getUserStatistic has accepted, then just return the generic type
-            if (hasAccepted) {
+            if (hasAccepted){
                 return Observable.just(termsOfUse);
             }
             // If the input activity is not null, then create an dialog observable.
@@ -214,7 +215,7 @@ public class AgreementManager {
             }
             // Otherwise, throw an exception.
             else {
-                throw new NotAcceptedTermsOfUseException("The getUserStatistic has not accepted the terms of use");
+                throw new TermsOfUseException("The getUserStatistic has not accepted the terms of use");
             }
         };
     }
@@ -227,9 +228,19 @@ public class AgreementManager {
         return user;
     }
 
+    private AbstractReactiveAcceptDialog.Params getTermsOfUseParams(User user){
+        return new AbstractReactiveAcceptDialog.Params(
+                user, R.string.privacy_statement_title, R.string.ok, true);
+    }
+
+    private AbstractReactiveAcceptDialog.Params getPrivacyStatementParams(User user){
+        return new AbstractReactiveAcceptDialog.Params(
+                user, R.string.terms_of_use_title, R.string.ok, true);
+    }
+
     public Observable<TermsOfUse> createTermsOfUseDialogObservable(
             User user, TermsOfUse currentTermsOfUse, Activity activity) {
-        return new ReactiveTermsOfUseDialog(activity, user, currentTermsOfUse)
+        return new ReactiveTermsOfUseDialog(activity, currentTermsOfUse, getTermsOfUseParams(user))
                 .asObservable()
                 .map(termsOfUse -> {
                     LOG.info("TermsOfUseDialog: the getUserStatistic has accepted the ToU.");
@@ -251,7 +262,7 @@ public class AgreementManager {
     }
 
     public Observable<PrivacyStatement> createPrivacyStatementObservable(User user, PrivacyStatement currentPrivacyStatement, Activity activity) {
-        return new ReactivePrivacyStatementDialog(activity, user, currentPrivacyStatement)
+        return new ReactivePrivacyStatementDialog(activity, currentPrivacyStatement, getPrivacyStatementParams(user))
                 .asObservable()
                 .map(privacyStatement -> {
                     LOG.info("The User has not accepted the latest privacy statement. Showing Dialog.");
@@ -275,9 +286,7 @@ public class AgreementManager {
         private final AgreementManager agreementManager;
         private final Activity activity;
 
-        public static <T> TermsOfUseValidator<T> create(
-                AgreementManager agreementManager,
-                Activity activity) {
+        public static <T> TermsOfUseValidator<T> create(AgreementManager agreementManager, Activity activity) {
             return new TermsOfUseValidator<T>(agreementManager, activity);
         }
 
@@ -307,8 +316,8 @@ public class AgreementManager {
             return upstream.flatMap(t ->
                     agreementManager.getCurrentTermsOfUseObservable()
                             .flatMap(agreementManager.checkTermsOfUseAcceptance(activity))
-                            .flatMap(o -> agreementManager.getCurrentPrivacyStatementObservable())
-                            .flatMap(agreementManager.checkPrivacyStatementAcceptance(activity))
+//                            .flatMap(o -> agreementManager.getCurrentPrivacyStatementObservable())
+//                            .flatMap(agreementManager.checkPrivacyStatementAcceptance(activity))
                             .flatMap(termsOfUse -> Observable.just(t)));
         }
     }
