@@ -242,7 +242,17 @@ public class OBDRecordingStrategy implements RecordingStrategy {
 
                     @Override
                     public void dispose() {
+                        LOG.info("Disposing in connectionv verification.");
                         controller.shutdown();
+                        try {
+                            if (socket.getInputStream() != null)
+                                socket.getInputStream().close();
+                            if (socket.getOutputStream() != null)
+                                socket.getOutputStream().close();
+                            socket.close();
+                        } catch (Exception e){
+                            LOG.error(e);
+                        }
                         isDisposed = true;
                     }
 

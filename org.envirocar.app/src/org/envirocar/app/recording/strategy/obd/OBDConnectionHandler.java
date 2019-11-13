@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -43,6 +43,7 @@ import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Cancellable;
 
 
 /**
@@ -186,8 +187,8 @@ public class OBDConnectionHandler {
                         shutdownSocket(socketWrapper);
                         socketWrapper = null;
                     }
-                    if (emitter.isDisposed()){
-                        if(socketWrapper != null){
+                    if (emitter.isDisposed()) {
+                        if (socketWrapper != null) {
                             socketWrapper.shutdown();
                         }
                         return;
@@ -202,7 +203,21 @@ public class OBDConnectionHandler {
                     }
                 }
 
+                emitter.setCancellable(() -> {
+                    LOG.info("Disposing createOBDBluetoothObservable");
+                    try {
+                        if (socketWrapper != null) {
+                            shutdownSocket(socketWrapper);
+                            socketWrapper = null;
+                        }
+                    } catch (Exception e) {
+                        LOG.error(e);
+                    }
+                });
+
                 emitter.setDisposable(new Disposable() {
+                    boolean isDisposed = false;
+
                     @Override
                     public void dispose() {
                         LOG.info("Disposing createOBDBluetoothObservable");
@@ -211,14 +226,15 @@ public class OBDConnectionHandler {
                                 shutdownSocket(socketWrapper);
                                 socketWrapper = null;
                             }
-                        } catch (Exception e){
+                        } catch (Exception e) {
                             LOG.error(e);
                         }
+                        isDisposed = true;
                     }
 
                     @Override
                     public boolean isDisposed() {
-                        return emitter.isDisposed();
+                        return isDisposed;
                     }
                 });
 
