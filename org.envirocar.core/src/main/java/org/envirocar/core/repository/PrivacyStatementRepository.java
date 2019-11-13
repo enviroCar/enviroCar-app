@@ -16,10 +16,9 @@
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
-package org.envirocar.core.dao;
+package org.envirocar.core.repository;
 
-
-import org.envirocar.core.entity.TermsOfUse;
+import org.envirocar.core.entity.PrivacyStatement;
 import org.envirocar.core.exception.DataRetrievalFailureException;
 import org.envirocar.core.exception.NotConnectedException;
 
@@ -27,18 +26,20 @@ import java.util.List;
 
 import io.reactivex.Observable;
 
+
 /**
  * TODO JavaDoc
  *
  * @author dewall
  */
-public interface TermsOfUseDAO {
+public interface PrivacyStatementRepository {
 
-    TermsOfUse getTermsOfUse(String id) throws DataRetrievalFailureException, NotConnectedException;
+    PrivacyStatement getPrivacyStatement(String id) throws DataRetrievalFailureException, NotConnectedException;
 
-    Observable<TermsOfUse> getTermsOfUseObservable(String id);
+    Observable<PrivacyStatement> getPrivacyStatementObservable(String id);
 
-    List<TermsOfUse> getAllTermsOfUse() throws DataRetrievalFailureException, NotConnectedException;
+    List<PrivacyStatement> getPrivacyStatements() throws DataRetrievalFailureException, NotConnectedException;
 
-    Observable<List<TermsOfUse>> getAllTermsOfUseObservable();
+    Observable<List<PrivacyStatement>> getPrivacyStatementsObservable();
+
 }

@@ -11,7 +11,7 @@ import io.reactivex.Observable;
 public interface UserStatisticRepository {
 
     /**
-     * Get an {@link Observable} which will emit the userstatistic for a given {@link User}.
+     * Get an {@link Observable} which will emit the userstatistic for a given username.
      *
      * @param username the user to retrieve the statistics for.
      */
