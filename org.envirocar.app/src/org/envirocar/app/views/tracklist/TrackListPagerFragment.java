@@ -127,9 +127,9 @@ public class TrackListPagerFragment extends BaseInjectorFragment {
         @Override
         public Fragment getItem(int position) {
             if (position == 0) {
-                return new TrackListLocalCardFragment();
+                return localCardFragment;
             } else {
-                return new TrackListRemoteCardFragment();
+                return remoteCardFragment;
             }
         }
 

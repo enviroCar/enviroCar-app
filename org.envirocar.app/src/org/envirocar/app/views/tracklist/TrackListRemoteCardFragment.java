@@ -267,7 +267,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<T
 
                         @Override
                         public void onComplete() {
-
+                            sortTrackList();
                         }
 
                         @Override
@@ -310,7 +310,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<T
 
                         @Override
                         public void onComplete() {
-
+                            sortTrackList();
                         }
 
                         @Override
@@ -366,6 +366,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<T
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(track1 -> {
                     mTrackList.add(track1);
+                    sortTrackList();
                     mRecyclerViewAdapter.notifyDataSetChanged();
                 });
     }
@@ -374,7 +375,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<T
         if (hasLoadedStored && hasLoadedRemote) {
             if (!isSorted) {
                 isSorted = true;
-                Collections.sort(mTrackList);
+                sortTrackList();
             }
             ECAnimationUtils.animateHideView(getActivity(), mProgressView, R.anim.fade_out);
 
@@ -390,5 +391,15 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<T
             infoView.setVisibility(View.GONE);
             mRecyclerViewAdapter.notifyDataSetChanged();
         }
+    }
+
+    private void sortTrackList(){
+        Collections.sort(mTrackList, (o1, o2) -> {
+            if (o1.getStartTime() < o2.getStartTime())
+                return 1;
+            if (o1.getStartTime() > o2.getStartTime())
+                return -1;
+            return 0;
+        });
     }
 }

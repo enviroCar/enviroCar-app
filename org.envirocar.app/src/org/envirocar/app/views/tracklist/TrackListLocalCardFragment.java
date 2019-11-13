@@ -111,8 +111,6 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
         uploadTrackSubscription = Observable.defer(() -> mEnvirocarDB.getAllLocalTracks())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .firstOrError()
-                .toObservable()
                 .concatMap(tracks -> uploadTracksWithDialogObservable(tracks))
                 .subscribeWith(new DisposableObserver<Track>() {
                     @Override
@@ -374,7 +372,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
                             @Override
                             public void onComplete() {
                                 if (!emitter.isDisposed())
-                                    emitter.onComplete();
+                                    return;
 
                                 if (numberOfFailures > 0) {
                                     showSnackbar(String.format("%s of %s tracks have been " +
@@ -398,6 +396,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
 
                             @Override
                             public void onNext(Track track) {
+                                LOG.info("Successfully uploaded track %s", track.getDescription());
                                 if (track == null)
                                     numberOfFailures++;
                                 else {
