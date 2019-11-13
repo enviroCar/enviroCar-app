@@ -521,6 +521,7 @@ public class DashboardFragment extends BaseInjectorFragment {
             this.toolbar.inflateMenu(R.menu.menu_dashboard_logged_in);
             this.textView.setText(user.getUsername());
 
+
             ConstraintSet set = new ConstraintSet();
             set.constrainPercentHeight(bannerLayout.getId(), 0.25f);
             set.connect(bannerLayout.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 0);
@@ -624,6 +625,7 @@ public class DashboardFragment extends BaseInjectorFragment {
                 }
                 break;
         }
+        updateStartTrackButton();
     }
 
     private void updateStartTrackButton(BluetoothServiceState state) {
