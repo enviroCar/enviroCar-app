@@ -11,6 +11,9 @@ import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.app.handler.BluetoothHandler;
+import org.envirocar.app.handler.LocationHandler;
+import org.envirocar.app.handler.preferences.BluetoothPreferenceHandler;
+import org.envirocar.app.handler.preferences.CarPreferenceHandler;
 import org.envirocar.core.events.NewCarTypeSelectedEvent;
 import org.envirocar.core.events.bluetooth.BluetoothDeviceSelectedEvent;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
@@ -41,6 +44,8 @@ public class OBDAutoRecordingStrategy implements AutoRecordingStrategy {
     private final AutoRecordingService service;
     private final Bus eventBus;
     private final BluetoothHandler bluetoothHandler;
+    private final CarPreferenceHandler carHandler;
+    private final LocationHandler locationHandler;
 
     // Preconditions
     private boolean isCarSelected = false;
@@ -63,10 +68,12 @@ public class OBDAutoRecordingStrategy implements AutoRecordingStrategy {
      * @param eventBus
      * @param bluetoothHandler
      */
-    public OBDAutoRecordingStrategy(AutoRecordingService service, Bus eventBus, BluetoothHandler bluetoothHandler) {
+    public OBDAutoRecordingStrategy(AutoRecordingService service, Bus eventBus, BluetoothHandler bluetoothHandler, CarPreferenceHandler carHandler, LocationHandler locationHandler) {
         this.service = service;
         this.eventBus = eventBus;
         this.bluetoothHandler = bluetoothHandler;
+        this.carHandler = carHandler;
+        this.locationHandler = locationHandler;
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
@@ -76,7 +83,10 @@ public class OBDAutoRecordingStrategy implements AutoRecordingStrategy {
 
     @Override
     public boolean preconditionsFulfilled() {
-        return isCarSelected && isGPSEnabled && isBTEnabled && isBTSelected;
+        return carHandler.getCar() != null &&
+                bluetoothHandler.isBluetoothEnabled() &&
+                bluetoothHandler.getSelectedBluetoothDevice() != null &&
+                locationHandler.isGPSEnabled();
     }
 
     @Override
@@ -90,6 +100,8 @@ public class OBDAutoRecordingStrategy implements AutoRecordingStrategy {
                 })
                 .doOnError(LOG::error)
                 .subscribe());
+
+        isCarSelected = carHandler.getCar() != null;
 
         try {
             eventBus.register(this);
@@ -120,41 +132,41 @@ public class OBDAutoRecordingStrategy implements AutoRecordingStrategy {
     public void onCarSelectedEvent(NewCarTypeSelectedEvent event) {
         LOG.info("Received event. %s", event.toString());
         this.isCarSelected = event.mCar != null;
-        checkPrecodinitions();
+        checkPreconditions();
     }
 
     @Subscribe
     public void onReceiveBluetoothStateChangedEvent(BluetoothStateChangedEvent event) {
         LOG.info("Received event. %s", event.toString());
         this.isBTEnabled = event.isBluetoothEnabled;
-        checkPrecodinitions();
+        checkPreconditions();
     }
 
     @Subscribe
     public void onReceiveGpsStatusChangedEvent(GpsStateChangedEvent event) {
         LOG.info("Received event. %s", event.toString());
         this.isGPSEnabled = event.mIsGPSEnabled;
-        checkPrecodinitions();
+        checkPreconditions();
     }
 
     @Subscribe
     public void onReceiveBluetoothDeviceSelectedEvent(BluetoothDeviceSelectedEvent event) {
         LOG.info("Received event. %s", event.toString());
         this.isBTSelected = event.mDevice != null;
-        checkPrecodinitions();
+        checkPreconditions();
     }
 
-    private void checkPrecodinitions() {
-        if (!isGPSEnabled) {
-            callback.onPreconditionUpdate(PreconditionType.GPS_DISABLED);
-        } else if (!isBTEnabled) {
-            callback.onPreconditionUpdate(PreconditionType.BT_DISABLED);
-        } else if (!isCarSelected) {
-            callback.onPreconditionUpdate(PreconditionType.CAR_NOT_SELECTED);
-        } else if (!isBTSelected) {
-            callback.onPreconditionUpdate(PreconditionType.BT_DISABLED);
+    private void checkPreconditions() {
+        if (!locationHandler.isGPSEnabled()) {
+            callback.onPreconditionUpdate(AutoRecordingState.GPS_DISABLED);
+        } else if (!bluetoothHandler.isBluetoothEnabled()) {
+            callback.onPreconditionUpdate(AutoRecordingState.BLUETOOTH_DISABLED);
+        } else if (!(carHandler.getCar() != null)) {
+            callback.onPreconditionUpdate(AutoRecordingState.CAR_NOT_SELECTED);
+        } else if (!(bluetoothHandler.getSelectedBluetoothDevice() != null)) {
+            callback.onPreconditionUpdate(AutoRecordingState.OBD_NOT_SELECTED);
         } else {
-            callback.onPreconditionUpdate(PreconditionType.SATISFIED);
+            callback.onPreconditionUpdate(AutoRecordingState.ACTIVE);
         }
     }
 

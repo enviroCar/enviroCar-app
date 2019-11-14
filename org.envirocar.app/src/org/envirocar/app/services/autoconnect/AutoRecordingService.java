@@ -22,12 +22,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.IBinder;
+import android.os.PowerManager;
 
 import com.squareup.otto.Subscribe;
 
+import org.envirocar.app.BaseApplication;
 import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.app.injection.ScopedBaseInjectorService;
-import org.envirocar.app.BaseApplication;
 import org.envirocar.app.notifications.NotificationHandler;
 import org.envirocar.app.notifications.ServiceStateForNotification;
 import org.envirocar.app.recording.RecordingService;
@@ -70,6 +71,10 @@ public class AutoRecordingService extends ScopedBaseInjectorService implements A
     // Injected variables
     @Inject
     protected AutoRecordingStrategy.Factory factory;
+    @Inject
+    protected PowerManager.WakeLock wakeLock;
+    @Inject
+    protected AutoRecordingNotification notification;
 
 
     private boolean isAutoConnectEnabled = ApplicationSettings.DEFAULT_BLUETOOTH_AUTOCONNECT;
@@ -113,22 +118,26 @@ public class AutoRecordingService extends ScopedBaseInjectorService implements A
         notificationClickedFilter.addAction(ACTION_START_BT_DISCOVERY);
         notificationClickedFilter.addAction(ACTION_STOP_BT_DISCOVERY);
         notificationClickedFilter.addAction(ACTION_START_TRACK_RECORDING);
+
+        // Acquire wakelock to keep this service running.
+        wakeLock.acquire();
+
         this.disposables.add(
                 RxBroadcastReceiver.create(this, notificationClickedFilter)
-                        .doOnNext(this::onReceiveNotificationIntent)
-                        .doOnError(LOG::error)
-                        .subscribe());
-
+                        .subscribe(this::onReceiveNotificationIntent, LOG::error));
 
         initPreferenceSubscriptions();
-
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
         LOG.info("onStartCommand()");
-        this.updateAutoRecording();
+        if (intent != null) {
+            this.updateAutoRecording();
+        } else {
+
+        }
         return START_STICKY;
     }
 
@@ -143,31 +152,22 @@ public class AutoRecordingService extends ScopedBaseInjectorService implements A
         if (!disposables.isDisposed()) {
             disposables.dispose();
         }
+
+        // release acquired wakelock
+        this.wakeLock.release();
+        this.notification.onDestroy();
     }
 
     @Override
-    public void onPreconditionUpdate(AutoRecordingStrategy.PreconditionType preconditionType) {
-        switch (preconditionType) {
-            case SATISFIED:
-                NotificationHandler.closeNotification();
-                break;
-            case BT_DISABLED:
-                break;
-            case GPS_DISABLED:
-                break;
-            case OBD_NOT_SELECTED:
-                NotificationHandler.setRecordingState(ServiceStateForNotification.NO_OBD_SELECTED);
-                break;
-            case CAR_NOT_SELECTED:
-                NotificationHandler.setRecordingState(ServiceStateForNotification.NO_CAR_SELECTED);
-                break;
-        }
+    public void onPreconditionUpdate(AutoRecordingStrategy.AutoRecordingState state) {
+        LOG.info("Changed auto recording state to %s", state.toString());
+        notification.setAutoRecordingState(recordingType, state);
     }
 
     @Override
     public void onRecordingTypeConditionsMet() {
         LOG.info("Conditions to start a track are satisfied. Starting the recording service");
-        if(this.autoStrategy != null) {
+        if (this.autoStrategy != null) {
             this.autoStrategy.stop();
             this.autoStrategy = null;
         }
@@ -191,16 +191,16 @@ public class AutoRecordingService extends ScopedBaseInjectorService implements A
         LOG.info("Received event [%s]", event.toString());
         switch (event.recordingState) {
             case RECORDING_INIT:
-                if(this.autoStrategy != null) {
+                if (this.autoStrategy != null) {
                     this.autoStrategy.stop();
                     this.autoStrategy = null;
                 }
                 break;
             case RECORDING_RUNNING:
-                stopSelf();
+
                 break;
             case RECORDING_STOPPED:
-                // TODO ??
+                updateAutoRecording();
                 break;
         }
     }
@@ -227,7 +227,6 @@ public class AutoRecordingService extends ScopedBaseInjectorService implements A
 
             // Set the notification state to unconnected.
             NotificationHandler.setRecordingState(ServiceStateForNotification.UNCONNECTED);
-
         }
 
         // Received action matches the command for starting the recording of a track.
@@ -253,7 +252,8 @@ public class AutoRecordingService extends ScopedBaseInjectorService implements A
             this.autoStrategy.stop();
             getLifecycle().removeObserver(this.autoStrategy);
         }
-        if (!this.isAutoConnectEnabled){
+
+        if (!this.isAutoConnectEnabled) {
             return;
         }
 
@@ -272,6 +272,4 @@ public class AutoRecordingService extends ScopedBaseInjectorService implements A
             getApplicationContext().startService(new Intent(this, RecordingService.class));
         }
     }
-
-
 }

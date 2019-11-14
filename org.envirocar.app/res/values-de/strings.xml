@@ -112,4 +112,16 @@
         <item>[FEATURE REQ]</item>
     </string-array>
 
+    <!-- ################# -->
+    <!--   Notifications   -->
+    <!-- ################# -->
+    <string name="notification_autorecording_active_title">Automatische Aufzeichnung ist Aktiv</string>
+    <string name="notification_autorecording_active_subtext">Versuche eine Verbindung zu %s herzustellen.</string>
+
+    <string name="notification_autorecording_precondition_error_title">enviroCar Vorbedingung nicht erfüllt</string>
+    <string name="notification_autorecording_no_obd_selected_subtext">Kein gepaarter OBD-II-Adapter ausgewählt. Bitte gehen Sie zu den OBD-Einstellungen und wählen Sie einen aus.</string>
+    <string name="notification_autorecording_no_car_selected_subtext">Kein Fahrzeug ausgewählt. Bitte gehen Sie zur Fahrzeugauswahl und wählen Sie eins aus.</string>
+    <string name="notification_autorecording_gps_disabled_subtext">GPS ist deaktiviert. Bitte aktivieren Sie Ihr GPS.</string>
+    <string name="notification_autorecording_bluetooth_disabled_subtext">Bluetooth ist deaktiviert. Bitte aktivieren Sie Ihr Bluetooth.</string>
+
 </resources>
