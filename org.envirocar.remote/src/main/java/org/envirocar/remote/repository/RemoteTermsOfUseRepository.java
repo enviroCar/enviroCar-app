@@ -1,5 +1,6 @@
 package org.envirocar.remote.repository;
 
+import org.envirocar.core.InternetAccessProvider;
 import org.envirocar.core.entity.TermsOfUse;
 import org.envirocar.core.exception.DataRetrievalFailureException;
 import org.envirocar.core.exception.NotConnectedException;
@@ -26,8 +27,8 @@ public class RemoteTermsOfUseRepository extends RemoteRepository<TermsOfUseServi
      * @param remoteService the created retrofit rest service object.
      */
     @Inject
-    public RemoteTermsOfUseRepository(TermsOfUseService remoteService) {
-        super(remoteService);
+    public RemoteTermsOfUseRepository(TermsOfUseService remoteService, InternetAccessProvider accessProvider) {
+        super(remoteService, accessProvider);
     }
 
     @Override

@@ -1,11 +1,11 @@
 package org.envirocar.remote.repository;
 
+import org.envirocar.core.InternetAccessProvider;
 import org.envirocar.core.exception.DataRetrievalFailureException;
 import org.envirocar.core.exception.NotConnectedException;
 import org.envirocar.core.exception.ResourceConflictException;
 import org.envirocar.core.exception.UnauthorizedException;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.remote.dao.BaseRemoteDAO;
 import org.envirocar.remote.util.EnvirocarServiceUtils;
 
 import java.io.IOException;
@@ -22,6 +22,7 @@ public abstract class RemoteRepository<Service> {
     private static final Logger LOG = Logger.getLogger(RemoteRepository.class);
 
     protected final Service remoteService;
+    protected final InternetAccessProvider accessProvider;
 
     /**
      * Wrapper for calling a function with an exception.
@@ -35,16 +36,20 @@ public abstract class RemoteRepository<Service> {
      *
      * @param remoteService the created retrofit rest service object.
      */
-    public RemoteRepository(Service remoteService) {
+    public RemoteRepository(Service remoteService, InternetAccessProvider accessProvider) {
         this.remoteService = remoteService;
+        this.accessProvider = accessProvider;
     }
 
     protected <T> Response<T> executeCall(Call<T> call) throws IOException,
             NotConnectedException, UnauthorizedException, ResourceConflictException {
-        Response<T> response = call.execute();
+        // Check internet connection availability.
+        if (!accessProvider.isConnected()) {
+            throw new NotConnectedException();
+        }
 
-        // assert the responsecode if it was not an success.
-        if (!response.isSuccessful()) {
+        Response<T> response = call.execute();
+        if (!response.isSuccessful()) { // assert the responsecode if it was not an success.
             ResponseBody body = response.errorBody();
             EnvirocarServiceUtils.assertStatusCode(response.code(), response.message(), body.string());
         }

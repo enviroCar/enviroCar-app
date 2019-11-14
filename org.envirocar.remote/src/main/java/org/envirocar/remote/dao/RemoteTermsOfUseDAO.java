@@ -19,7 +19,7 @@
 package org.envirocar.remote.dao;
 
 
-import org.envirocar.core.dao.TermsOfUseDAO;
+import org.envirocar.core.repository.TermsOfUseRepository;
 import org.envirocar.core.entity.TermsOfUse;
 import org.envirocar.core.exception.DataRetrievalFailureException;
 import org.envirocar.core.exception.NotConnectedException;
@@ -39,8 +39,8 @@ import retrofit2.Call;
  *
  * @author dewall
  */
-public class RemoteTermsOfUseDAO extends BaseRemoteDAO<TermsOfUseDAO, TermsOfUseService>
-        implements TermsOfUseDAO {
+public class RemoteTermsOfUseDAO extends BaseRemoteDAO<TermsOfUseRepository, TermsOfUseService>
+        implements TermsOfUseRepository {
     private static final Logger LOG = Logger.getLogger(RemoteTermsOfUseDAO.class);
 
     /**

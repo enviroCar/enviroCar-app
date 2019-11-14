@@ -1,5 +1,6 @@
 package org.envirocar.remote.repository;
 
+import org.envirocar.core.InternetAccessProvider;
 import org.envirocar.core.entity.UserStatistic;
 import org.envirocar.core.repository.UserStatisticRepository;
 import org.envirocar.remote.service.UserService;
@@ -24,8 +25,8 @@ public class RemoteUserStatisticRepository extends RemoteRepository<UserService>
      * @param userService
      */
     @Inject
-    public RemoteUserStatisticRepository(UserService userService) {
-        super(userService);
+    public RemoteUserStatisticRepository(UserService userService, InternetAccessProvider accessProvider) {
+        super(userService, accessProvider);
         this.userService = userService;
     }
 
