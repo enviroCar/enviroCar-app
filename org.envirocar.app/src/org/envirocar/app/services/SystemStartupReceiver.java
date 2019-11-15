@@ -69,5 +69,4 @@ public class SystemStartupReceiver extends BroadcastReceiver {
             AutoRecordingService.stopService(context);
         }
     }
-
 }

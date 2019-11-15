@@ -41,8 +41,10 @@ public class WlanConnectionReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        LOG.info("Received Network State Changed action");
         String action = intent.getAction();
         if (action.equals(WifiManager.NETWORK_STATE_CHANGED_ACTION)) {
+            LOG.info("Received Network State Changed action");
             NetworkInfo info = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
             boolean connected = info.isConnected();
 
@@ -54,11 +56,11 @@ public class WlanConnectionReceiver extends BroadcastReceiver {
 
                     // Only start the track upload when the specific settings have been made.
                     if (checkUploadTracks(context)) {
-                        startUploadTracksService(context);
+//                        startUploadTracksService(context);
                     }
                 }
             } else if (!IS_FIRST_CONNECT) {
-                stopUploadTracksService(context);
+//                stopUploadTracksService(context);
                 IS_FIRST_CONNECT = true;
             }
         }
