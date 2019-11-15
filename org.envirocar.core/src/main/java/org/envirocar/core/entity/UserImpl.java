@@ -169,6 +169,7 @@ public class UserImpl implements User {
         user.username = username;
         user.token = token;
         user.touVersion = touVersion;
+        user.privacyStatementVersion = privacyStatementVersion;
         user.mail = mail;
         user.firstName = firstName;
         user.lastName = lastName;
