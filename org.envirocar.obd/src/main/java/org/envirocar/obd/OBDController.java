@@ -301,7 +301,6 @@ public class OBDController {
 
             @Override
             public void onNext(DataResponse dataResponse) {
-                LOG.info("Pushing to event bus");
                 pushToEventBus(dataResponse);
             }
         };

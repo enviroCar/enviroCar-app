@@ -12,7 +12,6 @@ import com.squareup.otto.Subscribe;
 import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.LocationHandler;
-import org.envirocar.app.handler.preferences.BluetoothPreferenceHandler;
 import org.envirocar.app.handler.preferences.CarPreferenceHandler;
 import org.envirocar.core.events.NewCarTypeSelectedEvent;
 import org.envirocar.core.events.bluetooth.BluetoothDeviceSelectedEvent;

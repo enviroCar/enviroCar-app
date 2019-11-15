@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
-package org.envirocar.app.services;
+package org.envirocar.app.injection.modules;
 
 import android.content.Context;
 import android.os.PowerManager;

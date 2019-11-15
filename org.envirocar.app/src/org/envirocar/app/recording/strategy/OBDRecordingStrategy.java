@@ -128,6 +128,7 @@ public class OBDRecordingStrategy implements RecordingStrategy {
                 locationProvider.startLocating()
                         .subscribeOn(AndroidSchedulers.mainThread())
                         .observeOn(Schedulers.io())
+                        .doOnDispose(() -> LOG.info("Location Provider has been disposed!"))
                         .subscribe(() -> LOG.info("Completed"), LOG::error));
     }
 
@@ -250,7 +251,7 @@ public class OBDRecordingStrategy implements RecordingStrategy {
                             if (socket.getOutputStream() != null)
                                 socket.getOutputStream().close();
                             socket.close();
-                        } catch (Exception e){
+                        } catch (Exception e) {
                             LOG.error(e);
                         }
                         isDisposed = true;
@@ -319,6 +320,7 @@ public class OBDRecordingStrategy implements RecordingStrategy {
     private void stopOBDConnectionRecognizer() {
         try {
             eventBus.unregister(recognizer);
+            recognizer.shutDown();
             recognizer = null;
         } catch (Exception ex) {
         }
@@ -330,51 +332,63 @@ public class OBDRecordingStrategy implements RecordingStrategy {
 
         private long timeLastSpeedMeasurement;
         private long timeLastGpsMeasurement;
+        private boolean isRunning = true;
 
-        private final Scheduler.Worker mBackgroundWorker = Schedulers.io().createWorker();
+        private final Scheduler.Worker mBackgroundWorker = Schedulers.newThread().createWorker();
         private Disposable mOBDCheckerSubscription;
         private Disposable mGPSCheckerSubscription;
 
         private final Runnable gpsConnectionCloser = () -> {
+            if (!isRunning)
+                return;
+
             LOG.warn("CONNECTION CLOSED due to no GPS values");
             stopRecording();
         };
 
         private final Runnable obdConnectionCloser = () -> {
+            if (!isRunning)
+                return;
+
             LOG.warn("CONNECTION CLOSED due to no OBD values");
             stopRecording();
         };
 
         @Subscribe
         public void onReceiveGpsLocationChangedEvent(GpsLocationChangedEvent event) {
-            LOG.info("Received GPS Update. no stop required via OBD Connection Recognizer");
-            if (mGPSCheckerSubscription != null) {
-                mGPSCheckerSubscription.dispose();
-                mGPSCheckerSubscription = null;
+            if (isRunning) {
+                LOG.info("Received GPS Update. no stop required via OBD Connection Recognizer");
+                if (mGPSCheckerSubscription != null) {
+                    mGPSCheckerSubscription.dispose();
+                    mGPSCheckerSubscription = null;
+                }
+
+                timeLastGpsMeasurement = System.currentTimeMillis();
+
+                mGPSCheckerSubscription = mBackgroundWorker.schedule(
+                        gpsConnectionCloser, GPS_INTERVAL, TimeUnit.MILLISECONDS);
             }
-
-            timeLastGpsMeasurement = System.currentTimeMillis();
-
-            mGPSCheckerSubscription = mBackgroundWorker.schedule(
-                    gpsConnectionCloser, GPS_INTERVAL, TimeUnit.MILLISECONDS);
         }
 
         @Subscribe
         public void onReceiveSpeedUpdateEvent(SpeedUpdateEvent event) {
-            LOG.info("Received speed update, no stop required via OBD Connection Recognizer!");
-            if (mOBDCheckerSubscription != null) {
-                mOBDCheckerSubscription.dispose();
-                mOBDCheckerSubscription = null;
+            if (isRunning) {
+                LOG.info("Received speed update, no stop required via OBD Connection Recognizer!");
+                if (mOBDCheckerSubscription != null) {
+                    mOBDCheckerSubscription.dispose();
+                    mOBDCheckerSubscription = null;
+                }
+
+                timeLastSpeedMeasurement = System.currentTimeMillis();
+
+                mOBDCheckerSubscription = mBackgroundWorker.schedule(
+                        obdConnectionCloser, OBD_INTERVAL, TimeUnit.MILLISECONDS);
             }
-
-            timeLastSpeedMeasurement = System.currentTimeMillis();
-
-            mOBDCheckerSubscription = mBackgroundWorker.schedule(
-                    obdConnectionCloser, OBD_INTERVAL, TimeUnit.MILLISECONDS);
         }
 
         public void shutDown() {
             LOG.info("shutDown() OBDConnectionRecognizer");
+            this.isRunning = false;
             if (mOBDCheckerSubscription != null)
                 mOBDCheckerSubscription.dispose();
             if (mGPSCheckerSubscription != null)
