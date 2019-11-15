@@ -27,6 +27,7 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Observable;
+import io.reactivex.Scheduler;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.exceptions.Exceptions;
@@ -59,6 +60,8 @@ public class OBDAutoRecordingStrategy implements AutoRecordingStrategy {
     private Disposable detectionDisposable;
     private CompositeDisposable disposables = new CompositeDisposable();
     private AutoRecordingCallback callback;
+
+    private Scheduler.Worker scheduler = Schedulers.newThread().createWorker();
 
     /**
      * Constructor
@@ -130,39 +133,48 @@ public class OBDAutoRecordingStrategy implements AutoRecordingStrategy {
     @Subscribe
     public void onCarSelectedEvent(NewCarTypeSelectedEvent event) {
         LOG.info("Received event. %s", event.toString());
-        this.isCarSelected = event.mCar != null;
-        checkPreconditions();
+        boolean newIsCarSelected = event.mCar != null;
+        if (newIsCarSelected != this.isCarSelected)
+            checkPreconditions();
     }
 
     @Subscribe
     public void onReceiveBluetoothStateChangedEvent(BluetoothStateChangedEvent event) {
         LOG.info("Received event. %s", event.toString());
-        this.isBTEnabled = event.isBluetoothEnabled;
-        checkPreconditions();
+        boolean newIsBluetoothSelected = event.isBluetoothEnabled;
+        if (newIsBluetoothSelected != this.isBTSelected)
+            checkPreconditions();
     }
 
     @Subscribe
     public void onReceiveGpsStatusChangedEvent(GpsStateChangedEvent event) {
         LOG.info("Received event. %s", event.toString());
-        this.isGPSEnabled = event.mIsGPSEnabled;
-        checkPreconditions();
+        boolean newIsGPSEnabled = event.mIsGPSEnabled;
+        if (newIsGPSEnabled != this.isGPSEnabled)
+            checkPreconditions();
     }
 
     @Subscribe
     public void onReceiveBluetoothDeviceSelectedEvent(BluetoothDeviceSelectedEvent event) {
         LOG.info("Received event. %s", event.toString());
-        this.isBTSelected = event.mDevice != null;
-        checkPreconditions();
+        boolean newIsDeviceSelected = event.mDevice != null;
+        if (newIsDeviceSelected != this.isBTSelected)
+            checkPreconditions();
     }
 
     private void checkPreconditions() {
-        if (!locationHandler.isGPSEnabled()) {
+        this.isGPSEnabled = locationHandler.isGPSEnabled();
+        this.isBTEnabled = bluetoothHandler.isBluetoothEnabled();
+        this.isCarSelected = carHandler.getCar() != null;
+        this.isBTSelected = bluetoothHandler.getSelectedBluetoothDevice() != null;
+
+        if (!isGPSEnabled) {
             callback.onPreconditionUpdate(AutoRecordingState.GPS_DISABLED);
-        } else if (!bluetoothHandler.isBluetoothEnabled()) {
+        } else if (!isBTEnabled) {
             callback.onPreconditionUpdate(AutoRecordingState.BLUETOOTH_DISABLED);
-        } else if (!(carHandler.getCar() != null)) {
+        } else if (!isCarSelected) {
             callback.onPreconditionUpdate(AutoRecordingState.CAR_NOT_SELECTED);
-        } else if (!(bluetoothHandler.getSelectedBluetoothDevice() != null)) {
+        } else if (!isBTSelected) {
             callback.onPreconditionUpdate(AutoRecordingState.OBD_NOT_SELECTED);
         } else {
             callback.onPreconditionUpdate(AutoRecordingState.ACTIVE);
@@ -175,27 +187,26 @@ public class OBDAutoRecordingStrategy implements AutoRecordingStrategy {
             detectionDisposable = null;
         }
 
-        this.detectionDisposable = Observable.defer(() ->
-                Observable.timer(discoveryInterval, TimeUnit.SECONDS))
-                .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.io())
-                .map((Function<Long, Object>) aLong -> {
-                    LOG.info("trying to connect");
-                    if (!preconditionsFulfilled()) {
-                        throw new RuntimeException("Preconditions are not satisfied");
-                    }
-                    return aLong;
-                })
-                .map(aLong -> bluetoothHandler.getSelectedBluetoothDevice())
-                .map(this::tryDirectConnection)
-                .retryWhen(throwableObservable -> throwableObservable.flatMap(error -> Observable.timer(discoveryInterval, TimeUnit.SECONDS)))
-                .doOnNext(aBoolean -> {
-                    if (aBoolean) {
-                        callback.onRecordingTypeConditionsMet();
-                    }
-                })
-                .doOnError(LOG::error)
-                .subscribe();
+        this.detectionDisposable = this.scheduler.schedule(() -> {
+            Observable.just(preconditionsFulfilled())
+                    .map(preconditionsFulfilled -> {
+                        LOG.info("trying to connect");
+                        if (!preconditionsFulfilled) {
+                            throw new RuntimeException("Preconditions are not satisfied");
+                        }
+                        return preconditionsFulfilled;
+                    })
+                    .map(aLong -> bluetoothHandler.getSelectedBluetoothDevice())
+                    .map(this::tryDirectConnection)
+                    .retryWhen(throwableObservable -> throwableObservable.flatMap(error -> Observable.timer(discoveryInterval, TimeUnit.SECONDS)))
+                    .doOnNext(aBoolean -> {
+                        if (aBoolean) {
+                            callback.onRecordingTypeConditionsMet();
+                        }
+                    })
+                    .doOnError(LOG::error)
+                    .subscribe();
+        }, discoveryInterval, TimeUnit.SECONDS);
     }
 
     // Alternative approach compared to discovery. OBDLink unfortunately does not support to be discovered by default
