@@ -34,8 +34,10 @@ public abstract class Interactor<Result, Parameters> {
     }
 
     public Observable<Result> execute(Parameters parameters){
-        Preconditions.checkNotNull(parameters);
-        return buildObservable(parameters);
+//        Preconditions.checkNotNull(parameters);
+        return buildObservable(parameters)
+                .subscribeOn(subscribeOn)
+                .observeOn(observeOn);
     }
 
     public void dispose(){
