@@ -28,7 +28,7 @@
     <string name="pref_settings_autoconnect">Connection Settings</string>
     <string name="pref_settings_autoconnect_summary">Settings for the automatic connection with the OBD-II adapter</string>
     <string name="pref_settings_optional">Advanced Settings</string>
-    <string name="pref_settings_optional_summary">Optional ettings and beta functionalities</string>
+    <string name="pref_settings_optional_summary">Optional settings and beta functionalities</string>
     <string name="pref_settings_other">App Infos</string>
     <string name="pref_settings_other_summary">Version, Licenses, etc.</string>
 

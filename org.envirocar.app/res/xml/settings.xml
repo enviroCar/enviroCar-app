@@ -6,19 +6,19 @@
     <PreferenceCategory
         android:title="@string/pref_settings_general"
         app:iconSpaceReserved="false">
-        <CheckBoxPreference
-            android:key="@string/prefkey_always_upload"
-            android:summary="@string/pref_always_upload_sub"
-            android:title="@string/pref_always_upload"
-            app:iconSpaceReserved="false" />
+<!--        <CheckBoxPreference-->
+<!--            android:key="@string/prefkey_always_upload"-->
+<!--            android:summary="@string/pref_always_upload_sub"-->
+<!--            android:title="@string/pref_always_upload"-->
+<!--            app:iconSpaceReserved="false" />-->
         <CheckBoxPreference
             android:key="@string/prefkey_display_always_active"
             android:summary="@string/pref_display_always_activ_sub"
             android:title="@string/pref_display_always_activ"
             app:iconSpaceReserved="false" />
         <CheckBoxPreference
-            android:key="@string/pref_text_to_speech"
-            android:summary="@string/prefkey_text_to_speech"
+            android:key="@string/prefkey_text_to_speech"
+            android:summary="@string/pref_text_to_speech_summary"
             android:title="@string/pref_text_to_speech"
             app:iconSpaceReserved="false" />
         <!--        <CheckBoxPreference-->
