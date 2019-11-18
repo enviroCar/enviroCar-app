@@ -25,12 +25,8 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.AttributeSet;
-import android.view.View;
 import android.view.WindowManager;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
@@ -50,6 +46,7 @@ import org.envirocar.app.handler.preferences.CarPreferenceHandler;
 import org.envirocar.app.handler.preferences.UserPreferenceHandler;
 import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.app.injection.modules.MainActivityModule;
+import org.envirocar.app.interactor.ValidateAcceptedTerms;
 import org.envirocar.app.services.autoconnect.AutoRecordingService;
 import org.envirocar.app.views.dashboard.DashboardFragment;
 import org.envirocar.app.views.others.OthersFragment;
@@ -68,6 +65,7 @@ import io.reactivex.Observable;
 import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 
 /**
@@ -101,6 +99,9 @@ public class BaseMainActivity extends BaseInjectorActivity {
     protected Mapbox mapbox;
     @Inject
     protected AgreementManager agreementManager;
+
+    @Inject
+    protected ValidateAcceptedTerms validateTermsOfUse;
 
     @BindView(R.id.navigation)
     protected BottomNavigationView navigationBottomBar;
@@ -185,12 +186,30 @@ public class BaseMainActivity extends BaseInjectorActivity {
         };
 
         // Check whether newest TermsOfUse have been accepted.
-//        Observable.just(true)
-//                .subscribeOn(Schedulers.io())
-//                .observeOn(Schedulers.io())
+        validateTermsOfUse.execute(handleTermsOfUseValidation(),
+                new ValidateAcceptedTerms.Params(mUserManager.getUser(), this));
 
 
         registerReceiver(errorInformationReceiver, new IntentFilter(TroubleshootingFragment.INTENT));
+    }
+
+    private DisposableObserver<Boolean> handleTermsOfUseValidation() {
+        return new DisposableObserver<Boolean>() {
+            @Override
+            public void onNext(Boolean aBoolean) {
+                LOGGER.info("Wurst " + aBoolean);
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                LOGGER.error(e);
+            }
+
+            @Override
+            public void onComplete() {
+                LOGGER.info("Wurst onComplete");
+            }
+        };
     }
 
     @Override
@@ -218,16 +237,16 @@ public class BaseMainActivity extends BaseInjectorActivity {
         // Check whether the screen is required to keep the screen on.
         checkKeepScreenOn();
 
-        Observable.just(true)
-                .filter(bool -> mUserManager.isLoggedIn())
-                .compose(new AgreementManager.TermsOfUseValidator<>(agreementManager, this))
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .doOnNext(bool -> {
-                    LOGGER.info("SUCCESSFUL");
-                })
-                .doOnError(LOGGER::error)
-                .subscribe();
+//        Observable.just(true)
+//                .filter(bool -> mUserManager.isLoggedIn())
+//                .compose(new AgreementManager.TermsOfUseValidator<>(agreementManager, this))
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribeOn(Schedulers.io())
+//                .doOnNext(bool -> {
+//                    LOGGER.info("SUCCESSFUL");
+//                })
+//                .doOnError(LOGGER::error)
+//                .subscribe();
     }
 
     @Override

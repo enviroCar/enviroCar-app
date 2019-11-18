@@ -93,13 +93,11 @@ public class AutoRecordingService extends ScopedBaseInjectorService implements A
                 .inject(this);
     }
 
-
     @Override
     public IBinder onBind(Intent intent) {
         super.onBind(intent);
         return null;
     }
-
 
     @Override
     public void onCreate() {
@@ -126,7 +124,15 @@ public class AutoRecordingService extends ScopedBaseInjectorService implements A
                 RxBroadcastReceiver.create(this, notificationClickedFilter)
                         .subscribe(this::onReceiveNotificationIntent, LOG::error));
 
-        initPreferenceSubscriptions();
+        // init preference subscriptions.
+        this.disposables.add(
+                ApplicationSettings.getAutoconnectEnabledObservable(this)
+                        .doOnNext(isAutoConnectEnabled -> {
+                            this.isAutoConnectEnabled = isAutoConnectEnabled;
+                            updateAutoRecording();
+                        })
+                        .doOnError(LOG::error)
+                        .subscribe());
     }
 
     @Override
@@ -135,12 +141,9 @@ public class AutoRecordingService extends ScopedBaseInjectorService implements A
         LOG.info("onStartCommand()");
         if (intent != null) {
             this.updateAutoRecording();
-        } else {
-
         }
         return START_STICKY;
     }
-
 
     @Override
     public void onDestroy() {
@@ -169,7 +172,6 @@ public class AutoRecordingService extends ScopedBaseInjectorService implements A
         LOG.info("Conditions to start a track are satisfied. Starting the recording service");
         if (this.autoStrategy != null) {
             this.autoStrategy.stop();
-            this.autoStrategy = null;
         }
         this.startRecordingService();
     }
@@ -191,13 +193,10 @@ public class AutoRecordingService extends ScopedBaseInjectorService implements A
         LOG.info("Received event [%s]", event.toString());
         switch (event.recordingState) {
             case RECORDING_INIT:
+            case RECORDING_RUNNING:
                 if (this.autoStrategy != null) {
                     this.autoStrategy.stop();
-                    this.autoStrategy = null;
                 }
-                break;
-            case RECORDING_RUNNING:
-
                 break;
             case RECORDING_STOPPED:
                 updateAutoRecording();
@@ -236,29 +235,18 @@ public class AutoRecordingService extends ScopedBaseInjectorService implements A
         }
     }
 
-    private void initPreferenceSubscriptions() {
-        disposables.add(
-                ApplicationSettings.getAutoconnectEnabledObservable(this)
-                        .doOnNext(isAutoConnectEnabled -> {
-                            this.isAutoConnectEnabled = isAutoConnectEnabled;
-                            updateAutoRecording();
-                        })
-                        .doOnError(LOG::error)
-                        .subscribe());
-    }
-
     private void updateAutoRecording() {
         if (this.autoStrategy != null) {
             this.autoStrategy.stop();
-            getLifecycle().removeObserver(this.autoStrategy);
         }
 
         if (!this.isAutoConnectEnabled) {
             return;
         }
 
-        this.autoStrategy = this.factory.create();
-        getLifecycle().addObserver(this.autoStrategy);
+        if (this.autoStrategy == null) {
+            this.autoStrategy = this.factory.create();
+        }
         this.autoStrategy.run(this);
     }
 

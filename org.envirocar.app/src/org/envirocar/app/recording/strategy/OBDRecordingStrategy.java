@@ -75,6 +75,8 @@ public class OBDRecordingStrategy implements RecordingStrategy {
     private CalculatedMAFWithStaticVolumetricEfficiency mafAlgorithm;
     private LoadBasedEnergyConsumptionAlgorithm energyConsumptionAlgorithm;
 
+    private boolean isRecording = false;
+
     /**
      * Constructor.
      */
@@ -145,7 +147,10 @@ public class OBDRecordingStrategy implements RecordingStrategy {
         }
 
         stopOBDConnectionRecognizer();
-
+        if (isRecording) {
+            speechOutput.doTextToSpeech("Track Recording Finished");
+            isRecording = false;
+        }
         listener.onRecordingStateChanged(RecordingState.RECORDING_STOPPED);
     }
 
@@ -195,7 +200,7 @@ public class OBDRecordingStrategy implements RecordingStrategy {
                 return;
 
             LOG.info(String.format("OBDConnectionService.onDeviceConntected(%s)", socket.getRemoteDeviceName()));
-            speechOutput.doTextToSpeech("Connection established.");
+
             try {
 
                 OBDController controller = new OBDController(socket, new ConnectionListener() {
@@ -207,6 +212,8 @@ public class OBDRecordingStrategy implements RecordingStrategy {
                             LOG.info("verifyConnection(): Emitter has been disposed before.");
                             return;
                         }
+                        speechOutput.doTextToSpeech("Connection established.");
+                        isRecording = true;
                         LOG.info("Connection verified. Starting to read measurements.");
                         listener.onRecordingStateChanged(RecordingState.RECORDING_RUNNING);
                         emitter.onNext(socket);
@@ -216,6 +223,7 @@ public class OBDRecordingStrategy implements RecordingStrategy {
                     public void onAllAdaptersFailed() {
                         LOG.info("All adapters failed. Failed to connect to OBD adaper.");
                         emitter.onError(new AllAdaptersFailedException("All adapters failed"));
+                        speechOutput.doTextToSpeech("Connection failed.");
                     }
 
                     @Override
