@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -34,7 +34,6 @@ import org.envirocar.core.events.NewUserSettingsEvent;
 import org.envirocar.core.exception.MailNotConfirmedException;
 import org.envirocar.core.exception.UnauthorizedException;
 import org.envirocar.core.injection.InjectApplicationScope;
-import org.envirocar.core.interactor.LoginUser;
 import org.envirocar.core.logging.Logger;
 
 import javax.inject.Inject;
@@ -166,17 +165,17 @@ public class UserPreferenceHandler extends AbstractCachable<User> implements Use
                 if (withEvent) {
                     bus.post(new NewUserSettingsEvent(result, true));
                 }
-            } catch (MailNotConfirmedException e){
+            } catch (MailNotConfirmedException e) {
                 LOG.warn(e.getMessage(), e);
                 emitter.onError(new LoginException(e.getMessage(), LoginException.ErrorType.MAIL_NOT_CONFIREMED));
-            } catch (UnauthorizedException e){
+            } catch (UnauthorizedException e) {
                 LOG.warn(e.getMessage(), e);
                 emitter.onError(new LoginException(e.getMessage(), LoginException.ErrorType.PASSWORD_INCORRECT));
             } catch (Exception e) {
                 LOG.warn(e.getMessage(), e);
                 emitter.onError(e);
             } finally {
-                if(!success){
+                if (!success) {
                     logoutInternal(false);
                 }
             }
