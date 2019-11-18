@@ -20,9 +20,6 @@ package org.envirocar.app.views.logbook;
 
 import android.app.Activity;
 import android.os.Bundle;
-import androidx.annotation.Nullable;
-import com.google.android.material.snackbar.Snackbar;
-import androidx.appcompat.widget.Toolbar;
 import android.text.InputFilter;
 import android.text.Spanned;
 import android.view.LayoutInflater;
@@ -35,11 +32,17 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.afollestad.materialdialogs.MaterialDialog;
+import androidx.annotation.Nullable;
+import androidx.appcompat.widget.Toolbar;
 
-import org.envirocar.app.main.BaseApplicationComponent;
+import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.android.material.snackbar.Snackbar;
+
+import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
-import org.envirocar.app.handler.CarPreferenceHandler;
+import org.envirocar.app.handler.DAOProvider;
+import org.envirocar.app.handler.preferences.CarPreferenceHandler;
+import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.app.views.utils.ECAnimationUtils;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Fueling;
@@ -48,9 +51,7 @@ import org.envirocar.core.exception.DataCreationFailureException;
 import org.envirocar.core.exception.NotConnectedException;
 import org.envirocar.core.exception.ResourceConflictException;
 import org.envirocar.core.exception.UnauthorizedException;
-import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.app.handler.DAOProvider;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -62,13 +63,12 @@ import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 
-import butterknife.ButterKnife;
 import butterknife.BindView;
-import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action0;
-import rx.schedulers.Schedulers;
-import rx.subscriptions.CompositeSubscription;
+import butterknife.ButterKnife;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.observers.DisposableObserver;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * TODO JavaDoc
@@ -80,7 +80,7 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
     private static final DecimalFormat DECIMAL_FORMATTER_2 = new DecimalFormat("#.##");
     private static final DecimalFormat DECIMAL_FORMATTER_3 = new DecimalFormat("#.###");
 
-    static{
+    static {
         DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.GERMAN);
         symbols.setDecimalSeparator('.');
         DECIMAL_FORMATTER_2.setDecimalFormatSymbols(symbols);
@@ -126,7 +126,7 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
     @Inject
     protected DAOProvider daoProvider;
 
-    private CompositeSubscription subscriptions = new CompositeSubscription();
+    private CompositeDisposable subscriptions = new CompositeDisposable();
 
     @Nullable
     @Override
@@ -140,9 +140,9 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
 
         addFuelingToolbar.setNavigationIcon(R.drawable.ic_close_white_24dp);
         addFuelingToolbar.inflateMenu(R.menu.menu_logbook_add_fueling);
-      
+
         addFuelingToolbar.setNavigationOnClickListener(v ->
-                            closeThisFragment());
+                closeThisFragment());
 
         addFuelingToolbar.setOnMenuItemClickListener(item -> {
             onClickAddFueling();
@@ -184,8 +184,8 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
 
     @Override
     public void onDestroy() {
-        if (!subscriptions.isUnsubscribed()) {
-            subscriptions.unsubscribe();
+        if (!subscriptions.isDisposed()) {
+            subscriptions.dispose();
         }
         super.onDestroy();
     }
@@ -210,15 +210,13 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
 
         boolean formError = false;
         View focusView = null;
-        if (addFuelingMilageText.getText() == null || addFuelingMilageText.getText().toString()
-                .equals("")) {
+        if (addFuelingMilageText.getText() == null || addFuelingMilageText.getText().toString().equals("")) {
             addFuelingMilageText.setError(getString(R.string.logbook_error_form_blank_input));
             focusView = addFuelingMilageText;
             formError = true;
         }
 
-        if (addFuelingTotalCostText.getText() == null || addFuelingTotalCostText.getText()
-                .toString().equals("")) {
+        if (addFuelingTotalCostText.getText() == null || addFuelingTotalCostText.getText().toString().equals("")) {
             addFuelingTotalCostText.setError(getString(R.string.logbook_error_form_blank_input));
             focusView = addFuelingTotalCostText;
             formError = true;
@@ -255,18 +253,15 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
         } catch (ParseException e) {
             formError = true;
             if (cost == null) {
-                LOG.error(String.format("Invalid input text -> [%s]", addFuelingTotalCostText
-                        .toString()), e);
+                LOG.error(String.format("Invalid input text -> [%s]", addFuelingTotalCostText.toString()), e);
                 addFuelingTotalCostText.setError(getString(R.string.logbook_invalid_input));
                 focusView = addFuelingTotalCostText;
             } else if (milage == null) {
-                LOG.error(String.format("Invalid input text -> [%s]", addFuelingMilageText
-                        .toString()), e);
+                LOG.error(String.format("Invalid input text -> [%s]", addFuelingMilageText.toString()), e);
                 addFuelingMilageText.setError(getString(R.string.logbook_invalid_input));
                 focusView = addFuelingMilageText;
             } else {
-                LOG.error(String.format("Invalid input text -> [%s]", addFuelingVolumeText
-                        .toString()), e);
+                LOG.error(String.format("Invalid input text -> [%s]", addFuelingVolumeText.toString()), e);
                 addFuelingVolumeText.setError(getString(R.string.logbook_invalid_input));
                 focusView = addFuelingVolumeText;
             }
@@ -308,50 +303,44 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
     private void initTextViews() {
         addFuelingMilageText.setFilters(new InputFilter[]{
                 new DigitsInputFilter(addFuelingMilageText, 7)});
-        addFuelingMilageText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                String milage = addFuelingMilageText.getText().toString();
-                if (milage != null && !milage.isEmpty()) {
-                    if (hasFocus) {
-                        addFuelingMilageText.setText(milage.split(" ")[0]);
-                    } else {
-                        addFuelingMilageText.setText(milage + " km");
-                    }
+        addFuelingMilageText.setOnFocusChangeListener((v, hasFocus) -> {
+            String milage = addFuelingMilageText.getText().toString();
+            if (milage != null && !milage.isEmpty()) {
+                if (hasFocus) {
+                    addFuelingMilageText.setText(milage.split(" ")[0]);
+                } else {
+                    addFuelingMilageText.setText(milage + " km");
                 }
             }
         });
 
         addFuelingVolumeText.setFilters(new InputFilter[]{
                 new DigitsInputFilter(addFuelingVolumeText, 3, 2)});
-        addFuelingVolumeText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                String volumeText = addFuelingVolumeText.getText().toString();
-                if (volumeText == null || volumeText.isEmpty())
-                    return;
+        addFuelingVolumeText.setOnFocusChangeListener((v, hasFocus) -> {
+            String volumeText = addFuelingVolumeText.getText().toString();
+            if (volumeText == null || volumeText.isEmpty())
+                return;
 
-                if (!hasFocus) {
-                    if (volumeText != null && !volumeText.isEmpty()) {
-                        addFuelingVolumeText.setText(volumeText + " l");
+            if (!hasFocus) {
+                if (volumeText != null && !volumeText.isEmpty()) {
+                    addFuelingVolumeText.setText(volumeText + " l");
 
-                        try {
-                            if (hasEditTextValue(addFuelingPricePerLitreText)) {
-                                setTotalPriceValue(getEditTextDoubleValue(volumeText) *
-                                        getEditTextDoubleValue(addFuelingPricePerLitreText));
-                            } else if (hasEditTextValue(addFuelingTotalCostText)) {
-                                setPricePerLitreValue(getEditTextDoubleValue
-                                        (addFuelingTotalCostText)
-                                        / getEditTextDoubleValue(volumeText));
-                            }
-                        } catch (ParseException e) {
-                            LOG.error(e.getMessage(), e);
+                    try {
+                        if (hasEditTextValue(addFuelingPricePerLitreText)) {
+                            setTotalPriceValue(getEditTextDoubleValue(volumeText) *
+                                    getEditTextDoubleValue(addFuelingPricePerLitreText));
+                        } else if (hasEditTextValue(addFuelingTotalCostText)) {
+                            setPricePerLitreValue(getEditTextDoubleValue
+                                    (addFuelingTotalCostText)
+                                    / getEditTextDoubleValue(volumeText));
                         }
+                    } catch (ParseException e) {
+                        LOG.error(e.getMessage(), e);
                     }
-                } else {
-                    if (volumeText != null && !volumeText.isEmpty()) {
-                        addFuelingVolumeText.setText(volumeText.split(" ")[0]);
-                    }
+                }
+            } else {
+                if (volumeText != null && !volumeText.isEmpty()) {
+                    addFuelingVolumeText.setText(volumeText.split(" ")[0]);
                 }
             }
         });
@@ -422,13 +411,12 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
                 .createCarObservable(car)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Subscriber<Car>() {
+                .subscribeWith(new DisposableObserver<Car>() {
                     private MaterialDialog dialog;
 
                     @Override
-                    public void onStart() {
+                    protected void onStart() {
                         LOG.info("uploadCarBeforeFueling() has started");
-
                         dialog = new MaterialDialog.Builder(getContext())
                                 .progress(true, 0)
                                 .title(R.string.logbook_dialog_uploading_fueling_header)
@@ -446,7 +434,7 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
                     }
 
                     @Override
-                    public void onCompleted() {
+                    public void onComplete() {
                         LOG.info("uploadCarBeforeFueling(): was successful.");
 
                         dialog.dismiss();
@@ -469,6 +457,7 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
                         }
                         dialog.dismiss();
                     }
+
                 }));
     }
 
@@ -481,7 +470,7 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
         subscriptions.add(daoProvider.getFuelingDAO().createFuelingObservable(fueling)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Subscriber<Void>() {
+                .subscribeWith(new DisposableObserver<Void>() {
                     private MaterialDialog dialog;
 
                     @Override
@@ -496,7 +485,7 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
                     }
 
                     @Override
-                    public void onCompleted() {
+                    public void onComplete() {
                         LOG.info(String.format("Successfully uploaded fueling -> [%s]", fueling
                                 .getRemoteID()));
 
@@ -557,14 +546,14 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
 
     private double getEditTextDoubleValue(String input) throws ParseException {
         String[] yea = input.split(" ");
-        if(yea.length == 0){
+        if (yea.length == 0) {
             return 0.0;
         }
 
         String toParse = yea[0].replace(",", ".");
-        try{
+        try {
             return Double.parseDouble(toParse);
-        } catch (NumberFormatException e){
+        } catch (NumberFormatException e) {
             LOG.error(String.format("Error while parsing double [%s]", toParse), e);
             throw new ParseException(e.getMessage(), 0);
         }
@@ -614,7 +603,7 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
 
                 // The string value contains a unit. Therefore split the value and show an error
                 // if the splitted value does not match.
-                if(source.toString().split(" ").length == 0)
+                if (source.toString().split(" ").length == 0)
                     return "";
 
                 Matcher matcher = pattern.matcher(source.toString().split(" ")[0]);
@@ -643,16 +632,11 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
         ECAnimationUtils.animateHideView(getContext(), R.anim
                 .translate_slide_out_top_fragment, addFuelingToolbar, addFuelingToolbarExp);
         ECAnimationUtils.animateHideView(getContext(), contentScrollview, R.anim
-                .translate_slide_out_bottom, new Action0() {
-            @Override
-            public void call() {
-                ((LogbookUiListener) getActivity()).onHideAddFuelingCard();
-            }
-        });
+                .translate_slide_out_bottom, () -> ((LogbookUiListener) getActivity()).onHideAddFuelingCard());
     }
 
     public void hideKeyboard(View view) {
-        InputMethodManager inputMethodManager =(InputMethodManager)getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
+        InputMethodManager inputMethodManager = (InputMethodManager) getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
         inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 

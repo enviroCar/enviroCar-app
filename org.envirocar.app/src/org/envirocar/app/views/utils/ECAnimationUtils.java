@@ -26,8 +26,8 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action0;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Action;
 
 /**
  * TODO JavaDoc
@@ -73,8 +73,7 @@ public class ECAnimationUtils {
      * @param animResource the animation resource.
      * @param action       the action that should happen when the animation is finished.
      */
-    public static void animateHideView(Context context, final View view, int animResource,
-                                       final Action0 action) {
+    public static void animateHideView(Context context, final View view, int animResource, final Action action) {
         AndroidSchedulers.mainThread().createWorker().schedule(() -> {
             Animation animation = AnimationUtils.loadAnimation(context, animResource);
             animation.setFillAfter(true);
@@ -89,7 +88,11 @@ public class ECAnimationUtils {
                 public void onAnimationEnd(Animation animation) {
                     view.setVisibility(View.GONE);
                     if (action != null) {
-                        action.call();
+                        try {
+                            action.run();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
 
@@ -143,4 +146,5 @@ public class ECAnimationUtils {
         animator.setDuration(600);
         animator.start();
     }
+
 }

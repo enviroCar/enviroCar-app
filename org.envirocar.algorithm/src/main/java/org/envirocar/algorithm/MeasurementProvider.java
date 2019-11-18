@@ -22,7 +22,7 @@ import org.envirocar.core.entity.Measurement;
 import org.envirocar.obd.events.PropertyKeyEvent;
 import org.envirocar.obd.events.Timestamped;
 
-import rx.Observable;
+import io.reactivex.Observable;
 
 /**
  * TODO JavaDoc

@@ -33,10 +33,9 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import io.reactivex.Observable;
 import retrofit2.Call;
 import retrofit2.Response;
-import rx.Observable;
-import rx.Subscriber;
 
 /**
  * The data access object for remote fuelings that are stored at the envirocar remoteService.
@@ -57,7 +56,7 @@ public class RemoteAnnouncementsDAO extends BaseRemoteDAO<AnnouncementDAO, Annou
 //    }
 
     @Inject
-    public RemoteAnnouncementsDAO(CacheAnnouncementsDAO cacheDAO, AnnouncementsService service){
+    public RemoteAnnouncementsDAO(CacheAnnouncementsDAO cacheDAO, AnnouncementsService service) {
         super(cacheDAO, service);
     }
 
@@ -72,23 +71,22 @@ public class RemoteAnnouncementsDAO extends BaseRemoteDAO<AnnouncementDAO, Annou
 
         try {
             // Execute the call
-            Response<List<Announcement>> allAnnouncementsResponse = allAnnouncementsCall.execute();
+            Response<List<Announcement>> response = allAnnouncementsCall.execute();
 
             // assert the response code when it was not successful
-            if (!allAnnouncementsResponse.isSuccessful()) {
-                EnvirocarServiceUtils.assertStatusCode(allAnnouncementsResponse.code(),
-                        allAnnouncementsResponse.message());
+            if (!response.isSuccessful()) {
+                EnvirocarServiceUtils.assertStatusCode(response);
                 return null;
             }
 
             // Store the announcements into the cache
             if (cacheDao != null) {
                 LOG.info("Store the announcments into the cache DAO");
-                cacheDao.saveAnnouncements(allAnnouncementsResponse.body());
+                cacheDao.saveAnnouncements(response.body());
             }
 
             // return the list of announcements.
-            return allAnnouncementsResponse.body();
+            return response.body();
         } catch (IOException e) {
             throw new NotConnectedException(e);
         } catch (Exception e) {
@@ -98,20 +96,15 @@ public class RemoteAnnouncementsDAO extends BaseRemoteDAO<AnnouncementDAO, Annou
 
     @Override
     public Observable<List<Announcement>> getAllAnnouncementsObservable() {
-        return Observable.create(
-                new Observable.OnSubscribe<List<Announcement>>() {
-                    @Override
-                    public void call(Subscriber<? super List<Announcement>> subscriber) {
-                        try {
-                            List<Announcement> result = getAllAnnouncements();
-                            subscriber.onNext(result);
-                            subscriber.onCompleted();
-                        } catch (Exception e) {
-                            subscriber.onError(e);
-                        }
-                    }
-                }
-        );
+        return Observable.create(emitter -> {
+            try {
+                List<Announcement> result = getAllAnnouncements();
+                emitter.onNext(result);
+                emitter.onComplete();
+            } catch (Exception e) {
+                emitter.onError(e);
+            }
+        });
     }
 
     @Override

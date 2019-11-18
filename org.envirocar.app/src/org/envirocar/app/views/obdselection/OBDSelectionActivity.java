@@ -28,7 +28,7 @@ import android.widget.TextView;
 
 import com.squareup.otto.Subscribe;
 
-import org.envirocar.app.main.BaseApplicationComponent;
+import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.injection.BaseInjectorActivity;

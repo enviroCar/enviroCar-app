@@ -20,11 +20,9 @@ package org.envirocar.app.handler;
 
 import android.content.Context;
 
-import org.envirocar.core.UserManager;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.exception.DataRetrievalFailureException;
 import org.envirocar.core.exception.DataUpdateFailureException;
-import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.exception.NotConnectedException;
 import org.envirocar.core.exception.TrackSerializationException;
 import org.envirocar.core.exception.UnauthorizedException;
@@ -32,17 +30,15 @@ import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.util.TrackMetadata;
 import org.envirocar.core.util.Util;
-import org.envirocar.storage.EnviroCarDB;
+import org.envirocar.core.EnviroCarDB;
 
 import java.util.ArrayList;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import rx.Observable;
-import rx.Subscriber;
-import rx.exceptions.OnErrorThrowable;
-import rx.schedulers.Schedulers;
+import io.reactivex.Observable;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * TODO JavaDoc
@@ -79,8 +75,7 @@ public class TrackDAOHandler {
         return deleteLocalTrack(
                 enviroCarDB.getTrack(trackID)
                         .subscribeOn(Schedulers.io())
-                        .toBlocking()
-                        .first());
+                        .blockingFirst());
     }
 
     /**
@@ -140,12 +135,11 @@ public class TrackDAOHandler {
         LOGGER.info("deleteAllRemoteTracksLocally()");
         enviroCarDB.deleteAllRemoteTracks()
                 .subscribeOn(Schedulers.io())
-                .toBlocking()
-                .first();
+                .blockingFirst();
         return true;
     }
 
-    public Observable<Integer> getLocalTrackCount(){
+    public Observable<Integer> getLocalTrackCount() {
         return enviroCarDB.getAllLocalTracks(true)
                 .map(tracks -> tracks.size());
     }
@@ -169,48 +163,37 @@ public class TrackDAOHandler {
     }
 
     public Observable<Track> fetchRemoteTrackObservable(Track remoteTrack) {
-        return Observable.create(new Observable.OnSubscribe<Track>() {
-            @Override
-            public void call(Subscriber<? super Track> subscriber) {
-                try {
-                    subscriber.onNext(fetchRemoteTrack(remoteTrack));
-                    subscriber.onCompleted();
-                } catch (NotConnectedException e) {
-                    throw OnErrorThrowable.from(e);
-                } catch (DataRetrievalFailureException e) {
-                    throw OnErrorThrowable.from(e);
-                } catch (UnauthorizedException e) {
-                    throw OnErrorThrowable.from(e);
-                }
+        return Observable.create(emitter -> {
+            try {
+                emitter.onNext(fetchRemoteTrack(remoteTrack));
+                emitter.onComplete();
+            } catch (NotConnectedException | DataRetrievalFailureException | UnauthorizedException e) {
+                emitter.onError(e);
             }
         });
     }
 
     public Track fetchRemoteTrack(Track remoteTrack) throws NotConnectedException,
             UnauthorizedException, DataRetrievalFailureException {
-        try {
-            Track downloadedTrack = daoProvider.getTrackDAO().getTrackById(remoteTrack
-                    .getRemoteID());
+        Track downloadedTrack = daoProvider.getTrackDAO().getTrackById(remoteTrack
+                .getRemoteID());
 
-            // Deep copy... TODO improve this.
-            remoteTrack.setName(downloadedTrack.getName());
-            remoteTrack.setDescription(downloadedTrack.getDescription());
-            remoteTrack.setMeasurements(new ArrayList<>(downloadedTrack.getMeasurements()));
-            remoteTrack.setCar(downloadedTrack.getCar());
-            remoteTrack.setTrackStatus(downloadedTrack.getTrackStatus());
-            remoteTrack.setMetadata(downloadedTrack.getMetadata());
+        // Deep copy... TODO improve this.
+        remoteTrack.setName(downloadedTrack.getName());
+        remoteTrack.setDescription(downloadedTrack.getDescription());
+        remoteTrack.setMeasurements(new ArrayList<>(downloadedTrack.getMeasurements()));
+        remoteTrack.setCar(downloadedTrack.getCar());
+        remoteTrack.setTrackStatus(downloadedTrack.getTrackStatus());
+        remoteTrack.setMetadata(downloadedTrack.getMetadata());
 
-            remoteTrack.setStartTime(downloadedTrack.getStartTime());
-            remoteTrack.setEndTime(downloadedTrack.getEndTime());
-            remoteTrack.setDownloadState(Track.DownloadState.DOWNLOADED);
-        } catch (NoMeasurementsException e) {
-            e.printStackTrace();
-        }
+        remoteTrack.setStartTime(downloadedTrack.getStartTime());
+        remoteTrack.setEndTime(downloadedTrack.getEndTime());
+        remoteTrack.setDownloadState(Track.DownloadState.DOWNLOADED);
 
         try {
             enviroCarDB.insertTrack(remoteTrack);
         } catch (TrackSerializationException e) {
-            e.printStackTrace();
+            LOGGER.error(e.getMessage(), e);
         }
         //        mDBAdapter.insertTrack(remoteTrack, true);
         return remoteTrack;

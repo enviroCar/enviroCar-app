@@ -19,25 +19,25 @@
 package org.envirocar.remote.dao;
 
 import org.envirocar.core.dao.AbstractCacheDAO;
-import org.envirocar.core.dao.TermsOfUseDAO;
+import org.envirocar.core.repository.TermsOfUseRepository;
 import org.envirocar.core.entity.TermsOfUse;
-import org.envirocar.core.exception.DataRetrievalFailureException;
-import org.envirocar.core.exception.NotConnectedException;
 import org.envirocar.core.logging.Logger;
 
 import java.util.List;
 
 import javax.inject.Inject;
 
-import rx.Observable;
+import io.reactivex.Observable;
 
-public class CacheTermsOfUseDAO extends AbstractCacheDAO implements TermsOfUseDAO {
+
+public class CacheTermsOfUseDAO extends AbstractCacheDAO implements TermsOfUseRepository {
     private static final Logger logger = Logger.getLogger(CacheTermsOfUseDAO.class);
     private static final String LIST_CACHE_FILE_NAME = "tou-list";
     private static final String INSTANCE_CACHE_FILE_NAME = "tou-instance-";
 
     @Inject
-    public CacheTermsOfUseDAO() {}
+    public CacheTermsOfUseDAO() {
+    }
 
     @Override
     public TermsOfUse getTermsOfUse(String id) {
@@ -61,7 +61,7 @@ public class CacheTermsOfUseDAO extends AbstractCacheDAO implements TermsOfUseDA
 
 
     //	@Override
-    //	public TermsOfUse getTermsOfUse() throws TermsOfUseRetrievalException {
+    //	public TermsOfUse getLatestTermsOfUse() throws TermsOfUseRetrievalException {
     //		try {
     //			return TermsOfUse.fromJson(readCache(LIST_CACHE_FILE_NAME));
     //		} catch (IOException e) {

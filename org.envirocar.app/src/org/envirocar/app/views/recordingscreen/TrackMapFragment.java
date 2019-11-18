@@ -55,9 +55,9 @@ import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 import com.squareup.otto.Subscribe;
 
-import org.envirocar.app.main.BaseApplicationComponent;
-import org.envirocar.app.main.MainActivityComponent;
-import org.envirocar.app.main.MainActivityModule;
+import org.envirocar.app.BaseApplicationComponent;
+import org.envirocar.app.injection.components.MainActivityComponent;
+import org.envirocar.app.injection.modules.MainActivityModule;
 import org.envirocar.app.R;
 import org.envirocar.app.events.TrackPathOverlayEvent;
 import org.envirocar.app.injection.BaseInjectorFragment;
@@ -71,8 +71,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnTouch;
-import rx.Scheduler;
-import rx.android.schedulers.AndroidSchedulers;
+import io.reactivex.Scheduler;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 
 /**
  * @author dewall

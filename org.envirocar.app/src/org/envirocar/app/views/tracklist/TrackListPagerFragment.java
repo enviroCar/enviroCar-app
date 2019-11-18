@@ -19,21 +19,21 @@
 package org.envirocar.app.views.tracklist;
 
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.viewpager.widget.ViewPager;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 
-import org.envirocar.app.main.BaseApplication;
-import org.envirocar.app.main.BaseApplicationComponent;
-import org.envirocar.app.main.MainActivityComponent;
-import org.envirocar.app.main.MainActivityModule;
+import org.envirocar.app.BaseApplication;
+import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
 import org.envirocar.app.injection.BaseInjectorFragment;
+import org.envirocar.app.injection.modules.MainActivityModule;
 import org.envirocar.core.logging.Logger;
 
 import butterknife.BindView;
@@ -53,16 +53,45 @@ public class TrackListPagerFragment extends BaseInjectorFragment {
 
     private TrackListPagerAdapter trackListPageAdapter;
 
+    @Override
+    protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
+        BaseApplication.get(getActivity())
+                .getBaseApplicationComponent()
+                .plus(new MainActivityModule(getActivity()))
+                .inject(this);
+    }
+
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle
-            savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         LOG.info("onCreateView()");
         View content = inflater.inflate(R.layout.fragment_tracklist_layout, container, false);
         ButterKnife.bind(this, content);
 
-        trackListPageAdapter = new TrackListPagerAdapter(getFragmentManager());
+        trackListPageAdapter = new TrackListPagerAdapter(getChildFragmentManager());
         mViewPager.setAdapter(trackListPageAdapter);
+        mViewPager.setSaveFromParentEnabled(false);
+
+        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                if (position == 0) {
+                    trackListSegmentedGroup.check(R.id.localSegmentedButton);
+                } else {
+                    trackListSegmentedGroup.check(R.id.uploadedSegmentedButton);
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
         trackListSegmentedGroup.check(R.id.localSegmentedButton);
 
         trackListSegmentedGroup.setOnCheckedChangeListener((radioGroup, i) -> {
@@ -78,31 +107,6 @@ public class TrackListPagerFragment extends BaseInjectorFragment {
             }
         });
 
-        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int
-                    positionOffsetPixels) {
-                // Nothing to do..
-            }
-
-            @Override
-            public void onPageSelected(int position) {
-                LOG.info("Page selected=" + position);
-                if (position == 0) {
-                    trackListPageAdapter.localCardFragment.loadDataset();
-                    trackListSegmentedGroup.check(R.id.localSegmentedButton);
-                } else if (position == 1) {
-                    trackListPageAdapter.remoteCardFragment.loadDataset();
-                    trackListSegmentedGroup.check(R.id.uploadedSegmentedButton);
-                }
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-                // Nothing to do..
-            }
-        });
-
         return content;
     }
 
@@ -110,27 +114,14 @@ public class TrackListPagerFragment extends BaseInjectorFragment {
     public void onResume() {
         LOG.info("onResume()");
         super.onResume();
-        if (mViewPager.getCurrentItem() == 0) {
-            trackListPageAdapter.localCardFragment.loadDataset();
-        } else {
-            trackListPageAdapter.remoteCardFragment.loadDataset();
-        }
     }
 
     @Override
     public void onDestroyView() {
         LOG.info("onDestroyView()");
         super.onDestroyView();
-
-        trackListPageAdapter.localCardFragment.onDestroyView();
-        trackListPageAdapter.remoteCardFragment.onDestroyView();
     }
 
-    @Override
-    protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
-        MainActivityComponent mainActivityComponent =  BaseApplication.get(getActivity()).getBaseApplicationComponent().plus(new MainActivityModule(getActivity()));
-        mainActivityComponent.inject(this);
-    }
 
     /**
      * @author dewall

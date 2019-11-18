@@ -18,13 +18,9 @@
  */
 package org.envirocar.app.views.tracklist;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
-
-import androidx.annotation.NonNull;
 
 import com.mapbox.mapboxsdk.maps.MapView;
 
@@ -48,8 +44,7 @@ public class TrackListRemoteCardAdapter extends AbstractTrackListCardAdapter<
      * @param tracks   the list of tracks to show cards for.
      * @param callback
      */
-    public TrackListRemoteCardAdapter(Context context, List<Track> tracks,
-                                      OnTrackInteractionCallback callback) {
+    public TrackListRemoteCardAdapter(List<Track> tracks, OnTrackInteractionCallback callback) {
         super(tracks, callback);
     }
 
@@ -114,13 +109,13 @@ public class TrackListRemoteCardAdapter extends AbstractTrackListCardAdapter<
         //holder.mMapView.postInvalidate();
     }
 
-    public void onLowMemory(){
-        for(MapView mapView : mapViews){
+    public void onLowMemory() {
+        for (MapView mapView : mapViews) {
             mapView.onLowMemory();
         }
     }
 
-    public void onDestroy(){
+    public void onDestroy() {
         for (MapView mapView : mapViews) {
             mapView.onPause();
             mapView.onStop();

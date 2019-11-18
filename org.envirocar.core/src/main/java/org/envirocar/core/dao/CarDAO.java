@@ -30,7 +30,7 @@ import org.envirocar.core.exception.UnauthorizedException;
 
 import java.util.List;
 
-import rx.Observable;
+import io.reactivex.Observable;
 
 /**p
  * TODO JavaDoc

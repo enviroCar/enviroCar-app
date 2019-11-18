@@ -27,7 +27,7 @@ import android.graphics.drawable.Icon;
 import android.os.Build;
 import android.widget.RemoteViews;
 
-import org.envirocar.app.main.BaseMainActivityBottomBar;
+import org.envirocar.app.views.BaseMainActivity;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.injection.InjectApplicationScope;
 
@@ -79,7 +79,7 @@ public class NotificationHandler {
         // the addAction re-use the same intent to keep the example short
         Notification n;
 
-        Intent intent = new Intent(context, BaseMainActivityBottomBar.class);
+        Intent intent = new Intent(context, BaseMainActivity.class);
         // use System.currentTimeMillis() to have a unique ID for the pending intent
         PendingIntent pIntent = PendingIntent.getActivity(context, (int) System.currentTimeMillis(), intent, 0);
 

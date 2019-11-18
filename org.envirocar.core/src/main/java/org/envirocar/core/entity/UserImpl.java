@@ -45,7 +45,7 @@ public class UserImpl implements User {
     /**
      * Constructor.
      *
-     * @param username the name of the user
+     * @param username the name of the getUserStatistic
      * @param token    the password
      */
     public UserImpl(String username, String token) {
@@ -55,7 +55,7 @@ public class UserImpl implements User {
     /**
      * Constructor.
      *
-     * @param username the name of the user
+     * @param username the name of the getUserStatistic
      * @param token    the password
      * @param mail     the mail
      */
@@ -66,7 +66,7 @@ public class UserImpl implements User {
     /**
      * Constructor.
      *
-     * @param username the name of the user
+     * @param username the name of the getUserStatistic
      * @param token    the password
      * @param mail     the mail
      */
@@ -169,6 +169,7 @@ public class UserImpl implements User {
         user.username = username;
         user.token = token;
         user.touVersion = touVersion;
+        user.privacyStatementVersion = privacyStatementVersion;
         user.mail = mail;
         user.firstName = firstName;
         user.lastName = lastName;

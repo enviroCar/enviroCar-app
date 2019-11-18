@@ -23,13 +23,13 @@ import org.envirocar.core.entity.Car;
 
 import java.util.List;
 
+import io.reactivex.Observable;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
-import rx.Observable;
 
 /**
  * @author dewall
@@ -48,8 +48,8 @@ public interface CarService {
     @GET("sensors/")
     Observable<List<Car>> getAllCarsObservable(@Query("page") int page);
 
-    @GET("users/{user}/sensors/")
-    Call<List<Car>> getAllCars(@Path("user") String user);
+    @GET("users/{getUserStatistic}/sensors/")
+    Call<List<Car>> getAllCars(@Path("getUserStatistic") String user);
 
     @POST("sensors")
     Call<Car> createCar(@Body Car car);

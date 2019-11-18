@@ -26,29 +26,33 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.IBinder;
+import android.widget.RemoteViews;
+
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.TaskStackBuilder;
-import android.widget.RemoteViews;
 
-import org.envirocar.app.main.BaseApplicationComponent;
-import org.envirocar.app.main.BaseMainActivityBottomBar;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.TrackRecordingHandler;
 import org.envirocar.app.handler.TrackUploadHandler;
 import org.envirocar.app.injection.BaseInjectorService;
+import org.envirocar.app.BaseApplicationComponent;
+import org.envirocar.app.views.BaseMainActivity;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.storage.EnviroCarDB;
+import org.envirocar.core.EnviroCarDB;
 
 import java.util.List;
 
 import javax.inject.Inject;
 
-import rx.Observable;
-import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.observers.DisposableObserver;
+import io.reactivex.schedulers.Schedulers;
+
 
 /**
  * TODO JavaDoc
@@ -74,11 +78,12 @@ public class TrackUploadService extends BaseInjectorService {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        super.onStartCommand(intent, flags, startId);
         LOG.info("onStartCommand()");
 
 
         // TODO change it to clean u
-        List<Track> localTrackList = enviroCarDB.getAllLocalTracks().first().toBlocking().first();
+        List<Track> localTrackList = enviroCarDB.getAllLocalTracks().blockingFirst();
         if (localTrackList.size() > 0) {
             LOG.info(String.format("%s local tracks to upload", localTrackList.size()));
 
@@ -111,6 +116,7 @@ public class TrackUploadService extends BaseInjectorService {
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
+        super.onBind(intent);
         return null;
     }
 
@@ -118,16 +124,18 @@ public class TrackUploadService extends BaseInjectorService {
         Observable.defer(() -> enviroCarDB.getAllLocalTracks())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .first()
+                .singleElement()
+                .toObservable()
                 .concatMap(tracks -> getUploadWithNotificationObservable(tracks))
-                .subscribe(new Subscriber<Track>() {
+                .subscribe(new DisposableObserver<Track>() {
+
                     @Override
                     public void onStart() {
                         LOG.info("onStart()");
                     }
 
                     @Override
-                    public void onCompleted() {
+                    public void onComplete() {
                         LOG.info("onCompleted()");
                     }
 
@@ -145,7 +153,7 @@ public class TrackUploadService extends BaseInjectorService {
 
 
     private Observable<Track> getUploadWithNotificationObservable(final List<Track> tracks) {
-        return Observable.create(new Observable.OnSubscribe<Track>() {
+        return Observable.create(new ObservableOnSubscribe<Track>() {
             private RemoteViews smallView;
             private RemoteViews bigView;
             private Notification foregroundNotification;
@@ -156,15 +164,13 @@ public class TrackUploadService extends BaseInjectorService {
             private int numberOfFailures = 0;
 
             @Override
-            public void call(Subscriber<? super Track> subscriber) {
-                subscriber.add(trackUploadHandler.uploadTracksObservable(tracks, false)
+            public void subscribe(ObservableEmitter<Track> emitter) throws Exception {
+                trackUploadHandler.uploadTracksObservable(tracks, false)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new Subscriber<Track>() {
+                        .subscribe(new DisposableObserver<Track>() {
                             @Override
                             public void onStart() {
-                                subscriber.onStart();
-
                                 foregroundNotification = new NotificationCompat
                                         .Builder(getApplicationContext())
                                         .setSmallIcon(R.drawable.ic_cloud_upload_white_24dp)
@@ -197,16 +203,14 @@ public class TrackUploadService extends BaseInjectorService {
                             }
 
                             @Override
-                            public void onCompleted() {
+                            public void onComplete() {
                                 LOG.info("getUploadWithNotificationObservable.onCompleted()");
-                                subscriber.onCompleted();
+                                emitter.onComplete();
 
-                                setSmallViewText(
-                                        getString(R.string.
+                                setSmallViewText(getString(R.string.
                                                 notification_automatic_track_upload_success),
-                                        getString(R.string.
-                                                        notification_automatic_track_upload_success_sub,
-                                                numberOfSuccesses, numberOfTracks));
+                                        getString(R.string.notification_automatic_track_upload_success_sub,
+                                                "" + numberOfSuccesses, "" + numberOfTracks));
 
                                 foregroundNotification = new NotificationCompat
                                         .Builder(getApplicationContext())
@@ -221,7 +225,7 @@ public class TrackUploadService extends BaseInjectorService {
 
                             @Override
                             public void onError(Throwable e) {
-                                subscriber.onError(e);
+                                emitter.onError(e);
 
                                 setSmallViewText(
                                         getString(R.string.
@@ -239,13 +243,14 @@ public class TrackUploadService extends BaseInjectorService {
                                 notificationManager.notify(100, foregroundNotification);
                             }
 
+
                             @Override
                             public void onNext(Track track) {
                                 if (track == null) {
                                     LOG.info("track had to less measurements");
                                     numberOfFailures++;
                                 } else {
-                                    subscriber.onNext(track);
+                                    emitter.onNext(track);
                                     numberOfSuccesses++;
                                 }
 
@@ -290,7 +295,7 @@ public class TrackUploadService extends BaseInjectorService {
                                         R.id.service_track_upload_handler_notification_sub_text,
                                         content);
                             }
-                        }));
+                        });
             }
         });
     }
@@ -317,10 +322,10 @@ public class TrackUploadService extends BaseInjectorService {
 
         forgroundNotification.bigContentView = bigView;
 
-        Intent intent = new Intent(getBaseContext(), BaseMainActivityBottomBar.class);
+        Intent intent = new Intent(getBaseContext(), BaseMainActivity.class);
 
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-        stackBuilder.addParentStack(BaseMainActivityBottomBar.class);
+        stackBuilder.addParentStack(BaseMainActivity.class);
         stackBuilder.addNextIntent(intent);
 
         PendingIntent resultIntent = stackBuilder.getPendingIntent(0, PendingIntent

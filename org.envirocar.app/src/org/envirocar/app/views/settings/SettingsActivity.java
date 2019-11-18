@@ -18,151 +18,108 @@
  */
 package org.envirocar.app.views.settings;
 
-import android.app.Fragment;
 import android.os.Bundle;
-import com.google.android.material.snackbar.Snackbar;
-import androidx.appcompat.widget.Toolbar;
-import android.view.MenuItem;
 import android.view.View;
 
-import org.envirocar.app.main.BaseApplicationComponent;
-import org.envirocar.app.R;
-import org.envirocar.app.injection.BaseInjectorActivity;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.DialogFragment;
+import androidx.preference.CheckBoxPreference;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceFragmentCompat;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
+import org.envirocar.app.R;
+import org.envirocar.app.handler.ApplicationSettings;
+import org.envirocar.app.recording.RecordingType;
+import org.envirocar.app.views.settings.custom.AutoConnectIntervalPreference;
+import org.envirocar.app.views.settings.custom.GPSTrimDurationPreference;
+import org.envirocar.app.views.settings.custom.SamplingRatePreference;
+import org.envirocar.app.views.settings.custom.TimePickerPreferenceDialog;
 
 /**
- * TODO JavaDoc
- *
  * @author dewall
  */
-public class SettingsActivity extends BaseInjectorActivity {
-
-    @BindView(R.id.fragment_settings_main_toolbar)
-    protected Toolbar mToolbar;
-
-    @BindView(R.id.fragment_settings_main_general_settings)
-    protected View mGeneralSettingsLayout;
-    @BindView(R.id.fragment_settings_main_obd_settings)
-    protected View mOBDSettingsLayout;
-    @BindView(R.id.fragment_settings_main_car_settings)
-    protected View mCarSettingsLayout;
-    @BindView(R.id.fragment_settings_main_optional_settings)
-    protected View mOptionalSettingsLayout;
-    @BindView(R.id.fragment_settings_main_other_settings)
-    protected View mOtherSettingsLayout;
-
-    private Fragment mCurrentVisibleFragment;
+public class SettingsActivity extends AppCompatActivity {
 
     @Override
-    protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
-        baseApplicationComponent.inject(this);
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.fragment_settings_main);
-        ButterKnife.bind(this);
+        setContentView(R.layout.activity_settings);
 
-        setSupportActionBar(mToolbar);
-        // Enables the home button.
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeButtonEnabled(true);
-        getSupportActionBar().setTitle(R.string.settings);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // just do the same as on back pressed.
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                onBackPressed();
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (mCurrentVisibleFragment != null) {
-            getFragmentManager()
-                    .beginTransaction()
-                    .setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_right)
-                    .remove(mCurrentVisibleFragment)
-                    .commit();
-            mCurrentVisibleFragment = null;
-            getSupportActionBar().setTitle(R.string.settings);
-        } else {
-            super.onBackPressed();
-        }
-    }
-
-    /**
-     * Called when the general settings layout is clicked. It creates and opens the general
-     * settings fragment.
-     */
-    @OnClick(R.id.fragment_settings_main_general_settings)
-    protected void onClickGeneralSettings() {
-        getSupportActionBar().setTitle(R.string.pref_general_settings);
-        createAndShowSettingsFragment(R.xml.preferences_general);
-    }
-
-    /**
-     * Called when the OBD settings layout is clicked. It creates a new {@link
-     * AutoConnectSettingsFragment} and opens this in the settings container.
-     */
-    @OnClick(R.id.fragment_settings_main_obd_settings)
-    protected void onClickOBDSettings() {
-        getSupportActionBar().setTitle(R.string.autoconnect_settings);
-        showFragment(new AutoConnectSettingsFragment());
-    }
-
-    @OnClick(R.id.fragment_settings_main_car_settings)
-    protected void onClickCarSettings() {
-        Snackbar.make(mToolbar, "Not implemented yet!", Snackbar.LENGTH_LONG).show();
-    }
-
-    @OnClick(R.id.fragment_settings_main_optional_settings)
-    protected void onClickOptionalSettings() {
-        getSupportActionBar().setTitle(R.string.settings_optional);
-        createAndShowSettingsFragment(R.xml.preferences_optional);
-    }
-
-    @OnClick(R.id.fragment_settings_main_other_settings)
-    protected void onClickOtherSettings() {
-        getSupportActionBar().setTitle(R.string.settings_other);
-        showFragment(new OtherSettingsFragment());
-    }
-
-    /**
-     * @param resource
-     */
-    private void createAndShowSettingsFragment(int resource) {
-        Fragment settings = new GeneralSettingsFragment();
-
-        // Set the preferences xml in the generated bundle.
-        Bundle bundle = new Bundle();
-        bundle.putInt(GeneralSettingsFragment.KEY_PREFERENCE, resource);
-        settings.setArguments(bundle);
-
-        // show the Settings fragment.
-        showFragment(settings);
-    }
-
-    /**
-     * @param fragment
-     */
-    private void showFragment(Fragment fragment) {
-        // Set the fragment into the main container of the view.
-        getFragmentManager()
+        // add the settingsfragment
+        getSupportFragmentManager()
                 .beginTransaction()
-                        // Set some animations.
-                .setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_right)
-                .replace(R.id.fragment_settings_main_container, fragment)
+                .replace(R.id.activity_settings_content, new SettingsFragment())
                 .commit();
-        mCurrentVisibleFragment = fragment;
+    }
+
+    public static class SettingsFragment extends PreferenceFragmentCompat {
+
+        private Preference automaticUpload;
+        private Preference automaticRecording;
+        private Preference searchInterval;
+        private Preference enableGPSMode;
+        private Preference gpsTrimDuration;
+        private Preference gpsAutoRecording;
+
+        @Override
+        public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
+            addPreferencesFromResource(R.xml.settings);
+        }
+
+        @Override
+        public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+            super.onViewCreated(view, savedInstanceState);
+
+            // find all preferences
+            this.automaticUpload = findPreference(getString(R.string.prefkey_always_upload));
+            this.automaticRecording = findPreference(getString(R.string.prefkey_automatic_recording));
+            this.searchInterval = findPreference(getString(R.string.prefkey_search_interval));
+            this.enableGPSMode = findPreference(getString(R.string.prefkey_enable_gps_based_track_recording));
+            this.gpsTrimDuration = findPreference(getString(R.string.prefkey_track_trim_duration));
+            this.gpsAutoRecording = findPreference(getString(R.string.prefkey_gps_mode_ar));
+
+            // disable automatic upload for now.
+            this.automaticUpload.setVisible(false);
+
+            // set initial state
+            this.searchInterval.setVisible(((CheckBoxPreference) automaticRecording).isChecked());
+            this.gpsTrimDuration.setVisible(((CheckBoxPreference) enableGPSMode).isChecked());
+            this.gpsAutoRecording.setVisible(((CheckBoxPreference) enableGPSMode).isChecked());
+
+            // set preference change listener
+            this.automaticRecording.setOnPreferenceChangeListener((preference, newValue) -> {
+                searchInterval.setVisible((boolean) newValue);
+                return true;
+            });
+            this.enableGPSMode.setOnPreferenceChangeListener(((preference, newValue) -> {
+                if (!(boolean) newValue) {
+                    ApplicationSettings.setSelectedRecordingType(getContext(), RecordingType.OBD_ADAPTER_BASED);
+                }
+                gpsTrimDuration.setVisible((boolean) newValue);
+                gpsAutoRecording.setVisible((boolean) newValue);
+                return true;
+            }));
+        }
+
+        @Override
+        public void onDisplayPreferenceDialog(Preference preference) {
+            DialogFragment fragment = null;
+            if (preference instanceof AutoConnectIntervalPreference) {
+                fragment = TimePickerPreferenceDialog.newInstance(preference.getKey());
+            } else if (preference instanceof SamplingRatePreference) {
+                fragment = SamplingRatePreference.Dialog.newInstance(preference.getKey());
+            } else if (preference instanceof GPSTrimDurationPreference) {
+                fragment = TimePickerPreferenceDialog.newInstance(preference.getKey());
+            }
+
+            if (fragment != null) {
+                fragment.setTargetFragment(this, 0);
+                fragment.show(this.getFragmentManager(), "android.support.v7.preference.PreferenceFragment.DIALOG");
+            } else {
+                super.onDisplayPreferenceDialog(preference);
+            }
+        }
     }
 }

@@ -28,21 +28,21 @@ import org.envirocar.remote.util.EnvirocarServiceUtils;
 
 import java.io.IOException;
 
+import io.reactivex.Observable;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Response;
-import rx.Observable;
 
 /**
  * TODO JavaDoc
  *
  * @author dewall
  */
-public class BaseRemoteDAO<C, S> {
+public class BaseRemoteDAO<Cache, Service> {
     private static final Logger LOG = Logger.getLogger(BaseRemoteDAO.class);
 
-    protected final C cacheDao;
-    protected final S remoteService;
+    protected final Cache cacheDao;
+    protected final Service remoteService;
     protected final UserManager userManager;
 
     /**
@@ -58,7 +58,7 @@ public class BaseRemoteDAO<C, S> {
      * @param cacheDao      the caching dao.
      * @param remoteService the remote service of this dao.
      */
-    public BaseRemoteDAO(C cacheDao, S remoteService) {
+    public BaseRemoteDAO(Cache cacheDao, Service remoteService) {
         this(cacheDao, remoteService, null);
     }
 
@@ -67,9 +67,9 @@ public class BaseRemoteDAO<C, S> {
      *
      * @param cacheDao      the cache dao
      * @param remoteService the remote service of this dao
-     * @param userManager   the user manager
+     * @param userManager   the getUserStatistic manager
      */
-    public BaseRemoteDAO(C cacheDao, S remoteService, UserManager userManager) {
+    public BaseRemoteDAO(Cache cacheDao, Service remoteService, UserManager userManager) {
         this.userManager = userManager;
         this.cacheDao = cacheDao;
         this.remoteService = remoteService;
@@ -106,7 +106,7 @@ public class BaseRemoteDAO<C, S> {
         return Observable.create(subscriber -> {
             try {
                 subscriber.onNext(func.call());
-                subscriber.onCompleted();
+                subscriber.onComplete();
             } catch (Exception e) {
                 subscriber.onError(e);
             }

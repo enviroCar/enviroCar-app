@@ -57,7 +57,7 @@
                 android:layout_marginLeft="12dp"
                 android:layout_marginTop="12dp"
                 android:fontFamily="@font/roboto_medium"
-                android:hint="Summary of what went wrong"
+                android:hint="@string/report_issue_summary"
                 android:textSize="20sp" />
 
             <EditText
@@ -86,7 +86,7 @@
                     android:layout_margin="12dp"
                     android:background="@android:color/transparent"
                     android:fontFamily="@font/roboto_medium"
-                    android:text="Time since crash:"
+                    android:text="@string/report_issue_time_since_crash"
                     android:textSize="18sp" />
 
                 <EditText
@@ -96,7 +96,7 @@
                     android:layout_margin="12dp"
                     android:layout_weight="1"
                     android:background="@android:color/transparent"
-                    android:hint="(in minutes)"
+                    android:hint="@string/report_issue_minutes"
                     android:inputType="number"
                     android:textSize="18sp" />
 
@@ -135,7 +135,7 @@
                 android:paddingTop="15dp"
                 android:paddingRight="25dp"
                 android:paddingBottom="15dp"
-                android:text="Send Report"
+                android:text="@string/report_issue_button"
                 android:textAllCaps="true"
                 android:textSize="15sp" />
 

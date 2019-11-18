@@ -20,10 +20,7 @@ package org.envirocar.obd.commands;
 
 import org.envirocar.core.logging.Logger;
 import org.envirocar.obd.commands.request.BasicCommand;
-import org.envirocar.obd.exception.AdapterSearchingException;
 import org.envirocar.obd.exception.InvalidCommandResponseException;
-import org.envirocar.obd.exception.NoDataReceivedException;
-import org.envirocar.obd.exception.UnmatchedResponseException;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -74,18 +71,17 @@ public class PIDSupported implements BasicCommand {
 
             String receivedGroup = rawAsString.substring(startIndex + 2, startIndex + 4);
             if (!receivedGroup.equals(group)) {
-                throw new InvalidCommandResponseException("Unexpected group received: "+receivedGroup);
+                throw new InvalidCommandResponseException("Unexpected group received: " + receivedGroup);
             }
-            rawData = rawAsString.substring(startIndex+4, startIndex + 12).getBytes();
-        }
-        else {
-            throw new InvalidCommandResponseException("The expected status response '41"+ group +"' was not in the response");
+            rawData = rawAsString.substring(startIndex + 4, startIndex + 12).getBytes();
+        } else {
+            throw new InvalidCommandResponseException("The expected status response '41" + group + "' was not in the response");
         }
 
         if (rawData.length != 8) {
-            throw new InvalidCommandResponseException("Invalid PIDSupported length: "+rawData.length);
+            throw new InvalidCommandResponseException("Invalid PIDSupported length: " + rawData.length);
         }
-        
+
         try {
             List<Integer> pids = new ArrayList<>(8);
 
@@ -101,13 +97,13 @@ public class PIDSupported implements BasicCommand {
              */
             for (int i = 0; i < rawData.length; i++) {
                 b = rawData[i];
-                int fromHex = Integer.parseInt(new String(new char[] {'0', (char) b}), 16);
+                int fromHex = Integer.parseInt(new String(new char[]{'0', (char) b}), 16);
                 BigInteger bigInt = BigInteger.valueOf(fromHex);
                 for (int j = 3; j >= 0; j--) {
                     //check from MSB down to LSB
                     if (bigInt.testBit(j)) {
                         //create an int representation and apply the group offset
-                        pids.add(1 + (i*4 + 3-j) + groupOffset);
+                        pids.add(1 + (i * 4 + 3 - j) + groupOffset);
                     }
                 }
             }
@@ -130,9 +126,8 @@ public class PIDSupported implements BasicCommand {
             }
 
             return list;
-        }
-        catch (RuntimeException e) {
-            throw new InvalidCommandResponseException("The response contained invalid byte values: "+e.getMessage());
+        } catch (RuntimeException e) {
+            throw new InvalidCommandResponseException("The response contained invalid byte values: " + e.getMessage());
         }
 
     }

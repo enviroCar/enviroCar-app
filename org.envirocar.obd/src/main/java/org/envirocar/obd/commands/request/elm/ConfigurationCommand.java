@@ -64,7 +64,7 @@ public class ConfigurationCommand implements BasicCommand {
             case MEMORY_OFF:
                 return new ConfigurationCommand("AT M0", i, true);
             case RESET:
-                return new ConfigurationCommand("AT Z", i, true);
+                return new ConfigurationCommand("AT Z", i, false);
             case SELECT_AUTO_PROTOCOL:
                 return new ConfigurationCommand("AT SP 0", i, true);
             case SPACES_OFF:

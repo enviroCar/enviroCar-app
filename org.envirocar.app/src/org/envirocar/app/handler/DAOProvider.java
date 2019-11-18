@@ -20,15 +20,15 @@ package org.envirocar.app.handler;
 
 import android.content.Context;
 
-import org.envirocar.app.main.BaseApplication;
-import org.envirocar.app.main.BaseApplicationComponent;
+import org.envirocar.app.BaseApplication;
+import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.core.CacheDirectoryProvider;
 import org.envirocar.core.InternetAccessProvider;
 import org.envirocar.core.dao.AnnouncementDAO;
 import org.envirocar.core.dao.CarDAO;
 import org.envirocar.core.dao.FuelingDAO;
-import org.envirocar.core.dao.PrivacyStatementDAO;
-import org.envirocar.core.dao.TermsOfUseDAO;
+import org.envirocar.core.repository.PrivacyStatementRepository;
+import org.envirocar.core.repository.TermsOfUseRepository;
 import org.envirocar.core.dao.TrackDAO;
 import org.envirocar.core.dao.UserDAO;
 import org.envirocar.core.dao.UserStatisticsDAO;
@@ -117,16 +117,16 @@ public class DAOProvider {
     }
 
     /**
-     * @return the {@link TermsOfUseDAO}
+     * @return the {@link TermsOfUseRepository}
      */
-    public TermsOfUseDAO getTermsOfUseDAO() {
+    public TermsOfUseRepository getTermsOfUseDAO() {
         if (this.mInternetAccessProvider.isConnected()) {
             return baseApplicationComponent.getRemoteTermsOfUseDAO();
         }
         return baseApplicationComponent.getCacheTermsOfUseDAO();
     }
 
-    public PrivacyStatementDAO getPrivacyStatementDAO() {
+    public PrivacyStatementRepository getPrivacyStatementDAO() {
         if (this.mInternetAccessProvider.isConnected()) {
             return baseApplicationComponent.getRemotePrivacyStatementDAO();
         }

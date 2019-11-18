@@ -33,7 +33,7 @@ import org.envirocar.aidl.IECRecordingService;
 import org.envirocar.app.events.GPSSpeedChangeEvent;
 import org.envirocar.app.events.StartingTimeEvent;
 import org.envirocar.app.injection.BaseInjectorService;
-import org.envirocar.app.main.BaseApplicationComponent;
+import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.events.recording.RecordingNewMeasurementEvent;
 import org.envirocar.core.events.TrackFinishedEvent;

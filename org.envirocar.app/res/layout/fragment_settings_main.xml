@@ -61,7 +61,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-medium"
-                    android:text="@string/pref_general_settings"
+                    android:text="@string/pref_settings_general"
                     android:textColor="@android:color/black"
                     android:textSize="17sp"/>
 
@@ -69,7 +69,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif"
-                    android:text="Display, TextToSpeech, WLAN upload"
+                    android:text="@string/pref_settings_general_summary"
                     android:textSize="14sp"/>
 
             </LinearLayout>
@@ -98,7 +98,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-medium"
-                    android:text="@string/autoconnect_settings"
+                    android:text="@string/pref_settings_autoconnect"
                     android:textColor="@android:color/black"
                     android:textSize="17sp"/>
 
@@ -106,7 +106,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif"
-                    android:text="@string/autoconnect_settings_sum"
+                    android:text="@string/pref_settings_autoconnect_summary"
                     android:textSize="14sp"/>
 
             </LinearLayout>
@@ -173,7 +173,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-medium"
-                    android:text="@string/settings_optional"
+                    android:text="@string/pref_settings_optional"
                     android:textColor="@android:color/black"
                     android:textSize="17sp"/>
 
@@ -181,7 +181,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif"
-                    android:text="@string/settings_optional_sub"
+                    android:text="@string/pref_settings_optional_summary"
                     android:textSize="14sp"/>
 
             </LinearLayout>
@@ -210,7 +210,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-medium"
-                    android:text="@string/settings_other"
+                    android:text="@string/pref_settings_other"
                     android:textColor="@android:color/black"
                     android:textSize="17sp" />
 
@@ -218,7 +218,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif"
-                    android:text="@string/settings_other_sub"
+                    android:text="@string/pref_settings_other_summary"
                     android:textSize="14sp"/>
 
             </LinearLayout>

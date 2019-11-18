@@ -18,23 +18,18 @@
  */
 package org.envirocar.remote.dao;
 
-import android.security.keystore.UserNotAuthenticatedException;
-
 import org.envirocar.core.dao.AbstractCacheDAO;
 import org.envirocar.core.dao.CarDAO;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.User;
-import org.envirocar.core.exception.DataCreationFailureException;
-import org.envirocar.core.exception.DataRetrievalFailureException;
-import org.envirocar.core.exception.NotConnectedException;
-import org.envirocar.core.exception.UnauthorizedException;
 import org.envirocar.core.logging.Logger;
 
 import java.util.List;
 
 import javax.inject.Inject;
 
-import rx.Observable;
+import io.reactivex.Observable;
+
 
 /**
  * TODO JavaDoc

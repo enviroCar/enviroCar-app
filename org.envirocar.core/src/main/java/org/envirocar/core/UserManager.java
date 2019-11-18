@@ -20,48 +20,54 @@ package org.envirocar.core;
 
 import org.envirocar.core.entity.User;
 
+import io.reactivex.Completable;
+
 /**
  * TODO JavaDoc
  *
  * @author dewall
  */
 public interface UserManager {
+
     /**
-     * Callback interface for the login process.
+     * Determines whether the getUserStatistic is logged in. A getUserStatistic is logged in when
+     * the application has a getUserStatistic as a variable.
+     *
+     * @return
      */
-    interface LoginCallback {
-        /**
-         * Called when the specific user has been successfully logged in.
-         *
-         * @param user the valid {@link User} instance that has been logged in.
-         */
-        void onSuccess(User user);
-
-        /**
-         * Called when the password is incorrect.
-         *
-         * @param password the incorrect password string.
-         */
-        void onPasswordIncorrect(String password);
-
-        /**
-         * Called when the Mail has not been confirmed
-         */
-        void onMailNotConfirmed();
-
-        /**
-         * Called when no connection could be established to the server.
-         */
-        void onUnableToCommunicateServer();
-    }
-
     boolean isLoggedIn();
 
-    void logOut();
-
-    void logIn(String user, String token, LoginCallback callback);
-
+    /**
+     * Get the getUserStatistic
+     *
+     * @return getUserStatistic
+     */
     User getUser();
 
+    /**
+     * Sets the getUserStatistic
+     *
+     * @param user
+     */
     void setUser(User user);
+
+    /**
+     * Handles the login as a completable
+     *
+     * @param user  username
+     * @param token getUserStatistic token
+     * @return
+     */
+    Completable logIn(String user, String token);
+
+    Completable logIn(String user, String token, boolean withEvent);
+
+    /**
+     * Handles the logout procedure
+     *
+     * @return a completable handling the logout
+     */
+    Completable logOut();
+
+    Completable logOut(Boolean withEvent);
 }

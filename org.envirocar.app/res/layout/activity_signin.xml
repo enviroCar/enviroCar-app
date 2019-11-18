@@ -55,7 +55,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
-            android:text="Sign In"
+            android:text="@string/sign_in"
             android:textColor="@color/white_cario"
             android:textSize="26dp"
             android:textStyle="bold"
@@ -71,7 +71,7 @@
             android:layout_marginTop="80dp"
             android:background="@drawable/login_edittext_rounded_corner_shape"
             android:drawableLeft="@drawable/ic_action_user"
-            android:hint="Username"
+            android:hint="@string/username"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.503"
             app:layout_constraintStart_toStartOf="parent"
@@ -83,7 +83,7 @@
             android:layout_below="@+id/activity_signin_username_input"
             android:layout_marginTop="32dp"
             android:drawableLeft="@drawable/ic_action_pass"
-            android:hint="Password"
+            android:hint="@string/password"
             android:inputType="textPassword"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.502"
@@ -114,7 +114,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="Login"
+                android:text="@string/login"
                 android:textColor="@color/white_cario" />
 
         </androidx.cardview.widget.CardView>

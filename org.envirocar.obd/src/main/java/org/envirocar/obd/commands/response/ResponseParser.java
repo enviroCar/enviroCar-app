@@ -72,13 +72,13 @@ public class ResponseParser {
 
         if (isSearching(dataString)) {
             throw new AdapterSearchingException();
-        }
-        else if (isNoDataCommand(dataString)) {
+        } else if (isNoDataCommand(dataString)) {
             throw new NoDataReceivedException("NODATA was received");
         }
 
         int[] buffer = new int[data.length / 2];
         boolean error = false;
+
         PID pid = null;
         while (index + length <= data.length) {
             String tmp = new String(data, index, length);
@@ -95,14 +95,16 @@ public class ResponseParser {
                 if (error || pid == null) {
                     throw new InvalidCommandResponseException(pid == null ? tmp : pid.toString());
                 }
-            }
+            } else {
+                if (error || pid == null){
+                    throw new InvalidCommandResponseException(pid == null ? tmp : pid.toString());
+                }
 
-            else {
                 /*
                  * this is a hex number
                  */
-                buffer[index/2] = Integer.parseInt(tmp, 16);
-                if (buffer[index/2] < 0) {
+                buffer[index / 2] = Integer.parseInt(tmp, 16);
+                if (buffer[index / 2] < 0) {
                     throw new InvalidCommandResponseException(pid.toString());
                 }
             }
@@ -110,7 +112,11 @@ public class ResponseParser {
             index += length;
         }
 
-        return createDataResponse(pid, buffer, data);
+        try {
+            return createDataResponse(pid, buffer, data);
+        } catch (Exception e){
+            throw new UnmatchedResponseException(e);
+        }
     }
 
     private DataResponse createDataResponse(PID pid, int[] processedData, byte[] rawData) {
@@ -158,8 +164,8 @@ public class ResponseParser {
             case O2_LAMBDA_PROBE_7_CURRENT:
             case O2_LAMBDA_PROBE_8_CURRENT:
                 return new LambdaProbeCurrentResponse(
-                        ((processedData[4]*256d) + processedData[5])/256d - 128,
-                        ((processedData[2]*256d) + processedData[3]) / 32768d);
+                        ((processedData[4] * 256d) + processedData[5]) / 256d - 128,
+                        ((processedData[2] * 256d) + processedData[3]) / 32768d);
         }
 
         return new GenericDataResponse(pid, processedData, rawData);

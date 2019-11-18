@@ -20,19 +20,21 @@ package org.envirocar.app.views.tracklist;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
-import androidx.annotation.Nullable;
-import com.google.android.material.snackbar.Snackbar;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
+
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.common.base.Preconditions;
 
-import org.envirocar.app.main.BaseApplication;
-import org.envirocar.app.main.MainActivityComponent;
-import org.envirocar.app.main.MainActivityModule;
+import org.envirocar.app.BaseApplication;
+import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
+import org.envirocar.app.injection.components.MainActivityComponent;
+import org.envirocar.app.injection.modules.MainActivityModule;
 import org.envirocar.app.views.trackdetails.TrackDetailsActivity;
 import org.envirocar.app.views.utils.DialogUtils;
 import org.envirocar.app.views.utils.ECAnimationUtils;
@@ -46,20 +48,23 @@ import org.envirocar.core.util.Util;
 import java.util.Collections;
 import java.util.List;
 
-import rx.Observable;
-import rx.Subscriber;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.observers.DisposableObserver;
+import io.reactivex.schedulers.Schedulers;
+
 
 /**
  * TODO JavaDoc
  *
  * @author dewall
  */
-public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
-        TrackListLocalCardAdapter> {
+public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<TrackListLocalCardAdapter> {
     private static final Logger LOG = Logger.getLogger(TrackListLocalCardFragment.class);
+
 
     /**
      *
@@ -70,13 +75,18 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
 
     private OnTrackUploadedListener onTrackUploadedListener;
 
-    private Subscription loadTracksSubscription;
-    private Subscription uploadTrackSubscription;
+    private Disposable loadTracksSubscription;
+    private Disposable uploadTrackSubscription;
+
+    @Override
+    protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
+        baseApplicationComponent.inject(this);
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        MainActivityComponent mainActivityComponent =  BaseApplication.get(getActivity()).getBaseApplicationComponent().plus(new MainActivityModule(getActivity()));
+        MainActivityComponent mainActivityComponent = BaseApplication.get(getActivity()).getBaseApplicationComponent().plus(new MainActivityModule(getActivity()));
         mainActivityComponent.inject(this);
     }
 
@@ -84,6 +94,8 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
     public void onResume() {
         LOG.info("onResume()");
         super.onResume();
+
+        loadDataset();
 
         mFAB.setOnClickListener(v -> DialogUtils.createDefaultDialogBuilder(getActivity(),
                 R.string.track_list_upload_all_tracks_title,
@@ -99,11 +111,10 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
         uploadTrackSubscription = Observable.defer(() -> mEnvirocarDB.getAllLocalTracks())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .first()
                 .concatMap(tracks -> uploadTracksWithDialogObservable(tracks))
-                .subscribe(new Subscriber<Track>() {
+                .subscribeWith(new DisposableObserver<Track>() {
                     @Override
-                    public void onCompleted() {
+                    public void onComplete() {
                         LOG.info("onCompleted()");
                         if (mRecyclerViewAdapter.getItemCount() <= 0) {
                             showNoLocalTracksInfo();
@@ -131,9 +142,9 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
         uploadTrackSubscription = uploadTrackWithDialogObservable(track)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Subscriber<Track>() {
+                .subscribeWith(new DisposableObserver<Track>() {
                     @Override
-                    public void onCompleted() {
+                    public void onComplete() {
                         LOG.info("uploadTrack.onCompleted()");
                         showSnackbar(String.format(
                                 getString(R.string.track_list_upload_track_success_template),
@@ -156,7 +167,8 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
                         mRecyclerViewAdapter.removeItem(track);
                         mRecyclerViewAdapter.notifyDataSetChanged();
 
-                        onTrackUploadedListener.onTrackUploaded(track);
+                        if (onTrackUploadedListener != null)
+                            onTrackUploadedListener.onTrackUploaded(track);
                     }
                 });
     }
@@ -190,10 +202,10 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
             @Override
             public void onUploadTrackClicked(Track track) {
                 LOG.info(String.format("onUploadTrackClicked(%s)", track.getTrackID()));
-                if(track.hasProperty(Measurement.PropertyKey.SPEED)){
+                if (track.hasProperty(Measurement.PropertyKey.SPEED)) {
                     // Upload the track
                     uploadTrack(track);
-                }else {
+                } else {
                     showSnackbar(R.string.trackviews_cannot_upload_gps_tracks);
                 }
             }
@@ -229,30 +241,31 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
         LOG.info("onDestroyView()");
         super.onDestroyView();
 
-        if (loadTracksSubscription != null && !loadTracksSubscription.isUnsubscribed()) {
-            loadTracksSubscription.unsubscribe();
+        if (loadTracksSubscription != null && !loadTracksSubscription.isDisposed()) {
+            loadTracksSubscription.dispose();
         }
 
-        if (uploadTrackSubscription != null && !uploadTrackSubscription.isUnsubscribed()) {
-            uploadTrackSubscription.unsubscribe();
+        if (uploadTrackSubscription != null && !uploadTrackSubscription.isDisposed()) {
+            uploadTrackSubscription.dispose();
         }
     }
 
     private Observable<Track> uploadTrackWithDialogObservable(Track track) {
         Preconditions.checkNotNull(track, "Input track cannot be null");
-        return Observable.create(new Observable.OnSubscribe<Track>() {
+        return Observable.create(new ObservableOnSubscribe<Track>() {
             private MaterialDialog dialog;
             private View contentView;
 
             @Override
-            public void call(Subscriber<? super Track> subscriber) {
-                subscriber.add(mTrackUploadHandler.uploadTrackObservable(track, getActivity())
+            public void subscribe(ObservableEmitter<Track> emitter) throws Exception {
+
+                DisposableObserver<Track> disposableObserver = mTrackUploadHandler.uploadTrackObservable(track, getActivity())
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new Subscriber<Track>() {
-                            @Override
+                        .subscribeWith(new DisposableObserver<Track>() {
+
                             public void onStart() {
-                                subscriber.onStart();
+//                                emitter.onStart();
 
                                 // Inflate the dialog content view and set the track name.
                                 contentView = getActivity().getLayoutInflater().inflate(
@@ -272,8 +285,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
                                             .cancelable(false)
                                             .negativeText(R.string.cancel)
                                             .onNegative((materialDialog, dialogAction) -> {
-                                                subscriber.unsubscribe();
-                                                unsubscribe();
+                                                dispose();
                                             })
                                             .show();
                                 });
@@ -281,16 +293,15 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
                             }
 
                             @Override
-                            public void onCompleted() {
-                                subscriber.onCompleted();
-
+                            public void onComplete() {
                                 if (dialog != null) dialog.dismiss();
+                                emitter.onComplete();
                             }
 
                             @Override
                             public void onError(Throwable e) {
                                 LOG.info("onError()");
-                                subscriber.onError(e);
+                                emitter.onError(e);
 
                                 if (dialog != null) dialog.dismiss();
                             }
@@ -298,16 +309,19 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
                             @Override
                             public void onNext(Track track) {
                                 LOG.info("onNext() track has been successfully uploaded.");
-                                subscriber.onNext(track);
-                                subscriber.onCompleted();
+                                if (dialog != null) dialog.dismiss();
+                                emitter.onNext(track);
+                                emitter.onComplete();
                             }
-                        }));
+                        });
+                emitter.setDisposable(disposableObserver);
             }
         });
     }
 
     private Observable<Track> uploadTracksWithDialogObservable(List<Track> tracks) {
-        return Observable.create(new Observable.OnSubscribe<Track>() {
+        return Observable.create(new ObservableOnSubscribe<Track>() {
+
             private int numberOfTracks = tracks.size();
             private int numberOfSuccesses = 0;
             private int numberOfFailures = 0;
@@ -315,12 +329,11 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
             private View contentView;
 
             @Override
-            public void call(Subscriber<? super Track> subscriber) {
-                subscriber.add(mTrackUploadHandler.uploadTracksObservable(tracks, false,
-                        getActivity())
+            public void subscribe(ObservableEmitter<Track> emitter) throws Exception {
+                DisposableObserver<Track> disposableObserver = mTrackUploadHandler.uploadTracksObservable(tracks, false, getActivity())
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new Subscriber<Track>() {
+                        .subscribeWith(new DisposableObserver<Track>() {
                             protected TextView infoText;
                             protected ProgressBar progressBar;
                             protected TextView percentageText;
@@ -328,7 +341,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
 
                             @Override
                             public void onStart() {
-                                subscriber.onStart();
+//                                emitter.onStart();
 
                                 // Create the custom dialog view
                                 contentView = getActivity().getLayoutInflater().inflate(R.layout
@@ -352,17 +365,14 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
                                         R.drawable.ic_cloud_upload_white_24dp, contentView)
                                         .cancelable(false)
                                         .negativeText(R.string.cancel)
-                                        .onNegative((dialog, dialogAction) -> {
-                                            subscriber.unsubscribe();
-                                            unsubscribe();
-                                        })
+                                        .onNegative((dialog, dialogAction) -> dispose())
                                         .show();
                             }
 
                             @Override
-                            public void onCompleted() {
-                                if (!subscriber.isUnsubscribed())
-                                    subscriber.onCompleted();
+                            public void onComplete() {
+                                if (!emitter.isDisposed())
+                                    return;
 
                                 if (numberOfFailures > 0) {
                                     showSnackbar(String.format("%s of %s tracks have been " +
@@ -377,8 +387,8 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
 
                             @Override
                             public void onError(Throwable e) {
-                                if (!subscriber.isUnsubscribed())
-                                    subscriber.onError(e);
+                                if (!emitter.isDisposed())
+                                    emitter.onError(e);
 
                                 showSnackbar("An error occurred during the upload process.");
                                 dialog.dismiss();
@@ -386,17 +396,18 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
 
                             @Override
                             public void onNext(Track track) {
+                                LOG.info("Successfully uploaded track %s", track.getDescription());
                                 if (track == null)
                                     numberOfFailures++;
                                 else {
                                     numberOfSuccesses++;
-                                    subscriber.onNext(track);
+                                    emitter.onNext(track);
                                 }
 
                                 updateProgressView(numberOfFailures + numberOfSuccesses);
 
                                 if ((numberOfFailures + numberOfSuccesses) == numberOfTracks) {
-                                    onCompleted();
+                                    onComplete();
                                 }
                             }
 
@@ -407,7 +418,8 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
                                 percentageText.setText((progress / numberOfTracks) * 100 + "%");
                                 progressText.setText(progress + " / " + numberOfTracks);
                             }
-                        }));
+                        });
+                emitter.setDisposable(disposableObserver);
             }
         });
     }
@@ -443,7 +455,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
             loadTracksSubscription = mEnvirocarDB.getAllLocalTracks()
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new Subscriber<List<Track>>() {
+                    .subscribeWith(new DisposableObserver<List<Track>>() {
 
                         @Override
                         public void onStart() {
@@ -456,7 +468,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
                         }
 
                         @Override
-                        public void onCompleted() {
+                        public void onComplete() {
                             LOG.info("onCompleted() allLocalTracks");
                         }
 

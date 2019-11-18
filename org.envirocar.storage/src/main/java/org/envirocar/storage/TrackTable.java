@@ -33,9 +33,9 @@ import org.json.JSONException;
 import java.util.ArrayList;
 import java.util.List;
 
-import rx.Observable;
-import rx.Subscriber;
-import rx.functions.Func1;
+import io.reactivex.Observable;
+import io.reactivex.functions.Function;
+
 
 /**
  * TODO JavaDoc
@@ -49,6 +49,9 @@ class TrackTable {
     public static final String KEY_TRACK_ID = "_id";
     public static final String KEY_TRACK_NAME = "name";
     public static final String KEY_TRACK_DESCRIPTION = "descr";
+    public static final String KEY_TRACK_START_TIME = "start_time";
+    public static final String KEY_TRACK_END_TIME = "end_time";
+    public static final String KEY_TRACK_LENGTH = "length";
     public static final String KEY_REMOTE_ID = "remoteId";
     public static final String KEY_TRACK_STATE = "state";
     public static final String KEY_TRACK_CAR_MANUFACTURER = "car_manufacturer";
@@ -60,22 +63,6 @@ class TrackTable {
     public static final String KEY_TRACK_CAR_ID = "carId";
     public static final String KEY_TRACK_METADATA = "trackMetadata";
 
-    public static final String[] ALL_TRACK_KEYS = new String[]{
-            KEY_TRACK_ID,
-            KEY_TRACK_NAME,
-            KEY_TRACK_DESCRIPTION,
-            KEY_REMOTE_ID,
-            KEY_TRACK_STATE,
-            KEY_TRACK_METADATA,
-            KEY_TRACK_CAR_MANUFACTURER,
-            KEY_TRACK_CAR_MODEL,
-            KEY_TRACK_CAR_FUEL_TYPE,
-            KEY_TRACK_CAR_ENGINE_DISPLACEMENT,
-            KEY_TRACK_CAR_YEAR,
-            KEY_TRACK_CAR_VIN,
-            KEY_TRACK_CAR_ID
-    };
-
     protected static final String CREATE =
             "create table " + TABLE_TRACK + " " +
                     "(" + KEY_TRACK_ID + " INTEGER primary key, " +
@@ -84,6 +71,9 @@ class TrackTable {
                     KEY_REMOTE_ID + " BLOB, " +
                     KEY_TRACK_STATE + " BLOB, " +
                     KEY_TRACK_METADATA + " BLOB, " +
+                    KEY_TRACK_LENGTH + " BLOB, " +
+                    KEY_TRACK_START_TIME + " BLOB, " +
+                    KEY_TRACK_END_TIME + " BLOB, " +
                     KEY_TRACK_CAR_MANUFACTURER + " BLOB, " +
                     KEY_TRACK_CAR_MODEL + " BLOB, " +
                     KEY_TRACK_CAR_FUEL_TYPE + " BLOB, " +
@@ -94,45 +84,28 @@ class TrackTable {
 
     protected static final String DELETE = "DROP TABLE IF EXISTS " + TABLE_TRACK;
 
-    protected static final Func1<Cursor, Track> MAPPER = new Func1<Cursor, Track>() {
-        @Override
-        public Track call(Cursor cursor) {
-            return fromCursor(cursor);
-        }
-    };
+    protected static final Function<Cursor, Track> MAPPER = cursor -> fromCursor(cursor);
 
-    public static final Func1<? super Cursor, ? extends Observable<Track.TrackId>>
-            TO_TRACK_ID_MAPPER = new Func1<Cursor, Observable<Track.TrackId>>() {
-        @Override
-        public Observable<Track.TrackId> call(Cursor cursor) {
-            return Observable.create(new Observable.OnSubscribe<Track.TrackId>() {
-                @Override
-                public void call(Subscriber<? super Track.TrackId> subscriber) {
-                    subscriber.onStart();
-                    cursor.moveToFirst();
-                    for (int i = 1; cursor.moveToNext() && !subscriber.isUnsubscribed(); i++) {
-                        subscriber.onNext(new Track.TrackId(cursor.getLong(
-                                cursor.getColumnIndex(KEY_TRACK_ID))));
-                    }
-                    subscriber.onCompleted();
+    public static final Function<? super Cursor, ? extends Observable<Track.TrackId>>
+            TO_TRACK_ID_MAPPER = (Function<Cursor, Observable<Track.TrackId>>) cursor -> Observable.create(emitter -> {
+        cursor.moveToFirst();
+        for (int i = 1; cursor.moveToNext() && !emitter.isDisposed(); i++) {
+            emitter.onNext(new Track.TrackId(cursor.getLong(
+                    cursor.getColumnIndex(KEY_TRACK_ID))));
+        }
+        emitter.onComplete();
+    });
+
+    public static final Function<? super Cursor, ? extends List<Track.TrackId>>
+            TO_TRACK_ID_LIST_MAPPER = (Function<Cursor, List<Track.TrackId>>) cursor -> {
+                List<Track.TrackId> idList = new ArrayList<>(cursor.getCount());
+
+                while (cursor.moveToNext()) {
+                    idList.add(new Track.TrackId(cursor.getLong(
+                            cursor.getColumnIndex(KEY_TRACK_ID))));
                 }
-            });
-        }
-    };
-
-    public static final Func1<? super Cursor, ? extends List<Track.TrackId>>
-            TO_TRACK_ID_LIST_MAPPER = new Func1<Cursor, List<Track.TrackId>>() {
-        @Override
-        public List<Track.TrackId> call(Cursor cursor) {
-            List<Track.TrackId> idList = new ArrayList<>(cursor.getCount());
-
-            while(cursor.moveToNext()){
-                idList.add(new Track.TrackId(cursor.getLong(
-                        cursor.getColumnIndex(KEY_TRACK_ID))));
-            }
-            return idList;
-        }
-    };
+                return idList;
+            };
 
     public static ContentValues toContentValues(Track track) {
         ContentValues values = new ContentValues();
@@ -145,13 +118,15 @@ class TrackTable {
             values.put(KEY_REMOTE_ID, track.getRemoteID());
         }
         values.put(KEY_TRACK_STATE, track.getTrackStatus().toString());
+        values.put(KEY_TRACK_START_TIME, track.getStartTime());
+        values.put(KEY_TRACK_END_TIME, track.getEndTime());
+        values.put(KEY_TRACK_LENGTH, track.getLength());
         if (track.getCar() != null) {
             values.put(KEY_TRACK_CAR_MANUFACTURER, track.getCar().getManufacturer());
             values.put(KEY_TRACK_CAR_MODEL, track.getCar().getModel());
             values.put(KEY_TRACK_CAR_FUEL_TYPE, track.getCar().getFuelType().name());
             values.put(KEY_TRACK_CAR_ID, track.getCar().getId());
-            values.put(KEY_TRACK_CAR_ENGINE_DISPLACEMENT, track.getCar()
-                    .getEngineDisplacement());
+            values.put(KEY_TRACK_CAR_ENGINE_DISPLACEMENT, track.getCar().getEngineDisplacement());
             values.put(KEY_TRACK_CAR_YEAR, track.getCar().getConstructionYear());
         }
 
@@ -172,6 +147,9 @@ class TrackTable {
         track.setRemoteID(c.getString(c.getColumnIndex(KEY_REMOTE_ID)));
         track.setName(c.getString(c.getColumnIndex(KEY_TRACK_NAME)));
         track.setDescription(c.getString(c.getColumnIndex(KEY_TRACK_DESCRIPTION)));
+        track.setStartTime(c.getLong(c.getColumnIndex(KEY_TRACK_START_TIME)));
+        track.setEndTime(c.getLong(c.getColumnIndex(KEY_TRACK_END_TIME)));
+        track.setLength(c.getDouble(c.getColumnIndex(KEY_TRACK_LENGTH)));
 
         int statusColumn = c.getColumnIndex(KEY_TRACK_STATE);
         if (statusColumn != -1) {

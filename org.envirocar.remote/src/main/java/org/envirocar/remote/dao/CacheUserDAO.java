@@ -24,12 +24,11 @@ import org.envirocar.core.dao.UserDAO;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.exception.DataRetrievalFailureException;
 import org.envirocar.core.exception.DataUpdateFailureException;
-import org.envirocar.core.exception.ResourceConflictException;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import rx.Observable;
+import io.reactivex.Observable;
 
 /**
  * @author dewall

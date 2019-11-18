@@ -20,9 +20,11 @@ package org.envirocar.remote.service;
 
 
 import org.envirocar.core.entity.User;
+import org.envirocar.core.entity.UserStatistic;
 import org.envirocar.core.entity.UserStatistics;
 import org.envirocar.remote.requests.CreateUserRequest;
 
+import io.reactivex.Observable;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -30,28 +32,30 @@ import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
-import rx.Observable;
 
 /**
  * @author dewall
  */
 public interface UserService {
 
-    @GET("users/{user}")
-    Call<User> getUser(@Path("user") String user);
+    @GET("users/{getUserStatistic}")
+    Call<User> getUser(@Path("getUserStatistic") String user);
 
-    @GET("users/{user}")
-    Observable<User> getUserObservable(@Path("user") String user);
+    @GET("users/{getUserStatistic}")
+    Observable<User> getUserObservable(@Path("getUserStatistic") String user);
 
     @POST("users/")
     Call<ResponseBody> createUser(@Body CreateUserRequest user);
 
-    @PUT("users/{user}")
-    Call<ResponseBody> updateUser(@Path("user") String user, @Body User body);
+    @PUT("users/{getUserStatistic}")
+    Call<ResponseBody> updateUser(@Path("getUserStatistic") String user, @Body User body);
 
-    @GET("users/{user}/statistics")
-    Call<UserStatistics> getUserStatistics(@Path("user") String user);
+    @GET("users/{getUserStatistic}/statistics")
+    Call<UserStatistics> getUserStatistics(@Path("getUserStatistic") String user);
 
-    @GET("users/{user}/statistics")
-    Observable<UserStatistics> getUserStatisticsObservable(@Path("user") String user);
+    @GET("users/{getUserStatistic}/statistics")
+    Observable<UserStatistics> getUserStatisticsObservable(@Path("getUserStatistic") String user);
+
+    @GET("users/{getUserStatistic}/userStatistic")
+    Call<UserStatistic> getUserStatistic(@Path("getUserStatistic") String user);
 }

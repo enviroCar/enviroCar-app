@@ -34,10 +34,9 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import io.reactivex.Observable;
 import okhttp3.ResponseBody;
 import retrofit2.Response;
-import rx.Observable;
-import rx.Subscriber;
 
 /**
  * The data access object for remote fuelings that are stored at the server.
@@ -75,16 +74,13 @@ public class RemoteFuelingDAO extends BaseRemoteDAO<FuelingDAO, FuelingService> 
 
     @Override
     public Observable<List<Fueling>> getFuelingsObservable() {
-        return Observable.create(new Observable.OnSubscribe<List<Fueling>>() {
-            @Override
-            public void call(Subscriber<? super List<Fueling>> subscriber) {
-                try {
-                    subscriber.onNext(getFuelings());
-                } catch (Exception e) {
-                    subscriber.onError(e);
-                }
-                subscriber.onCompleted();
+        return Observable.create(emitter -> {
+            try {
+                emitter.onNext(getFuelings());
+            } catch (Exception e) {
+                emitter.onError(e);
             }
+            emitter.onComplete();
         });
     }
 
@@ -107,17 +103,14 @@ public class RemoteFuelingDAO extends BaseRemoteDAO<FuelingDAO, FuelingService> 
     @Override
     public Observable<Void> createFuelingObservable(Fueling fueling) {
         LOG.info("createFuelingObservable()");
-        return Observable.create(new Observable.OnSubscribe<Void>() {
-            @Override
-            public void call(Subscriber<? super Void> subscriber) {
-                try {
-                    createFueling(fueling);
-                } catch (NotConnectedException | ResourceConflictException |
-                        UnauthorizedException e) {
-                    subscriber.onError(e);
-                }
-                subscriber.onCompleted();
+        return Observable.create(emitter -> {
+            try {
+                createFueling(fueling);
+            } catch (NotConnectedException | ResourceConflictException |
+                    UnauthorizedException e) {
+                emitter.onError(e);
             }
+            emitter.onComplete();
         });
     }
 
@@ -138,16 +131,13 @@ public class RemoteFuelingDAO extends BaseRemoteDAO<FuelingDAO, FuelingService> 
 
     @Override
     public Observable<Void> deleteFuelingObservable(Fueling fueling) {
-        return Observable.create(new Observable.OnSubscribe<Void>() {
-            @Override
-            public void call(Subscriber<? super Void> subscriber) {
-                try {
-                    deleteFueling(fueling);
-                } catch (NotConnectedException | UnauthorizedException e) {
-                    subscriber.onError(e);
-                }
-                subscriber.onCompleted();
+        return Observable.create(emitter -> {
+            try {
+                deleteFueling(fueling);
+            } catch (NotConnectedException | UnauthorizedException e) {
+                emitter.onError(e);
             }
+            emitter.onComplete();
         });
     }
 }

@@ -36,10 +36,10 @@ import java.io.IOException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.reactivex.Observable;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Response;
-import rx.Observable;
 
 /**
  * TODO JavaDoc
@@ -57,7 +57,7 @@ public class RemoteUserDAO extends BaseRemoteDAO<UserDAO, UserService> implement
 
     @Override
     public User getUser(String id) throws DataRetrievalFailureException, UnauthorizedException, NotConnectedException, ResourceConflictException {
-        // Get the remoteService for the user endpoints and initiates a call.
+        // Get the remoteService for the getUserStatistic endpoints and initiates a call.
         Call<User> userCall = remoteService.getUser(id);
         try {
             return executeCall(userCall).body();
@@ -68,7 +68,7 @@ public class RemoteUserDAO extends BaseRemoteDAO<UserDAO, UserService> implement
 
     @Override
     public Observable<User> getUserObservable(String id) {
-        // Get the remoteService for the user endpoints and returns an user observable.
+        // Get the remoteService for the getUserStatistic endpoints and returns an getUserStatistic observable.
         return remoteService.getUserObservable(id);
     }
 
@@ -76,7 +76,7 @@ public class RemoteUserDAO extends BaseRemoteDAO<UserDAO, UserService> implement
     public void createUser(User newUser) throws DataUpdateFailureException,
             ResourceConflictException {
         try {
-            // Get the remoteService for the user endpoints and initiate a call.
+            // Get the remoteService for the getUserStatistic endpoints and initiate a call.
             Call<ResponseBody> userCall = remoteService.createUser( // Workaround
                     new CreateUserRequest(newUser.getUsername(), newUser.getMail(), newUser.getToken(), true, true));
             executeCall(userCall);
@@ -98,18 +98,18 @@ public class RemoteUserDAO extends BaseRemoteDAO<UserDAO, UserService> implement
         update.setUsername(null);
         update.setToken(null);
 
-        // Get the remoteService for the user endpoints and initiate a call.
+        // Get the remoteService for the getUserStatistic endpoints and initiate a call.
         UserService userService = EnviroCarService.getUserService();
         Call<ResponseBody> userCall = userService.updateUser(user.getUsername(), update);
 
         try {
             // execute the call
-            Response<ResponseBody> userResponse = userCall.execute();
+            Response<ResponseBody> response = userCall.execute();
 
             // If the execution was not a success, then throw an error.
-            if (!userResponse.isSuccessful()) {
-                LOG.severe("updateUser(): Error while updating remote user");
-                EnvirocarServiceUtils.assertStatusCode(userResponse.code(), userResponse.message());
+            if (!response.isSuccessful()) {
+                LOG.severe("updateUser(): Error while updating remote getUserStatistic");
+                EnvirocarServiceUtils.assertStatusCode(response);
             }
         } catch (IOException e) {
             throw new DataUpdateFailureException(e);

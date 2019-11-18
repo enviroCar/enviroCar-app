@@ -98,15 +98,15 @@ public interface Track extends BaseEntity<Track>, Comparable<Track> {
 
     void setLastModified(long lastModified);
 
-    Long getStartTime() throws NoMeasurementsException;
+    Long getStartTime();
 
     void setStartTime(Long startTime);
 
-    Long getEndTime() throws NoMeasurementsException;
+    Long getEndTime();
 
     void setEndTime(Long endTime);
 
-    long getDuration() throws NoMeasurementsException;
+    long getDuration();
 
     long getDurationMillis();
 

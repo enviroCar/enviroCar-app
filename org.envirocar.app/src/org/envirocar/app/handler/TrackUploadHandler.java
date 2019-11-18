@@ -28,8 +28,9 @@ import org.envirocar.app.exception.GPSOnlyTrackCannotUploadException;
 import org.envirocar.app.exception.NotLoggedInException;
 import org.envirocar.app.exception.TrackAlreadyUploadedException;
 import org.envirocar.app.handler.agreement.AgreementManager;
-import org.envirocar.app.rxutils.ItemForwardSubscriber;
-import org.envirocar.app.rxutils.SingleItemForwardSubscriber;
+import org.envirocar.app.handler.preferences.CarPreferenceHandler;
+import org.envirocar.app.handler.preferences.UserPreferenceHandler;
+import org.envirocar.core.EnviroCarDB;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.exception.NoMeasurementsException;
@@ -37,17 +38,19 @@ import org.envirocar.core.exception.TrackWithNoValidCarException;
 import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.utils.TrackUtils;
-import org.envirocar.storage.EnviroCarDB;
 
 import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import rx.Observable;
-import rx.Subscriber;
-import rx.exceptions.OnErrorThrowable;
-import rx.functions.Func1;
+import io.reactivex.Observable;
+import io.reactivex.ObservableOperator;
+import io.reactivex.ObservableTransformer;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Function;
+import io.reactivex.observers.DisposableObserver;
+
 
 /**
  * Manager that can upload tracks and cars to the server.
@@ -65,7 +68,7 @@ public class TrackUploadHandler {
     private final CarPreferenceHandler mCarManager;
     private final DAOProvider mDAOProvider;
     private final TrackDAOHandler trackDAOHandler;
-    private final UserHandler mUserManager;
+    private final UserPreferenceHandler mUserManager;
     private final AgreementManager mAgreementManager;
 
     /**
@@ -80,7 +83,7 @@ public class TrackUploadHandler {
             CarPreferenceHandler carPreferenceHandler,
             DAOProvider daoProvider,
             TrackDAOHandler trackDAOHandler,
-            UserHandler userHandler,
+            UserPreferenceHandler userHandler,
             AgreementManager agreementManager) {
         this.mContext = context;
         this.mEnviroCarDB = enviroCarDB;
@@ -99,25 +102,50 @@ public class TrackUploadHandler {
      * @return an observable that uploads a single track.
      */
     public Observable<Track> uploadTrackObservable(Track track, Activity activity) {
-        return Observable.create(new Observable.OnSubscribe<Track>() {
-            @Override
-            public void call(Subscriber<? super Track> subscriber) {
-                LOG.info("uploadTrackObservable() start uploading.");
-                subscriber.onStart();
+        return Observable.create(emitter -> {
+            LOG.info("uploadTrackObservable() start uploading.");
+//                subscriber.onStart();
 
-                // Create a dialog with which the user can accept the terms of use.
-                subscriber.add(Observable.just(track)
-                        // Verify whether the TermsOfUSe have been accepted.
-                        // When the TermsOfUse have not been accepted, create an
-                        // Dialog to accept and continue when the user has accepted.
-                        .compose(AgreementManager.TermsOfUseValidator.create(mAgreementManager,
-                                activity))
-                        // Continue when the TermsOfUse has been accepted, otherwise
-                        // throw an error
-                        .flatMap(track1 -> uploadTrack(track1))
-                        // Only forward the results to the real subscriber.
-                        .subscribe(SingleItemForwardSubscriber.create(subscriber)));
-            }
+            // Create a dialog with which the getUserStatistic can accept the terms of use.
+            DisposableObserver disposable = Observable.just(track)
+                    // Verify whether the TermsOfUSe have been accepted.
+                    // When the TermsOfUse have not been accepted, create an
+                    // Dialog to accept and continue when the getUserStatistic has accepted.
+                    .compose(AgreementManager.TermsOfUseValidator.create(mAgreementManager, activity))
+                    // Continue when the TermsOfUse has been accepted, otherwise
+                    // throw an error
+                    .flatMap(this::uploadTrack)
+                    // Only forward the results to the real subscriber.
+                    .subscribeWith(new DisposableObserver<Track>() {
+                        @Override
+                        public void onNext(Track track) {
+                            emitter.onNext(track);
+                            emitter.onComplete();
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+                            LOG.error(e);
+                            emitter.onError(e);
+                        }
+
+                        @Override
+                        public void onComplete() {
+                            emitter.onComplete();
+                        }
+                    });
+
+            emitter.setDisposable(new Disposable() {
+                @Override
+                public void dispose() {
+                    disposable.dispose();
+                }
+
+                @Override
+                public boolean isDisposed() {
+                    return disposable.isDisposed();
+                }
+            });
         });
     }
 
@@ -140,8 +168,8 @@ public class TrackUploadHandler {
      * Returns an observable that uploads a list of tracks. If a track did not contain enough
      * measurements, i.e. the track obfuscation is throwing a {@link NoMeasurementsException},
      * then it returns null to its subscriber. In case when the terms of use has not been
-     * accepted for the specific user and the input parameter is not null, then it automatically
-     * creates a dialog where the user can accept the terms of use.
+     * accepted for the specific getUserStatistic and the input parameter is not null, then it automatically
+     * creates a dialog where the getUserStatistic can accept the terms of use.
      *
      * @param tracks                the list of tracks to upload.
      * @param abortOnNoMeasurements if true, then it also closes the complete stream. Otherwise,
@@ -156,10 +184,9 @@ public class TrackUploadHandler {
                 "Input tracks cannot be null or empty.");
         return Observable.just(tracks)
                 .compose(AgreementManager.TermsOfUseValidator.create(mAgreementManager, activity))
-                .flatMap(tracks1 -> Observable.from(tracks1))
-                .concatMap(track -> uploadTrack(track)
-                        .first()
-                        .lift(getUploadTracksOperator(abortOnNoMeasurements)));
+                .flatMap(tracks1 -> Observable.fromIterable(tracks1))
+                .concatMap(track -> uploadTrack(track));
+//                        .lift(getUploadTracksOperator(abortOnNoMeasurements)));
     }
 
     private Observable<Track> uploadTrack(Track track) {
@@ -179,44 +206,37 @@ public class TrackUploadHandler {
                 .flatMap(uploadedTrack -> mEnviroCarDB.updateTrackObservable(uploadedTrack));
     }
 
-    private Func1<Track, Track> validateRequirementsForUpload() {
-        return new Func1<Track, Track>() {
-            @Override
-            public Track call(Track track) {
-                if (!track.isLocalTrack()) {
-                    String infoText = String.format(mContext.getString(R.string
-                            .trackviews_is_already_uploaded), track.getName());
-                    LOG.warn(infoText);
-                    throw OnErrorThrowable.from(new TrackAlreadyUploadedException(infoText));
-                } else if (track.getCar() == null) {
-                    String infoText = "Track has no car set. Please delete this track.";
-                    LOG.warn(infoText);
-                    throw OnErrorThrowable.from(new TrackWithNoValidCarException(infoText));
-                } else if (!mUserManager.isLoggedIn()) {
-                    String infoText = mContext.getString(R.string.trackviews_not_logged_in);
-                    LOG.info(infoText);
-                    throw OnErrorThrowable.from(new NotLoggedInException(infoText));
-                } else if (!track.hasProperty(Measurement.PropertyKey.SPEED)){
-                    String infoText = mContext.getString(R.string.trackviews_cannot_upload_gps_tracks);
-                    LOG.info(infoText);
-                    throw OnErrorThrowable.from(new GPSOnlyTrackCannotUploadException(infoText));
-                }
-                return track;
+    private Function<Track, Track> validateRequirementsForUpload() {
+        return track -> {
+            if (!track.isLocalTrack()) {
+                String infoText = String.format(mContext.getString(R.string
+                        .trackviews_is_already_uploaded), track.getName());
+                LOG.warn(infoText);
+                throw new TrackAlreadyUploadedException(infoText);
+            } else if (track.getCar() == null) {
+                String infoText = "Track has no car set. Please delete this track.";
+                LOG.warn(infoText);
+                throw new TrackWithNoValidCarException(infoText);
+            } else if (!mUserManager.isLoggedIn()) {
+                String infoText = mContext.getString(R.string.trackviews_not_logged_in);
+                LOG.info(infoText);
+                throw new NotLoggedInException(infoText);
+            } else if (!track.hasProperty(Measurement.PropertyKey.SPEED)) {
+                String infoText = mContext.getString(R.string.trackviews_cannot_upload_gps_tracks);
+                LOG.info(infoText);
+                throw new GPSOnlyTrackCannotUploadException(infoText);
             }
+            return track;
         };
     }
 
-    private Func1<Track, Track> asObfuscatedTrackWhenChecked() {
+    private Function<Track, Track> asObfuscatedTrackWhenChecked() {
         return track -> {
             LOG.info("asObfuscatedTrackWhenChecked()");
-            if (PreferencesHandler.isObfuscationEnabled(mContext)) {
+            if (ApplicationSettings.isObfuscationEnabled(mContext)) {
                 LOG.info(String.format("obfuscation is enabled. Obfuscating track with %s " +
                         "measurements.", "" + track.getMeasurements().size()));
-                try {
-                    return TrackUtils.getObfuscatedTrack(track);
-                } catch (NoMeasurementsException e) {
-                    throw OnErrorThrowable.from(e);
-                }
+                return TrackUtils.getObfuscatedTrack(track);
             } else {
                 LOG.info("obfuscation is disabled.");
                 return track;
@@ -224,7 +244,7 @@ public class TrackUploadHandler {
         };
     }
 
-    private Observable.Transformer<Track, Track> validateCarOfTrack() {
+    private ObservableTransformer<Track, Track> validateCarOfTrack() {
         return trackObservable -> trackObservable.flatMap(
                 track -> mCarManager
                         .assertTemporaryCar(track.getCar())
@@ -234,26 +254,38 @@ public class TrackUploadHandler {
                         }));
     }
 
-    private Observable.Transformer<Track, Track> updateTrackMetadata() {
+    private ObservableTransformer<Track, Track> updateTrackMetadata() {
         return trackObservable -> trackObservable.flatMap(
                 track -> trackDAOHandler
                         .updateTrackMetadataObservable(track, mUserManager.getUser().getTermsOfUseVersion())
                         .map(trackMetadata -> track));
     }
 
-    private Observable.Operator<Track, Track> getUploadTracksOperator(boolean abortOnNoMeasurements) {
-        return subscriber -> new ItemForwardSubscriber<Track>((Subscriber<Track>) subscriber) {
+    private ObservableOperator<Track, Track> getUploadTracksOperator(boolean abortOnNoMeasurements) {
+        return observer -> new DisposableObserver<Track>() {
+
+            @Override
+            public void onNext(Track track) {
+
+            }
+
             @Override
             public void onError(Throwable e) {
                 LOG.info("onError() Track has not enough measurements to upload.");
                 if (!abortOnNoMeasurements && e.getCause() instanceof NoMeasurementsException) {
-                    subscriber.onNext(null);
-                    onCompleted();
+                    observer.onNext(null);
+                    onComplete();
                 } else {
-                    subscriber.onError(e);
-                    unsubscribe();
+                    observer.onError(e);
+                    dispose();
                 }
             }
+
+            @Override
+            public void onComplete() {
+
+            }
+
         };
     }
 }

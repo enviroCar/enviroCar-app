@@ -19,31 +19,34 @@
 package org.envirocar.core.exception;
 
 
-
 public class NotConnectedException extends DAOException {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	private int httpStatus;
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
+    private int httpStatus;
 
-	public NotConnectedException(String m) {
-		super(m);
-	}
+    public NotConnectedException(){
+        this("No network connection available.");
+    }
 
-	public NotConnectedException(Exception e) {
-		super(e);
-	}
+    public NotConnectedException(String m) {
+        super(m);
+    }
 
-	public NotConnectedException(Exception e, int httpStatusCode) {
-		super(e);
-		this.httpStatus = httpStatusCode;
-	}
+    public NotConnectedException(Exception e) {
+        super(e);
+    }
 
-	public int getHttpStatus() {
-		return httpStatus;
-	}
-	
-	
+    public NotConnectedException(Exception e, int httpStatusCode) {
+        super(e);
+        this.httpStatus = httpStatusCode;
+    }
+
+    public int getHttpStatus() {
+        return httpStatus;
+    }
+
+
 }

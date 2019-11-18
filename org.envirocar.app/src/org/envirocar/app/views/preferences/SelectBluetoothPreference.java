@@ -26,11 +26,11 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.ListView;
 
-import org.envirocar.app.main.BaseApplication;
+import org.envirocar.app.BaseApplication;
 import org.envirocar.app.R;
+import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.views.preferences.bluetooth.SelectBluetoothAdapter;
-import org.envirocar.app.handler.PreferenceConstants;
 
 import java.util.ArrayList;
 import java.util.Set;
@@ -131,11 +131,7 @@ public class SelectBluetoothPreference extends DialogPreference {
                 persistString(device.getAddress());
 
                 // Update the shared preference entry for the bluetooth selection tag.
-                getSharedPreferences().edit()
-                        .putString(PreferenceConstants.PREF_BLUETOOTH_NAME, device.getName())
-                        .putString(PreferenceConstants.PREF_BLUETOOTH_ADDRESS, device
-                                .getAddress())
-                        .commit();
+                ApplicationSettings.setSelectedBluetoothAdapter(getContext(), device);
             }
         }
     }

@@ -100,8 +100,7 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
         final Car car = mCars.get(position);
 
         // Then inflate a new view for the car and create a holder
-        LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context
-                .LAYOUT_INFLATER_SERVICE);
+        LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         CarViewHolder holder = null;
         if (convertView == null) {
@@ -114,12 +113,10 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
         }
 
         // set the views
-        holder.mFirstLineText.setText(String.format("%s - %s", car.getManufacturer(), car
-                .getModel()));
+        holder.mFirstLineText.setText(String.format("%s - %s", car.getManufacturer(), car.getModel()));
         holder.mYearText.setText(Integer.toString(car.getConstructionYear()));
-        holder.mGasolineText.setText(car.getFuelType().toString());
-        holder.mEngineText.setText(String.format("%s ccm",
-                Integer.toString(car.getEngineDisplacement())));
+        holder.mGasolineText.setText(mContext.getString(car.getFuelType().getStringResource()));
+        holder.mEngineText.setText(String.format("%s cm³", Integer.toString(car.getEngineDisplacement())));
 
         // If this car is the selected car, then set the radio button checked.
         if (mSelectedCar != null && mSelectedCar.equals(car)) {

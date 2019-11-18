@@ -30,6 +30,8 @@ import org.envirocar.obd.exception.InvalidCommandResponseException;
 import org.envirocar.obd.exception.NoDataReceivedException;
 import org.envirocar.obd.exception.StreamFinishedException;
 import org.envirocar.obd.exception.UnmatchedResponseException;
+import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,9 +40,10 @@ import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import rx.Observable;
-import rx.Subscriber;
-import rx.Subscription;
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
+
 
 /**
  * Created by matthes on 03.11.15.
@@ -79,48 +82,42 @@ public abstract class AsyncAdapter implements OBDAdapter {
         /**
          *
          */
-        Observable<Boolean> observable = Observable.create(new Observable.OnSubscribe<Boolean>() {
-            @Override
-            public void call(final Subscriber<? super Boolean> subscriber) {
-                while (!subscriber.isUnsubscribed()) {
-                    /**
-                     * poll the next possible command
-                     */
-                    BasicCommand cmd = pollNextCommand();
-                    if (cmd != null) {
-                        try {
-                            commandExecutor.execute(cmd);
-                        } catch (IOException e) {
-                            subscriber.onError(e);
-                            subscriber.unsubscribe();
-                        }
-                    }
-
+        Observable<Boolean> observable = Observable.create(emitter -> {
+            while (!emitter.isDisposed()) {
+                /**
+                 * poll the next possible command
+                 */
+                BasicCommand cmd = pollNextCommand();
+                if (cmd != null) {
                     try {
-                        byte[] response = commandExecutor.retrieveLatestResponse();
-
-                        processResponse(response);
-
-                        if (hasEstablishedConnection()) {
-                            subscriber.onNext(true);
-                            subscriber.onCompleted();
-                        }
-
+                        commandExecutor.execute(cmd);
                     } catch (IOException e) {
-                        subscriber.onError(e);
-                        subscriber.unsubscribe();
-                    } catch (StreamFinishedException e) {
-                        subscriber.onError(e);
-                        subscriber.unsubscribe();
-                    } catch (InvalidCommandResponseException e) {
-                        LOGGER.warn(e.getMessage(), e);
-                    } catch (NoDataReceivedException e) {
-                        LOGGER.warn(e.getMessage(), e);
-                    } catch (UnmatchedResponseException e) {
-                        LOGGER.warn(e.getMessage(), e);
-                    } catch (AdapterSearchingException e) {
-                        LOGGER.warn(e.getMessage(), e);
+                        emitter.onError(e);
                     }
+                }
+
+                try {
+                    byte[] response = commandExecutor.retrieveLatestResponse();
+
+                    processResponse(response);
+
+                    if (hasEstablishedConnection()) {
+                        emitter.onNext(true);
+                        emitter.onComplete();
+                    }
+
+                } catch (IOException e) {
+                    emitter.onError(e);
+                } catch (StreamFinishedException e) {
+                    emitter.onError(e);
+                } catch (InvalidCommandResponseException e) {
+                    LOGGER.warn(e.getMessage(), e);
+                } catch (NoDataReceivedException e) {
+                    LOGGER.warn(e.getMessage(), e);
+                } catch (UnmatchedResponseException e) {
+                    LOGGER.warn(e.getMessage(), e);
+                } catch (AdapterSearchingException e) {
+                    LOGGER.warn(e.getMessage(), e);
                 }
             }
         });
@@ -140,75 +137,70 @@ public abstract class AsyncAdapter implements OBDAdapter {
 
     protected Observable<DataResponse> createDataObservable() {
 
-        Observable<DataResponse> dataObservable = Observable.create(new Observable.OnSubscribe<DataResponse>() {
-            @Override
-            public void call(Subscriber<? super DataResponse> subscriber) {
-
-                while (!subscriber.isUnsubscribed()) {
-                    /**
-                     * poll the next possible command
-                     */
-                    BasicCommand cmd = pollNextCommand();
-                    if (cmd != null) {
-                        try {
-                            commandExecutor.execute(cmd);
-                        } catch (IOException e) {
-                            subscriber.onError(e);
-                            subscriber.unsubscribe();
-                        }
-                    }
-
-                    /**
-                     * read the inputstream byte by byte
-                     */
+        Observable<DataResponse> dataObservable = ((Observable) Observable.create(subscriber -> {
+            while (!subscriber.isDisposed()) {
+                /**
+                 * poll the next possible command
+                 */
+                BasicCommand cmd = pollNextCommand();
+                if (cmd != null) {
                     try {
-                        byte[] bytes = commandExecutor.retrieveLatestResponse();
-
-                        try {
-                            DataResponse result = processResponse(bytes);
-
-                            /**
-                             * call our subscriber!
-                             */
-                            if (result != null) {
-                                subscriber.onNext(result);
-
-                                if (LOGGER.isEnabled(Logger.DEBUG)) {
-                                    if (result instanceof LambdaProbeVoltageResponse) {
-                                        LOGGER.debug("Received lambda voltage: "+result);
-                                    }
-                                }
-                            }
-                        } catch (AdapterSearchingException e) {
-                            LOGGER.warn("Adapter still searching: " + e.getMessage());
-                        } catch (NoDataReceivedException e) {
-                            LOGGER.warn("No data received: " + e.getMessage());
-                        } catch (InvalidCommandResponseException e) {
-                            LOGGER.warn("InvalidCommandResponseException: " + e.getMessage());
-                        } catch (UnmatchedResponseException e) {
-                            LOGGER.warn("Unmatched response: " + e.getMessage());
-                        }
-
+                        commandExecutor.execute(cmd);
                     } catch (IOException e) {
-                        /**
-                         * IOException signals broken connection,
-                         * notify subscriber accordingly
-                         */
                         subscriber.onError(e);
-                        return;
-                    } catch (StreamFinishedException e) {
-                        /**
-                         * the stream has ended, notify the subscriber
-                         */
-                        LOGGER.info("The stream was closed: "+e.getMessage());
-                        subscriber.onCompleted();
-                        return;
                     }
                 }
 
-                subscriber.onCompleted();
+                /**
+                 * read the inputstream byte by byte
+                 */
+                try {
+                    byte[] bytes = commandExecutor.retrieveLatestResponse();
+
+                    try {
+                        DataResponse result = processResponse(bytes);
+
+                        /**
+                         * call our subscriber!
+                         */
+                        if (result != null) {
+                            subscriber.onNext(result);
+
+                            if (LOGGER.isEnabled(Logger.DEBUG)) {
+                                if (result instanceof LambdaProbeVoltageResponse) {
+                                    LOGGER.debug("Received lambda voltage: " + result);
+                                }
+                            }
+                        }
+                    } catch (AdapterSearchingException e) {
+                        LOGGER.warn("Adapter still searching: " + e.getMessage());
+                    } catch (NoDataReceivedException e) {
+                        LOGGER.warn("No data received: " + e.getMessage());
+                    } catch (InvalidCommandResponseException e) {
+                        LOGGER.warn("InvalidCommandResponseException: " + e.getMessage());
+                    } catch (UnmatchedResponseException e) {
+                        LOGGER.warn("Unmatched response: " + e.getMessage());
+                    }
+
+                } catch (IOException e) {
+                    /**
+                     * IOException signals broken connection,
+                     * notify subscriber accordingly
+                     */
+                    subscriber.onError(e);
+                    return;
+                } catch (StreamFinishedException e) {
+                    /**
+                     * the stream has ended, notify the subscriber
+                     */
+                    LOGGER.info("The stream was closed: " + e.getMessage());
+                    subscriber.onComplete();
+                    return;
+                }
             }
-        }).timeout(DEFAULT_NO_DATA_TIMEOUT, TimeUnit.MILLISECONDS);
+
+            subscriber.onComplete();
+        }).timeout(DEFAULT_NO_DATA_TIMEOUT, TimeUnit.MILLISECONDS));
 
         return dataObservable;
     }

@@ -23,6 +23,7 @@
     <string name="track_list_local_tracks">Local</string>
     <string name="track_list_remote_tracks">Uploaded</string>
 
+    <string name="track_list_uploading_tracks">Uploading Tracks...</string>
     <string name="track_list_deleting_track">Deleting track...</string>
     <string name="track_list_deleting_track_unauthorized">Unable to delete the track, because the logged in user is not authorized to do that.</string>
     <string name="track_list_communication_error">No connection to the server.</string>
@@ -72,5 +73,7 @@
     <string name="track_list_upload_all_tracks_title">Upload All Local Tracks?</string>
     <string name="track_list_upload_all_tracks_content">You are about to upload all tracks. This means that all tracks will be uploaded and assigned to your account.\n\nDo you want to continue?</string>
     <string name="track_list_uploading_please_wait">Please wait...</string>
+
+    <string name="track_list_details_subtitle_template">Your Track with %s %s on %s.</string>
 
 </resources>

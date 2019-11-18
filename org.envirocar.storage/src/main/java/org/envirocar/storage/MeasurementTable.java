@@ -24,7 +24,6 @@ import android.database.Cursor;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.MeasurementImpl;
 import org.envirocar.core.entity.Track;
-import org.envirocar.core.exception.MeasurementSerializationException;
 import org.envirocar.core.logging.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -34,7 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import rx.functions.Func1;
+import io.reactivex.functions.Function;
 
 /**
  * TODO JavaDoc
@@ -64,12 +63,7 @@ class MeasurementTable {
     protected static final String DELETE =
             "DROP TABLE IF EXISTS " + TABLE_NAME;
 
-    protected static final Func1<Cursor, Measurement> MAPPER = new Func1<Cursor, Measurement>() {
-        @Override
-        public Measurement call(Cursor cursor) {
-            return fromCursor(cursor);
-        }
-    };
+    protected static final Function<Cursor, Measurement> MAPPER = cursor -> fromCursor(cursor);
 
     public static ContentValues toContentValues(Measurement measurement) {
         ContentValues values = new ContentValues();
@@ -88,7 +82,7 @@ class MeasurementTable {
             try {
                 result.put(key.name(), properties.get(key));
             } catch (JSONException e) {
-                LOG.warn("Error while parsing measurement property "+key.name() +"="+properties.get(key) + "; "+e.getMessage());
+                LOG.warn("Error while parsing measurement property " + key.name() + "=" + properties.get(key) + "; " + e.getMessage());
             }
         }
         return result.toString();

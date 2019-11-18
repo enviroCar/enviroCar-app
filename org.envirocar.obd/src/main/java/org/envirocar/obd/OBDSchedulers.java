@@ -20,8 +20,8 @@ package org.envirocar.obd;
 
 import java.util.concurrent.Executors;
 
-import rx.Scheduler;
-import rx.schedulers.Schedulers;
+import io.reactivex.Scheduler;
+import io.reactivex.schedulers.Schedulers;
 
 public class OBDSchedulers {
 

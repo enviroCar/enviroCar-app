@@ -20,6 +20,9 @@
 
 -->
 <resources>
+    <string name="dashboard_mode_obd_and_gps">OBD Fahrt</string>
+    <string name="dashboard_mode_gps_only">GPS Fahrt</string>
+
     <string name="dashboard_start_track">AUFZEICHNUNG STARTEN</string>
     <string name="dashboard_goto_track">Gehe zur Aufzeichnung</string>
     <string name="dashboard_track_is_starting">AUFZEICHNUNG WIRD GESTARTET...</string>
@@ -28,6 +31,8 @@
     <string name="dashboard_connecting">Starte Aufzeichnung...</string>
     <string name="dashboard_connecting_find_template">Suche nach OBD \'%s\'.</string>
     <string name="dashboard_connecting_found_template">\'%s\' gefunden. Stelle Verbindung her.</string>
+
+    <string name="dashboard_recording_settings_header">Einstellungen</string>
 
     <string name="dashboard_dialog_stop_track">Aufzeichnung beenden?</string>
     <string name="dashboard_dialog_stop_track_content">Möchten Sie wirklich die Aufzeichung beenden und die derzeitige Fahrt finalisieren?</string>
@@ -39,9 +44,9 @@
     <string name="dashboard_bluetooth_disabled_advise">Bitte aktivieren Sie Bluetooth.</string>
 
     <string name="dashboard_obd_not_selected">Kein OBDII Adapter ausgewählt</string>
-    <string name="dashboard_obd_not_selected_advise">Hier klicken um einen auszuwählen</string>
+    <string name="dashboard_obd_not_selected_advise">Zur Auswahl</string>
     <string name="dashboard_carselection_no_car_selected">Kein Auto ausgewählt</string>
-    <string name="dashboard_carselection_no_car_selected_advise">Hier klicken um eines zu erstellen/auszuwählen</string>
+    <string name="dashboard_carselection_no_car_selected_advise">Zur Auswahl</string>
 
     <string name="permission_rationale_location">Für die Kernfunktionalität ist eine Standortberechtigung erforderlich.</string>
     <string name="permission_rationale_file">Für die Protokollierung und Freigabe eines Tracks ist eine Speicherberechtigung erforderlich. Wenn Sie die beiden nicht möchten, klicken Sie bitte auf Nicht mehr fragen im nächsten Bildschirm.</string>
@@ -60,8 +65,7 @@
     <string name="gps_automatic_enabled_error_positive">Ja</string>
     <string name="gps_automatic_enabled_error_negative">Nein</string>
 
-    <string name="dashboard_my_local_tracks">Lokale Fahrten</string>
-    <string name="dashboard_my_remote_tracks">Online Fahrten</string>
-    <string name="dashboard_total_tracks">Fahrten in eC</string>
-    <string name="dashboard_total_distance">Entfernung</string>
+    <string name="dashboard_total_tracks">Fahrten</string>
+    <string name="dashboard_total_distance">Gesamtstrecke</string>
+    <string name="dashboard_total_duration">Gesamtzeit</string>
 </resources>

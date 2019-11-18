@@ -23,8 +23,6 @@ import android.location.Location;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.algorithm.AbstractMeasurementProvider;
-import org.envirocar.app.services.recording.GPSOnlyRecordingService;
-import org.envirocar.app.services.recording.OBDRecordingService;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.MeasurementImpl;
 import org.envirocar.core.events.gps.GpsDOP;
@@ -33,15 +31,14 @@ import org.envirocar.core.events.gps.GpsLocationChangedEvent;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.obd.events.PropertyKeyEvent;
 import org.envirocar.obd.events.Timestamped;
-import org.envirocar.obd.service.BluetoothServiceState;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import rx.Observable;
-import rx.Subscriber;
+import io.reactivex.Observable;
+
 
 /**
  * TODO JavaDoc
@@ -59,39 +56,32 @@ public class InterpolationMeasurementProvider extends AbstractMeasurementProvide
      */
     @Override
     public Observable<Measurement> measurements(long samplingRate) {
-        return Observable.create(new Observable.OnSubscribe<Measurement>() {
-            @Override
-            public void call(Subscriber<? super Measurement> subscriber) {
-                LOG.info("measurements(): start collecting data");
-                subscriber.onStart();
+        return Observable.create(emitter -> {
+            LOG.info("measurements(): start collecting data");
+            while (!emitter.isDisposed()) {
+                synchronized (InterpolationMeasurementProvider.this) {
+                    /**
+                     * wait the sampling rate
+                     */
+                    try {
+                        InterpolationMeasurementProvider.this.wait(samplingRate);
+                    } catch (InterruptedException e) {
+                        if (!emitter.isDisposed())
+                            emitter.onError(e);
+                    }
 
-                while (!subscriber.isUnsubscribed()) {
-                    synchronized (InterpolationMeasurementProvider.this) {
-                        /**
-                         * wait the sampling rate
-                         */
-                        try {
-                            InterpolationMeasurementProvider.this.wait(samplingRate);
-                        } catch (InterruptedException e) {
-                            subscriber.onError(e);
-                        }
+                    Measurement m = createMeasurement();
 
-                        Measurement m = createMeasurement();
-
-                        if (OBDRecordingService.CURRENT_SERVICE_STATE == BluetoothServiceState.SERVICE_STARTED) {
-                            if (m != null && m.getLatitude() != null && m.getLongitude() != null && m.hasProperty(Measurement.PropertyKey.SPEED)) {
-                                subscriber.onNext(m);
-                            }
-                        } else if (GPSOnlyRecordingService.CURRENT_SERVICE_STATE == BluetoothServiceState.SERVICE_STARTED) {
-                            if (m != null && m.getLatitude() != null && m.getLongitude() != null && GPSOnlyRecordingService.drivingDetected) {
-                                subscriber.onNext(m);
-                            }
-                        }
+                    if (m != null && m.getLatitude() != null && m.getLongitude() != null &&
+                            (m.hasProperty(Measurement.PropertyKey.SPEED) ||
+                                    m.hasProperty(Measurement.PropertyKey.GPS_SPEED))) {
+                        LOG.info("Emitting next measuremnet");
+                        emitter.onNext(m);
                     }
                 }
-                LOG.info("measurements(): finished the collection of data.");
-                subscriber.onCompleted();
             }
+            LOG.info("measurements(): finished the collection of data.");
+            emitter.onComplete();
         });
     }
 
@@ -107,6 +97,7 @@ public class InterpolationMeasurementProvider extends AbstractMeasurementProvide
 
         for (Measurement.PropertyKey pk : this.bufferedResponses.keySet()) {
             appendToMeasurement(pk, this.bufferedResponses.get(pk), m);
+            LOG.info("append key " + pk.toString());
         }
 
         /**
@@ -273,8 +264,7 @@ public class InterpolationMeasurementProvider extends AbstractMeasurementProvide
         Location location = loc.mLocation;
         long now = System.currentTimeMillis();
 
-        newPosition(new Position(now,
-                location.getLatitude(), location.getLongitude()));
+        newPosition(new Position(now, location.getLatitude(), location.getLongitude()));
 
         if (location.hasAccuracy()) {
             consider(new PropertyKeyEvent(Measurement.PropertyKey.GPS_ACCURACY, location

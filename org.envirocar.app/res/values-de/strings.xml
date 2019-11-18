@@ -20,16 +20,29 @@
 
 -->
 <resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- ################# -->
+    <!--  General Strings  -->
+    <!-- ################# -->
+    <string name="username">Nutzername</string>
+    <string name="password">Passwort</string>
+    <string name="confirm_password">Passwort bestätigen</string>
+    <string name="login">Anmelden</string>
+    <string name="sign_in">Anmeldung</string>
+    <string name="sign_up">Registrierung</string>
+    <string name="email">E-Mail</string>
+
+
+    <string name="login_register">Einloggen/Registrieren</string>
     <string name="today">Heute</string>
     <string name="yesterday">Gestern</string>
 
     <string name="cancel">Abbrechen</string>
 
-    <string name="fuel_type">Treibstoff Art</string>
-    <string name="car">Auto</string>
+    <string name="fuel_type">Kraftstoffart</string>
+    <string name="car">Fahrzeug</string>
 
     <string name="menu_delete">Löschen</string>
-	<string name="default_track_description">Fahrt mit Auto %s.</string>
+	<string name="default_track_description">Fahrt mit Fahrzeug %s.</string>
 
     <string name="gasoline">Benzin</string>
     <string name="diesel">Diesel</string>
@@ -58,11 +71,57 @@
 	<string name="send_log_comments_label">(Kommentar)</string>
 	<string name="send_log_time_past_hint">(vergangene Zeit seit Problem)</string>
 
-    <string name="track_finished">Track abgeschlossen: </string>
-    <string name="track_finishing_failed">Abschließen des Tracks fehlgeschlagen</string>
-    <string name="track_finished_no_measurements">Der abzuschließende Track enthielt keine Messungen</string>
+    <string name="track_finished">Fahrt abgeschlossen: </string>
+    <string name="track_finishing_failed">Abschließen der Fahrt fehlgeschlagen</string>
+    <string name="track_finished_no_measurements">Die abzuschließende Fahrt enthielt keine Messungen</string>
 	<string name="general_error_please_report">Programmfehler - Bitte melden Sie das Problem</string>
 
     <string name="submit">Absenden</string>
+
+    <!-- ################# -->
+    <!-- Send Error Report -->
+    <!-- ################# -->
+    <string name="report_issue_header">Fehler melden</string>
+    <string name="report_issue_summary">Kurzbeschreibung</string>
+    <string name="report_issue_time_since_crash">Ungefährer Zeitpunkt:</string>
+    <string name="report_issue_minutes">10:00</string>
+
+    <string name="report_issue_text">
+        Zeitstempel werden automatisch in die Protokolle aufgenommen. Das Senden von Berichten an uns hilft uns,
+        unerwartetes Verhalten oder Abstürze zu reproduzieren. Das macht enviroCar besser und stabiler.
+        Klicken Sie auf die Schaltfläche Senden unten, um diesen Bericht per E-Mail an uns zu senden.</string>
+    <string name="report_issue_bottom_text">Diese Funktion verwendet die Standardeinstellung \"Senden an\".
+        Wenn Sie es mit Ihrem E-Mail-Client aufrufen, können Sie den Bericht ganz einfach per E-Mail versenden.
+        Wenn Sie keinen E-Mail-Client installiert haben, können Sie die Protokolldatei auf einem PC speichern,
+        z.B. über Bluetooth oder USB. \n\nIn solchen Fällen bitten wir Sie, das Berichtspaket manuell einzusenden.
+        Sie werden an den folgenden Stellen aufbewahrt:</string>
+    <string name="report_issue_desc_text">Eine detailliertere Beschreibung</string>
+    <string name="report_issue_button">Bericht Absenden</string>
+    <string-array name="report_issue_subject_header">
+        <item>Absturz der App</item>
+        <item>Plötzliche Verzögerungen</item>
+        <item>App reagierte nicht</item>
+        <item>Eine Komponente funktioniert nicht wie erwartet</item>
+        <item>Anfrage zur Integration einer Funktionalität</item>
+    </string-array>
+    <string-array name="report_issue_subject_tags">
+        <item>[CRASH]</item>
+        <item>[LAG]</item>
+        <item>[UNRES]</item>
+        <item>[UNEXPECTED BEHAVIOR]</item>
+        <item>[FEATURE REQ]</item>
+    </string-array>
+
+    <!-- ################# -->
+    <!--   Notifications   -->
+    <!-- ################# -->
+    <string name="notification_autorecording_active_title">Automatische Aufzeichnung ist Aktiv</string>
+    <string name="notification_autorecording_active_subtext">Versuche eine Verbindung zu %s herzustellen.</string>
+
+    <string name="notification_autorecording_precondition_error_title">enviroCar Vorbedingung nicht erfüllt</string>
+    <string name="notification_autorecording_no_obd_selected_subtext">Kein gepaarter OBD-II-Adapter ausgewählt. Bitte gehen Sie zu den OBD-Einstellungen und wählen Sie einen aus.</string>
+    <string name="notification_autorecording_no_car_selected_subtext">Kein Fahrzeug ausgewählt. Bitte gehen Sie zur Fahrzeugauswahl und wählen Sie eins aus.</string>
+    <string name="notification_autorecording_gps_disabled_subtext">GPS ist deaktiviert. Bitte aktivieren Sie Ihr GPS.</string>
+    <string name="notification_autorecording_bluetooth_disabled_subtext">Bluetooth ist deaktiviert. Bitte aktivieren Sie Ihr Bluetooth.</string>
 
 </resources>

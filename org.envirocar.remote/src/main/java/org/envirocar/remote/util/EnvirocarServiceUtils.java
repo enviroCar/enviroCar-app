@@ -30,7 +30,7 @@ import org.envirocar.core.exception.NotConnectedException;
 import org.envirocar.core.exception.ResourceConflictException;
 import org.envirocar.core.exception.UnauthorizedException;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.core.util.Util;
+import org.envirocar.core.utils.TrackUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,6 +50,7 @@ public class EnvirocarServiceUtils {
     public static final int HTTP_FORBIDDEN = 403;
     public static final int HTTP_NOT_FOUND = 404;
     public static final int HTTP_CONFLICT = 409;
+    public static final int HTTP_LEGAL_REASONS = 451;
 
     /**
      * Searches a given link string for the 'rel=last' value. A link string can look like this:
@@ -116,14 +117,21 @@ public class EnvirocarServiceUtils {
         return null;
     }
 
-    public static final void assertStatusCode(int httpStatusCode, String error)
-            throws UnauthorizedException, NotConnectedException, ResourceConflictException {
-        assertStatusCode(httpStatusCode, error, error);
+//    public static final void assertStatusCode(int httpStatusCode, String error)
+//            throws UnauthorizedException, NotConnectedException, ResourceConflictException {
+//        assertStatusCode(httpStatusCode, error, error);
+//    }
+
+    public static final void assertStatusCode(Response<?> response) throws
+            UnauthorizedException, NotConnectedException, ResourceConflictException {
+        assertStatusCode(response.code(), response.errorBody().toString(), response.body().toString());
     }
 
     public static final void assertStatusCode(int httpStatusCode, String error, String body) throws
             UnauthorizedException, NotConnectedException, ResourceConflictException {
+        LOG.info("Assert Status code " + httpStatusCode + " " + error);
         if (httpStatusCode >= HTTP_MULTIPLE_CHOICES) {
+            LOG.info(body);
             if (httpStatusCode == HTTP_UNAUTHORIZED || httpStatusCode == HTTP_FORBIDDEN) {
                 if (body != null) {
                     if (body.contains("mail not confirmed"))
@@ -134,12 +142,15 @@ public class EnvirocarServiceUtils {
                 if (body != null) {
                     if (body.contains("name already exists")) {
                         throw new ResourceConflictException(error, ResourceConflictException.ConflictType.USERNAME);
-                    } else if (body.contains("mail already exists")){
+                    } else if (body.contains("mail already exists")) {
                         throw new ResourceConflictException(error, ResourceConflictException.ConflictType.MAIL);
                     }
                 } else {
                     throw new ResourceConflictException(error);
                 }
+            } else if (httpStatusCode == HTTP_LEGAL_REASONS) {
+                // TODO
+                throw new NotConnectedException("Legal reasons response: " + httpStatusCode + ": " + error);
             } else {
                 throw new NotConnectedException("Unsupported Server response: " + httpStatusCode + "; " + error);
             }
@@ -278,14 +289,14 @@ public class EnvirocarServiceUtils {
                     /*
                      * ignore early and late
                      */
-                    if (isTemporalObfuscationCandidate(measurement, track)) {
+                    if (TrackUtils.isTemporalObfuscated(measurement, track)) {
                         continue;
                     }
 
                     /*
                      * ignore distance
                      */
-                    if (isSpatialObfuscationCandidate(measurement, track)) {
+                    if (TrackUtils.isSpatialObfuscated(measurement, track)) {
                         if (wasAtLeastOneTimeNotObfuscated) {
                             privateCandidates.add(measurement);
                             nonPrivateMeasurements.add(measurement);
@@ -322,23 +333,4 @@ public class EnvirocarServiceUtils {
         return track;
     }
 
-    /**
-     * TODO a circular criteria could lead to
-     *
-     * @param measurement
-     * @param track
-     * @return
-     */
-    private static boolean isSpatialObfuscationCandidate(Measurement measurement, Track track)
-            throws NoMeasurementsException {
-        return (Util.getDistance(track.getFirstMeasurement(), measurement) <= 0.25)
-                || (Util.getDistance(track.getLastMeasurement(), measurement) <= 0.25);
-    }
-
-    private static boolean isTemporalObfuscationCandidate(Measurement measurement, Track track)
-            throws
-            NoMeasurementsException {
-        return (measurement.getTime() - track.getStartTime() <= 60000 ||
-                track.getEndTime() - measurement.getTime() <= 60000);
-    }
 }

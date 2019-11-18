@@ -29,7 +29,7 @@ import org.envirocar.core.entity.TrackImpl;
 import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.exception.TrackAlreadyFinishedException;
 import org.envirocar.core.utils.TrackUtils;
-import org.envirocar.remote.serializer.TrackSerializer;
+import org.envirocar.remote.serde.TrackSerde;
 import org.hamcrest.CoreMatchers;
 import org.json.JSONException;
 import org.junit.Assert;
@@ -63,7 +63,7 @@ public class ObfuscationTest extends InstrumentationTestCase {
 
         Track t = createTrack();
 
-        TrackSerializer s = new TrackSerializer();
+        TrackSerde s = new TrackSerde();
         String ts = s.serialize(t, Track.class, null).toString();
 
         List<Measurement> result = TrackUtils.getObfuscatedTrack(t).getMeasurements();

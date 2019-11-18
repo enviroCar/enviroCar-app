@@ -20,6 +20,9 @@
 
 -->
 <resources>
+    <string name="dashboard_mode_obd_and_gps">OBD Track</string>
+    <string name="dashboard_mode_gps_only">GPS Track</string>
+
     <string name="dashboard_start_track">START TRACK</string>
     <string name="dashboard_goto_track">Goto Track Recording Screen</string>
     <string name="dashboard_track_is_starting">TRACK IS STARTING...</string>
@@ -28,6 +31,8 @@
     <string name="dashboard_connecting">Connecting...</string>
     <string name="dashboard_connecting_find_template">Trying to find \'%s\'.</string>
     <string name="dashboard_connecting_found_template">\'%s\' is in range. Trying to connect.</string>
+
+    <string name="dashboard_recording_settings_header">Recording Settings</string>
 
     <string name="dashboard_dialog_stop_track">Stop Track?</string>
     <string name="dashboard_dialog_stop_track_content">Do you really want to stop the recording and finish the current track?</string>
@@ -41,7 +46,7 @@
     <string name="dashboard_obd_not_selected">No OBD-II adapter selected</string>
     <string name="dashboard_obd_not_selected_advise">Click here to select one</string>
     <string name="dashboard_carselection_no_car_selected">No car type selected</string>
-    <string name="dashboard_carselection_no_car_selected_advise">Click here to create/select one</string>
+    <string name="dashboard_carselection_no_car_selected_advise">Click here to select one</string>
 
     <string name="permission_rationale_location">Location permission is needed for core functionality.</string>
     <string name="permission_rationale_file">"Storage permission is needed for logging and sharing a track. If you don't want the both, please click on don't ask again in the next screen."</string>
@@ -60,8 +65,7 @@
     <string name="gps_automatic_enabled_error_positive">Yes</string>
     <string name="gps_automatic_enabled_error_negative">No</string>
 
-    <string name="dashboard_my_local_tracks">#My Local Tracks</string>
-    <string name="dashboard_my_remote_tracks">#My Remote Tracks</string>
-    <string name="dashboard_total_tracks">#Total Tracks</string>
+    <string name="dashboard_total_tracks">Total Tracks</string>
     <string name="dashboard_total_distance">Total Distance</string>
+    <string name="dashboard_total_duration">Total Duration</string>
 </resources>

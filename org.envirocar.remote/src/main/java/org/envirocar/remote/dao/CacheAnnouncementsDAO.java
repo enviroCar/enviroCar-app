@@ -21,15 +21,12 @@ package org.envirocar.remote.dao;
 import org.envirocar.core.dao.AbstractCacheDAO;
 import org.envirocar.core.dao.AnnouncementDAO;
 import org.envirocar.core.entity.Announcement;
-import org.envirocar.core.exception.DataRetrievalFailureException;
-import org.envirocar.core.exception.NotConnectedException;
 
-import java.io.IOException;
 import java.util.List;
 
 import javax.inject.Inject;
 
-import rx.Observable;
+import io.reactivex.Observable;
 
 /**
  * TODO JavaDoc
@@ -40,7 +37,8 @@ public class CacheAnnouncementsDAO extends AbstractCacheDAO implements Announcem
     public static final String CACHE_FILE_NAME = "announcements";
 
     @Inject
-    public CacheAnnouncementsDAO() {}
+    public CacheAnnouncementsDAO() {
+    }
 
     @Override
     public List<Announcement> getAllAnnouncements() {
@@ -61,7 +59,7 @@ public class CacheAnnouncementsDAO extends AbstractCacheDAO implements Announcem
     //    @Override
     //    public List<Announcement> getAllAnnouncements() throws DataRetrievalFailureException {
     //        Gson gson = new GsonBuilder()
-    //                .registerTypeAdapter(Announcement.class, new AnnouncementSerializer())
+    //                .registerTypeAdapter(Announcement.class, new AnnouncementSerde())
     //                .create();
     //        try {
     //            return gson.fromJson(readCache(CACHE_FILE_NAME),

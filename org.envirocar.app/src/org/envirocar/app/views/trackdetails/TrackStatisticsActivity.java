@@ -32,12 +32,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import org.envirocar.app.main.BaseApplicationComponent;
+import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
 import org.envirocar.app.injection.BaseInjectorActivity;
-import org.envirocar.storage.EnviroCarDB;
+import org.envirocar.core.EnviroCarDB;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,6 +47,8 @@ import javax.inject.Inject;
 
 import butterknife.ButterKnife;
 import butterknife.BindView;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 import lecho.lib.hellocharts.formatter.SimpleAxisValueFormatter;
 import lecho.lib.hellocharts.gesture.ZoomType;
 import lecho.lib.hellocharts.listener.DummyVieportChangeListener;
@@ -58,8 +60,6 @@ import lecho.lib.hellocharts.model.Viewport;
 import lecho.lib.hellocharts.util.ChartUtils;
 import lecho.lib.hellocharts.view.LineChartView;
 import lecho.lib.hellocharts.view.PreviewLineChartView;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 
 /**
  * TODO JavaDoc

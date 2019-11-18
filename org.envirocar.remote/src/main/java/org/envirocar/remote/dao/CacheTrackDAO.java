@@ -22,18 +22,14 @@ import org.envirocar.core.CacheDirectoryProvider;
 import org.envirocar.core.dao.AbstractCacheDAO;
 import org.envirocar.core.dao.TrackDAO;
 import org.envirocar.core.entity.Track;
-import org.envirocar.core.exception.DataCreationFailureException;
-import org.envirocar.core.exception.DataRetrievalFailureException;
-import org.envirocar.core.exception.DataUpdateFailureException;
 import org.envirocar.core.exception.NotConnectedException;
-import org.envirocar.core.exception.ResourceConflictException;
-import org.envirocar.core.exception.UnauthorizedException;
 
 import java.util.List;
 
 import javax.inject.Inject;
 
-import rx.Observable;
+import io.reactivex.Observable;
+
 
 /**
  * TODO JavaDoc

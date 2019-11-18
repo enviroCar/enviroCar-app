@@ -13,6 +13,7 @@ dependencies {
     implementation rootProject.ext.supportLifecycleExtension
     implementation rootProject.ext.supportLifecycleRuntime
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation rootProject.ext.androidxPreference
     annotationProcessor rootProject.ext.supportLifecycleCompiler
 
     // Dependency injection, view injection, event bus ...
@@ -32,7 +33,7 @@ dependencies {
     implementation rootProject.ext.rxAndroid
     implementation rootProject.ext.rxJava
     implementation rootProject.ext.rxPreferences
-    implementation rootProject.ext.rxBinding
+//    implementation rootProject.ext.rxBinding
 
     // other third party libraries
     implementation rootProject.ext.acra
@@ -41,6 +42,11 @@ dependencies {
     implementation rootProject.ext.segmentedUIController
     implementation rootProject.ext.materialDialogs
     implementation "com.andkulikov:transitionseverywhere:2.0.0"
+    implementation 'de.hdodenhof:circleimageview:3.0.1'
+
+    // RxBindings
+    implementation rootProject.ext.rxBindingCore
+    implementation rootProject.ext.rxBindingAppCompat
 
     //implementation rootProject.ext.guava
 //    implementation(materialDialogs) {
@@ -84,6 +90,17 @@ dependencies {
     implementation 'com.github.enviroCar:enviroCar-aidl:d67cfa49f3'
 }
 
+
+configurations.all {
+    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+        def requested = details.requested
+        if (requested.group == "androidx") {
+            if (!requested.name.startsWith("multidex")) {
+                details.useVersion "${targetSdk}.+"
+            }
+        }
+    }
+}
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion

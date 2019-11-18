@@ -18,14 +18,15 @@
  */
 package org.envirocar.app.injection;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import android.view.MenuItem;
 
 import com.squareup.otto.Bus;
 
-import org.envirocar.app.main.BaseApplication;
-import org.envirocar.app.main.BaseApplicationComponent;
+import org.envirocar.app.BaseApplication;
+import org.envirocar.app.BaseApplicationComponent;
 
 import javax.inject.Inject;
 
@@ -71,4 +72,5 @@ public abstract class BaseInjectorActivity extends AppCompatActivity {
         super.onOptionsItemSelected(item);
         return false;
     }
+
 }

@@ -29,9 +29,9 @@ import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 
-import org.envirocar.app.main.BaseApplicationComponent;
+import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
-import org.envirocar.app.handler.CarPreferenceHandler;
+import org.envirocar.app.handler.preferences.CarPreferenceHandler;
 import org.envirocar.app.views.utils.ECAnimationUtils;
 import org.envirocar.core.UserManager;
 import org.envirocar.core.entity.Fueling;
@@ -50,11 +50,10 @@ import javax.inject.Inject;
 import butterknife.ButterKnife;
 import butterknife.BindView;
 import butterknife.OnClick;
-import rx.Observer;
-import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
-import rx.subscriptions.CompositeSubscription;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.observers.DisposableObserver;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * TODO JavaDoc
@@ -100,7 +99,7 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
     protected final List<Fueling> fuelings = new ArrayList<Fueling>();
 
     private LogbookAddFuelingFragment addFuelingFragment;
-    private final CompositeSubscription subscription = new CompositeSubscription();
+    private final CompositeDisposable subscription = new CompositeDisposable();
 
     @Override
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
@@ -120,7 +119,7 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
 
         // Initializes the Toolbar.
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("Logbook");
+        getSupportActionBar().setTitle(R.string.logbook_title);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -143,7 +142,7 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
             }
         });
 
-        // When the user is logged in, then download its fuelings. Otherwise, show a "not logged
+        // When the getUserStatistic is logged in, then download its fuelings. Otherwise, show a "not logged
         // in" notification.
         if (userManager.isLoggedIn()) {
             downloadFuelings();
@@ -159,8 +158,8 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
     protected void onDestroy() {
         LOG.info("onDestroy()");
         super.onDestroy();
-        if (!subscription.isUnsubscribed()) {
-            subscription.unsubscribe();
+        if (!subscription.isDisposed()) {
+            subscription.dispose();
             subscription.clear();
         }
     }
@@ -215,9 +214,9 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
         subscription.add(daoProvider.getFuelingDAO().getFuelingsObservable()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Subscriber<List<Fueling>>() {
+                .subscribeWith(new DisposableObserver<List<Fueling>>() {
                     @Override
-                    public void onCompleted() {
+                    public void onComplete() {
                         LOG.info("Download of fuelings completed");
 
                         if (fuelings.isEmpty()) {
@@ -256,9 +255,10 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
                 .deleteFuelingObservable(fueling)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<Void>() {
+                .subscribeWith(new DisposableObserver<Void>() {
+
                     @Override
-                    public void onCompleted() {
+                    public void onComplete() {
                         LOG.info(String.format("Successfully deleted fueling -> [%s]",
                                 fueling.getRemoteID()));
 

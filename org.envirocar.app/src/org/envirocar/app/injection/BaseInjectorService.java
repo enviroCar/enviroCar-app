@@ -19,7 +19,6 @@
 package org.envirocar.app.injection;
 
 import android.app.NotificationManager;
-import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 
@@ -28,11 +27,8 @@ import androidx.lifecycle.LifecycleService;
 
 import com.squareup.otto.Bus;
 
-import org.envirocar.app.main.BaseApplication;
-import org.envirocar.app.main.BaseApplicationComponent;
-
-import java.lang.reflect.Field;
-import java.util.Set;
+import org.envirocar.app.BaseApplication;
+import org.envirocar.app.BaseApplicationComponent;
 
 import javax.inject.Inject;
 
@@ -43,6 +39,7 @@ import javax.inject.Inject;
  * @author dewall
  */
 public abstract class BaseInjectorService extends LifecycleService {
+
 
     // Injected variables.
     @Inject
@@ -57,7 +54,22 @@ public abstract class BaseInjectorService extends LifecycleService {
     @Override
     public void onCreate() {
         super.onCreate();
-        injectDependencies(BaseApplication.get(this).getBaseApplicationComponent());
+        injectDependencies(getBaseApplicationComponent());
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+    }
+
+    /**
+     * Gets the BaseApplicationComponent for injection.
+     *
+     * @return
+     */
+    protected BaseApplicationComponent getBaseApplicationComponent() {
+        return BaseApplication.get(this).getBaseApplicationComponent();
     }
 
     /**

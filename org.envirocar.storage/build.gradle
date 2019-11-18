@@ -34,6 +34,11 @@ dependencies {
     testImplementation rootProject.ext.junit
     androidTestImplementation rootProject.ext.junit
 
+    // Database Dependencies
+    implementation rootProject.ext.supportSqlite
+    implementation rootProject.ext.supportSqliteFramework
+    implementation rootProject.ext.sqlBrite
+
     // Modules
     api project(path : ':org.envirocar.core')
 }

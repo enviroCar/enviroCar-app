@@ -24,7 +24,7 @@ package org.envirocar.core.entity;
  * @author dewall
  */
 public interface PrivacyStatement extends BaseEntity<PrivacyStatement> {
-    String KEY_PRIVACY_STATEMENT = "privacyStatement";
+    String KEY_PRIVACY_STATEMENT = "privacyStatements";
     String KEY_PRIVACY_STATEMENT_ID = "id";
     String KEY_PRIVACY_STATEMENT_ISSUEDATE = "issuedDate";
     String KEY_PRIVACY_STATEMENT_CONTENTS = "contents";

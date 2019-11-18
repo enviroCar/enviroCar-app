@@ -20,15 +20,17 @@ package org.envirocar.app.views.tracklist;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
-import androidx.annotation.Nullable;
 import android.view.View;
+
+import androidx.annotation.Nullable;
 
 import com.squareup.otto.Subscribe;
 
-import org.envirocar.app.main.BaseApplication;
-import org.envirocar.app.main.MainActivityComponent;
-import org.envirocar.app.main.MainActivityModule;
+import org.envirocar.app.BaseApplication;
+import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
+import org.envirocar.app.injection.components.MainActivityComponent;
+import org.envirocar.app.injection.modules.MainActivityModule;
 import org.envirocar.app.views.trackdetails.TrackDetailsActivity;
 import org.envirocar.app.views.utils.ECAnimationUtils;
 import org.envirocar.core.entity.Track;
@@ -40,36 +42,43 @@ import org.envirocar.core.logging.Logger;
 import java.util.Collections;
 import java.util.List;
 
-import rx.Observer;
-import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
-import rx.subscriptions.CompositeSubscription;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.observers.DisposableObserver;
+import io.reactivex.schedulers.Schedulers;
+
 
 /**
  * @author dewall
  */
-public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
-        TrackListRemoteCardAdapter> implements TrackListLocalCardFragment.OnTrackUploadedListener {
+public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<TrackListRemoteCardAdapter>
+        implements TrackListLocalCardFragment.OnTrackUploadedListener {
     private static final Logger LOG = Logger.getLogger(TrackListRemoteCardFragment.class);
 
-    private CompositeSubscription subscriptions = new CompositeSubscription();
+    private CompositeDisposable subscriptions = new CompositeDisposable();
 
     private boolean hasLoadedRemote = false;
     private boolean hasLoadedStored = false;
     private boolean isSorted = false;
 
+    @Override
+    protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
+        baseApplicationComponent.inject(this);
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        MainActivityComponent mainActivityComponent =  BaseApplication.get(getActivity()).getBaseApplicationComponent().plus(new MainActivityModule(getActivity()));
+        MainActivityComponent mainActivityComponent = BaseApplication.get(getActivity()).getBaseApplicationComponent().plus(new MainActivityModule(getActivity()));
         mainActivityComponent.inject(this);
+        setRetainInstance(true);
     }
 
     @Override
     public void onResume() {
         super.onResume();
+
+        loadDataset();
 
         if (mUserManager.isLoggedIn()) {
             mRecyclerView.setVisibility(View.VISIBLE);
@@ -103,14 +112,14 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
         LOG.info("onDestroyView()");
         super.onDestroyView();
 
-        if (!subscriptions.isUnsubscribed()) {
-            subscriptions.unsubscribe();
+        if (!subscriptions.isDisposed()) {
+            subscriptions.dispose();
         }
     }
 
     @Override
     public TrackListRemoteCardAdapter getRecyclerViewAdapter() {
-        return new TrackListRemoteCardAdapter(getActivity(), mTrackList,
+        return new TrackListRemoteCardAdapter(mTrackList,
                 new OnTrackInteractionCallback() {
 
                     /**
@@ -191,10 +200,10 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
         mTrackDAOHandler.fetchRemoteTrackObservable(track)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<Track>() {
+                .subscribe(new DisposableObserver<Track>() {
 
                     @Override
-                    public void onCompleted() {
+                    public void onComplete() {
                         holder.mProgressCircle.beginFinalAnimation();
                         holder.mProgressCircle.attachListener(() -> {
                             // When the visualization is finished, then Init the
@@ -227,6 +236,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
                 });
     }
 
+
     private final class LoadRemoteTracksTask extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... params) {
@@ -244,7 +254,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
             subscriptions.add(mEnvirocarDB.getAllRemoteTracks()
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new Subscriber<List<Track>>() {
+                    .subscribeWith(new DisposableObserver<List<Track>>() {
 
                         @Override
                         public void onStart() {
@@ -256,8 +266,8 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
                         }
 
                         @Override
-                        public void onCompleted() {
-
+                        public void onComplete() {
+                            sortTrackList();
                         }
 
                         @Override
@@ -270,8 +280,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
                         public void onNext(List<Track> tracks) {
                             LOG.info("onNext(" + tracks.size() + ") locally stored tracks");
                             for (Track track : tracks) {
-                                if (track.getMeasurements() != null &&
-                                        !track.getMeasurements().isEmpty()) {
+                                if (track.getMeasurements() != null && !track.getMeasurements().isEmpty()) {
                                     if (mTrackList.contains(track)) {
                                         mTrackList.set(mTrackList.indexOf(track), track);
                                     } else {
@@ -288,7 +297,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
             subscriptions.add(mDAOProvider.getTrackDAO().getTrackIdsObservable()
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new Subscriber<List<Track>>() {
+                    .subscribeWith(new DisposableObserver<List<Track>>() {
 
                         @Override
                         public void onStart() {
@@ -300,8 +309,8 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
                         }
 
                         @Override
-                        public void onCompleted() {
-
+                        public void onComplete() {
+                            sortTrackList();
                         }
 
                         @Override
@@ -357,6 +366,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(track1 -> {
                     mTrackList.add(track1);
+                    sortTrackList();
                     mRecyclerViewAdapter.notifyDataSetChanged();
                 });
     }
@@ -365,7 +375,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
         if (hasLoadedStored && hasLoadedRemote) {
             if (!isSorted) {
                 isSorted = true;
-                Collections.sort(mTrackList);
+                sortTrackList();
             }
             ECAnimationUtils.animateHideView(getActivity(), mProgressView, R.anim.fade_out);
 
@@ -381,5 +391,15 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
             infoView.setVisibility(View.GONE);
             mRecyclerViewAdapter.notifyDataSetChanged();
         }
+    }
+
+    private void sortTrackList(){
+        Collections.sort(mTrackList, (o1, o2) -> {
+            if (o1.getStartTime() < o2.getStartTime())
+                return 1;
+            if (o1.getStartTime() > o2.getStartTime())
+                return -1;
+            return 0;
+        });
     }
 }

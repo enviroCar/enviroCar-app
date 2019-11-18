@@ -24,16 +24,6 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
-import androidx.core.app.ActivityCompat;
-import androidx.fragment.app.Fragment;
-import androidx.core.content.FileProvider;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,21 +31,32 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.FileProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
+
 import org.envirocar.app.BuildConfig;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.DAOProvider;
-import org.envirocar.app.handler.agreement.AgreementManager;
 import org.envirocar.app.handler.TrackDAOHandler;
 import org.envirocar.app.handler.TrackUploadHandler;
-import org.envirocar.app.handler.UserHandler;
+import org.envirocar.app.handler.preferences.UserPreferenceHandler;
+import org.envirocar.app.handler.agreement.AgreementManager;
+import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.app.views.utils.DialogUtils;
 import org.envirocar.app.views.utils.ECAnimationUtils;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.exception.NotConnectedException;
 import org.envirocar.core.exception.UnauthorizedException;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.remote.serializer.TrackSerializer;
-import org.envirocar.storage.EnviroCarDB;
+import org.envirocar.remote.serde.TrackSerde;
+import org.envirocar.core.EnviroCarDB;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -66,24 +67,20 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import rx.Observable;
-import rx.Scheduler;
-import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.exceptions.OnErrorThrowable;
-import rx.functions.Action0;
-import rx.functions.Func1;
-import rx.schedulers.Schedulers;
+import io.reactivex.Observable;
+import io.reactivex.Scheduler;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.observers.DisposableObserver;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * @author dewall
  */
-public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapter>
-        extends Fragment {
+public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapter> extends BaseInjectorFragment {
     private static final Logger LOG = Logger.getLogger(AbstractTrackListCardFragment.class);
 
     @Inject
-    protected UserHandler mUserManager;
+    protected UserPreferenceHandler mUserManager;
     @Inject
     protected EnviroCarDB mEnvirocarDB;
     @Inject
@@ -171,22 +168,22 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
     protected void exportTrack(Track track) {
 
         try {
-            if(checkStoragePermissions()){
+            if (checkStoragePermissions()) {
                 // Create an sharing intent.
                 Intent sharingIntent = new Intent(Intent.ACTION_SEND);
                 sharingIntent.setType("application/json");
-                //  Uri shareBody = Uri.fromFile(TrackSerializer.exportTrack(track).getFile());
+                //  Uri shareBody = Uri.fromFile(TrackSerde.exportTrack(track).getFile());
                 Uri shareBody = FileProvider.getUriForFile(
                         getActivity(),
                         getActivity().getApplicationContext()
-                                .getPackageName() + ".provider", TrackSerializer.exportTrack(track).getFile());
+                                .getPackageName() + ".provider", TrackSerde.exportTrack(track).getFile());
                 sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT,
                         "EnviroCar Track " + track.getName());
                 sharingIntent.putExtra(android.content.Intent.EXTRA_STREAM, shareBody);
                 sharingIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 // Wrap the intent with a chooser.
                 startActivity(Intent.createChooser(sharingIntent, "Share via"));
-            }else{
+            } else {
                 requestStoragePermissions();
             }
 
@@ -212,7 +209,7 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
                 ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
                         Manifest.permission.WRITE_EXTERNAL_STORAGE);
 
-        // Provide an additional rationale to the user. This would happen if the user denied the
+        // Provide an additional rationale to the getUserStatistic. This would happen if the getUserStatistic denied the
         // request previously, but didn't check the "Don't ask again" checkbox.
         if (shouldProvideRationale) {
             LOG.debug("Requesting Storage permission. Displaying permission rationale to provide additional context.");
@@ -233,14 +230,13 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
         } else {
             LOG.info("Requesting permission");
             // Request permission. It's possible this can be auto answered if device policy
-            // sets the permission in a given state or the user denied the permission
+            // sets the permission in a given state or the getUserStatistic denied the permission
             // previously and checked "Never ask again".
             ActivityCompat.requestPermissions(getActivity(),
                     new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                     REQUEST_STORAGE_PERMISSION_REQUEST_CODE);
         }
     }
-
 
 
     /**
@@ -250,25 +246,14 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
         LOG.info("onRequestPermissionResult");
-        if(requestCode == REQUEST_STORAGE_PERMISSION_REQUEST_CODE){
+        if (requestCode == REQUEST_STORAGE_PERMISSION_REQUEST_CODE) {
             if (grantResults.length <= 0) {
-                // If user interaction was interrupted, the permission request is cancelled and you
+                // If getUserStatistic interaction was interrupted, the permission request is cancelled and you
                 // receive empty arrays.
                 LOG.info("User interaction was cancelled.");
             } else if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 LOG.info("Storage permission granted");
             } else {
-                // Permission denied.
-
-                // Notify the user via a SnackBar that they have rejected a core permission for the
-                // app, which makes the Activity useless. In a real app, core permissions would
-                // typically be best requested during a welcome-screen flow.
-
-                // Additionally, it is important to remember that a permission might have been
-                // rejected without asking the user for permission (device policy or "Never ask
-                // again" prompts). Therefore, a user interface affordance is typically implemented
-                // when permissions are denied. Otherwise, your app could appear unresponsive to
-                // touches or interactions which have required permissions.
                 showSnackbar(R.string.permission_denied_explanation,
                         R.string.settings, view -> {
                             // Build intent that displays the App settings screen.
@@ -310,9 +295,7 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
     protected void createDeleteTrackDialog(Track track) {
         // Get the up to date reference of the current track.
         // Create a dialog that deletes on click on the positive button the track.
-        final Track upToDateRef = mEnvirocarDB.getTrack(track.getTrackID())
-                .toBlocking()
-                .first();
+        final Track upToDateRef = mEnvirocarDB.getTrack(track.getTrackID()).blockingFirst();
 
         View contentView = getActivity().getLayoutInflater().inflate(
                 R.layout.fragment_tracklist_delete_track_dialog, null, false);
@@ -339,14 +322,11 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
 
     protected void showText(int imgResource, int textResource, int subtextResource) {
         if (mTrackList.isEmpty()) {
-            mMainThreadWorker.schedule(new Action0() {
-                @Override
-                public void call() {
-                    infoImg.setImageResource(imgResource);
-                    infoText.setText(textResource);
-                    infoSubtext.setText(subtextResource);
-                    ECAnimationUtils.animateShowView(getActivity(), infoView, R.anim.fade_in);
-                }
+            mMainThreadWorker.schedule(() -> {
+                infoImg.setImageResource(imgResource);
+                infoText.setText(textResource);
+                infoSubtext.setText(subtextResource);
+                ECAnimationUtils.animateShowView(getActivity(), infoView, R.anim.fade_in);
             });
         }
     }
@@ -355,20 +335,17 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
         LOG.info("deleteRemoteTrack()");
 
         mEnvirocarDB.getTrack(track.getTrackID())
-                .map(new Func1<Track, Boolean>() {
-                    @Override
-                    public Boolean call(Track upToDateRef) {
-                        if (upToDateRef.isLocalTrack()) {
-                            LOG.info("Track to delete is a local track");
-                            return false;
-                        }
+                .map(upToDateRef -> {
+                    if (upToDateRef.isLocalTrack()) {
+                        LOG.info("Track to delete is a local track");
+                        return false;
+                    }
 
-                        try {
-                            mTrackDAOHandler.deleteRemoteTrack(upToDateRef);
-                            return true;
-                        } catch (Exception e) {
-                            throw OnErrorThrowable.from(e);
-                        }
+                    try {
+                        mTrackDAOHandler.deleteRemoteTrack(upToDateRef);
+                        return true;
+                    } catch (Exception e) {
+                        throw e;
                     }
                 })
                 .subscribeOn(Schedulers.io())
@@ -395,8 +372,8 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
                 .subscribe(getDeleteTrackSubscriber(track));
     }
 
-    protected Subscriber<Boolean> getDeleteTrackSubscriber(final Track track) {
-        return new Subscriber<Boolean>() {
+    protected DisposableObserver<Boolean> getDeleteTrackSubscriber(final Track track) {
+        return new DisposableObserver<Boolean>() {
             @Override
             public void onStart() {
                 LOG.info(String.format("onStart() delete track -> [%s]", track.getName()));
@@ -404,7 +381,7 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
             }
 
             @Override
-            public void onCompleted() {
+            public void onComplete() {
                 LOG.info(String.format("onCompleted() delete track -> [%s]",
                         track.getName()));
             }
@@ -415,7 +392,7 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
                         track.getName()), e);
 
                 if (e instanceof UnauthorizedException) {
-                    LOG.error("The logged in user is not authorized to do that.", e);
+                    LOG.error("The logged in getUserStatistic is not authorized to do that.", e);
                     showSnackbar(R.string.track_list_deleting_track_unauthorized);
                 } else if (e instanceof NotConnectedException) {
                     LOG.error("Not connected", e);

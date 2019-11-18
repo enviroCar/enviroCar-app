@@ -1,3 +1,21 @@
+/**
+ * Copyright (C) 2013 - 2019 the enviroCar community
+ *
+ * This file is part of the enviroCar app.
+ *
+ * The enviroCar app is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * The enviroCar app is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+ * Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
+ */
 package org.envirocar.app.views.login;
 
 import android.content.Context;
@@ -22,12 +40,12 @@ import androidx.annotation.NonNull;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 
+import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.DAOProvider;
-import org.envirocar.app.handler.UserHandler;
 import org.envirocar.app.handler.agreement.AgreementManager;
+import org.envirocar.app.handler.preferences.UserPreferenceHandler;
 import org.envirocar.app.injection.BaseInjectorActivity;
-import org.envirocar.app.main.BaseApplicationComponent;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.entity.UserImpl;
 import org.envirocar.core.exception.DataUpdateFailureException;
@@ -42,10 +60,10 @@ import javax.inject.Inject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import rx.Scheduler;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
+import io.reactivex.Scheduler;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * @author dewall
@@ -53,9 +71,15 @@ import rx.schedulers.Schedulers;
 public class SignupActivity extends BaseInjectorActivity {
     private static final Logger LOG = Logger.getLogger(SignupActivity.class);
 
+    public static void startActivity(Context context) {
+        Intent intent = new Intent(context, SignupActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+        context.startActivity(intent);
+    }
+
     // Inject Dependencies
     @Inject
-    protected UserHandler userHandler;
+    protected UserPreferenceHandler userHandler;
     @Inject
     protected DAOProvider daoProvider;
     @Inject
@@ -77,7 +101,7 @@ public class SignupActivity extends BaseInjectorActivity {
 
     private final Scheduler.Worker mainThreadWorker = AndroidSchedulers.mainThread().createWorker();
     private final Scheduler.Worker backgroundWorker = Schedulers.newThread().createWorker();
-    private Subscription registerSubscription;
+    private Disposable registerSubscription;
 
     @Override
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
@@ -88,12 +112,21 @@ public class SignupActivity extends BaseInjectorActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
+        getWindow().setNavigationBarColor(getResources().getColor(R.color.cario_color_primary_dark));
 
         // inject the views
         ButterKnife.bind(this);
 
         // make terms of use and privacy statement clickable
         this.makeClickableTextLinks();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (registerSubscription != null && !registerSubscription.isDisposed()) {
+            registerSubscription.dispose();
+        }
     }
 
     @OnClick(R.id.activity_signup_login_button)
@@ -112,7 +145,7 @@ public class SignupActivity extends BaseInjectorActivity {
         this.touCheckbox.setError(null);
 
         // We do not want to have dublicate registration processes.
-        if (this.registerSubscription != null && !this.registerSubscription.isUnsubscribed()) {
+        if (this.registerSubscription != null && !this.registerSubscription.isDisposed()) {
             return;
         }
 
@@ -202,7 +235,7 @@ public class SignupActivity extends BaseInjectorActivity {
                 newUser.setMail(email);
                 daoProvider.getUserDAO().createUser(newUser);
 
-                // Successfully created the user
+                // Successfully created the getUserStatistic
                 mainThreadWorker.schedule(() -> {
                     // Dismiss the progress dialog.
                     dialog.dismiss();
@@ -255,15 +288,16 @@ public class SignupActivity extends BaseInjectorActivity {
         });
     }
 
-    private void makeClickableTextLinks(){
+    private void makeClickableTextLinks() {
+
         List<Pair<String, View.OnClickListener>> clickableStrings = Arrays.asList(
-                new Pair<>("Terms and Conditions", v -> {
+                new Pair<>(getString(R.string.terms_and_conditions), v -> {
                     LOG.info("Terms and Conditions clicked. Showing dialog");
                     showTermsOfUseDialog();
                 }),
-                new Pair<>("Privacy Policy", v -> {
+                new Pair<>(getString(R.string.privacy_statement), v -> {
                     LOG.info("Privacy Policy clicked. Showing dialog");
-                    showTermsOfUseDialog();
+                    showPrivacyStatementDialog();
                 })
         );
 
@@ -301,7 +335,8 @@ public class SignupActivity extends BaseInjectorActivity {
 
     private void showPrivacyStatementDialog() {
         LOG.info("Show Privacy Statement dialog");
-        // TODO
+        agreementManager.showLatestPrivacyStatementDialogObservable(this)
+                .subscribe(ps -> LOG.info("Closed Dialog"));
     }
 
 }

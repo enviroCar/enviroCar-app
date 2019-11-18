@@ -24,7 +24,7 @@
               android:layout_height="match_parent"
               android:orientation="vertical">
 
-    <include layout="@layout/default_header_toolbar"/>
+<!--    <include layout="@layout/default_header_toolbar"/>-->
 
     <TextView
         android:id="@+id/bluetooth_discovery_interval_preference_numberpicker_text"

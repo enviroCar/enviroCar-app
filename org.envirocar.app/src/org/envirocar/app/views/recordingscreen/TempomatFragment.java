@@ -26,13 +26,12 @@ import android.view.ViewGroup;
 
 import com.squareup.otto.Subscribe;
 
-import org.envirocar.app.main.BaseApplicationComponent;
-import org.envirocar.app.main.MainActivityComponent;
-import org.envirocar.app.main.MainActivityModule;
+import org.envirocar.app.BaseApplicationComponent;
+import org.envirocar.app.injection.components.MainActivityComponent;
+import org.envirocar.app.injection.modules.MainActivityModule;
 import org.envirocar.app.R;
 import org.envirocar.app.events.GPSSpeedChangeEvent;
 import org.envirocar.app.injection.BaseInjectorFragment;
-import org.envirocar.app.views.preferences.Tempomat;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.obd.events.SpeedUpdateEvent;
 
