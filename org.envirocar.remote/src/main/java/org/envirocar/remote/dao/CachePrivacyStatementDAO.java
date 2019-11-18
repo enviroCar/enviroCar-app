@@ -19,8 +19,7 @@
 package org.envirocar.remote.dao;
 
 import org.envirocar.core.dao.AbstractCacheDAO;
-import org.envirocar.core.dao.PrivacyStatementDAO;
-import org.envirocar.core.dao.TermsOfUseDAO;
+import org.envirocar.core.repository.PrivacyStatementRepository;
 import org.envirocar.core.entity.PrivacyStatement;
 import org.envirocar.core.exception.DataRetrievalFailureException;
 import org.envirocar.core.exception.NotConnectedException;
@@ -35,7 +34,7 @@ import io.reactivex.Observable;
 /**
  * @author dewall
  */
-public class CachePrivacyStatementDAO extends AbstractCacheDAO implements PrivacyStatementDAO {
+public class CachePrivacyStatementDAO extends AbstractCacheDAO implements PrivacyStatementRepository {
 
     @Inject
     public CachePrivacyStatementDAO() {

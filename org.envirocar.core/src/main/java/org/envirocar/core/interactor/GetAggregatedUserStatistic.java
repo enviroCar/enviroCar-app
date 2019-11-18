@@ -24,7 +24,7 @@ public class GetAggregatedUserStatistic extends Interactor<AggregatedUserStatist
 
     @Inject
     public GetAggregatedUserStatistic(
-            @InjectIOScheduler Scheduler observeOn, @InjectUIScheduler Scheduler subscribeOn,
+            @InjectUIScheduler Scheduler observeOn, @InjectIOScheduler Scheduler subscribeOn,
             UserStatisticRepository repository, EnviroCarDB enviroCarDB) {
         super(observeOn, subscribeOn);
         this.repository = repository;

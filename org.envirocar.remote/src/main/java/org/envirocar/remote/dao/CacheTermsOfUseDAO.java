@@ -19,7 +19,7 @@
 package org.envirocar.remote.dao;
 
 import org.envirocar.core.dao.AbstractCacheDAO;
-import org.envirocar.core.dao.TermsOfUseDAO;
+import org.envirocar.core.repository.TermsOfUseRepository;
 import org.envirocar.core.entity.TermsOfUse;
 import org.envirocar.core.logging.Logger;
 
@@ -30,7 +30,7 @@ import javax.inject.Inject;
 import io.reactivex.Observable;
 
 
-public class CacheTermsOfUseDAO extends AbstractCacheDAO implements TermsOfUseDAO {
+public class CacheTermsOfUseDAO extends AbstractCacheDAO implements TermsOfUseRepository {
     private static final Logger logger = Logger.getLogger(CacheTermsOfUseDAO.class);
     private static final String LIST_CACHE_FILE_NAME = "tou-list";
     private static final String INSTANCE_CACHE_FILE_NAME = "tou-instance-";

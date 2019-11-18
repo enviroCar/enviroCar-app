@@ -1,5 +1,6 @@
 package org.envirocar.remote.repository;
 
+import org.envirocar.core.InternetAccessProvider;
 import org.envirocar.core.entity.PrivacyStatement;
 import org.envirocar.core.exception.DataRetrievalFailureException;
 import org.envirocar.core.exception.NotConnectedException;
@@ -26,8 +27,8 @@ public class RemotePrivacyStatementRepository extends RemoteRepository<PrivacySt
      * @param remoteService the created retrofit rest service object.
      */
     @Inject
-    public RemotePrivacyStatementRepository(PrivacyStatementService remoteService) {
-        super(remoteService);
+    public RemotePrivacyStatementRepository(PrivacyStatementService remoteService, InternetAccessProvider accessProvider) {
+        super(remoteService, accessProvider);
     }
 
     @Override

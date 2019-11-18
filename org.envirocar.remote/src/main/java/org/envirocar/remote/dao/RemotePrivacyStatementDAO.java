@@ -18,7 +18,7 @@
  */
 package org.envirocar.remote.dao;
 
-import org.envirocar.core.dao.PrivacyStatementDAO;
+import org.envirocar.core.repository.PrivacyStatementRepository;
 import org.envirocar.core.entity.PrivacyStatement;
 import org.envirocar.core.exception.DataRetrievalFailureException;
 import org.envirocar.core.exception.NotConnectedException;
@@ -35,7 +35,7 @@ import retrofit2.Call;
 /**
  * @author dewall
  */
-public class RemotePrivacyStatementDAO extends BaseRemoteDAO<PrivacyStatementDAO, PrivacyStatementService> implements PrivacyStatementDAO {
+public class RemotePrivacyStatementDAO extends BaseRemoteDAO<PrivacyStatementRepository, PrivacyStatementService> implements PrivacyStatementRepository {
     private static final Logger LOG = Logger.getLogger(RemotePrivacyStatementDAO.class);
 
     /**
