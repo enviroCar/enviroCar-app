@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - 2015 the enviroCar community
+ * Copyright (C) 2013 - 2019 the enviroCar community
  *
  * This file is part of the enviroCar app.
  *
@@ -23,7 +23,8 @@ import org.envirocar.core.entity.UserStatistics;
 import org.envirocar.core.exception.DataRetrievalFailureException;
 import org.envirocar.core.exception.UnauthorizedException;
 
-import rx.Observable;
+import io.reactivex.Observable;
+
 
 /**
  * TODO JavaDoc
@@ -32,8 +33,7 @@ import rx.Observable;
  */
 public interface UserStatisticsDAO {
 
-    UserStatistics getUserStatistics(User user)
-            throws DataRetrievalFailureException, UnauthorizedException;
+    UserStatistics getUserStatistics(User user) throws DataRetrievalFailureException, UnauthorizedException;
 
     Observable<UserStatistics> getUserStatisticsObservable(String user);
 }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
 
-    Copyright (C) 2013 - 2015 the enviroCar community
+    Copyright (C) 2013 - 2019 the enviroCar community
 
     This file is part of the enviroCar app.
 
@@ -49,5 +49,7 @@
     <dimen name="fab_margin_side_16">0dp</dimen>
     <dimen name="fab_margin_16">0dp</dimen>
     <dimen name="fab_margin_download_button_top">16dp</dimen>
+
+    <dimen name="dashboard_selector">57dp</dimen>
 
 </resources>

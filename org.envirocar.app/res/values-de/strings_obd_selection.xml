@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
 
-    Copyright (C) 2013 - 2015 the enviroCar community
+    Copyright (C) 2013 - 2019 the enviroCar community
 
     This file is part of the enviroCar app.
 
@@ -27,7 +27,6 @@
     <string name="obd_selection_bluetooth_disabled">Bluetooth ist deaktiviert.</string>
     <string name="obd_selection_bluetooth_disabled_snackbar">Bluetooth ist deaktiviert. Bitte aktivieren Sie Bluetooth, bevor Sie nach anderen Geräten suchen können.</string>
     <string name="obd_selection_discovery_started">Suche gestartet!</string>
-    <string name="obd_selection_discovery_finished">Suche beendet!</string>
     <string name="obd_selection_is_selected_template">%s ausgewählt.</string>
 
     <string name="obd_selection_paired_devices">Gepaarte Geräte</string>

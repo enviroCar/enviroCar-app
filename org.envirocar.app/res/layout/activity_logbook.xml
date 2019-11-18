@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
 
-    Copyright (C) 2013 - 2015 the enviroCar community
+    Copyright (C) 2013 - 2019 the enviroCar community
 
     This file is part of the enviroCar app.
 
@@ -19,7 +19,7 @@
     with the enviroCar app. If not, see http://www.gnu.org/licenses/.
 
 -->
-<RelativeLayout
+<androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -30,7 +30,7 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <android.support.v7.widget.Toolbar
+        <androidx.appcompat.widget.Toolbar
             android:id="@+id/activity_logbook_toolbar"
             style="@style/ToolBarStyle"
             android:layout_width="match_parent"
@@ -43,6 +43,14 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@color/white_cario">
+
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/activity_car_selection_layout_exptoolbar"
+                style="@style/Widget.enviroCar.Toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:elevation="6dp"
+                app:elevation="6dp"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -86,12 +94,14 @@
 
             </LinearLayout>
 
-            <android.support.design.widget.FloatingActionButton
-                android:id="@+id/activity_logbook_toolbar_new_fueling_fab"
-                style="@style/Widget.enviroCar.Fab"
-                android:layout_alignParentBottom="true"
-                android:layout_alignParentRight="true"
-                android:layout_gravity="bottom|end"/>
+            <!-- Overlay that dims the screen -->
+            <FrameLayout
+                android:id="@+id/overlay"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#3f3f3f3f"
+                android:visibility="gone"/>
+
 
         </RelativeLayout>
     </LinearLayout>
@@ -116,4 +126,12 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
-</RelativeLayout>
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/activity_logbook_toolbar_new_fueling_fab"
+        style="@style/Widget.enviroCar.Fab"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_gravity="bottom|end"
+        android:layout_alignParentEnd="true" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

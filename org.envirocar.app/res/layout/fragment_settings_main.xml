@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
 
-    Copyright (C) 2013 - 2015 the enviroCar community
+    Copyright (C) 2013 - 2019 the enviroCar community
 
     This file is part of the enviroCar app.
 
@@ -24,7 +24,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <android.support.v7.widget.Toolbar
+    <androidx.appcompat.widget.Toolbar
         android:id="@+id/fragment_settings_main_toolbar"
         style="@style/Widget.enviroCar.Toolbar"/>
 
@@ -47,7 +47,8 @@
                 android:layout_height="28dp"
                 android:layout_alignParentLeft="true"
                 android:layout_centerVertical="true"
-                android:src="@drawable/ic_settings"/>
+                android:tint="@android:color/darker_gray"
+                android:src="@drawable/others_settings"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -60,15 +61,15 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-medium"
-                    android:text="@string/pref_general_settings"
-                    android:textColor="@color/black"
+                    android:text="@string/pref_settings_general"
+                    android:textColor="@android:color/black"
                     android:textSize="17sp"/>
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif"
-                    android:text="Display, TextToSpeech, WLAN upload"
+                    android:text="@string/pref_settings_general_summary"
                     android:textSize="14sp"/>
 
             </LinearLayout>
@@ -97,15 +98,15 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-medium"
-                    android:text="@string/obd_settings"
-                    android:textColor="@color/black"
+                    android:text="@string/pref_settings_autoconnect"
+                    android:textColor="@android:color/black"
                     android:textSize="17sp"/>
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif"
-                    android:text="@string/obd_settings_sum"
+                    android:text="@string/pref_settings_autoconnect_summary"
                     android:textSize="14sp"/>
 
             </LinearLayout>
@@ -136,7 +137,7 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-medium"
                     android:text="@string/pref_car_settings"
-                    android:textColor="@color/black"
+                    android:textColor="@android:color/black"
                     android:textSize="17sp"/>
 
                 <TextView
@@ -159,7 +160,7 @@
                 android:layout_alignParentLeft="true"
                 android:layout_centerVertical="true"
                 android:alpha="0.54"
-                android:src="@drawable/ic_more_horiz_black_24dp"/>
+                android:src="@drawable/dash_board_others_new"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -172,15 +173,15 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-medium"
-                    android:text="@string/settings_optional"
-                    android:textColor="@color/black"
+                    android:text="@string/pref_settings_optional"
+                    android:textColor="@android:color/black"
                     android:textSize="17sp"/>
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif"
-                    android:text="@string/settings_optional_sub"
+                    android:text="@string/pref_settings_optional_summary"
                     android:textSize="14sp"/>
 
             </LinearLayout>
@@ -209,15 +210,15 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-medium"
-                    android:text="@string/settings_other"
-                    android:textColor="@color/black"
-                    android:textSize="17sp"/>
+                    android:text="@string/pref_settings_other"
+                    android:textColor="@android:color/black"
+                    android:textSize="17sp" />
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif"
-                    android:text="@string/settings_other_sub"
+                    android:text="@string/pref_settings_other_summary"
                     android:textSize="14sp"/>
 
             </LinearLayout>

@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="preference_beta_diesel_consumption">Diesel Verbrauchsschätzung</string>
-    <string name="preference_beta_diesel_consumption_sum">Aktiviert die Verbrauchsschätzung für Dieselfahrzeuge.\nBEACHTE: Diese Funktion befindet sich im Beta Stadium und es handelt sich um Schätzungen. Es gibt keinerlei Gewährleistung für die Richtigkeit der berechneten Daten geben.</string>
-</resources>

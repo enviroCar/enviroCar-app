@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - 2015 the enviroCar community
+ * Copyright (C) 2013 - 2019 the enviroCar community
  *
  * This file is part of the enviroCar app.
  *
@@ -28,155 +28,162 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.preference.PreferenceManager;
 
-import com.google.common.base.Preconditions;
+import com.mapbox.mapboxsdk.Mapbox;
 
 import org.acra.ACRA;
-import org.acra.annotation.ReportsCrashes;
-import org.envirocar.app.handler.PreferenceConstants;
-import org.envirocar.core.injection.InjectionModuleProvider;
-import org.envirocar.core.injection.Injector;
-import org.envirocar.core.logging.ACRACustomSender;
+import org.acra.BuildConfig;
+import org.acra.annotation.AcraCore;
+import org.envirocar.app.handler.ApplicationSettings;
+import org.envirocar.app.handler.LocationHandler;
+import org.envirocar.app.handler.userstatistics.UserStatisticsProcessor;
+import org.envirocar.app.notifications.NotificationHandler;
+import org.envirocar.app.rxutils.RxBroadcastReceiver;
+import org.envirocar.core.injection.InjectApplicationScope;
+import org.envirocar.core.logging.ACRASenderFactory;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.util.Util;
+import org.envirocar.remote.service.AnnouncementsService;
+import org.envirocar.remote.service.CarService;
+import org.envirocar.remote.service.EnviroCarService;
+import org.envirocar.remote.service.FuelingService;
+import org.envirocar.remote.service.TermsOfUseService;
+import org.envirocar.remote.service.TrackService;
+import org.envirocar.remote.service.UserService;
 
-import java.util.Arrays;
-import java.util.List;
+import javax.inject.Inject;
 
-import dagger.ObjectGraph;
+import io.reactivex.disposables.CompositeDisposable;
+
 
 /**
  * @author dewall
  */
-@ReportsCrashes
-public class BaseApplication extends Application implements Injector, InjectionModuleProvider {
-    private static final String TAG = BaseApplication.class.getSimpleName();
-    private static final Logger LOGGER = Logger.getLogger(BaseApplication.class);
+@AcraCore(buildConfigClass = BuildConfig.class, reportSenderFactoryClasses = ACRASenderFactory.class)
+public class BaseApplication extends Application {
+    private static final Logger LOG = Logger.getLogger(BaseApplication.class);
 
-    protected ObjectGraph mObjectGraph;
+    BaseApplicationComponent baseApplicationComponent;
     protected BroadcastReceiver mScreenReceiver;
-    protected BroadcastReceiver mGPSReceiver;
 
-    private SharedPreferences.OnSharedPreferenceChangeListener preferenceListener
-            = (sharedPreferences, key) -> {
-        if (PreferenceConstants.ENABLE_DEBUG_LOGGING.equals(key)) {
-            Logger.initialize(Util.getVersionString(BaseApplication.this),
-                    sharedPreferences.getBoolean(PreferenceConstants.ENABLE_DEBUG_LOGGING, false));
-        }
-    };
+    @Inject
+    protected UserService userService;
+    @Inject
+    protected CarService carService;
+    @Inject
+    protected TrackService trackService;
+    @Inject
+    protected TermsOfUseService termsOfUseService;
+    @Inject
+    protected FuelingService fuelingService;
+    @Inject
+    protected AnnouncementsService announcementsService;
+    @InjectApplicationScope
+    @Inject
+    protected Context context;
+    @Inject
+    protected UserStatisticsProcessor statisticsProcessor;
+    @Inject
+    protected LocationHandler locationHandler;
+
+
+    private CompositeDisposable disposables = new CompositeDisposable();
 
     @Override
     public void onCreate() {
         super.onCreate();
 
-        // create initial ObjectGraph
-        mObjectGraph = ObjectGraph.create(getInjectionModules().toArray());
-        mObjectGraph.validate();
+        Mapbox.getInstance(this, "");
 
-        // Inject the LazyLoadingStrategy into track. Its the only static injection
-        // TODO: Remove the static injection.
-        mObjectGraph.injectStatics();
+        baseApplicationComponent =
+                DaggerBaseApplicationComponent
+                        .builder()
+                        .baseApplicationModule(new BaseApplicationModule(this))
+                        .build();
+        baseApplicationComponent.inject(this);
 
-        SharedPreferences preferences = PreferenceManager
-                .getDefaultSharedPreferences(getApplicationContext());
-        preferences.registerOnSharedPreferenceChangeListener(preferenceListener);
+        EnviroCarService.setCarService(carService);
+        EnviroCarService.setAnnouncementsService(announcementsService);
+        EnviroCarService.setFuelingService(fuelingService);
+        EnviroCarService.setTermsOfUseService(termsOfUseService);
+        EnviroCarService.setTrackService(trackService);
+        EnviroCarService.setUserService(userService);
+        NotificationHandler.context = context;
 
         // Initialize ACRA
         ACRA.init(this);
-        ACRACustomSender yourSender = new ACRACustomSender();
-        ACRA.getErrorReporter().setReportSender(yourSender);
 
-//        // check if the background remoteService is already running.
-//        if (!ServiceUtils.isServiceRunning(this, SystemStartupService.class)) {
-//            // Start a new remoteService
-//            Intent startIntent = new Intent(this, SystemStartupService.class);
-//            startService(startIntent);
-//        }
+        // debug logging setting listener
+        this.disposables.add(
+                ApplicationSettings.getDebugLoggingObservable(this)
+                        .doOnNext(this::setDebugLogging)
+                        .doOnError(LOG::error)
+                        .subscribe());
 
-        mScreenReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
-                    // do whatever you need to do here
-                    LOGGER.info("SCREEN IS OFF");
-                } else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
-                    // and do whatever you need to do here
-                    LOGGER.info("SCREEN IS ON");
-                }
-            }
-        };
+        // obfuscation setting changed listener
+        this.disposables.add(
+                ApplicationSettings.getObfuscationObservable(this)
+                        .doOnNext(bool -> LOG.info("Obfuscation enabled: %s", bool.toString()))
+                        .doOnError(LOG::error)
+                        .subscribe());
 
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(Intent.ACTION_SCREEN_ON);
-        filter.addAction(Intent.ACTION_SCREEN_OFF);
-        registerReceiver(mScreenReceiver, filter);
-
-
-        mGPSReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                if (intent.getAction().matches("android.location.PROVIDERS_CHANGED")) {
-                    LOGGER.info("GPS PROVIDER CHANGED");
-                }
-            }
-        };
-
-        IntentFilter filter2 = new IntentFilter();
-        filter.addAction("android.location.PROVIDERS_CHANGED");
-        registerReceiver(mGPSReceiver, filter2);
-
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        boolean obfus = prefs.getBoolean(PreferenceConstants.OBFUSCATE_POSITION, false);
-
-        LOGGER.info("Obfuscation enabled? "+ obfus);
-
-        Logger.initialize(Util.getVersionString(this),
-                prefs.getBoolean(PreferenceConstants.ENABLE_DEBUG_LOGGING, false));
-
-//        OBDServiceHandler.setRecordingState(OBDServiceState.UNCONNECTED);
+        // register Intentfilter for logging screen changes
+        IntentFilter screenIntentFilter = new IntentFilter();
+        screenIntentFilter.addAction(Intent.ACTION_SCREEN_OFF);
+        screenIntentFilter.addAction(Intent.ACTION_SCREEN_ON);
+        this.disposables.add(
+                RxBroadcastReceiver.create(this, screenIntentFilter)
+                        .doOnNext(intent -> {
+                            if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
+                                // do whatever you need to do here
+                                LOG.info("SCREEN IS OFF");
+                            } else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
+                                // and do whatever you need to do here
+                                LOG.info("SCREEN IS ON");
+                            }
+                        })
+                        .doOnError(LOG::error)
+                        .subscribe());
     }
 
     @Override
     public void onTerminate() {
         super.onTerminate();
-        if (mScreenReceiver != null)
+        if (mScreenReceiver != null) {
             unregisterReceiver(mScreenReceiver);
-        if (mGPSReceiver != null)
-            unregisterReceiver(mGPSReceiver);
+        }
+
+        if (disposables != null) {
+            disposables.clear();
+        }
     }
 
     @Override
     public void onLowMemory() {
         super.onLowMemory();
-        LOGGER.info("onLowMemory called");
+        LOG.info("onLowMemory called");
     }
 
     @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
     @Override
     public void onTrimMemory(int level) {
         super.onTrimMemory(level);
-        LOGGER.info("onTrimMemory called");
-        LOGGER.info("maxMemory: " + Runtime.getRuntime().maxMemory());
-        LOGGER.info("totalMemory: " + Runtime.getRuntime().totalMemory());
-        LOGGER.info("freeMemory: " + Runtime.getRuntime().freeMemory());
+        LOG.info("onTrimMemory called");
+        LOG.info("maxMemory: " + Runtime.getRuntime().maxMemory());
+        LOG.info("totalMemory: " + Runtime.getRuntime().totalMemory());
+        LOG.info("freeMemory: " + Runtime.getRuntime().freeMemory());
     }
 
-
-    @Override
-    public ObjectGraph getObjectGraph() {
-        return mObjectGraph;
+    private void setDebugLogging(Boolean isDebugLoggingEnabled) {
+        LOG.info("Received change in debug log level. Is enabled=", isDebugLoggingEnabled.toString());
+        Logger.initialize(Util.getVersionString(BaseApplication.this), isDebugLoggingEnabled);
     }
 
-    @Override
-    public List<Object> getInjectionModules() {
-        return Arrays.<Object>asList(
-                new BaseApplicationModule(this));
+    public BaseApplicationComponent getBaseApplicationComponent() {
+        return baseApplicationComponent;
     }
 
-    @Override
-    public void injectObjects(Object instance) {
-        Preconditions.checkNotNull(instance, "Cannot inject into Null objects.");
-        Preconditions.checkNotNull(mObjectGraph, "The ObjectGraph must be initialized before use.");
-        mObjectGraph.inject(instance);
+    public static BaseApplication get(Context context) {
+        return (BaseApplication) context.getApplicationContext();
     }
 
 }

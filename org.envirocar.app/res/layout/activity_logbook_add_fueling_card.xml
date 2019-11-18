@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
 
-    Copyright (C) 2013 - 2015 the enviroCar community
+    Copyright (C) 2013 - 2019 the enviroCar community
 
     This file is part of the enviroCar app.
 
@@ -20,13 +20,11 @@
 
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:app="http://schemas.android.com/apk/res-auto"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:background="@color/white"
-              android:orientation="vertical">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
-    <android.support.v7.widget.Toolbar
+    <androidx.appcompat.widget.Toolbar
         android:id="@+id/logbook_layout_addfueling_toolbar"
         style="@style/ToolBarStyle"
         android:layout_width="match_parent"
@@ -44,11 +42,12 @@
             android:textSize="18sp"
             android:textStyle="bold"/>
 
-    </android.support.v7.widget.Toolbar>
+    </androidx.appcompat.widget.Toolbar>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="?actionBarSize"
+        android:id="@+id/activity_log_book_add_fueling_toolbar_exp"
         android:background="@color/blue_dark_cario"
         android:elevation="@dimen/spacing_medium">
 
@@ -69,9 +68,12 @@
         </RelativeLayout>
     </LinearLayout>
 
-    <android.support.v4.widget.NestedScrollView
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="@color/white"
+        android:id="@+id/activity_logbook_add_fueling_card_scrollview"
+        >
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -421,5 +423,5 @@
                 android:visibility="gone"/>
 
         </RelativeLayout>
-    </android.support.v4.widget.NestedScrollView>
+    </androidx.core.widget.NestedScrollView>
 </LinearLayout>

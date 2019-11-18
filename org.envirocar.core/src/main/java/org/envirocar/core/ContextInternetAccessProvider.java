@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - 2015 the enviroCar community
+ * Copyright (C) 2013 - 2019 the enviroCar community
  *
  * This file is part of the enviroCar app.
  *
@@ -44,11 +44,8 @@ public class ContextInternetAccessProvider implements InternetAccessProvider {
                 .getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
 
-        if (netInfo != null && netInfo.isConnectedOrConnecting()) {
-            return true;
-        }
+        return netInfo != null && netInfo.isConnectedOrConnecting();
 
-        return false;
     }
 
 }

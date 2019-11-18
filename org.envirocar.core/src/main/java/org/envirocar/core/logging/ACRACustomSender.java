@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - 2015 the enviroCar community
+ * Copyright (C) 2013 - 2019 the enviroCar community
  *
  * This file is part of the enviroCar app.
  *
@@ -21,9 +21,14 @@ package org.envirocar.core.logging;
 import android.content.Context;
 import android.util.Log;
 
-import org.acra.collector.CrashReportData;
+//import org.acra.collector.CrashReportData;
+import org.acra.config.CoreConfiguration;
+import org.acra.data.CrashReportData;
 import org.acra.sender.ReportSender;
-import org.acra.sender.ReportSenderException;
+import org.acra.sender.ReportSenderFactory;
+
+
+import javax.annotation.Nonnull;
 
 public class ACRACustomSender implements ReportSender {
 
@@ -33,8 +38,12 @@ public class ACRACustomSender implements ReportSender {
     }
 
     @Override
-    public void send(Context context, CrashReportData report) throws ReportSenderException {
-    	Log.e("acra", "Receiving an app crash: "+ report.toString());
+    public void send(Context context, CrashReportData report) {
+        try {
+            Log.e("acra", "Receiving an app crash: " + report.toJSON());
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     	logger.severe(report.toString());
     	logger.severe("[END OF ACRA REPORT]");
     }

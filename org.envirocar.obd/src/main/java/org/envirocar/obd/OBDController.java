@@ -1,22 +1,20 @@
-/* 
- * enviroCar 2013
- * Copyright (C) 2013  
- * Martin Dueren, Jakob Moellers, Gerald Pape, Christopher Stephan
+/**
+ * Copyright (C) 2013 - 2019 the enviroCar community
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or
+ * This file is part of the enviroCar app.
+ *
+ * The enviroCar app is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * The enviroCar app is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+ * Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
- * 
+ * You should have received a copy of the GNU General Public License along
+ * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
 package org.envirocar.obd;
 
@@ -29,6 +27,7 @@ import org.envirocar.obd.adapter.AposW3Adapter;
 import org.envirocar.obd.adapter.CarTrendAdapter;
 import org.envirocar.obd.adapter.ELM327Adapter;
 import org.envirocar.obd.adapter.OBDAdapter;
+import org.envirocar.obd.adapter.OBDLinkAdapter;
 import org.envirocar.obd.adapter.async.DriveDeckSportAdapter;
 import org.envirocar.obd.bluetooth.BluetoothSocketWrapper;
 import org.envirocar.obd.commands.PID;
@@ -38,6 +37,8 @@ import org.envirocar.obd.events.PropertyKeyEvent;
 import org.envirocar.obd.events.RPMUpdateEvent;
 import org.envirocar.obd.events.SpeedUpdateEvent;
 import org.envirocar.obd.exception.AllAdaptersFailedException;
+import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,10 +47,12 @@ import java.util.ArrayDeque;
 import java.util.Queue;
 import java.util.concurrent.TimeUnit;
 
-import rx.Scheduler;
-import rx.Subscriber;
-import rx.Subscription;
-import rx.schedulers.Schedulers;
+import io.reactivex.Observer;
+import io.reactivex.Scheduler;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.observers.DisposableObserver;
+import io.reactivex.schedulers.Schedulers;
+
 
 /**
  * this is the main class for interacting with a OBD-II adapter.
@@ -63,8 +66,8 @@ public class OBDController {
     private static final Logger LOG = Logger.getLogger(OBDController.class);
     public static final long MAX_NODATA_TIME = 10000;
 
-    private Subscription initSubscription;
-    private Subscription dataSubscription;
+    private Disposable initSubscription;
+    private Disposable dataSubscription;
 
     private Queue<OBDAdapter> adapterCandidates = new ArrayDeque<>();
     private OBDAdapter obdAdapter;
@@ -120,6 +123,7 @@ public class OBDController {
     private void setupAdapterCandidates() {
         adapterCandidates.clear();
         adapterCandidates.offer(new ELM327Adapter());
+        adapterCandidates.offer(new OBDLinkAdapter());
         adapterCandidates.offer(new CarTrendAdapter());
         adapterCandidates.offer(new AposW3Adapter());
         adapterCandidates.offer(new DriveDeckSportAdapter());
@@ -170,27 +174,32 @@ public class OBDController {
      * The init times out after a pre-defined period.
      */
     private void startInitialization(boolean alreadyTried) {
+        LOG.info("startInitialization()");
+
         // start the observable and subscribe to it
         this.initSubscription = this.obdAdapter.initialize(this.inputStream, this.outputStream)
                 .subscribeOn(Schedulers.io())
                 .observeOn(OBDSchedulers.scheduler())
                 .timeout(this.obdAdapter.getExpectedInitPeriod(), TimeUnit.MILLISECONDS)
-                .subscribe(getInitSubscriber(alreadyTried));
+                .subscribeWith(getInitSubscriber(alreadyTried));
     }
 
-    private Subscriber<Boolean> getInitSubscriber(boolean alreadyTried) {
-        return new Subscriber<Boolean>() {
-
-            @Override
-            public void onCompleted() {
-                LOG.info("Connecting has been initialized!");
-            }
+    private DisposableObserver<Boolean> getInitSubscriber(boolean alreadyTried) {
+        return new DisposableObserver<Boolean>() {
 
             @Override
             public void onError(Throwable e) {
                 LOG.warn("Adapter failed: " + obdAdapter.getClass().getSimpleName(), e);
+
                 try {
-                    this.unsubscribe();
+                    LOG.info("State message is: "+obdAdapter.getStateMessage());
+                }
+                catch (Exception ex) {
+                    LOG.warn("Could not log state message", ex);
+                }
+
+
+                try {
 
                     if (obdAdapter.hasCertifiedConnection()) {
                         if (!alreadyTried) {
@@ -217,11 +226,22 @@ public class OBDController {
             }
 
             @Override
+            public void onComplete() {
+                LOG.info("Connecting has been initialized!");
+            }
+
+            @Override
             public void onNext(Boolean b) {
                 LOG.info("Connection verified - starting data collection");
+                try {
+                    LOG.info("State message from adapter: "+obdAdapter.getStateMessage());
+                }
+                catch (Exception ex) {
+                    LOG.warn("Could not log state message", ex);
+                }
 
                 //unsubscribe, otherwise we will get a timeout
-                this.unsubscribe();
+                this.onComplete();
 
                 startCollectingData();
                 //TODO implement equivalent notification method:
@@ -240,25 +260,22 @@ public class OBDController {
     private void startCollectingData() {
         LOG.info("OBDController.startCollectingData()");
 
-        //inform the listener about the successful conn
-        this.connectionListener.onConnectionVerified();
-
         // start the observable with a timeout
         this.dataSubscription = this.obdAdapter.observe()
                 .subscribeOn(Schedulers.io())
                 .observeOn(OBDSchedulers.scheduler())
                 .timeout(MAX_NODATA_TIME, TimeUnit.MILLISECONDS)
-                .subscribe(getCollectingDataSubscriber());
+                .subscribeWith(getCollectingDataSubscriber());
 
+        //inform the listener about the successful conn
+        this.connectionListener.onConnectionVerified();
     }
 
-    private Subscriber<DataResponse> getCollectingDataSubscriber() {
-        return new Subscriber<DataResponse>() {
+    private DisposableObserver<DataResponse> getCollectingDataSubscriber() {
+        return new DisposableObserver<DataResponse>() {
             @Override
-            public void onCompleted() {
-                LOG.info("onCompleted(): data collection");
-                //TODO implement equivalent notification method:
-                //dataListener.shutdown();
+            protected void onStart() {
+                LOG.info("OnStart()");
             }
 
             @Override
@@ -272,7 +289,14 @@ public class OBDController {
                 }
 
                 connectionListener.onAllAdaptersFailed();
-                this.unsubscribe();
+
+            }
+
+            @Override
+            public void onComplete() {
+                LOG.info("onCompleted(): data collection");
+                //TODO implement equivalent notification method:
+                //dataListener.shutdown();
             }
 
             @Override
@@ -355,7 +379,7 @@ public class OBDController {
      * This object is no longer executable, a new instance has to
      * be created.
      * <p>
-     * Only use this if the stop is from high-level (e.g. user request)
+     * Only use this if the stop is from high-level (e.g. getUserStatistic request)
      * and NOT on any kind of exception
      */
     public void shutdown() {
@@ -366,11 +390,11 @@ public class OBDController {
          */
         userRequestedStop = true;
 
-        if (this.initSubscription != null) {
-            this.initSubscription.unsubscribe();
+        if (this.initSubscription != null && !this.initSubscription.isDisposed()) {
+            this.initSubscription.dispose();
         }
-        if (this.dataSubscription != null) {
-            this.dataSubscription.unsubscribe();
+        if (this.dataSubscription != null && !this.dataSubscription.isDisposed()) {
+            this.dataSubscription.dispose();
         }
     }
 }

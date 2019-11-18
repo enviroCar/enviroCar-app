@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - 2015 the enviroCar community
+ * Copyright (C) 2013 - 2019 the enviroCar community
  *
  * This file is part of the enviroCar app.
  *
@@ -25,7 +25,6 @@ import org.envirocar.core.dao.UserStatisticsDAO;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.entity.UserStatistics;
 import org.envirocar.core.exception.DataRetrievalFailureException;
-import org.envirocar.core.exception.UnauthorizedException;
 import org.envirocar.remote.service.EnviroCarService;
 import org.envirocar.remote.service.UserService;
 import org.envirocar.remote.util.EnvirocarServiceUtils;
@@ -34,9 +33,9 @@ import java.io.IOException;
 
 import javax.inject.Inject;
 
-import retrofit.Call;
-import retrofit.Response;
-import rx.Observable;
+import io.reactivex.Observable;
+import retrofit2.Call;
+import retrofit2.Response;
 
 /**
  * TODO JavaDoc
@@ -50,8 +49,8 @@ public class RemoteUserStatisticsDAO extends BaseRemoteDAO<UserDAO, UserService>
      * Constructor.
      *
      * @param cacheDao    the cache dao for users.
-     * @param userService the user service.
-     * @param userManager the user manager.
+     * @param userService the getUserStatistic service.
+     * @param userManager the getUserStatistic manager.
      */
     @Inject
     public RemoteUserStatisticsDAO(CacheUserDAO cacheDao, UserService userService, UserManager
@@ -60,21 +59,18 @@ public class RemoteUserStatisticsDAO extends BaseRemoteDAO<UserDAO, UserService>
     }
 
     @Override
-    public UserStatistics getUserStatistics(User user) throws DataRetrievalFailureException,
-            UnauthorizedException {
+    public UserStatistics getUserStatistics(User user) throws DataRetrievalFailureException {
         final UserService userService = EnviroCarService.getUserService();
         Call<UserStatistics> userStatistics = userService.getUserStatistics(user.getUsername());
 
         try {
-            Response<UserStatistics> userStatisticsResponse = userStatistics.execute();
+            Response<UserStatistics> response = userStatistics.execute();
 
-            if (userStatisticsResponse.isSuccess()) {
-                return userStatisticsResponse.body();
+            if (response.isSuccessful()) {
+                return response.body();
             } else {
                 // If the execution was successful, then throw an exception.
-                int responseCode = userStatisticsResponse.code();
-                EnvirocarServiceUtils.assertStatusCode(responseCode, userStatisticsResponse
-                        .errorBody().string());
+                EnvirocarServiceUtils.assertStatusCode(response);
                 return null;
             }
 

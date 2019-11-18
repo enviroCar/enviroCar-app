@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
 
-    Copyright (C) 2013 - 2015 the enviroCar community
+    Copyright (C) 2013 - 2019 the enviroCar community
 
     This file is part of the enviroCar app.
 
@@ -20,23 +20,59 @@
 
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:app="http://schemas.android.com/apk/res-auto"
-              xmlns:tools="http://schemas.android.com/tools"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:orientation="vertical"
-              tools:context=".BaseMainActivity">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
-    <android.support.design.widget.TabLayout
-        android:id="@+id/fragment_tracklist_layout_tablayout"
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:gravity="center"
+        android:background="@color/cario_color_primary" >
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:src="@drawable/img_envirocar_logo_white" />
+
+    </LinearLayout>
+
+    <info.hoang8f.android.segmented.SegmentedGroup
+        xmlns:segmentedgroup="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/trackListSegmentedGroup"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark"
-        app:tabGravity="fill"
-        android:elevation="6dp"/>
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:weightSum="2"
+        android:orientation="horizontal"
+        segmentedgroup:sc_tint_color="@color/cario_color_primary"
+        segmentedgroup:sc_checked_text_color="@color/white_cario"
+        segmentedgroup:sc_border_width="2dp"
+        segmentedgroup:sc_corner_radius="10dp">
 
-    <android.support.v4.view.ViewPager
+        <RadioButton
+            android:id="@+id/localSegmentedButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/track_list_local_tracks"
+            android:checked="true"
+            style="@style/RadioButton" />
+
+        <RadioButton
+            android:id="@+id/uploadedSegmentedButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/track_list_remote_tracks"
+            style="@style/RadioButton" />
+
+    </info.hoang8f.android.segmented.SegmentedGroup>
+
+    <androidx.viewpager.widget.ViewPager
         android:id="@+id/fragment_tracklist_layout_viewpager"
         android:layout_width="match_parent"
         android:layout_height="0dp"

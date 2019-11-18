@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
 
-    Copyright (C) 2013 - 2015 the enviroCar community
+    Copyright (C) 2013 - 2019 the enviroCar community
 
     This file is part of the enviroCar app.
 
@@ -19,15 +19,12 @@
     with the enviroCar app. If not, see http://www.gnu.org/licenses/.
 
 -->
-
 <resources>
   <string name="trackviews_delete_track_dialog_headline">Fahrt Löschen?</string>
   <string name="trackviews_delete_track_dialog_content_1">Sie sind dabei die Fahrt</string>
   <string name="trackviews_delete_track_dialog_content_2">zu löschen. Diese Aktion kann zu einem späteren Zeitpunkt nicht rückgängig gemacht werden! Möchten Sie fortfahren?</string>
 
-  <string name="trackviews_delete_track_snackbar_success">Fahrt wurde erfolgreich gelöscht.</string>
-
   <string name="trackviews_is_already_uploaded">Fahrt \'%s\' wurde bereits hoch geladen.</string>
   <string name="trackviews_not_logged_in">Fahrt kann nicht hochgeladen werden. Bitte loggen Sie sich dafür ein.</string>
-  <string name="trackviews_server_error">Server Fehler - Versuchen Sie es später noch einmal.</string>
+  <string name="trackviews_cannot_upload_gps_tracks">GPS-basierte Fahrten können derzeitig nicht hochgeladen werden.</string>
 </resources>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
 
-    Copyright (C) 2013 - 2015 the enviroCar community
+    Copyright (C) 2013 - 2019 the enviroCar community
 
     This file is part of the enviroCar app.
 
@@ -20,13 +20,11 @@
 
 -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context=".BaseMainActivity">
+    android:orientation="vertical">
 
-    <android.support.v7.widget.RecyclerView
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/fragment_tracklist_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -76,7 +74,7 @@
         </LinearLayout>
     </RelativeLayout>
 
-    <android.support.design.widget.FloatingActionButton
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fragment_tracklist_fab"
         style="@style/Widget.enviroCar.Fab"
         android:visibility="gone"

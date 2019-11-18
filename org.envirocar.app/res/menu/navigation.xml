@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+
+    Copyright (C) 2013 - 2019 the enviroCar community
+
+    This file is part of the enviroCar app.
+
+    The enviroCar app is free software: you can redistribute it and/or
+    modify it under the terms of the GNU General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    The enviroCar app is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+    Public License for more details.
+
+    You should have received a copy of the GNU General Public License along
+    with the enviroCar app. If not, see http://www.gnu.org/licenses/.
+
+-->
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <item
+        android:id="@+id/navigation_dashboard"
+        android:icon="@drawable/dash_board_new"
+        android:title="@string/title_dashboard" />
+
+
+    <item
+        android:id="@+id/navigation_my_tracks"
+        android:icon="@drawable/img_tracks"
+        android:title="@string/title_my_tracks" />
+
+
+    <item
+        android:id="@+id/navigation_others"
+        android:icon="@drawable/dash_board_others_new"
+        android:title="@string/title_others" />
+
+</menu>

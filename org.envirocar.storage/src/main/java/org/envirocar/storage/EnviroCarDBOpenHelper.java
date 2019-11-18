@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - 2015 the enviroCar community
+ * Copyright (C) 2013 - 2019 the enviroCar community
  *
  * This file is part of the enviroCar app.
  *
@@ -22,8 +22,8 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.logging.Logger;
+import org.envirocar.core.injection.InjectApplicationScope;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -60,6 +60,7 @@ public class EnviroCarDBOpenHelper extends SQLiteOpenHelper {
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
+            db.close();
         }
     }
 

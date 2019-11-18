@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - 2015 the enviroCar community
+ * Copyright (C) 2013 - 2019 the enviroCar community
  *
  * This file is part of the enviroCar app.
  *
@@ -28,16 +28,15 @@ import org.envirocar.core.entity.Announcement;
 import org.envirocar.core.entity.Fueling;
 import org.envirocar.core.exception.DataRetrievalFailureException;
 import org.envirocar.core.exception.NotConnectedException;
-import org.envirocar.core.exception.UnauthorizedException;
-import org.envirocar.remote.serializer.FuelingSerializer;
+import org.envirocar.remote.serde.FuelingSerde;
 
 import java.io.IOException;
 import java.util.List;
 
 import javax.inject.Inject;
 
-import rx.Observable;
-import rx.Subscriber;
+import io.reactivex.Observable;
+
 
 /**
  * TODO JavaDoc
@@ -48,10 +47,11 @@ public class CacheFuelingDAO extends AbstractCacheDAO implements FuelingDAO {
     private static final String FUELING_CACHE = "fuelings";
 
     private static final Gson GSON = new GsonBuilder()
-            .registerTypeAdapter(Fueling.class, new FuelingSerializer()).create();
+            .registerTypeAdapter(Fueling.class, new FuelingSerde()).create();
 
     @Inject
-    public CacheFuelingDAO(){}
+    public CacheFuelingDAO() {
+    }
 
     @Override
     public List<Fueling> getFuelings() throws DataRetrievalFailureException {
@@ -66,16 +66,13 @@ public class CacheFuelingDAO extends AbstractCacheDAO implements FuelingDAO {
 
     @Override
     public Observable<List<Fueling>> getFuelingsObservable() {
-        return Observable.create(new Observable.OnSubscribe<List<Fueling>>() {
-            @Override
-            public void call(Subscriber<? super List<Fueling>> subscriber) {
-                try {
-                    subscriber.onNext(getFuelings());
-                } catch (DataRetrievalFailureException e) {
-                    subscriber.onError(e);
-                }
-                subscriber.onCompleted();
+        return Observable.create(emitter -> {
+            try {
+                emitter.onNext(getFuelings());
+            } catch (DataRetrievalFailureException e) {
+                emitter.onError(e);
             }
+            emitter.onComplete();
         });
     }
 
@@ -91,7 +88,7 @@ public class CacheFuelingDAO extends AbstractCacheDAO implements FuelingDAO {
     }
 
     @Override
-    public void deleteFueling(Fueling fueling) throws NotConnectedException, UnauthorizedException {
+    public void deleteFueling(Fueling fueling) throws NotConnectedException {
         throw new NotConnectedException("CacheFuelingDAO does not support saving.");
     }
 

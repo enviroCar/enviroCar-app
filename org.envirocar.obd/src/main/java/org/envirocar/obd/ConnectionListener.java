@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - 2015 the enviroCar community
+ * Copyright (C) 2013 - 2019 the enviroCar community
  *
  * This file is part of the enviroCar app.
  *
@@ -42,22 +42,22 @@ public interface ConnectionListener {
 	 * called when the connetion is verified (= a useful response
 	 * was received)
 	 */
-	public void onConnectionVerified();
+    void onConnectionVerified();
 
 	/**
 	 * called when all registered adapters failed to create a connection
 	 */
-	public void onAllAdaptersFailed();
+    void onAllAdaptersFailed();
 
 	/**
 	 * @param message the status update message
 	 */
-	public void onStatusUpdate(String message);
+    void onStatusUpdate(String message);
 
 	/**
 	 * called when the underlying adpater wants to re-establish the connection
 	 * @param reason 
 	 */
-	public void requestConnectionRetry(IOException reason);
+    void requestConnectionRetry(IOException reason);
 
 }

@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+
+    Copyright (C) 2013 - 2019 the enviroCar community
+
+    This file is part of the enviroCar app.
+
+    The enviroCar app is free software: you can redistribute it and/or
+    modify it under the terms of the GNU General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    The enviroCar app is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+    Public License for more details.
+
+    You should have received a copy of the GNU General Public License along
+    with the enviroCar app. If not, see http://www.gnu.org/licenses/.
+
+-->
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:iconSpaceReserved="false">
+
+    <PreferenceCategory
+        android:title="@string/pref_settings_general"
+        app:iconSpaceReserved="false">
+<!--        <CheckBoxPreference-->
+<!--            android:key="@string/prefkey_always_upload"-->
+<!--            android:summary="@string/pref_always_upload_sub"-->
+<!--            android:title="@string/pref_always_upload"-->
+<!--            app:iconSpaceReserved="false" />-->
+        <CheckBoxPreference
+            android:key="@string/prefkey_display_always_active"
+            android:summary="@string/pref_display_always_activ_sub"
+            android:title="@string/pref_display_always_activ"
+            app:iconSpaceReserved="false" />
+        <CheckBoxPreference
+            android:key="@string/prefkey_text_to_speech"
+            android:summary="@string/pref_text_to_speech_summary"
+            android:title="@string/pref_text_to_speech"
+            app:iconSpaceReserved="false" />
+        <!--        <CheckBoxPreference-->
+        <!--            android:enabled="false"-->
+        <!--            android:key="@string/prefkey_imperial_unit"-->
+        <!--            android:summary="@string/pref_imperial_unit_summary"-->
+        <!--            android:title="@string/imperial_unit"-->
+        <!--            android:visibility="gone"-->
+        <!--            app:iconSpaceReserved="false" />-->
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="@string/prefkey_privacy"
+            android:summary="@string/pref_obfuscate_track_summary"
+            android:title="@string/pref_obfuscate_track"
+            app:iconSpaceReserved="false" />
+        <org.envirocar.app.views.settings.custom.SamplingRatePreference
+            android:defaultValue="5"
+            android:inputType="number"
+            android:key="@string/prefkey_samplingrate"
+            android:maxLength="8"
+            android:summary="@string/sampling_rate_summary"
+            android:title="@string/sampling_rate_title"
+            app:iconSpaceReserved="false" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/pref_obd_recording"
+        app:iconSpaceReserved="false">
+        <CheckBoxPreference
+            android:key="@string/prefkey_automatic_recording"
+            android:summary="@string/pref_bluetooth_auto_connect_summary"
+            android:title="@string/pref_bluetooth_auto_connect"
+            app:iconSpaceReserved="false" />
+        <org.envirocar.app.views.settings.custom.AutoConnectIntervalPreference
+            android:defaultValue="60"
+            android:key="@string/prefkey_search_interval"
+            android:summary="@string/pref_bluetooth_discovery_interval_summary"
+            android:title="@string/pref_bluetooth_discovery_interval"
+            app:iconSpaceReserved="false" />
+        <CheckBoxPreference
+            android:key="@string/prefkey_enable_diesel_consumption"
+            android:summary="@string/preference_beta_diesel_consumption_sum"
+            android:title="@string/preference_beta_diesel_consumption"
+            app:iconSpaceReserved="false" />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:title="@string/pref_gps_recording"
+        app:iconSpaceReserved="false">
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="@string/prefkey_enable_gps_based_track_recording"
+            android:summary="@string/preference_beta_enable_gps_based_track_recording_sum"
+            android:title="@string/preference_beta_enable_gps_based_track_recording"
+            app:iconSpaceReserved="false" />
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="@string/prefkey_gps_mode_ar"
+            android:summary="@string/pref_gps_mode_ar_summary"
+            android:title="@string/pref_gps_mode_ar_title"
+            app:iconSpaceReserved="false" />
+        <org.envirocar.app.views.settings.custom.GPSTrimDurationPreference
+            android:defaultValue="110"
+            android:key="@string/prefkey_track_trim_duration"
+            android:summary="@string/pref_track_cut_duration_summary"
+            android:title="@string/pref_track_cut_duration"
+            app:iconSpaceReserved="false" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="Debugging"
+        app:iconSpaceReserved="false">
+        <CheckBoxPreference
+            android:key="@string/prefkey_enable_debug_logging"
+            android:summary="@string/enable_debug_logging_summary"
+            android:title="@string/enable_debug_logging"
+            app:iconSpaceReserved="false" />
+    </PreferenceCategory>
+
+</PreferenceScreen>

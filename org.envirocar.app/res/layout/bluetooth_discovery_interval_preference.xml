@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
 
-    Copyright (C) 2013 - 2015 the enviroCar community
+    Copyright (C) 2013 - 2019 the enviroCar community
 
     This file is part of the enviroCar app.
 
@@ -24,7 +24,7 @@
               android:layout_height="match_parent"
               android:orientation="vertical">
 
-    <include layout="@layout/default_header_toolbar"/>
+<!--    <include layout="@layout/default_header_toolbar"/>-->
 
     <TextView
         android:id="@+id/bluetooth_discovery_interval_preference_numberpicker_text"
@@ -66,11 +66,5 @@
             android:layout_gravity="center"
             android:text="s"/>
     </LinearLayout>
-
-
-    <!--<org.envirocar.app.view.utils.TimerInputView-->
-        <!--android:id="@+id/bluetooth_discovery_interval_preference_timerinput"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent"/>-->
 
 </LinearLayout>

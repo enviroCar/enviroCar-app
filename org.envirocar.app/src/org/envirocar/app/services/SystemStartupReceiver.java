@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - 2015 the enviroCar community
+ * Copyright (C) 2013 - 2019 the enviroCar community
  *
  * This file is part of the enviroCar app.
  *
@@ -18,13 +18,12 @@
  */
 package org.envirocar.app.services;
 
-import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.preference.PreferenceManager;
 
-import org.envirocar.app.handler.PreferenceConstants;
+import org.envirocar.app.handler.ApplicationSettings;
+import org.envirocar.app.services.autoconnect.AutoRecordingService;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.utils.ServiceUtils;
 
@@ -46,45 +45,28 @@ public class SystemStartupReceiver extends BroadcastReceiver {
         // If the device completes his boot process
         if (Intent.ACTION_BOOT_COMPLETED.equals(action)) {
             LOGGER.info("Received ACTION_BOOT_COMPLETED broadcast.");
-
-            // If bluetooth is enabled, then start the background remoteService.
-            if (BluetoothAdapter.getDefaultAdapter().isEnabled())
-                startSystemStartupService(context);
-
-        } else if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
-            LOGGER.info("Received BluetoothAdapter.ACTION_STATE_CHANGED broadcast.");
-
-            final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE,
-                    BluetoothAdapter.ERROR);
-
-            switch (state) {
-                case BluetoothAdapter.STATE_ON:
-                    // If bluetooth has been turned on, then check wheterh the background remoteService
-                    // needs to be started.
-                    startSystemStartupService(context);
-                    break;
-            }
+            startAutomaticTrackRecordingService(context);
         }
     }
 
     /**
-     * Starts the SystemStartupService if the preference is setted and the remoteService is not already
+     * Starts the AutoRecordingService if the preference is setted and the remoteService is not already
      * running.
      *
      * @param context the context of the current scope.
      */
-    private void startSystemStartupService(Context context) {
+    public void startAutomaticTrackRecordingService(Context context) {
         // Get the preference related to the autoconnection.
-        boolean autoStartService = PreferenceManager.getDefaultSharedPreferences(context)
-                .getBoolean(PreferenceConstants.PREF_BLUETOOTH_SERVICE_AUTOSTART, false);
+        boolean autoStartService = ApplicationSettings.getAutoconnectEnabledObservable(context).blockingFirst();
 
         // If autostart remoteService is on and the remoteService is not already running,
         // then start the background remoteService.
         if (autoStartService && !ServiceUtils.isServiceRunning(
-                context, SystemStartupService.class)) {
-            Intent startIntent = new Intent(context, SystemStartupService.class);
+                context, AutoRecordingService.class)) {
+            Intent startIntent = new Intent(context, AutoRecordingService.class);
             context.startService(startIntent);
+        } else if (!autoStartService) {
+            AutoRecordingService.stopService(context);
         }
     }
-
 }

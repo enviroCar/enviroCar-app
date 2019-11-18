@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
 
-    Copyright (C) 2013 - 2015 the enviroCar community
+    Copyright (C) 2013 - 2019 the enviroCar community
 
     This file is part of the enviroCar app.
 
@@ -19,15 +19,13 @@
     with the enviroCar app. If not, see http://www.gnu.org/licenses/.
 
 -->
-<tools:LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<tools:LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="@dimen/spacing_medium"
-    tools:context="org.envirocar.app.view.trackdetails.TrackStatisticsActivity$PlaceholderFragment">
+    tools:context="org.envirocar.app.views.trackdetails.TrackStatisticsActivity$PlaceholderFragment">
 
     <lecho.lib.hellocharts.view.LineChartView
         android:id="@+id/activity_track_statistics_fragment_chart"

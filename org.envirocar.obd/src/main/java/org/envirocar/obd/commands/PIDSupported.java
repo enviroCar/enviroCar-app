@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - 2015 the enviroCar community
+ * Copyright (C) 2013 - 2019 the enviroCar community
  *
  * This file is part of the enviroCar app.
  *
@@ -18,11 +18,9 @@
  */
 package org.envirocar.obd.commands;
 
+import org.envirocar.core.logging.Logger;
 import org.envirocar.obd.commands.request.BasicCommand;
-import org.envirocar.obd.exception.AdapterSearchingException;
 import org.envirocar.obd.exception.InvalidCommandResponseException;
-import org.envirocar.obd.exception.NoDataReceivedException;
-import org.envirocar.obd.exception.UnmatchedResponseException;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -33,6 +31,7 @@ import java.util.Set;
 
 
 public class PIDSupported implements BasicCommand {
+    private static final Logger LOG = Logger.getLogger(PIDSupported.class);
 
     private final byte[] output;
     private Set<PID> pids;
@@ -58,7 +57,7 @@ public class PIDSupported implements BasicCommand {
     }
 
 
-    public Set<PID> parsePIDs(byte[] rawData) throws InvalidCommandResponseException, NoDataReceivedException, UnmatchedResponseException, AdapterSearchingException {
+    public Set<PID> parsePIDs(byte[] rawData) throws InvalidCommandResponseException {
         if (rawData == null) {
             throw new InvalidCommandResponseException("Null response on PIDSupported request");
         }
@@ -72,18 +71,17 @@ public class PIDSupported implements BasicCommand {
 
             String receivedGroup = rawAsString.substring(startIndex + 2, startIndex + 4);
             if (!receivedGroup.equals(group)) {
-                throw new InvalidCommandResponseException("Unexpected group received: "+receivedGroup);
+                throw new InvalidCommandResponseException("Unexpected group received: " + receivedGroup);
             }
-            rawData = rawAsString.substring(startIndex+4, startIndex + 12).getBytes();
-        }
-        else {
-            throw new InvalidCommandResponseException("The expected status response '41"+ group +"' was not in the response");
+            rawData = rawAsString.substring(startIndex + 4, startIndex + 12).getBytes();
+        } else {
+            throw new InvalidCommandResponseException("The expected status response '41" + group + "' was not in the response");
         }
 
         if (rawData.length != 8) {
-            throw new InvalidCommandResponseException("Invalid PIDSupported length: "+rawData.length);
+            throw new InvalidCommandResponseException("Invalid PIDSupported length: " + rawData.length);
         }
-        
+
         try {
             List<Integer> pids = new ArrayList<>(8);
 
@@ -99,13 +97,13 @@ public class PIDSupported implements BasicCommand {
              */
             for (int i = 0; i < rawData.length; i++) {
                 b = rawData[i];
-                int fromHex = Integer.parseInt(new String(new char[] {'0', (char) b}), 16);
+                int fromHex = Integer.parseInt(new String(new char[]{'0', (char) b}), 16);
                 BigInteger bigInt = BigInteger.valueOf(fromHex);
                 for (int j = 3; j >= 0; j--) {
                     //check from MSB down to LSB
                     if (bigInt.testBit(j)) {
                         //create an int representation and apply the group offset
-                        pids.add(1 + (i*4 + 3-j) + groupOffset);
+                        pids.add(1 + (i * 4 + 3 - j) + groupOffset);
                     }
                 }
             }
@@ -115,6 +113,8 @@ public class PIDSupported implements BasicCommand {
              * conver to hex string so the PIDUtil can parse it
              */
             for (Integer pidInt : pids) {
+                LOG.info("Supported RAW PIDs: " + pidInt);
+
                 String hex = Integer.toHexString(pidInt);
                 if (hex.length() == 1) {
                     hex = "0".concat(hex);
@@ -126,9 +126,8 @@ public class PIDSupported implements BasicCommand {
             }
 
             return list;
-        }
-        catch (RuntimeException e) {
-            throw new InvalidCommandResponseException("The response contained invalid byte values: "+e.getMessage());
+        } catch (RuntimeException e) {
+            throw new InvalidCommandResponseException("The response contained invalid byte values: " + e.getMessage());
         }
 
     }

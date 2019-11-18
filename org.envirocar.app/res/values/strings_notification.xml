@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
 
-    Copyright (C) 2013 - 2015 the enviroCar community
+    Copyright (C) 2013 - 2019 the enviroCar community
 
     This file is part of the enviroCar app.
 
@@ -21,50 +21,47 @@
 -->
 <resources>
     <string name="notification_no_car_title">No car type selected</string>
-    <string name="notification_no_car_description">You have no car type selected.
-        Please go to the car settings and select one.</string>
-    <string name="notification_no_car_action">Open Car Selection</string>
+    <string name="notification_no_car_description">Please go to the car settings and select one.</string>
 
     <string name="notification_no_obd_title">No paired OBD-II adapter selected.</string>
-    <string name="notification_no_obd_description">You have no paired OBD-II adapter selected.
-        Please go to the OBD-II settings and pair/select one.</string>
-    <string name="notification_no_obd_action">Open OBD-II Selection</string>
+    <string name="notification_no_obd_description">Please go to the OBD-II settings and pair/select one.</string>
 
     <string name="notification_unconnected_title">Unconnected</string>
     <string name="notification_unconnected_description">Track recording is not in progress.</string>
     <string name="notification_unconnected_action">Search for OBD-II</string>
 
+    <string name="notification_not_started_title">Not started</string>
+    <string name="notification_not_started_description">Track recording is not in progress.</string>
+    <string name="notification_not_started_action">Start GPS based track</string>
+
     <string name="notification_discovering_title">Discovering</string>
     <string name="notification_discovering_description">Searching for OBD-II adapter.</string>
     <string name="notification_discovering_action">Cancel</string>
 
-    <string name="notification_obd_found_title">OBD-II in range</string>
-    <string name="notification_obd_found_description">The selected OBD-II device is
-        in communication range.</string>
-    <string name="notification_obd_found_action">Start Track</string>
+    <string name="notification_connecting_title">Connecting…</string>
+    <string name="notification_connecting_description">… and starting a track.</string>
 
-    <string name="notification_connecting_title">Connecting...</string>
-    <string name="notification_connecting_description">... and starting a track.</string>
-    <string name="notification_connecting_action"></string>
-
-    <string name="notification_connected_title">Recording...</string>
+    <string name="notification_connected_title">Recording…</string>
     <string name="notification_connected_description">Track recording is in progress.</string>
     <string name="notification_connected_action">Stop Track</string>
 
     <string name="notification_stopping_title">Stopping</string>
     <string name="notification_stopping_description">Stopping the track and storing the data.</string>
-    <string name="notification_stopping_action"></string>
-
-    <!-- Secondary Notification -->
-    <string name="service_state_starting">Establishing connection to OBDII adapter</string>
-    <string name="service_state_started">Connected to OBDII adapter. Recording.</string>
-    <string name="service_state_stopped">OBDII adapter disconnected.</string>
 
     <string name="notification_slide_down">Slide down on note to expand</string>
     <string name="notification_automatic_track_upload_title">Automatic Track Upload</string>
-    <string name="notification_automatic_track_upload_title_sub">Track upload is in progress...</string>
     <string name="notification_automatic_track_upload_error">Automatic Upload Failed</string>
     <string name="notification_automatic_track_upload_error_sub">An error occurred during the upload process.</string>
     <string name="notification_automatic_track_upload_success">Automatic Upload Successful</string>
     <string name="notification_automatic_track_upload_success_sub" formatted="false">%s of %s tracks have been successfully uploaded.</string>
+
+    <string name="banner_error_ok">Ok</string>
+    <string name="banner_bluetooth_error_title">Bluetooth is Off!</string>
+    <string name="banner_bluetooth_error_content">Please turn ON Bluetooth</string>
+    <string name="banner_obd_adapter_error_title">OBD Device is not selected!</string>
+    <string name="banner_obd_adapter_error_content">Please select an OBD Device</string>
+    <string name="banner_gps_error_title">GPS is Off!</string>
+    <string name="banner_gps_error_content">Please turn ON GPS</string>
+    <string name="banner_car_error_title">Car is not selected!</string>
+    <string name="banner_car_error_content">Please choose a Car to continue</string>
 </resources>

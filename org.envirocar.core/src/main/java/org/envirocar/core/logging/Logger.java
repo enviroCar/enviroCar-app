@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - 2015 the enviroCar community
+ * Copyright (C) 2013 - 2019 the enviroCar community
  *
  * This file is part of the enviroCar app.
  *
@@ -80,7 +80,7 @@ public class Logger {
 		return new Logger(name);
 	}
 
-	protected final void log(int level, String message, Throwable e) {
+	public final void log(int level, String message, Throwable e) {
 		if (level > minimumLogLevel) {
 			return;
 		}
@@ -105,7 +105,7 @@ public class Logger {
 		return sb.toString();
 	}
 
-	protected final void log(int level, String message) {
+	public final void log(int level, String message) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("[");
 		sb.append(this.name);
@@ -161,6 +161,12 @@ public class Logger {
 	public void severe(String message, Exception e) {
 		log(SEVERE, message, e);
 	}
+
+	public void error(String message){
+		log(SEVERE, message);
+	}
+
+	public void error(Throwable e) { log(SEVERE, e.getMessage(), e); }
 
 	public void error(String message, Throwable t){
 		log(SEVERE, message, t);

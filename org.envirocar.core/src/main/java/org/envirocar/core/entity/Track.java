@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - 2015 the enviroCar community
+ * Copyright (C) 2013 - 2019 the enviroCar community
  *
  * This file is part of the enviroCar app.
  *
@@ -31,13 +31,15 @@ import java.util.List;
 public interface Track extends BaseEntity<Track>, Comparable<Track> {
     String KEY_TRACK_TYPE = "type";
     String KEY_TRACK_PROPERTIES = "properties";
-    String KEY_TRACK_PROPERTIES_ID = "id";
-    String KEY_TRACK_PROPERTIES_NAME = "name";
-    String KEY_TRACK_PROPERTIES_DESCRIPTION = "description";
-    String KEY_TRACK_PROPERTIES_CREATED = "created";
-    String KEY_TRACK_PROPERTIES_MODIFIED = "modified";
-    String KEY_TRACK_PROPERTIES_SENSOR = "sensor";
-    String KEY_TRACK_PROPERTIES_LENGTH = "length";
+    String KEY_TRACK_ID = "id";
+    String KEY_TRACK_NAME = "name";
+    String KEY_TRACK_DESC = "description";
+    String KEY_TRACK_CREATED = "created";
+    String KEY_TRACK_MODIFIED = "modified";
+    String KEY_TRACK_SENSOR = "sensor";
+    String KEY_TRACK_LENGTH = "length";
+    String KEY_TRACK_BEGIN = "begin";
+    String KEY_TRACK_END = "end";
 
     String KEY_TRACK_FEATURES = "features";
     String KEY_TRACK_FEATURES_GEOMETRY = "geometry";
@@ -96,15 +98,21 @@ public interface Track extends BaseEntity<Track>, Comparable<Track> {
 
     void setLastModified(long lastModified);
 
-    Long getStartTime() throws NoMeasurementsException;
+    Long getStartTime();
 
     void setStartTime(Long startTime);
 
-    Long getEndTime() throws NoMeasurementsException;
+    Long getEndTime();
 
     void setEndTime(Long endTime);
 
-    long getDuration() throws NoMeasurementsException;
+    long getDuration();
+
+    long getDurationMillis();
+
+    Double getLength();
+
+    void setLength(Double length);
 
     TrackStatus getTrackStatus();
 

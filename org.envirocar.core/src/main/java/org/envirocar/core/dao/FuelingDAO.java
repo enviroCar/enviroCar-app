@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - 2015 the enviroCar community
+ * Copyright (C) 2013 - 2019 the enviroCar community
  *
  * This file is part of the enviroCar app.
  *
@@ -27,7 +27,7 @@ import org.envirocar.core.exception.UnauthorizedException;
 
 import java.util.List;
 
-import rx.Observable;
+import io.reactivex.Observable;
 
 /**
  * TODO JavaDoc

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - 2015 the enviroCar community
+ * Copyright (C) 2013 - 2019 the enviroCar community
  *
  * This file is part of the enviroCar app.
  *
@@ -24,18 +24,19 @@ import com.google.common.base.Preconditions;
 
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
+import org.envirocar.core.exception.MailNotConfirmedException;
 import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.exception.NotConnectedException;
 import org.envirocar.core.exception.ResourceConflictException;
 import org.envirocar.core.exception.UnauthorizedException;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.core.util.Util;
+import org.envirocar.core.utils.TrackUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import retrofit.Response;
+import retrofit2.Response;
 
 /**
  * @author dewall
@@ -49,6 +50,7 @@ public class EnvirocarServiceUtils {
     public static final int HTTP_FORBIDDEN = 403;
     public static final int HTTP_NOT_FOUND = 404;
     public static final int HTTP_CONFLICT = 409;
+    public static final int HTTP_LEGAL_REASONS = 451;
 
     /**
      * Searches a given link string for the 'rel=last' value. A link string can look like this:
@@ -115,18 +117,42 @@ public class EnvirocarServiceUtils {
         return null;
     }
 
-    public static final void assertStatusCode(int httpStatusCode, String error) throws
+//    public static final void assertStatusCode(int httpStatusCode, String error)
+//            throws UnauthorizedException, NotConnectedException, ResourceConflictException {
+//        assertStatusCode(httpStatusCode, error, error);
+//    }
+
+    public static final void assertStatusCode(Response<?> response) throws
             UnauthorizedException, NotConnectedException, ResourceConflictException {
+        assertStatusCode(response.code(), response.errorBody().toString(), response.body().toString());
+    }
+
+    public static final void assertStatusCode(int httpStatusCode, String error, String body) throws
+            UnauthorizedException, NotConnectedException, ResourceConflictException {
+        LOG.info("Assert Status code " + httpStatusCode + " " + error);
         if (httpStatusCode >= HTTP_MULTIPLE_CHOICES) {
-            if (httpStatusCode == HTTP_UNAUTHORIZED ||
-                    httpStatusCode == HTTP_FORBIDDEN) {
-                throw new UnauthorizedException("Authentication failed: " + httpStatusCode + "; "
-                        + error);
+            LOG.info(body);
+            if (httpStatusCode == HTTP_UNAUTHORIZED || httpStatusCode == HTTP_FORBIDDEN) {
+                if (body != null) {
+                    if (body.contains("mail not confirmed"))
+                        throw new MailNotConfirmedException(String.format("Authentication failed: %s; %s", httpStatusCode, error));
+                }
+                throw new UnauthorizedException("Authentication failed: " + httpStatusCode + "; " + error);
             } else if (httpStatusCode == HTTP_CONFLICT) {
-                throw new ResourceConflictException(error);
+                if (body != null) {
+                    if (body.contains("name already exists")) {
+                        throw new ResourceConflictException(error, ResourceConflictException.ConflictType.USERNAME);
+                    } else if (body.contains("mail already exists")) {
+                        throw new ResourceConflictException(error, ResourceConflictException.ConflictType.MAIL);
+                    }
+                } else {
+                    throw new ResourceConflictException(error);
+                }
+            } else if (httpStatusCode == HTTP_LEGAL_REASONS) {
+                // TODO
+                throw new NotConnectedException("Legal reasons response: " + httpStatusCode + ": " + error);
             } else {
-                throw new NotConnectedException("Unsupported Server response: " + httpStatusCode
-                        + "; " + error);
+                throw new NotConnectedException("Unsupported Server response: " + httpStatusCode + "; " + error);
             }
         }
     }
@@ -210,7 +236,7 @@ public class EnvirocarServiceUtils {
      */
     public static String resolveRemoteLocation(Response<?> response) {
         Preconditions.checkNotNull(response, "Response type can not be null.");
-        Preconditions.checkState(response.isSuccess(), "Response has to be succesful to be able " +
+        Preconditions.checkState(response.isSuccessful(), "Response has to be succesful to be able " +
                 "to resolve the uploaded location");
 
         // Get all headers in order to find out the location of the uploaded car.
@@ -233,7 +259,7 @@ public class EnvirocarServiceUtils {
 
         String remoteID = split[split.length - 1];
         if (remoteID == "" || remoteID.isEmpty()) {
-            remoteID = split[split.length-2];
+            remoteID = split[split.length - 2];
         }
 
         return remoteID;
@@ -262,15 +288,15 @@ public class EnvirocarServiceUtils {
                 try {
                     /*
                      * ignore early and late
-					 */
-                    if (isTemporalObfuscationCandidate(measurement, track)) {
+                     */
+                    if (TrackUtils.isTemporalObfuscated(measurement, track)) {
                         continue;
                     }
 
-					/*
+                    /*
                      * ignore distance
-					 */
-                    if (isSpatialObfuscationCandidate(measurement, track)) {
+                     */
+                    if (TrackUtils.isSpatialObfuscated(measurement, track)) {
                         if (wasAtLeastOneTimeNotObfuscated) {
                             privateCandidates.add(measurement);
                             nonPrivateMeasurements.add(measurement);
@@ -278,12 +304,12 @@ public class EnvirocarServiceUtils {
                         continue;
                     }
 
-					/*
+                    /*
                      * we may have found obfuscation candidates in the middle of the track
-					 * (may cross start or end point) in a PRIOR iteration
-					 * of this loop. these candidates can be removed now as we are again
-					 * out of obfuscation scope
-					 */
+                     * (may cross start or end point) in a PRIOR iteration
+                     * of this loop. these candidates can be removed now as we are again
+                     * out of obfuscation scope
+                     */
                     if (wasAtLeastOneTimeNotObfuscated) {
                         privateCandidates.clear();
                     } else {
@@ -298,8 +324,8 @@ public class EnvirocarServiceUtils {
             }
             /*
              * the private candidates which have made it until here
-			 * shall be ignored
-			 */
+             * shall be ignored
+             */
             nonPrivateMeasurements.removeAll(privateCandidates);
             track.setMeasurements(privateCandidates);
         }
@@ -307,23 +333,4 @@ public class EnvirocarServiceUtils {
         return track;
     }
 
-    /**
-     * TODO a circular criteria could lead to
-     *
-     * @param measurement
-     * @param track
-     * @return
-     */
-    private static boolean isSpatialObfuscationCandidate(Measurement measurement, Track track)
-            throws NoMeasurementsException {
-        return (Util.getDistance(track.getFirstMeasurement(), measurement) <= 0.25)
-                || (Util.getDistance(track.getLastMeasurement(), measurement) <= 0.25);
-    }
-
-    private static boolean isTemporalObfuscationCandidate(Measurement measurement, Track track)
-            throws
-            NoMeasurementsException {
-        return (measurement.getTime() - track.getStartTime() <= 60000 ||
-                track.getEndTime() - measurement.getTime() <= 60000);
-    }
 }

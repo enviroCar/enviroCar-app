@@ -1,18 +1,18 @@
 /**
- * Copyright (C) 2013 - 2015 the enviroCar community
- * <p>
+ * Copyright (C) 2013 - 2019 the enviroCar community
+ *
  * This file is part of the enviroCar app.
- * <p>
+ *
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * <p>
+ *
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- * <p>
+ *
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -26,19 +26,19 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
+import android.util.Pair;
 
 import com.google.common.base.Preconditions;
 import com.squareup.otto.Bus;
+import com.squareup.otto.Produce;
 
-import org.envirocar.app.services.OBDConnectionService;
+import org.envirocar.app.recording.RecordingService;
+import org.envirocar.app.rxutils.RxBroadcastReceiver;
 import org.envirocar.core.events.bluetooth.BluetoothDeviceDiscoveredEvent;
 import org.envirocar.core.events.bluetooth.BluetoothDeviceSelectedEvent;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.core.utils.BroadcastUtils;
 import org.envirocar.core.utils.ServiceUtils;
 
 import java.lang.reflect.InvocationTargetException;
@@ -50,11 +50,11 @@ import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import rx.Observable;
-import rx.Scheduler;
-import rx.Subscriber;
-import rx.Subscription;
-import rx.schedulers.Schedulers;
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.Scheduler;
+import io.reactivex.observers.DisposableObserver;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * @author dewall
@@ -69,7 +69,7 @@ public class BluetoothHandler {
 
     private final Scheduler.Worker mWorker = Schedulers.io().createWorker();
 
-    private Subscription mDiscoverySubscription;
+    private DisposableObserver mDiscoverySubscription;
     private boolean mIsAutoconnecting;
 
     // The bluetooth adapter
@@ -89,7 +89,7 @@ public class BluetoothHandler {
 
                         stopBluetoothDeviceDiscovery();
                         if (mDiscoverySubscription != null) {
-                            mDiscoverySubscription.unsubscribe();
+                            mDiscoverySubscription.dispose();
                             mDiscoverySubscription = null;
                         }
 
@@ -111,7 +111,7 @@ public class BluetoothHandler {
 
                         // Post a new event for the changed bluetooth state on the eventbus.
                         BluetoothStateChangedEvent turnedOnEvent
-                                = new BluetoothStateChangedEvent(true);
+                                = new BluetoothStateChangedEvent(true, getSelectedBluetoothDevice());
                         bus.post(turnedOnEvent);
 
                         break;
@@ -149,16 +149,16 @@ public class BluetoothHandler {
      * Starts the connection to the bluetooth device if not already active.
      */
     public void startOBDConnectionService() {
-        if (!ServiceUtils.isServiceRunning(context, OBDConnectionService.class))
+        if (!ServiceUtils.isServiceRunning(context, RecordingService.class))
             context.getApplicationContext()
-                    .startService(new Intent(context, OBDConnectionService.class));
+                    .startService(new Intent(context, RecordingService.class));
     }
 
 
     public void stopOBDConnectionService() {
-        if (ServiceUtils.isServiceRunning(context, OBDConnectionService.class)) {
+        if (ServiceUtils.isServiceRunning(context, RecordingService.class)) {
             context.getApplicationContext()
-                    .stopService(new Intent(context, OBDConnectionService.class));
+                    .stopService(new Intent(context, RecordingService.class));
         }
 
         ActivityManager amgr = (ActivityManager) context.getSystemService(Context
@@ -179,6 +179,15 @@ public class BluetoothHandler {
         }
     }
 
+    @Produce
+    public BluetoothStateChangedEvent produceBluetoothStateChangedEvent() {
+        return new BluetoothStateChangedEvent(isBluetoothEnabled(), getSelectedBluetoothDevice());
+    }
+
+    @Produce
+    public BluetoothDeviceSelectedEvent produceBluetoothDeviceSelectedEvent() {
+        return new BluetoothDeviceSelectedEvent(getSelectedBluetoothDevice());
+    }
 
     /**
      * Returns the corresponding BluetoothDevice for the attributes stored in the shared
@@ -192,20 +201,14 @@ public class BluetoothHandler {
             return null;
 
         // Get the preferences of the device.
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        String deviceName = preferences.getString(
-                PreferenceConstants.PREF_BLUETOOTH_NAME,
-                PreferenceConstants.PREF_EMPTY);
-        String deviceAddress = preferences.getString(
-                PreferenceConstants.PREF_BLUETOOTH_ADDRESS,
-                PreferenceConstants.PREF_EMPTY);
+        Pair<String, String> bluetoothDevice = ApplicationSettings.getSelectedBluetoothAdapterObservable(context).blockingFirst();
 
         // If the device address is not empty and the device is still a paired device, get the
         // corresponding BluetoothDevice and return it.
-        if (!deviceAddress.equals(PreferenceConstants.PREF_EMPTY)) {
+        if (!bluetoothDevice.second.equals("")) {
             Set<BluetoothDevice> devices = getPairedBluetoothDevices();
             for (BluetoothDevice device : devices) {
-                if (device.getAddress().equals(deviceAddress))
+                if (device.getAddress().equals(bluetoothDevice.second))
                     return device;
             }
 
@@ -217,28 +220,9 @@ public class BluetoothHandler {
     }
 
     public void setSelectedBluetoothDevice(BluetoothDevice selectedDevice) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-
-        boolean success = preferences.edit()
-                .remove(PreferenceConstants.PREF_BLUETOOTH_NAME)
-                .remove(PreferenceConstants.PREF_BLUETOOTH_ADDRESS)
-                .commit();
-
-        if (selectedDevice != null) {
-            // Update the shared preference entry for the bluetooth selection tag.
-            success &= preferences.edit()
-                    .putString(PreferenceConstants.PREF_BLUETOOTH_NAME,
-                            selectedDevice.getName())
-                    .putString(PreferenceConstants.PREF_BLUETOOTH_ADDRESS,
-                            selectedDevice.getAddress())
-                    .commit();
-        }
-
-        if (success) {
-            LOGGER.info("Successfully updated shared preferences");
-            bus.post(new BluetoothDeviceSelectedEvent(selectedDevice));
-        }
-
+        ApplicationSettings.setSelectedBluetoothAdapter(context, selectedDevice);
+        LOGGER.info("Successfully updated shared preferences");
+        bus.post(new BluetoothDeviceSelectedEvent(selectedDevice));
     }
 
     /**
@@ -328,7 +312,7 @@ public class BluetoothHandler {
      * @return
      */
     public Observable<BluetoothDevice> startBluetoothDiscovery() {
-        return Observable.create(subscriber -> {
+        return Observable.create((ObservableEmitter<BluetoothDevice> subscriber) -> {
             LOGGER.info("startBluetoothDiscovery(): subscriber call");
 
             // If the device is already discovering, cancel the discovery before starting.
@@ -346,7 +330,7 @@ public class BluetoothHandler {
 
             if (mDiscoverySubscription != null) {
                 // Cancel the pending subscription.
-                mDiscoverySubscription.unsubscribe();
+                mDiscoverySubscription.dispose();
                 mDiscoverySubscription = null;
             }
 
@@ -356,14 +340,18 @@ public class BluetoothHandler {
             filter.addAction(BluetoothDevice.ACTION_FOUND);
             filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
 
-            mDiscoverySubscription = BroadcastUtils
-                    .createBroadcastObservable(context, filter)
-                    .subscribe(new Subscriber<Intent>() {
+            mDiscoverySubscription = RxBroadcastReceiver.create(context, filter)
+                    .subscribeWith(new DisposableObserver<Intent>() {
 
                         @Override
-                        public void onCompleted() {
+                        protected void onStart() {
+                            super.onStart();
+                        }
+
+                        @Override
+                        public void onComplete() {
                             LOGGER.info("onCompleted()");
-                            subscriber.onCompleted();
+                            subscriber.onComplete();
                         }
 
                         @Override
@@ -379,7 +367,7 @@ public class BluetoothHandler {
 
                             // If the discovery process has been started.
                             if (BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals(action)) {
-                                subscriber.onStart();
+//                                subscriber.onStart();
                             }
 
                             // If the discovery process finds a device
@@ -393,17 +381,17 @@ public class BluetoothHandler {
 
                             // If the discovery process has been finished.
                             else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
-                                subscriber.onCompleted();
+                                subscriber.onComplete();
                                 mWorker.schedule(() -> {
-                                    if (!isUnsubscribed()) {
-                                        unsubscribe();
+                                    if (!isDisposed()) {
+                                        dispose();
                                     }
                                 }, 100, TimeUnit.MILLISECONDS);
                             }
                         }
                     });
 
-            subscriber.add(mDiscoverySubscription);
+            subscriber.setDisposable(mDiscoverySubscription);
             mBluetoothAdapter.startDiscovery();
         });
     }
@@ -524,10 +512,7 @@ public class BluetoothHandler {
     }
 
     public boolean isBluetoothActive() {
-        if (mBluetoothAdapter == null || mBluetoothAdapter.getAddress() == null) {
-            return false;
-        }
-        return true;
+        return mBluetoothAdapter != null && mBluetoothAdapter.getAddress() != null;
     }
 
     public void enableBluetooth(Activity activity) {
@@ -668,14 +653,6 @@ public class BluetoothHandler {
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
-    }
-
-    public void startService() {
-
-    }
-
-    public void stopService() {
-
     }
 
     /**

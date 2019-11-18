@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
 
-    Copyright (C) 2013 - 2015 the enviroCar community
+    Copyright (C) 2013 - 2019 the enviroCar community
 
     This file is part of the enviroCar app.
 
@@ -23,7 +23,8 @@
     <string name="car_selection_my_cars">Meine Fahrzeuge</string>
     <string name="car_selection_no_car_selected">Kein Fahrzeugtyp ausgewählt</string>
     <string name="car_selection_add_car">Fahrzeug Hinzufügen</string>
-    <string name="car_selection_enter_info">Geben Sie die Details ihres Fahrzeug ein...</string>
+    <string name="car_selection_enter_info">Geben Sie die Details ihres Fahrzeug ein</string>
+    <string name="car_selection_header">Fahrzeug Auswahl</string>
 
     <string name="car_selection_car_selected" formatted="false">%s %s ausgewählt.</string>
     <string name="car_selection_car_deleted_tmp" formatted="false">%s %s gelöscht.</string>
@@ -33,5 +34,5 @@
     <string name="car_selection_manufacturer">Hersteller</string>
     <string name="car_selection_model">Modell</string>
     <string name="car_selection_construction_year">Herstellungsjahr</string>
-    <string name="car_selection_engine_displacement">Hubraum (cc)</string>
+    <string name="car_selection_engine_displacement">Hubraum (ccm³)</string>
 </resources>

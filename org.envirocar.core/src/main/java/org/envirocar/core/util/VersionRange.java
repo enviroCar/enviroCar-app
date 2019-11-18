@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - 2015 the enviroCar community
+ * Copyright (C) 2013 - 2019 the enviroCar community
  *
  * This file is part of the enviroCar app.
  *
@@ -110,13 +110,10 @@ public class VersionRange {
 		if (v.compareTo(this.maximum) == 0 && maximumIncluded) {
 			return true;
 		}
-		
-		if (v.compareTo(this.minimum) > 0 && v.compareTo(this.maximum) < 0) {
-			return true;
-		}
-		
-		return false;
-	}
+
+        return v.compareTo(this.minimum) > 0 && v.compareTo(this.maximum) < 0;
+
+    }
 	
 	/**
 	 * A class representing a Version following the semantic

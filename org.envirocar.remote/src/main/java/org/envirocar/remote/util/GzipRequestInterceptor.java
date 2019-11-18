@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - 2015 the enviroCar community
+ * Copyright (C) 2013 - 2019 the enviroCar community
  *
  * This file is part of the enviroCar app.
  *
@@ -18,11 +18,11 @@
  */
 package org.envirocar.remote.util;
 
-import com.squareup.okhttp.Interceptor;
-import com.squareup.okhttp.MediaType;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.RequestBody;
-import com.squareup.okhttp.Response;
+import okhttp3.Interceptor;
+import okhttp3.MediaType;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 import java.io.IOException;
 
@@ -51,7 +51,7 @@ public class GzipRequestInterceptor implements Interceptor {
                     }
 
                     @Override
-                    public long contentLength() throws IOException {
+                    public long contentLength() {
                         return -1;
                     }
 

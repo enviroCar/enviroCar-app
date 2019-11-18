@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
 
-    Copyright (C) 2013 - 2015 the enviroCar community
+    Copyright (C) 2013 - 2019 the enviroCar community
 
     This file is part of the enviroCar app.
 
@@ -28,11 +28,6 @@
     <string name="bluetooth_pairing_preference_dialog_remove_pairing">Delete</string>
 
     <string name="pref_bt_discovery_interval_title">Set Discovery Interval</string>
-    <string name="pref_bt_discovery_interval_summary">Defines the search interval at which the device searches for the selected OBD-II device.</string>
     <string name="pref_bt_discovery_interval_explanation">Select the interval (in minutes + seconds) at which the application re-initiates the discovery process.</string>
 
-    <string name="pref_bt_service_autostart_title">Autostart Background Service</string>
-    <string name="pref_bt_service_autostart_summary">Automatically start the background service whenever Bluetooth gets activated.</string>
-
-    <string name="bluetooth_pairing_prefrence_paired_devices">Gepaarte Geräte</string>
 </resources>

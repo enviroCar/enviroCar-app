@@ -1,22 +1,20 @@
-/* 
- * enviroCar 2013
- * Copyright (C) 2013  
- * Martin Dueren, Jakob Moellers, Gerald Pape, Christopher Stephan
+/**
+ * Copyright (C) 2013 - 2019 the enviroCar community
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or
+ * This file is part of the enviroCar app.
+ *
+ * The enviroCar app is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * The enviroCar app is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+ * Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
- * 
+ * You should have received a copy of the GNU General Public License along
+ * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
 package org.envirocar.obd.adapter.async;
 
@@ -49,7 +47,7 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
     private int totalResponseCount;
     private boolean supportForLambdaVoltage = true;
 
-    private static enum Protocol {
+    private enum Protocol {
         CAN11500, CAN11250, CAN29500, CAN29250, KWP_SLOW, KWP_FAST, ISO9141
     }
 
@@ -100,12 +98,7 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
         if (supportedPIDs == null || supportedPIDs.isEmpty()) {
             supportForLambdaVoltage = true;
         }
-        else if (supportedPIDs.contains(PID.O2_LAMBDA_PROBE_1_VOLTAGE)) {
-            supportForLambdaVoltage = false;
-        }
-        else {
-            supportForLambdaVoltage = true;
-        }
+        else supportForLambdaVoltage = !supportedPIDs.contains(PID.O2_LAMBDA_PROBE_1_VOLTAGE);
     }
 
 

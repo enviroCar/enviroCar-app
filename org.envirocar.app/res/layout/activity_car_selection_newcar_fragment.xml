@@ -1,11 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+
+    Copyright (C) 2013 - 2019 the enviroCar community
+
+    This file is part of the enviroCar app.
+
+    The enviroCar app is free software: you can redistribute it and/or
+    modify it under the terms of the GNU General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    The enviroCar app is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+    Public License for more details.
+
+    You should have received a copy of the GNU General Public License along
+    with the enviroCar app. If not, see http://www.gnu.org/licenses/.
+
+-->
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <android.support.v7.widget.Toolbar
+    <androidx.appcompat.widget.Toolbar
         android:id="@+id/activity_car_selection_newcar_toolbar"
         style="@style/ToolBarStyle"
         android:layout_width="match_parent"
@@ -23,7 +43,7 @@
             android:textSize="18sp"
             android:textStyle="bold"/>
 
-    </android.support.v7.widget.Toolbar>
+    </androidx.appcompat.widget.Toolbar>
 
     <LinearLayout
         android:id="@+id/activity_car_selection_newcar_toolbar_exp"
@@ -31,7 +51,7 @@
         android:layout_height="?actionBarSize"
         android:background="@color/blue_dark_cario"
         android:elevation="@dimen/spacing_medium"
-        android:visibility="gone">
+        android:visibility="visible">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -51,7 +71,7 @@
         </RelativeLayout>
     </LinearLayout>
 
-    <android.support.v4.widget.NestedScrollView
+    <androidx.core.widget.NestedScrollView
         android:id="@+id/activity_car_selection_newcar_content_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -120,7 +140,7 @@
                         android:alpha="0.54"
                         android:src="@drawable/ic_drive_eta_black_24dp"/>
 
-                    <android.support.design.widget.TextInputLayout
+                    <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/activity_car_selection_newcar_manufacturer_l"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -140,7 +160,7 @@
                             android:singleLine="true"
                             android:textSize="@dimen/text_medium"/>
 
-                    </android.support.design.widget.TextInputLayout>
+                    </com.google.android.material.textfield.TextInputLayout>
 
                     <Spinner
                         android:id="@+id/activity_car_selection_newcar_manufacturer_spinner"
@@ -168,7 +188,7 @@
                         android:src="@drawable/ic_drive_eta_black_24dp"
                         android:visibility="invisible"/>
 
-                    <android.support.design.widget.TextInputLayout
+                    <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="@dimen/spacing_medium"
@@ -187,7 +207,7 @@
                             android:singleLine="true"
                             android:textSize="@dimen/text_medium"/>
 
-                    </android.support.design.widget.TextInputLayout>
+                    </com.google.android.material.textfield.TextInputLayout>
 
                     <Spinner
                         android:id="@+id/activity_car_selection_newcar_model_spinner"
@@ -213,7 +233,7 @@
                         android:src="@drawable/ic_drive_eta_black_24dp"
                         android:visibility="invisible"/>
 
-                    <android.support.design.widget.TextInputLayout
+                    <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="@dimen/spacing_medium"
@@ -232,7 +252,7 @@
                             android:singleLine="true"
                             android:textSize="@dimen/text_medium"/>
 
-                    </android.support.design.widget.TextInputLayout>
+                    </com.google.android.material.textfield.TextInputLayout>
 
                     <Spinner
                         android:id="@+id/activity_car_selection_newcar_year_spinner"
@@ -260,7 +280,7 @@
                         android:src="@drawable/ic_drive_eta_black_24dp"
                         android:visibility="invisible"/>
 
-                    <android.support.design.widget.TextInputLayout
+                    <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="3">
@@ -279,7 +299,7 @@
                             android:singleLine="true"
                             android:textSize="@dimen/text_medium"/>
 
-                    </android.support.design.widget.TextInputLayout>
+                    </com.google.android.material.textfield.TextInputLayout>
 
                     <Spinner
                         android:id="@+id/activity_car_selection_newcar_engine_spinner"
@@ -355,6 +375,6 @@
             </LinearLayout>
 
         </RelativeLayout>
-    </android.support.v4.widget.NestedScrollView>
+    </androidx.core.widget.NestedScrollView>
 
 </LinearLayout>

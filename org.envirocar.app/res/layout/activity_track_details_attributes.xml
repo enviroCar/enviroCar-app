@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
 
-    Copyright (C) 2013 - 2015 the enviroCar community
+    Copyright (C) 2013 - 2019 the enviroCar community
 
     This file is part of the enviroCar app.
 
@@ -138,6 +138,7 @@
     </RelativeLayout>
 
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                    android:id="@+id/consumption_container"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:minHeight="@dimen/spacing_xxlarge"
@@ -178,6 +179,7 @@
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:id="@+id/co2_container"
                     android:minHeight="@dimen/spacing_xxlarge"
                     android:paddingLeft="@dimen/activity_horizontal_margin"
                     android:paddingRight="@dimen/activity_horizontal_margin">
@@ -215,6 +217,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:id="@+id/descriptionTv"
         android:paddingLeft="64dp"
         android:paddingRight="@dimen/activity_horizontal_margin"
         android:textSize="10sp"

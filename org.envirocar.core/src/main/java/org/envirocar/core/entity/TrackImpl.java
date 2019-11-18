@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - 2015 the enviroCar community
+ * Copyright (C) 2013 - 2019 the enviroCar community
  *
  * This file is part of the enviroCar app.
  *
@@ -22,8 +22,8 @@ import org.envirocar.core.exception.FuelConsumptionException;
 import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.exception.UnsupportedFuelTypeException;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.core.trackprocessing.TrackStatisticsProcessor;
-import org.envirocar.core.trackprocessing.TrackStatisticsProvider;
+import org.envirocar.core.trackprocessing.statistics.TrackStatisticsProcessor;
+import org.envirocar.core.trackprocessing.statistics.TrackStatisticsProvider;
 import org.envirocar.core.util.TrackMetadata;
 
 import java.util.ArrayList;
@@ -35,7 +35,6 @@ import java.util.List;
  * @author dewall
  */
 public class TrackImpl implements Track, TrackStatisticsProvider {
-    private static final Logger LOG = Logger.getLogger(TrackImpl.class);
     private TrackStatisticsProcessor STATISTICS_PROCESSOR;
 
     protected TrackId trackID;
@@ -46,6 +45,7 @@ public class TrackImpl implements Track, TrackStatisticsProvider {
     protected Long lastModified;
     protected Long startTime;
     protected Long endTime;
+    protected Double length;
     protected TrackMetadata metadata;
     protected Track.TrackStatus trackStatus = Track.TrackStatus.ONGOING;
     protected List<Measurement> measurements = new ArrayList<Measurement>();
@@ -119,6 +119,7 @@ public class TrackImpl implements Track, TrackStatisticsProvider {
         track.setTrackStatus(trackStatus);
         track.setMeasurements(new ArrayList<>(measurements));
         track.setLazyMeasurements(isLazyLoadingMeasurements);
+        track.setLength(length);
         return track;
     }
 
@@ -194,10 +195,7 @@ public class TrackImpl implements Track, TrackStatisticsProvider {
     }
 
     @Override
-    public Long getStartTime() throws NoMeasurementsException {
-        if (startTime == null) {
-            setStartTime(getFirstMeasurement().getTime());
-        }
+    public Long getStartTime() {
         return startTime;
     }
 
@@ -207,10 +205,7 @@ public class TrackImpl implements Track, TrackStatisticsProvider {
     }
 
     @Override
-    public Long getEndTime() throws NoMeasurementsException {
-        if (endTime == null) {
-            setEndTime(getLastMeasurement().getTime());
-        }
+    public Long getEndTime() {
         return endTime;
     }
 
@@ -220,8 +215,23 @@ public class TrackImpl implements Track, TrackStatisticsProvider {
     }
 
     @Override
-    public long getDuration() throws NoMeasurementsException {
+    public Double getLength() {
+        return this.length;
+    }
+
+    @Override
+    public void setLength(Double length) {
+        this.length = length;
+    }
+
+    @Override
+    public long getDuration() {
         return getEndTime() - getStartTime();
+    }
+
+    @Override
+    public long getDurationMillis() {
+        return endTime - startTime;
     }
 
     @Override
@@ -291,8 +301,8 @@ public class TrackImpl implements Track, TrackStatisticsProvider {
 
     @Override
     public boolean hasProperty(Measurement.PropertyKey propertyKey) {
-        for(Measurement m : measurements){
-            if(m.hasProperty(propertyKey)) {
+        for (Measurement m : measurements) {
+            if (m.hasProperty(propertyKey)) {
                 return true;
             }
         }
@@ -302,8 +312,8 @@ public class TrackImpl implements Track, TrackStatisticsProvider {
     @Override
     public List<Measurement.PropertyKey> getSupportedProperties() {
         List<Measurement.PropertyKey> result = new ArrayList<>();
-        for(Measurement.PropertyKey key : Measurement.PropertyKey.values()){
-            if(hasProperty(key)){
+        for (Measurement.PropertyKey key : Measurement.PropertyKey.values()) {
+            if (hasProperty(key)) {
                 result.add(key);
             }
         }
@@ -322,48 +332,35 @@ public class TrackImpl implements Track, TrackStatisticsProvider {
             if (another.getDownloadState() == DownloadState.REMOTE) {
                 return -1;
             }
-        }
 
-        try {
+
             if (another.getStartTime() == null && another.getEndTime() == null) {
                 /*
                  * we cannot assume any ordering
-				 */
+                 */
                 return 0;
             }
-        } catch (NoMeasurementsException e) {
-            return 0;
-        }
 
-        try {
+
             if (this.getStartTime() == null) {
                 /*
                  * no measurements, this is probably a relatively new track
-				 */
+                 */
                 return -1;
             }
-        } catch (NoMeasurementsException e) {
-            return -1;
-        }
 
-        try {
+
             if (another.getStartTime() == null) {
                 /*
                  * no measurements, that is probably a relatively new track
-				 */
+                 */
                 return 1;
+
+
             }
-        } catch (NoMeasurementsException e) {
-            return 1;
         }
-
-        try {
-            return (this.getStartTime() < another.getStartTime() ? 1 : -1);
-        } catch (NoMeasurementsException e) {
-            return 0;
-        }
+        return (this.getStartTime() < another.getStartTime() ? 1 : -1);
     }
-
 
     @Override
     public boolean equals(Object o) {
@@ -410,7 +407,7 @@ public class TrackImpl implements Track, TrackStatisticsProvider {
 
     @Override
     public double getDistanceOfTrack() {
-        if (distanceOfTrack == null) {
+        if ((distanceOfTrack == null || distanceOfTrack == 0.0) && STATISTICS_PROCESSOR != null) {
             distanceOfTrack = STATISTICS_PROCESSOR.computeDistanceOfTrack(getMeasurements());
         }
         return distanceOfTrack;
@@ -433,7 +430,8 @@ public class TrackImpl implements Track, TrackStatisticsProvider {
     }
 
     @Override
-    public double getLiterPerHundredKm() throws FuelConsumptionException, NoMeasurementsException {
+    public double getLiterPerHundredKm() throws
+            FuelConsumptionException, NoMeasurementsException {
         if (literPerHundredKm == null) {
             literPerHundredKm = STATISTICS_PROCESSOR.getLiterPerHundredKm(
                     getFuelConsumptionPerHour(), getDuration(), getDistanceOfTrack());
@@ -445,8 +443,7 @@ public class TrackImpl implements Track, TrackStatisticsProvider {
     public double getGramsPerKm() throws FuelConsumptionException, NoMeasurementsException,
             UnsupportedFuelTypeException {
         if (gramsPerKm == null) {
-            gramsPerKm = STATISTICS_PROCESSOR.getGramsPerKm(getLiterPerHundredKm(), getCar()
-                    .getFuelType());
+            gramsPerKm = STATISTICS_PROCESSOR.getGramsPerKm(getLiterPerHundredKm(), getCar().getFuelType());
         }
         return gramsPerKm;
     }

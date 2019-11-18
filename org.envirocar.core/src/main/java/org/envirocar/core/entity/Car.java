@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - 2015 the enviroCar community
+ * Copyright (C) 2013 - 2019 the enviroCar community
  *
  * This file is part of the enviroCar app.
  *
@@ -17,6 +17,8 @@
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
 package org.envirocar.core.entity;
+
+import org.envirocar.core.R;
 
 import java.io.Serializable;
 
@@ -44,29 +46,42 @@ public interface Car extends BaseEntity<Car>, Serializable {
 
     String TEMPORARY_SENSOR_ID = "%TMP_ID%";
 
-    enum FuelType {
+    interface FuelTypeStrings {
+        int getStringResource();
+    }
+
+    enum FuelType implements FuelTypeStrings {
         GASOLINE {
+            @Override
+            public int getStringResource() {
+                return R.string.fuel_type_gasoline;
+            }
+
             public String toString() {
                 return FUELTYPE_GASOLINE;
             }
 
         },
         DIESEL {
+            @Override
+            public int getStringResource() {
+                return R.string.fuel_type_diesel;
+            }
+
             public String toString() {
                 return FUELTYPE_DIESEL;
             }
         };
 
-        public static FuelType resolveFuelType(String fuelType){
-            if(fuelType.equals(GASOLINE.toString())){
+        public static FuelType resolveFuelType(String fuelType) {
+            if (fuelType.equals(GASOLINE.toString())) {
                 return GASOLINE;
-            } else if(fuelType.equals(DIESEL.toString())){
+            } else if (fuelType.equals(DIESEL.toString())) {
                 return DIESEL;
             }
             return null;
         }
     }
-
 
 
     String getId();

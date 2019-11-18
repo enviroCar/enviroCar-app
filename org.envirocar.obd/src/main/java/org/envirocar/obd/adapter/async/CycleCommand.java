@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - 2015 the enviroCar community
+ * Copyright (C) 2013 - 2019 the enviroCar community
  *
  * This file is part of the enviroCar app.
  *
@@ -27,7 +27,7 @@ public class CycleCommand implements BasicCommand {
 
 	private byte[] bytes;
 
-	public static enum DriveDeckPID implements DriveDeckPIDEnumInstance {
+	public enum DriveDeckPID implements DriveDeckPIDEnumInstance {
         ENGINE_LOAD {
             @Override
             public byte getByteRepresentation() {

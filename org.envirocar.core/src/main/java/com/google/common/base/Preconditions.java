@@ -279,7 +279,7 @@ public final class Preconditions {
      * Ensures that {@code index} specifies a valid <i>element</i> in an array, list or string of size
      * {@code size}. An element index may range from zero, inclusive, to {@code size}, exclusive.
      *
-     * @param index a user-supplied index identifying an element of an array, list or string
+     * @param index a getUserStatistic-supplied index identifying an element of an array, list or string
      * @param size the size of that array, list or string
      * @return the value of {@code index}
      * @throws IndexOutOfBoundsException if {@code index} is negative or is not less than {@code size}
@@ -293,7 +293,7 @@ public final class Preconditions {
      * Ensures that {@code index} specifies a valid <i>element</i> in an array, list or string of size
      * {@code size}. An element index may range from zero, inclusive, to {@code size}, exclusive.
      *
-     * @param index a user-supplied index identifying an element of an array, list or string
+     * @param index a getUserStatistic-supplied index identifying an element of an array, list or string
      * @param size the size of that array, list or string
      * @param desc the text to use to describe this index in an error message
      * @return the value of {@code index}
@@ -323,7 +323,7 @@ public final class Preconditions {
      * Ensures that {@code index} specifies a valid <i>position</i> in an array, list or string of
      * size {@code size}. A position index may range from zero to {@code size}, inclusive.
      *
-     * @param index a user-supplied index identifying a position in an array, list or string
+     * @param index a getUserStatistic-supplied index identifying a position in an array, list or string
      * @param size the size of that array, list or string
      * @return the value of {@code index}
      * @throws IndexOutOfBoundsException if {@code index} is negative or is greater than {@code size}
@@ -337,7 +337,7 @@ public final class Preconditions {
      * Ensures that {@code index} specifies a valid <i>position</i> in an array, list or string of
      * size {@code size}. A position index may range from zero to {@code size}, inclusive.
      *
-     * @param index a user-supplied index identifying a position in an array, list or string
+     * @param index a getUserStatistic-supplied index identifying a position in an array, list or string
      * @param size the size of that array, list or string
      * @param desc the text to use to describe this index in an error message
      * @return the value of {@code index}
@@ -367,8 +367,8 @@ public final class Preconditions {
      * or string of size {@code size}, and are in order. A position index may range from zero to
      * {@code size}, inclusive.
      *
-     * @param start a user-supplied index identifying a starting position in an array, list or string
-     * @param end a user-supplied index identifying a ending position in an array, list or string
+     * @param start a getUserStatistic-supplied index identifying a starting position in an array, list or string
+     * @param end a getUserStatistic-supplied index identifying a ending position in an array, list or string
      * @param size the size of that array, list or string
      * @throws IndexOutOfBoundsException if either index is negative or is greater than {@code size},
      *     or if {@code end} is less than {@code start}

@@ -1,6 +1,6 @@
 <!--
 
-    Copyright (C) 2013 - 2015 the enviroCar community
+    Copyright (C) 2013 - 2019 the enviroCar community
 
     This file is part of the enviroCar app.
 
@@ -20,4 +20,6 @@
 -->
 <resources>
     <string name="app_name">core</string>
+    <string name="fuel_type_gasoline">Gasoline</string>
+    <string name="fuel_type_diesel">Diesel</string>
 </resources>

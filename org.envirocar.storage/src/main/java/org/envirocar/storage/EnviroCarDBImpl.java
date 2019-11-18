@@ -1,18 +1,18 @@
 /**
- * Copyright (C) 2013 - 2015 the enviroCar community
- * <p>
+ * Copyright (C) 2013 - 2019 the enviroCar community
+ *
  * This file is part of the enviroCar app.
- * <p>
+ *
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * <p>
+ *
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- * <p>
+ *
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -20,9 +20,11 @@ package org.envirocar.storage;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 
-import com.squareup.sqlbrite.BriteDatabase;
+import com.squareup.sqlbrite3.BriteDatabase;
 
+import org.envirocar.core.EnviroCarDB;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.exception.MeasurementSerializationException;
@@ -31,14 +33,17 @@ import org.envirocar.core.logging.Logger;
 import org.envirocar.core.util.TrackMetadata;
 import org.json.JSONException;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import rx.Observable;
-import rx.Subscriber;
-import rx.functions.Func1;
+import io.reactivex.Observable;
+import io.reactivex.ObservableTransformer;
+import io.reactivex.functions.Function;
+
 
 /**
  * TODO JavaDoc
@@ -116,12 +121,9 @@ public class EnviroCarDBImpl implements EnviroCarDB {
 
     @Override
     public Observable<Void> clearTables() {
-        return Observable.create(new Observable.OnSubscribe<Void>() {
-            @Override
-            public void call(Subscriber<? super Void> subscriber) {
-                BriteDatabase.Transaction transaction = briteDatabase.newTransaction();
-                // TODO
-            }
+        return Observable.create(emitter -> {
+            BriteDatabase.Transaction transaction = briteDatabase.newTransaction();
+            // TODO
         });
     }
 
@@ -129,7 +131,7 @@ public class EnviroCarDBImpl implements EnviroCarDB {
         LOG.info("insertTrack(): trying to insert a new track");
         BriteDatabase.Transaction transaction = briteDatabase.newTransaction();
         try {
-            long result = briteDatabase.insert(TrackTable.TABLE_TRACK,
+            long result = briteDatabase.insert(TrackTable.TABLE_TRACK, SQLiteDatabase.CONFLICT_FAIL,
                     TrackTable.toContentValues(track));
             Track.TrackId trackId = new Track.TrackId(result);
             track.setTrackID(trackId);
@@ -139,15 +141,12 @@ public class EnviroCarDBImpl implements EnviroCarDB {
             if (track.getMeasurements().size() > 0) {
                 for (Measurement measurement : track.getMeasurements()) {
                     measurement.setTrackId(trackId);
-                    briteDatabase.insert(MeasurementTable.TABLE_NAME,
+                    briteDatabase.insert(MeasurementTable.TABLE_NAME, SQLiteDatabase.CONFLICT_FAIL,
                             MeasurementTable.toContentValues(measurement));
                 }
             }
 
             transaction.markSuccessful();
-        } catch (MeasurementSerializationException e) {
-            LOG.error(e.getMessage(), e);
-            throw new TrackSerializationException(e);
         } finally {
             transaction.close();
         }
@@ -155,17 +154,14 @@ public class EnviroCarDBImpl implements EnviroCarDB {
 
     @Override
     public Observable<Track> insertTrackObservable(final Track track) {
-        return Observable.create(new Observable.OnSubscribe<Track>() {
-            @Override
-            public void call(Subscriber<? super Track> subscriber) {
-                try {
-                    insertTrack(track);
-                    subscriber.onNext(track);
-                } catch (TrackSerializationException e) {
-                    subscriber.onError(e);
-                }
-                subscriber.onCompleted();
+        return Observable.create(emitter -> {
+            try {
+                insertTrack(track);
+                emitter.onNext(track);
+            } catch (TrackSerializationException e) {
+                emitter.onError(e);
             }
+            emitter.onComplete();
         });
     }
 
@@ -173,32 +169,27 @@ public class EnviroCarDBImpl implements EnviroCarDB {
     public boolean updateTrack(Track track) {
         LOG.info(String.format("updateTrack(%s)", track.getTrackID()));
         ContentValues trackValues = TrackTable.toContentValues(track);
-        int update = briteDatabase.update(TrackTable.TABLE_TRACK, trackValues,
-                TrackTable.KEY_TRACK_ID + "=" + track.getTrackID());
+        int update = briteDatabase.update(TrackTable.TABLE_TRACK, SQLiteDatabase.CONFLICT_FAIL, trackValues, TrackTable.KEY_TRACK_ID + "=" + track.getTrackID());
         return update != -1;
     }
 
     @Override
     public Observable<Track> updateTrackObservable(Track track) {
-        return Observable.create(new Observable.OnSubscribe<Track>() {
-            @Override
-            public void call(Subscriber<? super Track> subscriber) {
-                subscriber.onStart();
-                if (updateTrack(track)) {
-                    LOG.info("Track [%s] has been successfully updated.", track.toString());
-                    subscriber.onNext(track);
-                }
-//                subscriber.onCompleted();
-            }
-        }).first();
+        return Observable.just(track)
+                .map((Function<Track, Track>) track1 -> {
+                    if (updateTrack(track1)) {
+                        LOG.info("Track [%s] has been successfully updated.", track1.getDescription());
+                    }
+                    return track1;
+                });
     }
 
     @Override
     public boolean updateCarIdOfTracks(String currentId, String newId) {
         ContentValues values = new ContentValues();
         values.put(TrackTable.KEY_TRACK_CAR_ID, newId);
-        briteDatabase.update(TrackTable.TABLE_TRACK, values,
-                TrackTable.KEY_TRACK_CAR_ID + "=?", new String[]{currentId});
+        briteDatabase.update(TrackTable.TABLE_TRACK, SQLiteDatabase.CONFLICT_FAIL, values,
+                TrackTable.KEY_TRACK_CAR_ID + "=?", currentId);
         return true;
     }
 
@@ -216,18 +207,15 @@ public class EnviroCarDBImpl implements EnviroCarDB {
 
     @Override
     public Observable<Track> deleteTrackObservable(Track track) {
-        return Observable.create(new Observable.OnSubscribe<Track>() {
-            @Override
-            public void call(Subscriber<? super Track> subscriber) {
-                deleteTrack(track);
-                subscriber.onNext(track);
-                subscriber.onCompleted();
-            }
+        return Observable.create(emitter -> {
+            deleteTrack(track);
+            emitter.onNext(track);
+            emitter.onComplete();
         });
     }
 
     @Override
-    public Observable<Void> deleteAllRemoteTracks() {
+    public Observable<List<Track.TrackId>> deleteAllRemoteTracks() {
         return briteDatabase.createQuery(TrackTable.TABLE_TRACK,
                 "SELECT " + TrackTable.KEY_TRACK_ID + ", " + TrackTable.KEY_REMOTE_ID +
                         " FROM " + TrackTable.TABLE_TRACK +
@@ -237,7 +225,7 @@ public class EnviroCarDBImpl implements EnviroCarDB {
                 .map(trackIds -> {
                     for (Track.TrackId trackId : trackIds)
                         deleteTrack(trackId);
-                    return null;
+                    return trackIds;
                 });
     }
 
@@ -245,23 +233,20 @@ public class EnviroCarDBImpl implements EnviroCarDB {
     public void insertMeasurement(final Measurement measurement) throws
             MeasurementSerializationException {
         LOG.info("inserted measurement into track " + measurement.getTrackId());
-        briteDatabase.insert(MeasurementTable.TABLE_NAME,
+        briteDatabase.insert(MeasurementTable.TABLE_NAME, SQLiteDatabase.CONFLICT_FAIL,
                 MeasurementTable.toContentValues(measurement));
     }
 
     @Override
     public Observable<Void> insertMeasurementObservable(final Measurement measurement) {
-        return Observable.create(new Observable.OnSubscribe<Void>() {
-            @Override
-            public void call(Subscriber<? super Void> subscriber) {
-                try {
-                    insertMeasurement(measurement);
-                } catch (MeasurementSerializationException e) {
-                    LOG.error(e.getMessage(), e);
-                    subscriber.onError(e);
-                } finally {
-                    subscriber.onCompleted();
-                }
+        return Observable.create(emitter -> {
+            try {
+                insertMeasurement(measurement);
+            } catch (MeasurementSerializationException e) {
+                LOG.error(e.getMessage(), e);
+                emitter.onError(e);
+            } finally {
+                emitter.onComplete();
             }
         });
     }
@@ -271,20 +256,17 @@ public class EnviroCarDBImpl implements EnviroCarDB {
         ContentValues newValues = new ContentValues();
         newValues.put(TrackTable.KEY_REMOTE_ID, remoteID);
 
-        briteDatabase.update(TrackTable.TABLE_TRACK, newValues,
+        briteDatabase.update(TrackTable.TABLE_TRACK, SQLiteDatabase.CONFLICT_FAIL, newValues,
                 TrackTable.KEY_TRACK_ID + "=?",
-                new String[]{Long.toString(track.getTrackID().getId())});
+                Long.toString(track.getTrackID().getId()));
     }
 
     @Override
     public Observable<Void> updateTrackRemoteIDObservable(final Track track, final String
             remoteID) {
-        return Observable.create(new Observable.OnSubscribe<Void>() {
-            @Override
-            public void call(Subscriber<? super Void> subscriber) {
-                updateTrackRemoteID(track, remoteID);
-                subscriber.onCompleted();
-            }
+        return Observable.create(emitter -> {
+            updateTrackRemoteID(track, remoteID);
+            emitter.onComplete();
         });
     }
 
@@ -294,9 +276,9 @@ public class EnviroCarDBImpl implements EnviroCarDB {
             ContentValues newValues = new ContentValues();
             newValues.put(TrackTable.KEY_TRACK_METADATA, trackMetadata.toJsonString());
 
-            briteDatabase.update(TrackTable.TABLE_TRACK, newValues,
+            briteDatabase.update(TrackTable.TABLE_TRACK, SQLiteDatabase.CONFLICT_FAIL, newValues,
                     TrackTable.KEY_TRACK_ID + "=?",
-                    new String[]{Long.toString(track.getTrackID().getId())});
+                    Long.toString(track.getTrackID().getId()));
         } catch (JSONException e) {
             LOG.error(e.getMessage(), e);
             throw new TrackSerializationException(e);
@@ -305,17 +287,14 @@ public class EnviroCarDBImpl implements EnviroCarDB {
 
     public Observable<TrackMetadata> updateTrackMetadataObservable(
             final Track track, final TrackMetadata trackMetadata) {
-        return Observable.create(new Observable.OnSubscribe<TrackMetadata>() {
-            @Override
-            public void call(Subscriber<? super TrackMetadata> subscriber) {
-                try {
-                    updateTrackMetadata(track, trackMetadata);
-                } catch (TrackSerializationException e) {
-                    LOG.error(e.getMessage(), e);
-                    subscriber.onError(e);
-                } finally {
-                    subscriber.onCompleted();
-                }
+        return Observable.create(emitter -> {
+            try {
+                updateTrackMetadata(track, trackMetadata);
+            } catch (TrackSerializationException e) {
+                LOG.error(e.getMessage(), e);
+                emitter.onError(e);
+            } finally {
+                emitter.onComplete();
             }
         });
     }
@@ -324,23 +303,12 @@ public class EnviroCarDBImpl implements EnviroCarDB {
     public Observable<Track> fetchTracks(
             Observable<List<Track>> tracks, final boolean lazy) {
         return fetchTrack(tracks
-                .flatMap(new Func1<List<Track>, Observable<Track>>() {
-                    @Override
-                    public Observable<Track> call(List<Track> tracks) {
-                        return Observable.from(tracks);
-                    }
-                }), lazy);
+                .flatMap(tracks1 -> Observable.fromIterable(tracks1)), lazy);
     }
 
     @Override
     public Observable<Track> fetchTrack(Observable<Track> trackObservable, final boolean lazy) {
-        return trackObservable
-                .flatMap(new Func1<Track, Observable<Track>>() {
-                    @Override
-                    public Observable<Track> call(Track track) {
-                        return lazy ? fetchStartTime(track) : fetchMeasurements(track);
-                    }
-                });
+        return trackObservable.flatMap(track -> lazy ? fetchStartTime(track) : fetchMeasurements(track));
     }
 
     @Override
@@ -364,6 +332,18 @@ public class EnviroCarDBImpl implements EnviroCarDB {
         }
     }
 
+    @Override
+    public void automaticDeleteMeasurements(long time, Track.TrackId trackId) {
+        BriteDatabase.Transaction transaction = briteDatabase.newTransaction();
+        try {
+            briteDatabase.delete(MeasurementTable.TABLE_NAME,
+                    MeasurementTable.KEY_TRACK + "='" + trackId + "' AND " + MeasurementTable.KEY_TIME + " >= " + time);
+            transaction.markSuccessful();
+        } finally {
+            transaction.end();
+        }
+    }
+
     private Observable<Track> fetchMeasurements(final Track track) {
         return briteDatabase.createQuery(
                 MeasurementTable.TABLE_NAME,
@@ -372,13 +352,10 @@ public class EnviroCarDBImpl implements EnviroCarDB {
                         "=\"" + track.getTrackID() + "\"" +
                         " ORDER BY " + MeasurementTable.KEY_TIME + " ASC")
                 .mapToList(MeasurementTable.MAPPER)
-                .map(new Func1<List<Measurement>, Track>() {
-                    @Override
-                    public Track call(List<Measurement> measurements) {
-                        track.setMeasurements(measurements);
-                        track.setLazyMeasurements(false);
-                        return track;
-                    }
+                .map(measurements -> {
+                    track.setMeasurements(measurements);
+                    track.setLazyMeasurements(false);
+                    return track;
                 });
     }
 
@@ -391,25 +368,23 @@ public class EnviroCarDBImpl implements EnviroCarDB {
                         " ORDER BY " + MeasurementTable.KEY_TIME + " ASC" +
                         " LIMIT 1")
                 .mapToOne(MeasurementTable.MAPPER)
-                .map(new Func1<Measurement, Track>() {
-                    @Override
-                    public Track call(Measurement measurement) {
-                        track.setStartTime(measurement.getTime());
-                        track.setLazyMeasurements(true);
-                        return track;
-                    }
+                .map(measurement -> {
+                    track.setStartTime(measurement.getTime());
+                    track.setLazyMeasurements(true);
+                    return track;
                 });
     }
 
     private Observable<Track> fetchTrackObservable(String sql, boolean lazy) {
         return briteDatabase
                 .createQuery(TrackTable.TABLE_TRACK, sql)
-                .mapToOneOrDefault(TrackTable.MAPPER, null)
+                .mapToOne(TrackTable.MAPPER)
                 .take(1)
+                .timeout(100, TimeUnit.MILLISECONDS)
                 .compose(fetchTrackObservable(lazy));
     }
 
-    private Observable.Transformer<Track, Track> fetchTrackObservable(final boolean lazy) {
+    private ObservableTransformer<Track, Track> fetchTrackObservable(final boolean lazy) {
         return trackObservable -> trackObservable.map(track -> {
             if (track == null)
                 return null;
@@ -420,12 +395,21 @@ public class EnviroCarDBImpl implements EnviroCarDB {
     }
 
     private Observable<List<Track>> fetchTracksObservable(String sql, boolean lazy) {
-        return briteDatabase.createQuery(TrackTable.TABLE_TRACK, sql)
-                .mapToList(TrackTable.MAPPER)
-                .compose(fetchTracks(lazy));
+        Observable<List<Track>> listObservable = Observable.create(emitter -> {
+            Cursor query = briteDatabase.getReadableDatabase().query(sql);
+
+            ArrayList<Track> tracks = new ArrayList<>();
+            for (query.moveToFirst(); !query.isAfterLast(); query.moveToNext()) {
+                tracks.add(TrackTable.MAPPER.apply(query));
+            }
+
+            emitter.onNext(tracks);
+            emitter.onComplete();
+        });
+        return listObservable.compose(fetchTracks(lazy));
     }
 
-    private Observable.Transformer<List<Track>, List<Track>> fetchTracks(boolean lazy) {
+    private ObservableTransformer<List<Track>, List<Track>> fetchTracks(boolean lazy) {
         return trackObservable -> trackObservable.map(tracks -> {
             for (Track track : tracks) {
                 if (lazy) {
@@ -443,7 +427,7 @@ public class EnviroCarDBImpl implements EnviroCarDB {
                 "SELECT * FROM " + MeasurementTable.TABLE_NAME +
                         " WHERE " + MeasurementTable.KEY_TRACK +
                         "=\"" + track.getTrackID() + "\"" +
-                        " ORDER BY " + MeasurementTable.KEY_TIME + " ASC", null)));
+                        " ORDER BY " + MeasurementTable.KEY_TIME + " ASC", (String[]) null)));
         track.setLazyMeasurements(false);
         return track;
     }

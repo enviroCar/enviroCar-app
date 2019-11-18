@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
 
-    Copyright (C) 2013 - 2015 the enviroCar community
+    Copyright (C) 2013 - 2019 the enviroCar community
 
     This file is part of the enviroCar app.
 
@@ -55,7 +55,7 @@
         android:visibility="gone"
         android:src="@drawable/ic_delete_black_24dp"/>
 
-    <android.support.v7.widget.AppCompatRadioButton
+    <androidx.appcompat.widget.AppCompatRadioButton
         android:id="@+id/activity_obd_selection_layout_paired_list_entry_radio"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

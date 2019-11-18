@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - 2015 the enviroCar community
+ * Copyright (C) 2013 - 2019 the enviroCar community
  *
  * This file is part of the enviroCar app.
  *
@@ -23,13 +23,13 @@ import org.envirocar.core.entity.Car;
 
 import java.util.List;
 
-import retrofit.Call;
-import retrofit.http.Body;
-import retrofit.http.GET;
-import retrofit.http.POST;
-import retrofit.http.Path;
-import retrofit.http.Query;
-import rx.Observable;
+import io.reactivex.Observable;
+import retrofit2.Call;
+import retrofit2.http.Body;
+import retrofit2.http.GET;
+import retrofit2.http.POST;
+import retrofit2.http.Path;
+import retrofit2.http.Query;
 
 /**
  * @author dewall
@@ -48,8 +48,8 @@ public interface CarService {
     @GET("sensors/")
     Observable<List<Car>> getAllCarsObservable(@Query("page") int page);
 
-    @GET("users/{user}/sensors/")
-    Call<List<Car>> getAllCars(@Path("user") String user);
+    @GET("users/{getUserStatistic}/sensors/")
+    Call<List<Car>> getAllCars(@Path("getUserStatistic") String user);
 
     @POST("sensors")
     Call<Car> createCar(@Body Car car);

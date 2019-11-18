@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - 2015 the enviroCar community
+ * Copyright (C) 2013 - 2019 the enviroCar community
  *
  * This file is part of the enviroCar app.
  *
@@ -26,7 +26,7 @@ import org.envirocar.core.exception.NotConnectedException;
 import org.envirocar.core.exception.ResourceConflictException;
 import org.envirocar.core.exception.UnauthorizedException;
 
-import rx.Observable;
+import io.reactivex.Observable;
 
 /**
  * TODO JavaDoc
@@ -35,11 +35,12 @@ import rx.Observable;
  */
 public interface UserDAO {
 
-    User getUser(String id) throws DataRetrievalFailureException, UnauthorizedException, NotConnectedException;
+    User getUser(String id) throws DataRetrievalFailureException, UnauthorizedException, NotConnectedException, ResourceConflictException;
 
     Observable<User> getUserObservable(String id);
 
     void createUser(User user) throws DataUpdateFailureException, ResourceConflictException;
 
     void updateUser(User user) throws DataUpdateFailureException, UnauthorizedException;
+
 }

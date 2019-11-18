@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - 2015 the enviroCar community
+ * Copyright (C) 2013 - 2019 the enviroCar community
  *
  * This file is part of the enviroCar app.
  *
@@ -18,9 +18,6 @@
  */
 package org.envirocar.remote.util;
 
-import com.squareup.okhttp.Interceptor;
-import com.squareup.okhttp.Response;
-
 import org.envirocar.core.UserManager;
 import org.envirocar.core.entity.User;
 
@@ -28,6 +25,9 @@ import java.io.IOException;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
+import okhttp3.Interceptor;
+import okhttp3.Response;
 
 /**
  * TODO JavaDoc
@@ -42,7 +42,7 @@ public class AuthenticationInterceptor implements Interceptor {
     /**
      * Constructor.
      *
-     * @param userManager the user manager.
+     * @param userManager the getUserStatistic manager.
      */
     @Inject
     public AuthenticationInterceptor(UserManager userManager) {

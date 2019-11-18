@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
 
-    Copyright (C) 2013 - 2015 the enviroCar community
+    Copyright (C) 2013 - 2019 the enviroCar community
 
     This file is part of the enviroCar app.
 
@@ -23,10 +23,5 @@
     <array name="car_list_option_items">
         <item>Select Car</item>
         <item>Delete Car</item>
-    </array>
-
-    <array name="obd_list_option_items">
-        <item>Select</item>
-        <item>Delete</item>
     </array>
 </resources>

@@ -1,0 +1,68 @@
+<!--
+
+    Copyright (C) 2013 - 2019 the enviroCar community
+
+    This file is part of the enviroCar app.
+
+    The enviroCar app is free software: you can redistribute it and/or
+    modify it under the terms of the GNU General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    The enviroCar app is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+    Public License for more details.
+
+    You should have received a copy of the GNU General Public License along
+    with the enviroCar app. If not, see http://www.gnu.org/licenses/.
+
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="1093.9833"
+    android:viewportHeight="1093.9833">
+  <group android:translateX="311.99167"
+      android:translateY="356.9269">
+    <group>
+      <clip-path android:pathData="m6,364 l458.903,-0 0,-352.993 -458.903,-0L6,364z M 0,0"/>
+      <path
+          android:pathData="m238.648,332.805c-2.253,-4.866 -2.843,-10.487 -1.246,-15.992 9.618,-33.566 27.789,-64.238 52.391,-88.824 9.113,-9.071 23.998,-9.158 33.159,-0.192 9.171,8.963 9.378,23.613 0.23,32.756C304.052,279.55 290.033,303.403 282.518,329.452 278.986,341.733 265.987,348.867 253.547,345.369 246.677,343.423 241.415,338.702 238.648,332.805"
+          android:fillColor="#0a81c5"
+          android:strokeColor="#00000000"
+          android:fillType="nonZero"
+          android:fillAlpha="1"/>
+      <path
+          android:pathData="m125.775,331.519c-1.898,-4.033 -2.61,-8.667 -1.869,-13.388 13.283,-80.251 56.524,-151.431 121.776,-200.476 10.293,-7.752 25.011,-5.778 32.876,4.364 7.649,9.904 5.883,24.729 -4.424,32.469C218.477,196.315 181.545,257.09 170.247,325.575 168.126,338.214 156.108,346.75 143.324,344.715 135.321,343.397 128.938,338.282 125.775,331.519"
+          android:fillColor="#40bb6a"
+          android:strokeColor="#00000000"
+          android:fillType="nonZero"
+          android:fillAlpha="1"/>
+      <path
+          android:pathData="M8.146,332.373C6.38,328.593 5.613,324.29 6.187,319.856 21.973,195.113 91.79,83.961 197.777,14.849c10.8,-7.029 25.336,-4.15 32.44,6.524 7.082,10.713 4.214,25.042 -6.641,32.045C129.108,115.051 66.822,214.265 52.72,325.541 51.145,338.235 39.406,347.224 26.575,345.621 18.246,344.634 11.431,339.39 8.146,332.373"
+          android:fillColor="#5cc134"
+          android:strokeColor="#00000000"
+          android:fillType="nonZero"
+          android:fillAlpha="1"/>
+      <path
+          android:pathData="m425.204,364c-6.183,-0 -11.022,-1.711 -14.547,-5.23 -3.543,-3.472 -5.298,-8.275 -5.298,-14.363l0,-32.646c0,-6.076 1.756,-10.867 5.298,-14.363 3.525,-3.472 8.364,-5.223 14.547,-5.223l19.858,-0c6.19,-0 11.019,1.751 14.569,5.223 3.495,3.496 5.294,8.287 5.294,14.363l0,32.646c0,6.088 -1.799,10.891 -5.294,14.363C456.081,362.289 451.253,364 445.062,364l-19.858,-0"
+          android:fillColor="#0a81c5"
+          android:strokeColor="#00000000"
+          android:fillType="nonZero"
+          android:fillAlpha="1"/>
+      <path
+          android:pathData="m393.674,364c-6.171,-0 -11.029,-1.711 -14.537,-5.23 -3.545,-3.472 -5.293,-8.275 -5.293,-14.363l0,-32.646c0,-6.076 1.748,-10.867 5.293,-14.363 3.508,-3.472 8.366,-5.223 14.537,-5.223l19.863,-0c6.195,-0 11.017,1.751 14.579,5.223 3.508,3.496 5.272,8.287 5.272,14.363l0,32.646c0,6.088 -1.764,10.891 -5.272,14.363C424.554,362.289 419.733,364 413.538,364l-19.863,-0"
+          android:fillColor="#0fad79"
+          android:strokeColor="#00000000"
+          android:fillType="nonZero"
+          android:fillAlpha="1"/>
+      <path
+          android:pathData="m362.149,364c-6.165,-0 -11.004,-1.711 -14.543,-5.23 -3.55,-3.472 -5.293,-8.275 -5.293,-14.363l0,-32.646c0,-6.076 1.743,-10.867 5.293,-14.363 3.539,-3.472 8.378,-5.223 14.543,-5.223l19.863,-0c6.195,-0 11.028,1.751 14.567,5.223 3.508,3.496 5.291,8.287 5.291,14.363l0,32.646c0,6.088 -1.784,10.891 -5.291,14.363C393.04,362.289 388.208,364 382.013,364L362.149,364"
+          android:fillColor="#5cc134"
+          android:strokeColor="#00000000"
+          android:fillType="nonZero"
+          android:fillAlpha="1"/>
+    </group>
+  </group>
+</vector>

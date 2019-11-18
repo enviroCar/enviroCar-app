@@ -1,3 +1,21 @@
+/**
+ * Copyright (C) 2013 - 2019 the enviroCar community
+ *
+ * This file is part of the enviroCar app.
+ *
+ * The enviroCar app is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * The enviroCar app is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+ * Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
+ */
 package org.envirocar.obd.commands;
 
 public enum PID implements PIDEnumInstance {
@@ -42,6 +60,12 @@ public enum PID implements PIDEnumInstance {
         @Override
         public String getHexadecimalRepresentation() {
             return "0C";
+        }
+    },
+    ENGINE_FUEL_RATE {
+        @Override
+        public String getHexadecimalRepresentation() {
+            return "5E";
         }
     },
     SPEED {
@@ -119,49 +143,49 @@ public enum PID implements PIDEnumInstance {
         @Override
         public String getHexadecimalRepresentation() {
             return "34";
-        };
+        }
     }
     , O2_LAMBDA_PROBE_2_CURRENT {
         @Override
         public String getHexadecimalRepresentation() {
             return "35";
-        };
+        }
     }
     , O2_LAMBDA_PROBE_3_CURRENT {
         @Override
         public String getHexadecimalRepresentation() {
             return "36";
-        };
+        }
     }
     , O2_LAMBDA_PROBE_4_CURRENT {
         @Override
         public String getHexadecimalRepresentation() {
             return "37";
-        };
+        }
     }
     , O2_LAMBDA_PROBE_5_CURRENT {
         @Override
         public String getHexadecimalRepresentation() {
             return "38";
-        };
+        }
     }
     , O2_LAMBDA_PROBE_6_CURRENT {
         @Override
         public String getHexadecimalRepresentation() {
             return "39";
-        };
+        }
     }
     , O2_LAMBDA_PROBE_7_CURRENT {
         @Override
         public String getHexadecimalRepresentation() {
             return "3A";
-        };
+        }
     }
     , O2_LAMBDA_PROBE_8_CURRENT {
         @Override
         public String getHexadecimalRepresentation() {
             return "3B";
-        };
+        }
     }
 
 }

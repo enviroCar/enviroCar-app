@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+
+    Copyright (C) 2013 - 2019 the enviroCar community
+
+    This file is part of the enviroCar app.
+
+    The enviroCar app is free software: you can redistribute it and/or
+    modify it under the terms of the GNU General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    The enviroCar app is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+    Public License for more details.
+
+    You should have received a copy of the GNU General Public License along
+    with the enviroCar app. If not, see http://www.gnu.org/licenses/.
+
+-->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".views.recordingscreen.OBDPlusGPSTrackRecordingScreen">
+
+    <LinearLayout
+        android:id="@+id/activity_recscreen_trackmap_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/activity_recscreen_trackdetails_container"
+        android:layout_alignParentTop="true"
+        android:orientation="horizontal"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:id="@+id/activity_recscreen_tempomat_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/activity_recscreen_trackdetails_container"
+        android:layout_alignParentTop="true"
+        android:orientation="horizontal"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:id="@+id/activity_recscreen_trackdetails_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@color/cario_color_primary"
+        android:orientation="vertical"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:orientation="horizontal"
+            android:weightSum="3">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:paddingTop="10dp"
+                android:weightSum="2">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:id="@+id/activity_recscreen_trackdetails_gps"
+                        android:layout_width="25dp"
+                        android:layout_height="25dp"
+                        android:src="@drawable/recscreen_gps_drawable"
+                        android:tint="@color/white"
+                        android:enabled="false"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:text="GPS"
+                        android:textColor="@color/white"
+                        android:textSize="12sp" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:id="@+id/activity_recscreen_trackdetails_bluetooth"
+                        android:layout_width="25dp"
+                        android:layout_height="25dp"
+                        android:src="@drawable/recscreen_bluetooth_drawable"
+                        android:tint="@color/white" />
+
+                    <TextView
+                        android:id="@+id/activity_recscreen_trackdetails_bluetooth_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:text="Bluetooth"
+                        android:textColor="@color/white"
+                        android:textSize="12sp" />
+
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:paddingTop="15dp"
+                android:paddingBottom="15dp">
+
+                <Chronometer
+                    android:id="@+id/activity_recscreen_trackdetails_timer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:format="%s"
+                    android:gravity="center"
+                    android:shadowDx="0.0"
+                    android:shadowDy="-1.0"
+                    android:shadowRadius="20.0"
+                    android:text="00:00"
+                    android:textColor="@color/white"
+                    android:textSize="25sp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:gravity="center"
+                    android:text="TIME"
+                    android:textColor="@color/white" />
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:weightSum="2">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/activity_recscreen_trackdetails_speed"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:text="0 km/h"
+                        android:textColor="@color/white"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:text="Ø Speed"
+                        android:textColor="@color/white"
+                        android:textSize="12sp" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/activity_recscreen_trackdetails_distance"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:text="0 Km"
+                        android:textColor="@color/white"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:text="Distance"
+                        android:textColor="@color/white"
+                        android:textSize="12sp" />
+
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <RelativeLayout
+            android:id="@+id/activity_recscreen_trackdetails_buttons"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp">
+
+            <LinearLayout
+                android:id="@+id/activity_recscreen_stopbutton"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_centerInParent="true"
+                android:layout_centerVertical="true"
+                android:background="@drawable/roundedredbutton"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/img"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/av_stop" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/activity_recscreen_switchbutton"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="20dp"
+                android:layout_marginRight="20dp"
+                android:background="@drawable/roundedwhitebutton"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="8dp"
+                    android:src="@drawable/recording_screen_switch_views"
+                    android:tint="@color/cario_color_primary" />
+
+            </LinearLayout>
+        </RelativeLayout>
+    </LinearLayout>
+</RelativeLayout>

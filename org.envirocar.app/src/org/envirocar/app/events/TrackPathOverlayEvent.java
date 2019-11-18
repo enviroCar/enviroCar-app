@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - 2015 the enviroCar community
+ * Copyright (C) 2013 - 2019 the enviroCar community
  *
  * This file is part of the enviroCar app.
  *
@@ -18,21 +18,21 @@
  */
 package org.envirocar.app.events;
 
-import com.mapbox.mapboxsdk.overlay.PathOverlay;
+import org.envirocar.app.views.trackdetails.MapLayer;
 
 /**
  * @author dewall
  */
 public class TrackPathOverlayEvent {
 
-    public final PathOverlay mTrackOverlay;
+    public final MapLayer mTrackOverlay;
 
     /**
      * Constructor.
      *
      * @param mTrackOverlay
      */
-    public TrackPathOverlayEvent(PathOverlay mTrackOverlay) {
+    public TrackPathOverlayEvent(MapLayer mTrackOverlay) {
         this.mTrackOverlay = mTrackOverlay;
     }
 

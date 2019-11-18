@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
 
-    Copyright (C) 2013 - 2015 the enviroCar community
+    Copyright (C) 2013 - 2019 the enviroCar community
 
     This file is part of the enviroCar app.
 
@@ -19,21 +19,7 @@
     with the enviroCar app. If not, see http://www.gnu.org/licenses/.
 
 -->
-<resources xmlns:android="http://schemas.android.com/apk/res/android"
-           xmlns:app="http://schemas.android.com/apk/res-auto">
-
-    <!-- Style for the LinearLayout in the CheckList -->
-    <style name="CheckListLayoutStyle">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginTop">@dimen/checklist_layout_margin_top</item>
-        <item name="android:padding">@dimen/checklist_item_padding</item>
-        <item name="android:layout_centerHorizontal">true</item>
-        <item name="android:orientation">horizontal</item>
-        <item name="android:clickable">true</item>
-        <item name="android:background">@drawable/checkboxitem_background_drawable</item>
-        <item name="android:descendantFocusability">blocksDescendants</item>
-    </style>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <style name="Widget.enviroCar.Toolbar" parent="">
         <item name="android:layout_width">match_parent</item>
@@ -62,11 +48,6 @@
         <item name="rippleColor">@android:color/white</item>
     </style>
 
-    <style name="Widget.enviroCar.FABSheet" parent="">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-    </style>
-
     <style name="enviroCar.title" parent="Base.TextAppearance.AppCompat.SearchResult.Title">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
@@ -92,22 +73,6 @@
         <item name="android:clickable">true</item>
         <item name="android:focusable">true</item>
         <item name="android:background">?android:attr/selectableItemBackground</item>
-    </style>
-
-    <style name="enviroCar.Input.Card.Layout" parent="">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_margin">@dimen/spacing_medium</item>
-        <!--<item name="app:cardElevation=">@dimen/spacing_medium</item>-->
-        <!--<item name="app:cardUseCompatPadding">true</item>-->
-    </style>
-
-    <style name="enviroCar.Input.TextLabel" parent="TextAppearance.AppCompat">
-        <item name="android:textColorHint">@color/white_cario</item>
-        <item name="android:textSize">20sp</item>
-        <item name="colorAccent">@color/white_cario</item>
-        <item name="colorControlNormal">@color/white_cario</item>
-        <item name="colorControlActivated">@color/white_cario</item>
     </style>
 
     <style name="enviroCar.Spinner.Style" parent="android:Widget.TextView.SpinnerItem">

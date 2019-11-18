@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - 2015 the enviroCar community
+ * Copyright (C) 2013 - 2019 the enviroCar community
  *
  * This file is part of the enviroCar app.
  *
@@ -19,15 +19,17 @@
 package org.envirocar.core.exception;
 
 
+/**
+ * @author dewall
+ */
 public class UnauthorizedException extends DAOException {
-
-	public UnauthorizedException(String m) {
-		super(m);
-	}
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
+	public UnauthorizedException(String m) {
+		super(m);
+	}
 }

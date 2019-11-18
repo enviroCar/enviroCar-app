@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
 
-    Copyright (C) 2013 - 2015 the enviroCar community
+    Copyright (C) 2013 - 2019 the enviroCar community
 
     This file is part of the enviroCar app.
 
@@ -22,7 +22,7 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <PreferenceCategory android:title="@string/pref_optional_features">
-        <org.envirocar.app.view.preferences.EditPreferenceWithSummary
+        <org.envirocar.app.views.preferences.EditPreferenceWithSummary
             xmlns:enviroCar="http://envirocar.org"
             android:defaultValue="5"
             android:inputType="number"
@@ -43,6 +43,16 @@
             android:key="pref_enable_diesel_consumption"
             android:summary="@string/preference_beta_diesel_consumption_sum"
             android:title="@string/preference_beta_diesel_consumption"/>
+        <org.envirocar.app.views.preferences.TrackTrimDurationPreference
+            android:key="pref_track_cut_duration"
+            android:summary="@string/pref_track_cut_duration_summary"
+            android:defaultValue="110"
+            android:title="@string/pref_track_cut_duration"/>
+        <CheckBoxPreference
+            android:key="pref_enable_gps_based_track_recording"
+            android:defaultValue="false"
+            android:summary="@string/preference_beta_enable_gps_based_track_recording_sum"
+            android:title="@string/preference_beta_enable_gps_based_track_recording"/>
     </PreferenceCategory>
 
 </PreferenceScreen>

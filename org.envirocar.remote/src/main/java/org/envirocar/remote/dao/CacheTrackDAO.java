@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - 2015 the enviroCar community
+ * Copyright (C) 2013 - 2019 the enviroCar community
  *
  * This file is part of the enviroCar app.
  *
@@ -22,18 +22,14 @@ import org.envirocar.core.CacheDirectoryProvider;
 import org.envirocar.core.dao.AbstractCacheDAO;
 import org.envirocar.core.dao.TrackDAO;
 import org.envirocar.core.entity.Track;
-import org.envirocar.core.exception.DataCreationFailureException;
-import org.envirocar.core.exception.DataRetrievalFailureException;
-import org.envirocar.core.exception.DataUpdateFailureException;
 import org.envirocar.core.exception.NotConnectedException;
-import org.envirocar.core.exception.ResourceConflictException;
-import org.envirocar.core.exception.UnauthorizedException;
 
 import java.util.List;
 
 import javax.inject.Inject;
 
-import rx.Observable;
+import io.reactivex.Observable;
+
 
 /**
  * TODO JavaDoc
@@ -48,8 +44,8 @@ public class CacheTrackDAO extends AbstractCacheDAO implements TrackDAO {
     }
 
     @Override
-    public Track getTrackById(String id) throws DataRetrievalFailureException,
-            NotConnectedException, UnauthorizedException {
+    public Track getTrackById(String id) throws
+            NotConnectedException {
         throw new NotConnectedException("Not implemented for Cache DAO");
     }
 
@@ -59,14 +55,21 @@ public class CacheTrackDAO extends AbstractCacheDAO implements TrackDAO {
     }
 
     @Override
-    public List<Track> getTrackIds() throws DataRetrievalFailureException, NotConnectedException,
-            UnauthorizedException {
+    public List<Track> getTrackIds() throws NotConnectedException {
         throw new NotConnectedException("Not implemented for Cache DAO");
     }
 
     @Override
-    public List<Track> getTrackIds(int limit, int page) throws NotConnectedException,
-            UnauthorizedException {
+    public List<Track> getTrackIdsWithLimit(int limit) throws NotConnectedException {
+        throw new NotConnectedException("Not implemented for Cache DAO");
+    }
+
+    public Observable<List<Track>> getTrackIdsWithLimitObservable(final int limit){
+        return Observable.error(new NotConnectedException("Not implemented for Cache DAO"));
+    }
+
+    @Override
+    public List<Track> getTrackIds(int limit, int page) throws NotConnectedException {
         throw new NotConnectedException("Not implemented for Cache DAO");
     }
 
@@ -81,20 +84,20 @@ public class CacheTrackDAO extends AbstractCacheDAO implements TrackDAO {
     }
 
     @Override
-    public Integer getUserTrackCount() throws DataRetrievalFailureException,
-            NotConnectedException, UnauthorizedException {
-        throw new NotConnectedException("Not implemented for Cache DAO");
-    }
-
-    @Override
-    public Integer getTotalTrackCount() throws DataRetrievalFailureException,
+    public Integer getUserTrackCount() throws
             NotConnectedException {
         throw new NotConnectedException("Not implemented for Cache DAO");
     }
 
     @Override
-    public Track createTrack(Track track) throws DataCreationFailureException,
-            NotConnectedException, ResourceConflictException, UnauthorizedException {
+    public Integer getTotalTrackCount() throws
+            NotConnectedException {
+        throw new NotConnectedException("Not implemented for Cache DAO");
+    }
+
+    @Override
+    public Track createTrack(Track track) throws
+            NotConnectedException {
         throw new NotConnectedException("Not implemented for Cache DAO");
     }
 
@@ -104,8 +107,8 @@ public class CacheTrackDAO extends AbstractCacheDAO implements TrackDAO {
     }
 
     @Override
-    public void deleteTrack(Track track) throws DataUpdateFailureException,
-            NotConnectedException, UnauthorizedException {
+    public void deleteTrack(Track track) throws
+            NotConnectedException {
         throw new NotConnectedException("Not implemented for Cache DAO");
     }
 }

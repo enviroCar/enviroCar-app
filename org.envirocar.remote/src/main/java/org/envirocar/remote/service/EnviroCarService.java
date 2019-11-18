@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - 2015 the enviroCar community
+ * Copyright (C) 2013 - 2019 the enviroCar community
  *
  * This file is part of the enviroCar app.
  *
@@ -19,25 +19,22 @@
 package org.envirocar.remote.service;
 
 
-import javax.inject.Inject;
-
 /**
  * @author dewall
  */
 public class EnviroCarService {
     public static final String BASE_URL = "https://envirocar.org/api/stable/";
 
-    @Inject
     protected static UserService userService;
-    @Inject
+
     protected static CarService carService;
-    @Inject
+
     protected static TrackService trackService;
-    @Inject
+
     protected static TermsOfUseService termsOfUseService;
-    @Inject
+
     protected static FuelingService fuelingService;
-    @Inject
+
     protected static AnnouncementsService announcementsService;
 
     @Deprecated
@@ -68,5 +65,29 @@ public class EnviroCarService {
     @Deprecated
     public static AnnouncementsService getAnnouncementService() {
         return announcementsService;
+    }
+
+    public static void setUserService(UserService userService) {
+        EnviroCarService.userService = userService;
+    }
+
+    public static void setCarService(CarService carService) {
+        EnviroCarService.carService = carService;
+    }
+
+    public static void setTrackService(TrackService trackService) {
+        EnviroCarService.trackService = trackService;
+    }
+
+    public static void setTermsOfUseService(TermsOfUseService termsOfUseService) {
+        EnviroCarService.termsOfUseService = termsOfUseService;
+    }
+
+    public static void setFuelingService(FuelingService fuelingService) {
+        EnviroCarService.fuelingService = fuelingService;
+    }
+
+    public static void setAnnouncementsService(AnnouncementsService announcementsService) {
+        EnviroCarService.announcementsService = announcementsService;
     }
 }

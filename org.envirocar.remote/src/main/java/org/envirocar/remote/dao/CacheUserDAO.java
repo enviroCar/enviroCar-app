@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - 2015 the enviroCar community
+ * Copyright (C) 2013 - 2019 the enviroCar community
  *
  * This file is part of the enviroCar app.
  *
@@ -24,12 +24,11 @@ import org.envirocar.core.dao.UserDAO;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.exception.DataRetrievalFailureException;
 import org.envirocar.core.exception.DataUpdateFailureException;
-import org.envirocar.core.exception.ResourceConflictException;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import rx.Observable;
+import io.reactivex.Observable;
 
 /**
  * @author dewall
@@ -58,7 +57,7 @@ public class CacheUserDAO extends AbstractCacheDAO implements UserDAO {
     }
 
     @Override
-    public void createUser(User user) throws DataUpdateFailureException, ResourceConflictException {
+    public void createUser(User user) throws DataUpdateFailureException {
         throw new DataUpdateFailureException("Not supported by Cache");
     }
 

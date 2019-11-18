@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
 
-    Copyright (C) 2013 - 2015 the enviroCar community
+    Copyright (C) 2013 - 2019 the enviroCar community
 
     This file is part of the enviroCar app.
 
@@ -30,7 +30,7 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_marginTop">@dimen/spacing_medium</item>
-        <item name="android:textColor">@color/black</item>
+        <item name="android:textColor">@android:color/black</item>
         <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
     </style>
 

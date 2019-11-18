@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - 2015 the enviroCar community
+ * Copyright (C) 2013 - 2019 the enviroCar community
  *
  * This file is part of the enviroCar app.
  *
@@ -18,7 +18,7 @@
  */
 package org.envirocar.app.test.dao;
 
-import android.support.test.runner.AndroidJUnit4;
+import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.runner.RunWith;
 

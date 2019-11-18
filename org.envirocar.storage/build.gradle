@@ -1,6 +1,4 @@
-apply plugin: 'android-library'
-apply plugin: 'com.neenbedankt.android-apt'
-apply plugin: 'me.tatarka.retrolambda'
+apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
@@ -20,15 +18,28 @@ android {
 }
 
 dependencies {
-    compile rootProject.ext.supportV7
-    compile rootProject.ext.dagger
-    apt rootProject.ext.daggerCompiler
-    compile rootProject.ext.sqlBrite
-    compile rootProject.ext.rxJava
-    compile rootProject.ext.rxAndroid
+    // Android dependencies
+    implementation rootProject.ext.supportV7
 
-    testCompile 'junit:junit:4.12'
-    compile project(':org.envirocar.core')
-    androidTestCompile 'junit:junit:4.12'
+    // Dependency injection, view injection, event bus...
+    implementation rootProject.ext.dagger
+    annotationProcessor rootProject.ext.daggerCompiler
+
+    // RxJava dependencies
+    implementation rootProject.ext.rxJava
+    implementation rootProject.ext.rxAndroid
+    api rootProject.ext.sqlBrite // change to implementation when updating
+
+    // Testing
+    testImplementation rootProject.ext.junit
+    androidTestImplementation rootProject.ext.junit
+
+    // Database Dependencies
+    implementation rootProject.ext.supportSqlite
+    implementation rootProject.ext.supportSqliteFramework
+    implementation rootProject.ext.sqlBrite
+
+    // Modules
+    api project(path : ':org.envirocar.core')
 }
 

@@ -1,6 +1,6 @@
 <!--
 
-    Copyright (C) 2013 - 2015 the enviroCar community
+    Copyright (C) 2013 - 2019 the enviroCar community
 
     This file is part of the enviroCar app.
 
@@ -20,17 +20,9 @@
 -->
 <resources>
 
-    <string name="title_activity_login">Einloggen</string>
-
     <!-- Strings related to login -->
-    <string name="prompt_username">Username</string>
-    <string name="prompt_email">Email</string>
-    <string name="prompt_password">Passwort</string>
-    <string name="prompt_confirm_password">Passwort wiederholen</string>
     <string name="action_sign_in_register">Registrieren</string>
     <string name="action_sign_in_short">Einloggen</string>
-    <string name="action_forgot_password">Verlorenes Passwort wiederherstellen</string>
-    <string name="login_progress_signing_in">Einloggen&#8230;</string>
     <string name="error_invalid_email">Email ist nicht valide</string>
     <string name="error_invalid_password">Zu kurzes Passwort</string>
     <string name="error_incorrect_password">Falsches Passwort</string>
@@ -42,19 +34,27 @@
 
     <string name="error_username_already_in_use">Dieser Username ist bereits vergeben.</string>
     <string name="error_email_already_in_use">Diese Adresse ist bereits in Benutzung.</string>
-    
-    <string name="error_email_not_in_beta">enviroCar befindet sich zur Zeit in der Beta-Phase
-	phase. \nSchreibe an envirocar@52north.org um Beta-Tester zu werden!</string>
+
     <string name="error_host_not_found">Keine Verbindung zum Server möglich.</string>
 
-    <string name="activity_login_logout_dialog_title">Abmelden</string>
-    <string name="activity_login_logout_dialog_content">Sie sind dabei sich abzumelden.
-        Alle lokalen Kopien von hochgeladenen Tracks, die Ihrem Account zugeordnet sind,
-        werden damit lokal gelöscht.\n\nWollen Sie fortfahren?</string>
-
     <string name="activity_login_logout_progress_dialog_title">Logge aus...</string>
-    <string name="activity_login_logout_progress_dialog_content">
-        Lösche alle lokal gespeicherten Kopien von hochgeladenen Fahrten.</string>
-
+    <string name="activity_login_logout_progress_dialog_content">Lösche alle lokal gespeicherten Kopien von hochgeladenen Fahrten.</string>
     <string name="activity_login_logging_in_dialog_title">Logge ein...</string>
+
+    <string name="already_registered_question">Du hast bereits ein Konto?</string>
+    <string name="already_registered_sign_in">Melden Sie sich hier an!</string>
+
+    <string name="not_yet_registered_question">Du hast noch keinen Account?</string>
+    <string name="not_yet_registered_register">Hier registrieren!</string>
+
+
+    <string name="login_mail_not_confirmed_dialog_title">E-Mail-Bestätigung erforderlich</string>
+    <string name="login_mail_not_confirmed_dialog_content">Dein E-Mail-Konto wurde noch nicht bestätigt. Um die volle Funktionalität von enviroCar zu nutzen, loggen Sie sich bitte in Ihr E-Mail-Konto ein und bestätigen Sie Ihre E-Mail-Adresse.</string>
+
+    <string name="register_success_dialog_title">Du bist nur einen Schritt entfernt.....</string>
+    <string name="register_success_dialog_content">Sie sind nur einen Schritt davon entfernt, Ihr Konto bei enviroCar zu aktivieren. Bitte überprüfen Sie Ihre Mails, um die Registrierung abzuschließen.</string>
+
+    <string name="register_acknowledge_text">Ich stimme den Allgemeinen Nutzungsbedingungen von enviroCar zu. Die Bestimmungen zu Datenschutz habe ich zur Kenntnis genommen.</string>
+    <string name="privacy_statement">Datenschutz</string>
+    <string name="terms_and_conditions">Nutzungsbedingungen</string>
 </resources>

@@ -1,67 +1,106 @@
 apply plugin: 'com.android.application' //or apply plugin: 'java'
-apply plugin: 'com.neenbedankt.android-apt'
-apply plugin: 'me.tatarka.retrolambda'
 apply plugin: "com.github.hierynomus.license"
 
 dependencies {
-    compile rootProject.ext.supportV4
-    compile rootProject.ext.supportV7
-    compile rootProject.ext.supportDesign
-    compile rootProject.ext.supportCardview
-    compile rootProject.ext.supportRecyclerview
-    compile rootProject.ext.dagger
-    //apt rootProject.ext.daggerCompiler
-    provided rootProject.ext.daggerCompiler
-    compile rootProject.ext.sqlBrite
-    compile rootProject.ext.otto
-    compile rootProject.ext.butterKnife
-    compile rootProject.ext.acra
-    compile rootProject.ext.helloCharts
-    compile rootProject.ext.fabProgressCircle
-    compile rootProject.ext.gson
-    //compile rootProject.ext.guava
-    compile(materialDialogs) {
-        exclude module: 'appcompat-v7'
-        exclude module: 'recyclerview-v7'
-        exclude module: 'support-annotations'
-        transitive = true
-    }
-    compile rootProject.ext.rxAndroid
-    compile rootProject.ext.rxJava
-    compile rootProject.ext.rxPreferences
-    compile 'com.jakewharton.rxbinding:rxbinding-appcompat-v7:0.3.0'
-    compile rootProject.ext.findBugs
-    // Commons compress
-    compile 'org.apache.commons:commons-compress:1.5'
+    // Android dependencies.
+    implementation rootProject.ext.supportV4
+    implementation rootProject.ext.supportV7
+    implementation rootProject.ext.supportDesign
+    implementation rootProject.ext.supportCardview
+    implementation rootProject.ext.supportRecyclerview
+    implementation rootProject.ext.supportConstraintLayout
+
+    implementation rootProject.ext.supportLifecycleExtension
+    implementation rootProject.ext.supportLifecycleRuntime
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation rootProject.ext.androidxPreference
+    annotationProcessor rootProject.ext.supportLifecycleCompiler
+
+    // Dependency injection, view injection, event bus ...
+    implementation rootProject.ext.dagger
+    implementation rootProject.ext.otto
+    implementation rootProject.ext.butterKnife
+    annotationProcessor rootProject.ext.daggerCompiler
+    annotationProcessor rootProject.ext.butterknifeCompiler
+    //    implementation 'org.glassfish:javax.annotation:10.0-b28'
+
+    // Google dependencies
+    implementation rootProject.ext.gson
+    implementation rootProject.ext.playServicesLocation
+    implementation rootProject.ext.findBugs
+
+    // RxJava for Android
+    implementation rootProject.ext.rxAndroid
+    implementation rootProject.ext.rxJava
+    implementation rootProject.ext.rxPreferences
+//    implementation rootProject.ext.rxBinding
+
+    // other third party libraries
+    implementation rootProject.ext.acra
+    implementation rootProject.ext.helloCharts
+    implementation rootProject.ext.fabProgressCircle
+    implementation rootProject.ext.segmentedUIController
+    implementation rootProject.ext.materialDialogs
+    implementation "com.andkulikov:transitionseverywhere:2.0.0"
+    implementation 'de.hdodenhof:circleimageview:3.0.1'
+
+    // RxBindings
+    implementation rootProject.ext.rxBindingCore
+    implementation rootProject.ext.rxBindingAppCompat
+
+    //implementation rootProject.ext.guava
+//    implementation(materialDialogs) {
+//        exclude module: 'appcompat-v7'
+//        exclude module: 'recyclerview-v7'
+//        exclude module: 'support-annotations'
+//        transitive = true
+//    }
+
+
     // MapBox SDK
-    compile(rootProject.ext.mapbox) {
+    implementation(rootProject.ext.mapbox) {
         transitive = true
     }
-    testCompile 'junit:junit:4.12'
-    testCompile 'org.mockito:mockito-core:1.9.5'
-    testCompile('org.powermock:powermock-api-mockito:1.6.2') {
+
+    // Test
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'org.mockito:mockito-core:1.9.5'
+    testImplementation('org.powermock:powermock-api-mockito:1.6.2') {
         exclude module: 'hamcrest-core'
         exclude module: 'objenesis'
     }
-    testCompile('org.powermock:powermock-module-junit4:1.6.2') {
+    testImplementation('org.powermock:powermock-module-junit4:1.6.2') {
         exclude module: 'hamcrest-core'
         exclude module: 'objenesis'
     }
-    androidTestCompile 'junit:junit:4.12'
-    androidTestCompile('com.android.support.test:runner:0.3') {
+    androidTestImplementation 'junit:junit:4.12'
+    androidTestImplementation('androidx.test:runner:1.1.0-alpha4') {
         exclude module: 'support-annotations'
     }
-    androidTestCompile('com.android.support.test:rules:0.3') {
+    androidTestImplementation('androidx.test:rules:1.1.0-alpha4') {
         exclude module: 'support-annotations'
     }
-    compile project(':org.envirocar.core')
-    compile project(':org.envirocar.remote')
-    compile project(':org.envirocar.obd')
-    compile project(':org.envirocar.storage')
-    compile project(':org.envirocar.algorithm')
+
+    // modules
+    api project(path: ':org.envirocar.core')
+    api project(path: ':org.envirocar.remote')
+    api project(path: ':org.envirocar.obd')
+    api project(path: ':org.envirocar.storage')
+    api project(path: ':org.envirocar.algorithm')
+    implementation 'com.github.enviroCar:enviroCar-aidl:d67cfa49f3'
 }
 
 
+configurations.all {
+    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+        def requested = details.requested
+        if (requested.group == "androidx") {
+            if (!requested.name.startsWith("multidex")) {
+                details.useVersion "${targetSdk}.+"
+            }
+        }
+    }
+}
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
@@ -113,13 +152,13 @@ android {
 
     packagingOptions {
         exclude 'META-INF/services/javax.annotation.processing.Processor'
+        exclude 'META-INF/rxjava.properties'
     }
 
     defaultConfig {
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        multiDexEnabled true
     }
-}
-
-retrolambda {
-    javaVersion JavaVersion.VERSION_1_7
 }

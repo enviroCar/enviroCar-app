@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
 
-    Copyright (C) 2013 - 2015 the enviroCar community
+    Copyright (C) 2013 - 2019 the enviroCar community
 
     This file is part of the enviroCar app.
 
@@ -23,9 +23,9 @@
     <string name="track_list_local_tracks">Lokal</string>
     <string name="track_list_remote_tracks">Hochgeladen</string>
 
-    <string name="track_list_deleting_track">Lösche track...</string>
-    <string name="track_list_deleting_track_unauthorized">Fehler beim Löschen des Tracks. Sie sind nicht
-        authentifiziert dies zu tun. Loggen Sie sich hierfür mit dem zugehörigen Account ein.</string>
+    <string name="track_list_uploading_tracks">Lade Fahrten hoch...</string>
+    <string name="track_list_deleting_track">Lösche Fahrt...</string>
+    <string name="track_list_deleting_track_unauthorized">Fehler beim Löschen der Fahrt. Sie sind nicht authentifiziert dies zu tun. Loggen Sie sich hierfür mit dem zugehörigen Account ein.</string>
     <string name="track_list_delete_track_error_template">Fehler beim Löschen der Fahrt "%s"</string>
     <string name="track_list_delete_track_success_template">%s wurde erfolgreich gelöscht.</string>
 
@@ -33,7 +33,6 @@
     <string name="track_list_upload_track_no_measurements">Die Fahrt enthält nicht genug Messungen um diese anonymisiert hochzuladen.</string>
     <string name="track_list_upload_track_general_error">Fehler während des Hochladens. Versuchen Sie es später erneut.</string>
     <string name="track_list_upload_track_content">Die folgende Fahrt wird als Open Data auf den enviroCar Server hochgeladen: </string>
-    <string name="track_list_upload_track_please_wait">Bitte Warten...</string>
     <string name="track_list_upload_track_success_template">Die Fahrt \'%s\' wurde erfolgreich hochgeladen.</string>
 
     <string name="track_list_loading_tracks">Lade Fahrten...</string>
@@ -53,7 +52,7 @@
     <string name="track_list_bg_no_connection_sub">Sie haben derzeitig keine\nVerbinding ins Internet.</string>
     <string name="track_list_bg_unauthorized">NICHT AUTHORISERT</string>
     <string name="track_list_bg_unauthorized_sub">Sie sind nicht nicht authorisiert dies zu tun.</string>
-    <string name="track_list_error_while_downloading">Fehler beim herunterladen von Tracks.</string>
+    <string name="track_list_error_while_downloading">Fehler beim herunterladen einer Fahrt.</string>
     <string name="track_list_communication_error">Keine Verbindung zum Server.</string>
 
     <string name="track_list_menu_details">Detailansicht</string>
@@ -63,17 +62,17 @@
 
     <string name="track_list_details_duration">Dauer</string>
     <string name="track_list_details_distance">Distanz</string>
-    <string name="track_list_details_car">Auto:</string>
+    <string name="track_list_details_car">Fahrzeug:</string>
     <string name="track_list_details_start">Beginn:</string>
     <string name="track_list_details_end">Ende:</string>
     <string name="track_list_details_consumption">Verbrauch*:</string>
     <string name="track_list_details_emission">CO\u2082 Ausstoß*:</string>
     <string name="track_list_details_diesel_not_supported">DIESEL NICHT\nUNTERSTÜTZT</string>
 
-    <string name="track_list_upload_all_tracks_title">All Fahrten Hochladen?</string>
-    <string name="track_list_upload_all_tracks_content">Sie sind dabei alle Fahrten auf den enviroCar Server als Open Data hochzuladen. Diese bedeutet, dass alle tracks ihrem Account zugewiesen werden und anonymisiert für andere zugreifbar sind.\n\nMöchten Sie fortfahren?</string>
-    <string name="track_list_uploading_all_tracks_title">Hochladen der Fahrten...</string>
+    <string name="track_list_upload_all_tracks_title">Alle Fahrten Hochladen?</string>
+    <string name="track_list_upload_all_tracks_content">Sie sind dabei alle ihre Fahrten auf den enviroCar Server als Open Data hochzuladen. Alle Fahrten werden damit ihrem Benutzerkonto zugewiesen und anaonymisiert für andere zugreifbar.\n\nMöchten Sie fortfahren?</string>
     <string name="track_list_uploading_please_wait">Bitte warten...</string>
-    <string name="track_list_uploading_all_tracks_content_tmp" formatted="false">Fahrt %s von %s wird hochgeladen.</string>
+
+    <string name="track_list_details_subtitle_template">Ihre Fahrt mit %s %s am %s.</string>
 
 </resources>

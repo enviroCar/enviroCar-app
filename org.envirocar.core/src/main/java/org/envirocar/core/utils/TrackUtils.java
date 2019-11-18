@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - 2015 the enviroCar community
+ * Copyright (C) 2013 - 2019 the enviroCar community
  *
  * This file is part of the enviroCar app.
  *
@@ -100,14 +100,12 @@ public class TrackUtils {
         return -1;
     }
 
-    private static boolean isSpatialObfuscated(Measurement measurement, Track track)
-            throws NoMeasurementsException {
-        return (Util.getDistance(track.getFirstMeasurement(), measurement) <= OBFUSCATION_DISTANCE_KM)
-                || (Util.getDistance(track.getLastMeasurement(), measurement) <= OBFUSCATION_DISTANCE_KM);
+    public static final boolean isSpatialObfuscated(Measurement measurement, Track track) throws NoMeasurementsException {
+        return (LocationUtils.getDistance(track.getFirstMeasurement(), measurement) <= OBFUSCATION_DISTANCE_KM)
+                || (LocationUtils.getDistance(track.getLastMeasurement(), measurement) <= OBFUSCATION_DISTANCE_KM);
     }
 
-    private static boolean isTemporalObfuscated(Measurement measurement, Track track)
-            throws NoMeasurementsException {
+    public static final boolean isTemporalObfuscated(Measurement measurement, Track track) throws NoMeasurementsException {
         return (measurement.getTime() - track.getStartTime() <= OBFUSCATION_TIME_MS ||
                 track.getEndTime() - measurement.getTime() <= OBFUSCATION_TIME_MS);
     }

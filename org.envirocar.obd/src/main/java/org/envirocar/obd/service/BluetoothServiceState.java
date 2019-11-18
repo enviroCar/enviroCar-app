@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - 2015 the enviroCar community
+ * Copyright (C) 2013 - 2019 the enviroCar community
  *
  * This file is part of the enviroCar app.
  *
@@ -27,5 +27,5 @@ public enum BluetoothServiceState {
     SERVICE_DEVICE_DISCOVERY_RUNNING,
     SERVICE_STARTING,
     SERVICE_STARTED,
-    SERVICE_STOPPING;
+    SERVICE_STOPPING
 }

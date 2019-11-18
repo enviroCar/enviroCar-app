@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - 2015 the enviroCar community
+ * Copyright (C) 2013 - 2019 the enviroCar community
  *
  * This file is part of the enviroCar app.
  *
@@ -19,23 +19,19 @@
 package org.envirocar.remote.dao;
 
 
-import org.envirocar.core.dao.TermsOfUseDAO;
+import org.envirocar.core.repository.TermsOfUseRepository;
 import org.envirocar.core.entity.TermsOfUse;
 import org.envirocar.core.exception.DataRetrievalFailureException;
 import org.envirocar.core.exception.NotConnectedException;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.remote.service.EnviroCarService;
 import org.envirocar.remote.service.TermsOfUseService;
-import org.envirocar.remote.util.EnvirocarServiceUtils;
 
 import java.util.List;
 
 import javax.inject.Inject;
 
-import retrofit.Call;
-import retrofit.Response;
-import rx.Observable;
-import rx.Subscriber;
+import io.reactivex.Observable;
+import retrofit2.Call;
 
 /**
  * Data access object that handles the access to the terms of use at the envirocar remoteService.
@@ -43,8 +39,8 @@ import rx.Subscriber;
  *
  * @author dewall
  */
-public class RemoteTermsOfUseDAO extends BaseRemoteDAO<TermsOfUseDAO, TermsOfUseService>
-        implements TermsOfUseDAO {
+public class RemoteTermsOfUseDAO extends BaseRemoteDAO<TermsOfUseRepository, TermsOfUseService>
+        implements TermsOfUseRepository {
     private static final Logger LOG = Logger.getLogger(RemoteTermsOfUseDAO.class);
 
     /**
@@ -58,168 +54,27 @@ public class RemoteTermsOfUseDAO extends BaseRemoteDAO<TermsOfUseDAO, TermsOfUse
     }
 
     @Override
-    public TermsOfUse getTermsOfUse(String id) throws DataRetrievalFailureException,
-            NotConnectedException {
-        LOG.info(String.format("getTermsOfUseInstance(%s)", id));
-
-        // Get the remoteService and initiate the call.
-        final TermsOfUseService touService = EnviroCarService.getTermsOfUseService();
-        Call<TermsOfUse> termsOfUseCall = touService.getTermsOfUseByID(id);
-
-        try {
-            // Execute the call
-            Response<TermsOfUse> touResponse = termsOfUseCall.execute();
-
-            // check the response for success
-            if (!touResponse.isSuccess()) {
-                EnvirocarServiceUtils.assertStatusCode(touResponse.code(), touResponse
-                        .message());
-            }
-
-            // Store the downloaded instance in the cache.
-            //            if (mCache != null) {
-            //                mCache.storeTermsOfUseInstance(touResponse.raw().body().string
-            // (), id);
-            //            }
-
-            // Return the terms of use instance.
-            return touResponse.body();
-        } catch (Exception e) {
-            LOG.warn("Error while retrieving terms of use", e);
-            throw new DataRetrievalFailureException(e);
-        }
+    public TermsOfUse getTermsOfUse(String id) throws DataRetrievalFailureException, NotConnectedException {
+        LOG.info("getTermsOfUseInstance(%s)", id);
+        Call<TermsOfUse> call = this.remoteService.getTermsOfUseByID(id);
+        return wrapExecuteCallReturnBody(call);
     }
 
     @Override
     public Observable<TermsOfUse> getTermsOfUseObservable(String id) {
-        return null;
+        return wrapObservableHandling(() -> getTermsOfUse(id));
     }
 
     @Override
-    public List<TermsOfUse> getAllTermsOfUse() throws DataRetrievalFailureException,
-            NotConnectedException {
-        LOG.info("getTermsOfUse()");
-        // Get the remoteService and instantiate the call to the remoteService endpoint in order
-        // to get the
-        // terms of use.
-        final TermsOfUseService touService = EnviroCarService.getTermsOfUseService();
-        Call<List<TermsOfUse>> termsOfUseCall = touService.getAllTermsOfUse();
-
-        try {
-            // Execute the call
-            Response<List<TermsOfUse>> touResponse = termsOfUseCall.execute();
-
-            // check the response for success
-            if (!touResponse.isSuccess()) {
-                EnvirocarServiceUtils.assertStatusCode(touResponse.code(), touResponse
-                        .message());
-            }
-
-            // Return the terms of use.
-            return touResponse.body();
-        } catch (Exception e) {
-            LOG.severe("Error while retrieving terms of use.", e);
-            throw new DataRetrievalFailureException(e);
-        }
+    public List<TermsOfUse> getAllTermsOfUse() throws DataRetrievalFailureException, NotConnectedException {
+        LOG.info("Requesting list of terms of use");
+        Call<List<TermsOfUse>> call = this.remoteService.getAllTermsOfUse();
+        return wrapExecuteCallReturnBody(call);
     }
 
     @Override
     public Observable<List<TermsOfUse>> getAllTermsOfUseObservable() {
-        return Observable.create(new Observable.OnSubscribe<List<TermsOfUse>>() {
-            @Override
-            public void call(Subscriber<? super List<TermsOfUse>> subscriber) {
-                try {
-                    subscriber.onNext(getAllTermsOfUse());
-                } catch (DataRetrievalFailureException e) {
-                    subscriber.onError(e);
-                } catch (NotConnectedException e) {
-                    subscriber.onError(e);
-                }
-            }
-        });
+        return wrapObservableHandling(() -> getAllTermsOfUse());
     }
 
-
-    //    @Override
-    //    public TermsOfUse getTermsOfUse() throws TermsOfUseRetrievalException {
-    //        LOG.info("getTermsOfUse()");
-    //        // Get the remoteService and instantiate the call to the remoteService endpoint in
-    // order to get
-    // the
-    //        // terms of use.
-    //        final TermsOfUseService touService = EnviroCarService.getTermsOfUseService();
-    //        Call<TermsOfUse> termsOfUseCall = touService.getTermsOfUse();
-    //
-    //        try {
-    //            // Execute the call
-    //            Response<TermsOfUse> touResponse = termsOfUseCall.execute();
-    //
-    //            // check the response for success
-    //            if (touResponse.isSuccess()) {
-    //                EnvirocarServiceUtils.assertStatusCode(touResponse.code(), touResponse
-    // .message());
-    //            }
-    //
-    //            // Success
-    //            if (mCache != null) {
-    ////                mCache.storeTermsOfUse(touResponse.body()touResponse.raw().body().string());
-    //            }
-    //
-    //            // Return the terms of use.
-    //            return touResponse.body();
-    //        } catch (Exception e) {
-    //            LOG.severe("Error while retrieving terms of use.", e);
-    //            throw new TermsOfUseRetrievalException(e);
-    //        }
-    //    }
-    //
-    //    @Override
-    //    public Observable<TermsOfUse> getTermsOfUseObservable() {
-    //        return Observable.just(true)
-    //                .map(aBoolean -> {
-    //                    try {
-    //                        return getTermsOfUse();
-    //                    } catch (TermsOfUseRetrievalException e) {
-    //                        throw OnErrorThrowable.from(e);
-    //                    }
-    //                });
-    //    }
-    //
-    //    @Override
-    //    public TermsOfUseInstance getTermsOfUseInstance(String id) throws
-    // TermsOfUseRetrievalException {
-    //        LOG.info(String.format("getTermsOfUseInstance(%s)", id));
-    //
-    //        // Get the remoteService and initiate the call.
-    //        final TermsOfUseService touService = EnviroCarService.getTermsOfUseService();
-    //        Call<TermsOfUseInstance> termsOfUseCall = touService.getTermsOfUseByID(id);
-    //
-    //        try {
-    //            // Execute the call
-    //            Response<TermsOfUseInstance> touResponse = termsOfUseCall.execute();
-    //
-    //            // Store the downloaded instance in the cache.
-    //            if (mCache != null) {
-    ////                mCache.storeTermsOfUseInstance(touResponse.raw().body().string(), id);
-    //            }
-    //
-    //            // Return the terms of use instance.
-    //            return touResponse.body();
-    //        } catch (Exception e) {
-    //            LOG.warn("Error while retrieving terms of use", e);
-    //            throw new TermsOfUseRetrievalException(e);
-    //        }
-    //    }
-    //
-    //    @Override
-    //    public Observable<TermsOfUseInstance> getTermsOfUseInstanceObservable(final String id) {
-    //        return Observable.just(true)
-    //                .map(aBoolean -> {
-    //                    try {
-    //                        return getTermsOfUseInstance(id);
-    //                    } catch (TermsOfUseRetrievalException e) {
-    //                        throw OnErrorThrowable.from(e);
-    //                    }
-    //                });
-    //    }
 }

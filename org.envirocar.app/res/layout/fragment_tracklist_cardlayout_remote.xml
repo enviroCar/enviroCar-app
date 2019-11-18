@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
 
-    Copyright (C) 2013 - 2015 the enviroCar community
+    Copyright (C) 2013 - 2019 the enviroCar community
 
     This file is part of the enviroCar app.
 
@@ -27,7 +27,7 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <android.support.v7.widget.CardView
+    <androidx.cardview.widget.CardView
         android:id="@+id/card_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -42,7 +42,7 @@
             android:clipChildren="false"
             android:clipToPadding="false">
 
-            <android.support.v7.widget.Toolbar
+            <androidx.appcompat.widget.Toolbar
                 android:id="@+id/fragment_tracklist_cardlayout_toolbar"
                 style="@style/Widget.enviroCar.Toolbar"
                 android:layout_alignParentTop="true">
@@ -60,7 +60,7 @@
                     android:textColor="@color/white_cario"
                     android:textSize="18sp"/>
 
-            </android.support.v7.widget.Toolbar>
+            </androidx.appcompat.widget.Toolbar>
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -94,7 +94,7 @@
                 android:paddingTop="@dimen/fab_margin_download_button_top"
                 card_view:reusable="true">
 
-                <android.support.design.widget.FloatingActionButton
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
                     android:id="@+id/fragment_tracklist_cardlayout_remote_downloadfab"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -106,5 +106,5 @@
 
             </com.github.jorgecastilloprz.FABProgressCircle>
         </RelativeLayout>
-    </android.support.v7.widget.CardView>
+    </androidx.cardview.widget.CardView>
 </LinearLayout>
