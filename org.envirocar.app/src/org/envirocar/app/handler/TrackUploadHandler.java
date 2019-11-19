@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -38,6 +38,7 @@ import org.envirocar.core.exception.TrackWithNoValidCarException;
 import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.utils.TrackUtils;
+import org.envirocar.core.utils.rx.Optional;
 
 import java.util.List;
 
@@ -159,7 +160,7 @@ public class TrackUploadHandler {
      *                              it returns null to its subscriber.
      * @return an observable that uploads a list of tracks.
      */
-    public Observable<Track> uploadTracksObservable(
+    public Observable<Optional<Track>> uploadTracksObservable(
             List<Track> tracks, boolean abortOnNoMeasurements) {
         return uploadTracksObservable(tracks, abortOnNoMeasurements, null);
     }
@@ -178,15 +179,15 @@ public class TrackUploadHandler {
      *                              null, then it creates a dialog where it can be accepted.
      * @return an observable that uploads a list of tracks.
      */
-    public Observable<Track> uploadTracksObservable(
+    public Observable<Optional<Track>> uploadTracksObservable(
             List<Track> tracks, boolean abortOnNoMeasurements, Activity activity) {
         Preconditions.checkState(tracks != null && !tracks.isEmpty(),
                 "Input tracks cannot be null or empty.");
         return Observable.just(tracks)
                 .compose(AgreementManager.TermsOfUseValidator.create(mAgreementManager, activity))
                 .flatMap(tracks1 -> Observable.fromIterable(tracks1))
-                .concatMap(track -> uploadTrack(track));
-//                        .lift(getUploadTracksOperator(abortOnNoMeasurements)));
+                .concatMap(track -> uploadTrack(track)
+                        .lift(getUploadTracksOperator(abortOnNoMeasurements)));
     }
 
     private Observable<Track> uploadTrack(Track track) {
@@ -261,19 +262,20 @@ public class TrackUploadHandler {
                         .map(trackMetadata -> track));
     }
 
-    private ObservableOperator<Track, Track> getUploadTracksOperator(boolean abortOnNoMeasurements) {
+    private ObservableOperator<Optional<Track>, Track> getUploadTracksOperator(boolean abortOnNoMeasurements) {
         return observer -> new DisposableObserver<Track>() {
 
             @Override
             public void onNext(Track track) {
-
+                LOG.info("onNext(): Track has been successfully uploaded");
+                observer.onNext(Optional.create(track));
             }
 
             @Override
             public void onError(Throwable e) {
                 LOG.info("onError() Track has not enough measurements to upload.");
                 if (!abortOnNoMeasurements && e.getCause() instanceof NoMeasurementsException) {
-                    observer.onNext(null);
+                    observer.onNext(Optional.create(null));
                     onComplete();
                 } else {
                     observer.onError(e);
@@ -283,9 +285,9 @@ public class TrackUploadHandler {
 
             @Override
             public void onComplete() {
-
+                LOG.info("Track Upload is completed");
+                observer.onComplete();
             }
-
         };
     }
 }

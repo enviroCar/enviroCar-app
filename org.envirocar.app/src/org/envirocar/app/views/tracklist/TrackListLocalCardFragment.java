@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -44,6 +44,7 @@ import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.util.TrackMetadata;
 import org.envirocar.core.util.Util;
+import org.envirocar.core.utils.rx.Optional;
 
 import java.util.Collections;
 import java.util.List;
@@ -330,96 +331,105 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
 
             @Override
             public void subscribe(ObservableEmitter<Track> emitter) throws Exception {
-                DisposableObserver<Track> disposableObserver = mTrackUploadHandler.uploadTracksObservable(tracks, false, getActivity())
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeWith(new DisposableObserver<Track>() {
-                            protected TextView infoText;
-                            protected ProgressBar progressBar;
-                            protected TextView percentageText;
-                            protected TextView progressText;
-
-                            @Override
-                            public void onStart() {
-//                                emitter.onStart();
-
-                                // Create the custom dialog view
-                                contentView = getActivity().getLayoutInflater().inflate(R.layout
-                                        .fragment_tracklist_uploading_dialog, null, false);
-
-                                infoText = contentView.findViewById(
-                                        R.id.fragment_tracklist_uploading_dialog_info);
-                                progressBar = contentView.findViewById(
-                                        R.id.fragment_tracklist_uploading_dialog_progressbar);
-                                percentageText = contentView.findViewById(
-                                        R.id.fragment_tracklist_uploading_dialog_percentage);
-                                progressText = contentView.findViewById(
-                                        R.id.fragment_tracklist_uploading_dialog_progress);
-
-                                // update the Progressbar
-                                progressBar.setMax(numberOfTracks);
-                                updateProgressView(0);
-
-                                dialog = DialogUtils.createDefaultDialogBuilder(
-                                        getActivity(), "Uploading Tracks...",
-                                        R.drawable.ic_cloud_upload_white_24dp, contentView)
-                                        .cancelable(false)
-                                        .negativeText(R.string.cancel)
-                                        .onNegative((dialog, dialogAction) -> dispose())
-                                        .show();
-                            }
-
-                            @Override
-                            public void onComplete() {
-                                if (!emitter.isDisposed())
-                                    return;
-
-                                if (numberOfFailures > 0) {
-                                    showSnackbar(String.format("%s of %s tracks have been " +
-                                                    "successfully uploaded. %s tracks had to less" +
-                                                    " " +
-                                                    "measurements to upload.", numberOfSuccesses,
-                                            numberOfTracks, numberOfFailures));
-                                }
-
-                                dialog.dismiss();
-                            }
-
-                            @Override
-                            public void onError(Throwable e) {
-                                if (!emitter.isDisposed())
-                                    emitter.onError(e);
-
-                                showSnackbar("An error occurred during the upload process.");
-                                dialog.dismiss();
-                            }
-
-                            @Override
-                            public void onNext(Track track) {
-                                LOG.info("Successfully uploaded track %s", track.getDescription());
-                                if (track == null)
-                                    numberOfFailures++;
-                                else {
-                                    numberOfSuccesses++;
-                                    emitter.onNext(track);
-                                }
-
-                                updateProgressView(numberOfFailures + numberOfSuccesses);
-
-                                if ((numberOfFailures + numberOfSuccesses) == numberOfTracks) {
-                                    onComplete();
-                                }
-                            }
-
-                            private void updateProgressView(int progress) {
-                                progressBar.setProgress(progress);
-                                progressBar.setSecondaryProgress(progress + 1);
-
-                                percentageText.setText((progress / numberOfTracks) * 100 + "%");
-                                progressText.setText(progress + " / " + numberOfTracks);
-                            }
-                        });
+                DisposableObserver<Optional<Track>> disposableObserver =
+                        mTrackUploadHandler.uploadTracksObservable(tracks, false, getActivity())
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribeWith(uploadTracksDisposable(tracks.size(), emitter));
                 emitter.setDisposable(disposableObserver);
+            }
+        });
+    }
+
+    private DisposableObserver<Optional<Track>> uploadTracksDisposable(int numberOfTracks, ObservableEmitter<Track> emitter) {
+        return new DisposableObserver<Optional<Track>>() {
+            int numberOfSuccesses = 0;
+            int numberOfFailures = 0;
+
+            protected TextView infoText;
+            protected ProgressBar progressBar;
+            protected TextView percentageText;
+            protected TextView progressText;
+            protected MaterialDialog dialog;
+            protected View contentView;
+
+            @Override
+            public void onStart() {
+                // Create the custom dialog view
+                contentView = getActivity().getLayoutInflater().inflate(R.layout
+                        .fragment_tracklist_uploading_dialog, null, false);
+
+                infoText = contentView.findViewById(
+                        R.id.fragment_tracklist_uploading_dialog_info);
+                progressBar = contentView.findViewById(
+                        R.id.fragment_tracklist_uploading_dialog_progressbar);
+                percentageText = contentView.findViewById(
+                        R.id.fragment_tracklist_uploading_dialog_percentage);
+                progressText = contentView.findViewById(
+                        R.id.fragment_tracklist_uploading_dialog_progress);
+
+                // update the Progressbar
+                progressBar.setMax(numberOfTracks);
+                updateProgressView(0);
+
+                dialog = DialogUtils.createDefaultDialogBuilder(
+                        getActivity(), "Uploading Tracks...",
+                        R.drawable.ic_cloud_upload_white_24dp, contentView)
+                        .cancelable(false)
+                        .negativeText(R.string.cancel)
+                        .onNegative((dialog, dialogAction) -> dispose())
+                        .show();
+            }
+
+            @Override
+            public void onComplete() {
+                if (!emitter.isDisposed())
+                    return;
+
+                if (numberOfFailures > 0) {
+                    showSnackbar(String.format("%s of %s tracks have been " +
+                                    "successfully uploaded. %s tracks had to less" +
+                                    " " +
+                                    "measurements to upload.", numberOfSuccesses,
+                            numberOfTracks, numberOfFailures));
+                }
+
+                dialog.dismiss();
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                if (!emitter.isDisposed())
+                    emitter.onError(e);
+
+                showSnackbar("An error occurred during the upload process.");
+                dialog.dismiss();
+            }
+
+            @Override
+            public void onNext(Optional<Track> optional) {
+                Track track = optional.getOptional();
+                if (track == null)
+                    numberOfFailures++;
+                else {
+                    LOG.info("Successfully uploaded track %s", track.getDescription());
+                    numberOfSuccesses++;
+                    emitter.onNext(track);
+                }
+
+                updateProgressView(numberOfFailures + numberOfSuccesses);
+
+                if ((numberOfFailures + numberOfSuccesses) == numberOfTracks) {
+                    onComplete();
+                }
+            }
+
+            private void updateProgressView(int progress) {
+                progressBar.setProgress(progress);
+                progressBar.setSecondaryProgress(progress + 1);
+
+                percentageText.setText((progress / numberOfTracks) * 100 + "%");
+                progressText.setText(progress + " / " + numberOfTracks);
             }
         });
     }
