@@ -24,9 +24,6 @@ import android.content.Context;
 import com.google.common.base.Preconditions;
 
 import org.envirocar.app.R;
-import org.envirocar.app.exception.GPSOnlyTrackCannotUploadException;
-import org.envirocar.app.exception.NotLoggedInException;
-import org.envirocar.app.exception.TrackAlreadyUploadedException;
 import org.envirocar.app.handler.agreement.AgreementManager;
 import org.envirocar.app.handler.preferences.CarPreferenceHandler;
 import org.envirocar.app.handler.preferences.UserPreferenceHandler;
@@ -34,11 +31,10 @@ import org.envirocar.core.EnviroCarDB;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.exception.NoMeasurementsException;
-import org.envirocar.core.exception.TrackWithNoValidCarException;
+import org.envirocar.core.exception.TrackUploadException;
 import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.utils.TrackUtils;
-import org.envirocar.core.utils.rx.Optional;
 
 import java.util.List;
 
@@ -46,7 +42,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.reactivex.Observable;
-import io.reactivex.ObservableOperator;
 import io.reactivex.ObservableTransformer;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Function;
@@ -150,6 +145,10 @@ public class TrackUploadHandler {
         });
     }
 
+    public Observable<Track> uploadTracksObservable(List<Track> tracks) {
+        return uploadTracksObservable(tracks, false);
+    }
+
     /**
      * Returns an observable that uploads a list of tracks. If a track did not contain enough
      * measurements, i.e. the track obfuscation is throwing a {@link NoMeasurementsException},
@@ -160,7 +159,7 @@ public class TrackUploadHandler {
      *                              it returns null to its subscriber.
      * @return an observable that uploads a list of tracks.
      */
-    public Observable<Optional<Track>> uploadTracksObservable(
+    public Observable<Track> uploadTracksObservable(
             List<Track> tracks, boolean abortOnNoMeasurements) {
         return uploadTracksObservable(tracks, abortOnNoMeasurements, null);
     }
@@ -179,15 +178,14 @@ public class TrackUploadHandler {
      *                              null, then it creates a dialog where it can be accepted.
      * @return an observable that uploads a list of tracks.
      */
-    public Observable<Optional<Track>> uploadTracksObservable(
+    public Observable<Track> uploadTracksObservable(
             List<Track> tracks, boolean abortOnNoMeasurements, Activity activity) {
         Preconditions.checkState(tracks != null && !tracks.isEmpty(),
                 "Input tracks cannot be null or empty.");
         return Observable.just(tracks)
                 .compose(AgreementManager.TermsOfUseValidator.create(mAgreementManager, activity))
                 .flatMap(tracks1 -> Observable.fromIterable(tracks1))
-                .concatMap(track -> uploadTrack(track)
-                        .lift(getUploadTracksOperator(abortOnNoMeasurements)));
+                .concatMap(track -> uploadTrack(track));
     }
 
     private Observable<Track> uploadTrack(Track track) {
@@ -213,19 +211,19 @@ public class TrackUploadHandler {
                 String infoText = String.format(mContext.getString(R.string
                         .trackviews_is_already_uploaded), track.getName());
                 LOG.warn(infoText);
-                throw new TrackAlreadyUploadedException(infoText);
+                throw new TrackUploadException(track, TrackUploadException.Reason.TRACK_ALREADY_UPLOADED);
             } else if (track.getCar() == null) {
                 String infoText = "Track has no car set. Please delete this track.";
                 LOG.warn(infoText);
-                throw new TrackWithNoValidCarException(infoText);
+                throw new TrackUploadException(track, TrackUploadException.Reason.NO_CAR_ASSIGNED);
             } else if (!mUserManager.isLoggedIn()) {
                 String infoText = mContext.getString(R.string.trackviews_not_logged_in);
                 LOG.info(infoText);
-                throw new NotLoggedInException(infoText);
+                throw new TrackUploadException(track, TrackUploadException.Reason.NOT_LOGGED_IN);
             } else if (!track.hasProperty(Measurement.PropertyKey.SPEED)) {
                 String infoText = mContext.getString(R.string.trackviews_cannot_upload_gps_tracks);
                 LOG.info(infoText);
-                throw new GPSOnlyTrackCannotUploadException(infoText);
+                throw new TrackUploadException(track, TrackUploadException.Reason.GPS_TRACKS_NOT_ALLOWED);
             }
             return track;
         };
@@ -261,35 +259,36 @@ public class TrackUploadHandler {
                         .updateTrackMetadataObservable(track, mUserManager.getUser().getTermsOfUseVersion())
                         .map(trackMetadata -> track));
     }
+//
+//    private ObservableOperator<Optional<Track>, Track> getUploadTracksOperator(boolean abortOnNoMeasurements) {
+//        return observer -> new DisposableObserver<Track>() {
+//
+//            @Override
+//            public void onNext(Track track) {
+//                LOG.info("onNext(): Track has been successfully uploaded");
+//                observer.onNext(Optional.create(track));
+//            }
+//
+//            @Override
+//            public void onError(Throwable e) {
+//                LOG.info("onError() Track has not enough measurements to upload.");
+//                if (!abortOnNoMeasurements && e.getCause() instanceof NoMeasurementsException) {
+//                    observer.onNext(Optional.create(null));
+//                    onComplete();
+//                } else {
+//                    observer.onError(e);
+//                    dispose();
+//                }
+//            }
+//
+//            @Override
+//            public void onComplete() {
+//                LOG.info("Track Upload is completed");
+//                observer.onComplete();
+//            }
+//        };
+//    }
 
-    private ObservableOperator<Optional<Track>, Track> getUploadTracksOperator(boolean abortOnNoMeasurements) {
-        return observer -> new DisposableObserver<Track>() {
-
-            @Override
-            public void onNext(Track track) {
-                LOG.info("onNext(): Track has been successfully uploaded");
-                observer.onNext(Optional.create(track));
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                LOG.info("onError() Track has not enough measurements to upload.");
-                if (!abortOnNoMeasurements && e.getCause() instanceof NoMeasurementsException) {
-                    observer.onNext(Optional.create(null));
-                    onComplete();
-                } else {
-                    observer.onError(e);
-                    dispose();
-                }
-            }
-
-            @Override
-            public void onComplete() {
-                LOG.info("Track Upload is completed");
-                observer.onComplete();
-            }
-        };
-    }
 }
 
 
