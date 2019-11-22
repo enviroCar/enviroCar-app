@@ -18,15 +18,15 @@
  */
 package org.envirocar.app.views;
 
+import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.view.WindowManager;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
@@ -57,24 +57,30 @@ import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.utils.ServiceUtils;
 
+import java.util.List;
+
 import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import io.reactivex.Observable;
 import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.observers.DisposableObserver;
-import io.reactivex.schedulers.Schedulers;
+import pub.devrel.easypermissions.AfterPermissionGranted;
+import pub.devrel.easypermissions.EasyPermissions;
+import pub.devrel.easypermissions.PermissionRequest;
 
 /**
  * @authro dewall
  */
-public class BaseMainActivity extends BaseInjectorActivity {
+public class BaseMainActivity extends BaseInjectorActivity implements EasyPermissions.PermissionCallbacks {
     private static final Logger LOGGER = Logger.getLogger(BaseMainActivity.class);
 
     private static final String TROUBLESHOOTING_TAG = "TROUBLESHOOTING";
+    private static final String[] LOCATION_AND_WRITE = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.WRITE_EXTERNAL_STORAGE};
+    private static final int RC_LOCATION_AND_WRITE_PERM = 124;
+
 
     // Injected variables
     @Inject
@@ -193,11 +199,17 @@ public class BaseMainActivity extends BaseInjectorActivity {
         registerReceiver(errorInformationReceiver, new IntentFilter(TroubleshootingFragment.INTENT));
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        checkPermissions();
+    }
+
     private DisposableObserver<Boolean> handleTermsOfUseValidation() {
         return new DisposableObserver<Boolean>() {
             @Override
             public void onNext(Boolean aBoolean) {
-                LOGGER.info("Wurst " + aBoolean);
+                LOGGER.info("accepted? " + aBoolean);
             }
 
             @Override
@@ -207,7 +219,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
 
             @Override
             public void onComplete() {
-                LOGGER.info("Wurst onComplete");
+                LOGGER.info("onComplete");
             }
         };
     }
@@ -217,11 +229,6 @@ public class BaseMainActivity extends BaseInjectorActivity {
         LOGGER.info("BaseMainActivity : onPause");
         super.onPause();
         this.paused = false;
-
-        //first init
-        firstInit();
-
-//        checkKeepScreenOn();
     }
 
     @Override
@@ -236,17 +243,6 @@ public class BaseMainActivity extends BaseInjectorActivity {
         super.onResume();
         // Check whether the screen is required to keep the screen on.
         checkKeepScreenOn();
-
-//        Observable.just(true)
-//                .filter(bool -> mUserManager.isLoggedIn())
-//                .compose(new AgreementManager.TermsOfUseValidator<>(agreementManager, this))
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .subscribeOn(Schedulers.io())
-//                .doOnNext(bool -> {
-//                    LOGGER.info("SUCCESSFUL");
-//                })
-//                .doOnError(LOGGER::error)
-//                .subscribe();
     }
 
     @Override
@@ -262,16 +258,12 @@ public class BaseMainActivity extends BaseInjectorActivity {
         }
     }
 
-    private void firstInit() {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        if (!preferences.contains("first_init")) {
-
-            SharedPreferences.Editor e = preferences.edit();
-            e.putString("first_init", "seen");
-            e.putBoolean("pref_privacy", true);
-            e.commit();
-        }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
     }
+
 
     private void addPreferenceSubscriptions() {
         // Keep screen active setting;
@@ -338,5 +330,29 @@ public class BaseMainActivity extends BaseInjectorActivity {
 
     private void showSnackbar(String info) {
         Snackbar.make(navigationBottomBar, info, Snackbar.LENGTH_LONG).show();
+    }
+
+
+    @AfterPermissionGranted(RC_LOCATION_AND_WRITE_PERM)
+    public void checkPermissions() {
+        if (EasyPermissions.hasPermissions(this, LOCATION_AND_WRITE)) {
+            LOGGER.info("Application has location and write permissions!");
+        } else {
+            EasyPermissions.requestPermissions(
+                    new PermissionRequest.Builder(this, RC_LOCATION_AND_WRITE_PERM, LOCATION_AND_WRITE)
+                            .setRationale(R.string.permissions_request_dialog)
+                            .setPositiveButtonText(R.string.ok)
+                            .build());
+        }
+    }
+
+    @Override
+    public void onPermissionsGranted(int requestCode, @NonNull List<String> perms) {
+        LOGGER.info("Permission Granted: " + requestCode + ": " + perms.size());
+    }
+
+    @Override
+    public void onPermissionsDenied(int requestCode, @NonNull List<String> perms) {
+        LOGGER.info("Permission Denied: " + requestCode + ": " + perms.size());
     }
 }

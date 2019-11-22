@@ -29,6 +29,7 @@ import java.util.concurrent.TimeUnit;
 
 import butterknife.ButterKnife;
 import io.reactivex.Completable;
+import io.reactivex.disposables.Disposable;
 
 /**
  * @author dewall
@@ -37,10 +38,12 @@ public class SplashScreenActivity extends Activity {
     private static final Logger LOG = Logger.getLogger(SplashScreenActivity.class);
     private static final String HAS_BEEN_SEEN_KEY = "has_been_seen";
 
+    private Disposable timerDisposable;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(savedInstanceState != null && savedInstanceState.getBoolean(HAS_BEEN_SEEN_KEY, false)){
+        if (savedInstanceState != null && savedInstanceState.getBoolean(HAS_BEEN_SEEN_KEY, false)) {
             startMainActivity();
             return;
         }
@@ -53,8 +56,25 @@ public class SplashScreenActivity extends Activity {
             finish();
             return;
         }
+    }
 
-        Completable.timer(2000, TimeUnit.MILLISECONDS).subscribe(() -> startMainActivity());
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        // register a timer for starting the main activity
+        timerDisposable = Completable.timer(2000, TimeUnit.MILLISECONDS)
+                .subscribe(() -> startMainActivity());
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        // remove the timer for starting the main activity
+        if (timerDisposable != null && !timerDisposable.isDisposed()) {
+            timerDisposable.dispose();
+        }
     }
 
     @Override
@@ -64,7 +84,7 @@ public class SplashScreenActivity extends Activity {
         outState.putBoolean(HAS_BEEN_SEEN_KEY, true);
     }
 
-    private void startMainActivity(){
+    private void startMainActivity() {
         Intent intent = new Intent(this, BaseMainActivity.class);
         this.startActivity(intent);
         finish();
