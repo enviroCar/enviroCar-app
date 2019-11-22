@@ -61,6 +61,8 @@ public interface EnviroCarDB {
 
     Observable<List<Track>> getAllLocalTracks(boolean lazy);
 
+    Observable<Integer> getAllLocalTracksCount();
+
     Observable<List<Track>> getAllRemoteTracks();
 
     Observable<List<Track>> getAllRemoteTracks(boolean lazy);

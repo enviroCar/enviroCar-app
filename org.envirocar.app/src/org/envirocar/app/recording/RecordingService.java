@@ -68,9 +68,7 @@ public class RecordingService extends ScopedBaseInjectorService {
 
     private RecordingStrategy recordingStrategy;
     private RecordingNotification recordingNotification;
-
     private CompositeDisposable disposables = new CompositeDisposable();
-
 
     @Override
     protected void setupServiceComponent() {
