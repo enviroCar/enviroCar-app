@@ -22,6 +22,9 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+
 import org.envirocar.core.logging.Logger;
 
 /**
@@ -36,7 +39,7 @@ public final class ServiceUtils {
         // If the service is not already running, the start the service.
         if(!ServiceUtils.isServiceRunning(context, service)) {
             Intent startIntent = new Intent(context, service);
-            context.startService(startIntent);
+            ContextCompat.startForegroundService(context, startIntent);
             LOGGER.info("%s successfuly started.", service.getSimpleName());
         } else {
             LOGGER.info("%s was already running. No start required!", service.getSimpleName());
