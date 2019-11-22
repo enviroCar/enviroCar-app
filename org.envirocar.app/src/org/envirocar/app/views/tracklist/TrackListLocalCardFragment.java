@@ -29,7 +29,6 @@ import androidx.annotation.Nullable;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.common.base.Preconditions;
 
 import org.envirocar.app.BaseApplication;
 import org.envirocar.app.BaseApplicationComponent;
@@ -54,9 +53,6 @@ import java.util.List;
 import javax.inject.Inject;
 
 import butterknife.OnClick;
-import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
-import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.DisposableObserver;
@@ -207,76 +203,6 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
             uploadTrackSubscription.dispose();
         }
     }
-
-    private Observable<Track> uploadTrackWithDialogObservable(Track track) {
-        Preconditions.checkNotNull(track, "Input track cannot be null");
-        return Observable.create(new ObservableOnSubscribe<Track>() {
-            private MaterialDialog dialog;
-            private View contentView;
-
-            @Override
-            public void subscribe(ObservableEmitter<Track> emitter) throws Exception {
-
-                DisposableObserver<Track> disposableObserver = mTrackUploadHandler.uploadTrackObservable(track, getActivity())
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeWith(new DisposableObserver<Track>() {
-
-                            public void onStart() {
-//                                emitter.onStart();
-
-                                // Inflate the dialog content view and set the track name.
-                                contentView = getActivity().getLayoutInflater().inflate(
-                                        R.layout.fragment_tracklist_uploading_single_dialog,
-                                        null, false);
-                                TextView trackName = contentView.findViewById(
-                                        R.id.fragment_tracklist_uploading_single_dialog_trackname);
-                                trackName.setText(track.getName());
-
-                                // Create the dialog to show.
-
-                                AndroidSchedulers.mainThread().createWorker().schedule(() -> {
-                                    dialog = DialogUtils.createDefaultDialogBuilder(getActivity(),
-                                            R.string.track_list_upload_track_uploading,
-                                            R.drawable.ic_cloud_upload_white_24dp,
-                                            contentView)
-                                            .cancelable(false)
-                                            .negativeText(R.string.cancel)
-                                            .onNegative((materialDialog, dialogAction) -> {
-                                                dispose();
-                                            })
-                                            .show();
-                                });
-
-                            }
-
-                            @Override
-                            public void onComplete() {
-                                if (dialog != null) dialog.dismiss();
-                                emitter.onComplete();
-                            }
-
-                            @Override
-                            public void onError(Throwable e) {
-                                LOG.info("onError()");
-                                emitter.onError(e);
-
-                                if (dialog != null) dialog.dismiss();
-                            }
-
-                            @Override
-                            public void onNext(Track track) {
-                                LOG.info("onNext() track has been successfully uploaded.");
-                                if (dialog != null) dialog.dismiss();
-                                emitter.onNext(track);
-                                emitter.onComplete();
-                            }
-                        });
-                emitter.setDisposable(disposableObserver);
-            }
-        });
-    }
-
 
     private final class LoadLocalTracksTask extends AsyncTask<Void, Void, Void> {
 
