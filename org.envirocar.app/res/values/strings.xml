@@ -165,4 +165,10 @@
     <string name="notification_autorecording_no_car_selected_subtext">No car selected. Please go to the Car selection and select one.</string>
     <string name="notification_autorecording_gps_disabled_subtext">GPS is disabled. Please activate your GPS.</string>
     <string name="notification_autorecording_bluetooth_disabled_subtext">Bluetooth is disabled. Please activate your Bluetooth.</string>
+
+
+    <!-- ################# -->
+    <!--    Permissions    -->
+    <!-- ################# -->
+    <string name="permissions_request_dialog">The enviroCar App requires additional permissions for recording tracks, which you can confirm manually in the following. This includes the exact positioning of the smartphone, so that collected parameters of a journey can be spatially located, and the write permission to the external memory, so that logs can be generated and transmitted via the "Report issue" function.</string>
 </resources>

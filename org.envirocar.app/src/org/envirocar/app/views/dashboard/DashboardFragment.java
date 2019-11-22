@@ -221,10 +221,10 @@ public class DashboardFragment extends BaseInjectorFragment {
         RxToolbar.itemClicks(this.toolbar).subscribe(this::onToolbarItemClicked);
 
         //
-        PermissionUtils.requestLocationPermissionIfRequired(getActivity())
-                .doOnComplete(() -> LOG.info("Accepted"))
-                .doOnError(LOG::error)
-                .subscribe();
+//        PermissionUtils.requestLocationPermissionIfRequired(getActivity())
+//                .doOnComplete(() -> LOG.info("Accepted"))
+//                .doOnError(LOG::error)
+//                .subscribe();
 
         //
         this.updateUserLogin(userHandler.getUser());
