@@ -124,4 +124,9 @@
     <string name="notification_autorecording_gps_disabled_subtext">GPS ist deaktiviert. Bitte aktivieren Sie Ihr GPS.</string>
     <string name="notification_autorecording_bluetooth_disabled_subtext">Bluetooth ist deaktiviert. Bitte aktivieren Sie Ihr Bluetooth.</string>
 
+    <!-- ################# -->
+    <!--    Permissions    -->
+    <!-- ################# -->
+    <string name="permissions_request_dialog">Die enviroCar App benötigt für die Aufzeichnung von Fahrten weitere Berechtigung, die Sie im Folgenden manuell bestätigen können. Hierzu gehört zum einem die genaue Positionsbestimmung des Smartphones, damit gesammelte Parameter einer Fahrt im Raum verortet werden können, und zum anderen die Schreibberechtigung auf den externen Speicher, damit Logs generiert und im Falle von Fehlverhalten durch die Funktion "Problem melden" an uns übermittelt werden können. </string>
+
 </resources>
