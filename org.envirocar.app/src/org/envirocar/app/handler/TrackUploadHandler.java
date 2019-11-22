@@ -46,7 +46,6 @@ import io.reactivex.Observable;
 import io.reactivex.ObservableOperator;
 import io.reactivex.ObservableTransformer;
 import io.reactivex.Observer;
-import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Function;
 import io.reactivex.observers.DisposableObserver;
 
@@ -140,18 +139,7 @@ public class TrackUploadHandler {
                             emitter.onComplete();
                         }
                     });
-
-            emitter.setDisposable(new Disposable() {
-                @Override
-                public void dispose() {
-                    disposable.dispose();
-                }
-
-                @Override
-                public boolean isDisposed() {
-                    return disposable.isDisposed();
-                }
-            });
+            emitter.setDisposable(disposable);
         });
     }
 
@@ -262,7 +250,8 @@ public class TrackUploadHandler {
             return new DisposableObserver<Track>() {
                 @Override
                 public void onNext(Track track) {
-                    observer.onNext(track);
+                    if (!isDisposed())
+                        observer.onNext(track);
                 }
 
                 @Override
@@ -275,12 +264,14 @@ public class TrackUploadHandler {
                     } else {
                         result = new TrackUploadException(null, TrackUploadException.Reason.UNKNOWN);
                     }
-                    observer.onError(result);
+                    if (!isDisposed())
+                        observer.onError(result);
                 }
 
                 @Override
                 public void onComplete() {
-                    observer.onComplete();
+                    if (!isDisposed())
+                        observer.onComplete();
                 }
             };
         }
