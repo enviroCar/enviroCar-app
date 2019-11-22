@@ -184,43 +184,6 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
         });
     }
 
-
-//    private void uploadTrack(Track track) {
-//        uploadTrackSubscription = uploadTrackWithDialogObservable(track)
-//                .subscribeOn(Schedulers.io())
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .subscribeWith(new DisposableObserver<Track>() {
-//                    @Override
-//                    public void onComplete() {
-//                        LOG.info("uploadTrack.onCompleted()");
-//                        showSnackbar(String.format(
-//                                getString(R.string.track_list_upload_track_success_template),
-//                                track.getName()));
-//                    }
-//
-//                    @Override
-//                    public void onError(Throwable e) {
-//                        LOG.warn(e.getMessage(), e);
-//                        if (e.getCause() instanceof NoMeasurementsException) {
-//                            showSnackbar(R.string.track_list_upload_track_no_measurements);
-//                        } else {
-//                            showSnackbar(R.string.track_list_upload_track_general_error);
-//                        }
-//                    }
-//
-//                    @Override
-//                    public void onNext(Track track) {
-//                        // Update the lists.
-//                        mRecyclerViewAdapter.removeItem(track);
-//                        mRecyclerViewAdapter.notifyDataSetChanged();
-//
-//                        if (onTrackUploadedListener != null)
-//                            onTrackUploadedListener.onTrackUploaded(track);
-//                    }
-//                });
-//    }
-
-
     @Override
     protected void loadDataset() {
         LOG.info("loadDataset()");
