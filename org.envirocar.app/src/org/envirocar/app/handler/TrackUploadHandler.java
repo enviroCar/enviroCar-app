@@ -118,18 +118,25 @@ public class TrackUploadHandler {
                     .subscribeWith(new DisposableObserver<Track>() {
                         @Override
                         public void onNext(Track track) {
+                            if (emitter.isDisposed())
+                                return;
                             emitter.onNext(track);
                             emitter.onComplete();
                         }
 
                         @Override
                         public void onError(Throwable e) {
+                            if (emitter.isDisposed())
+                                return;
+
                             LOG.error(e);
                             emitter.onError(e);
                         }
 
                         @Override
                         public void onComplete() {
+                            if (emitter.isDisposed())
+                                return;
                             emitter.onComplete();
                         }
                     });
@@ -251,7 +258,7 @@ public class TrackUploadHandler {
 
     private class UploadExceptionMappingOperator implements ObservableOperator<Track, Track> {
         @Override
-        public Observer<? super Track> apply(Observer<? super Track> observer) throws Exception {
+        public Observer<? super Track> apply(Observer<? super Track> observer) {
             return new DisposableObserver<Track>() {
                 @Override
                 public void onNext(Track track) {
