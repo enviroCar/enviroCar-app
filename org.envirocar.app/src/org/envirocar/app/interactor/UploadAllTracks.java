@@ -56,8 +56,7 @@ public class UploadAllTracks extends Interactor<UploadAllTracks.Result, Activity
             Observable.defer(() -> enviroCarDB.getAllLocalTracks())
                     .concatMap(tracks -> {
                         numberOfTracks.set(tracks.size());
-                        return uploadHandler.uploadTracksObservable(tracks)
-                                .lift(createUploadOperator());
+                        return uploadHandler.uploadTracksObservable(tracks);
                     })
                     .subscribe(trackOptionalOrError -> {
                         if (trackOptionalOrError.isSuccessful()) {
@@ -69,30 +68,6 @@ public class UploadAllTracks extends Interactor<UploadAllTracks.Result, Activity
                         }
                     }, emitter::onError, emitter::onComplete);
         });
-    }
-
-    private ObservableOperator<OptionalOrError<Track>, Track> createUploadOperator() {
-        return observer -> new DisposableObserver<Track>() {
-
-            @Override
-            public void onNext(Track track) {
-                LOG.info("Track '%s' has been successfully uploaded.", track.getDescription());
-                observer.onNext(OptionalOrError.create(track));
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                TrackUploadException ex = (TrackUploadException) e;
-                LOG.error(String.format("Track not uploaded. Reason -> [%]", ex.getReason()));
-                observer.onNext(OptionalOrError.create(ex));
-            }
-
-            @Override
-            public void onComplete() {
-                LOG.info("Finished with uploading tracks");
-                observer.onComplete();
-            }
-        };
     }
 
     public static class Result {

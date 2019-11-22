@@ -15,7 +15,8 @@ public class TrackUploadException extends Exception {
         NOT_LOGGED_IN,
         NO_CAR_ASSIGNED,
         GPS_TRACKS_NOT_ALLOWED,
-        UNAUTHORIZED
+        UNAUTHORIZED,
+        UNKNOWN
     }
 
     private final Track track;
