@@ -45,6 +45,7 @@ import javax.inject.Singleton;
 import io.reactivex.Observable;
 import io.reactivex.ObservableOperator;
 import io.reactivex.ObservableTransformer;
+import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Function;
 import io.reactivex.observers.DisposableObserver;
@@ -171,7 +172,8 @@ public class TrackUploadHandler {
         return Observable.just(tracks)
                 .compose(AgreementManager.TermsOfUseValidator.create(mAgreementManager, activity))
                 .flatMap(tracks1 -> Observable.fromIterable(tracks1))
-                .flatMap(track -> uploadTrack(track).lift(createUploadOperator()));
+                .flatMap(track -> uploadTrack(track)
+                        .lift(new OptionalOrErrorMappingOperator()));
     }
 
     private Observable<Track> uploadTrack(Track track) {
@@ -188,7 +190,8 @@ public class TrackUploadHandler {
                 // Upload the track
                 .flatMap(obfTrack -> mDAOProvider.getTrackDAO().createTrackObservable(obfTrack))
                 // Update the database entry
-                .flatMap(uploadedTrack -> mEnviroCarDB.updateTrackObservable(uploadedTrack));
+                .flatMap(uploadedTrack -> mEnviroCarDB.updateTrackObservable(uploadedTrack))
+                .lift(new UploadExceptionMappingOperator());
     }
 
     private Function<Track, Track> validateRequirementsForUpload() {
@@ -246,38 +249,75 @@ public class TrackUploadHandler {
                         .map(trackMetadata -> track));
     }
 
-    private ObservableOperator<OptionalOrError<Track>, Track> createUploadOperator() {
-        return observer -> new DisposableObserver<Track>() {
-
-            @Override
-            public void onNext(Track track) {
-                LOG.info("Track '%s' has been successfully uploaded.", track.getDescription());
-                observer.onNext(OptionalOrError.create(track));
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                if (e instanceof TrackUploadException) {
-                    TrackUploadException ex = (TrackUploadException) e;
-                    LOG.error(String.format("Track not uploaded. Reason -> [%s]", ex.getReason()));
-                    observer.onNext(OptionalOrError.create(ex));
-                } else if (e instanceof NoMeasurementsException) {
-                    observer.onNext(OptionalOrError.create(new TrackUploadException(
-                            null, TrackUploadException.Reason.NOT_ENOUGH_MEASUREMENTS, e)));
-                } else {
-                    observer.onNext(OptionalOrError.create(new TrackUploadException(
-                            null, TrackUploadException.Reason.UNKNOWN)));
+    private class UploadExceptionMappingOperator implements ObservableOperator<Track, Track> {
+        @Override
+        public Observer<? super Track> apply(Observer<? super Track> observer) throws Exception {
+            return new DisposableObserver<Track>() {
+                @Override
+                public void onNext(Track track) {
+                    observer.onNext(track);
                 }
-            }
 
-            @Override
-            public void onComplete() {
-                LOG.info("Finished with uploading tracks");
-                observer.onComplete();
-            }
-        };
+                @Override
+                public void onError(Throwable e) {
+                    Throwable result = e;
+                    if (e instanceof TrackUploadException) {
+                        // do nothing
+                    } else if (e instanceof NoMeasurementsException) {
+                        result = new TrackUploadException(null, TrackUploadException.Reason.NOT_ENOUGH_MEASUREMENTS);
+                    } else {
+                        result = new TrackUploadException(null, TrackUploadException.Reason.UNKNOWN);
+                    }
+                    observer.onError(result);
+                }
+
+                @Override
+                public void onComplete() {
+                    observer.onComplete();
+                }
+            };
+        }
     }
 
+    private class OptionalOrErrorMappingOperator implements ObservableOperator<OptionalOrError<Track>, Track> {
+        @Override
+        public Observer<? super Track> apply(Observer<? super OptionalOrError<Track>> observer) throws Exception {
+            return new DisposableObserver<Track>() {
+
+                @Override
+                public void onNext(Track track) {
+                    LOG.info("Track '%s' has been successfully uploaded.", track.getDescription());
+                    observer.onNext(OptionalOrError.create(track));
+                }
+
+                @Override
+                public void onError(Throwable e) {
+                    if (e instanceof TrackUploadException) {
+                        TrackUploadException ex = (TrackUploadException) e;
+                        LOG.error(String.format("Track not uploaded. Reason -> [%s]", ex.getReason()));
+                        observer.onNext(OptionalOrError.create(ex));
+                    } else if (e instanceof NoMeasurementsException) {
+                        observer.onNext(OptionalOrError.create(new TrackUploadException(
+                                null, TrackUploadException.Reason.NOT_ENOUGH_MEASUREMENTS, e)));
+                    } else {
+                        observer.onNext(OptionalOrError.create(new TrackUploadException(
+                                null, TrackUploadException.Reason.UNKNOWN)));
+                    }
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+
+                @Override
+                public void onComplete() {
+                    LOG.info("Finished with uploading tracks");
+                    observer.onComplete();
+                }
+            };
+        }
+    }
 }
 
 

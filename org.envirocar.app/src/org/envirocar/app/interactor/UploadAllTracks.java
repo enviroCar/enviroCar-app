@@ -64,7 +64,7 @@ public class UploadAllTracks extends Interactor<UploadAllTracks.Result, Activity
                             emitter.onNext(new Result(numberOfTracks.get(), track, true));
                         } else {
                             Track track = ((TrackUploadException) trackOptionalOrError.getE()).getTrack();
-                            emitter.onNext(new Result(numberOfTracks.get(), track, false));;
+                            emitter.onNext(new Result(numberOfTracks.get(), track, false));
                         }
                     }, emitter::onError, emitter::onComplete);
         });
