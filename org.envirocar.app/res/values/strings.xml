@@ -150,7 +150,7 @@
     <string name="prefkey_imperial_unit" tools:ignore="MissingTranslation">pref_imperial_unit</string>
     <string name="prefkey_text_to_speech" tools:ignore="MissingTranslation">pref_text_to_speech</string>
     <string name="prefkey_display_always_active" tools:ignore="MissingTranslation">pref_display_always_active</string>
-    <string name="prefkey_always_upload" tools:ignore="MissingTranslation">pref_always_upload</string>
+    <string name="prefkey_automatic_upload" tools:ignore="MissingTranslation">pref_automatic_upload</string>
     <string name="prefkey_gps_mode_ar" tools:ignore="MissingTranslation">prefkey_gps_mode_ar</string>
 
 
