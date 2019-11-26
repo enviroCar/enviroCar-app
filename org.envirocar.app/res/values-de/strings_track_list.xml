@@ -75,6 +75,8 @@
     <string name="track_list_details_end">Ende:</string>
     <string name="track_list_details_consumption">Verbrauch*:</string>
     <string name="track_list_details_emission">CO\u2082 Ausstoß*:</string>
+    <string name="track_list_details_speed">&#216; Geschwindigkeit:</string>
+    <string name="track_list_num_stops">Anzahl Stops</string>
     <string name="track_list_details_diesel_not_supported">DIESEL NICHT\nUNTERSTÜTZT</string>
 
     <string name="track_list_upload_all_tracks_title">Alle Fahrten Hochladen?</string>
