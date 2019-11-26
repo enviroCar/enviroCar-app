@@ -456,8 +456,9 @@ public class DashboardFragment extends BaseInjectorFragment {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(AndroidSchedulers.mainThread())
                 .subscribe(engineNotRunningEveunt -> new MaterialDialog.Builder(getContext())
-                        .title("Engine not running")
-                        .content("Engine is not running")
+                        .title(R.string.dashboard_engine_not_running_dialog_title)
+                        .content(R.string.dashboard_engine_not_running_dialog_content)
+                        .iconRes(R.drawable.ic_error_black_24dp)
                         .positiveText(R.string.ok)
                         .cancelable(true)
                         .show());
