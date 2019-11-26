@@ -37,6 +37,7 @@ import org.envirocar.obd.events.PropertyKeyEvent;
 import org.envirocar.obd.events.RPMUpdateEvent;
 import org.envirocar.obd.events.SpeedUpdateEvent;
 import org.envirocar.obd.exception.AllAdaptersFailedException;
+import org.envirocar.obd.exception.EngineNotRunningException;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 
@@ -190,6 +191,10 @@ public class OBDController {
             @Override
             public void onError(Throwable e) {
                 LOG.warn("Adapter failed: " + obdAdapter.getClass().getSimpleName(), e);
+                if (e instanceof EngineNotRunningException){
+                    connectionListener.onEngineNotRunning();
+                    return;
+                }
 
                 try {
                     LOG.info("State message is: "+obdAdapter.getStateMessage());
@@ -262,7 +267,7 @@ public class OBDController {
 
         // start the observable with a timeout
         this.dataSubscription = this.obdAdapter.observe()
-                .subscribeOn(Schedulers.io())
+                .subscribeOn(OBDSchedulers.scheduler())
                 .observeOn(OBDSchedulers.scheduler())
                 .timeout(MAX_NODATA_TIME, TimeUnit.MILLISECONDS)
                 .subscribeWith(getCollectingDataSubscriber());
