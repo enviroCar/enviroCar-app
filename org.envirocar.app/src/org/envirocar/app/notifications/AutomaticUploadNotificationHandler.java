@@ -9,6 +9,7 @@ import android.content.IntentFilter;
 
 import androidx.core.app.NotificationCompat;
 
+import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.R;
@@ -45,6 +46,7 @@ public class AutomaticUploadNotificationHandler {
     private final InternetAccessProvider accessProvider;
     private final NotificationManager notificationManager;
     private final AutomaticUploadNotification uploadNotification;
+    private final Bus bus;
 
     private Disposable uploadDisposable;
 
@@ -57,12 +59,15 @@ public class AutomaticUploadNotificationHandler {
      * @param notificationManager
      */
     @Inject
-    public AutomaticUploadNotificationHandler(@InjectApplicationScope Context context, UploadTrack uploadTrack, InternetAccessProvider accessProvider, NotificationManager notificationManager) {
+    public AutomaticUploadNotificationHandler(@InjectApplicationScope Context context, UploadTrack uploadTrack, InternetAccessProvider accessProvider, NotificationManager notificationManager, Bus bus) {
         this.context = context;
         this.uploadTrack = uploadTrack;
         this.accessProvider = accessProvider;
         this.notificationManager = notificationManager;
+        this.bus = bus;
         this.uploadNotification = new AutomaticUploadNotification();
+
+        bus.register(this);
     }
 
     @Subscribe
@@ -93,7 +98,7 @@ public class AutomaticUploadNotificationHandler {
      * @param track the uploaded track
      */
     private void onTrackUploaded(Track track) {
-        LOG.info("Track %s has been automatically uploaded.", track.getDescription());
+        LOG.info("Track %s has been automatically uploaded.", track.getName());
         uploadNotification.setState(UploadState.UPLOADED, track);
     }
 
@@ -144,11 +149,11 @@ public class AutomaticUploadNotificationHandler {
             switch(state){
                 case UPLOADED:
                     title = "Track Uploaded";
-                    text = String.format("%s has been successfully uploaded", track.getDescription());
+                    text = String.format("%s has been successfully uploaded", track.getName());
                     break;
                 case UPLOADING:
                     title = "Uploading Track";
-                    text = String.format("Uploading %s", track.getDescription());
+                    text = String.format("Uploading %s", track.getName());
                     break;
                 case ERROR:
                     title = "Uploading Error";
