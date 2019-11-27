@@ -64,6 +64,7 @@ import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.app.recording.RecordingService;
 import org.envirocar.app.recording.RecordingState;
 import org.envirocar.app.recording.RecordingType;
+import org.envirocar.app.recording.events.EngineNotRunningEvent;
 import org.envirocar.app.recording.events.RecordingStateEvent;
 import org.envirocar.app.views.carselection.CarSelectionActivity;
 import org.envirocar.app.views.login.SigninActivity;
@@ -95,6 +96,7 @@ import info.hoang8f.android.segmented.SegmentedGroup;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.functions.Consumer;
 import io.reactivex.observers.DisposableCompletableObserver;
 import io.reactivex.schedulers.Schedulers;
 
@@ -442,6 +444,25 @@ public class DashboardFragment extends BaseInjectorFragment {
                 .subscribe(this::updateByRecordingState, LOG::error);
     }
 
+    @Subscribe
+    public void onEngineNotRunningEvent(EngineNotRunningEvent event){
+        LOG.info("Retrieved Engine not running event");
+        if (connectingDialog != null){
+            connectingDialog.dismiss();
+            connectingDialog = null;
+        }
+
+        Observable.just(event)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(AndroidSchedulers.mainThread())
+                .subscribe(engineNotRunningEveunt -> new MaterialDialog.Builder(getContext())
+                        .title(R.string.dashboard_engine_not_running_dialog_title)
+                        .content(R.string.dashboard_engine_not_running_dialog_content)
+                        .iconRes(R.drawable.ic_error_black_24dp)
+                        .positiveText(R.string.ok)
+                        .cancelable(true)
+                        .show());
+    }
     /**
      * Receiver method for bluetooth activation events.
      *

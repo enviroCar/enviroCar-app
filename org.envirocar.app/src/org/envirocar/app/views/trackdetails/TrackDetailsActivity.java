@@ -271,7 +271,6 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
     private void initMapView() {
         final LatLngBounds viewBbox = trackMapOverlay.getViewBoundingBox();
         mMapView.getMapAsync(tep -> {
-
             tep.getUiSettings().setLogoEnabled(false);
             tep.getUiSettings().setAttributionEnabled(false);
             tep.setStyle(new Style.Builder().fromUrl("https://api.maptiler.com/maps/basic/style.json?key=YJCrA2NeKXX45f8pOV6c "), style -> {

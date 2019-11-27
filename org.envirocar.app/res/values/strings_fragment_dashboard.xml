@@ -68,4 +68,7 @@
     <string name="dashboard_total_tracks">Total Tracks</string>
     <string name="dashboard_total_distance">Total Distance</string>
     <string name="dashboard_total_duration">Total Duration</string>
+
+    <string name="dashboard_engine_not_running_dialog_title">Connection Failed</string>
+    <string name="dashboard_engine_not_running_dialog_content">Unable to connect to the engine. Please make sure that the engine is running.</string>
 </resources>

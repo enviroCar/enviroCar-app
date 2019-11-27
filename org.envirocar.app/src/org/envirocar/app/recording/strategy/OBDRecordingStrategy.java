@@ -32,6 +32,7 @@ import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.preferences.CarPreferenceHandler;
 import org.envirocar.app.recording.RecordingState;
+import org.envirocar.app.recording.events.EngineNotRunningEvent;
 import org.envirocar.app.recording.notification.SpeechOutput;
 import org.envirocar.app.recording.provider.LocationProvider;
 import org.envirocar.app.recording.provider.TrackDatabaseSink;
@@ -240,6 +241,12 @@ public class OBDRecordingStrategy implements RecordingStrategy {
                         LOG.info("Connection verified. Starting to read measurements.");
                         listener.onRecordingStateChanged(RecordingState.RECORDING_RUNNING);
                         emitter.onNext(socket);
+                    }
+
+                    @Override
+                    public void onEngineNotRunning() {
+                        listener.onRecordingStateChanged(RecordingState.RECORDING_STOPPED);
+                        eventBus.post(new EngineNotRunningEvent());
                     }
 
                     @Override
