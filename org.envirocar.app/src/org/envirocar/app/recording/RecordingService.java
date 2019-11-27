@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -27,14 +27,16 @@ import androidx.annotation.Nullable;
 
 import com.squareup.otto.Bus;
 
-import org.envirocar.app.injection.ScopedBaseInjectorService;
 import org.envirocar.app.BaseApplication;
+import org.envirocar.app.injection.ScopedBaseInjectorService;
 import org.envirocar.app.recording.events.RecordingStateEvent;
 import org.envirocar.app.recording.notification.RecordingNotification;
 import org.envirocar.app.recording.notification.SpeechOutput;
 import org.envirocar.app.recording.provider.RecordingDetailsProvider;
 import org.envirocar.app.recording.strategy.RecordingStrategy;
 import org.envirocar.app.rxutils.RxBroadcastReceiver;
+import org.envirocar.core.entity.Track;
+import org.envirocar.core.events.TrackFinishedEvent;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.utils.ServiceUtils;
 
@@ -119,12 +121,21 @@ public class RecordingService extends ScopedBaseInjectorService {
         // Select recording algorithm and start
         this.recordingStrategy = recordingFactory.create();
         getLifecycle().addObserver(recordingStrategy);
-        recordingStrategy.startRecording(this, recordingState -> {
-            RECORDING_STATE = recordingState;
-            bus.post(new RecordingStateEvent(recordingState));
+        this.recordingStrategy.startRecording(this, new RecordingStrategy.RecordingListener() {
+            @Override
+            public void onRecordingStateChanged(RecordingState recordingState) {
+                RECORDING_STATE = recordingState;
+                bus.post(new RecordingStateEvent(recordingState));
 
-            if (recordingState == RecordingState.RECORDING_STOPPED) {
-                stopSelf();
+                if (recordingState == RecordingState.RECORDING_STOPPED) {
+                    stopSelf();
+                }
+            }
+
+            @Override
+            public void onTrackFinished(Track track) {
+                LOG.info("Track has been finished. Throwing TrackFinishedEvent.");
+                bus.post(new TrackFinishedEvent(track));
             }
         });
 

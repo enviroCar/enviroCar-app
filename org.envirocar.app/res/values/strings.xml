@@ -150,7 +150,7 @@
     <string name="prefkey_imperial_unit" tools:ignore="MissingTranslation">pref_imperial_unit</string>
     <string name="prefkey_text_to_speech" tools:ignore="MissingTranslation">pref_text_to_speech</string>
     <string name="prefkey_display_always_active" tools:ignore="MissingTranslation">pref_display_always_active</string>
-    <string name="prefkey_always_upload" tools:ignore="MissingTranslation">pref_always_upload</string>
+    <string name="prefkey_automatic_upload" tools:ignore="MissingTranslation">pref_automatic_upload</string>
     <string name="prefkey_gps_mode_ar" tools:ignore="MissingTranslation">prefkey_gps_mode_ar</string>
 
 
@@ -165,6 +165,13 @@
     <string name="notification_autorecording_no_car_selected_subtext">No car selected. Please go to the Car selection and select one.</string>
     <string name="notification_autorecording_gps_disabled_subtext">GPS is disabled. Please activate your GPS.</string>
     <string name="notification_autorecording_bluetooth_disabled_subtext">Bluetooth is disabled. Please activate your Bluetooth.</string>
+
+    <string name="notification_autoupload_success_title">Track Upload Successful</string>
+    <string name="notification_autoupload_success_sub">%s has been successfully pushed as Open Data to the enviroCar platform.</string>
+    <string name="notification_autoupload_uploading_title">Uploading Track</string>
+    <string name="notification_autoupload_uploading_sub">%s gets pushed as Open Data to the enviroCar platform.</string>
+    <string name="notification_autoupload_error_title">Track Upload Error</string>
+    <string name="notification_autoupload_error_sub">Error while uploading to the enviroCar platform.</string>
 
 
     <!-- ################# -->

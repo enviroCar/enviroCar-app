@@ -226,11 +226,15 @@ public class MapExpandedActivity extends BaseInjectorActivity {
                         style.addLayerBelow(trackMapOverlay.getGradientLineLayer(options.get(choice)), "marker-layer1");
 
                         //Set legend values
-                        legendStart.setText(DECIMAL_FORMATTER.format(trackMapOverlay.getGradMin()));
-                        legendEnd.setText(DECIMAL_FORMATTER.format(trackMapOverlay.getGradMax()));
-                        Float mid = (trackMapOverlay.getGradMin() + trackMapOverlay.getGradMax()) / 2;
-                        legendMid.setText(DECIMAL_FORMATTER.format(mid));
-                        legendName.setText(options.get(choice).getStringResource());
+                        try {
+                            legendStart.setText(DECIMAL_FORMATTER.format(trackMapOverlay.getGradMin()));
+                            legendEnd.setText(DECIMAL_FORMATTER.format(trackMapOverlay.getGradMax()));
+                            Float mid = (trackMapOverlay.getGradMin() + trackMapOverlay.getGradMax()) / 2;
+                            legendMid.setText(DECIMAL_FORMATTER.format(mid));
+                            legendName.setText(options.get(choice).getStringResource());
+                        } catch (Exception e){
+                            LOG.error("Error while formatting legend.", e);
+                        }
                     }
                 });
             } else {
