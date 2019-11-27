@@ -34,7 +34,7 @@
 
     <!-- General Settings-->
     <string name="pref_automatic_upload">Automatisches Hochladen</string>
-    <string name="pref_automatic_upload_sub">Ermöglicht das automatische Hochladen von aufgenommenen Fahrten nach Beendigung der Aufnahme.</string>
+    <string name="pref_automatic_upload_sub">Ermöglicht das automatische Hochladen von aufgenommenen Fahrten nach Beendigung der Aufnahme. Es wird lediglich direkt im Anschluss versucht den Track hochzuladen. Wenn der Upload fehlschlägt (z.B. keine Internetverbindung), muss der Track manuell hochgeladen werden.</string>
     <string name="pref_display_always_activ">Bildschrim bleibt aktiv</string>
     <string name="pref_display_always_activ_sub">Bildschirm bleibt bei Aufzeichnung einer Fahrt aktiv.</string>
     <string name="pref_imperial_unit_summary">Imperiale Maßeinheiten (Meilen) für die Anzeige nutzen</string>
