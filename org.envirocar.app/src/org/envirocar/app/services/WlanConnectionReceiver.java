@@ -76,9 +76,9 @@ public class WlanConnectionReceiver extends BroadcastReceiver {
         LOG.info("Check whether tracks have to be uploaded.");
 
         // Check whether the automatic upload of tracks within WLAN is active
-//        boolean autoUploadTracks = ApplicationSettings.getAutomaticUploadOfTracksObservable(context).blockingFirst();
-//        if (autoUploadTracks) {
-//            LOG.info("Automatic track upload is enabled");
+        boolean autoUploadTracks = ApplicationSettings.getAutomaticUploadOfTracksObservable(context).blockingFirst();
+        if (autoUploadTracks) {
+            LOG.info("Automatic track upload is enabled");
             // Check if there are some local tracks in the databse
             //            DbAdapter dbAdapter = ((Injector) context.getApplicationContext())
             // .getObjectGraph().get(DbAdapter.class);
@@ -87,9 +87,9 @@ public class WlanConnectionReceiver extends BroadcastReceiver {
             //                        "there are some local tracks to upload.");
             //                return true;
             //            }
-//        }
+        }
 
-        return false;
+        return autoUploadTracks;
     }
 
     /**

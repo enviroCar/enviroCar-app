@@ -33,12 +33,12 @@
     <string name="pref_settings_other_summary">Version, Lizenzen, etc.</string>
 
     <!-- General Settings-->
-    <string name="pref_automatic_upload">Automatisches Hochladen</string>
-    <string name="pref_automatic_upload_sub">Ermöglicht das automatische Hochladen von aufgenommenen Fahrten nach Beendigung der Aufnahme. Es wird lediglich direkt im Anschluss versucht den Track hochzuladen. Wenn der Upload fehlschlägt (z.B. keine Internetverbindung), muss der Track manuell hochgeladen werden.</string>
+    <string name="pref_always_upload">Automatisches Hochladen</string>
+    <string name="pref_always_upload_sub">Automatisches Hochladen von aufgezeichneten Fahrten bei aktiver WiFI Verbinding.</string>
     <string name="pref_display_always_activ">Bildschrim bleibt aktiv</string>
     <string name="pref_display_always_activ_sub">Bildschirm bleibt bei Aufzeichnung einer Fahrt aktiv.</string>
     <string name="pref_imperial_unit_summary">Imperiale Maßeinheiten (Meilen) für die Anzeige nutzen</string>
-    <string name="pref_obfuscate_track">Start und Ziel verschleiern</string>
+    <string name="pref_obfuscate_track">Start und Ziel anonymisieren</string>
     <string name="pref_obfuscate_track_summary">Nur Messungen, die ab einer Entfernung von 250 Metern zum Start/Ziel sowie eine Minute nach Beginn und vor Ende der Route stattfanden, hochladen.</string>
     <string name="pref_text_to_speech">Sprachausgabe</string>
     <string name="pref_text_to_speech_summary">Ermöglicht die Sprachausgabe von spezifischen Ereignissen, wie z.B. OBD-Verbindung hergestellt oder Aufzeichnung wurde beendet.</string>

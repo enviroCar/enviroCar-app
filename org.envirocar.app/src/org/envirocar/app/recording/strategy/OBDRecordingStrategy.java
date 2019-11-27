@@ -94,7 +94,6 @@ public class OBDRecordingStrategy implements RecordingStrategy {
     private LoadBasedEnergyConsumptionAlgorithm energyConsumptionAlgorithm;
 
     private boolean isRecording = false;
-    private Track track = null;
 
     /**
      * Constructor.
@@ -171,19 +170,16 @@ public class OBDRecordingStrategy implements RecordingStrategy {
             isRecording = false;
         }
         listener.onRecordingStateChanged(RecordingState.RECORDING_STOPPED);
-        if (track != null){
-            listener.onTrackFinished(track);
-        }
     }
 
     private DisposableObserver<Track> initializeObserver() {
         return new DisposableObserver<Track>() {
+            private Track track;
 
             @Override
             protected void onStart() {
                 LOG.info("Starting the Bluetooth connection to the selected adapter");
                 listener.onRecordingStateChanged(RecordingState.RECORDING_INIT);
-                track = null;
 
                 try {
                     recognizer = new OBDConnectionRecognizer();
@@ -196,7 +192,7 @@ public class OBDRecordingStrategy implements RecordingStrategy {
             @Override
             public void onNext(Track o) {
                 LOG.info(String.format("Started new Track with ID=%s", o.getTrackID()));
-                track = o;
+                this.track = o;
             }
 
             @Override
@@ -210,7 +206,6 @@ public class OBDRecordingStrategy implements RecordingStrategy {
             public void onComplete() {
                 LOG.info("Finished the recording of the track.");
                 listener.onRecordingStateChanged(RecordingState.RECORDING_STOPPED);
-                listener.onTrackFinished(track);
                 stopOBDConnectionRecognizer();
             }
         };
