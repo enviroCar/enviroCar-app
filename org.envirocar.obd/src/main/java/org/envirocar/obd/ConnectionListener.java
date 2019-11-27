@@ -45,6 +45,11 @@ public interface ConnectionListener {
     void onConnectionVerified();
 
 	/**
+	 * called when the connection is established but no PIDs have been returned (i.e. engine not runngin)
+	 */
+	void onEngineNotRunning();
+
+	/**
 	 * called when all registered adapters failed to create a connection
 	 */
     void onAllAdaptersFailed();

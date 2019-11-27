@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -30,6 +30,7 @@ import org.envirocar.obd.commands.response.DataResponse;
 import org.envirocar.obd.commands.response.ResponseParser;
 import org.envirocar.obd.exception.AdapterFailedException;
 import org.envirocar.obd.exception.AdapterSearchingException;
+import org.envirocar.obd.exception.EngineNotRunningException;
 import org.envirocar.obd.exception.InvalidCommandResponseException;
 import org.envirocar.obd.exception.NoDataReceivedException;
 import org.envirocar.obd.exception.StreamFinishedException;
@@ -76,7 +77,8 @@ public abstract class SyncAdapter implements OBDAdapter {
             Arrays.asList(
                     new PIDSupported(),
                     new PIDSupported("20"),
-                    new PIDSupported("40")));
+                    new PIDSupported("40"),
+                    new PIDSupported("80")));
 
 
     @Override
@@ -110,6 +112,11 @@ public abstract class SyncAdapter implements OBDAdapter {
                             }
                             LOGGER.info("Currently supported PIDs: " + supportedPIDs.toString());
                             pid = pidSupportedCommands.poll();
+                        }
+
+                        // If the supported PIDs is empty, then usually the engine isn't running.
+                        if (supportedPIDs.size() == 0) {
+                            subscriber.onError(new EngineNotRunningException("No PIDs returned. Possibly the car engine is not running."));
                         }
 
                         subscriber.onNext(true);

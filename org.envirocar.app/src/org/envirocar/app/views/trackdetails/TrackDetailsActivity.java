@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -54,6 +54,7 @@ import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.app.injection.BaseInjectorActivity;
+import org.envirocar.core.EnviroCarDB;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
@@ -63,11 +64,11 @@ import org.envirocar.core.exception.UnsupportedFuelTypeException;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.trackprocessing.statistics.TrackStatisticsProvider;
 import org.envirocar.core.utils.CarUtils;
-import org.envirocar.core.EnviroCarDB;
 
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -156,6 +157,20 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
 
     @BindView(R.id.descriptionTv)
     protected TextView descriptionTv;
+
+    @BindView(R.id.activity_track_details_speed_container)
+    protected RelativeLayout speedLayout;
+    @BindView(R.id.activity_track_details_speed_value)
+    protected TextView speedText;
+    @BindView(R.id.activity_track_details_stops_container)
+    protected RelativeLayout stopsLayout;
+    @BindView(R.id.activity_track_details_stops_value)
+    protected TextView stopsValue;
+    @BindView(R.id.activity_track_details_stoptime_container)
+    protected RelativeLayout stoptimeLayout;
+    @BindView(R.id.activity_track_details_stoptime_value)
+    protected TextView stoptimeValue;
+
 
     private Track track;
     TrackMapLayer trackMapOverlay;
@@ -256,7 +271,6 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
     private void initMapView() {
         final LatLngBounds viewBbox = trackMapOverlay.getViewBoundingBox();
         mMapView.getMapAsync(tep -> {
-
             tep.getUiSettings().setLogoEnabled(false);
             tep.getUiSettings().setAttributionEnabled(false);
             tep.setStyle(new Style.Builder().fromUrl("https://api.maptiler.com/maps/basic/style.json?key=YJCrA2NeKXX45f8pOV6c "), style -> {
@@ -315,13 +329,9 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
 
     private void initViewValues(Track track) {
         try {
-            final String text = UTC_DATE_FORMATTER.format(new Date(
-                    track.getDuration()));
-            mDistanceText.setText(String.format("%s km",
-                    DECIMAL_FORMATTER_TWO_DIGITS.format(((TrackStatisticsProvider) track)
-                            .getDistanceOfTrack())));
+            final String text = UTC_DATE_FORMATTER.format(new Date(track.getDuration()));
+            mDistanceText.setText(String.format("%s km", DECIMAL_FORMATTER_TWO_DIGITS.format(((TrackStatisticsProvider) track).getDistanceOfTrack())));
             mDurationText.setText(text);
-
 
             String ee = new SimpleDateFormat("EEEE").format(new Date(track.getStartTime()));
 
@@ -354,6 +364,66 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
                 mEmissionText.setTextColor(Color.RED);
                 mConsumptionText.setTextColor(Color.RED);
             }
+
+            try {
+                Measurement.PropertyKey speedKey = track.hasProperty(Measurement.PropertyKey.SPEED) ? Measurement.PropertyKey.SPEED : Measurement.PropertyKey.GPS_SPEED;
+                if (track.hasProperty(speedKey)) {
+                    double totalSpeed = 0;
+                    int numMeasurements = 0;
+
+                    boolean foundStop = false;
+                    int numStops = 0;
+                    long lastBeginOfStop = 0;
+                    long totalStopTime = 0;
+                    for (Measurement m : track.getMeasurements()) {
+                        if (m.hasProperty(speedKey)) {
+                            double speed = m.getProperty(speedKey);
+                            totalSpeed += speed;
+                            numMeasurements++;
+
+                            if (speed == 0.0 && !foundStop) {
+                                foundStop = true;
+                                lastBeginOfStop = m.getTime();
+                                numStops++;
+                            } else if (speed > 0.0 && foundStop) {
+                                foundStop = false;
+                                totalStopTime += m.getTime() - lastBeginOfStop;
+                                lastBeginOfStop = 0;
+                            }
+                        }
+                    }
+
+                    String avgSpeedText = DECIMAL_FORMATTER_TWO_DIGITS.format(totalSpeed / numMeasurements) + " km/h";
+                    this.speedText.setText(avgSpeedText);
+
+                    String numStopsText = String.format("%d stops", numStops);
+                    this.stopsValue.setText(numStopsText);
+
+                    Calendar c = Calendar.getInstance();
+                    c.setTimeInMillis(totalStopTime);
+                    int minutes = c.get(Calendar.MINUTE);
+                    int seconds = c.get(Calendar.SECOND);
+
+                    String totalStopTimeText = "";
+                    if (minutes == 0){
+                        totalStopTimeText = String.format("%ds", minutes);
+                    } else {
+                        totalStopTimeText = String.format("%dm %ds", minutes, seconds);
+                    }
+                    this.stoptimeValue.setText(totalStopTimeText);
+                } else {
+                    // TODO remove exception, only for vacaction
+                    throw new Exception("No speed value available");
+                }
+            } catch (Exception e) {
+                LOG.error(e);
+                // TODO remove exception, only for vacaction
+                // just for the case: hide views completely.
+                this.speedLayout.setVisibility(View.GONE);
+                this.stopsLayout.setVisibility(View.GONE);
+                this.stoptimeLayout.setVisibility(View.GONE);
+            }
+
 
         } catch (FuelConsumptionException | NoMeasurementsException | UnsupportedFuelTypeException e) {
             LOG.error(e);
