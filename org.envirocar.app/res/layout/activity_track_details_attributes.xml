@@ -306,8 +306,8 @@
             android:layout_alignParentLeft="true"
             android:layout_centerVertical="true"
             android:layout_marginRight="16dp"
-            android:alpha="0.54"
-            android:src="@drawable/distance"
+            android:alpha="0.65"
+            android:src="@drawable/ic_stoptime"
             android:tint="@android:color/black"/>
 
         <TextView
@@ -316,7 +316,7 @@
             android:layout_alignParentLeft="true"
             android:layout_centerVertical="true"
             android:paddingLeft="48dp"
-            android:text="@string/track_list_num_stops"
+            android:text="@string/track_list_total_stoptime"
             android:textColor="#ff323232" />
 
         <TextView
