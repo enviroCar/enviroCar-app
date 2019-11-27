@@ -406,7 +406,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
 
                     String totalStopTimeText = "";
                     if (minutes == 0){
-                        totalStopTimeText = String.format("%ds", minutes);
+                        totalStopTimeText = String.format("%ds", seconds);
                     } else {
                         totalStopTimeText = String.format("%dm %ds", minutes, seconds);
                     }
