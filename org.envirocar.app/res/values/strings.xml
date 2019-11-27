@@ -166,6 +166,13 @@
     <string name="notification_autorecording_gps_disabled_subtext">GPS is disabled. Please activate your GPS.</string>
     <string name="notification_autorecording_bluetooth_disabled_subtext">Bluetooth is disabled. Please activate your Bluetooth.</string>
 
+    <string name="notification_autoupload_success_title">Track Upload Successful</string>
+    <string name="notification_autoupload_success_sub">%s has been successfully pushed as Open Data to the enviroCar platform.</string>
+    <string name="notification_autoupload_uploading_title">Uploading Track</string>
+    <string name="notification_autoupload_uploading_sub">%s gets pushed as Open Data to the enviroCar platform.</string>
+    <string name="notification_autoupload_error_title">Track Upload Error</string>
+    <string name="notification_autoupload_error_sub">Error while uploading to the enviroCar platform.</string>
+
 
     <!-- ################# -->
     <!--    Permissions    -->

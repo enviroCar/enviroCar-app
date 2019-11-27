@@ -121,13 +121,6 @@ public class AutomaticUploadNotificationHandler {
         private final String channel;
         private Notification notification;
 
-        public class OnDismissReceiver extends BroadcastReceiver {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-
-            }
-        }
-
         /**
          * @author dewall
          */
@@ -140,24 +133,21 @@ public class AutomaticUploadNotificationHandler {
         }
 
         public void setState(UploadState state, Track track) {
-
-            Intent onCancelIntent = new Intent(context, OnDismissReceiver.class);
-
             String title = null;
             String text = null;
 
             switch(state){
                 case UPLOADED:
-                    title = "Track Uploaded";
-                    text = String.format("%s has been successfully uploaded", track.getName());
+                    title = context.getString(R.string.notification_autoupload_success_title);
+                    text = String.format(context.getString(R.string.notification_autoupload_success_sub), track.getName());
                     break;
                 case UPLOADING:
-                    title = "Uploading Track";
-                    text = String.format("Uploading %s", track.getName());
+                    title = context.getString(R.string.notification_autoupload_uploading_title);
+                    text = String.format(context.getString(R.string.notification_autoupload_uploading_sub), track.getName());
                     break;
                 case ERROR:
-                    title = "Uploading Error";
-                    text = "Some error occured while uploading. Please try it manually.";
+                    title = context.getString(R.string.notification_autoupload_error_title);
+                    text = String.format(context.getString(R.string.notification_autoupload_error_title));
                     break;
             }
 
@@ -165,7 +155,6 @@ public class AutomaticUploadNotificationHandler {
                     .setContentTitle(title)
                     .setContentText(text)
                     .setSmallIcon(R.drawable.ic_cloud_upload_black_24dp)
-//                    .setDeleteIntent()
                     .build();
 
             notificationManager.notify(NOTIFICATION_ID, this.notification);
