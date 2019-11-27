@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- * <p>
+ *
  * This file is part of the enviroCar app.
- * <p>
+ *
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * <p>
+ *
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- * <p>
+ *
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -27,6 +27,7 @@ import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.Build;
 
 import androidx.core.app.NotificationCompat;
 import androidx.lifecycle.Lifecycle;
@@ -36,7 +37,6 @@ import androidx.lifecycle.OnLifecycleEvent;
 import com.squareup.otto.Bus;
 
 import org.envirocar.app.handler.BluetoothHandler;
-import org.envirocar.app.notifications.EnviroCarNotification;
 import org.envirocar.app.recording.RecordingType;
 import org.envirocar.app.recording.notification.RecordingNotification;
 import org.envirocar.app.views.BaseMainActivity;
@@ -45,7 +45,7 @@ import org.envirocar.core.logging.Logger;
 /**
  * @author dewall
  */
-public class AutoRecordingNotification implements LifecycleObserver, EnviroCarNotification {
+public class AutoRecordingNotification implements LifecycleObserver {
     private static final Logger LOG = Logger.getLogger(RecordingNotification.class);
 
     private static final String DEFAULT_CHANNEL_ID = "com.envirocar.app.services.autoconnect.notification";
@@ -70,8 +70,7 @@ public class AutoRecordingNotification implements LifecycleObserver, EnviroCarNo
         this.eventBus = eventBus;
         this.notificationManager = (NotificationManager) recordingService.getSystemService(Context.NOTIFICATION_SERVICE);
         this.bluetoothHandler = bluetoothHandler;
-        this.channelId = createChannel(notificationManager, DEFAULT_CHANNEL_ID,
-                "Autorecording notification state", "Autorecording Notification", NotificationManager.IMPORTANCE_LOW);
+        this.channelId = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ? createChannel() : "";
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
@@ -110,8 +109,21 @@ public class AutoRecordingNotification implements LifecycleObserver, EnviroCarNo
     /**
      * Deletes the notification.
      */
-    public synchronized void cancel() {
+    private synchronized void cancel() {
         this.notificationManager.cancel(NOTIFICATION_ID);
     }
 
+    @TargetApi(26)
+    private synchronized String createChannel() {
+        NotificationChannel channel = new NotificationChannel(DEFAULT_CHANNEL_ID, "Autorecording notification state", NotificationManager.IMPORTANCE_LOW);
+        channel.setDescription("Autorecording Notification");
+        channel.enableLights(true);
+        channel.setLightColor(Color.BLUE);
+
+        if (notificationManager != null) {
+            notificationManager.createNotificationChannel(channel);
+        }
+
+        return DEFAULT_CHANNEL_ID;
+    }
 }
