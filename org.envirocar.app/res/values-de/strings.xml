@@ -124,6 +124,14 @@
     <string name="notification_autorecording_gps_disabled_subtext">GPS ist deaktiviert. Bitte aktivieren Sie Ihr GPS.</string>
     <string name="notification_autorecording_bluetooth_disabled_subtext">Bluetooth ist deaktiviert. Bitte aktivieren Sie Ihr Bluetooth.</string>
 
+    <string name="notification_autoupload_success_title">Hochladen einer Fahrt erfolgreich</string>
+    <string name="notification_autoupload_success_sub">%s wurde erfolgreich auf die enviroCar-Plattform übertragen.</string>
+    <string name="notification_autoupload_uploading_title">Hochladen einer Fahrt</string>
+    <string name="notification_autoupload_uploading_sub">%s wird als Open Data auf die enviroCar-Plattform geschoben.</string>
+    <string name="notification_autoupload_error_title">Hochladen einer Fahrt fehlerhaft</string>
+    <string name="notification_autoupload_error_sub">Fehler beim Hochladen auf die enviroCar-Plattform.</string>
+
+
     <!-- ################# -->
     <!--    Permissions    -->
     <!-- ################# -->

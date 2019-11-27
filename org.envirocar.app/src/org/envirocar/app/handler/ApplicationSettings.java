@@ -40,12 +40,12 @@ import io.reactivex.Observable;
 public class ApplicationSettings {
 
     // Default values
+    public static final boolean DEFAULT_AUTOMATIC_UPLOAD = false;
     public static final boolean DEFAULT_BLUETOOTH_AUTOCONNECT = false;
     public static final boolean DEFAULT_DISPLAY_STAYS_ACTIVE = false;
     public static final boolean DEFAULT_TEXT_TO_SPEECH = false;
     public static final boolean DEFAULT_BLUETOOTH_SERVICE_AUTOSTART = true;
     public static final boolean DEFAULT_PREF_ENABLE_GPS_BASED_TRACK_RECORDING = false;
-    public static final boolean DEFAULT_AUTOMATIC_UPLOAD_OF_TRACKS = false;
     public static final boolean DEFAULT_OBFUSCATION = false;
     public static final int DEFAULT_BLUETOOTH_DISCOVERY_INTERVAL = 60;
     public static final int DEFAULT_TRACK_TRIM_DURATION = 110;
@@ -72,9 +72,9 @@ public class ApplicationSettings {
 //    public static final String PREF_GPS_BASED_TRACKING = "pref_gps_based_tracking";
 
     // General Settings settings
-    public static Observable<Boolean> getAutomaticUploadOfTracksObservable(Context context) {
+    public static Observable<Boolean> getAutomaticUploadObservable(Context context){
         return getRxSharedPreferences(context)
-                .getBoolean(s(context, R.string.prefkey_always_upload), DEFAULT_AUTOMATIC_UPLOAD_OF_TRACKS)
+                .getBoolean(s(context, R.string.prefkey_automatic_upload), DEFAULT_AUTOMATIC_UPLOAD)
                 .asObservable();
     }
 
