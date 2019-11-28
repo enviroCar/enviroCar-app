@@ -23,6 +23,7 @@ import android.app.Service;
 import androidx.lifecycle.LifecycleObserver;
 
 import org.envirocar.app.recording.RecordingState;
+import org.envirocar.core.entity.Track;
 
 
 /**
@@ -32,6 +33,8 @@ public interface RecordingStrategy extends LifecycleObserver {
 
     interface RecordingListener {
         void onRecordingStateChanged(RecordingState recordingState);
+
+        void onTrackFinished(Track track);
     }
 
     interface Factory {
