@@ -68,4 +68,7 @@
     <string name="dashboard_total_tracks">Fahrten</string>
     <string name="dashboard_total_distance">Gesamtstrecke</string>
     <string name="dashboard_total_duration">Gesamtzeit</string>
+
+    <string name="dashboard_engine_not_running_dialog_title">Verbindung Fehlgeschlagen</string>
+    <string name="dashboard_engine_not_running_dialog_content">Die Verbindung zum Fahrzeug kann nicht hergestellt werden. Bitte stellen Sie sicher, dass der Motor läuft.</string>
 </resources>

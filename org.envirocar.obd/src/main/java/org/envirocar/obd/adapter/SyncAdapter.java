@@ -30,6 +30,7 @@ import org.envirocar.obd.commands.response.DataResponse;
 import org.envirocar.obd.commands.response.ResponseParser;
 import org.envirocar.obd.exception.AdapterFailedException;
 import org.envirocar.obd.exception.AdapterSearchingException;
+import org.envirocar.obd.exception.EngineNotRunningException;
 import org.envirocar.obd.exception.InvalidCommandResponseException;
 import org.envirocar.obd.exception.NoDataReceivedException;
 import org.envirocar.obd.exception.StreamFinishedException;
@@ -76,7 +77,8 @@ public abstract class SyncAdapter implements OBDAdapter {
             Arrays.asList(
                     new PIDSupported(),
                     new PIDSupported("20"),
-                    new PIDSupported("40")));
+                    new PIDSupported("40"),
+                    new PIDSupported("80")));
 
 
     @Override
@@ -110,6 +112,11 @@ public abstract class SyncAdapter implements OBDAdapter {
                             }
                             LOGGER.info("Currently supported PIDs: " + supportedPIDs.toString());
                             pid = pidSupportedCommands.poll();
+                        }
+
+                        // If the supported PIDs is empty, then usually the engine isn't running.
+                        if (supportedPIDs.size() == 0) {
+                            subscriber.onError(new EngineNotRunningException("No PIDs returned. Possibly the car engine is not running."));
                         }
 
                         subscriber.onNext(true);
