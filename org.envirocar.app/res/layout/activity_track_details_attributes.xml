@@ -268,7 +268,7 @@
             android:layout_centerVertical="true"
             android:layout_marginRight="16dp"
             android:alpha="0.54"
-            android:src="@drawable/distance"
+            android:src="@drawable/ic_stopcount"
             android:tint="@android:color/black"/>
 
         <TextView
