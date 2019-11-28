@@ -52,6 +52,10 @@ public class RecordingService extends ScopedBaseInjectorService {
     public static final String ACTION_STOP_TRACK_RECORDING = "action_stop_track_recording";
     public static RecordingState RECORDING_STATE = RecordingState.RECORDING_STOPPED;
 
+    public static boolean isRunning(){
+        return RECORDING_STATE != RecordingState.RECORDING_STOPPED;
+    }
+
     public static void stopService(Context context) {
         ServiceUtils.stopService(context, RecordingService.class);
     }
