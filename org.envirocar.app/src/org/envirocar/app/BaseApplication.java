@@ -36,6 +36,7 @@ import org.acra.annotation.AcraCore;
 import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.app.handler.LocationHandler;
 import org.envirocar.app.handler.userstatistics.UserStatisticsProcessor;
+import org.envirocar.app.notifications.AutomaticUploadNotificationHandler;
 import org.envirocar.app.notifications.NotificationHandler;
 import org.envirocar.app.rxutils.RxBroadcastReceiver;
 import org.envirocar.core.injection.InjectApplicationScope;
@@ -84,6 +85,8 @@ public class BaseApplication extends Application {
     protected UserStatisticsProcessor statisticsProcessor;
     @Inject
     protected LocationHandler locationHandler;
+    @Inject
+    protected AutomaticUploadNotificationHandler automaticUploadHandler;
 
 
     private CompositeDisposable disposables = new CompositeDisposable();

@@ -19,6 +19,7 @@
 package org.envirocar.app;
 
 import android.app.Application;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
@@ -164,6 +165,12 @@ public class BaseApplicationModule {
     @Singleton
     public CacheDirectoryProvider provideCacheDirectoryProvider(@InjectApplicationScope Context context) {
         return () -> Util.resolveCacheFolder(context);
+    }
+
+    @Provides
+    @Singleton
+    public NotificationManager provideNotificationManager(@InjectApplicationScope Context context){
+        return (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
     }
 
 }
