@@ -72,6 +72,7 @@
             android:background="@drawable/login_edittext_rounded_corner_shape"
             android:drawableLeft="@drawable/ic_action_user"
             android:hint="@string/username"
+            android:inputType="text"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.503"
             app:layout_constraintStart_toStartOf="parent"
@@ -134,7 +135,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="5dp"
-                android:text="@string/not_yet_registered_question" />
+                android:text="@string/not_yet_registered_question"
+                android:textColor="@color/white_cario" />
 
             <TextView
                 android:id="@+id/activity_signin_register_button"
@@ -144,7 +146,11 @@
                 android:importantForAccessibility="yes"
                 android:text="@string/not_yet_registered_register"
                 android:textAppearance="@android:style/TextAppearance.Medium"
-                android:textColor="@color/white_cario" />
+                android:textColor="@color/white"
+                android:shadowColor="#7F000000"
+                android:shadowDx="2"
+                android:shadowDy="2"
+                android:shadowRadius="4"/>
 
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>

@@ -195,7 +195,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="5dp"
-                android:text="@string/already_registered_question" />
+                android:text="@string/already_registered_question"
+                android:textColor="@color/white_cario" />
 
             <TextView
                 android:id="@+id/activity_signup_login_button"
@@ -205,7 +206,11 @@
                 android:importantForAccessibility="yes"
                 android:text="@string/already_registered_sign_in"
                 android:textAppearance="@android:style/TextAppearance.Medium"
-                android:textColor="@color/white_cario" />
+                android:textColor="@color/white_cario"
+                android:shadowColor="#7F000000"
+                android:shadowDx="2"
+                android:shadowDy="2"
+                android:shadowRadius="4"/>
 
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
