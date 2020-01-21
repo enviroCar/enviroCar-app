@@ -21,13 +21,13 @@
 -->
 <resources>
 
-    <string name="menu_close_envirocar_title">Shutdown enviroCar</string>
+    <string name="menu_close_envirocar_title">Close enviroCar</string>
     <string name="menu_close_envirocar_positive">Shutdown</string>
     <string name="menu_close_envirocar_content">This completely closes the application including all running background services and track recordings.</string>
 
     <string name="menu_logout_envirocar_title">Are you sure?</string>
     <string name="menu_logout_envirocar_positive">Yes</string>
     <string name="menu_logout_envirocar_negative">No</string>
-    <string name="menu_logout_envirocar_content">You want to logout?</string>
+    <string name="menu_logout_envirocar_content">Do you want to logout?</string>
 
 </resources>
