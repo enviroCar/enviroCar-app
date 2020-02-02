@@ -92,32 +92,50 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/activity_signup_username_input" />
 
-        <EditText
-            android:id="@+id/activity_signup_password_1"
-            style="@style/envirocar.login.edittext"
-            android:layout_below="@+id/activity_signin_username_input"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/activity_signup_password_1_layout"
+            android:layout_width="250dp"
+            android:layout_height="40dp"
             android:layout_marginTop="24dp"
-            android:drawableLeft="@drawable/ic_action_pass"
-            android:hint="@string/password"
-            android:inputType="textPassword"
+            app:hintEnabled="false"
+            app:passwordToggleEnabled="true"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.496"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/activity_signup_email_input" />
+            app:layout_constraintTop_toBottomOf="@+id/activity_signup_email_input">
 
+            <EditText
+                android:id="@+id/activity_signup_password_1"
+                style="@style/envirocar.login.edittext"
+                android:layout_below="@+id/activity_signin_username_input"
+                android:drawableStart="@drawable/ic_action_pass"
+                android:hint="@string/password"
+                android:inputType="textPassword"
+                />
 
-        <EditText
-            android:id="@+id/activity_signup_password_2"
-            style="@style/envirocar.login.edittext"
-            android:layout_below="@+id/activity_signin_username_input"
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/activity_signup_password_2_layout"
+            android:layout_width="250dp"
+            android:layout_height="40dp"
             android:layout_marginTop="24dp"
-            android:drawableLeft="@drawable/ic_action_pass"
-            android:hint="@string/confirm_password"
-            android:inputType="textPassword"
+            app:hintEnabled="false"
+            app:passwordToggleEnabled="true"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/activity_signup_password_1" />
+            app:layout_constraintTop_toBottomOf="@+id/activity_signup_password_1_layout">
 
+            <EditText
+                android:id="@+id/activity_signup_password_2"
+                style="@style/envirocar.login.edittext"
+                android:layout_below="@+id/activity_signin_username_input"
+                android:drawableStart="@drawable/ic_action_pass"
+                android:hint="@string/confirm_password"
+                android:inputType="textPassword"
+                />
+
+        </com.google.android.material.textfield.TextInputLayout>
 
         <CheckBox
             android:id="@+id/activity_signup_tou_checkbox"
@@ -130,7 +148,7 @@
             app:layout_constraintEnd_toStartOf="@+id/activity_signup_tou_text"
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/activity_signup_password_2" />
+            app:layout_constraintTop_toBottomOf="@+id/activity_signup_password_2_layout" />
 
         <TextView
             android:id="@+id/activity_signup_tou_text"
@@ -149,7 +167,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.624"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/activity_signup_password_2" />
+            app:layout_constraintTop_toBottomOf="@+id/activity_signup_password_2_layout" />
 
         <androidx.cardview.widget.CardView
             android:id="@+id/activity_signup_register_button"
