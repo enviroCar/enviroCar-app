@@ -170,11 +170,13 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
                 if  (mUserManager.getUser()!=null) {
                     track.updateMetadata(new TrackMetadata(Util.getVersionString(getActivity()),
                             mUserManager.getUser().getTermsOfUseVersion()));
-                    exportTrack(track);
                 }
                 else  {
-                    showSnackbar(R.string.trackview_cannot_export_track);
+                    track.updateMetadata(new TrackMetadata(Util.getVersionString(getActivity()),
+                            null));
+
                 }
+                exportTrack(track);
             }
 
             @Override
