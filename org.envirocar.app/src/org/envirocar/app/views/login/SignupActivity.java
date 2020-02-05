@@ -54,6 +54,7 @@ import org.envirocar.core.logging.Logger;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 
@@ -164,13 +165,16 @@ public class SignupActivity extends BaseInjectorActivity {
         } else if (password.length() < 6) {
             password1EditText.setError(getString(R.string.error_invalid_password));
             focusView = this.password1EditText;
+        } else if (isStrongPassword(password)==false)  {
+            password1EditText.setError(getString(R.string.error_field_weak_password));
+            focusView=this.password1EditText;
         }
 
-        // check if the password confirm is empty
-        if (password2 == null || password2.isEmpty() || password2.equals("")) {
-            password2EditText.setError(getString(R.string.error_field_required));
-            focusView = password2EditText;
-        }
+            // check if the password confirm is empty
+            if (password2 == null || password2.isEmpty() || password2.equals("")) {
+                password2EditText.setError(getString(R.string.error_field_required));
+                focusView = password2EditText;
+            }
 
         // Check for a valid email address.
         if (TextUtils.isEmpty(email)) {
@@ -339,4 +343,8 @@ public class SignupActivity extends BaseInjectorActivity {
                 .subscribe(ps -> LOG.info("Closed Dialog"));
     }
 
+    public static boolean isStrongPassword(String password) {
+        return Pattern.matches("^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{6,}$", password);
+
+    }
 }
