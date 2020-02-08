@@ -41,7 +41,8 @@
 
         <TextView
             style="@style/enviroCar.Help.content"
-            android:text="@string/help_content_1"/>
+            android:text="@string/help_content_1"
+            android:autoLink="web"/>
 
         <include layout="@layout/help_divider"/>
 
