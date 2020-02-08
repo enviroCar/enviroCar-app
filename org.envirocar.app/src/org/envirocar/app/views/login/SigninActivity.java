@@ -21,10 +21,14 @@ package org.envirocar.app.views.login;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.core.app.ActivityOptionsCompat;
 
@@ -55,7 +59,7 @@ import io.reactivex.schedulers.Schedulers;
  *
  * @author dewall
  */
-public class SigninActivity extends BaseInjectorActivity {
+public class SigninActivity extends BaseInjectorActivity implements TextView.OnEditorActionListener {
     private static final Logger LOG = Logger.getLogger(SigninActivity.class);
 
     public static void startActivity(Context context){
@@ -95,6 +99,8 @@ public class SigninActivity extends BaseInjectorActivity {
 
         // inject the views
         ButterKnife.bind(this);
+
+        passwordEditText.setOnEditorActionListener(this);
     }
 
     @Override
@@ -156,7 +162,6 @@ public class SigninActivity extends BaseInjectorActivity {
             this.login(username, password);
         }
     }
-
     private void login(String username, String password) {
         // Create a dialog indicating the log in process.
         this.loginSubscription = userHandler.logIn(username, password)
@@ -206,5 +211,17 @@ public class SigninActivity extends BaseInjectorActivity {
                         }
                     }
                 });
+    }
+
+    @Override
+    public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
+        if(i== EditorInfo.IME_ACTION_DONE)  {
+
+            View signInButton ;
+            signInButton =  findViewById(R.id.activity_signin_login_button);
+            signInButton.performClick();
+            return true;
+        }
+        return false;
     }
 }
