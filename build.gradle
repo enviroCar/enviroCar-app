@@ -10,7 +10,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.0'
+        classpath 'com.android.tools.build:gradle:3.5.3'
         classpath "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.12.1"
         classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
     }
@@ -50,8 +50,8 @@ ext {
     compileSdkVersion = 28
     targetSdkVersion = 28
     buildToolsVersion = '28.0.3'
-    versionCode = 38
-    versionName = "1.0.2"
+    versionCode = 39
+    versionName = "1.0.3"
 
     javaCompileVersion = JavaVersion.VERSION_1_8
 
