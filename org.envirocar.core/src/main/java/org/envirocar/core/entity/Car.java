@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -41,10 +41,14 @@ public interface Car extends BaseEntity<Car>, Serializable {
     String KEY_FUELTYPE_ENUM_GASOLINE = "gasoline";
     String KEY_FUELTYPE_ENUM_DIESEL = "diesel";
 
+    String TEMPORARY_SENSOR_ID = "%TMP_ID%";
+
+    // fuel type strings
     String FUELTYPE_GASOLINE = "gasoline";
     String FUELTYPE_DIESEL = "diesel";
-
-    String TEMPORARY_SENSOR_ID = "%TMP_ID%";
+    String FUELTYPE_GAS = "gas";
+    String FUELTYPE_HYBRID = "hybrid";
+    String FUELTYPE_ELECTRIC = "electric";
 
     interface FuelTypeStrings {
         int getStringResource();
@@ -70,6 +74,39 @@ public interface Car extends BaseEntity<Car>, Serializable {
 
             public String toString() {
                 return FUELTYPE_DIESEL;
+            }
+        },
+        GAS {
+            @Override
+            public int getStringResource() {
+                return R.string.fuel_type_gas;
+            }
+
+            @Override
+            public String toString() {
+                return FUELTYPE_GAS;
+            }
+        },
+        HYBRID {
+            @Override
+            public int getStringResource() {
+                return R.string.fuel_type_hybrid;
+            }
+
+            @Override
+            public String toString() {
+                return FUELTYPE_HYBRID;
+            }
+        },
+        ELECTRIC {
+            @Override
+            public int getStringResource() {
+                return R.string.fuel_type_electric;
+            }
+
+            @Override
+            public String toString() {
+                return FUELTYPE_ELECTRIC;
             }
         };
 
