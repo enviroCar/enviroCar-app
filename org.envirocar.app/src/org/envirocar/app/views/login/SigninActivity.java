@@ -59,7 +59,7 @@ import io.reactivex.schedulers.Schedulers;
 public class SigninActivity extends BaseInjectorActivity {
     private static final Logger LOG = Logger.getLogger(SigninActivity.class);
 
-    public static void startActivity(Context context){
+    public static void startActivity(Context context) {
         Intent intent = new Intent(context, SigninActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
         context.startActivity(intent);
@@ -117,14 +117,13 @@ public class SigninActivity extends BaseInjectorActivity {
     }
 
     @OnEditorAction(R.id.activity_login_password_input)
-    protected boolean implicitSubmit()  {
-
-        View logInSubmit ;
-        logInSubmit=    findViewById(R.id.activity_signin_login_button);
+    protected boolean implicitSubmit() {
+        View logInSubmit;
+        logInSubmit = findViewById(R.id.activity_signin_login_button);
         logInSubmit.performClick();
         return true;
-
     }
+
     @OnClick(R.id.activity_signin_login_button)
     protected void onLoginClicked() {
         LOG.info("Clicked on the login button");
