@@ -24,7 +24,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -84,6 +86,7 @@ public class BaseMainActivity extends BaseInjectorActivity implements EasyPermis
     private static final String[] LOCATION_AND_WRITE = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.WRITE_EXTERNAL_STORAGE};
     private static final int RC_LOCATION_AND_WRITE_PERM = 124;
     private FragmentStatePagerAdapter fragmentStatePagerAdapter;
+    private MenuItem prevMenuItem;
 
     // Injected variables
     @Inject
@@ -133,17 +136,17 @@ public class BaseMainActivity extends BaseInjectorActivity implements EasyPermis
         switch (item.getItemId()) {
             case R.id.navigation_dashboard:
                 viewPager.setCurrentItem(0);
-                selectedMenuItemID = 1;
+                selectedMenuItemID = 0;
 
                 return true;
             case R.id.navigation_my_tracks:
                 viewPager.setCurrentItem(1);
-                selectedMenuItemID = 2;
+                selectedMenuItemID = 1;
 
                 return true;
             case R.id.navigation_others:
                 viewPager.setCurrentItem(2);
-                selectedMenuItemID = 3;
+                selectedMenuItemID = 2;
 
                 return true;
         }
@@ -167,8 +170,32 @@ public class BaseMainActivity extends BaseInjectorActivity implements EasyPermis
         navigationBottomBar.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         navigationBottomBar.setSelectedItemId(R.id.navigation_dashboard);
 
-        fragmentStatePagerAdapter= new PageSlider(getSupportFragmentManager());
+        fragmentStatePagerAdapter= new PageSlider(getSupportFragmentManager(),FragmentStatePagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
         viewPager.setAdapter(fragmentStatePagerAdapter);
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+
+            @Override
+            public void onPageSelected(int position) {
+                if(prevMenuItem!=null) {
+                    prevMenuItem.setChecked(false);
+                } else {
+                    navigationBottomBar.getMenu().getItem(0).setChecked(false);
+                }
+                navigationBottomBar.getMenu().getItem(position).setChecked(true);
+                prevMenuItem=navigationBottomBar.getMenu().getItem(position);
+
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
         // Subscribe for preference subscriptions. In this case, subscribe for changes to the
         // active screen settings.
         // TODO
@@ -361,8 +388,8 @@ public class BaseMainActivity extends BaseInjectorActivity implements EasyPermis
     private class PageSlider extends FragmentStatePagerAdapter{
 
         private Fragment[] fragments;
-        public PageSlider(@NonNull FragmentManager fm) {
-            super(fm);
+        public PageSlider(@NonNull FragmentManager fm, int behavior) {
+            super(fm, behavior);
             fragments=new Fragment[]{
                     dashboardFragment,
                     trackListPagerFragment,
@@ -370,10 +397,10 @@ public class BaseMainActivity extends BaseInjectorActivity implements EasyPermis
             };
         }
 
+
         @NonNull
         @Override
         public Fragment getItem(int position) {
-
             return fragments[position];
         }
 
