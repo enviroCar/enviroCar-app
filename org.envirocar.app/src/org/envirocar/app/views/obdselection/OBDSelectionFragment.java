@@ -50,6 +50,7 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.DisposableObserver;
@@ -142,6 +143,11 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
         });
     }
 
+    @OnClick(R.id.activity_obd_selection_layout_rescan_bluetooth)
+    protected void rediscover() {
+        mBluetoothHandler.stopBluetoothDeviceDiscovery();
+        updateContentView();
+    }
     /**
      * Updates the content view.
      */
