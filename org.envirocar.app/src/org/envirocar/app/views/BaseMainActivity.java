@@ -121,7 +121,6 @@ public class BaseMainActivity extends BaseInjectorActivity implements EasyPermis
     @BindView(R.id.fragmentContainer)
     protected ViewPager viewPager;
 
-    private int selectedMenuItemID = 0;
 
     private CompositeDisposable subscriptions = new CompositeDisposable();
     private BroadcastReceiver errorInformationReceiver;
@@ -136,17 +135,14 @@ public class BaseMainActivity extends BaseInjectorActivity implements EasyPermis
         switch (item.getItemId()) {
             case R.id.navigation_dashboard:
                 viewPager.setCurrentItem(0);
-                selectedMenuItemID = 0;
 
                 return true;
             case R.id.navigation_my_tracks:
                 viewPager.setCurrentItem(1);
-                selectedMenuItemID = 1;
 
                 return true;
             case R.id.navigation_others:
                 viewPager.setCurrentItem(2);
-                selectedMenuItemID = 2;
 
                 return true;
         }
@@ -188,6 +184,7 @@ public class BaseMainActivity extends BaseInjectorActivity implements EasyPermis
                 }
                 navigationBottomBar.getMenu().getItem(position).setChecked(true);
                 prevMenuItem=navigationBottomBar.getMenu().getItem(position);
+                fragmentStatePagerAdapter.notifyDataSetChanged();
 
             }
 
