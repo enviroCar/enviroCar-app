@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -165,16 +165,16 @@ public class SignupActivity extends BaseInjectorActivity {
         } else if (password.length() < 6) {
             password1EditText.setError(getString(R.string.error_invalid_password));
             focusView = this.password1EditText;
-        } else if (isStrongPassword(password)==false)  {
+        } else if (isStrongPassword(password) == false) {
             password1EditText.setError(getString(R.string.error_field_weak_password));
-            focusView=this.password1EditText;
+            focusView = this.password1EditText;
         }
 
-            // check if the password confirm is empty
-            if (password2 == null || password2.isEmpty() || password2.equals("")) {
-                password2EditText.setError(getString(R.string.error_field_required));
-                focusView = password2EditText;
-            }
+        // check if the password confirm is empty
+        if (password2 == null || password2.isEmpty() || password2.equals("")) {
+            password2EditText.setError(getString(R.string.error_field_required));
+            focusView = password2EditText;
+        }
 
         // Check for a valid email address.
         if (TextUtils.isEmpty(email)) {
@@ -345,6 +345,5 @@ public class SignupActivity extends BaseInjectorActivity {
 
     public static boolean isStrongPassword(String password) {
         return Pattern.matches("^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{6,}$", password);
-
     }
 }
