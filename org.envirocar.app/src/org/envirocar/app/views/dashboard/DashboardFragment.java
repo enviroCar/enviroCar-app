@@ -545,7 +545,7 @@ public class DashboardFragment extends BaseInjectorFragment {
             this.statisticsKnown = true;
             updateStatisticsVisibility(true);
             userTracksTextView.setText(String.format("%s", event.numTracks));
-            userDistanceTextView.setText(String.format("%s km", (int) event.totalDistance));
+            userDistanceTextView.setText(String.format("%s km", Math.round(event.totalDistance)));
             userDurationTextView.setText(formatTimeForDashboard(event.totalDuration));
         });
     }
