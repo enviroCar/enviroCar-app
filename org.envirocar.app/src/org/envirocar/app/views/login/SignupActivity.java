@@ -68,6 +68,8 @@ import io.reactivex.Observable;
 import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.disposables.Disposables;
+import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Function;
 import io.reactivex.functions.Function3;
 import io.reactivex.observers.DisposableObserver;
@@ -128,32 +130,10 @@ public class SignupActivity extends BaseInjectorActivity {
 
         // make terms of use and privacy statement clickable
         this.makeClickableTextLinks();
+        userNameObservable();
+        emailObservable();
+        passwordObservable();
 
-        Observable<String> observable=RxTextView.textChanges(usernameEditText).skip(1).debounce(600, TimeUnit.MILLISECONDS)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(AndroidSchedulers.mainThread())
-                .map(new Function<CharSequence, String>() {
-                    @Override
-                    public String apply(CharSequence charSequence) throws Exception {
-                        return charSequence.toString();
-                    }
-                });
-
-        observable.subscribe(new DisposableObserver<String>() {
-            @Override
-            public void onNext(String s) {
-               usernameCheck(s);
-            }
-
-            @Override
-            public void onError(Throwable e) {
-
-            }
-
-            @Override
-            public void onComplete() {
-            }
-        });
     }
 
     @Override
@@ -379,4 +359,116 @@ public class SignupActivity extends BaseInjectorActivity {
              emailEditText.setError(getString(R.string.error_invalid_email));
          }
      }
+
+     private void userNameObservable() {
+         Observable<String> observable = RxTextView.textChanges(usernameEditText).skip(1).debounce(600, TimeUnit.MILLISECONDS)
+                 .observeOn(AndroidSchedulers.mainThread())
+                 .subscribeOn(AndroidSchedulers.mainThread())
+                 .map(new Function<CharSequence, String>() {
+                     @Override
+                     public String apply(CharSequence charSequence) throws Exception {
+                         return charSequence.toString();
+                     }
+                 });
+
+         observable.subscribe(new DisposableObserver<String>() {
+             @Override
+             public void onNext(String s) {
+                 usernameCheck(s);
+             }
+
+             @Override
+             public void onError(Throwable e) {
+
+             }
+
+             @Override
+             public void onComplete() {
+             }
+         });
+     }
+
+     private void emailObservable() {
+        Observable<String> observable = RxTextView.textChanges(emailEditText).skip(1).debounce(600,TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(AndroidSchedulers.mainThread())
+                .map(new Function<CharSequence, String>() {
+                    @Override
+                    public String apply(CharSequence charSequence) throws Exception {
+                        return charSequence.toString();
+                    }
+                });
+                observable.subscribe(new DisposableObserver<String>() {
+                    @Override
+                    public void onNext(String s) {
+                        checkValidEmail(s);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+     }
+
+     private void passwordObservable() {
+        Observable<String> observable = RxTextView.textChanges(password1EditText).skip(1).debounce(600,TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(AndroidSchedulers.mainThread())
+                .map(new Function<CharSequence, String>() {
+                    @Override
+                    public String apply(CharSequence charSequence) throws Exception {
+                        return charSequence.toString();
+                    }
+                });
+
+        Observable<String> observable1 = RxTextView.textChanges(password2EditText).skip(1).debounce(600,TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(AndroidSchedulers.mainThread())
+                .map(new Function<CharSequence, String>() {
+                    @Override
+                    public String apply(CharSequence charSequence) throws Exception {
+                        return charSequence.toString();
+                    }
+                });
+
+        observable.subscribe(new DisposableObserver<String>() {
+            @Override
+            public void onNext(String s) {
+                passwordCheck(s);
+            }
+
+            @Override
+            public void onError(Throwable e) {
+
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
+
+        observable1.subscribe(new DisposableObserver<String>() {
+            @Override
+            public void onNext(String s) {
+                checkConfirmPassword(s);
+            }
+
+            @Override
+            public void onError(Throwable e) {
+
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
+    }
 }
