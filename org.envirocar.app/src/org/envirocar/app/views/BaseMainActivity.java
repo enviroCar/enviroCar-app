@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -24,11 +24,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentStatePagerAdapter;
+import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.snackbar.Snackbar;
@@ -80,7 +83,8 @@ public class BaseMainActivity extends BaseInjectorActivity implements EasyPermis
     private static final String TROUBLESHOOTING_TAG = "TROUBLESHOOTING";
     private static final String[] LOCATION_AND_WRITE = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.WRITE_EXTERNAL_STORAGE};
     private static final int RC_LOCATION_AND_WRITE_PERM = 124;
-
+    private FragmentStatePagerAdapter fragmentStatePagerAdapter;
+    private MenuItem prevMenuItem;
 
     // Injected variables
     @Inject
@@ -112,7 +116,8 @@ public class BaseMainActivity extends BaseInjectorActivity implements EasyPermis
     @BindView(R.id.navigation)
     protected BottomNavigationView navigationBottomBar;
 
-    private int selectedMenuItemID = 0;
+    @BindView(R.id.fragmentContainer)
+    protected ViewPager viewPager;
 
     private CompositeDisposable subscriptions = new CompositeDisposable();
     private BroadcastReceiver errorInformationReceiver;
@@ -123,28 +128,15 @@ public class BaseMainActivity extends BaseInjectorActivity implements EasyPermis
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = item -> {
-        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         switch (item.getItemId()) {
             case R.id.navigation_dashboard:
-                if (selectedMenuItemID != 1) {
-                    fragmentTransaction.replace(R.id.fragmentContainer, dashboardFragment);
-                    fragmentTransaction.commit();
-                    selectedMenuItemID = 1;
-                }
+                viewPager.setCurrentItem(0);
                 return true;
             case R.id.navigation_my_tracks:
-                if (selectedMenuItemID != 2) {
-                    fragmentTransaction.replace(R.id.fragmentContainer, trackListPagerFragment);
-                    fragmentTransaction.commit();
-                    selectedMenuItemID = 2;
-                }
+                viewPager.setCurrentItem(1);
                 return true;
             case R.id.navigation_others:
-                if (selectedMenuItemID != 3) {
-                    fragmentTransaction.replace(R.id.fragmentContainer, othersFragment);
-                    fragmentTransaction.commit();
-                    selectedMenuItemID = 3;
-                }
+                viewPager.setCurrentItem(2);
                 return true;
         }
         return false;
@@ -167,6 +159,31 @@ public class BaseMainActivity extends BaseInjectorActivity implements EasyPermis
         navigationBottomBar.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         navigationBottomBar.setSelectedItemId(R.id.navigation_dashboard);
 
+        fragmentStatePagerAdapter = new PageSlider(getSupportFragmentManager(), FragmentStatePagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
+        viewPager.setAdapter(fragmentStatePagerAdapter);
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                if (prevMenuItem != null) {
+                    prevMenuItem.setChecked(false);
+                } else {
+                    navigationBottomBar.getMenu().getItem(0).setChecked(false);
+                }
+                navigationBottomBar.getMenu().getItem(position).setChecked(true);
+                prevMenuItem = navigationBottomBar.getMenu().getItem(position);
+                fragmentStatePagerAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
         // Subscribe for preference subscriptions. In this case, subscribe for changes to the
         // active screen settings.
         // TODO
@@ -354,5 +371,30 @@ public class BaseMainActivity extends BaseInjectorActivity implements EasyPermis
     @Override
     public void onPermissionsDenied(int requestCode, @NonNull List<String> perms) {
         LOGGER.info("Permission Denied: " + requestCode + ": " + perms.size());
+    }
+
+    private class PageSlider extends FragmentStatePagerAdapter {
+
+        private Fragment[] fragments;
+
+        public PageSlider(@NonNull FragmentManager fm, int behavior) {
+            super(fm, behavior);
+            fragments = new Fragment[]{
+                    dashboardFragment,
+                    trackListPagerFragment,
+                    othersFragment
+            };
+        }
+
+        @NonNull
+        @Override
+        public Fragment getItem(int position) {
+            return fragments[position];
+        }
+
+        @Override
+        public int getCount() {
+            return 3;
+        }
     }
 }
