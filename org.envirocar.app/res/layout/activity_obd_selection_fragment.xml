@@ -80,6 +80,17 @@
                     android:maxHeight="20dp"
                     android:minHeight="10dp"
                     android:visibility="gone"/>
+
+                <ImageView
+                    android:id="@+id/activity_obd_selection_layout_rescan_bluetooth"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="10dp"
+                    android:src="@drawable/ic_refresh_black_24dp"
+                    android:tint="@color/blue_light_cario"
+                    android:maxHeight="20dp"
+                    android:minHeight="10dp"/>
+
             </LinearLayout>
 
             <ListView
