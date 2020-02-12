@@ -35,10 +35,12 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.jakewharton.rxbinding3.widget.RxTextView;
 
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
@@ -54,6 +56,7 @@ import org.envirocar.core.logging.Logger;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import javax.inject.Inject;
@@ -61,10 +64,15 @@ import javax.inject.Inject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import io.reactivex.Observable;
 import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Function;
+import io.reactivex.functions.Function3;
+import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
+import kotlin.jvm.functions.Function11;
 
 /**
  * @author dewall
@@ -120,6 +128,32 @@ public class SignupActivity extends BaseInjectorActivity {
 
         // make terms of use and privacy statement clickable
         this.makeClickableTextLinks();
+
+        Observable<String> observable=RxTextView.textChanges(usernameEditText).skip(1).debounce(600, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(AndroidSchedulers.mainThread())
+                .map(new Function<CharSequence, String>() {
+                    @Override
+                    public String apply(CharSequence charSequence) throws Exception {
+                        return charSequence.toString();
+                    }
+                });
+
+        observable.subscribe(new DisposableObserver<String>() {
+            @Override
+            public void onNext(String s) {
+               usernameCheck(s);
+            }
+
+            @Override
+            public void onError(Throwable e) {
+
+            }
+
+            @Override
+            public void onComplete() {
+            }
+        });
     }
 
     @Override
@@ -150,56 +184,11 @@ public class SignupActivity extends BaseInjectorActivity {
             return;
         }
 
+        View focusView = null;
         // Get all the values of the edittexts
         final String username = usernameEditText.getText().toString().trim();
         final String email = emailEditText.getText().toString().trim();
         final String password = password1EditText.getText().toString();
-        final String password2 = password2EditText.getText().toString();
-
-        View focusView = null;
-
-        // check for valid passwords
-        if (password == null || password.isEmpty() || password.equals("")) {
-            password1EditText.setError(getString(R.string.error_field_required));
-            focusView = this.password1EditText;
-        } else if (password.length() < 6) {
-            password1EditText.setError(getString(R.string.error_invalid_password));
-            focusView = this.password1EditText;
-        } else if (isStrongPassword(password) == false) {
-            password1EditText.setError(getString(R.string.error_field_weak_password));
-            focusView = this.password1EditText;
-        }
-
-        // check if the password confirm is empty
-        if (password2 == null || password2.isEmpty() || password2.equals("")) {
-            password2EditText.setError(getString(R.string.error_field_required));
-            focusView = password2EditText;
-        }
-
-        // Check for a valid email address.
-        if (TextUtils.isEmpty(email)) {
-            emailEditText.setError(getString(R.string.error_field_required));
-            focusView = emailEditText;
-        } else if (!email.matches("^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\" +
-                ".[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$")) {
-            emailEditText.setError(getString(R.string.error_invalid_email));
-            focusView = emailEditText;
-        }
-
-        // check for valid username
-        if (username == null || username.isEmpty() || username.equals("")) {
-            usernameEditText.setError(getString(R.string.error_field_required));
-            focusView = usernameEditText;
-        } else if (username.length() < 6) {
-            usernameEditText.setError(getString(R.string.error_invalid_username));
-            focusView = usernameEditText;
-        }
-
-        // check if passwords match
-        if (!password.equals(password2)) {
-            usernameEditText.setError(getString(R.string.error_passwords_not_matching));
-            focusView = usernameEditText;
-        }
 
         // check if tou and privacy statement have been accepted.
         if (!touCheckbox.isChecked()) {
@@ -346,4 +335,48 @@ public class SignupActivity extends BaseInjectorActivity {
     public static boolean isStrongPassword(String password) {
         return Pattern.matches("^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{6,}$", password);
     }
+
+    //check for valid password
+    private void passwordCheck(String password) {
+        if (password == null || password.isEmpty() || password.equals("")) {
+            password1EditText.setError(getString(R.string.error_field_required));
+        } else if (password.length() < 6) {
+            password1EditText.setError(getString(R.string.error_invalid_password));
+        } else if (isStrongPassword(password) == false) {
+            password1EditText.setError(getString(R.string.error_field_weak_password));
+        }
+    }
+
+    // check for valid username
+     private  void usernameCheck(String username) {
+         if (username == null || username.isEmpty() || username.equals("")) {
+             usernameEditText.setError(getString(R.string.error_field_required));
+         } else if (username.length() < 6) {
+             usernameEditText.setError(getString(R.string.error_invalid_username));
+         }
+     }
+
+    // check if the password confirm is empty
+      private void checkConfirmPassword(String password2) {
+          if (password2 == null || password2.isEmpty() || password2.equals("")) {
+              password2EditText.setError(getString(R.string.error_field_required));
+          }
+      }
+
+      // check if passwords match
+      private void checkMatchpassword(String password,String password2) {
+          if (!password.equals(password2)) {
+              usernameEditText.setError(getString(R.string.error_passwords_not_matching));
+          }
+      }
+
+    // Check for a valid email address.
+     private  void checkValidEmail(String email) {
+         if (TextUtils.isEmpty(email)) {
+             emailEditText.setError(getString(R.string.error_field_required));
+         } else if (!email.matches("^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\" +
+                 ".[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$")) {
+             emailEditText.setError(getString(R.string.error_invalid_email));
+         }
+     }
 }
