@@ -37,15 +37,14 @@
         <item name="android:paddingRight">@dimen/spacing_large</item>
     </style>
 
-    <style name="Widget.enviroCar.Fab" parent="">
+    <style name="Widget.enviroCar.Fab" parent="Widget.MaterialComponents.FloatingActionButton">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_margin">@dimen/fab_margin_16</item>
-        <item name="android:src">@drawable/ic_add_white_24dp</item>
-        <item name="borderWidth">0dp</item>
-        <item name="elevation">6dp</item>
-        <item name="pressedTranslationZ">12dp</item>
         <item name="rippleColor">@android:color/white</item>
+        <item name="tint">@color/white_cario</item>
+        <item name="backgroundTint">@color/cario_color_primary_dark</item>
+        <item name="android:backgroundTint">@color/cario_color_primary_dark</item>
     </style>
 
     <style name="enviroCar.title" parent="Base.TextAppearance.AppCompat.SearchResult.Title">
