@@ -27,15 +27,19 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.ListAdapter;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 
+import com.google.android.material.textfield.TextInputLayout;
 import com.jakewharton.rxbinding3.appcompat.RxToolbar;
+import com.jakewharton.rxbinding3.widget.RxTextView;
 
 import org.envirocar.app.R;
 import org.envirocar.app.handler.preferences.CarPreferenceHandler;
@@ -57,11 +61,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnFocusChange;
+import butterknife.OnItemClick;
 import butterknife.OnTextChanged;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Observable;
@@ -90,6 +97,8 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
     @BindView(R.id.activity_car_selection_newcar_download_layout)
     protected View downloadView;
 
+    @BindView(R.id.activity_car_selection_newcar_layout_manufacturer)
+    protected TextInputLayout manufacturerLayout;
     @BindView(R.id.activity_car_selection_newcar_input_manufacturer)
     protected AutoCompleteTextView manufacturerText;
     @BindView(R.id.activity_car_selection_newcar_input_model)
@@ -98,6 +107,8 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
     protected AutoCompleteTextView yearText;
     @BindView(R.id.activity_car_selection_newcar_input_fueltype)
     protected AutoCompleteTextView fueltypeText;
+    @BindView(R.id.activity_car_selection_newcar_layout_engine)
+    protected TextInputLayout engineLayout;
     @BindView(R.id.activity_car_selection_newcar_input_engine)
     protected AutoCompleteTextView engineText;
 
@@ -115,6 +126,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
     private Map<String, Set<String>> mCarToModelMap = new ConcurrentHashMap<>();
     private Map<String, Set<String>> mModelToYear = new ConcurrentHashMap<>();
     private Map<Pair<String, String>, Set<String>> mModelToCCM = new ConcurrentHashMap<>();
+
 
     @Nullable
     @Override
@@ -164,19 +176,28 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
                     }
                 });
 
-//        String[] fueltypes = Observable.fromArray(Car.FuelType.values())
-//                .map(v -> getString(v.getStringResource()))
-//                .toList()
-//                .blockingGet()
-//                .toArray(new String[Car.FuelType.values().length]);
-//
-//
-//        ArrayAdapter<String> fueltypeAdapter = new ArrayAdapter<>(
-//                getContext(), R.layout.activity_car_selection_newcar_fueltype_item, fueltypes);
+
         fueltypeText.setAdapter(new FuelTypeAdapter(
                 getContext(),
                 R.layout.activity_car_selection_newcar_fueltype_item,
                 Car.FuelType.values()));
+
+        RxTextView.afterTextChangeEvents(modelText)
+                .debounce(500, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .map(t -> t.toString())
+                .subscribe(model -> {
+                    if (model.trim().isEmpty()) {
+                        modelText.setError("Cannot be empty");
+                    }
+                }, LOG::error);
+
+        fueltypeText.setKeyListener(null);
+
+        manufacturerText.setOnItemClickListener((parent, view1, position, id) -> requestNextTextfieldFocus(manufacturerText));
+        modelText.setOnItemClickListener((parent, view12, position, id) -> requestNextTextfieldFocus(modelText));
+        yearText.setOnItemClickListener((parent, view13, position, id) -> requestNextTextfieldFocus(yearText));
+        fueltypeText.setOnItemClickListener((parent, view14, position, id) -> requestNextTextfieldFocus(fueltypeText));
 
         dispatchRemoteSensors();
 
@@ -265,7 +286,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
             String yearString = yearText.getText().toString();
             String engineString = engineText.getText().toString();
 
-            FuelTypeAdapter fueltypeAdapter = (FuelTypeAdapter)fueltypeText.getAdapter();
+            FuelTypeAdapter fueltypeAdapter = (FuelTypeAdapter) fueltypeText.getAdapter();
             Car.FuelType fueltype = fueltypeAdapter.getValueByTranslatedString(fueltypeText.getText().toString());
 
             // create the car
@@ -363,11 +384,6 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
 //                            updateSpinner(mManufacturerNames, manufacturerSpinner);
                             updateManufacturerViews();
 
-                            // Set the initial selection of the manufacturer to NO SELECTION
-//                            manufacturerSpinner.setSelection(Adapter.NO_SELECTION, true);
-
-//                            // Initialize the spinner.
-//                            initSpinner();
                             dispose();
 
                             downloadView.setVisibility(View.INVISIBLE);
@@ -418,7 +434,17 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
 
     @OnTextChanged(value = R.id.activity_car_selection_newcar_input_fueltype, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
     protected void onFuelTypeChanged(CharSequence text) {
-        // TODO
+        if (text.toString().isEmpty())
+            return;
+
+        FuelTypeAdapter adapter = (FuelTypeAdapter) fueltypeText.getAdapter();
+        Car.FuelType fuelType = adapter.getValueByTranslatedString(text.toString());
+
+        if (Car.FuelType.ELECTRIC.equals(fuelType)) {
+            engineLayout.setVisibility(View.GONE);
+        } else {
+            engineLayout.setVisibility(View.VISIBLE);
+        }
     }
 
     @OnTextChanged(value = R.id.activity_car_selection_newcar_input_engine)
@@ -536,18 +562,6 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
 //        ArrayAdapter<String>
     }
 
-//    private void updateSpinner(Set<String> toSet, Spinner spinner) {
-//        List<String> list = new ArrayList<>();
-//        list.addAll(toSet);
-//        Collections.sort(list);
-//
-//        ArrayAdapter<String> adapter = new ArrayAdapter<>(
-//                getActivity(),
-//                R.layout.activity_car_selection_newcar_spinner_item,
-//                list.toArray(new String[list.size()]));
-//
-//        spinner.setAdapter(adapter);
-//    }
 
     /**
      * Inserts the attributes of the car
@@ -557,12 +571,14 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
     private void addCarToAutocompleteList(Car car) {
 
         mCars.add(car);
-        String manufacturer = car.getManufacturer();
-        String model = car.getModel();
-        String year = "" + car.getConstructionYear();
+        String manufacturer = car.getManufacturer().trim();
+        String model = car.getModel().trim();
+        String year = Integer.toString(car.getConstructionYear());
 
-        if (!mManufacturerNames.contains(manufacturer))
-            mManufacturerNames.add(manufacturer);
+        if (manufacturer.isEmpty() || model.isEmpty() || year.isEmpty())
+            return;
+
+        mManufacturerNames.add(manufacturer);
 
         if (!mCarToModelMap.containsKey(manufacturer))
             mCarToModelMap.put(manufacturer, new HashSet<>());
@@ -598,6 +614,14 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
         appComponent.inject(this);
     }
 
+    private void requestNextTextfieldFocus(TextView textField) {
+        try {
+            TextView nextField = (TextView) textField.focusSearch(View.FOCUS_DOWN);
+            nextField.requestFocus();
+        } catch (Exception e) {
+            LOG.warn("Unable to find next field or to request focus to next field.");
+        }
+    }
 
     private static final ArrayAdapter<String> asSortedAdapter(Context context, Set<String> set) {
         String[] strings = set.toArray(new String[set.size()]);
@@ -615,7 +639,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
         private final Car.FuelType[] values;
 
         public FuelTypeAdapter(@NonNull Context context, int resource, Car.FuelType[] values) {
-            super(context, resource, new AbstractList<String>(){
+            super(context, resource, new AbstractList<String>() {
                 @Override
                 public int size() {
                     return values.length;
@@ -623,22 +647,26 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
 
                 @Override
                 public String get(int index) {
+                    if (index == ArrayAdapter.NO_SELECTION)
+                        return null;
                     return context.getString(values[index].getStringResource());
                 }
             });
             this.values = values;
         }
 
-        public Car.FuelType getValueByTranslatedString(String text){
-            for(Car.FuelType fueltype : values){
-                if (getContext().getString(fueltype.getStringResource()).equals(text)){
+        public Car.FuelType getValueByTranslatedString(String text) {
+            for (Car.FuelType fueltype : values) {
+                if (getContext().getString(fueltype.getStringResource()).equals(text)) {
                     return fueltype;
                 }
             }
             return null;
         }
 
-        public Car.FuelType getOriginal(int index){
+        public Car.FuelType getOriginal(int index) {
+            if (index == ArrayAdapter.NO_SELECTION)
+                return null;
             return values[index];
         }
     }

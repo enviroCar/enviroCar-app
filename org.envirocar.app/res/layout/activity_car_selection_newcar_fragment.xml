@@ -121,7 +121,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:paddingLeft="12dp"
-                    android:maxLines="1" />
+                    android:imeOptions="actionNext"
+                    android:maxLines="1"
+                    android:singleLine="true"/>
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -139,7 +141,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:paddingLeft="12dp"
-                    android:maxLines="1" />
+                    android:imeOptions="actionNext"
+                    android:maxLines="1"
+                    android:singleLine="true"/>
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -158,6 +162,7 @@
                     android:layout_height="wrap_content"
                     android:paddingLeft="12dp"
                     android:inputType="number"
+                    android:imeOptions="actionNext"
                     android:maxLines="1"
                     android:singleLine="true" />
 
@@ -177,6 +182,7 @@
                     android:id="@+id/activity_car_selection_newcar_input_fueltype"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:inputType="text"
                     android:editable="false" />
 
             </com.google.android.material.textfield.TextInputLayout>
@@ -196,6 +202,7 @@
                     android:layout_height="wrap_content"
                     android:paddingLeft="12dp"
                     android:inputType="number"
+                    android:imeOptions="actionDone"
                     android:maxLines="1"
                     android:singleLine="true" />
 
