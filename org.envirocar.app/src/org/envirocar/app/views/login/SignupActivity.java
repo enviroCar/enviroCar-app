@@ -72,6 +72,7 @@ import io.reactivex.disposables.Disposables;
 import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Function;
 import io.reactivex.functions.Function3;
+import io.reactivex.observers.DisposableCompletableObserver;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 import kotlin.jvm.functions.Function11;
@@ -119,6 +120,7 @@ public class SignupActivity extends BaseInjectorActivity {
         baseApplicationComponent.inject(this);
     }
 
+    Boolean isValidUsername=true,isValidPassword=true,isValidEmail=true;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -169,7 +171,7 @@ public class SignupActivity extends BaseInjectorActivity {
         final String username = usernameEditText.getText().toString().trim();
         final String email = emailEditText.getText().toString().trim();
         final String password = password1EditText.getText().toString();
-
+        final String password2 = password2EditText.getText().toString();
         // check if tou and privacy statement have been accepted.
         if (!touCheckbox.isChecked()) {
             touCheckbox.setError("some error");
@@ -178,7 +180,11 @@ public class SignupActivity extends BaseInjectorActivity {
 //        if (!mAcceptPrivacyCheckbox.isChecked()) {
 //            mAcceptPrivacyCheckbox.setError("some error");
 //        }
+        checkMatchpassword(password,password2);
 
+        if(!(isValidEmail && isValidPassword && isValidUsername)) {
+            return;
+        }
         // Check if an error occured.
         if (focusView != null) {
             // There was an error; don't attempt register and focus the first
@@ -320,10 +326,15 @@ public class SignupActivity extends BaseInjectorActivity {
     private void passwordCheck(String password) {
         if (password == null || password.isEmpty() || password.equals("")) {
             password1EditText.setError(getString(R.string.error_field_required));
+            isValidPassword = false;
         } else if (password.length() < 6) {
             password1EditText.setError(getString(R.string.error_invalid_password));
+            isValidPassword = false;
         } else if (isStrongPassword(password) == false) {
             password1EditText.setError(getString(R.string.error_field_weak_password));
+            isValidPassword = false;
+        } else {
+            isValidPassword = true;
         }
     }
 
@@ -331,8 +342,12 @@ public class SignupActivity extends BaseInjectorActivity {
      private  void usernameCheck(String username) {
          if (username == null || username.isEmpty() || username.equals("")) {
              usernameEditText.setError(getString(R.string.error_field_required));
+             isValidUsername = false;
          } else if (username.length() < 6) {
              usernameEditText.setError(getString(R.string.error_invalid_username));
+             isValidUsername = false;
+         } else {
+             isValidUsername = true;
          }
      }
 
@@ -340,13 +355,20 @@ public class SignupActivity extends BaseInjectorActivity {
       private void checkConfirmPassword(String password2) {
           if (password2 == null || password2.isEmpty() || password2.equals("")) {
               password2EditText.setError(getString(R.string.error_field_required));
+              isValidPassword = false;
+          } else {
+              isValidPassword = true;
           }
       }
 
       // check if passwords match
       private void checkMatchpassword(String password,String password2) {
           if (!password.equals(password2)) {
-              usernameEditText.setError(getString(R.string.error_passwords_not_matching));
+              password1EditText.setError(getString(R.string.error_passwords_not_matching));
+              password1EditText.requestFocus();
+              isValidPassword = false;
+          } else {
+              isValidPassword = true;
           }
       }
 
@@ -354,9 +376,13 @@ public class SignupActivity extends BaseInjectorActivity {
      private  void checkValidEmail(String email) {
          if (TextUtils.isEmpty(email)) {
              emailEditText.setError(getString(R.string.error_field_required));
+             isValidEmail = false;
          } else if (!email.matches("^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\" +
                  ".[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$")) {
              emailEditText.setError(getString(R.string.error_invalid_email));
+             isValidEmail = false;
+         } else {
+             isValidEmail = true;
          }
      }
 
