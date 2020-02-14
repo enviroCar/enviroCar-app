@@ -64,7 +64,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
 
     @BindView(R.id.activity_car_selection_layout_content)
     protected View mContentView;
-    @BindView(R.id.activity_car_selection_layout_toolbar)
+    @BindView(R.id.envirocar_toolbar)
     protected Toolbar mToolbar;
     @BindView(R.id.activity_car_selection_layout_exptoolbar)
     protected Toolbar mExpToolbar;
@@ -87,12 +87,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
     protected UserPreferenceHandler mUserHandler;
 
     private CarSelectionAddCarFragment addCarFragment;
-
-    private Set<Car> mCars = new HashSet<>();
-
-
     private CarSelectionListAdapter mCarListAdapter;
-    private AutoCompleteArrayAdapter mManufacturerNameAdapter;
     private Disposable loadingCarsSubscription;
 
 
@@ -115,7 +110,8 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle(R.string.car_selection_header);
+        getSupportActionBar().setTitle("");
+//        getSupportActionBar().setTitle(R.string.car_selection_header);
 
         setupListView();
     }
@@ -225,12 +221,12 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
 
                         // If the car has been removed successfully...
                         if (mCarManager.removeCar(car)) {
-                            // then remove it from the list and show a snackbar.
-                            mCarListAdapter.removeCarItem(car);
                             showSnackbar(String.format(
                                     getString(R.string.car_selection_car_deleted_tmp),
                                     car.getManufacturer(), car.getModel()));
                         }
+                        // then remove it from the list and show a snackbar.
+                        mCarListAdapter.removeCarItem(car);
                     }
                 });
         mCarListView.setAdapter(mCarListAdapter);

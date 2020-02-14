@@ -31,14 +31,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/activity_car_selection_layout_toolbar"
-            style="@style/ToolBarStyle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/blue_dark_cario"
-            android:orientation="vertical"
-            app:elevation="6dp"/>
+        <include layout="@layout/envirocar_toolbar"></include>
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -47,7 +40,7 @@
 
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/activity_car_selection_layout_exptoolbar"
-                style="@style/Widget.enviroCar.Toolbar"
+                style="@style/enviroCar.Toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:elevation="6dp"

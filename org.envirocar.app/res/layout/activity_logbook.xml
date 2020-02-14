@@ -46,7 +46,7 @@
 
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/activity_car_selection_layout_exptoolbar"
-                style="@style/Widget.enviroCar.Toolbar"
+                style="@style/enviroCar.Toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:elevation="6dp"
