@@ -88,6 +88,12 @@ import io.reactivex.schedulers.Schedulers;
 public class CarSelectionAddCarFragment extends BaseInjectorFragment {
     private static final Logger LOG = Logger.getLogger(CarSelectionAddCarFragment.class);
 
+    private static final int ERROR_DEBOUNCE_TIME = 750;
+    private static final int CONSTRUCTION_YEAR_MIN = 1990;
+    private static final int CONSTRUCTION_YEAR_MAX = Calendar.getInstance().get(Calendar.YEAR);
+    private static final int ENGINE_DISPLACEMENT_MIN = 500;
+    private static final int ENGINE_DISPLACEMENT_MAX = 5000;
+
     @BindView(R.id.envirocar_toolbar)
     protected Toolbar toolbar;
     @BindView(R.id.activity_car_selection_newcar_toolbar_exp)
@@ -182,15 +188,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
                 R.layout.activity_car_selection_newcar_fueltype_item,
                 Car.FuelType.values()));
 
-        RxTextView.afterTextChangeEvents(modelText)
-                .debounce(500, TimeUnit.MILLISECONDS)
-                .observeOn(AndroidSchedulers.mainThread())
-                .map(t -> t.toString())
-                .subscribe(model -> {
-                    if (model.trim().isEmpty()) {
-                        modelText.setError("Cannot be empty");
-                    }
-                }, LOG::error);
+
 
         fueltypeText.setKeyListener(null);
 
@@ -202,6 +200,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
         dispatchRemoteSensors();
 
         initFocusChangedListener();
+        initWatcher();
 //        initTextWatcher();
         return view;
     }
@@ -232,6 +231,50 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
         super.onDestroy();
     }
 
+    @OnTextChanged(value = R.id.activity_car_selection_newcar_input_manufacturer, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
+    protected void onManufacturerChanged(CharSequence text) {
+        manufacturerText.setError(null);
+
+        modelText.setText("");
+        yearText.setText("");
+        engineText.setText("");
+    }
+
+    @OnTextChanged(value = R.id.activity_car_selection_newcar_input_model, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
+    protected void onModelChanged(CharSequence text) {
+        modelText.setError(null);
+
+        yearText.setText("");
+        engineText.setText("");
+    }
+
+    @OnTextChanged(value = R.id.activity_car_selection_newcar_input_constructionyear, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
+    protected void onConstructionYearChanged(CharSequence text) {
+        yearText.setError(null);
+        engineText.setText("");
+    }
+
+    @OnTextChanged(value = R.id.activity_car_selection_newcar_input_fueltype, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
+    protected void onFuelTypeChanged(CharSequence text) {
+        if (text.toString().isEmpty())
+            return;
+
+        FuelTypeAdapter adapter = (FuelTypeAdapter) fueltypeText.getAdapter();
+        Car.FuelType fuelType = adapter.getValueByTranslatedString(text.toString());
+
+        if (Car.FuelType.ELECTRIC.equals(fuelType)) {
+            engineLayout.setVisibility(View.GONE);
+            engineText.setVisibility(View.GONE);
+        } else {
+            engineLayout.setVisibility(View.VISIBLE);
+            engineText.setVisibility(View.VISIBLE);
+        }
+    }
+
+    @OnTextChanged(value = R.id.activity_car_selection_newcar_input_engine)
+    protected void onEngineDisplacementChanged(CharSequence text) {
+        engineText.setError(null);
+    }
 
     /**
      * Add car button onClick listener. When clicked, it tries to find out if the car already
@@ -248,10 +291,16 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
 
             View focusView = null;
 
+            Car.FuelType fuelType = getFuelTybeByTranslatedString(fueltypeText.getText().toString());
+
             //First check all input forms for empty strings
-            if (engineText.getText().length() == 0) {
+            if (fuelType != Car.FuelType.ELECTRIC && engineText.getText().length() == 0) {
                 engineText.setError("Cannot be empty");
                 focusView = engineText;
+            }
+            if (fueltypeText.getText().length() == 0){
+                fueltypeText.setError("Cannot be empty");
+                focusView = fueltypeText;
             }
             if (yearText.getText().length() == 0) {
                 yearText.setError("Cannot be empty");
@@ -290,8 +339,16 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
             Car.FuelType fueltype = fueltypeAdapter.getValueByTranslatedString(fueltypeText.getText().toString());
 
             // create the car
-            return new CarImpl(manufacturer, model, fueltype,
-                    Integer.parseInt(yearString), Integer.parseInt(engineString));
+            int year =  Integer.parseInt(yearString);
+            if (fueltype != Car.FuelType.ELECTRIC){
+                try {
+                    int engine = Integer.parseInt(engineString);
+                    return new CarImpl(manufacturer, model, fueltype, year, engine);
+                } catch (Exception e){
+                    LOG.error(String.format("Unable to parse engine [%s]", engineString), e);
+                }
+            }
+            return new CarImpl(manufacturer, model, fueltype, year);
         };
     }
 
@@ -301,7 +358,8 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
             View focusView = null;
 
             // Check the values of engine and year for validity.
-            if (car.getEngineDisplacement() < 500 || car.getEngineDisplacement() > 5000) {
+            if (car.getFuelType() != Car.FuelType.ELECTRIC &&
+                    (car.getEngineDisplacement() < 500 || car.getEngineDisplacement() > 5000)) {
                 engineText.setError("Invalid value");
                 focusView = engineText;
             }
@@ -408,50 +466,6 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
                 });
     }
 
-
-    @OnTextChanged(value = R.id.activity_car_selection_newcar_input_manufacturer, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
-    protected void onManufacturerChanged(CharSequence text) {
-        manufacturerText.setError(null);
-
-        modelText.setText("");
-        yearText.setText("");
-        engineText.setText("");
-    }
-
-    @OnTextChanged(value = R.id.activity_car_selection_newcar_input_model, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
-    protected void onModelChanged(CharSequence text) {
-        modelText.setError(null);
-
-        yearText.setText("");
-        engineText.setText("");
-    }
-
-    @OnTextChanged(value = R.id.activity_car_selection_newcar_input_constructionyear, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
-    protected void onConstructionYearChanged(CharSequence text) {
-        yearText.setError(null);
-        engineText.setText("");
-    }
-
-    @OnTextChanged(value = R.id.activity_car_selection_newcar_input_fueltype, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
-    protected void onFuelTypeChanged(CharSequence text) {
-        if (text.toString().isEmpty())
-            return;
-
-        FuelTypeAdapter adapter = (FuelTypeAdapter) fueltypeText.getAdapter();
-        Car.FuelType fuelType = adapter.getValueByTranslatedString(text.toString());
-
-        if (Car.FuelType.ELECTRIC.equals(fuelType)) {
-            engineLayout.setVisibility(View.GONE);
-        } else {
-            engineLayout.setVisibility(View.VISIBLE);
-        }
-    }
-
-    @OnTextChanged(value = R.id.activity_car_selection_newcar_input_engine)
-    protected void onEngineDisplacementChanged(CharSequence text) {
-        engineText.setError(null);
-    }
-
     private void initFocusChangedListener() {
         manufacturerText.setOnFocusChangeListener((v, hasFocus) -> {
             if (!hasFocus) {
@@ -517,9 +531,9 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
             }
         }
 
-        if (selectedCar != null && selectedCar.getFuelType() != null) {
-            fueltypeText.setText(selectedCar.getFuelType().toString());
-        }
+//        if (selectedCar != null && selectedCar.getFuelType() != null) {
+//            fueltypeText.setText(selectedCar.getFuelType().toString());
+//        }
     }
 
     private void updateManufacturerViews() {
@@ -553,15 +567,6 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
             engineText.setAdapter(null);
         }
     }
-
-    private void updateAutoComplete(Set<String> toSet, TextView textView) {
-        List<String> list = new ArrayList<>();
-        list.addAll(toSet);
-        Collections.sort(list);
-
-//        ArrayAdapter<String>
-    }
-
 
     /**
      * Inserts the attributes of the car
@@ -609,9 +614,75 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
         inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
+    private Car.FuelType getFuelTybeByTranslatedString(String fueltype){
+        for (Car.FuelType fuelType : Car.FuelType.values()){
+            if (getContext().getString(fuelType.getStringResource()).equals(fueltype)){
+                return fuelType;
+            }
+        }
+        return null;
+    }
+
     @Override
     protected void injectDependencies(BaseApplicationComponent appComponent) {
         appComponent.inject(this);
+    }
+
+    private void initWatcher(){
+        RxTextView.afterTextChangeEvents(modelText)
+                .debounce(ERROR_DEBOUNCE_TIME, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .map(t -> t.toString())
+                .subscribe(model -> {
+                    if (model.trim().isEmpty()) {
+                        modelText.setError("Cannot be empty");
+                    }
+                }, LOG::error);
+
+        // Year input validity check.
+        RxTextView.textChanges(yearText)
+                .skipInitialValue()
+                .debounce(ERROR_DEBOUNCE_TIME, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .map(CharSequence::toString)
+                .filter(s -> !s.isEmpty())
+                .subscribe(yearString -> {
+                    try {
+                        int year = Integer.parseInt(yearString);
+                        if (year < CONSTRUCTION_YEAR_MIN || year > CONSTRUCTION_YEAR_MAX) {
+                            yearText.setError("Invalid value");
+                            yearText.requestFocus();
+                        }
+                    } catch (Exception e){
+                        LOG.error(String.format("Unable to parse year [%s]", yearString), e);
+                        yearText.setError("Invalid value");
+                        yearText.requestFocus();
+                    }
+                }, LOG::error);
+
+        // Engine input validity check.
+        RxTextView.textChanges(engineText)
+                .skipInitialValue()
+                .debounce(ERROR_DEBOUNCE_TIME, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .map(CharSequence::toString)
+                .filter(s -> !s.isEmpty())
+                .subscribe(engineString -> {
+                    if (engineString.isEmpty())
+                        return;
+
+                    try {
+                        int engine = Integer.parseInt(engineString);
+                        if (engine < ENGINE_DISPLACEMENT_MIN || engine > ENGINE_DISPLACEMENT_MAX){
+                            engineText.setError("Invalid value");
+                            engineText.requestFocus();
+                        }
+                    } catch (Exception e){
+                        LOG.error(String.format("Unable to parse engine [%s]", engineString), e);
+                        engineText.setError("Invalid value");
+                        engineText.requestFocus();
+                    }
+                }, LOG::error);
     }
 
     private void requestNextTextfieldFocus(TextView textField) {

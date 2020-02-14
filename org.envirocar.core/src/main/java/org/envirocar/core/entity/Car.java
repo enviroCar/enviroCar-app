@@ -137,6 +137,8 @@ public interface Car extends BaseEntity<Car>, Serializable {
 
     void setConstructionYear(int constructionYear);
 
+    boolean hasEngineDispalcement();
+
     int getEngineDisplacement();
 
     void setEngineDisplacement(int engineDisplacement);
