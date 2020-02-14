@@ -74,6 +74,7 @@ import io.reactivex.BackpressureStrategy;
 import io.reactivex.Observable;
 import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Function;
 import io.reactivex.functions.Predicate;
@@ -123,8 +124,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
     @Inject
     protected CarPreferenceHandler carManager;
 
-    private Disposable sensorsSubscription;
-    private Disposable createCarSubscription;
+    private CompositeDisposable disposables = new CompositeDisposable();
     private Scheduler.Worker mainThreadWorker = AndroidSchedulers.mainThread().createWorker();
 
     private Set<Car> mCars = new HashSet<>();
@@ -157,7 +157,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
         contentView.setVisibility(View.GONE);
         downloadView.setVisibility(View.INVISIBLE);
 
-        createCarSubscription = RxToolbar.itemClicks(toolbar)
+        RxToolbar.itemClicks(toolbar)
                 .filter(continueWhenFormIsCorrect())
                 .map(createCarFromForm())
                 .filter(continueWhenCarHasCorrectValues())
@@ -219,13 +219,8 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
     public void onDestroy() {
         LOG.info("onDestroy()");
 
-        if (sensorsSubscription != null && !sensorsSubscription.isDisposed()) {
-            sensorsSubscription.dispose();
-        }
-        if (createCarSubscription != null && !createCarSubscription.isDisposed()) {
-            createCarSubscription.dispose();
-        }
-
+        // release all disposables.
+        disposables.clear();
         super.onDestroy();
     }
 
@@ -257,8 +252,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
         if (text.toString().isEmpty())
             return;
 
-        FuelTypeAdapter adapter = (FuelTypeAdapter) fueltypeText.getAdapter();
-        Car.FuelType fuelType = adapter.getValueByTranslatedString(text.toString());
+        Car.FuelType fuelType = Car.FuelType.getFuelTybeByTranslatedString(getContext(), text.toString());
 
         if (Car.FuelType.ELECTRIC.equals(fuelType)) {
             engineLayout.setVisibility(View.GONE);
@@ -334,7 +328,8 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
             String engineString = engineText.getText().toString();
 
             FuelTypeAdapter fueltypeAdapter = (FuelTypeAdapter) fueltypeText.getAdapter();
-            Car.FuelType fueltype = fueltypeAdapter.getValueByTranslatedString(fueltypeText.getText().toString());
+            Car.FuelType fueltype = Car.FuelType.getFuelTybeByTranslatedString(getContext(),
+                    fueltypeText.getText().toString());
 
             // create the car
             int year = Integer.parseInt(yearString);
@@ -416,7 +411,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
     }
 
     private void dispatchRemoteSensors() {
-        sensorsSubscription = daoProvider.getSensorDAO()
+        disposables.add(daoProvider.getSensorDAO()
                 .getAllCarsObservable()
                 .toFlowable(BackpressureStrategy.BUFFER)
                 .onBackpressureBuffer(10000)
@@ -461,7 +456,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
                                 addCarToAutocompleteList(car);
                         }
                     }
-                });
+                }));
     }
 
     private void initFocusChangedListener() {
@@ -618,7 +613,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
     }
 
     private void initWatcher() {
-        RxTextView.afterTextChangeEvents(modelText)
+        disposables.add(RxTextView.afterTextChangeEvents(modelText)
                 .debounce(ERROR_DEBOUNCE_TIME, TimeUnit.MILLISECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
                 .map(t -> t.toString())
@@ -626,10 +621,10 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
                     if (model.trim().isEmpty()) {
                         modelText.setError(getString(R.string.car_selection_error_empty_input));
                     }
-                }, LOG::error);
+                }, LOG::error));
 
         // Year input validity check.
-        RxTextView.textChanges(yearText)
+        disposables.add(RxTextView.textChanges(yearText)
                 .skipInitialValue()
                 .debounce(ERROR_DEBOUNCE_TIME, TimeUnit.MILLISECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
@@ -647,10 +642,10 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
                         yearText.setError(getString(R.string.car_selection_error_invalid_input));
                         yearText.requestFocus();
                     }
-                }, LOG::error);
+                }, LOG::error));
 
         // Engine input validity check.
-        RxTextView.textChanges(engineText)
+        disposables.add(RxTextView.textChanges(engineText)
                 .skipInitialValue()
                 .debounce(ERROR_DEBOUNCE_TIME, TimeUnit.MILLISECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
@@ -671,7 +666,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
                         engineText.setError(getString(R.string.car_selection_error_invalid_input));
                         engineText.requestFocus();
                     }
-                }, LOG::error);
+                }, LOG::error));
     }
 
     private void requestNextTextfieldFocus(TextView textField) {
@@ -713,15 +708,6 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
                 }
             });
             this.values = values;
-        }
-
-        public Car.FuelType getValueByTranslatedString(String text) {
-            for (Car.FuelType fueltype : values) {
-                if (getContext().getString(fueltype.getStringResource()).equals(text)) {
-                    return fueltype;
-                }
-            }
-            return null;
         }
 
         public Car.FuelType getOriginal(int index) {
