@@ -18,6 +18,8 @@
  */
 package org.envirocar.core.entity;
 
+import androidx.annotation.Nullable;
+
 import java.util.Objects;
 
 /**
@@ -180,33 +182,20 @@ public class CarImpl implements Car {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(manufacturer);
-        sb.append(" ");
-        sb.append(model);
-        sb.append(" ");
-        sb.append(constructionYear);
-        sb.append(" (");
-        sb.append(fuelType);
-        sb.append(" / ");
-        sb.append(engineDisplacement);
-        sb.append("cc)");
-        return sb.toString();
+        return String.format("%s %s %d (%s / %dcc)", manufacturer, model, constructionYear, fuelType, engineDisplacement);
     }
 
     @Override
     public boolean equals(Object o) {
-        boolean result = false;
-        if (o instanceof CarImpl) {
-            CarImpl c = (CarImpl) o;
-            result = this.fuelType == c.fuelType
-                    && this.manufacturer.equals(c.manufacturer)
-                    && this.model.equals(c.model)
-                    //                    && this.id.equals(c.id)
-                    && this.constructionYear == c.constructionYear
-                    && this.engineDisplacement == c.engineDisplacement;
-        }
-        return result;
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CarImpl car = (CarImpl) o;
+        return constructionYear == car.constructionYear &&
+                engineDisplacement == car.engineDisplacement &&
+                Objects.equals(id, car.id) &&
+                Objects.equals(model, car.model) &&
+                Objects.equals(manufacturer, car.manufacturer) &&
+                fuelType == car.fuelType;
     }
 
     @Override
