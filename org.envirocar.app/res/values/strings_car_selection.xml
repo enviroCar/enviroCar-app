@@ -38,4 +38,7 @@
     <string name="car_selection_construction_year">Construction Year</string>
     <string name="car_selection_engine_displacement">Engine Displacement (ccm³)</string>
 
+    <string name="car_selection_error_empty_input">This field is required.</string>
+    <string name="car_selection_error_invalid_input">Invalid input</string>
+
 </resources>
