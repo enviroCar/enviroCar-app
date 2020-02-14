@@ -38,4 +38,7 @@
 
     <string name="car_selection_error_empty_input">Dieses Feld ist erforderlich.</string>
     <string name="car_selection_error_invalid_input">Ungültige Eingabe</string>
+
+    <string name="car_selection_addcar_info">Bitte geben Sie die Details Ihres Fahrzeugs ein. Seien Sie dabei genau. Teile dieser Informationen sind insbesondere Wichtig zur Berechnung von geschätzten Werten wie z.B. Verbrauch.</string>
+
 </resources>
