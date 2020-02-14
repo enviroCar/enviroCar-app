@@ -55,7 +55,7 @@
         <item name="android:textColor">@color/blue_dark_cario</item>
     </style>
 
-    <style name="carDetailsSubtitle" pairent="">
+    <style name="carDetailsSubtitle" parent="">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_weight">1</item>
