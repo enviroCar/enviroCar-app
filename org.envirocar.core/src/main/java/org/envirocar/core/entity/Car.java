@@ -18,6 +18,8 @@
  */
 package org.envirocar.core.entity;
 
+import android.content.Context;
+
 import org.envirocar.core.R;
 
 import java.io.Serializable;
@@ -37,9 +39,6 @@ public interface Car extends BaseEntity<Car>, Serializable {
     String KEY_CAR_CONSTRUCTIONYEAR = "constructionYear";
     String KEY_CAR_MANUFACTURER = "manufacturer";
     String KEY_CAR_ENGINEDISPLACEMENT = "engineDisplacement";
-
-    String KEY_FUELTYPE_ENUM_GASOLINE = "gasoline";
-    String KEY_FUELTYPE_ENUM_DIESEL = "diesel";
 
     String TEMPORARY_SENSOR_ID = "%TMP_ID%";
 
@@ -115,6 +114,15 @@ public interface Car extends BaseEntity<Car>, Serializable {
                 return GASOLINE;
             } else if (fuelType.equals(DIESEL.toString())) {
                 return DIESEL;
+            }
+            return null;
+        }
+
+        public static Car.FuelType getFuelTybeByTranslatedString(Context context, String fueltype){
+            for (Car.FuelType fuelType : Car.FuelType.values()){
+                if (context.getString(fuelType.getStringResource()).equals(fueltype)){
+                    return fuelType;
+                }
             }
             return null;
         }
