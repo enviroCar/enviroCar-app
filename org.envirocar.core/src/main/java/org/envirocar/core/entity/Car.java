@@ -109,6 +109,7 @@ public interface Car extends BaseEntity<Car>, Serializable {
             }
         };
 
+
         public static FuelType resolveFuelType(String fuelType) {
             if (fuelType.equals(GASOLINE.toString())) {
                 return GASOLINE;
