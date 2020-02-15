@@ -359,11 +359,7 @@ public class SignupActivity extends BaseInjectorActivity {
 
     // check if passwords match
     private Boolean checkMatchpassword(String password, String password2) {
-        if (!password.equals(password2)) {
-            return false;
-        } else {
-            return true;
-        }
+        return (password.equals(password2)) ;
     }
 
     private void showMatchError(Boolean e) {
@@ -392,18 +388,18 @@ public class SignupActivity extends BaseInjectorActivity {
     }
 
     private void userNameObservable() {
-        Observable<String> observable = RxTextView.textChanges(usernameEditText).skipInitialValue().debounce(600, TimeUnit.MILLISECONDS)
+        Disposable observable = RxTextView.textChanges(usernameEditText).skipInitialValue().debounce(600, TimeUnit.MILLISECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
-                .map(CharSequence::toString);
-        observable.subscribe(this::usernameCheck, LOG::error);
+                .map(CharSequence::toString)
+                .subscribe(this::usernameCheck, LOG::error);
     }
 
     private void emailObservable() {
-        Observable<String> observable = RxTextView.textChanges(emailEditText).skip(1).debounce(600, TimeUnit.MILLISECONDS)
+        Disposable observable = RxTextView.textChanges(emailEditText).skip(1).debounce(600, TimeUnit.MILLISECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(AndroidSchedulers.mainThread())
-                .map(CharSequence::toString);
-        observable.subscribe(this::checkValidEmail, LOG::error);
+                .map(CharSequence::toString)
+                .subscribe(this::checkValidEmail, LOG::error);
     }
 
     private void passwordObservable() {
@@ -417,11 +413,10 @@ public class SignupActivity extends BaseInjectorActivity {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(AndroidSchedulers.mainThread())
                 .map(CharSequence::toString);
-        observable.subscribe(this::checkConfirmPassword);
+        observable1.subscribe(this::checkConfirmPassword);
 
-        Observable<Boolean> observable2 = Observable.combineLatest(observable, observable1, (s, s2) -> {
+        Disposable observable2 = Observable.combineLatest(observable, observable1, (s, s2) -> {
             return checkMatchpassword(s, s2);
-        });
-        observable2.subscribe(this::showMatchError, LOG::error);
+        }).subscribe(this::showMatchError, LOG::error);
     }
 }
