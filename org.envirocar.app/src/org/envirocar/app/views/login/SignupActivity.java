@@ -35,7 +35,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -68,14 +67,7 @@ import io.reactivex.Observable;
 import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.disposables.Disposables;
-import io.reactivex.functions.BiFunction;
-import io.reactivex.functions.Function;
-import io.reactivex.functions.Function3;
-import io.reactivex.observers.DisposableCompletableObserver;
-import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
-import kotlin.jvm.functions.Function11;
 
 /**
  * @author dewall
@@ -120,7 +112,8 @@ public class SignupActivity extends BaseInjectorActivity {
         baseApplicationComponent.inject(this);
     }
 
-    Boolean isValidUsername=true,isValidPassword=true,isValidEmail=true;
+    Boolean isValidUsername = false, isValidPassword = false, isValidEmail = false, isValidMatch = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -154,12 +147,6 @@ public class SignupActivity extends BaseInjectorActivity {
 
     @OnClick(R.id.activity_signup_register_button)
     protected void onRegisterAccountButtonClicked() {
-        // reset errors
-        this.usernameEditText.setError(null);
-        this.emailEditText.setError(null);
-        this.password1EditText.setError(null);
-        this.password2EditText.setError(null);
-        this.touCheckbox.setError(null);
 
         // We do not want to have dublicate registration processes.
         if (this.registerSubscription != null && !this.registerSubscription.isDisposed()) {
@@ -171,7 +158,6 @@ public class SignupActivity extends BaseInjectorActivity {
         final String username = usernameEditText.getText().toString().trim();
         final String email = emailEditText.getText().toString().trim();
         final String password = password1EditText.getText().toString();
-        final String password2 = password2EditText.getText().toString();
         // check if tou and privacy statement have been accepted.
         if (!touCheckbox.isChecked()) {
             touCheckbox.setError("some error");
@@ -180,11 +166,21 @@ public class SignupActivity extends BaseInjectorActivity {
 //        if (!mAcceptPrivacyCheckbox.isChecked()) {
 //            mAcceptPrivacyCheckbox.setError("some error");
 //        }
-        checkMatchpassword(password,password2);
 
-        if(!(isValidEmail && isValidPassword && isValidUsername)) {
+        if (!isValidUsername) {
+            usernameEditText.requestFocus();
+            return;
+        } else if (!isValidEmail) {
+            emailEditText.requestFocus();
+            return;
+        } else if (!isValidPassword) {
+            password1EditText.requestFocus();
+            return;
+        } else if (!isValidMatch) {
+            password2EditText.requestFocus();
             return;
         }
+
         // Check if an error occured.
         if (focusView != null) {
             // There was an error; don't attempt register and focus the first
@@ -339,162 +335,93 @@ public class SignupActivity extends BaseInjectorActivity {
     }
 
     // check for valid username
-     private  void usernameCheck(String username) {
-         if (username == null || username.isEmpty() || username.equals("")) {
-             usernameEditText.setError(getString(R.string.error_field_required));
-             isValidUsername = false;
-         } else if (username.length() < 6) {
-             usernameEditText.setError(getString(R.string.error_invalid_username));
-             isValidUsername = false;
-         } else {
-             isValidUsername = true;
-         }
-     }
+    private void usernameCheck(String username) {
+        if (username == null || username.isEmpty() || username.equals("")) {
+            usernameEditText.setError(getString(R.string.error_field_required));
+            isValidUsername = false;
+        } else if (username.length() < 6) {
+            usernameEditText.setError(getString(R.string.error_invalid_username));
+            isValidUsername = false;
+        } else {
+            isValidUsername = true;
+        }
+    }
 
     // check if the password confirm is empty
-      private void checkConfirmPassword(String password2) {
-          if (password2 == null || password2.isEmpty() || password2.equals("")) {
-              password2EditText.setError(getString(R.string.error_field_required));
-              isValidPassword = false;
-          } else {
-              isValidPassword = true;
-          }
-      }
+    private void checkConfirmPassword(String password2) {
+        if (password2 == null || password2.isEmpty() || password2.equals("")) {
+            password2EditText.setError(getString(R.string.error_field_required));
+            isValidMatch = false;
+        } else {
+            isValidMatch = true;
+        }
+    }
 
-      // check if passwords match
-      private void checkMatchpassword(String password,String password2) {
-          if (!password.equals(password2)) {
-              password1EditText.setError(getString(R.string.error_passwords_not_matching));
-              password1EditText.requestFocus();
-              isValidPassword = false;
-          } else {
-              isValidPassword = true;
-          }
-      }
+    // check if passwords match
+    private Boolean checkMatchpassword(String password, String password2) {
+        if (!password.equals(password2)) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    private void showMatchError(Boolean e) {
+        if (!e) {
+            password2EditText.setError(getString(R.string.error_passwords_not_matching));
+            password2EditText.requestFocus();
+            isValidMatch = false;
+        } else {
+            password2EditText.setError(null);
+            isValidMatch = true;
+        }
+    }
 
     // Check for a valid email address.
-     private  void checkValidEmail(String email) {
-         if (TextUtils.isEmpty(email)) {
-             emailEditText.setError(getString(R.string.error_field_required));
-             isValidEmail = false;
-         } else if (!email.matches("^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\" +
-                 ".[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$")) {
-             emailEditText.setError(getString(R.string.error_invalid_email));
-             isValidEmail = false;
-         } else {
-             isValidEmail = true;
-         }
-     }
+    private void checkValidEmail(String email) {
+        if (TextUtils.isEmpty(email)) {
+            emailEditText.setError(getString(R.string.error_field_required));
+            isValidEmail = false;
+        } else if (!email.matches("^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\" +
+                ".[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$")) {
+            emailEditText.setError(getString(R.string.error_invalid_email));
+            isValidEmail = false;
+        } else {
+            isValidEmail = true;
+        }
+    }
 
-     private void userNameObservable() {
-         Observable<String> observable = RxTextView.textChanges(usernameEditText).skip(1).debounce(600, TimeUnit.MILLISECONDS)
-                 .observeOn(AndroidSchedulers.mainThread())
-                 .subscribeOn(AndroidSchedulers.mainThread())
-                 .map(new Function<CharSequence, String>() {
-                     @Override
-                     public String apply(CharSequence charSequence) throws Exception {
-                         return charSequence.toString();
-                     }
-                 });
+    private void userNameObservable() {
+        Observable<String> observable = RxTextView.textChanges(usernameEditText).skipInitialValue().debounce(600, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .map(CharSequence::toString);
+        observable.subscribe(this::usernameCheck, LOG::error);
+    }
 
-         observable.subscribe(new DisposableObserver<String>() {
-             @Override
-             public void onNext(String s) {
-                 usernameCheck(s);
-             }
-
-             @Override
-             public void onError(Throwable e) {
-
-             }
-
-             @Override
-             public void onComplete() {
-             }
-         });
-     }
-
-     private void emailObservable() {
-        Observable<String> observable = RxTextView.textChanges(emailEditText).skip(1).debounce(600,TimeUnit.MILLISECONDS)
+    private void emailObservable() {
+        Observable<String> observable = RxTextView.textChanges(emailEditText).skip(1).debounce(600, TimeUnit.MILLISECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(AndroidSchedulers.mainThread())
-                .map(new Function<CharSequence, String>() {
-                    @Override
-                    public String apply(CharSequence charSequence) throws Exception {
-                        return charSequence.toString();
-                    }
-                });
-                observable.subscribe(new DisposableObserver<String>() {
-                    @Override
-                    public void onNext(String s) {
-                        checkValidEmail(s);
-                    }
+                .map(CharSequence::toString);
+        observable.subscribe(this::checkValidEmail, LOG::error);
+    }
 
-                    @Override
-                    public void onError(Throwable e) {
-
-                    }
-
-                    @Override
-                    public void onComplete() {
-
-                    }
-                });
-     }
-
-     private void passwordObservable() {
-        Observable<String> observable = RxTextView.textChanges(password1EditText).skip(1).debounce(600,TimeUnit.MILLISECONDS)
+    private void passwordObservable() {
+        Observable<String> observable = RxTextView.textChanges(password1EditText).skip(1).debounce(600, TimeUnit.MILLISECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(AndroidSchedulers.mainThread())
-                .map(new Function<CharSequence, String>() {
-                    @Override
-                    public String apply(CharSequence charSequence) throws Exception {
-                        return charSequence.toString();
-                    }
-                });
+                .map(CharSequence::toString);
+        observable.subscribe(this::passwordCheck, LOG::error);
 
-        Observable<String> observable1 = RxTextView.textChanges(password2EditText).skip(1).debounce(600,TimeUnit.MILLISECONDS)
+        Observable<String> observable1 = RxTextView.textChanges(password2EditText).skip(1).debounce(600, TimeUnit.MILLISECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(AndroidSchedulers.mainThread())
-                .map(new Function<CharSequence, String>() {
-                    @Override
-                    public String apply(CharSequence charSequence) throws Exception {
-                        return charSequence.toString();
-                    }
-                });
+                .map(CharSequence::toString);
+        observable.subscribe(this::checkConfirmPassword);
 
-        observable.subscribe(new DisposableObserver<String>() {
-            @Override
-            public void onNext(String s) {
-                passwordCheck(s);
-            }
-
-            @Override
-            public void onError(Throwable e) {
-
-            }
-
-            @Override
-            public void onComplete() {
-
-            }
+        Observable<Boolean> observable2 = Observable.combineLatest(observable, observable1, (s, s2) -> {
+            return checkMatchpassword(s, s2);
         });
-
-        observable1.subscribe(new DisposableObserver<String>() {
-            @Override
-            public void onNext(String s) {
-                checkConfirmPassword(s);
-            }
-
-            @Override
-            public void onError(Throwable e) {
-
-            }
-
-            @Override
-            public void onComplete() {
-
-            }
-        });
+        observable2.subscribe(this::showMatchError, LOG::error);
     }
 }
