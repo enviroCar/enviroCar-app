@@ -31,10 +31,15 @@
         android:gravity="center"
         android:background="@color/cario_color_primary" >
 
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="30dp"
-            android:src="@drawable/img_envirocar_logo_white" />
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/activity_settings_toolbar"
+            style="@style/ToolBarStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/blue_dark_cario"
+            android:orientation="vertical"
+            app:elevation="6dp"/>
+
 
     </LinearLayout>
 
