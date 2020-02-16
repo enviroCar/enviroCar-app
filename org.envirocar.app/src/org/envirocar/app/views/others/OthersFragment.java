@@ -177,6 +177,20 @@ public class OthersFragment extends BaseInjectorFragment {
 
     }
 
+    @OnClick(R.id.othersShareApp)
+    protected void shareApp() {
+        try {
+            Intent share = new Intent(Intent.ACTION_SEND);
+            share.setType("text/plain");
+            share.putExtra(Intent.EXTRA_SUBJECT,"enviroCar");
+            String shareBody = "Download app \n" + "https://play.google.com/store/apps/details?id=" + BuildConfig.APPLICATION_ID + "\n\n" ;
+            share.putExtra(Intent.EXTRA_TEXT,shareBody);
+            startActivity(Intent.createChooser(share,"Choose to share"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     /**
      * Return the current state of the permissions needed.
      */
