@@ -287,8 +287,8 @@ public class OthersFragment extends BaseInjectorFragment {
         RecordingService.stopService(getActivity());
 
         mMainThreadWorker.schedule(() -> {
-            System.runFinalizersOnExit(true);
-            System.exit(0);
+            android.os.Process.killProcess(android.os.Process.myUid());
+            getActivity().finishAndRemoveTask();
         }, 750, TimeUnit.MILLISECONDS);
     }
 
