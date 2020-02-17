@@ -66,7 +66,9 @@ import butterknife.OnClick;
 import io.reactivex.Observable;
 import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.observers.DisposableCompletableObserver;
 import io.reactivex.schedulers.Schedulers;
 
 /**
@@ -331,6 +333,11 @@ public class SignupActivity extends BaseInjectorActivity {
             isValidPassword = false;
         } else {
             isValidPassword = true;
+            final String password2 = password2EditText.getText().toString().trim();
+
+            if (!password2.equals("")  && !password2.isEmpty() && password2 != null) {
+                showMatchError(checkMatchpassword(password, password2));
+            }
         }
     }
 
@@ -353,13 +360,18 @@ public class SignupActivity extends BaseInjectorActivity {
             password2EditText.setError(getString(R.string.error_field_required));
             isValidMatch = false;
         } else {
-            isValidMatch = true;
+            final String password1 = password1EditText.getText().toString().trim();
+
+            if (!password1.equals("")  && !password1.isEmpty() && password1 != null) {
+                showMatchError(checkMatchpassword(password1, password2));
+            }
+
         }
     }
 
     // check if passwords match
     private Boolean checkMatchpassword(String password, String password2) {
-        return (password.equals(password2)) ;
+        return (password.equals(password2));
     }
 
     private void showMatchError(Boolean e) {
@@ -388,14 +400,18 @@ public class SignupActivity extends BaseInjectorActivity {
     }
 
     private void userNameObservable() {
-        Disposable observable = RxTextView.textChanges(usernameEditText).skipInitialValue().debounce(600, TimeUnit.MILLISECONDS)
+        RxTextView.textChanges(usernameEditText)
+                .skipInitialValue()
+                .debounce(600, TimeUnit.MILLISECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
                 .map(CharSequence::toString)
                 .subscribe(this::usernameCheck, LOG::error);
     }
 
     private void emailObservable() {
-        Disposable observable = RxTextView.textChanges(emailEditText).skip(1).debounce(600, TimeUnit.MILLISECONDS)
+        RxTextView.textChanges(emailEditText).
+                skipInitialValue()
+                .debounce(600, TimeUnit.MILLISECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(AndroidSchedulers.mainThread())
                 .map(CharSequence::toString)
@@ -403,20 +419,20 @@ public class SignupActivity extends BaseInjectorActivity {
     }
 
     private void passwordObservable() {
-        Observable<String> observable = RxTextView.textChanges(password1EditText).skip(1).debounce(600, TimeUnit.MILLISECONDS)
+        RxTextView.textChanges(password1EditText)
+                .skipInitialValue()
+                .debounce(600, TimeUnit.MILLISECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(AndroidSchedulers.mainThread())
-                .map(CharSequence::toString);
-        observable.subscribe(this::passwordCheck, LOG::error);
+                .map(CharSequence::toString)
+                .subscribe(this::passwordCheck, LOG::error);
 
-        Observable<String> observable1 = RxTextView.textChanges(password2EditText).skip(1).debounce(600, TimeUnit.MILLISECONDS)
+        RxTextView.textChanges(password2EditText)
+                .skipInitialValue()
+                .debounce(600, TimeUnit.MILLISECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(AndroidSchedulers.mainThread())
-                .map(CharSequence::toString);
-        observable1.subscribe(this::checkConfirmPassword);
-
-        Disposable observable2 = Observable.combineLatest(observable, observable1, (s, s2) -> {
-            return checkMatchpassword(s, s2);
-        }).subscribe(this::showMatchError, LOG::error);
+                .map(CharSequence::toString)
+                .subscribe(this::checkConfirmPassword);
     }
 }
