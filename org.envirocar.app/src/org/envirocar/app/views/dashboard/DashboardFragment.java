@@ -373,20 +373,25 @@ public class DashboardFragment extends BaseInjectorFragment {
 
         switch (this.modeSegmentedGroup.getCheckedRadioButtonId()) {
             case R.id.fragment_dashboard_obd_mode_button:
-                BluetoothDevice device = bluetoothHandler.getSelectedBluetoothDevice();
+                if (!this.gpsIndicator.isEnabled()
+                        && !this.carIndicator.isEnabled()
+                        && !this.bluetoothIndicator.isEnabled()
+                        && !this.obdIndicator.isEnabled()) {
+                    BluetoothDevice device = bluetoothHandler.getSelectedBluetoothDevice();
 
-                Intent obdRecordingIntent = new Intent(getActivity(), RecordingService.class);
-                this.connectingDialog = new MaterialDialog.Builder(getActivity())
-                        .iconRes(R.drawable.ic_bluetooth_searching_black_24dp)
-                        .title(R.string.dashboard_connecting)
-                        .content(String.format(getString(R.string.dashboard_connecting_find_template), device.getName()))
-                        .progress(true, 0)
-                        .negativeText(R.string.cancel)
-                        .cancelable(false)
-                        .onNegative((dialog, which) -> getActivity().stopService(obdRecordingIntent))
-                        .show();
+                    Intent obdRecordingIntent = new Intent(getActivity(), RecordingService.class);
+                    this.connectingDialog = new MaterialDialog.Builder(getActivity())
+                            .iconRes(R.drawable.ic_bluetooth_searching_black_24dp)
+                            .title(R.string.dashboard_connecting)
+                            .content(String.format(getString(R.string.dashboard_connecting_find_template), device.getName()))
+                            .progress(true, 0)
+                            .negativeText(R.string.cancel)
+                            .cancelable(false)
+                            .onNegative((dialog, which) -> getActivity().stopService(obdRecordingIntent))
+                            .show();
 
-                ContextCompat.startForegroundService(getActivity(), obdRecordingIntent);
+                    ContextCompat.startForegroundService(getActivity(), obdRecordingIntent);
+                }
                 break;
             case R.id.fragment_dashboard_gps_mode_button:
                 Intent gpsOnlyIntent = new Intent(getActivity(), RecordingService.class);
@@ -550,7 +555,7 @@ public class DashboardFragment extends BaseInjectorFragment {
             this.statisticsKnown = true;
             updateStatisticsVisibility(true);
             userTracksTextView.setText(String.format("%s", event.numTracks));
-            userDistanceTextView.setText(String.format("%s km", (int) event.totalDistance));
+            userDistanceTextView.setText(String.format("%s km", Math.round(event.totalDistance)));
             userDurationTextView.setText(formatTimeForDashboard(event.totalDuration));
         });
     }

@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -39,6 +39,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.jakewharton.rxbinding3.widget.RxTextView;
 
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
@@ -54,15 +55,20 @@ import org.envirocar.core.logging.Logger;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import io.reactivex.Observable;
 import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.observers.DisposableCompletableObserver;
 import io.reactivex.schedulers.Schedulers;
 
 /**
@@ -108,6 +114,8 @@ public class SignupActivity extends BaseInjectorActivity {
         baseApplicationComponent.inject(this);
     }
 
+    Boolean isValidUsername = false, isValidPassword = false, isValidEmail = false, isValidMatch = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -119,6 +127,10 @@ public class SignupActivity extends BaseInjectorActivity {
 
         // make terms of use and privacy statement clickable
         this.makeClickableTextLinks();
+        userNameObservable();
+        emailObservable();
+        passwordObservable();
+
     }
 
     @Override
@@ -137,66 +149,17 @@ public class SignupActivity extends BaseInjectorActivity {
 
     @OnClick(R.id.activity_signup_register_button)
     protected void onRegisterAccountButtonClicked() {
-        // reset errors
-        this.usernameEditText.setError(null);
-        this.emailEditText.setError(null);
-        this.password1EditText.setError(null);
-        this.password2EditText.setError(null);
-        this.touCheckbox.setError(null);
 
         // We do not want to have dublicate registration processes.
         if (this.registerSubscription != null && !this.registerSubscription.isDisposed()) {
             return;
         }
 
+        View focusView = null;
         // Get all the values of the edittexts
         final String username = usernameEditText.getText().toString().trim();
         final String email = emailEditText.getText().toString().trim();
         final String password = password1EditText.getText().toString();
-        final String password2 = password2EditText.getText().toString();
-
-        View focusView = null;
-
-        // check for valid passwords
-        if (password == null || password.isEmpty() || password.equals("")) {
-            password1EditText.setError(getString(R.string.error_field_required));
-            focusView = this.password1EditText;
-        } else if (password.length() < 6) {
-            password1EditText.setError(getString(R.string.error_invalid_password));
-            focusView = this.password1EditText;
-        }
-
-        // check if the password confirm is empty
-        if (password2 == null || password2.isEmpty() || password2.equals("")) {
-            password2EditText.setError(getString(R.string.error_field_required));
-            focusView = password2EditText;
-        }
-
-        // Check for a valid email address.
-        if (TextUtils.isEmpty(email)) {
-            emailEditText.setError(getString(R.string.error_field_required));
-            focusView = emailEditText;
-        } else if (!email.matches("^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\" +
-                ".[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$")) {
-            emailEditText.setError(getString(R.string.error_invalid_email));
-            focusView = emailEditText;
-        }
-
-        // check for valid username
-        if (username == null || username.isEmpty() || username.equals("")) {
-            usernameEditText.setError(getString(R.string.error_field_required));
-            focusView = usernameEditText;
-        } else if (username.length() < 6) {
-            usernameEditText.setError(getString(R.string.error_invalid_username));
-            focusView = usernameEditText;
-        }
-
-        // check if passwords match
-        if (!password.equals(password2)) {
-            usernameEditText.setError(getString(R.string.error_passwords_not_matching));
-            focusView = usernameEditText;
-        }
-
         // check if tou and privacy statement have been accepted.
         if (!touCheckbox.isChecked()) {
             touCheckbox.setError("some error");
@@ -205,6 +168,20 @@ public class SignupActivity extends BaseInjectorActivity {
 //        if (!mAcceptPrivacyCheckbox.isChecked()) {
 //            mAcceptPrivacyCheckbox.setError("some error");
 //        }
+
+        if (!isValidUsername) {
+            usernameEditText.requestFocus();
+            return;
+        } else if (!isValidEmail) {
+            emailEditText.requestFocus();
+            return;
+        } else if (!isValidPassword) {
+            password1EditText.requestFocus();
+            return;
+        } else if (!isValidMatch) {
+            password2EditText.requestFocus();
+            return;
+        }
 
         // Check if an error occured.
         if (focusView != null) {
@@ -339,4 +316,123 @@ public class SignupActivity extends BaseInjectorActivity {
                 .subscribe(ps -> LOG.info("Closed Dialog"));
     }
 
+    public static boolean isStrongPassword(String password) {
+        return Pattern.matches("^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{6,}$", password);
+    }
+
+    //check for valid password
+    private void passwordCheck(String password) {
+        if (password == null || password.isEmpty() || password.equals("")) {
+            password1EditText.setError(getString(R.string.error_field_required));
+            isValidPassword = false;
+        } else if (password.length() < 6) {
+            password1EditText.setError(getString(R.string.error_invalid_password));
+            isValidPassword = false;
+        } else if (isStrongPassword(password) == false) {
+            password1EditText.setError(getString(R.string.error_field_weak_password));
+            isValidPassword = false;
+        } else {
+            isValidPassword = true;
+            final String password2 = password2EditText.getText().toString().trim();
+
+            if (!password2.equals("")  && !password2.isEmpty() && password2 != null) {
+                showMatchError(checkMatchpassword(password, password2));
+            }
+        }
+    }
+
+    // check for valid username
+    private void usernameCheck(String username) {
+        if (username == null || username.isEmpty() || username.equals("")) {
+            usernameEditText.setError(getString(R.string.error_field_required));
+            isValidUsername = false;
+        } else if (username.length() < 6) {
+            usernameEditText.setError(getString(R.string.error_invalid_username));
+            isValidUsername = false;
+        } else {
+            isValidUsername = true;
+        }
+    }
+
+    // check if the password confirm is empty
+    private void checkConfirmPassword(String password2) {
+        if (password2 == null || password2.isEmpty() || password2.equals("")) {
+            password2EditText.setError(getString(R.string.error_field_required));
+            isValidMatch = false;
+        } else {
+            final String password1 = password1EditText.getText().toString().trim();
+
+            if (!password1.equals("")  && !password1.isEmpty() && password1 != null) {
+                showMatchError(checkMatchpassword(password1, password2));
+            }
+
+        }
+    }
+
+    // check if passwords match
+    private Boolean checkMatchpassword(String password, String password2) {
+        return (password.equals(password2));
+    }
+
+    private void showMatchError(Boolean e) {
+        if (!e) {
+            password2EditText.setError(getString(R.string.error_passwords_not_matching));
+            password2EditText.requestFocus();
+            isValidMatch = false;
+        } else {
+            password2EditText.setError(null);
+            isValidMatch = true;
+        }
+    }
+
+    // Check for a valid email address.
+    private void checkValidEmail(String email) {
+        if (TextUtils.isEmpty(email)) {
+            emailEditText.setError(getString(R.string.error_field_required));
+            isValidEmail = false;
+        } else if (!email.matches("^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\" +
+                ".[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$")) {
+            emailEditText.setError(getString(R.string.error_invalid_email));
+            isValidEmail = false;
+        } else {
+            isValidEmail = true;
+        }
+    }
+
+    private void userNameObservable() {
+        RxTextView.textChanges(usernameEditText)
+                .skipInitialValue()
+                .debounce(600, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .map(CharSequence::toString)
+                .subscribe(this::usernameCheck, LOG::error);
+    }
+
+    private void emailObservable() {
+        RxTextView.textChanges(emailEditText).
+                skipInitialValue()
+                .debounce(600, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(AndroidSchedulers.mainThread())
+                .map(CharSequence::toString)
+                .subscribe(this::checkValidEmail, LOG::error);
+    }
+
+    private void passwordObservable() {
+        RxTextView.textChanges(password1EditText)
+                .skipInitialValue()
+                .debounce(600, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(AndroidSchedulers.mainThread())
+                .map(CharSequence::toString)
+                .subscribe(this::passwordCheck, LOG::error);
+
+        RxTextView.textChanges(password2EditText)
+                .skipInitialValue()
+                .debounce(600, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(AndroidSchedulers.mainThread())
+                .map(CharSequence::toString)
+                .subscribe(this::checkConfirmPassword);
+    }
 }

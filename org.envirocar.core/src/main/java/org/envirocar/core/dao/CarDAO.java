@@ -18,7 +18,6 @@
  */
 package org.envirocar.core.dao;
 
-
 import android.security.keystore.UserNotAuthenticatedException;
 
 import org.envirocar.core.entity.Car;

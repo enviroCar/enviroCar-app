@@ -167,8 +167,15 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
             @Override
             public void onExportTrackClicked(Track track) {
                 LOG.info(String.format("onExportTrackClicked(%s)", track.getTrackID()));
-                track.updateMetadata(new TrackMetadata(Util.getVersionString(getActivity()),
-                        mUserManager.getUser().getTermsOfUseVersion()));
+                if  (mUserManager.getUser()!=null) {
+                    track.updateMetadata(new TrackMetadata(Util.getVersionString(getActivity()),
+                            mUserManager.getUser().getTermsOfUseVersion()));
+                }
+                else  {
+                    track.updateMetadata(new TrackMetadata(Util.getVersionString(getActivity()),
+                            null));
+
+                }
                 exportTrack(track);
             }
 

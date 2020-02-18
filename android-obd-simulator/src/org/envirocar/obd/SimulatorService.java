@@ -471,55 +471,49 @@ public class SimulatorService {
 		else if (s.startsWith("AT ST")) {
 			//timeout
 			rawData = "OK";
-		}
-		else if(s.startsWith("01 0D")) {
-			//Speed
-			rawData = "410D" + (23+random.nextInt(45));
-		}
-		else if (s.equals("01 10")) {
-			int bytethree = (1+random.nextInt(8));
-			int bytefour = (80+random.nextInt(19));
-			//MAF
-			rawData = "41100"+ bytethree+""+ bytefour;
-			lastMaf = (bytethree * 256 + bytefour) / 100.0f;
-		}
-		else if (s.equals("01 0B")) {
-			//Pressure
-			double press = getPressureFromLastMAFCalculation();
-			String tmp = Integer.toHexString((int) press);
-			if (tmp.length() == 1) tmp = "0"+tmp;
-			rawData = "410B" +tmp; 
-		}
-		else if (s.equals("01 0F")) {
-			//temp
-			double temp = getTemperatureFromLastMAFCalcuation();
-			String tmp = Integer.toHexString((int) (temp + 40));
-			if (tmp.length() == 1) tmp = "0"+tmp;
-			rawData = "410F" +tmp;
-		}
-		else if (s.equals("01 0C")) {
-			//rpm
-			int revols = getRPMFromLastMAFCalculation();
-			rawData = integerToByteString(revols);
-			if (rawData.length() != 8) {
-				Log.i("obd-sim", rawData);	
-			}
-			else {
-				rawData = "410C"+rawData.substring(4);
-			}
-		}
-		else if (s.equals("01 04")) {
-			//engine load
-			String val = integerToByteString(80+random.nextInt(140));
-			rawData = "4104" + val.substring(val.length()-2, val.length());
-		}
-		else {
-			String[] result = s.split(" ");
-			rawData = "";
-			for (String string : result) {
-				rawData += string;
-			}
-		}
+        } else if (s.startsWith("01 00")) {
+            rawData = "4100" + "000B0000"; // B0001
+        } else if (s.startsWith("01 0D")) {
+            //Speed
+            rawData = "410D" + (23 + random.nextInt(45));
+        } else if (s.equals("01 10")) {
+            int bytethree = (1 + random.nextInt(8));
+            int bytefour = (80 + random.nextInt(19));
+            //MAF
+            rawData = "41100" + bytethree + "" + bytefour;
+            lastMaf = (bytethree * 256 + bytefour) / 100.0f;
+        } else if (s.equals("01 0B")) {
+            //Pressure
+            double press = getPressureFromLastMAFCalculation();
+            String tmp = Integer.toHexString((int) press);
+            if (tmp.length() == 1) tmp = "0" + tmp;
+            rawData = "410B" + tmp;
+        } else if (s.equals("01 0F")) {
+            //temp
+            double temp = getTemperatureFromLastMAFCalcuation();
+            String tmp = Integer.toHexString((int) (temp + 40));
+            if (tmp.length() == 1) tmp = "0" + tmp;
+            rawData = "410F" + tmp;
+        } else if (s.equals("01 0C")) {
+            //rpm
+            int revols = getRPMFromLastMAFCalculation();
+            rawData = integerToByteString(revols);
+            if (rawData.length() != 8) {
+                Log.i("obd-sim", rawData);
+            } else {
+                rawData = "410C" + rawData.substring(4);
+            }
+        } else if (s.equals("01 04")) {
+            //engine load
+            String val = integerToByteString(80 + random.nextInt(140));
+            rawData = "4104" + val.substring(val.length() - 2, val.length());
+        } else {
+            String[] result = s.split(" ");
+            rawData = "";
+            for (String string : result) {
+                rawData += string;
+            }
+        }
 		
 		if (rawData !=null) {
 			String out = rawData.concat(">");

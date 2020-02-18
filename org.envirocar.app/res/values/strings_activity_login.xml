@@ -25,11 +25,12 @@
     <string name="error_invalid_password">This password is too short.</string>
     <string name="error_incorrect_password">This password is incorrect.</string>
     <string name="error_field_required">This field is required.</string>
-    
+    <string name="error_not_connected_to_network">Not connected to network</string>
     <string name="register_progress_signing_in">Registering&#8230;</string>
     <string name="error_passwords_not_matching">The passwords do not match.</string>
     <string name="error_invalid_username">This username is too short.</string>
-    
+    <string name="error_field_weak_password">Password must contain at least one uppercase letter ,one lowercase letter, one digit and one special character</string>
+
     <string name="error_username_already_in_use">This username is already in use.</string>
     <string name="error_email_already_in_use">This email is already in use.</string>
     <string name="error_host_not_found">Unable to communicate with the server.</string>
