@@ -200,7 +200,12 @@ public abstract class AbstractTrackListCardAdapter<E extends
             mTrackInteractionCallback.onTrackDetailsClicked(track, holder.mMapView);
         });
 
-        holder.cardView.setOnLongClickListener(view -> {
+        holder.cardViewLayout.setOnLongClickListener(view -> {
+            mTrackInteractionCallback.onLongPressedTrack(track);
+            return true;
+        });
+
+        holder.mInvisMapButton.setOnLongClickListener(view -> {
             mTrackInteractionCallback.onLongPressedTrack(track);
             return true;
         });
@@ -309,8 +314,8 @@ public abstract class AbstractTrackListCardAdapter<E extends
         protected MapView mMapView;
         @BindView(R.id.fragment_tracklist_cardlayout_invis_mapbutton)
         protected ImageButton mInvisMapButton;
-        @BindView(R.id.card_view)
-        protected CardView cardView;
+        @BindView(R.id.fragment_layout_card_view)
+        protected LinearLayout cardViewLayout;
 
         protected MapView.OnDidFailLoadingMapListener failLoadingMapListener;
 
