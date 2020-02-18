@@ -21,7 +21,7 @@
 -->
 <resources xmlns:tools="http://schemas.android.com/tools" xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <style name="Theme.Cario" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="Theme.Cario" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="actionBarItemBackground">@drawable/selectable_background_cario</item>
         <item name="popupMenuStyle">@style/PopupMenu.Cario</item>
         <item name="dropDownListViewStyle">@style/DropDownListView.Cario</item>
@@ -42,6 +42,7 @@
 
         <item name="alertDialogTheme">@style/DialogStyle</item>
     </style>
+
 
 
     <style name="ButtonStyle">

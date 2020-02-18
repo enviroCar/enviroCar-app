@@ -19,7 +19,12 @@
 
 -->
 <resources>
-    <string name="app_name">core</string>
+    <string name="app_name" translatable="false">core</string>
+
+    <!-- fuel type values -->
     <string name="fuel_type_gasoline">Gasoline</string>
     <string name="fuel_type_diesel">Diesel</string>
+    <string name="fuel_type_gas">Gas</string>
+    <string name="fuel_type_hybrid">Hybrid</string>
+    <string name="fuel_type_electric">Electric</string>
 </resources>

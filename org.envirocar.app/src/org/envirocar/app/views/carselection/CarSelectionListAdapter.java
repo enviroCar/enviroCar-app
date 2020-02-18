@@ -32,6 +32,7 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import org.envirocar.app.R;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.logging.Logger;
+import org.envirocar.core.utils.CarUtils;
 
 import java.util.List;
 
@@ -113,10 +114,8 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
         }
 
         // set the views
-        holder.mFirstLineText.setText(String.format("%s - %s", car.getManufacturer(), car.getModel()));
-        holder.mYearText.setText(Integer.toString(car.getConstructionYear()));
-        holder.mGasolineText.setText(mContext.getString(car.getFuelType().getStringResource()));
-        holder.mEngineText.setText(String.format("%s cm³", Integer.toString(car.getEngineDisplacement())));
+        holder.firstLine.setText(String.format("%s - %s", car.getManufacturer(), car.getModel()));
+        holder.secondLine.setText(CarUtils.carAttributesToString(car, getContext()));
 
         // If this car is the selected car, then set the radio button checked.
         if (mSelectedCar != null && mSelectedCar.equals(car)) {
@@ -219,17 +218,11 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
         protected final View mCoreView;
 
         @BindView(R.id.activity_car_selection_layout_carlist_entry_icon)
-        protected ImageView mIconView;
+        protected ImageView iconView;
         @BindView(R.id.activity_car_selection_layout_carlist_entry_firstline)
-        protected TextView mFirstLineText;
-
-        @BindView(R.id.activity_car_selection_layout_carlist_entry_engine)
-        protected TextView mEngineText;
-        @BindView(R.id.activity_car_selection_layout_carlist_entry_gasoline)
-        protected TextView mGasolineText;
-        @BindView(R.id.activity_car_selection_layout_carlist_entry_year)
-        protected TextView mYearText;
-
+        protected TextView firstLine;
+        @BindView(R.id.activity_car_selection_layout_carlist_entry_secondline)
+        protected TextView secondLine;
         @BindView(R.id.activity_car_selection_layout_carlist_entry_radio)
         protected RadioButton mRadioButton;
 

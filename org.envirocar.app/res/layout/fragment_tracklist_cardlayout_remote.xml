@@ -44,7 +44,7 @@
 
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/fragment_tracklist_cardlayout_toolbar"
-                style="@style/Widget.enviroCar.Toolbar"
+                style="@style/enviroCar.Toolbar"
                 android:layout_alignParentTop="true">
 
                 <TextView
@@ -96,13 +96,14 @@
 
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
                     android:id="@+id/fragment_tracklist_cardlayout_remote_downloadfab"
+                    style="@style/Widget.enviroCar.Fab"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="@dimen/spacing_small"
+                    android:backgroundTint="@color/blue_light_cario"
                     android:src="@drawable/ic_cloud_download_white_24dp"
-                    tools:borderWidth="0dp"
                     tools:elevation="12dp"
-                    tools:rippleColor="@color/fab_ripple"/>
+                    tools:rippleColor="@color/cario_color_primary_dark"/>
 
             </com.github.jorgecastilloprz.FABProgressCircle>
         </RelativeLayout>
