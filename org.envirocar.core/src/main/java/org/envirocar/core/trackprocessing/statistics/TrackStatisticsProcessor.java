@@ -37,6 +37,7 @@ import java.util.List;
 public class TrackStatisticsProcessor {
     private static final Logger LOG = Logger.getLogger(TrackStatisticsProcessor.class);
 
+
     protected ConsumptionAlgorithm consumptionAlgorithm;
 
     /**
@@ -124,14 +125,16 @@ public class TrackStatisticsProcessor {
         return consumptionPerHour * durationInMillis / (1000 * 60 * 60) / lengthOfTrack * 100;
     }
 
-    public double getGramsPerKm(double literPerHundredKm, Car.FuelType fuelType) throws
-            UnsupportedFuelTypeException {
-        if (fuelType.equals(Car.FuelType.GASOLINE)) {
-            return literPerHundredKm * 23.3;
-        } else if (fuelType.equals(Car.FuelType.DIESEL)) {
-            return literPerHundredKm * 26.4;
-        } else {
-            throw new UnsupportedFuelTypeException(fuelType);
+    public double getGramsPerKm(double literPerHundredKm, Car.FuelType fuelType) throws UnsupportedFuelTypeException {
+        switch (fuelType){
+            case GASOLINE:
+            case HYBRID:
+            case GAS:
+                return literPerHundredKm * 23.3;
+            case DIESEL:
+                return literPerHundredKm * 26.4;
+                default:
+                    throw new UnsupportedFuelTypeException(fuelType);
         }
     }
 }

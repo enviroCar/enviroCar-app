@@ -35,4 +35,10 @@
     <string name="car_selection_model">Modell</string>
     <string name="car_selection_construction_year">Herstellungsjahr</string>
     <string name="car_selection_engine_displacement">Hubraum (ccm³)</string>
+
+    <string name="car_selection_error_empty_input">Dieses Feld ist erforderlich.</string>
+    <string name="car_selection_error_invalid_input">Ungültige Eingabe</string>
+
+    <string name="car_selection_addcar_info">Bitte geben Sie die Details Ihres Fahrzeugs ein. Seien Sie dabei genau. Teile dieser Informationen sind insbesondere Wichtig zur Berechnung von geschätzten Werten wie z.B. Verbrauch.</string>
+
 </resources>

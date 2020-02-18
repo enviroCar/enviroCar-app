@@ -41,7 +41,7 @@
 
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/fragment_tracklist_cardlayout_toolbar"
-                style="@style/Widget.enviroCar.Toolbar">
+                style="@style/enviroCar.Toolbar">
 
                 <TextView
                     android:id="@+id/fragment_tracklist_cardlayout_toolbar_title"

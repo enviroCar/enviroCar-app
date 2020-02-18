@@ -51,14 +51,9 @@ public class CarUtils {
             if (carObject instanceof Car) {
                 return (Car) carObject;
             }
-        } catch (StreamCorruptedException e) {
-            logger.warn(e.getMessage(), e);
         } catch (IOException e) {
             logger.warn(e.getMessage(), e);
-        } catch (ClassNotFoundException e) {
-            logger.warn(e.getMessage(), e);
-            return null;
-        } catch (ClassCastException e) {
+        } catch (ClassNotFoundException | ClassCastException e) {
             logger.warn(e.getMessage(), e);
             return null;
         } finally {
@@ -89,13 +84,13 @@ public class CarUtils {
             out.flush();
             out.close();
 
-            String result = new String(out.toByteArray());
-            return result;
+            return new String(out.toByteArray());
         } catch (IOException e) {
             logger.warn(e.getMessage(), e);
         } finally {
             if (oos != null)
                 try {
+                    assert b64 != null;
                     b64.close();
                     oos.close();
                 } catch (IOException e) {
@@ -106,17 +101,19 @@ public class CarUtils {
     }
 
     public static String carToStringWithLinebreak(Car car, Context context) {
+        return String.format("%s - %s\n%s", car.getManufacturer(), car.getModel(), carAttributesToString(car, context));
+    }
+
+    public static String carAttributesToString(Car car, Context context){
         StringBuilder sb = new StringBuilder();
-        sb.append(car.getManufacturer());
-        sb.append(" - ");
-        sb.append(car.getModel());
-        sb.append("\n");
         sb.append(car.getConstructionYear());
         sb.append(", ");
+        if (car.getFuelType() != Car.FuelType.ELECTRIC) {
+            sb.append(car.getEngineDisplacement());
+            sb.append("cm³");
+            sb.append(", ");
+        }
         sb.append(context.getString(car.getFuelType().getStringResource()));
-        sb.append(", ");
-        sb.append(car.getEngineDisplacement());
-        sb.append("cm³");
         return sb.toString();
     }
 
