@@ -46,6 +46,7 @@
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/fragment_tracklist_cardlayout_toolbar"
                 style="@style/enviroCar.Toolbar"
+                android:layout_height="wrap_content"
                 android:layout_alignParentTop="true">
 
                 <TextView
