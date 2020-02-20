@@ -52,4 +52,6 @@ interface OnTrackInteractionCallback {
      * @param track the track to download.
      */
     void onDownloadTrackClicked(Track track, AbstractTrackListCardAdapter.TrackCardViewHolder holder);
+
+    void onLongPressedTrack(Track track);
 }
