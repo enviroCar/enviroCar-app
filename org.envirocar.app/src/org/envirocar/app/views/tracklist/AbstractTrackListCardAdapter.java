@@ -21,10 +21,12 @@ package org.envirocar.app.views.tracklist;
 import android.os.AsyncTask;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.jorgecastilloprz.FABProgressCircle;
@@ -197,6 +199,16 @@ public abstract class AbstractTrackListCardAdapter<E extends
             LOG.info("Clicked on the map. Navigate to the details activity");
             mTrackInteractionCallback.onTrackDetailsClicked(track, holder.mMapView);
         });
+
+        holder.cardViewLayout.setOnLongClickListener(view -> {
+            mTrackInteractionCallback.onLongPressedTrack(track);
+            return true;
+        });
+
+        holder.mInvisMapButton.setOnLongClickListener(view -> {
+            mTrackInteractionCallback.onLongPressedTrack(track);
+            return true;
+        });
     }
 
 
@@ -302,6 +314,8 @@ public abstract class AbstractTrackListCardAdapter<E extends
         protected MapView mMapView;
         @BindView(R.id.fragment_tracklist_cardlayout_invis_mapbutton)
         protected ImageButton mInvisMapButton;
+        @BindView(R.id.fragment_layout_card_view)
+        protected LinearLayout cardViewLayout;
 
         protected MapView.OnDidFailLoadingMapListener failLoadingMapListener;
 

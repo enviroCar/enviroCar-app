@@ -184,6 +184,11 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
                     .TrackCardViewHolder holder) {
                 // NOT REQUIRED
             }
+
+            @Override
+            public void onLongPressedTrack(Track track) {
+                createDeleteTrackDialog(track);
+            }
         });
     }
 
