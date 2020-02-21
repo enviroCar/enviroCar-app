@@ -24,7 +24,9 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -101,6 +103,21 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
         LOG.info("onResume()");
         super.onResume();
         loadDataset();
+
+        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                if(dy > 0){
+                    if(mFAB.isOrWillBeShown()){
+                        mFAB.hide();
+                    }
+                } else if (dy < 0){
+                    if(!mFAB.isOrWillBeShown())
+                        mFAB.show();
+                }
+            }
+        });
     }
 
     @Override
