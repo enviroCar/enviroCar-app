@@ -1,24 +1,25 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
 package org.envirocar.app.views.carselection;
 
 import android.content.Context;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,6 +33,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.android.material.card.MaterialCardView;
 
 import org.envirocar.app.R;
 import org.envirocar.app.exception.CacheEmptyException;
@@ -53,7 +55,7 @@ public class CarSelectionListAdapter extends RecyclerView.Adapter<CarSelectionLi
     @NonNull
     @Override
     public CarViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(mContext).inflate(R.layout.activity_car_selection_layout_carlist_entry,parent,false);
+        View view = LayoutInflater.from(mContext).inflate(R.layout.activity_car_selection_layout_carlist_entry, parent, false);
         return new CarViewHolder(view);
     }
 
@@ -63,7 +65,9 @@ public class CarSelectionListAdapter extends RecyclerView.Adapter<CarSelectionLi
         final Car car = mCars.get(position);
         // set the views
         holder.firstLine.setText(String.format("%s - %s", car.getManufacturer(), car.getModel()));
-        holder.secondLine.setText(CarUtils.carAttributesToString(car, mContext));
+        holder.year.setText(String.format("%s", car.getConstructionYear()));
+        holder.fuelType.setText(car.getFuelType().toString());
+        holder.engineDisplacement.setText(String.format("%s", car.getEngineDisplacement() + " cm\u00B3"));
 
         // If this car is the selected car, then set the radio button checked.
         if (mSelectedCar != null && mSelectedCar.equals(car)) {
@@ -88,12 +92,12 @@ public class CarSelectionListAdapter extends RecyclerView.Adapter<CarSelectionLi
         });
 
         // Set the onClickListener for a single row.
-        holder.relativeLayout.setOnClickListener(v -> new MaterialDialog.Builder(mContext)
+        holder.cardView.setOnClickListener(v -> new MaterialDialog.Builder(mContext)
                 .items(R.array.car_list_option_items)
                 .itemsCallback((materialDialog, view, i, charSequence) -> {
                     switch (i) {
                         case 0:
-                            if(car.equals(mSelectedCar))
+                            if (car.equals(mSelectedCar))
                                 return;
 
                             // Uncheck the currently checked car.
@@ -215,12 +219,16 @@ public class CarSelectionListAdapter extends RecyclerView.Adapter<CarSelectionLi
         protected ImageView iconView;
         @BindView(R.id.activity_car_selection_layout_carlist_entry_firstline)
         protected TextView firstLine;
-        @BindView(R.id.activity_car_selection_layout_carlist_entry_secondline)
-        protected TextView secondLine;
+        @BindView(R.id.activity_car_selection_layout_carlist_entry_year)
+        protected TextView year;
         @BindView(R.id.activity_car_selection_layout_carlist_entry_radio)
         protected RadioButton mRadioButton;
         @BindView(R.id.car_select_layout)
-        protected RelativeLayout relativeLayout;
+        protected MaterialCardView cardView;
+        @BindView(R.id.activity_car_selection_layout_carlist_entry_gasoline)
+        protected TextView fuelType;
+        @BindView(R.id.activity_car_selection_layout_carlist_entry_engine)
+        protected TextView engineDisplacement;
 
         /**
          * Constructor.
