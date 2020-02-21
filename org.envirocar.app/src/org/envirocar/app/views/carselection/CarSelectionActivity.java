@@ -23,6 +23,9 @@ import android.os.Bundle;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -77,7 +80,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
     protected FloatingActionButton mFab;
 
     @BindView(R.id.activity_car_selection_layout_carlist)
-    protected ListView mCarListView;
+    protected RecyclerView recyclerView;
 
     @Inject
     protected DAOProvider mDAOProvider;
@@ -229,7 +232,8 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
                         mCarListAdapter.removeCarItem(car);
                     }
                 });
-        mCarListView.setAdapter(mCarListAdapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(mCarListAdapter);
 
         loadingCarsSubscription = mCarManager.getAllDeserializedCars()
                 .flatMap(cars -> {
@@ -269,7 +273,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
                             if (!usedCars.contains(car))
                                 usedCars.add(car);
                         }
-                        mCarListAdapter.notifyDataSetInvalidated();
+                        mCarListAdapter.notifyDataSetChanged();
                     }
                 });
     }

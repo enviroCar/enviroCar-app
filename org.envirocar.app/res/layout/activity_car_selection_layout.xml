@@ -95,7 +95,7 @@
                         <!--android:visibility="invisible"/>-->
                 </LinearLayout>
 
-                <ListView
+                <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/activity_car_selection_layout_carlist"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
