@@ -18,17 +18,19 @@
  */
 package org.envirocar.app.views.login;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.app.ActivityOptionsCompat;
 
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -85,6 +87,8 @@ public class SigninActivity extends BaseInjectorActivity {
     protected ImageView logoImageView;
 
     private Disposable loginSubscription;
+    private View progressDialogLayout;
+    private TextView tvProgressDialog;
 
     @Override
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
@@ -99,6 +103,11 @@ public class SigninActivity extends BaseInjectorActivity {
 
         // inject the views
         ButterKnife.bind(this);
+
+        progressDialogLayout = LayoutInflater.from(getBaseContext())
+                .inflate(R.layout.progress_dialog,null);
+
+        tvProgressDialog = progressDialogLayout.findViewById(R.id.pd_text_view);
     }
 
     @Override
@@ -179,9 +188,9 @@ public class SigninActivity extends BaseInjectorActivity {
 
                     @Override
                     protected void onStart() {
-                        dialog = new MaterialDialog.Builder(SigninActivity.this)
-                                .title(R.string.activity_login_logging_in_dialog_title)
-                                .progress(true, 0)
+                        tvProgressDialog.setText("Logging in...");
+                        Dialog dialog = new MaterialDialog.Builder(SigninActivity.this)
+                                .customView(progressDialogLayout,false)
                                 .cancelable(false)
                                 .show();
                     }

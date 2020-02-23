@@ -18,6 +18,7 @@
  */
 package org.envirocar.app.views.login;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -30,6 +31,7 @@ import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.util.Pair;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
@@ -63,12 +65,9 @@ import javax.inject.Inject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import io.reactivex.Observable;
 import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.observers.DisposableCompletableObserver;
 import io.reactivex.schedulers.Schedulers;
 
 /**
@@ -108,6 +107,8 @@ public class SignupActivity extends BaseInjectorActivity {
     private final Scheduler.Worker mainThreadWorker = AndroidSchedulers.mainThread().createWorker();
     private final Scheduler.Worker backgroundWorker = Schedulers.newThread().createWorker();
     private Disposable registerSubscription;
+    private View progressDialogLayout;
+    private TextView tvProgressDialog;
 
     @Override
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
@@ -131,6 +132,10 @@ public class SignupActivity extends BaseInjectorActivity {
         emailObservable();
         passwordObservable();
 
+        progressDialogLayout = LayoutInflater.from(getBaseContext())
+                .inflate(R.layout.progress_dialog,null);
+
+        tvProgressDialog = progressDialogLayout.findViewById(R.id.pd_text_view);
     }
 
     @Override
@@ -200,9 +205,10 @@ public class SignupActivity extends BaseInjectorActivity {
     }
 
     private void register(String username, String email, String password) {
-        final MaterialDialog dialog = new MaterialDialog.Builder(SignupActivity.this)
-                .title(R.string.register_progress_signing_in)
-                .progress(true, 0)
+        tvProgressDialog.setText("Registering...");
+
+        Dialog dialog = new MaterialDialog.Builder(SignupActivity.this)
+                .customView(progressDialogLayout,false)
                 .cancelable(false)
                 .show();
 
