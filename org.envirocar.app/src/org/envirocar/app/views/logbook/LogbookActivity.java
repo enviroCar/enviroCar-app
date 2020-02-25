@@ -32,6 +32,7 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.preferences.CarPreferenceHandler;
+import org.envirocar.app.views.utils.DialogUtils;
 import org.envirocar.app.views.utils.ECAnimationUtils;
 import org.envirocar.core.UserManager;
 import org.envirocar.core.entity.Fueling;
@@ -131,12 +132,13 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long
                     id) {
                 final Fueling fueling = fuelings.get(position);
-                new MaterialDialog.Builder(LogbookActivity.this)
-                        .title(R.string.logbook_dialog_delete_fueling_header)
-                        .content(R.string.logbook_dialog_delete_fueling_content)
+                DialogUtils.createDefaultDialogBuilder(LogbookActivity.this,
+                        R.string.logbook_dialog_delete_fueling_header,
+                        R.drawable.ic_delete_white_24dp,
+                        R.string.logbook_dialog_delete_fueling_content)
                         .positiveText(R.string.menu_delete)
                         .negativeText(R.string.cancel)
-                        .onPositive((materialDialog, dialogAction) -> deleteFueling(fueling))
+                        .onPositive((materialDialog,dialogAction)-> deleteFueling(fueling))
                         .show();
                 return false;
             }
