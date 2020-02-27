@@ -56,7 +56,9 @@
                 android:gravity="center"
                 android:id="@+id/othersLogBook"
                 android:padding="8dp"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:background="@drawable/others_item_background"
+                >
 
                 <ImageView
                     android:layout_width="40dp"
@@ -75,7 +77,6 @@
                     android:layout_marginStart="15dp"
                     android:layout_marginEnd="10dp" />
 
-
             </LinearLayout>
 
             <View
@@ -90,7 +91,9 @@
                 android:gravity="center"
                 android:id="@+id/othersSettings"
                 android:padding="8dp"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:background="@drawable/others_item_background"
+                >
 
                 <ImageView
                     android:layout_width="40dp"
@@ -125,7 +128,9 @@
                 android:gravity="center"
                 android:id="@+id/othersHelp"
                 android:padding="8dp"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:background="@drawable/others_item_background"
+                >
 
                 <ImageView
                     android:layout_width="40dp"
@@ -158,7 +163,9 @@
                 android:gravity="center"
                 android:id="@+id/othersReportIssue"
                 android:padding="8dp"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:background="@drawable/others_item_background"
+                >
 
                 <ImageView
                     android:layout_width="40dp"
@@ -191,7 +198,9 @@
                 android:gravity="center"
                 android:id="@+id/othersRateUs"
                 android:padding="8dp"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:background="@drawable/others_item_background"
+                >
 
                 <ImageView
                     android:layout_width="40dp"
@@ -224,7 +233,9 @@
                 android:gravity="center"
                 android:id="@+id/othersLogOut"
                 android:padding="8dp"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:background="@drawable/others_item_background"
+                >
 
                 <ImageView
                     android:layout_width="40dp"
@@ -258,7 +269,9 @@
                 android:gravity="center"
                 android:id="@+id/othersCloseEnviroCar"
                 android:padding="8dp"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:background="@drawable/others_item_background"
+                >
 
                 <ImageView
                     android:layout_width="40dp"
