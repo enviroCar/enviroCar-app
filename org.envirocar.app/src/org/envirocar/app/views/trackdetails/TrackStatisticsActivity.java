@@ -25,12 +25,20 @@ import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatSeekBar;
 import androidx.appcompat.widget.Toolbar;
+
+import android.os.strictmode.WebViewMethodCalledOnWrongThreadViolation;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.SeekBar;
+import android.widget.Toast;
+
+import com.google.android.material.snackbar.Snackbar;
+import com.mapbox.mapboxsdk.style.layers.Property;
 
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
@@ -169,6 +177,9 @@ public class TrackStatisticsActivity extends BaseInjectorActivity {
         @BindView(R.id.activity_track_statistics_fragment_chart_preview)
         protected PreviewLineChartView mPreviewChart;
 
+        @BindView(R.id.activity_track_statistics_seekBar)
+        protected AppCompatSeekBar seekBar;
+
         private LineChartData mChartData;
         private LineChartData mPreviewChartData;
 
@@ -210,6 +221,31 @@ public class TrackStatisticsActivity extends BaseInjectorActivity {
                 }
             });
 
+            mPreviewChart.setOnLongClickListener(view -> {seekBar.setVisibility(View.VISIBLE);
+            return  true;
+            });
+
+            seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                    Viewport tempViewport = new Viewport(mChart.getMaximumViewport());
+                    i = ((int)Math.round(i/2))*2;
+                    seekBar.setProgress(i);
+                    float dx = tempViewport.width()/i*10;
+                    tempViewport.inset(dx, 0);
+                    mPreviewChart.setCurrentViewportWithAnimation(tempViewport);
+                }
+
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {
+
+                }
+
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {
+                    seekBar.setVisibility(View.GONE);
+                }
+            });
             return rootView;
         }
 
