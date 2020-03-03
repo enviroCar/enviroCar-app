@@ -96,7 +96,7 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/activity_car_selection_newcar_layout_manufacturer"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/car_selection_manufacturer"
@@ -117,7 +117,7 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/activity_car_selection_newcar_layout_model"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/car_selection_model"
@@ -130,6 +130,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:paddingLeft="12dp"
+                    android:paddingBottom="12dp"
+                    android:paddingTop="25dp"
                     android:imeOptions="actionNext"
                     android:maxLines="1"
                     android:singleLine="true"/>
@@ -138,7 +140,7 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/activity_car_selection_newcar_layout_constructionyear"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/car_selection_construction_year"
@@ -151,6 +153,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:paddingLeft="12dp"
+                    android:paddingBottom="12dp"
+                    android:paddingTop="25dp"
                     android:inputType="number"
                     android:imeOptions="actionNext"
                     android:maxLines="1"
@@ -160,7 +164,7 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/activity_car_selection_newcar_layout_fueltype"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/fuel_type"
@@ -180,7 +184,7 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/activity_car_selection_newcar_layout_engine"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/car_selection_engine_displacement"
@@ -193,6 +197,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:paddingLeft="12dp"
+                    android:paddingBottom="12dp"
+                    android:paddingTop="25dp"
                     android:inputType="number"
                     android:imeOptions="actionDone"
                     android:maxLines="1"
