@@ -48,8 +48,6 @@ dependencies {
     implementation rootProject.ext.rxBindingCore
     implementation rootProject.ext.rxBindingAppCompat
 
-    implementation 'pub.devrel:easypermissions:3.0.0'
-
     //implementation rootProject.ext.guava
 //    implementation(materialDialogs) {
 //        exclude module: 'appcompat-v7'
