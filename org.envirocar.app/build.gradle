@@ -22,7 +22,6 @@ dependencies {
     implementation rootProject.ext.butterKnife
     annotationProcessor rootProject.ext.daggerCompiler
     annotationProcessor rootProject.ext.butterknifeCompiler
-    //    implementation 'org.glassfish:javax.annotation:10.0-b28'
 
     // Google dependencies
     implementation rootProject.ext.gson
@@ -47,15 +46,6 @@ dependencies {
     // RxBindings
     implementation rootProject.ext.rxBindingCore
     implementation rootProject.ext.rxBindingAppCompat
-
-    //implementation rootProject.ext.guava
-//    implementation(materialDialogs) {
-//        exclude module: 'appcompat-v7'
-//        exclude module: 'recyclerview-v7'
-//        exclude module: 'support-annotations'
-//        transitive = true
-//    }
-
 
     // MapBox SDK
     implementation(rootProject.ext.mapbox) {
