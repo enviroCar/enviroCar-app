@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -24,6 +24,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
@@ -52,11 +53,16 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
+import java.util.concurrent.Callable;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.reactivex.Observable;
+import io.reactivex.Observer;
 import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * TODO JavaDoc
@@ -136,33 +142,45 @@ public abstract class AbstractTrackListCardAdapter<E extends
         initMapView(holder, track);
 
         // Set all the view parameters.
-        new AsyncTask<Void, Void, Void>() {
+        Observable.fromCallable(new Callable<String[]>() {
             @Override
-            protected Void doInBackground(Void... params) {
-                // Set the duration text.
-                try {
-                    String date = UTC_DATE_FORMATTER.format(new Date(
-                            track.getDuration()));
-                    mMainThreadWorker.schedule(() -> holder.mDuration.setText(date));
-
-                    // Set the tracklength parameter.
-
-                    double distanceOfTrack = track.getLength();
-                    String tracklength = String.format("%s km", DECIMAL_FORMATTER_TWO.format(
-                            distanceOfTrack));
-                    mMainThreadWorker.schedule(() -> holder.mDistance.setText(tracklength));
-
-                } catch (Exception e) {
-                    LOG.warn(e.getMessage(), e);
-                    mMainThreadWorker.schedule(() -> {
-                        holder.mDistance.setText("0 km");
-                        holder.mDuration.setText("0:00");
-                    });
-                }
-
-                return null;
+            public String[] call() throws Exception {
+                String[] trackData = new String[2];
+                double distanceOfTrack = track.getLength();
+                String tracklength = String.format("%s km", DECIMAL_FORMATTER_TWO.format(
+                        distanceOfTrack));
+                String date = UTC_DATE_FORMATTER.format(new Date(
+                        track.getDuration()));
+                trackData[0] = date;
+                trackData[1] = tracklength;
+                return trackData;
             }
-        }.execute();
+        }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<String[]>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(String[] strings) {
+                        holder.mDistance.setText(strings[1]);
+                        holder.mDuration.setText(strings[0]);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        LOG.warn(e.getMessage(), e);
+                        holder.mDistance.setText("");
+                        holder.mDuration.setText("");
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        LOG.info("Successful");
+                    }
+                });
 
         // if the menu is not already inflated, then..
         if (!holder.mToolbar.getMenu().hasVisibleItems()) {
