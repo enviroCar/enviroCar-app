@@ -209,7 +209,7 @@ public class OBDAutoRecordingStrategy implements AutoRecordingStrategy {
                         callback.onRecordingTypeConditionsMet();
                     }
                 } catch (Exception e) {
-                    LOG.error(e);
+                    LOG.error(e.getMessage());
                 }
             } else {
                 LOG.error("Preconditions are not satisfied.");
@@ -276,7 +276,6 @@ public class OBDAutoRecordingStrategy implements AutoRecordingStrategy {
                 LOG.info("Successful connected to device");
                 return true;
             } catch (Exception e) {
-                LOG.info("Trying fallback socket");
                 socket = new FallbackBluetoothSocket(socket.getUnderlyingSocket());
                 socket.connect();
                 LOG.info("Successful connected to device with SocketWrapper");
