@@ -20,6 +20,7 @@ package org.envirocar.app.views.tracklist;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.Nullable;
@@ -177,6 +178,9 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<T
         if (mUserManager.isLoggedIn() && !tracksLoaded) {
             tracksLoaded = true;
             new LoadRemoteTracksTask().execute();
+        }
+        if (tracksLoaded && mUserManager.isLoggedIn()) {
+            updateView();
         }
     }
 
