@@ -226,36 +226,6 @@ public class OBDAutoRecordingStrategy implements AutoRecordingStrategy {
         }
 
         this.detectionDisposable = this.scheduler.schedule(this.autoconnectRunnable);
-
-//        this.detectionDisposable = this.scheduler.schedule(() -> {
-//            if (preconditionsFulfilled()) {
-//
-//            } else {
-//                LOG.error("Preconditions are not satisfied.");
-//            }
-//
-//            detectionDisposable = scheduler.schedule(this);
-//
-//
-//            Observable.just(preconditionsFulfilled())
-//                    .map(preconditionsFulfilled -> {
-//                        LOG.info("trying to connect");
-//                        if (!preconditionsFulfilled) {
-//                            throw new RuntimeException("Preconditions are not satisfied");
-//                        }
-//                        return preconditionsFulfilled;
-//                    })
-//                    .map(aLong -> bluetoothHandler.getSelectedBluetoothDevice())
-//                    .map(this::tryDirectConnection)
-//                    .retryWhen(throwableObservable -> throwableObservable.flatMap(error -> Observable.timer(discoveryInterval, TimeUnit.SECONDS)))
-//                    .doOnNext(aBoolean -> {
-//                        if (aBoolean) {
-//                            callback.onRecordingTypeConditionsMet();
-//                        }
-//                    })
-//                    .doOnError(LOG::error)
-//                    .subscribe();
-//        }, discoveryInterval, TimeUnit.SECONDS);
     }
 
     // Alternative approach compared to discovery. OBDLink unfortunately does not support to be discovered by default
