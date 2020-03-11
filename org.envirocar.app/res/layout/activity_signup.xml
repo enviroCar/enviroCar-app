@@ -96,6 +96,7 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/activity_signup_password_1_layout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="0dp"
             android:layout_height="40dp"
             android:layout_marginTop="24dp"
@@ -106,7 +107,7 @@
             app:layout_constraintStart_toStartOf="@id/activity_signup_guideline_left"
             app:layout_constraintTop_toBottomOf="@+id/activity_signup_email_input">
 
-            <EditText
+            <androidx.appcompat.widget.AppCompatEditText
                 android:id="@+id/activity_signup_password_1"
                 style="@style/envirocar.login.edittext"
                 android:layout_width="match_parent"
@@ -119,6 +120,7 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/activity_signup_password_2_layout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="0dp"
             android:layout_height="40dp"
             android:layout_marginTop="24dp"
@@ -129,7 +131,7 @@
             app:layout_constraintStart_toStartOf="@id/activity_signup_guideline_left"
             app:layout_constraintTop_toBottomOf="@+id/activity_signup_password_1_layout">
 
-            <EditText
+            <androidx.appcompat.widget.AppCompatEditText
                 android:id="@+id/activity_signup_password_2"
                 style="@style/envirocar.login.edittext"
                 android:layout_width="match_parent"
