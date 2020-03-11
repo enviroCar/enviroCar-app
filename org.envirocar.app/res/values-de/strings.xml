@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
 
-    Copyright (C) 2013 - 2019 the enviroCar community
+    Copyright (C) 2013 - 2020 the enviroCar community
 
     This file is part of the enviroCar app.
 
@@ -29,7 +29,7 @@
     <string name="login">Anmelden</string>
     <string name="sign_in">Anmeldung</string>
     <string name="sign_up">Registrierung</string>
-    <string name="email">E-Mail</string>
+    <string name="email">EMail</string>
 
 
     <string name="login_register">Einloggen/Registrieren</string>
@@ -89,10 +89,10 @@
     <string name="report_issue_text">
         Zeitstempel werden automatisch in die Protokolle aufgenommen. Das Senden von Berichten an uns hilft uns,
         unerwartetes Verhalten oder Abstürze zu reproduzieren. Das macht enviroCar besser und stabiler.
-        Klicken Sie auf die Schaltfläche Senden unten, um diesen Bericht per E-Mail an uns zu senden.</string>
+        Klicken Sie auf die Schaltfläche Senden unten, um diesen Bericht per EMail an uns zu senden.</string>
     <string name="report_issue_bottom_text">Diese Funktion verwendet die Standardeinstellung \"Senden an\".
-        Wenn Sie es mit Ihrem E-Mail-Client aufrufen, können Sie den Bericht ganz einfach per E-Mail versenden.
-        Wenn Sie keinen E-Mail-Client installiert haben, können Sie die Protokolldatei auf einem PC speichern,
+        Wenn Sie es mit Ihrem EMail-Client aufrufen, können Sie den Bericht ganz einfach per EMail versenden.
+        Wenn Sie keinen EMail-Client installiert haben, können Sie die Protokolldatei auf einem PC speichern,
         z.B. über Bluetooth oder USB. \n\nIn solchen Fällen bitten wir Sie, das Berichtspaket manuell einzusenden.
         Sie werden an den folgenden Stellen aufbewahrt:</string>
     <string name="report_issue_desc_text">Eine detailliertere Beschreibung</string>

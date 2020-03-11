@@ -1,6 +1,6 @@
 <!--
 
-    Copyright (C) 2013 - 2019 the enviroCar community
+    Copyright (C) 2013 - 2020 the enviroCar community
 
     This file is part of the enviroCar app.
 
@@ -38,14 +38,14 @@
     <string name="activity_login_logout_progress_dialog_content">Deleting all local data and copies of uploaded tracks.</string>
     <string name="activity_login_logging_in_dialog_title">Logging in...</string>
 
-    <string name="not_yet_registered_question">You do not have an account, yet?</string>
+    <string name="not_yet_registered_question">Do you do not have an account yet?</string>
     <string name="not_yet_registered_register">Register here!</string>
 
-    <string name="already_registered_question">You already have an account?</string>
+    <string name="already_registered_question">Do you already have an account?</string>
     <string name="already_registered_sign_in">Sign in here!</string>
 
-    <string name="login_mail_not_confirmed_dialog_title">Email Confirmation Required</string>
-    <string name="login_mail_not_confirmed_dialog_content">Your Email account has not been confirmed yet. To use the full functionality of enviroCar, please log into your email account and confirm your email address.</string>
+    <string name="login_mail_not_confirmed_dialog_title">Email confirmation required</string>
+    <string name="login_mail_not_confirmed_dialog_content">Your email account has not been confirmed yet. To use the full functionality of enviroCar, please log into your email account and confirm your email address.</string>
 
     <string name="register_success_dialog_title">You are just one step away...</string>
     <string name="register_success_dialog_content">You are just one step away from activating your account on enviroCar. Please check your mails in order to complete the registration.</string>

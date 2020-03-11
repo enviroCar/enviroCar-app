@@ -41,18 +41,18 @@
     <string name="activity_login_logout_progress_dialog_content">Lösche alle lokal gespeicherten Kopien von hochgeladenen Fahrten.</string>
     <string name="activity_login_logging_in_dialog_title">Logge ein...</string>
 
-    <string name="already_registered_question">Du hast bereits ein Konto?</string>
+    <string name="already_registered_question">Sie haben bereits ein Konto?</string>
     <string name="already_registered_sign_in">Melden Sie sich hier an!</string>
 
-    <string name="not_yet_registered_question">Du hast noch keinen Account?</string>
+    <string name="not_yet_registered_question">Sie haben noch keinen Account?</string>
     <string name="not_yet_registered_register">Hier registrieren!</string>
 
 
-    <string name="login_mail_not_confirmed_dialog_title">E-Mail-Bestätigung erforderlich</string>
-    <string name="login_mail_not_confirmed_dialog_content">Dein E-Mail-Konto wurde noch nicht bestätigt. Um die volle Funktionalität von enviroCar zu nutzen, loggen Sie sich bitte in Ihr E-Mail-Konto ein und bestätigen Sie Ihre E-Mail-Adresse.</string>
+    <string name="login_mail_not_confirmed_dialog_title">EMail-Bestätigung erforderlich</string>
+    <string name="login_mail_not_confirmed_dialog_content">Dein EMail-Konto wurde noch nicht bestätigt. Um die volle Funktionalität von enviroCar zu nutzen, loggen Sie sich bitte in Ihr EMail-Konto ein und bestätigen Sie Ihre EMail-Adresse.</string>
 
-    <string name="register_success_dialog_title">Du bist nur einen Schritt entfernt.....</string>
-    <string name="register_success_dialog_content">Sie sind nur einen Schritt davon entfernt, Ihr Konto bei enviroCar zu aktivieren. Bitte überprüfen Sie Ihre Mails, um die Registrierung abzuschließen.</string>
+    <string name="register_success_dialog_title">Sie sind nur einen Schritt entfernt.....</string>
+    <string name="register_success_dialog_content">Sie sind nur einen Schritt davon entfernt, Ihr Konto bei enviroCar zu aktivieren. Bitte überprüfen Sie Ihre EMails, um die Registrierung abzuschließen.</string>
 
     <string name="register_acknowledge_text">Ich stimme den Allgemeinen Nutzungsbedingungen von enviroCar zu. Die Bestimmungen zu Datenschutz habe ich zur Kenntnis genommen.</string>
     <string name="privacy_statement">Datenschutz</string>
