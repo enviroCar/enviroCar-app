@@ -57,4 +57,6 @@
     <string name="register_acknowledge_text">Ich stimme den Allgemeinen Nutzungsbedingungen von enviroCar zu. Die Bestimmungen zu Datenschutz habe ich zur Kenntnis genommen.</string>
     <string name="privacy_statement">Datenschutz</string>
     <string name="terms_and_conditions">Nutzungsbedingungen</string>
+    <string name="signup_acknowledge_tou_text">Ich stimme den Allgemeinen Nutzungsbedingungen von enviroCar zu.</string>
+    <string name="signup_acknowledge_ps_text">Die Bestimmungen zu Datenschutz habe ich zur Kenntnis genommen.</string>
 </resources>

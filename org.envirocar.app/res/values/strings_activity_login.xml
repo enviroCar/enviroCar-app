@@ -54,4 +54,6 @@
     <string name="register_acknowledge_text">I acknowledge I have read and agree to enviroCar\'s Terms and Conditions and enviroCar\'s Privacy Policy</string>
     <string name="privacy_statement">Privacy Statement</string>
     <string name="terms_and_conditions">Terms and Conditions</string>
+    <string name="signup_acknowledge_tou_text">I acknowledge I have read and agree to enviroCar\'s Terms and Conditions</string>
+    <string name="signup_acknowledge_ps_text">I have taken note of the provisions on data protection.</string>
 </resources>

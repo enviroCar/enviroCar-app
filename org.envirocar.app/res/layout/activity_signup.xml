@@ -153,13 +153,13 @@
             android:id="@+id/activity_signup_tou_text"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="28dp"
-            android:text="@string/register_acknowledge_text"
+            android:text="@string/signup_acknowledge_tou_text"
             android:textColor="@color/white_cario"
             android:textColorLink="@color/blue_light_cario"
             app:layout_constraintEnd_toEndOf="@id/activity_signup_guideline_right"
             app:layout_constraintStart_toEndOf="@id/activity_signup_tou_checkbox"
-            app:layout_constraintTop_toBottomOf="@+id/activity_signup_password_2_layout" />
+            app:layout_constraintBottom_toTopOf="@id/activity_signup_tou_checkbox"
+            app:layout_constraintTop_toBottomOf="@+id/activity_signup_tou_checkbox" />
 
         <CheckBox
             android:id="@+id/activity_signup_ps_checkbox"
@@ -174,13 +174,13 @@
             android:id="@+id/activity_signup_ps_text"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:text="@string/register_acknowledge_text"
+            android:text="@string/signup_acknowledge_ps_text"
             android:textColor="@color/white_cario"
             android:textColorLink="@color/blue_light_cario"
             app:layout_constraintEnd_toEndOf="@id/activity_signup_guideline_right"
-            app:layout_constraintStart_toEndOf="@id/activity_signup_tou_checkbox"
-            app:layout_constraintTop_toBottomOf="@+id/activity_signup_tou_text" />
+            app:layout_constraintStart_toEndOf="@id/activity_signup_ps_checkbox"
+            app:layout_constraintTop_toBottomOf="@+id/activity_signup_ps_checkbox"
+            app:layout_constraintBottom_toTopOf="@+id/activity_signup_ps_checkbox"/>
 
         <androidx.cardview.widget.CardView
             android:id="@+id/activity_signup_register_button"
