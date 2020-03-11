@@ -18,7 +18,6 @@
  */
 package org.envirocar.app.views;
 
-import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -60,8 +59,6 @@ import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.utils.ServiceUtils;
 
-import java.util.List;
-
 import javax.inject.Inject;
 
 import butterknife.BindView;
@@ -70,19 +67,15 @@ import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.observers.DisposableObserver;
-import pub.devrel.easypermissions.AfterPermissionGranted;
-import pub.devrel.easypermissions.EasyPermissions;
-import pub.devrel.easypermissions.PermissionRequest;
 
 /**
  * @authro dewall
  */
-public class BaseMainActivity extends BaseInjectorActivity implements EasyPermissions.PermissionCallbacks {
+public class BaseMainActivity extends BaseInjectorActivity {
     private static final Logger LOGGER = Logger.getLogger(BaseMainActivity.class);
 
     private static final String TROUBLESHOOTING_TAG = "TROUBLESHOOTING";
-    private static final String[] LOCATION_AND_WRITE = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.WRITE_EXTERNAL_STORAGE};
-    private static final int RC_LOCATION_AND_WRITE_PERM = 124;
+
     private FragmentStatePagerAdapter fragmentStatePagerAdapter;
     private MenuItem prevMenuItem;
 
@@ -216,12 +209,6 @@ public class BaseMainActivity extends BaseInjectorActivity implements EasyPermis
         registerReceiver(errorInformationReceiver, new IntentFilter(TroubleshootingFragment.INTENT));
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        checkPermissions();
-    }
-
     private DisposableObserver<Boolean> handleTermsOfUseValidation() {
         return new DisposableObserver<Boolean>() {
             @Override
@@ -274,13 +261,6 @@ public class BaseMainActivity extends BaseInjectorActivity implements EasyPermis
             subscriptions.dispose();
         }
     }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
-    }
-
 
     private void addPreferenceSubscriptions() {
         // Keep screen active setting;
@@ -347,30 +327,6 @@ public class BaseMainActivity extends BaseInjectorActivity implements EasyPermis
 
     private void showSnackbar(String info) {
         Snackbar.make(navigationBottomBar, info, Snackbar.LENGTH_LONG).show();
-    }
-
-
-    @AfterPermissionGranted(RC_LOCATION_AND_WRITE_PERM)
-    public void checkPermissions() {
-        if (EasyPermissions.hasPermissions(this, LOCATION_AND_WRITE)) {
-            LOGGER.info("Application has location and write permissions!");
-        } else {
-            EasyPermissions.requestPermissions(
-                    new PermissionRequest.Builder(this, RC_LOCATION_AND_WRITE_PERM, LOCATION_AND_WRITE)
-                            .setRationale(R.string.permissions_request_dialog)
-                            .setPositiveButtonText(R.string.ok)
-                            .build());
-        }
-    }
-
-    @Override
-    public void onPermissionsGranted(int requestCode, @NonNull List<String> perms) {
-        LOGGER.info("Permission Granted: " + requestCode + ": " + perms.size());
-    }
-
-    @Override
-    public void onPermissionsDenied(int requestCode, @NonNull List<String> perms) {
-        LOGGER.info("Permission Denied: " + requestCode + ": " + perms.size());
     }
 
     private class PageSlider extends FragmentStatePagerAdapter {

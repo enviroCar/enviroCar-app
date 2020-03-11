@@ -46,18 +46,17 @@ public class LocalFileHandler implements Handler {
 	public static File effectiveFile;
 
 	static {
-		try {
-			effectiveFile = Util.createFileOnExternalStorage(LOCAL_LOG_FILE);
-		} catch (IOException e) {
-			LOG.warn(e.getMessage(), e);
-		}
+//		try {
+//			effectiveFile = Util.createFileOnExternalStorage(LOCAL_LOG_FILE);
+//		} catch (IOException e) {
+//			LOG.warn(e.getMessage(), e);
+//		}
 		java.util.logging.Logger rootLogger = LogManager.getLogManager().getLogger("");
 		java.util.logging.Handler[] handlers = rootLogger.getHandlers();
 		for (java.util.logging.Handler handler : handlers) {
 			rootLogger.removeHandler(handler);
 		}
 		LogManager.getLogManager().getLogger("").addHandler(new AndroidJULHandler());
-		
 	}
 
 	
@@ -65,6 +64,14 @@ public class LocalFileHandler implements Handler {
 
 	public LocalFileHandler() throws IOException {
 		this.logger = java.util.logging.Logger.getLogger("org.envirocar.app");
+		String finalPath = ensureFileIsAvailable();
+		this.logger.setLevel(Level.ALL);
+		this.logger.addHandler(createHandler(finalPath));
+	}
+
+	public LocalFileHandler(String path) throws IOException {
+		this.logger = java.util.logging.Logger.getLogger("org.envirocar.app");
+		effectiveFile = Util.createFileOnInternalStorage(path, LOCAL_LOG_FILE);
 		String finalPath = ensureFileIsAvailable();
 		this.logger.setLevel(Level.ALL);
 		this.logger.addHandler(createHandler(finalPath));

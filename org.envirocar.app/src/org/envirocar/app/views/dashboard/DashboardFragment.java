@@ -1,26 +1,28 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
 package org.envirocar.app.views.dashboard;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
@@ -41,6 +43,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -50,6 +53,7 @@ import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.content.ContextCompat;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.jakewharton.rxbinding3.appcompat.RxToolbar;
 import com.squareup.otto.Subscribe;
@@ -105,6 +109,8 @@ import io.reactivex.schedulers.Schedulers;
  */
 public class DashboardFragment extends BaseInjectorFragment {
     private static final Logger LOG = Logger.getLogger(DashboardFragment.class);
+
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1203;
 
     // View Injections
     @BindView(R.id.fragment_dashboard_toolbar)
@@ -223,12 +229,6 @@ public class DashboardFragment extends BaseInjectorFragment {
         RxToolbar.itemClicks(this.toolbar).subscribe(this::onToolbarItemClicked);
 
         //
-//        PermissionUtils.requestLocationPermissionIfRequired(getActivity())
-//                .doOnComplete(() -> LOG.info("Accepted"))
-//                .doOnError(LOG::error)
-//                .subscribe();
-
-        //
         this.updateUserLogin(userHandler.getUser());
 
         // init the text size synchronization
@@ -247,6 +247,24 @@ public class DashboardFragment extends BaseInjectorFragment {
     public void onResume() {
         super.onResume();
         this.updateStatisticsVisibility(this.statisticsKnown);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case LOCATION_PERMISSION_REQUEST_CODE: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                    LOG.info("Location permission has been granted");
+                    Snackbar.make(getView(), "Location Permission granted.",
+                            BaseTransientBottomBar.LENGTH_SHORT).show();
+                    onStartTrackButtonClicked();
+                } else {
+                    LOG.info("Location permission has been denied");
+                    Snackbar.make(getView(), "Location Permission denied.",
+                            BaseTransientBottomBar.LENGTH_LONG).show();
+                }
+            }
+        }
     }
 
     private void onToolbarItemClicked(MenuItem menuItem) {
@@ -365,39 +383,42 @@ public class DashboardFragment extends BaseInjectorFragment {
     @OnClick(R.id.fragment_dashboard_start_track_button)
     protected void onStartTrackButtonClicked() {
         LOG.info("Clicked on Start Track Button");
-        if (RecordingService.RECORDING_STATE == RecordingState.RECORDING_RUNNING){
+        if (RecordingService.RECORDING_STATE == RecordingState.RECORDING_RUNNING) {
             RecordingScreenActivity.navigate(getContext());
             return;
-        }
+        } else if (!PermissionUtils.hasLocationPermission(getContext())) {
+            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    LOCATION_PERMISSION_REQUEST_CODE);
+        } else {
+            switch (this.modeSegmentedGroup.getCheckedRadioButtonId()) {
+                case R.id.fragment_dashboard_obd_mode_button:
+                    if (!this.gpsIndicator.isEnabled()
+                            && !this.carIndicator.isEnabled()
+                            && !this.bluetoothIndicator.isEnabled()
+                            && !this.obdIndicator.isEnabled()) {
+                        BluetoothDevice device = bluetoothHandler.getSelectedBluetoothDevice();
 
-        switch (this.modeSegmentedGroup.getCheckedRadioButtonId()) {
-            case R.id.fragment_dashboard_obd_mode_button:
-                if (!this.gpsIndicator.isEnabled()
-                        && !this.carIndicator.isEnabled()
-                        && !this.bluetoothIndicator.isEnabled()
-                        && !this.obdIndicator.isEnabled()) {
-                    BluetoothDevice device = bluetoothHandler.getSelectedBluetoothDevice();
+                        Intent obdRecordingIntent = new Intent(getActivity(), RecordingService.class);
+                        this.connectingDialog = new MaterialDialog.Builder(getActivity())
+                                .iconRes(R.drawable.ic_bluetooth_searching_black_24dp)
+                                .title(R.string.dashboard_connecting)
+                                .content(String.format(getString(R.string.dashboard_connecting_find_template), device.getName()))
+                                .progress(true, 0)
+                                .negativeText(R.string.cancel)
+                                .cancelable(false)
+                                .onNegative((dialog, which) -> getActivity().stopService(obdRecordingIntent))
+                                .show();
 
-                    Intent obdRecordingIntent = new Intent(getActivity(), RecordingService.class);
-                    this.connectingDialog = new MaterialDialog.Builder(getActivity())
-                            .iconRes(R.drawable.ic_bluetooth_searching_black_24dp)
-                            .title(R.string.dashboard_connecting)
-                            .content(String.format(getString(R.string.dashboard_connecting_find_template), device.getName()))
-                            .progress(true, 0)
-                            .negativeText(R.string.cancel)
-                            .cancelable(false)
-                            .onNegative((dialog, which) -> getActivity().stopService(obdRecordingIntent))
-                            .show();
-
-                    ContextCompat.startForegroundService(getActivity(), obdRecordingIntent);
-                }
-                break;
-            case R.id.fragment_dashboard_gps_mode_button:
-                Intent gpsOnlyIntent = new Intent(getActivity(), RecordingService.class);
-                ContextCompat.startForegroundService(getActivity(), gpsOnlyIntent);
-                break;
-            default:
-                break;
+                        ContextCompat.startForegroundService(getActivity(), obdRecordingIntent);
+                    }
+                    break;
+                case R.id.fragment_dashboard_gps_mode_button:
+                    Intent gpsOnlyIntent = new Intent(getActivity(), RecordingService.class);
+                    ContextCompat.startForegroundService(getActivity(), gpsOnlyIntent);
+                    break;
+                default:
+                    break;
+            }
         }
     }
 
@@ -450,9 +471,9 @@ public class DashboardFragment extends BaseInjectorFragment {
     }
 
     @Subscribe
-    public void onEngineNotRunningEvent(EngineNotRunningEvent event){
+    public void onEngineNotRunningEvent(EngineNotRunningEvent event) {
         LOG.info("Retrieved Engine not running event");
-        if (connectingDialog != null){
+        if (connectingDialog != null) {
             connectingDialog.dismiss();
             connectingDialog = null;
         }
@@ -468,6 +489,7 @@ public class DashboardFragment extends BaseInjectorFragment {
                         .cancelable(true)
                         .show());
     }
+
     /**
      * Receiver method for bluetooth activation events.
      *

@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -26,6 +26,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -74,6 +75,7 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 /**
  * An activity for reporting issues.
@@ -154,36 +156,36 @@ public class SendLogFileActivity extends BaseInjectorActivity {
                 locationText.setText("An error occured while creating the report bundle. Please send in the logs available at " +
                         LocalFileHandler.effectiveFile.getParentFile().getAbsolutePath());
             }
-            if(otherFile!=null){
+            if (otherFile != null) {
                 otherFileLocation.setText(otherFile.getAbsolutePath());
             } else {
                 LOG.info("Error creating the versions txt file.");
             }
-            submitIssue.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if(checkIfCheckboxSelected())
-                    {
-                        sendLogFile(tmpBundle);
-                    }
-                    else
-                    {
-                        createDialog(tmpBundle);
-                    }
-                }
-            });
         } catch (IOException e) {
             LOG.warn(e.getMessage(), e);
         }
 
 
+    }
 
+    @OnClick(R.id.report_issue_submit)
+    public void onClickSubmitButton(View v) {
+        try {
+            final File tmpBundle = createReportBundle();
+            if (checkIfCheckboxSelected()) {
+                sendLogFile(tmpBundle);
+            } else {
+                createDialog(tmpBundle);
+            }
+        } catch (Exception e) {
+            LOG.warn(e.getMessage(), e);
+        }
     }
 
     /**
      * function to set the names for the checkboxes
      */
-    public void setCheckBoxes(){
+    public void setCheckBoxes() {
         List<String> totalList = new ArrayList<>();
         totalList.addAll(subjectHeaders);
         for (int i = 0; i < totalList.size(); i++) {
@@ -196,7 +198,7 @@ public class SendLogFileActivity extends BaseInjectorActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if(item.getItemId() == android.R.id.home) onBackPressed();
+        if (item.getItemId() == android.R.id.home) onBackPressed();
         return super.onOptionsItemSelected(item);
     }
 
@@ -209,15 +211,13 @@ public class SendLogFileActivity extends BaseInjectorActivity {
     /**
      * @return true if at least one checkbox is ticked
      */
-    public boolean checkIfCheckboxSelected(){
+    public boolean checkIfCheckboxSelected() {
 
         LOG.info("Checking checkboxes.");
-        for(int i=0;i<checkBoxItems.size();i++)
-        {
+        for (int i = 0; i < checkBoxItems.size(); i++) {
             CheckBoxItem dto = checkBoxItems.get(i);
             LOG.info("Checkbox " + i + " : " + dto.isChecked());
-            if(dto.isChecked())
-            {
+            if (dto.isChecked()) {
                 LOG.info("Ticked Checkbox found.");
                 return Boolean.TRUE;
             }
@@ -229,27 +229,20 @@ public class SendLogFileActivity extends BaseInjectorActivity {
     /**
      * In case no checkbox has been ticked, a dialog is created urging the getUserStatistic to do so,
      * else continue
+     *
      * @param reportBundle
      */
-    public void createDialog(File reportBundle){
+    public void createDialog(File reportBundle) {
         AlertDialog.Builder builder = new AlertDialog.Builder(SendLogFileActivity.this);
         builder.setMessage("You have not selected any of the checkboxes. These help developers " +
                 "sort through issues quickly and resolve them. Please consider filling those that " +
                 "are relevant.")
                 .setTitle("No Checkbox Selected")
                 .setCancelable(false)
-                .setPositiveButton("Go Back", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
+                .setPositiveButton("Go Back", (dialog, which) -> {
 
-                    }
                 })
-                .setNegativeButton("Send Report Anyway", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        sendLogFile(reportBundle);
-                    }
-                });
+                .setNegativeButton("Send Report Anyway", (dialog, which) -> sendLogFile(reportBundle));
         AlertDialog alertDialog = builder.create();
         alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
@@ -269,13 +262,14 @@ public class SendLogFileActivity extends BaseInjectorActivity {
      * @param reportBundle the file to attach
      */
     protected void sendLogFile(File reportBundle) {
+
         Intent emailIntent = new Intent(android.content.Intent.ACTION_SENDTO);
         emailIntent.setType("message/rfc822");
         emailIntent.setData(Uri.parse("mailto:"));
         emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL,
                 new String[]{REPORTING_EMAIL});
         emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT,
-                createSubject()+" enviroCar Log Report");
+                createSubject() + " enviroCar Log Report");
         emailIntent.putExtra(android.content.Intent.EXTRA_TEXT,
                 createEmailContents());
         emailIntent.putExtra(android.content.Intent.EXTRA_STREAM,
@@ -289,9 +283,10 @@ public class SendLogFileActivity extends BaseInjectorActivity {
     /**
      * Gets all the appropriate version names, for the app, the Android version and API
      * Manufacturer and Model name of the phone
+     *
      * @return the string containing all the above
      */
-    protected String getVersionNames(){
+    protected String getVersionNames() {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("Version Details\n");
         String versionName = Util.getVersionString(getBaseContext());
@@ -308,19 +303,20 @@ public class SendLogFileActivity extends BaseInjectorActivity {
         stringBuilder.append("\n Android API Level: " + version);
         stringBuilder.append("\n Version Release: " + versionRelease);
         stringBuilder.append("\n");
-        return  stringBuilder.toString();
+        return stringBuilder.toString();
 
     }
 
     /**
      * gets the current car and bluetooth adapter name
+     *
      * @return the string with the data
      */
-    protected String getCarBluetoothNames(){
+    protected String getCarBluetoothNames() {
         StringBuilder stringBuilder = new StringBuilder();
         Car car = mCarPrefHandler.getCar();
         stringBuilder.append("Car Details: ");
-        if(car!=null)
+        if (car != null)
             stringBuilder.append(car.getManufacturer() + " " + car.getModel());
         else
             stringBuilder.append("No Car Selected.");
@@ -333,15 +329,14 @@ public class SendLogFileActivity extends BaseInjectorActivity {
 
     /**
      * finds the checkboxes which have been ticked and their tag names
+     *
      * @return returns the string with the tags to be added to the subject line
      */
-    protected String createSubject(){
+    protected String createSubject() {
         StringBuilder subject = new StringBuilder();
-        for(int i=0;i<subjectTags.size();i++)
-        {
+        for (int i = 0; i < subjectTags.size(); i++) {
             CheckBoxItem dto = checkBoxItems.get(i);
-            if(dto.isChecked())
-            {
+            if (dto.isChecked()) {
                 subject.append(subjectTags.get(i));
             }
         }
@@ -388,7 +383,7 @@ public class SendLogFileActivity extends BaseInjectorActivity {
         String text;
         try {
             text = whenField.getText().toString();
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             text = null;
         }
@@ -405,14 +400,13 @@ public class SendLogFileActivity extends BaseInjectorActivity {
     }
 
 
-    public File createVersionAndErrorDetailsFile() throws IOException{
-        File otherFile = Util.createFileOnExternalStorage(OTHER_DETAILS_PREFIX
-                + ".txt");
+    public File createVersionAndErrorDetailsFile() throws IOException {
+        File otherFile = Util.createFileOnInternalStorage(getCacheDir().getAbsolutePath(), OTHER_DETAILS_PREFIX + ".txt");
         StringBuilder text = new StringBuilder();
         text.append(createSubject());
         text.append("\n");
         text.append(createEmailContents());
-        Util.saveContentsToFile(text.toString(),otherFile);
+        Util.saveContentsToFile(text.toString(), otherFile);
 
         return otherFile;
     }
@@ -424,8 +418,8 @@ public class SendLogFileActivity extends BaseInjectorActivity {
      * @throws IOException
      */
     private File createReportBundle() throws IOException {
-        File targetFile = Util.createFileOnExternalStorage(PREFIX
-                + format.format(new Date()) + EXTENSION);
+        File targetFile = Util.createFileOnInternalStorage(getExternalCacheDir().getAbsolutePath(),
+                PREFIX + format.format(new Date()) + EXTENSION);
 
         Util.zip(findAllLogFiles(), targetFile.toURI().getPath());
 
@@ -433,7 +427,7 @@ public class SendLogFileActivity extends BaseInjectorActivity {
     }
 
     private void removeOldReportBundles() throws IOException {
-        File baseFolder = Util.resolveExternalStorageBaseFolder();
+        File baseFolder = Util.resolveInternalStorageBaseFolder(getCacheDir().getAbsolutePath());
 
         final String todayPrefix = PREFIX.concat(dayFormat.format(new Date()));
         File[] oldFiles = baseFolder.listFiles(new FileFilter() {
@@ -447,7 +441,7 @@ public class SendLogFileActivity extends BaseInjectorActivity {
             }
         });
 
-        if(oldFiles!=null){
+        if (oldFiles != null) {
             for (File file : oldFiles) {
                 file.delete();
             }
@@ -471,14 +465,15 @@ public class SendLogFileActivity extends BaseInjectorActivity {
     }
 
     public void hideKeyboard(View view) {
-        if(view != null){
-            InputMethodManager inputMethodManager =(InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+        if (view != null) {
+            InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
             inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
     }
 
     /**
      * used to make sure the list View is not cut off in the parent ScrollView
+     *
      * @param listView
      */
     public static void setListViewHeightBasedOnChildren(ListView listView) {
@@ -505,7 +500,7 @@ public class SendLogFileActivity extends BaseInjectorActivity {
     /**
      * Gets the strings for the checkboxes and sets the adapter
      */
-    public void set(){
+    public void set() {
         checkBoxItems = new ArrayList<>();
         extraInfo = new String();
         setCheckBoxes();
