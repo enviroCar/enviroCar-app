@@ -67,7 +67,7 @@
     <string name="help_headline_5_3">5.3. Hochgeladene Fahrten</string>
     <string name="help_content_5_3">An den enviroCar-Server hochgeladene Fahrten lassen sich durch Drücken des Cloud-Symbols auch wieder herunterladen (-> lokal auf Smartphone). Sie liegen dann sowohl auf dem Server als auch auf dem Smartphone vor und werden im Bereich der bereits hochgeladenen Fahrten angezeigt.</string>
     <string name="help_headline_5_4">5.4. Weitere Menü-Optionen </string>
-    <string name="help_content_5_4"> Sie können auch weitere Aktionen durchführen. \"Detailansicht\" zeigt die Kennwerte, Diagramme und Karten einer Fahrt. \"Löschen\"	löscht die Fahrt unwiederbringlich, sowohl im Speicher des Smartphones als auch auf dem enviroCar-Server. "\Exportieren\" exportiert die Daten zur Fahrt im JSON-Format beispielsweise via E-Mail oder Google Drive.
+    <string name="help_content_5_4"> Sie können auch weitere Aktionen durchführen. \"Detailansicht\" zeigt die Kennwerte, Diagramme und Karten einer Fahrt. \"Löschen\"	löscht die Fahrt unwiederbringlich, sowohl im Speicher des Smartphones als auch auf dem enviroCar-Server. "\Exportieren\" exportiert die Daten zur Fahrt im JSON-Format beispielsweise via E-Mail oder Google Drive.</string>
  
     <string name="help_headline_6">5. Logbuch für Tankstopps</string>
     <string name="help_content_6">Mit dem Logbuch (Menü „Sonstiges“ in der Dashboard-Ansicht) können Sie Details Ihrer Tankstopps notieren. Wenn Sie das tun, haben Sie die Möglichkeit, die aus den Sensordaten der Motorsteuerung geschätzten Kraftstoff-Verbräuche zu überprüfen und so die Schätzverfahren zu beurteilen.</string>
