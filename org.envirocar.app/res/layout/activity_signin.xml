@@ -53,8 +53,6 @@
             android:id="@+id/textView6"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
             android:text="@string/sign_in"
             android:textColor="@color/white_cario"
             android:textSize="26dp"
@@ -62,49 +60,68 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/activity_login_logo" />
 
-        <androidx.appcompat.widget.AppCompatEditText
-            android:id="@+id/activity_signin_username_input"
-            style="@style/envirocar.login.edittext"
-            android:layout_below="@+id/activity_login_logo"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="80dp"
-            android:background="@drawable/login_edittext_rounded_corner_shape"
-            android:drawableLeft="@drawable/ic_action_user"
-            android:hint="@string/username"
-            android:singleLine="true"
-            android:imeOptions="actionNext"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/activity_signin_username_input_layout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="40dp"
+            app:hintEnabled="false"
             app:layout_constraintEnd_toEndOf="@id/activity_signin_guideline_right"
             app:layout_constraintStart_toStartOf="@id/activity_signin_guideline_left"
-            app:layout_constraintTop_toBottomOf="@+id/textView6" />
+            app:layout_constraintTop_toBottomOf="@+id/textView6"
+            app:layout_constraintWidth_max="500dp">
 
-        <androidx.appcompat.widget.AppCompatEditText
-            android:id="@+id/activity_login_password_input"
-            style="@style/envirocar.login.edittext"
-            android:layout_below="@+id/activity_signin_username_input"
-            android:layout_marginTop="32dp"
-            android:drawableLeft="@drawable/ic_action_pass"
-            android:hint="@string/password"
-            android:inputType="textPassword"
-            android:imeOptions="actionDone"
+            <androidx.appcompat.widget.AppCompatEditText
+                android:id="@+id/activity_signin_username_input"
+                style="@style/envirocar.login.edittext"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/login_edittext_rounded_corner_shape"
+                android:drawableLeft="@drawable/ic_action_user"
+                android:hint="@string/username"
+                android:imeOptions="actionNext"
+                android:singleLine="true" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/activity_signin_password_input_layout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="40dp"
+            app:hintEnabled="false"
             app:layout_constraintEnd_toEndOf="@id/activity_signin_guideline_right"
             app:layout_constraintStart_toStartOf="@id/activity_signin_guideline_left"
-            app:layout_constraintTop_toBottomOf="@+id/activity_signin_username_input" />
+            app:layout_constraintTop_toBottomOf="@+id/activity_signin_username_input_layout"
+            app:layout_constraintWidth_max="500dp">
 
+            <androidx.appcompat.widget.AppCompatEditText
+                android:id="@+id/activity_login_password_input"
+                style="@style/envirocar.login.edittext"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:drawableLeft="@drawable/ic_action_pass"
+                android:hint="@string/password"
+                android:imeOptions="actionDone"
+                android:inputType="textPassword" />
+
+        </com.google.android.material.textfield.TextInputLayout>
 
         <androidx.cardview.widget.CardView
             android:id="@+id/activity_signin_login_button"
             android:layout_width="0dp"
             android:layout_height="50dp"
-            android:layout_below="@id/activity_signin_username_input"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="48dp"
             android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="48dp"
             app:cardBackgroundColor="@color/cario_color_primary_dark"
             app:cardCornerRadius="25dp"
             app:cardElevation="10dp"
-            app:layout_constraintStart_toStartOf="@id/activity_signin_guideline_left"
             app:layout_constraintEnd_toStartOf="@id/activity_signin_guideline_right"
-            app:layout_constraintTop_toBottomOf="@+id/activity_login_password_input">
+            app:layout_constraintStart_toStartOf="@id/activity_signin_guideline_left"
+            app:layout_constraintTop_toBottomOf="@+id/activity_signin_password_input_layout">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -149,14 +166,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.87"/>
+            app:layout_constraintGuide_percent="0.87" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/activity_signin_guideline_left"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.13"/>
+            app:layout_constraintGuide_percent="0.13" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>
