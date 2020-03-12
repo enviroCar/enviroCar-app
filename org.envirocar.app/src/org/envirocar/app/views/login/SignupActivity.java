@@ -75,8 +75,9 @@ import io.reactivex.schedulers.Schedulers;
 public class SignupActivity extends BaseInjectorActivity {
     private static final Logger LOG = Logger.getLogger(SignupActivity.class);
 
-    private static final String EMAIL_REGEX = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=\\S+$).{6,}$\n";
-    private static final String PASSWORD_REGEX = "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{6,}$";
+    private static final String EMAIL_REGEX = "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
+    private static final String PASSWORD_REGEX = "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{6,}$";
+    private static final int CHECK_FORM_DELAY = 750;
 
     public static void startActivity(Context context) {
         Intent intent = new Intent(context, SignupActivity.class);
@@ -345,7 +346,7 @@ public class SignupActivity extends BaseInjectorActivity {
         if (TextUtils.isEmpty(email)) {
             emailEditText.setError(getString(R.string.error_field_required));
             isValidEmail = false;
-        } else if (!email.matches(EMAIL_REGEX)) {
+        } else if (!Pattern.matches(EMAIL_REGEX, email)) {
             emailEditText.setError(getString(R.string.error_invalid_email));
             isValidEmail = false;
         }
@@ -397,10 +398,11 @@ public class SignupActivity extends BaseInjectorActivity {
      */
     private boolean checkPasswordMatch(String password, String password2) {
         boolean isValidMatch = password.equals(password2);
-        if (isValidMatch) {
+        if (!isValidMatch) {
+            password1EditText.setError(getString(R.string.error_passwords_not_matching));
             password2EditText.setError(getString(R.string.error_passwords_not_matching));
-            password2EditText.requestFocus();
         } else {
+            password1EditText.setError(null);
             password2EditText.setError(null);
         }
         return isValidMatch;
@@ -409,28 +411,28 @@ public class SignupActivity extends BaseInjectorActivity {
     private void observeFormInputs() {
         RxTextView.textChanges(usernameEditText)
                 .skipInitialValue()
-                .debounce(600, TimeUnit.MILLISECONDS)
+                .debounce(CHECK_FORM_DELAY, TimeUnit.MILLISECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
                 .map(CharSequence::toString)
                 .subscribe(this::checkUsernameValidity, LOG::error);
 
         RxTextView.textChanges(emailEditText).
                 skipInitialValue()
-                .debounce(600, TimeUnit.MILLISECONDS)
+                .debounce(CHECK_FORM_DELAY, TimeUnit.MILLISECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
                 .map(CharSequence::toString)
                 .subscribe(this::checkEmailValidity, LOG::error);
 
         RxTextView.textChanges(password1EditText)
                 .skipInitialValue()
-                .debounce(600, TimeUnit.MILLISECONDS)
+                .debounce(CHECK_FORM_DELAY, TimeUnit.MILLISECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
                 .map(CharSequence::toString)
                 .subscribe(this::checkPasswordValidity, LOG::error);
 
         RxTextView.textChanges(password2EditText)
                 .skipInitialValue()
-                .debounce(600, TimeUnit.MILLISECONDS)
+                .debounce(CHECK_FORM_DELAY, TimeUnit.MILLISECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
                 .map(CharSequence::toString)
                 .subscribe(this::checkConfirmPasswordValidity, LOG::error);
