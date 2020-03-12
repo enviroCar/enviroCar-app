@@ -204,11 +204,12 @@ public class TrackUploadHandler {
                 String infoText = mContext.getString(R.string.trackviews_not_logged_in);
                 LOG.info(infoText);
                 throw new TrackUploadException(track, TrackUploadException.Reason.NOT_LOGGED_IN);
-            } else if (!track.hasProperty(Measurement.PropertyKey.SPEED)) {
-                String infoText = mContext.getString(R.string.trackviews_cannot_upload_gps_tracks);
-                LOG.info(infoText);
-                throw new TrackUploadException(track, TrackUploadException.Reason.GPS_TRACKS_NOT_ALLOWED);
             }
+//            else if (!track.hasProperty(Measurement.PropertyKey.SPEED)) {
+//                String infoText = mContext.getString(R.string.trackviews_cannot_upload_gps_tracks);
+//                LOG.info(infoText);
+//                throw new TrackUploadException(track, TrackUploadException.Reason.GPS_TRACKS_NOT_ALLOWED);
+//            }
             return track;
         };
     }
