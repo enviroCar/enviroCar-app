@@ -333,6 +333,22 @@ public class DashboardFragment extends BaseInjectorFragment {
 
         // update the selected recording type
         ApplicationSettings.setSelectedRecordingType(getContext(), selectedRT);
+        // update button
+        Boolean setEnabled = false;
+        switch (button.getId()) {
+            case R.id.fragment_dashboard_gps_mode_button:
+                setEnabled = (!this.carIndicator.isEnabled()
+                        && !this.gpsIndicator.isEnabled());
+                break;
+            case R.id.fragment_dashboard_obd_mode_button:
+                setEnabled = (!this.bluetoothIndicator.isEnabled()
+                        && !this.gpsIndicator.isEnabled()
+                        && !this.obdIndicator.isEnabled()
+                        && !this.carIndicator.isEnabled());
+                break;
+        }
+        this.startTrackButtonText.setText(R.string.dashboard_start_track);
+        this.startTrackButton.setEnabled(setEnabled);
     }
 
     private void setRecordingMode(RecordingType selectedRT) {
