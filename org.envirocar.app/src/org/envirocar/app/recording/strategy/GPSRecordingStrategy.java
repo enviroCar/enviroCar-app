@@ -254,15 +254,6 @@ public class GPSRecordingStrategy implements LifecycleObserver, RecordingStrateg
             } catch (Exception e) {
                 LOG.warn(e.getMessage(), e);
             }
-
-            try {
-                double consumption = energyConsumptionAlgorithm.calculateConsumption(measurement);
-                measurement.setProperty(Measurement.PropertyKey.ENERGY_CONSUMPTION, consumption);
-                double co2 = energyConsumptionAlgorithm.calculateCO2FromConsumption(consumption);
-                measurement.setProperty(Measurement.PropertyKey.ENERGY_CONSUMPTION_CO2, co2);
-            } catch (Exception e) {
-                LOG.warn(e.getMessage(), e);
-            }
             return measurement;
         });
     }

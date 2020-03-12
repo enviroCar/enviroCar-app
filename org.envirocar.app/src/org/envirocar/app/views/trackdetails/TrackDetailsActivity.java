@@ -343,11 +343,12 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
 
             // show consumption and emission either when the fuel type of the track's car is
             // gasoline or the beta setting has been enabled.
-            if (!track.hasProperty(Measurement.PropertyKey.SPEED)) {
-                mConsumptionContainer.setVisibility(View.GONE);
-                mCo2Container.setVisibility(View.GONE);
-                descriptionTv.setText(R.string.gps_track_details);
-            } else if (track.getCar().getFuelType() == Car.FuelType.GASOLINE || ApplicationSettings.isDieselConsumptionEnabled(this)) {
+//            if (!track.hasProperty(Measurement.PropertyKey.SPEED)) {
+//                mConsumptionContainer.setVisibility(View.GONE);
+//                mCo2Container.setVisibility(View.GONE);
+//                descriptionTv.setText(R.string.gps_track_details);
+//            } else
+            if (track.getCar().getFuelType() == Car.FuelType.GASOLINE || ApplicationSettings.isDieselConsumptionEnabled(this)) {
                 TrackStatisticsProvider statsProvider = (TrackStatisticsProvider) track;
 
                 // set consumption text.
