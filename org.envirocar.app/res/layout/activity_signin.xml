@@ -58,7 +58,6 @@
             android:text="@string/sign_in"
             android:textColor="@color/white_cario"
             android:textSize="26dp"
-            android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/activity_login_logo" />
@@ -98,17 +97,13 @@
             android:layout_height="50dp"
             android:layout_below="@id/activity_signin_username_input"
             android:layout_centerHorizontal="true"
-            android:layout_marginStart="55dp"
-            android:layout_marginLeft="55dp"
             android:layout_marginTop="48dp"
-            android:layout_marginEnd="55dp"
-            android:layout_marginRight="55dp"
+            android:layout_marginHorizontal="16dp"
             app:cardBackgroundColor="@color/cario_color_primary_dark"
             app:cardCornerRadius="25dp"
             app:cardElevation="10dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="1.0"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toStartOf="@id/activity_signin_guideline_left"
+            app:layout_constraintEnd_toStartOf="@id/activity_signin_guideline_right"
             app:layout_constraintTop_toBottomOf="@+id/activity_login_password_input">
 
             <TextView
