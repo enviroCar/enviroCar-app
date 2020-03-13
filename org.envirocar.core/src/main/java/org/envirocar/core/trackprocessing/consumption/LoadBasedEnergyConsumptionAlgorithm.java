@@ -104,7 +104,7 @@ public class LoadBasedEnergyConsumptionAlgorithm implements ConsumptionAlgorithm
      */
     @Override
     public double calculateConsumption(Measurement measurement) throws FuelConsumptionException, UnsupportedFuelTypeException {
-        double speedNow = measurement.getProperty(Measurement.PropertyKey.SPEED);
+        double speedNow = getSpeed(measurement);
         double datetimeNow = measurement.getTime();
         double longitudeNow = measurement.getLongitude();
         double latitudeNow = measurement.getLatitude();
@@ -183,5 +183,11 @@ public class LoadBasedEnergyConsumptionAlgorithm implements ConsumptionAlgorithm
             default:
                 throw new FuelConsumptionException(String.format("FuelType %s is not supported", this.fuelType.toString()));
         }
+    }
+
+    private double getSpeed(Measurement measurement){
+        return measurement.hasProperty(Measurement.PropertyKey.SPEED) ?
+                measurement.getProperty(Measurement.PropertyKey.SPEED) :
+                measurement.getProperty(Measurement.PropertyKey.GPS_SPEED);
     }
 }

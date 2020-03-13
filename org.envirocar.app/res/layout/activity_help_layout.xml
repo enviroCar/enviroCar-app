@@ -125,12 +125,6 @@
         </LinearLayout>
 
         <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_medium"
-            android:text="@string/help_content_2_2"/>
-
-        <TextView
             style="@style/enviroCar.Help.headline2"
             android:layout_marginTop="@dimen/spacing_large"
             android:text="@string/help_headline_2_2"/>

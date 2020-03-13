@@ -129,13 +129,13 @@ public class OthersFragment extends BaseInjectorFragment {
 
     @OnClick(R.id.othersReportIssue)
     protected void onReportIssueClicked() {
-        if (checkPermissions()) {
+//        if (checkPermissions()) {
             //access granted
             Intent intent = new Intent(getActivity(), SendLogFileActivity.class);
             startActivity(intent);
-        } else {
-            requestPermissions();
-        }
+//        } else {
+//            requestPermissions();
+//        }
     }
 
     @OnClick(R.id.othersRateUs)

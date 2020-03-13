@@ -37,8 +37,10 @@ import io.reactivex.disposables.Disposable;
 public class SplashScreenActivity extends Activity {
     private static final Logger LOG = Logger.getLogger(SplashScreenActivity.class);
     private static final String HAS_BEEN_SEEN_KEY = "has_been_seen";
+    private static final int SPLASH_SCREEN_DURATION = 1500;
 
     private Disposable timerDisposable;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,7 +65,7 @@ public class SplashScreenActivity extends Activity {
         super.onResume();
 
         // register a timer for starting the main activity
-        timerDisposable = Completable.timer(2000, TimeUnit.MILLISECONDS)
+        timerDisposable = Completable.timer(SPLASH_SCREEN_DURATION, TimeUnit.MILLISECONDS)
                 .subscribe(() -> startMainActivity());
     }
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
 
-    Copyright (C) 2013 - 2019 the enviroCar community
+    Copyright (C) 2013 - 2020 the enviroCar community
 
     This file is part of the enviroCar app.
 
@@ -27,5 +27,5 @@
     <string name="menu_logout_envirocar_title">Sind Sie sicher?</string>
     <string name="menu_logout_envirocar_positive">Ja</string>
     <string name="menu_logout_envirocar_negative">Nein</string>
-    <string name="menu_logout_envirocar_content">Du möchtest dich abmelden?</string>
+    <string name="menu_logout_envirocar_content">Sie möchten sich abmelden?</string>
 </resources>

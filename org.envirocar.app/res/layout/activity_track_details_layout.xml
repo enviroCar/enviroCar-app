@@ -20,7 +20,6 @@
 -->
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true">
@@ -61,8 +60,8 @@
                 android:id="@+id/activity_track_details_header_toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                app:layout_collapseMode="pin"
                 android:elevation="2dp"
+                app:layout_collapseMode="pin"
                 app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
 
         </com.google.android.material.appbar.CollapsingToolbarLayout>
@@ -97,8 +96,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="@dimen/spacing_large"
-                        android:layout_marginRight="@dimen/spacing_large"
                         android:layout_marginTop="@dimen/spacing_large"
+                        android:layout_marginRight="@dimen/spacing_large"
                         android:textAppearance="@style/TextAppearance.AppCompat.Headline"
                         android:transitionName="wurst" />
 
@@ -133,6 +132,7 @@
         android:layout_margin="16dp"
         android:elevation="8dp"
         android:src="@drawable/ic_timeline_white_24dp"
+        style="@style/Widget.enviroCar.Fab"
         app:layout_anchor="@id/activity_track_details_appbar_layout"
         app:layout_anchorGravity="bottom|right|end" />
 

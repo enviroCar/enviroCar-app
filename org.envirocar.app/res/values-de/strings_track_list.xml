@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
 
-    Copyright (C) 2013 - 2019 the enviroCar community
+    Copyright (C) 2013 - 2020 the enviroCar community
 
     This file is part of the enviroCar app.
 
@@ -30,7 +30,7 @@
     <string name="track_list_delete_track_success_template">%s wurde erfolgreich gelöscht.</string>
 
     <string name="track_list_upload_track_uploading">Fahrt wird hochgeladen</string>
-    <string name="track_list_upload_track_no_measurements">Die Fahrt enthält nicht genug Messungen um diese anonymisiert hochzuladen.</string>
+    <string name="track_list_upload_track_no_measurements">Die Fahrt enthält nicht genug Messungen, um diese anonymisiert hochzuladen.</string>
     <string name="track_list_upload_track_general_error">Fehler während des Hochladens. Versuchen Sie es später erneut.</string>
     <string name="track_list_upload_track_content">Die folgende Fahrt wird als Open Data auf den enviroCar Server hochgeladen: </string>
     <string name="track_list_upload_track_success_template">Die Fahrt \'%s\' wurde erfolgreich hochgeladen.</string>
@@ -39,9 +39,9 @@
     <string name="track_list_upload_error_no_valid_car">Hochladen der Fahrt nicht möglich. Der Fahrt ist kein gültiges Fahrzeug zugeordnet.</string>
     <string name="track_list_upload_error_already_uploaded">Hochladen der Fahrt nicht möglich. Die Fahrt wurde bereits hochgeladen.</string>
     <string name="track_list_upload_error_no_network_connection">Hochladen der Fahrt nicht möglich. Es besteht keine Verbindung mit dem Internet.</string>
-    <string name="track_list_upload_error_not_logged_in">Hochladen der Fahrt nicht möglich. Du bist nicht mit deinem Account angemeldet.</string>
+    <string name="track_list_upload_error_not_logged_in">Hochladen der Fahrt nicht möglich. Sie sind nicht mit ihrem Account angemeldet.</string>
     <string name="track_list_upload_error_gps_track">Hochladen der Fahrt nicht möglich. Das Hochladen von GPS-basierten Tracks ist derzeit nicht möglich.</string>
-    <string name="track_list_upload_error_unauthorized">Hochladen der Fahrt nicht möglich. Du bist nicht authorisiert.</string>
+    <string name="track_list_upload_error_unauthorized">Hochladen der Fahrt nicht möglich. Sie sind nicht authorisiert.</string>
 
     <string name="track_list_loading_tracks">Lade Fahrten...</string>
     <string name="track_list_loading_tracks_error_snackbar">Fehler beim Laden der Daten.\nBitte senden Sie einen Fehlerreport.</string>
