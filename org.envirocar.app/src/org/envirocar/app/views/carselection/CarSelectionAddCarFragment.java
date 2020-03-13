@@ -140,7 +140,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
             savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
 
-        View view = inflater.inflate(R.layout.activity_car_selection_newcar_fragment, container, false);
+        ViewGroup view = (ViewGroup) inflater.inflate(R.layout.activity_car_selection_newcar_fragment, container, false);
         ButterKnife.bind(this, view);
 
         toolbar.setNavigationIcon(R.drawable.ic_close_white_24dp);

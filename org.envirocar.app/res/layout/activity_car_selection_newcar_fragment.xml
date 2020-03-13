@@ -61,7 +61,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="16dp"
+            android:background="@color/blue_dark_cario">
 
             <LinearLayout
                 android:id="@+id/activity_car_selection_newcar_download_layout"
@@ -83,6 +84,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:layout_marginLeft="@dimen/spacing_large"
+                    android:textColor="@android:color/white"
                     android:text="Loading data..." />
 
             </LinearLayout>
@@ -92,7 +94,9 @@
                 android:layout_height="wrap_content"
                 android:text="@string/car_selection_addcar_info"
                 android:fontFamily="@font/roboto_light1"
-                android:layout_marginVertical="8dp"/>
+                android:layout_marginVertical="8dp"
+                android:textColor="@android:color/white"
+                />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/activity_car_selection_newcar_layout_manufacturer"
@@ -102,9 +106,14 @@
                 android:hint="@string/car_selection_manufacturer"
                 android:layout_marginVertical="8dp"
                 android:layout_marginHorizontal="16dp"
-                app:startIconDrawable="@drawable/ic_manufacturer">
+                app:startIconDrawable="@drawable/ic_manufacturer"
+                app:boxStrokeColor="@android:color/white"
+
+
+                app:hintTextColor="@android:color/white">
 
                 <AutoCompleteTextView
+
                     android:id="@+id/activity_car_selection_newcar_input_manufacturer"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -123,7 +132,9 @@
                 android:hint="@string/car_selection_model"
                 android:layout_marginVertical="8dp"
                 android:layout_marginHorizontal="16dp"
-                app:startIconDrawable="@drawable/ic_directions_car_black_24dp">
+                app:startIconDrawable="@drawable/ic_directions_car_black_24dp"
+                app:boxStrokeColor="@android:color/white"
+                app:hintTextColor="@android:color/white">
 
                 <AutoCompleteTextView
                     android:id="@+id/activity_car_selection_newcar_input_model"
@@ -144,7 +155,9 @@
                 android:hint="@string/car_selection_construction_year"
                 android:layout_marginVertical="8dp"
                 android:layout_marginHorizontal="16dp"
-                app:startIconDrawable="@drawable/ic_date_24dp">
+                app:startIconDrawable="@drawable/ic_date_24dp"
+                app:boxStrokeColor="@android:color/white"
+                app:hintTextColor="@android:color/white">
 
                 <AutoCompleteTextView
                     android:id="@+id/activity_car_selection_newcar_input_constructionyear"
@@ -167,7 +180,9 @@
                 android:maxLines="1"
                 android:layout_marginVertical="8dp"
                 android:layout_marginHorizontal="16dp"
-                app:startIconDrawable="@drawable/ic_gas">
+                app:startIconDrawable="@drawable/ic_gas"
+                app:boxStrokeColor="@android:color/white"
+                app:hintTextColor="@android:color/white">
 
                 <AutoCompleteTextView
                     android:id="@+id/activity_car_selection_newcar_input_fueltype"
@@ -186,6 +201,11 @@
                 android:hint="@string/car_selection_engine_displacement"
                 android:layout_marginVertical="8dp"
                 android:layout_marginHorizontal="16dp"
+                app:boxStrokeColor="@android:color/white"
+                app:hintTextColor="@android:color/white"
+
+
+
                 app:startIconDrawable="@drawable/ic_engine">
 
                 <AutoCompleteTextView
