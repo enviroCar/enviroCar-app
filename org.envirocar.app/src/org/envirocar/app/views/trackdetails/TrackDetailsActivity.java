@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -109,55 +109,42 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
 
     @BindView(R.id.activity_track_details_fab)
     protected FloatingActionButton mFAB;
-
     @BindView(R.id.activity_track_details_header_map)
     protected MapView mMapView;
-
     @BindView(R.id.activity_track_details_header_toolbar)
     protected Toolbar mToolbar;
-
     @BindView(R.id.activity_track_details_attr_description_value)
     protected TextView mDescriptionText;
-
     @BindView(R.id.track_details_attributes_header_duration)
     protected TextView mDurationText;
-
     @BindView(R.id.track_details_attributes_header_distance)
     protected TextView mDistanceText;
-
     @BindView(R.id.activity_track_details_attr_begin_value)
     protected TextView mBeginText;
-
     @BindView(R.id.activity_track_details_attr_end_value)
     protected TextView mEndText;
-
     @BindView(R.id.activity_track_details_attr_car_value)
     protected TextView mCarText;
-
+    @BindView(R.id.activity_track_details_attr_emission_text)
+    protected TextView mEmissionKey;
     @BindView(R.id.activity_track_details_attr_emission_value)
     protected TextView mEmissionText;
-
+    @BindView(R.id.activity_track_details_attr_consumption_text)
+    protected TextView mConsumptionKey;
     @BindView(R.id.activity_track_details_attr_consumption_value)
     protected TextView mConsumptionText;
-
     @BindView(R.id.activity_track_details_appbar_layout)
     protected AppBarLayout mAppBarLayout;
-
     @BindView(R.id.activity_track_details_scrollview)
     protected NestedScrollView mNestedScrollView;
-
     @BindView(R.id.activity_track_details_header_map_container)
     protected FrameLayout mMapViewContainer;
-
     @BindView(R.id.consumption_container)
     protected RelativeLayout mConsumptionContainer;
-
     @BindView(R.id.co2_container)
     protected RelativeLayout mCo2Container;
-
     @BindView(R.id.descriptionTv)
     protected TextView descriptionTv;
-
     @BindView(R.id.activity_track_details_speed_container)
     protected RelativeLayout speedLayout;
     @BindView(R.id.activity_track_details_speed_value)
@@ -343,11 +330,13 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
 
             // show consumption and emission either when the fuel type of the track's car is
             // gasoline or the beta setting has been enabled.
-//            if (!track.hasProperty(Measurement.PropertyKey.SPEED)) {
-//                mConsumptionContainer.setVisibility(View.GONE);
-//                mCo2Container.setVisibility(View.GONE);
-//                descriptionTv.setText(R.string.gps_track_details);
-//            } else
+            if (!track.hasProperty(Measurement.PropertyKey.SPEED)) {
+                mConsumptionKey.setText(mConsumptionKey.getText() + " (GPS)");
+                mEmissionKey.setText(mEmissionKey.getText() + " (GPS)");
+                mConsumptionContainer.setVisibility(View.GONE);
+                mCo2Container.setVisibility(View.GONE);
+            }
+
             if (track.getCar().getFuelType() == Car.FuelType.GASOLINE || ApplicationSettings.isDieselConsumptionEnabled(this)) {
                 TrackStatisticsProvider statsProvider = (TrackStatisticsProvider) track;
 
@@ -365,69 +354,67 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
                 mEmissionText.setTextColor(Color.RED);
                 mConsumptionText.setTextColor(Color.RED);
             }
-
-            try {
-                Measurement.PropertyKey speedKey = track.hasProperty(Measurement.PropertyKey.SPEED) ? Measurement.PropertyKey.SPEED : Measurement.PropertyKey.GPS_SPEED;
-                if (track.hasProperty(speedKey)) {
-                    double totalSpeed = 0;
-                    int numMeasurements = 0;
-
-                    boolean foundStop = false;
-                    int numStops = 0;
-                    long lastBeginOfStop = 0;
-                    long totalStopTime = 0;
-                    for (Measurement m : track.getMeasurements()) {
-                        if (m.hasProperty(speedKey)) {
-                            double speed = m.getProperty(speedKey);
-                            totalSpeed += speed;
-                            numMeasurements++;
-
-                            if (speed == 0.0 && !foundStop) {
-                                foundStop = true;
-                                lastBeginOfStop = m.getTime();
-                                numStops++;
-                            } else if (speed > 0.0 && foundStop) {
-                                foundStop = false;
-                                totalStopTime += m.getTime() - lastBeginOfStop;
-                                lastBeginOfStop = 0;
-                            }
-                        }
-                    }
-
-                    String avgSpeedText = DECIMAL_FORMATTER_TWO_DIGITS.format(totalSpeed / numMeasurements) + " km/h";
-                    this.speedText.setText(avgSpeedText);
-
-                    String numStopsText = String.format("%d stops", numStops);
-                    this.stopsValue.setText(numStopsText);
-
-                    Calendar c = Calendar.getInstance();
-                    c.setTimeInMillis(totalStopTime);
-                    int minutes = c.get(Calendar.MINUTE);
-                    int seconds = c.get(Calendar.SECOND);
-
-                    String totalStopTimeText = "";
-                    if (minutes == 0){
-                        totalStopTimeText = String.format("%ds", seconds);
-                    } else {
-                        totalStopTimeText = String.format("%dm %ds", minutes, seconds);
-                    }
-                    this.stoptimeValue.setText(totalStopTimeText);
-                } else {
-                    // TODO remove exception, only for vacaction
-                    throw new Exception("No speed value available");
-                }
-            } catch (Exception e) {
-                LOG.error(e);
-                // TODO remove exception, only for vacaction
-                // just for the case: hide views completely.
-                this.speedLayout.setVisibility(View.GONE);
-                this.stopsLayout.setVisibility(View.GONE);
-                this.stoptimeLayout.setVisibility(View.GONE);
-            }
-
-
         } catch (FuelConsumptionException | NoMeasurementsException | UnsupportedFuelTypeException e) {
             LOG.error(e);
+        }
+
+        try {
+            Measurement.PropertyKey speedKey = track.hasProperty(Measurement.PropertyKey.SPEED) ? Measurement.PropertyKey.SPEED : Measurement.PropertyKey.GPS_SPEED;
+            if (track.hasProperty(speedKey)) {
+                double totalSpeed = 0;
+                int numMeasurements = 0;
+
+                boolean foundStop = false;
+                int numStops = 0;
+                long lastBeginOfStop = 0;
+                long totalStopTime = 0;
+                for (Measurement m : track.getMeasurements()) {
+                    if (m.hasProperty(speedKey)) {
+                        double speed = m.getProperty(speedKey);
+                        totalSpeed += speed;
+                        numMeasurements++;
+
+                        if (speed == 0.0 && !foundStop) {
+                            foundStop = true;
+                            lastBeginOfStop = m.getTime();
+                            numStops++;
+                        } else if (speed > 0.0 && foundStop) {
+                            foundStop = false;
+                            totalStopTime += m.getTime() - lastBeginOfStop;
+                            lastBeginOfStop = 0;
+                        }
+                    }
+                }
+
+                String avgSpeedText = DECIMAL_FORMATTER_TWO_DIGITS.format(totalSpeed / numMeasurements) + " km/h";
+                this.speedText.setText(avgSpeedText);
+
+                String numStopsText = String.format("%d stops", numStops);
+                this.stopsValue.setText(numStopsText);
+
+                Calendar c = Calendar.getInstance();
+                c.setTimeInMillis(totalStopTime);
+                int minutes = c.get(Calendar.MINUTE);
+                int seconds = c.get(Calendar.SECOND);
+
+                String totalStopTimeText = "";
+                if (minutes == 0) {
+                    totalStopTimeText = String.format("%ds", seconds);
+                } else {
+                    totalStopTimeText = String.format("%dm %ds", minutes, seconds);
+                }
+                this.stoptimeValue.setText(totalStopTimeText);
+            } else {
+                // TODO remove exception, only for vacaction
+                throw new Exception("No speed value available");
+            }
+        } catch (Exception e) {
+            LOG.error(e);
+            // TODO remove exception, only for vacaction
+            // just for the case: hide views completely.
+            this.speedLayout.setVisibility(View.GONE);
+            this.stopsLayout.setVisibility(View.GONE);
+            this.stoptimeLayout.setVisibility(View.GONE);
         }
     }
 
