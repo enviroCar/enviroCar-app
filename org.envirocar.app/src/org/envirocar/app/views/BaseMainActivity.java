@@ -352,5 +352,10 @@ public class BaseMainActivity extends BaseInjectorActivity {
         public int getCount() {
             return 3;
         }
+
+        @Override
+        public int getItemPosition(@NonNull Object object) {
+            return POSITION_NONE;
+        }
     }
 }
