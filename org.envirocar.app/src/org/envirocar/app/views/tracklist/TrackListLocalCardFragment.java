@@ -479,6 +479,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
                         numberOfSuccesses, numTracks, numberOfFailures);
                 showSnackbar(snackbarText);
             }
+            mRecyclerViewAdapter.notifyDataSetChanged();
 
             dialog.dismiss();
         }
@@ -490,6 +491,8 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
 
             if (result.isSuccessful()) {
                 numberOfSuccesses++;
+                mRecyclerViewAdapter.removeItem(result.getTrack());
+                mRecyclerViewAdapter.notifyDataSetChanged();
             } else {
                 numberOfFailures++;
             }
