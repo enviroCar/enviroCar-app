@@ -21,10 +21,10 @@ package org.envirocar.app.views.logbook;
 import android.os.Bundle;
 import com.google.android.material.snackbar.Snackbar;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -60,7 +60,7 @@ import io.reactivex.schedulers.Schedulers;
  *
  * @author dewall
  */
-public class LogbookActivity extends BaseInjectorActivity implements LogbookUiListener {
+public class LogbookActivity extends BaseInjectorActivity implements LogbookUiListener, LogbookListAdapter.OnItemLongClick {
     private static final Logger LOG = Logger.getLogger(LogbookActivity.class);
 
     @Inject
@@ -77,7 +77,7 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
     @BindView(R.id.activity_logbook_toolbar_new_fueling_fab)
     protected View newFuelingFab;
     @BindView(R.id.activity_logbook_toolbar_fuelinglist)
-    protected ListView fuelingList;
+    protected RecyclerView fuelingList;
     @BindView(R.id.overlay)
     protected View overlayView;
 
@@ -123,24 +123,11 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        fuelingListAdapter = new LogbookListAdapter(this, fuelings);
+        fuelingListAdapter = new LogbookListAdapter(fuelings, this);
+        // setting up the recyclerview with the default linear layout manager, depending on requirement
+        // can be customised.
+        fuelingList.setLayoutManager(new LinearLayoutManager(this));
         fuelingList.setAdapter(fuelingListAdapter);
-
-        fuelingList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long
-                    id) {
-                final Fueling fueling = fuelings.get(position);
-                new MaterialDialog.Builder(LogbookActivity.this)
-                        .title(R.string.logbook_dialog_delete_fueling_header)
-                        .content(R.string.logbook_dialog_delete_fueling_content)
-                        .positiveText(R.string.menu_delete)
-                        .negativeText(R.string.cancel)
-                        .onPositive((materialDialog, dialogAction) -> deleteFueling(fueling))
-                        .show();
-                return false;
-            }
-        });
 
         // When the getUserStatistic is logged in, then download its fuelings. Otherwise, show a "not logged
         // in" notification.
@@ -349,5 +336,17 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
 
     private void showSnackbarInfo(int resourceID) {
         Snackbar.make(newFuelingFab, resourceID, Snackbar.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onLongClicked(int position) {
+        final Fueling fueling = fuelings.get(position);
+        new MaterialDialog.Builder(LogbookActivity.this)
+                .title(R.string.logbook_dialog_delete_fueling_header)
+                .content(R.string.logbook_dialog_delete_fueling_content)
+                .positiveText(R.string.menu_delete)
+                .negativeText(R.string.cancel)
+                .onPositive((materialDialog, dialogAction) -> deleteFueling(fueling))
+                .show();
     }
 }

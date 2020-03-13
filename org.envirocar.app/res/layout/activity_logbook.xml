@@ -78,7 +78,7 @@
                         android:visibility="gone"/>
                 </LinearLayout>
 
-                <ListView
+                <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/activity_logbook_toolbar_fuelinglist"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
