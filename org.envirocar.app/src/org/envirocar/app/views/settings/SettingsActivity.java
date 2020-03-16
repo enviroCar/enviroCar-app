@@ -19,11 +19,13 @@
 package org.envirocar.app.views.settings;
 
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.DialogFragment;
 import androidx.preference.CheckBoxPreference;
 import androidx.preference.Preference;
@@ -37,10 +39,16 @@ import org.envirocar.app.views.settings.custom.GPSTrimDurationPreference;
 import org.envirocar.app.views.settings.custom.SamplingRatePreference;
 import org.envirocar.app.views.settings.custom.TimePickerPreferenceDialog;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 /**
  * @author dewall
  */
 public class SettingsActivity extends AppCompatActivity {
+
+    @BindView(R.id.activity_settings_toolbar)
+    Toolbar toolbar;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -52,6 +60,13 @@ public class SettingsActivity extends AppCompatActivity {
                 .beginTransaction()
                 .replace(R.id.activity_settings_content, new SettingsFragment())
                 .commit();
+
+        ButterKnife.bind(this);
+
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle(R.string.settings);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     public static class SettingsFragment extends PreferenceFragmentCompat {
@@ -117,5 +132,12 @@ public class SettingsActivity extends AppCompatActivity {
                 super.onDisplayPreferenceDialog(preference);
             }
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if(item.getItemId() == android.R.id.home)
+             finish();
+        return super.onOptionsItemSelected(item);
     }
 }
