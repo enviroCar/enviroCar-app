@@ -33,22 +33,24 @@
         android:background="@color/blue_dark_cario"
         android:visibility="visible">
 
-        <RelativeLayout
+        <LinearLayout
+
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
             <TextView
+
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
+
                 android:layout_marginLeft="@dimen/spacing_large"
                 android:layout_marginBottom="@dimen/spacing_medium"
-                android:gravity="bottom"
+                android:gravity="start"
                 android:text="@string/car_selection_enter_info"
                 android:textColor="@color/white_cario"
-                android:textSize="13sp" />
+                android:textSize="18sp" />
 
-        </RelativeLayout>
+        </LinearLayout>
     </LinearLayout>
 
     <androidx.core.widget.NestedScrollView
@@ -56,6 +58,16 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/white">
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+
+            app:cardCornerRadius="8dp"
+            android:elevation="20dp"
+            app:cardElevation="20dp"
+            app:cardUseCompatPadding="true"
+
+            >
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -224,5 +236,6 @@
 
             </com.google.android.material.textfield.TextInputLayout>
         </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
     </androidx.core.widget.NestedScrollView>
 </LinearLayout>

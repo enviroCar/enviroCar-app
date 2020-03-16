@@ -35,6 +35,7 @@
 
 
     <application
+        android:hardwareAccelerated="true"
         android:usesCleartextTraffic="true"
         android:name=".BaseApplication"
         android:allowBackup="true"

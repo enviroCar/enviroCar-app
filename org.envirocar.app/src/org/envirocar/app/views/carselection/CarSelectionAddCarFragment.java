@@ -176,8 +176,8 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
         toolbar.setNavigationIcon(R.drawable.ic_close_white_24dp);
         toolbar.inflateMenu(R.menu.menu_logbook_add_fueling);
         toolbar.setNavigationOnClickListener(v -> {
-//            hideKeyboard(v);
-//            closeThisFragment();
+            hideKeyboard(v);
+            closeThisFragment();
         });
 
 
@@ -275,9 +275,9 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
                     public void onComplete() {
                         downloadView.setVisibility(View.GONE);
                         manufacturerText.requestFocus();
-                        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-                        imm.showSoftInput(manufacturerText, InputMethodManager.SHOW_IMPLICIT);
-                       manufacturerText.showDropDown();
+//                        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+//                        imm.showSoftInput(manufacturerText, InputMethodManager.SHOW_IMPLICIT);
+//                       manufacturerText.showDropDown();
                         Collections.sort(carname, new Comparator<String>() {
                             @Override
                             public int compare(String o1, String o2) {
@@ -534,7 +534,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
                         modelText.requestFocus();
                         InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
                         imm.showSoftInput(modelText, InputMethodManager.SHOW_IMPLICIT);
-                        modelText.showDropDown();
+//                        modelText.showDropDown();
                        modelText.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                             @Override
                             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -579,7 +579,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
             yearText.requestFocus();
             InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.showSoftInput(yearText, InputMethodManager.SHOW_IMPLICIT);
-           yearText.showDropDown();
+//           yearText.showDropDown();
             yearText.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -593,7 +593,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
                     fueltypeText.requestFocus();
                     InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.showSoftInput(fueltypeText, InputMethodManager.SHOW_IMPLICIT);
-                    fueltypeText.showDropDown();
+//                    fueltypeText.showDropDown();
                     fueltypeText.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                         @Override
                         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {

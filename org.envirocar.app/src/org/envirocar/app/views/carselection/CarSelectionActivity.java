@@ -25,6 +25,8 @@ import com.google.android.material.snackbar.Snackbar;
 import androidx.appcompat.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.TranslateAnimation;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -230,6 +232,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
                     }
                 });
         mCarListView.setAdapter(mCarListAdapter);
+
 
         loadingCarsSubscription = mCarManager.getAllDeserializedCars()
                 .flatMap(cars -> {
