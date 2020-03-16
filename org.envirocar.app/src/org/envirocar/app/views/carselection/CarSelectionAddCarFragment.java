@@ -20,7 +20,9 @@ package org.envirocar.app.views.carselection;
 
 import android.app.Activity;
 import android.content.Context;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -30,6 +32,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 
@@ -46,17 +49,24 @@ import org.envirocar.app.handler.preferences.CarPreferenceHandler;
 import org.envirocar.app.handler.DAOProvider;
 import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.app.BaseApplicationComponent;
+import org.envirocar.app.retrofitclient.RetrofitClient;
 import org.envirocar.app.views.utils.ECAnimationUtils;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.CarImpl;
+import org.envirocar.core.entity.manufacturer;
+import org.envirocar.core.entity.modelinformation;
+import org.envirocar.core.entity.vehicleModels;
 import org.envirocar.core.logging.Logger;
+import org.envirocar.remote.service.APiInterface;
 
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -72,6 +82,7 @@ import butterknife.OnItemClick;
 import butterknife.OnTextChanged;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Observable;
+import io.reactivex.Observer;
 import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
@@ -126,12 +137,29 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
 
     private CompositeDisposable disposables = new CompositeDisposable();
     private Scheduler.Worker mainThreadWorker = AndroidSchedulers.mainThread().createWorker();
+    ArrayList<String> carname = new ArrayList<String>();
+    ArrayList<manufacturer> carhs = new ArrayList<manufacturer>();
+    ArrayList<String> model = new ArrayList<String>();
+    ArrayList<vehicleModels> carmodel = new ArrayList<vehicleModels>();
+    String selectedmanufacture;
+    String selectedhsm;
+    ArrayAdapter<String> adapter1;
+    ArrayList<String> date = new ArrayList<String>();
+    String tsn;
+    ArrayAdapter<String> adapter2;
+    String selectedDate;
 
-    private Set<Car> mCars = new HashSet<>();
-    private Set<String> mManufacturerNames = new HashSet<>();
-    private Map<String, Set<String>> mCarToModelMap = new ConcurrentHashMap<>();
-    private Map<String, Set<String>> mModelToYear = new ConcurrentHashMap<>();
-    private Map<Pair<String, String>, Set<String>> mModelToCCM = new ConcurrentHashMap<>();
+    EditText enginecapacity;
+    String engine;
+    String modelselected;
+
+    String[] fueltype = {"Benzene", "Diesel", "Gas", "Hybrid", "Electric"};
+
+//    private Set<Car> mCars = new HashSet<>();
+//    private Set<String> mManufacturerNames = new HashSet<>();
+//    private Map<String, Set<String>> mCarToModelMap = new ConcurrentHashMap<>();
+//    private Map<String, Set<String>> mModelToYear = new ConcurrentHashMap<>();
+//    private Map<Pair<String, String>, Set<String>> mModelToCCM = new ConcurrentHashMap<>();
 
 
 
@@ -143,6 +171,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
 
         ViewGroup view = (ViewGroup) inflater.inflate(R.layout.activity_car_selection_newcar_fragment, container, false);
         ButterKnife.bind(this, view);
+        carfetching();
 
         toolbar.setNavigationIcon(R.drawable.ic_close_white_24dp);
         toolbar.inflateMenu(R.menu.menu_logbook_add_fueling);
@@ -156,13 +185,13 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
         toolbar.setVisibility(View.GONE);
         toolbarExp.setVisibility(View.GONE);
         contentView.setVisibility(View.GONE);
-        downloadView.setVisibility(View.INVISIBLE);
-
+        downloadView.setVisibility(View.VISIBLE);
+//
         RxToolbar.itemClicks(toolbar)
                 .filter(continueWhenFormIsCorrect())
                 .map(createCarFromForm())
                 .filter(continueWhenCarHasCorrectValues())
-                .map(checkCarAlreadyExist())
+
                 .subscribeWith(new DisposableObserver<Car>() {
                     @Override
                     public void onComplete() {
@@ -185,30 +214,88 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
 
 
 
-//        fueltypeText.setAdapter(new FuelTypeAdapter(
-//                getContext(),
-//                R.layout.activity_car_selection_newcar_fueltype_item,
-//                Car.FuelType.values()));
+
 
 
         fueltypeText.setKeyListener(null);
 
-        manufacturerText.setOnItemClickListener((parent, view1, position, id) -> requestNextTextfieldFocus(manufacturerText));
-        modelText.setOnItemClickListener((parent, view12, position, id) -> requestNextTextfieldFocus(modelText));
-        yearText.setOnItemClickListener((parent, view13, position, id) -> requestNextTextfieldFocus(yearText));
-        fueltypeText.setOnItemClickListener((parent, view14, position, id) -> requestNextTextfieldFocus(fueltypeText));
+//        manufacturerText.setOnItemClickListener((parent, view1, position, id) -> requestNextTextfieldFocus(manufacturerText));
+//        modelText.setOnItemClickListener((parent, view12, position, id) -> requestNextTextfieldFocus(modelText));
+//        yearText.setOnItemClickListener((parent, view13, position, id) -> requestNextTextfieldFocus(yearText));
+//        fueltypeText.setOnItemClickListener((parent, view14, position, id) -> requestNextTextfieldFocus(fueltypeText));
 
 //        dispatchRemoteSensors();
 //
 //        initFocusChangedListener();
         initWatcher();
+        carfetching();
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), R.layout.support_simple_spinner_dropdown_item, carname);
+
+        manufacturerText.setAdapter(adapter);
+        manufacturerText.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                selectedmanufacture = parent.getItemAtPosition(position).toString();
+                new datacomparing().execute();
+                downloadView.setVisibility(View.VISIBLE);
+
+            }
+        });
         return view;
+    }
+
+    private void carfetching() {
+        APiInterface apiInterface = RetrofitClient.getClient(getContext()).create(APiInterface.class);
+        apiInterface.getName().subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<List<manufacturer>>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                    }
+
+                    @Override
+                    public void onNext(List<manufacturer> manufacturers) {
+                        for (int i = 0; i < manufacturers.size(); i++) {
+                            manufacturer m = new manufacturer(manufacturers.get(i).getHsn(), manufacturers.get(i).getName());
+                            carhs.add(m);
+                            carname.add(manufacturers.get(i).getName());
+
+
+                        }
+                        Log.d("TAG", "onNext: " + carname.toString());
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.d("TAG", "onError: "+e.getLocalizedMessage());
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        downloadView.setVisibility(View.GONE);
+                        manufacturerText.requestFocus();
+                        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.showSoftInput(manufacturerText, InputMethodManager.SHOW_IMPLICIT);
+                       manufacturerText.showDropDown();
+                        Collections.sort(carname, new Comparator<String>() {
+                            @Override
+                            public int compare(String o1, String o2) {
+                                return o1.compareTo(o2);
+                            }
+                        });
+
+
+                    }
+                });
+
     }
 
     @Override
     public void onResume() {
         LOG.info("onResume()");
         super.onResume();
+//
         ECAnimationUtils.animateShowView(getContext(), toolbar,
                 R.anim.translate_slide_in_top_fragment);
         ECAnimationUtils.animateShowView(getContext(), toolbarExp,
@@ -326,10 +413,10 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
             // Get the values
             String manufacturer = manufacturerText.getText().toString();
             String model = modelText.getText().toString();
-            String yearString = yearText.getText().toString();
+            String yearString = yearText.getText().toString().substring(0,4);
             String engineString = engineText.getText().toString();
 
-//            FuelTypeAdapter fueltypeAdapter = (FuelTypeAdapter) fueltypeText.getAdapter();
+            FuelTypeAdapter fueltypeAdapter = (FuelTypeAdapter) fueltypeText.getAdapter();
             Car.FuelType fueltype = Car.FuelType.getFuelTybeByTranslatedString(getContext(),
                     fueltypeText.getText().toString());
 
@@ -372,45 +459,255 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
             return true;
         };
     }
+    public class datacomparing extends AsyncTask<String, Void, String> {
 
-    private Function<Car, Car> checkCarAlreadyExist() {
-        return car -> {
-            String manu = car.getManufacturer();
-            String model = car.getModel();
-            String year = "" + car.getConstructionYear();
-            String engine = "" + car.getEngineDisplacement();
-            Pair<String, String> modelYear = new Pair<>(model, year);
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
 
-            Car selectedCar = null;
-            if (mManufacturerNames.contains(manu)
-                    && mCarToModelMap.get(manu) != null
-                    && mCarToModelMap.get(manu).contains(model)
-                    && mModelToYear.get(model) != null
-                    && mModelToYear.get(model).contains(year)
-                    && mModelToCCM.get(modelYear) != null
-                    && mModelToCCM.get(modelYear).contains(engine)) {
-                for (Car other : mCars) {
-                    if (other.getManufacturer().equals(manu)
-                            && other.getModel().equals(model)
-                            && other.getConstructionYear() == car.getConstructionYear()
-                            && other.getEngineDisplacement() == car.getEngineDisplacement()
-                            && other.getFuelType() == car.getFuelType()) {
-                        selectedCar = other;
-                        break;
-                    }
+
+            modelapi(selectedhsm);
+
+
+        }
+
+        @Override
+        protected String doInBackground(String... strings) {
+            Iterator<manufacturer> itr = carhs.iterator();
+
+            while (itr.hasNext()) {
+
+                manufacturer m = itr.next();
+
+                if (m.getName().equals(selectedmanufacture)) {
+                    selectedhsm = m.getHsn();
+                } else {
+
                 }
             }
 
-            if (selectedCar == null) {
-                LOG.info("New Car type. Register car at server.");
-                carManager.registerCarAtServer(car);
-                return car;
-            } else {
-                LOG.info(String.format("Car already existed -> [%s]", selectedCar.getId()));
-                return selectedCar;
-            }
-        };
+            return null;
+        }
+
+
     }
+
+    private void modelapi(String selectedhsm) {
+        model.clear();
+        APiInterface apiInterface = RetrofitClient.getClient(getContext()).create(APiInterface.class);
+        apiInterface.getCommercialName(selectedhsm).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<List<vehicleModels>>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(List<vehicleModels> vehicleModels) {
+                        for (int i = 0; i < vehicleModels.size(); i++) {
+
+
+                            model.add(vehicleModels.get(i).getCommercialName());
+                            vehicleModels v = new vehicleModels(vehicleModels.get(i).getTsn(), vehicleModels.get(i).getCommercialName(), vehicleModels.get(i).getAllotmentDate());
+                            carmodel.add(v);
+
+
+                        }
+                        Log.d("TAG", "onNext: " + model.toString());
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.d("TAG", "onError: " + e.getLocalizedMessage());
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        downloadView.setVisibility(View.GONE);
+                        adapter1 = new ArrayAdapter<String>(getActivity(), R.layout.support_simple_spinner_dropdown_item, model);
+
+
+
+                        modelText.setAdapter(adapter1);
+                        modelText.requestFocus();
+                        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.showSoftInput(modelText, InputMethodManager.SHOW_IMPLICIT);
+                        modelText.showDropDown();
+                       modelText.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                            @Override
+                            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                modelselected = parent.getItemAtPosition(position).toString();
+                                new finddateallotment().execute();
+                            }
+                        });
+                        adapter1.notifyDataSetChanged();
+
+
+
+                    }
+                });
+    }
+    public class finddateallotment extends AsyncTask<String, Void, String> {
+
+        @Override
+        protected String doInBackground(String... strings) {
+            date.clear();
+            Iterator<vehicleModels> itr = carmodel.iterator();
+            while (itr.hasNext()) {
+                vehicleModels v = itr.next();
+                if (v.getCommercialName().equals(modelselected)) {
+                    date.add(v.getAllotmentDate());
+
+
+                }
+
+
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+
+
+            adapter2 = new ArrayAdapter<String>(getActivity(), R.layout.support_simple_spinner_dropdown_item, date);
+            yearText.setAdapter(adapter2);
+            yearText.requestFocus();
+            InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.showSoftInput(yearText, InputMethodManager.SHOW_IMPLICIT);
+           yearText.showDropDown();
+            yearText.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    selectedDate = parent.getItemAtPosition(position).toString();
+
+                    new findvehicletsn().execute();
+                    fueltypeText.setAdapter(new FuelTypeAdapter(
+                            getContext(),
+                            R.layout.activity_car_selection_newcar_fueltype_item,
+                            Car.FuelType.values()));
+                    fueltypeText.requestFocus();
+                    InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.showSoftInput(fueltypeText, InputMethodManager.SHOW_IMPLICIT);
+                    fueltypeText.showDropDown();
+                    fueltypeText.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                            findengine();
+                        }
+                    });
+
+
+                }
+
+            });
+
+        }
+    }
+
+    public class findvehicletsn extends AsyncTask<String, Void, String> {
+
+        @Override
+        protected String doInBackground(String... strings) {
+            Iterator<vehicleModels> itr = carmodel.iterator();
+            while (itr.hasNext()) {
+                vehicleModels v = itr.next();
+                if (v.getCommercialName().equals(modelselected) && v.getAllotmentDate().equals(selectedDate)) {
+                    tsn = v.getTsn();
+
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+
+        }
+
+    }
+    public void findengine() {
+        APiInterface apiInterface = RetrofitClient.getClient(getContext()).create(APiInterface.class);
+        apiInterface.getcategory(selectedhsm, tsn).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<modelinformation>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(modelinformation modelinformation) {
+                        engine = modelinformation.getEngineCapacity();
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                        Log.d("TAG", "onError: "+e.getLocalizedMessage());
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        if(engine.equals(null))
+                        {
+                            engineText.setVisibility(View.INVISIBLE);
+                        }
+                        engineText.setText(engine);
+                        engineText.requestFocus();
+                        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(),0);
+
+                    }
+                });
+
+    }
+
+//    private Function<Car, Car> checkCarAlreadyExist() {
+//        return car -> {
+//            String manu = car.getManufacturer();
+//            String model = car.getModel();
+//            String year = "" + car.getConstructionYear();
+//            String engine = "" + car.getEngineDisplacement();
+//            Pair<String, String> modelYear = new Pair<>(model, year);
+//
+//            Car selectedCar = null;
+//            if (mManufacturerNames.contains(manu)
+//                    && mCarToModelMap.get(manu) != null
+//                    && mCarToModelMap.get(manu).contains(model)
+//                    && mModelToYear.get(model) != null
+//                    && mModelToYear.get(model).contains(year)
+//                    && mModelToCCM.get(modelYear) != null
+//                    && mModelToCCM.get(modelYear).contains(engine)) {
+//                for (Car other : mCars) {
+//                    if (other.getManufacturer().equals(manu)
+//                            && other.getModel().equals(model)
+//                            && other.getConstructionYear() == car.getConstructionYear()
+//                            && other.getEngineDisplacement() == car.getEngineDisplacement()
+//                            && other.getFuelType() == car.getFuelType()) {
+//                        selectedCar = other;
+//                        break;
+//                    }
+//                }
+//            }
+//
+//            if (selectedCar == null) {
+//                LOG.info("New Car type. Register car at server.");
+//                carManager.registerCarAtServer(car);
+//                return car;
+//            } else {
+//                LOG.info(String.format("Car already existed -> [%s]", selectedCar.getId()));
+//                return selectedCar;
+//            }
+//        };
+//    }
 
 //    private void dispatchRemoteSensors() {
 //        disposables.add(daoProvider.getSensorDAO()
@@ -634,7 +931,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
                 .filter(s -> !s.isEmpty())
                 .subscribe(yearString -> {
                     try {
-                        int year = Integer.parseInt(yearString);
+                        int year = Integer.parseInt(yearString.substring(0,4));
                         if (year < CONSTRUCTION_YEAR_MIN || year > CONSTRUCTION_YEAR_MAX) {
                             yearText.setError(getString(R.string.car_selection_error_invalid_input));
                             yearText.requestFocus();
@@ -692,30 +989,30 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
     /**
      * Custom array adapter for translated fueltypes
      */
-//    private static class FuelTypeAdapter extends ArrayAdapter<String> {
-//        private final Car.FuelType[] values;
-//
-//        public FuelTypeAdapter(@NonNull Context context, int resource, Car.FuelType[] values) {
-//            super(context, resource, new AbstractList<String>() {
-//                @Override
-//                public int size() {
-//                    return values.length;
-//                }
-//
-//                @Override
-//                public String get(int index) {
-//                    if (index == ArrayAdapter.NO_SELECTION)
-//                        return null;
-//                    return context.getString(values[index].getStringResource());
-//                }
-//            });
-//            this.values = values;
-//        }
-//
-//        public Car.FuelType getOriginal(int index) {
-//            if (index == ArrayAdapter.NO_SELECTION)
-//                return null;
-//            return values[index];
-//        }
-//    }
+    private static class FuelTypeAdapter extends ArrayAdapter<String> {
+        private final Car.FuelType[] values;
+
+        public FuelTypeAdapter(@NonNull Context context, int resource, Car.FuelType[] values) {
+            super(context, resource, new AbstractList<String>() {
+                @Override
+                public int size() {
+                    return values.length;
+                }
+
+                @Override
+                public String get(int index) {
+                    if (index == ArrayAdapter.NO_SELECTION)
+                        return null;
+                    return context.getString(values[index].getStringResource());
+                }
+            });
+            this.values = values;
+        }
+
+        public Car.FuelType getOriginal(int index) {
+            if (index == ArrayAdapter.NO_SELECTION)
+                return null;
+            return values[index];
+        }
+    }
 }
