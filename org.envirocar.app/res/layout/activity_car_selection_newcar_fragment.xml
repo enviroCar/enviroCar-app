@@ -114,6 +114,7 @@
 
                 <AutoCompleteTextView
 
+
                     android:id="@+id/activity_car_selection_newcar_input_manufacturer"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
