@@ -344,10 +344,12 @@
                     </androidx.constraintlayout.widget.ConstraintLayout>
                 </LinearLayout>
 
-                <androidx.cardview.widget.CardView
+                <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cardView2"
                     android:layout_width="0dp"
                     android:layout_height="76dp"
+                    android:background="@color/white"
+                    app:cardBackgroundColor="@android:color/white"
                     app:cardCornerRadius="10dp"
                     app:cardElevation="10dp"
                     app:layout_constraintBottom_toBottomOf="@+id/fragment_dashboard_banner"
@@ -356,12 +358,14 @@
                     app:layout_constraintTop_toBottomOf="@+id/fragment_dashboard_banner">
 
                     <LinearLayout
+
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_margin="7dp"
                         android:orientation="horizontal">
 
                         <LinearLayout
+
                             android:id="@+id/fragment_dashboard_user_tracks_layout"
                             android:layout_width="0dp"
                             android:layout_height="match_parent"
@@ -395,6 +399,7 @@
                                 android:gravity="center"
                                 android:maxLines="1"
                                 android:text="@string/dashboard_total_tracks"
+                                android:textColor="@android:color/darker_gray"
                                 app:autoSizeMaxTextSize="11sp"
                                 app:autoSizeMinTextSize="2sp"
                                 app:autoSizeStepGranularity="1sp"
@@ -436,6 +441,7 @@
                                 android:paddingLeft="2dp"
                                 android:paddingRight="2dp"
                                 android:text="@string/dashboard_total_distance"
+                                android:textColor="@android:color/darker_gray"
                                 app:autoSizeMaxTextSize="11sp"
                                 app:autoSizeMinTextSize="2sp"
                                 app:autoSizeStepGranularity="1sp"
@@ -476,6 +482,7 @@
                                 android:paddingLeft="2dp"
                                 android:paddingRight="2dp"
                                 android:text="@string/dashboard_total_duration"
+                                android:textColor="@android:color/darker_gray"
                                 app:autoSizeMaxTextSize="11sp"
                                 app:autoSizeMinTextSize="2sp"
                                 app:autoSizeStepGranularity="1sp"
@@ -491,7 +498,7 @@
                         android:layout_gravity="center"
                         android:visibility="gone" />
 
-                </androidx.cardview.widget.CardView>
+                </com.google.android.material.card.MaterialCardView>
 
                 <androidx.cardview.widget.CardView
                     android:id="@+id/cardViewSettings"
@@ -539,6 +546,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_gravity="center_vertical"
+                        android:background="@android:color/white"
                         android:orientation="horizontal">
 
                         <ImageView
@@ -555,6 +563,7 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_vertical"
                             android:layout_weight="1"
+                            android:background="@android:color/white"
                             android:orientation="vertical"
                             android:padding="12dp">
 
@@ -565,7 +574,7 @@
                                 android:fontFamily="@font/roboto_medium"
                                 android:singleLine="true"
                                 android:text="@string/dashboard_obd_not_selected"
-                                android:textColor="#000000"
+                                android:textColor="@android:color/black"
                                 app:autoSizeMaxTextSize="20sp"
                                 app:autoSizeMinTextSize="10sp"
                                 app:autoSizeTextType="uniform" />
@@ -577,7 +586,7 @@
                                 android:fontFamily="@font/roboto"
                                 android:singleLine="true"
                                 android:text="@string/dashboard_obd_not_selected_advise"
-                                android:textColor="#000000"
+                                android:textColor="@android:color/black"
                                 android:textSize="14sp"
                                 app:autoSizeMaxTextSize="15sp"
                                 app:autoSizeMinTextSize="7sp"
@@ -612,6 +621,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_gravity="center_vertical"
+                        android:background="@android:color/white"
                         android:orientation="horizontal">
 
                         <ImageView
@@ -628,6 +638,7 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_vertical"
                             android:layout_weight="1"
+                            android:background="@android:color/white"
                             android:orientation="vertical"
                             android:padding="12dp">
 
@@ -638,7 +649,7 @@
                                 android:fontFamily="@font/roboto_medium"
                                 android:singleLine="true"
                                 android:text="@string/dashboard_carselection_no_car_selected"
-                                android:textColor="#000000"
+                                android:textColor="@android:color/black"
                                 app:autoSizeMaxTextSize="20sp"
                                 app:autoSizeMinTextSize="10sp"
                                 app:autoSizeTextType="uniform" />
@@ -650,7 +661,7 @@
                                 android:fontFamily="@font/roboto"
                                 android:singleLine="true"
                                 android:text="@string/dashboard_carselection_no_car_selected_advise"
-                                android:textColor="#000000"
+                                android:textColor="@android:color/black"
                                 android:textSize="14sp"
                                 app:autoSizeMaxTextSize="15sp"
                                 app:autoSizeMinTextSize="7sp"

@@ -96,6 +96,9 @@
                 </LinearLayout>
 
                 <ListView
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:dividerHeight="20px"
                     android:id="@+id/activity_car_selection_layout_carlist"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"

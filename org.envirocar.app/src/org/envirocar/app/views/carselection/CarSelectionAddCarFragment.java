@@ -101,10 +101,10 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
     private static final Logger LOG = Logger.getLogger(CarSelectionAddCarFragment.class);
 
     private static final int ERROR_DEBOUNCE_TIME = 750;
-    private static final int CONSTRUCTION_YEAR_MIN = 1990;
+    private static final int CONSTRUCTION_YEAR_MIN = 1900;
     private static final int CONSTRUCTION_YEAR_MAX = Calendar.getInstance().get(Calendar.YEAR);
     private static final int ENGINE_DISPLACEMENT_MIN = 500;
-    private static final int ENGINE_DISPLACEMENT_MAX = 5000;
+    private static final int ENGINE_DISPLACEMENT_MAX = 10000;
 
     @BindView(R.id.envirocar_toolbar)
     protected Toolbar toolbar;
@@ -441,11 +441,11 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
 
             // Check the values of engine and year for validity.
             if (car.getFuelType() != Car.FuelType.ELECTRIC &&
-                    (car.getEngineDisplacement() < 500 || car.getEngineDisplacement() > 5000)) {
+                    (car.getEngineDisplacement() < 500 || car.getEngineDisplacement() > 10000)) {
                 engineText.setError(getString(R.string.car_selection_error_invalid_input));
                 focusView = engineText;
             }
-            if (car.getConstructionYear() < 1990 || car.getConstructionYear() > currentYear) {
+            if (car.getConstructionYear() < 1900 || car.getConstructionYear() > currentYear) {
                 yearText.setError(getString(R.string.car_selection_error_invalid_input));
                 focusView = yearText;
             }

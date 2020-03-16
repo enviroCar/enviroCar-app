@@ -18,14 +18,23 @@
     with the enviroCar app. If not, see http://www.gnu.org/licenses/.
 
 -->
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="64dp"
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_marginTop="@dimen/spacing_large"
-    android:layout_marginLeft="@dimen/spacing_large"
-    android:layout_marginRight="@dimen/spacing_large"
-    android:orientation="vertical">
+    android:layout_width="match_parent"
+    app:cardCornerRadius="10dp"
+    android:elevation="5dp"
+    app:cardBackgroundColor="@color/blue_dark_cario"
+    android:layout_height="64dp"
+    android:layout_margin="10dp">
+<RelativeLayout
+
+    android:layout_width="match_parent"
+
+
+    android:layout_height="match_parent"
+    android:layout_margin="10dp">
+
 
     <ImageView
         android:id="@+id/activity_car_selection_layout_carlist_entry_icon"
@@ -34,7 +43,7 @@
         android:layout_centerVertical="true"
         android:layout_marginLeft="@dimen/spacing_medium"
         android:alpha="0.54"
-        android:src="@drawable/ic_drive_eta_black_24dp" />
+        android:src="@drawable/ic_directions_car_black_24dp" />
 
     <RadioButton
         android:id="@+id/activity_car_selection_layout_carlist_entry_radio"
@@ -43,7 +52,9 @@
         android:layout_alignParentRight="true"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
-        android:layout_marginLeft="@dimen/spacing_large" />
+        android:layout_marginLeft="@dimen/spacing_large"
+        android:buttonTint="@android:color/white"
+        />
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -64,31 +75,29 @@
             android:fontFamily="@font/roboto_medium"
             android:singleLine="true"
             android:text="@string/dashboard_carselection_no_car_selected"
-            android:textColor="#000000"
-            app:autoSizeMaxTextSize="20sp"
-            app:autoSizeMinTextSize="15sp"
+            android:textColor="@android:color/white"
+            app:autoSizeMaxTextSize="15sp"
+            app:autoSizeMinTextSize="12sp"
             app:autoSizeTextType="uniform" />
 
         <androidx.appcompat.widget.AppCompatTextView
+
             android:id="@+id/activity_car_selection_layout_carlist_entry_secondline"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@font/roboto"
             android:singleLine="true"
             android:text="@string/dashboard_carselection_no_car_selected_advise"
-            android:textColor="#000000"
-            app:autoSizeMaxTextSize="15sp"
+            android:textColor="@android:color/white"
+            app:autoSizeMaxTextSize="10sp"
             app:autoSizeMinTextSize="7sp"
             app:autoSizeTextType="uniform" />
 
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_alignParentBottom="true"
-        android:layout_marginLeft="24dp"
-        android:layout_toRightOf="@id/activity_car_selection_layout_carlist_entry_icon"
-        android:background="@color/envirocar_color_divider_grey" />
+
+
 
 </RelativeLayout>
+</com.google.android.material.card.MaterialCardView>
+
