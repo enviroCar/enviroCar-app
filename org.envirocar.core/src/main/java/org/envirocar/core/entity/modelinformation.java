@@ -1,4 +1,4 @@
-package org.envirocar.app.model;
+package org.envirocar.core.entity;
 
 import java.util.ArrayList;
 
