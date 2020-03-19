@@ -77,6 +77,7 @@ public class SignupActivity extends BaseInjectorActivity {
 
     private static final String EMAIL_REGEX = "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
     private static final String PASSWORD_REGEX = "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{6,}$";
+    private static final String USERNAME_REGEX = "^[a-z0-9_-]{6,}$";
     private static final int CHECK_FORM_DELAY = 750;
 
     public static void startActivity(Context context) {
@@ -333,6 +334,9 @@ public class SignupActivity extends BaseInjectorActivity {
             isValidUsername = false;
         } else if (username.length() < 6) {
             usernameEditText.setError(getString(R.string.error_invalid_username));
+            isValidUsername = false;
+        } else if (!Pattern.matches(USERNAME_REGEX,username)) {
+            usernameEditText.setError(getString(R.string.error_username_contain_special));
             isValidUsername = false;
         }
         return isValidUsername;
