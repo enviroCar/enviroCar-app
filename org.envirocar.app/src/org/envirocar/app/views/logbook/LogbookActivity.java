@@ -1,45 +1,47 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
 package org.envirocar.app.views.logbook;
 
 import android.os.Bundle;
-import com.google.android.material.snackbar.Snackbar;
-import androidx.appcompat.widget.Toolbar;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.android.material.snackbar.Snackbar;
 
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
+import org.envirocar.app.handler.DAOProvider;
 import org.envirocar.app.handler.preferences.CarPreferenceHandler;
+import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.app.views.utils.ECAnimationUtils;
 import org.envirocar.core.UserManager;
 import org.envirocar.core.entity.Fueling;
 import org.envirocar.core.exception.NotConnectedException;
 import org.envirocar.core.exception.UnauthorizedException;
-import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.app.handler.DAOProvider;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -47,8 +49,8 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import butterknife.ButterKnife;
 import butterknife.BindView;
+import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
@@ -60,7 +62,7 @@ import io.reactivex.schedulers.Schedulers;
  *
  * @author dewall
  */
-public class LogbookActivity extends BaseInjectorActivity implements LogbookUiListener, LogbookListAdapter.OnItemLongClick {
+public class LogbookActivity extends BaseInjectorActivity implements LogbookUiListener, LogbookTouchHelper.LogbookItemTouchListener {
     private static final Logger LOG = Logger.getLogger(LogbookActivity.class);
 
     @Inject
@@ -89,6 +91,7 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
     protected TextView infoBackgroundFirst;
     @BindView(R.id.layout_general_info_background_secondline)
     protected TextView infoBackgroundSecond;
+    ItemTouchHelper itemTouchHelper;
 
 //    @BindView(R.id.activity_logbook_not_logged_in)
 //    protected View notLoggedInView;
@@ -123,9 +126,11 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        fuelingListAdapter = new LogbookListAdapter(fuelings, this);
+        fuelingListAdapter = new LogbookListAdapter(fuelings);
         // setting up the recyclerview with the default linear layout manager, depending on requirement
         // can be customised.
+        itemTouchHelper = new ItemTouchHelper(new LogbookTouchHelper(0, ItemTouchHelper.LEFT, this));
+        itemTouchHelper.attachToRecyclerView(fuelingList);
         fuelingList.setLayoutManager(new LinearLayoutManager(this));
         fuelingList.setAdapter(fuelingListAdapter);
 
@@ -154,7 +159,7 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
     @Override
     public void onBackPressed() {
         LOG.info("onBackPressed()");
-        if(addFuelingFragment != null && addFuelingFragment.isVisible()){
+        if (addFuelingFragment != null && addFuelingFragment.isVisible()) {
             addFuelingFragment.closeThisFragment();
             LOG.info("AddFuelingCard was visible. Closing this card...");
             return;
@@ -164,7 +169,7 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
 
     @OnClick(R.id.activity_logbook_toolbar_new_fueling_fab)
     protected void onClickNewFuelingFAB() {
-        if(carHandler.hasCars()) {
+        if (carHandler.hasCars()) {
             // Click on the fab should first hide the fab and then open the AddFuelingFragment
             showAddFuelingCard();
         } else {
@@ -237,7 +242,7 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
      *
      * @param fueling the fueling to delete.
      */
-    private void deleteFueling(final Fueling fueling) {
+    private void deleteFueling(LogbookListAdapter.FuelingViewHolder holder, final Fueling fueling) {
         subscription.add(daoProvider.getFuelingDAO()
                 .deleteFuelingObservable(fueling)
                 .subscribeOn(Schedulers.io())
@@ -275,6 +280,7 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
                         // Nothing to do
                     }
                 }));
+        itemTouchHelper.startSwipe(holder);
     }
 
     private void showNoFuelingsInfo() {
@@ -317,8 +323,6 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
         LOG.info("AddFuelingCard should now be visible");
 
 
-
-
     }
 
     /**
@@ -339,14 +343,21 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
     }
 
     @Override
-    public void onLongClicked(int position) {
+    public void onSwiped(LogbookListAdapter.FuelingViewHolder holder, int position) {
         final Fueling fueling = fuelings.get(position);
+
         new MaterialDialog.Builder(LogbookActivity.this)
                 .title(R.string.logbook_dialog_delete_fueling_header)
                 .content(R.string.logbook_dialog_delete_fueling_content)
                 .positiveText(R.string.menu_delete)
                 .negativeText(R.string.cancel)
-                .onPositive((materialDialog, dialogAction) -> deleteFueling(fueling))
+                .cancelable(false)
+                .onPositive((materialDialog, dialogAction) -> deleteFueling(holder, fueling))
+                .onNegative((materialDialog, dialogAction) -> retainFueling(holder, position))
                 .show();
+    }
+
+    private void retainFueling(LogbookListAdapter.FuelingViewHolder holder, int position) {
+        itemTouchHelper.startSwipe(holder);
     }
 }

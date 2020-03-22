@@ -21,15 +21,16 @@ package org.envirocar.app.views.logbook;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.envirocar.app.R;
+import org.envirocar.app.views.utils.DateUtils;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Fueling;
-import org.envirocar.app.views.utils.DateUtils;
 
 import java.text.DateFormat;
 import java.text.DecimalFormat;
@@ -38,8 +39,8 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 
-import butterknife.ButterKnife;
 import butterknife.BindView;
+import butterknife.ButterKnife;
 
 /**
  * TODO JavaDoc
@@ -51,15 +52,13 @@ public class LogbookListAdapter extends RecyclerView.Adapter<LogbookListAdapter.
     private static final DateFormat DATE_FORMAT = DateFormat.getDateTimeInstance();
 
     private final List<Fueling> fuelings;
-    private OnItemLongClick onLongClick;
 
     /**
      * Constructor.
      *
      * @param objects the arraylist of fuelings.
      */
-    public LogbookListAdapter(List<Fueling> objects, OnItemLongClick longClickInterface) {
-        this.onLongClick = longClickInterface;
+    public LogbookListAdapter(List<Fueling> objects) {
         this.fuelings = objects;
     }
 
@@ -80,14 +79,6 @@ public class LogbookListAdapter extends RecyclerView.Adapter<LogbookListAdapter.
 
         Calendar calendar = new GregorianCalendar();
         calendar.setTime(new Date(fueling.getTime()));
-
-        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-                onLongClick.onLongClicked(position);
-                return false;
-            }
-        });
 
         holder.dateText.setText(DateUtils.getDateString(
                 holder.itemView.getContext(), fueling.getTime()));
@@ -143,6 +134,8 @@ public class LogbookListAdapter extends RecyclerView.Adapter<LogbookListAdapter.
         protected View filledUpView;
         @BindView(R.id.activity_logbook_listentry_missedfillup)
         protected View missedFillUpView;
+        @BindView(R.id.ll_foreground_logbook)
+        protected LinearLayout foregroundView;
 
         /**
          * Constructor.
@@ -155,7 +148,4 @@ public class LogbookListAdapter extends RecyclerView.Adapter<LogbookListAdapter.
         }
     }
 
-    public interface OnItemLongClick {
-        void onLongClicked(int position);
-    }
 }
