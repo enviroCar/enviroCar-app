@@ -18,97 +18,23 @@
     with the enviroCar app. If not, see http://www.gnu.org/licenses/.
 
 -->
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/relativeLayout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
-    <androidx.appcompat.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/toolbar"
-        style="@style/ToolBarStyle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/blue_dark_cario"
-        android:orientation="vertical"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    <include layout="@layout/envirocar_toolbar" />
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginTop="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar">
+        android:layout_height="match_parent"
+        android:layout_margin="8dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
-
-            <EditText
-                android:id="@+id/report_issue_header"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="12dp"
-                android:layout_marginTop="12dp"
-                android:fontFamily="@font/roboto_medium"
-                android:hint="@string/report_issue_summary"
-                android:textSize="20sp" />
-
-            <EditText
-                android:id="@+id/report_issue_desc"
-                android:layout_width="match_parent"
-                android:layout_height="170dp"
-                android:layout_marginLeft="12dp"
-                android:layout_marginRight="12dp"
-                android:background="@android:color/transparent"
-                android:fontFamily="@font/roboto"
-                android:gravity="start|top"
-                android:hint="@string/report_issue_desc_text"
-                android:inputType="textMultiLine"
-                android:padding="4dp"
-                android:textColor="#000000" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/report_issue_time_since_crash_txtview"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="12dp"
-                    android:background="@android:color/transparent"
-                    android:fontFamily="@font/roboto_medium"
-                    android:text="@string/report_issue_time_since_crash"
-                    android:textSize="18sp" />
-
-                <EditText
-                    android:id="@+id/report_issue_time_since_crash"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="12dp"
-                    android:layout_weight="1"
-                    android:background="@android:color/transparent"
-                    android:hint="@string/report_issue_minutes"
-                    android:inputType="number"
-                    android:textSize="18sp" />
-
-            </LinearLayout>
-
-            <ListView
-                android:id="@+id/report_issue_checkbox_list"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="12dp"
-                android:layout_marginRight="12dp"
-                android:divider="@null" />
 
             <TextView
                 android:id="@+id/report_issue_text"
@@ -121,6 +47,76 @@
                 android:fontFamily="@font/roboto_light1"
                 android:lineSpacingExtra="1.5dp"
                 android:text="@string/report_issue_text" />
+
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginVertical="8dp">
+
+                <TextView
+                    android:id="@+id/report_issue_time_since_crash_txtview"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:background="@android:color/transparent"
+                    android:fontFamily="@font/roboto_medium"
+                    android:text="@string/report_issue_time_since_crash"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginRight="16dp"
+                    android:textSize="18sp" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/report_issue_minutes">
+
+                    <androidx.appcompat.widget.AppCompatEditText
+                        android:id="@+id/report_issue_time_since_crash"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="start|top"
+                        android:imeOptions="actionNext"
+                        android:inputType="textMultiLine"
+                        android:padding="12dp" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+            </LinearLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/activity_car_selection_newcar_layout_manufacturer"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginVertical="8dp"
+                android:hint="@string/problem_description">
+
+                <androidx.appcompat.widget.AppCompatEditText
+                    android:id="@+id/report_issue_desc"
+                    android:layout_width="match_parent"
+                    android:layout_height="150dp"
+                    android:gravity="start|top"
+                    android:imeOptions="actionNext"
+                    android:inputType="textMultiLine"
+                    android:padding="12dp" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+
+            <ListView
+                android:id="@+id/report_issue_checkbox_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="12dp"
+                android:layout_marginRight="12dp"
+                android:divider="@null" />
+
 
             <Button
                 android:id="@+id/report_issue_submit"
@@ -170,6 +166,4 @@
                 android:fontFamily="@font/roboto_medium" />
         </LinearLayout>
     </ScrollView>
-
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>
