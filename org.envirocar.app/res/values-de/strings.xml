@@ -52,6 +52,7 @@
 	
 	<string name="welcome_message">Willkommen, %s</string>
     <string name="goodbye_message">Auf Wiederstehen, %s</string>
+    <string name="problem_description">Beschreiben Sie Ihr Problem</string>
 
     <string name="envirocar.org">http://www.envirocar.org</string>
     

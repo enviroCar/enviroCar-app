@@ -82,20 +82,17 @@
 
     <string name="ok" translatable="false">OK</string>
 
-
-
-
     <string name="driving">Driving</string>
 
 
     <string name="gps_track_details">*This is a GPS based track. It cannot be uploaded to the open data.</string>
     <string name="dashboard_signin_prompt">Sign in to upload your tracks</string>
-
+    <string name="problem_description">Describe your Problem</string>
 
     <string name="submit">Submit</string>
 
     <!-- Splashscreen -->
-    <string name="activity_splashscreen_subtitle">Start Today. \nJoin the Community.</string>
+    <string name="activity_splashscreen_subtitle" translatable="false">Start Today. \nJoin the Community.</string>
 
     <!-- ################# -->
     <!-- Sign In / Sign Up -->
