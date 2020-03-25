@@ -19,6 +19,7 @@
 
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/relativeLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -108,7 +109,6 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
-
             <ListView
                 android:id="@+id/report_issue_checkbox_list"
                 android:layout_width="match_parent"
@@ -117,23 +117,26 @@
                 android:layout_marginRight="12dp"
                 android:divider="@null" />
 
-
-            <Button
+            <androidx.cardview.widget.CardView
                 android:id="@+id/report_issue_submit"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center|center_vertical"
-                android:layout_margin="12dp"
-                android:layout_marginRight="20dp"
-                android:background="@drawable/btn_new"
-                android:fontFamily="@font/roboto_medium"
-                android:paddingLeft="25dp"
-                android:paddingTop="15dp"
-                android:paddingRight="25dp"
-                android:paddingBottom="15dp"
-                android:text="@string/report_issue_button"
-                android:textAllCaps="true"
-                android:textSize="15sp" />
+                android:layout_width="250dp"
+                android:layout_height="50dp"
+                android:layout_marginTop="24dp"
+                android:layout_marginHorizontal="16dp"
+                android:layout_centerHorizontal="true"
+                android:layout_gravity="center"
+                app:cardBackgroundColor="@color/cario_color_primary_dark"
+                app:cardCornerRadius="25dp"
+                app:cardElevation="10dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="@string/report_issue_button"
+                    android:textColor="@color/white_cario" />
+
+            </androidx.cardview.widget.CardView>
 
             <TextView
                 android:id="@+id/report_issue_bottom_text"
@@ -146,24 +149,6 @@
                 android:lineSpacingExtra="1.5dp"
                 android:text="@string/report_issue_bottom_text" />
 
-            <TextView
-                android:id="@+id/report_issue_log_location"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="12dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginRight="12dp"
-                android:layout_marginBottom="3dp"
-                android:fontFamily="@font/roboto_medium" />
-
-            <TextView
-                android:id="@+id/report_issue_other_file"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="12dp"
-                android:layout_marginRight="12dp"
-                android:layout_marginBottom="35dp"
-                android:fontFamily="@font/roboto_medium" />
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

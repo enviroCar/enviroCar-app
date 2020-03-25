@@ -91,11 +91,7 @@
         Zeitstempel werden automatisch in die Protokolle aufgenommen. Das Senden von Berichten an uns hilft uns,
         unerwartetes Verhalten oder Abstürze zu reproduzieren. Das macht enviroCar besser und stabiler.
         Klicken Sie auf die Schaltfläche Senden unten, um diesen Bericht per EMail an uns zu senden.</string>
-    <string name="report_issue_bottom_text">Diese Funktion verwendet die Standardeinstellung \"Senden an\".
-        Wenn Sie es mit Ihrem EMail-Client aufrufen, können Sie den Bericht ganz einfach per EMail versenden.
-        Wenn Sie keinen EMail-Client installiert haben, können Sie die Protokolldatei auf einem PC speichern,
-        z.B. über Bluetooth oder USB. \n\nIn solchen Fällen bitten wir Sie, das Berichtspaket manuell einzusenden.
-        Sie werden an den folgenden Stellen aufbewahrt:</string>
+    <string name="report_issue_bottom_text">Diese Funktion verwendet die Standardeinstellung \"Senden an\".</string>
     <string name="report_issue_desc_text">Eine detailliertere Beschreibung</string>
     <string name="report_issue_button">Bericht Absenden</string>
     <string-array name="report_issue_subject_header">
