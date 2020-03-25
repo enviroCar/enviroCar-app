@@ -94,8 +94,8 @@
 
     <string name="report_issue_text">
         Zeitstempel werden automatisch in die Protokolle aufgenommen. Das Senden von Berichten an uns hilft uns,
-        unerwartetes Verhalten oder Abstürze zu reproduzieren. Das macht enviroCar besser und stabiler.
-        Klicken Sie auf die Schaltfläche Senden unten, um diesen Bericht per EMail an uns zu senden.</string>
+        unerwartetes Verhalten oder Abstürze zu reproduzieren. Dadurch können wir enviroCar stabilisieren und verbessern.
+        Klicken Sie auf unten auf die Schaltfläche "Bericht Senden", um diesen Bericht per EMail inklusive Protokolldaten an uns zu senden.</string>
     <string name="report_issue_bottom_text">Diese Funktion verwendet die Standardeinstellung \"Senden an\".</string>
     <string name="report_issue_desc_text">Eine detailliertere Beschreibung</string>
     <string name="report_issue_button">Bericht Absenden</string>
