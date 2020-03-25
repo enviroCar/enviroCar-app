@@ -30,12 +30,13 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_margin="8dp">
+        android:paddingHorizontal="8dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:layout_marginVertical="8dp">
 
             <TextView
                 android:id="@+id/report_issue_text"
@@ -68,6 +69,7 @@
                     android:text="@string/report_issue_time_since_crash"
                     android:layout_marginLeft="4dp"
                     android:layout_marginRight="16dp"
+                    android:textColor="@color/cario_color_primary_dark"
                     android:textSize="18sp" />
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -82,7 +84,7 @@
                         android:layout_height="wrap_content"
                         android:gravity="start|top"
                         android:imeOptions="actionNext"
-                        android:inputType="textMultiLine"
+                        android:inputType="number"
                         android:padding="12dp" />
 
                 </com.google.android.material.textfield.TextInputLayout>
@@ -109,19 +111,28 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginTop="16dp"
+                android:textSize="18sp"
+                android:fontFamily="@font/roboto_medium"
+                android:textColor="@color/cario_color_primary_dark"
+                android:text="@string/categories" />
+
             <ListView
                 android:id="@+id/report_issue_checkbox_list"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="12dp"
-                android:layout_marginRight="12dp"
+                android:layout_marginHorizontal="12dp"
                 android:divider="@null" />
 
             <androidx.cardview.widget.CardView
                 android:id="@+id/report_issue_submit"
                 android:layout_width="250dp"
                 android:layout_height="50dp"
-                android:layout_marginTop="24dp"
+                android:layout_marginVertical="26dp"
                 android:layout_marginHorizontal="16dp"
                 android:layout_centerHorizontal="true"
                 android:layout_gravity="center"
@@ -138,16 +149,6 @@
 
             </androidx.cardview.widget.CardView>
 
-            <TextView
-                android:id="@+id/report_issue_bottom_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="12dp"
-                android:layout_marginTop="12dp"
-                android:layout_marginRight="12dp"
-                android:fontFamily="@font/roboto_light1"
-                android:lineSpacingExtra="1.5dp"
-                android:text="@string/report_issue_bottom_text" />
 
         </LinearLayout>
     </ScrollView>

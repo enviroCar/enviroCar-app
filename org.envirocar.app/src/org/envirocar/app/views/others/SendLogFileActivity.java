@@ -73,6 +73,7 @@ import java.util.Locale;
 
 import javax.inject.Inject;
 
+import butterknife.BindArray;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -92,22 +93,21 @@ public class SendLogFileActivity extends BaseInjectorActivity {
     private static final String OTHER_DETAILS_PREFIX = "extra-info";
     private static final String EXTENSION = ".zip";
 
-    @BindView(R.id.report_issue_header)
-    protected EditText title;
+    @BindView(R.id.envirocar_toolbar)
+    protected Toolbar toolbar;
     @BindView(R.id.report_issue_time_since_crash)
     protected EditText whenField;
     @BindView(R.id.report_issue_desc)
     protected EditText comments;
-    @BindView(R.id.report_issue_log_location)
-    protected TextView locationText;
-    @BindView(R.id.toolbar)
-    protected Toolbar toolbar;
     @BindView(R.id.report_issue_submit)
-    protected Button submitIssue;
+    protected View submitIssue;
     @BindView(R.id.report_issue_checkbox_list)
     protected ListView checkBoxListView;
-    @BindView(R.id.report_issue_other_file)
-    protected TextView otherFileLocation;
+
+    @BindArray(R.array.report_issue_subject_header)
+    protected String[] subjectHeaders;
+    @BindArray(R.array.report_issue_subject_tags)
+    protected String[] subjectTags;
 
     @Inject
     protected CarPreferenceHandler mCarPrefHandler;
@@ -115,8 +115,6 @@ public class SendLogFileActivity extends BaseInjectorActivity {
     protected BluetoothHandler mBluetoothHandler;
 
     protected List<CheckBoxItem> checkBoxItems;
-    protected List<String> subjectHeaders;
-    protected List<String> subjectTags;
     protected String extraInfo;
 
     @Override
@@ -132,40 +130,15 @@ public class SendLogFileActivity extends BaseInjectorActivity {
 
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle(R.string.report_issue_header);
+        getSupportActionBar().setTitle("");
 
-        AsyncTask.execute(() -> {
-            subjectHeaders = Arrays.asList(getResources().getStringArray(R.array.report_issue_subject_header));
-            subjectTags = Arrays.asList(getResources().getStringArray(R.array.report_issue_subject_tags));
-            set();
-        });
+        set();
 
-        File reportBundle = null;
         try {
             removeOldReportBundles();
-
-            final File tmpBundle = createReportBundle();
-            final File otherFile = createVersionAndErrorDetailsFile();
-            reportBundle = tmpBundle;
-            if (reportBundle != null) {
-                LOG.info("Report Location: " + reportBundle.getAbsolutePath());
-                locationText.setText(reportBundle.getAbsolutePath());
-            } else {
-                LOG.info("Error: Report is NULL.");
-                locationText.setError("Error allocating report bundle.");
-                locationText.setText("An error occured while creating the report bundle. Please send in the logs available at " +
-                        LocalFileHandler.effectiveFile.getParentFile().getAbsolutePath());
-            }
-            if (otherFile != null) {
-                otherFileLocation.setText(otherFile.getAbsolutePath());
-            } else {
-                LOG.info("Error creating the versions txt file.");
-            }
         } catch (IOException e) {
             LOG.warn(e.getMessage(), e);
         }
-
-
     }
 
     @OnClick(R.id.report_issue_submit)
@@ -186,12 +159,10 @@ public class SendLogFileActivity extends BaseInjectorActivity {
      * function to set the names for the checkboxes
      */
     public void setCheckBoxes() {
-        List<String> totalList = new ArrayList<>();
-        totalList.addAll(subjectHeaders);
-        for (int i = 0; i < totalList.size(); i++) {
+        for (String subjectHeader : subjectHeaders){
             CheckBoxItem temp = new CheckBoxItem();
             temp.setChecked(false);
-            temp.setItemText(totalList.get(i));
+            temp.setItemText(subjectHeader);
             checkBoxItems.add(temp);
         }
     }
@@ -212,17 +183,12 @@ public class SendLogFileActivity extends BaseInjectorActivity {
      * @return true if at least one checkbox is ticked
      */
     public boolean checkIfCheckboxSelected() {
-
-        LOG.info("Checking checkboxes.");
         for (int i = 0; i < checkBoxItems.size(); i++) {
             CheckBoxItem dto = checkBoxItems.get(i);
-            LOG.info("Checkbox " + i + " : " + dto.isChecked());
             if (dto.isChecked()) {
-                LOG.info("Ticked Checkbox found.");
                 return Boolean.TRUE;
             }
         }
-        LOG.info("No checkboxes ticked.");
         return Boolean.FALSE;
     }
 
@@ -262,7 +228,6 @@ public class SendLogFileActivity extends BaseInjectorActivity {
      * @param reportBundle the file to attach
      */
     protected void sendLogFile(File reportBundle) {
-
         Intent emailIntent = new Intent(android.content.Intent.ACTION_SENDTO);
         emailIntent.setType("message/rfc822");
         emailIntent.setData(Uri.parse("mailto:"));
@@ -334,10 +299,10 @@ public class SendLogFileActivity extends BaseInjectorActivity {
      */
     protected String createSubject() {
         StringBuilder subject = new StringBuilder();
-        for (int i = 0; i < subjectTags.size(); i++) {
+        for (int i = 0; i < subjectTags.length; i++) {
             CheckBoxItem dto = checkBoxItems.get(i);
             if (dto.isChecked()) {
-                subject.append(subjectTags.get(i));
+                subject.append(subjectTags[i]);
             }
         }
         return subject.toString();
@@ -370,9 +335,7 @@ public class SendLogFileActivity extends BaseInjectorActivity {
 
     private String createComments() {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("Summary: ");
-        stringBuilder.append(title.getText().toString());
-        stringBuilder.append("\n");
+        stringBuilder.append("Description: ");
         stringBuilder.append(comments.getText().toString());
         stringBuilder.append("\n");
         return stringBuilder.toString();
