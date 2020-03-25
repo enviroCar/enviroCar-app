@@ -50,8 +50,6 @@
                 android:lineSpacingExtra="1.5dp"
                 android:text="@string/report_issue_text" />
 
-
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -148,8 +146,6 @@
                     android:textColor="@color/white_cario" />
 
             </androidx.cardview.widget.CardView>
-
-
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

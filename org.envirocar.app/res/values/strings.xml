@@ -109,6 +109,10 @@
     <string name="report_issue_time_since_crash">Time since crash:</string>
     <string name="report_issue_minutes">in minutes</string>
 
+    <string name="report_issue_no_checkbox_selected_title">No Checkbox Selected</string>
+    <string name="report_issue_no_checkbox_selected_content">You have not selected any of the checkboxes. These help developers sort through issues quickly and resolve them. Please consider filling those that are relevant.</string>
+    <string name="report_issue_no_checkbox_send_anyway">Send Report Anyway</string>
+
     <string name="report_issue_text">
         Timestamps are automatically included in the logs. Sending us reports helps us reproduce unexpected behavior or crashes.
         This makes enviroCar better and more stable. Click the send button below to email this report to us.</string>
@@ -131,7 +135,6 @@
         <item>[FEATURE REQ]</item>
     </string-array>
 
-
     <!-- ################# -->
     <!--  Preference Keys  -->
     <!-- ################# -->
@@ -148,7 +151,6 @@
     <string name="prefkey_display_always_active" tools:ignore="MissingTranslation">pref_display_always_active</string>
     <string name="prefkey_automatic_upload" tools:ignore="MissingTranslation">pref_automatic_upload</string>
     <string name="prefkey_gps_mode_ar" tools:ignore="MissingTranslation">prefkey_gps_mode_ar</string>
-
 
     <!-- ################# -->
     <!--   Notifications   -->
@@ -168,7 +170,6 @@
     <string name="notification_autoupload_uploading_sub">%s gets pushed as Open Data to the enviroCar platform.</string>
     <string name="notification_autoupload_error_title">Track Upload Error</string>
     <string name="notification_autoupload_error_sub">Error while uploading to the enviroCar platform.</string>
-
 
     <!-- ################# -->
     <!--    Permissions    -->

@@ -19,32 +19,26 @@
 package org.envirocar.app.views.others;
 
 import android.app.Activity;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import android.preference.PreferenceManager;
 import android.util.Pair;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
+
+import com.afollestad.materialdialogs.MaterialDialog;
 
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
@@ -58,7 +52,6 @@ import org.envirocar.core.entity.Car;
 import org.envirocar.core.logging.LocalFileHandler;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.util.Util;
-import org.envirocar.core.utils.CarUtils;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -132,7 +125,7 @@ public class SendLogFileActivity extends BaseInjectorActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle("");
 
-        set();
+        setCheckboxes();
 
         try {
             removeOldReportBundles();
@@ -148,7 +141,7 @@ public class SendLogFileActivity extends BaseInjectorActivity {
             if (checkIfCheckboxSelected()) {
                 sendLogFile(tmpBundle);
             } else {
-                createDialog(tmpBundle);
+                createNoCheckboxDialog(tmpBundle);
             }
         } catch (Exception e) {
             LOG.warn(e.getMessage(), e);
@@ -156,10 +149,10 @@ public class SendLogFileActivity extends BaseInjectorActivity {
     }
 
     /**
-     * function to set the names for the checkboxes
+     * function to setCheckboxes the names for the checkboxes
      */
     public void setCheckBoxes() {
-        for (String subjectHeader : subjectHeaders){
+        for (String subjectHeader : subjectHeaders) {
             CheckBoxItem temp = new CheckBoxItem();
             temp.setChecked(false);
             temp.setItemText(subjectHeader);
@@ -179,18 +172,6 @@ public class SendLogFileActivity extends BaseInjectorActivity {
         hideKeyboard(getCurrentFocus());
     }
 
-    /**
-     * @return true if at least one checkbox is ticked
-     */
-    public boolean checkIfCheckboxSelected() {
-        for (int i = 0; i < checkBoxItems.size(); i++) {
-            CheckBoxItem dto = checkBoxItems.get(i);
-            if (dto.isChecked()) {
-                return Boolean.TRUE;
-            }
-        }
-        return Boolean.FALSE;
-    }
 
     /**
      * In case no checkbox has been ticked, a dialog is created urging the getUserStatistic to do so,
@@ -198,28 +179,17 @@ public class SendLogFileActivity extends BaseInjectorActivity {
      *
      * @param reportBundle
      */
-    public void createDialog(File reportBundle) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(SendLogFileActivity.this);
-        builder.setMessage("You have not selected any of the checkboxes. These help developers " +
-                "sort through issues quickly and resolve them. Please consider filling those that " +
-                "are relevant.")
-                .setTitle("No Checkbox Selected")
-                .setCancelable(false)
-                .setPositiveButton("Go Back", (dialog, which) -> {
-
-                })
-                .setNegativeButton("Send Report Anyway", (dialog, which) -> sendLogFile(reportBundle));
-        AlertDialog alertDialog = builder.create();
-        alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
-            @Override
-            public void onShow(DialogInterface dialog) {
-                alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(Color.parseColor("#7DB7DC"));
-                alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(Color.parseColor("#0065A0"));
-            }
-        });
-        alertDialog.show();
+    public void createNoCheckboxDialog(File reportBundle) {
+        new MaterialDialog.Builder(this)
+                .title(R.string.report_issue_no_checkbox_selected_title)
+                .content(R.string.report_issue_no_checkbox_selected_content)
+                .positiveText(R.string.report_issue_no_checkbox_send_anyway)
+                .negativeText(R.string.cancel)
+                .cancelable(false)
+                .onPositive((materialDialog, dialogAction) -> sendLogFile(reportBundle))
+                .onNegative((materialDialog, dialogAction) -> LOG.info("Log report not send"))
+                .show();
     }
-
 
     /**
      * creates a new {@link Intent#ACTION_SEND} with the report
@@ -461,9 +431,23 @@ public class SendLogFileActivity extends BaseInjectorActivity {
     }
 
     /**
+     * @return true if at least one checkbox is ticked
+     */
+    private boolean checkIfCheckboxSelected() {
+        for (int i = 0; i < checkBoxItems.size(); i++) {
+            CheckBoxItem dto = checkBoxItems.get(i);
+            if (dto.isChecked()) {
+                return Boolean.TRUE;
+            }
+        }
+        return Boolean.FALSE;
+    }
+
+
+    /**
      * Gets the strings for the checkboxes and sets the adapter
      */
-    public void set() {
+    private void setCheckboxes() {
         checkBoxItems = new ArrayList<>();
         extraInfo = new String();
         setCheckBoxes();
