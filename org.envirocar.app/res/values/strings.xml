@@ -175,4 +175,9 @@
     <!--    Permissions    -->
     <!-- ################# -->
     <string name="permissions_request_dialog">The enviroCar App requires additional permissions for recording tracks, which you can confirm manually in the following. This includes the exact positioning of the smartphone, so that collected parameters of a journey can be spatially located, and the write permission to the external memory, so that logs can be generated and transmitted via the "Report issue" function.</string>
+
+    <!-- ###################### -->
+    <!--    Extended MapView    -->
+    <!-- ###################### -->
+    <string name="mapview_extended_select_phenomena">Attribut Selection</string>
 </resources>
