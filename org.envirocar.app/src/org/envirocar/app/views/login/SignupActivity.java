@@ -20,6 +20,7 @@ package org.envirocar.app.views.login;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.Selection;
 import android.text.Spannable;
@@ -79,6 +80,7 @@ public class SignupActivity extends BaseInjectorActivity {
     private static final String PASSWORD_REGEX = "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{6,}$";
     private static final String USERNAME_REGEX = "^[a-z0-9_-]{6,}$";
     private static final int CHECK_FORM_DELAY = 750;
+    private static Drawable error;
 
     public static void startActivity(Context context) {
         Intent intent = new Intent(context, SignupActivity.class);
@@ -129,6 +131,9 @@ public class SignupActivity extends BaseInjectorActivity {
 
         // inject the views
         ButterKnife.bind(this);
+
+        error = getResources().getDrawable(R.drawable.ic_error_red_24dp);
+        error.setBounds(-50,0,0,error.getIntrinsicHeight());
 
         // make terms of use and privacy statement clickable
         this.makeClickableTextLinks();
@@ -363,13 +368,13 @@ public class SignupActivity extends BaseInjectorActivity {
     private boolean checkPasswordValidity(String password) {
         boolean isValidPassword = true;
         if (password == null || password.isEmpty() || password.equals("")) {
-            password1EditText.setError(getString(R.string.error_field_required));
+            password1EditText.setError(getString(R.string.error_field_required),error);
             isValidPassword = false;
         } else if (password.length() < 6) {
-            password1EditText.setError(getString(R.string.error_invalid_password));
+            password1EditText.setError(getString(R.string.error_invalid_password),error);
             isValidPassword = false;
         } else if (!Pattern.matches(PASSWORD_REGEX, password)) {
-            password1EditText.setError(getString(R.string.error_field_weak_password));
+            password1EditText.setError(getString(R.string.error_field_weak_password),error);
             isValidPassword = false;
         } else {
             final String password2 = password2EditText.getText().toString().trim();
@@ -386,7 +391,7 @@ public class SignupActivity extends BaseInjectorActivity {
     private boolean checkConfirmPasswordValidity(String password2) {
         boolean isValidMatch = true;
         if (password2 == null || password2.isEmpty() || password2.equals("")) {
-            password2EditText.setError(getString(R.string.error_field_required));
+            password2EditText.setError(getString(R.string.error_field_required),error);
             isValidMatch = false;
         } else {
             final String password1 = password1EditText.getText().toString().trim();
@@ -403,8 +408,8 @@ public class SignupActivity extends BaseInjectorActivity {
     private boolean checkPasswordMatch(String password, String password2) {
         boolean isValidMatch = password.equals(password2);
         if (!isValidMatch) {
-            password1EditText.setError(getString(R.string.error_passwords_not_matching));
-            password2EditText.setError(getString(R.string.error_passwords_not_matching));
+            password1EditText.setError(getString(R.string.error_passwords_not_matching),error);
+            password2EditText.setError(getString(R.string.error_passwords_not_matching),error);
         } else {
             password1EditText.setError(null);
             password2EditText.setError(null);
