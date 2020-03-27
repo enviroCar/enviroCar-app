@@ -19,35 +19,29 @@
     with the enviroCar app. If not, see http://www.gnu.org/licenses/.
 
 -->
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:layout_height="wrap_content">
 
     <CheckBox
         android:id="@+id/report_issue_checkbox_item"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="4dp"
-        android:layout_marginBottom="4dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_marginLeft="16dp" />
 
     <TextView
         android:id="@+id/report_issue_check_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
         android:fontFamily="@font/roboto"
         android:textColor="#000000"
+        android:text="Some Issue"
+        android:singleLine="false"
+        android:breakStrategy="high_quality"
         android:textSize="16sp"
-        app:layout_constraintBottom_toBottomOf="@+id/report_issue_checkbox_item"
-        app:layout_constraintStart_toEndOf="@+id/report_issue_checkbox_item"
-        app:layout_constraintTop_toTopOf="@+id/report_issue_checkbox_item" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+        android:layout_gravity="center"/>
+
+</LinearLayout>
