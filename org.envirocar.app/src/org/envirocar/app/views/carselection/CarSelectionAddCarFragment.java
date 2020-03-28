@@ -18,9 +18,11 @@
  */
 package org.envirocar.app.views.carselection;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -37,8 +39,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputLayout;
 import com.jakewharton.rxbinding3.appcompat.RxToolbar;
+import com.jakewharton.rxbinding3.view.RxView;
+import com.jakewharton.rxbinding3.widget.RxCompoundButton;
 import com.jakewharton.rxbinding3.widget.RxTextView;
 
 import org.envirocar.app.R;
@@ -118,6 +123,8 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
     protected TextInputLayout engineLayout;
     @BindView(R.id.activity_car_selection_newcar_input_engine)
     protected AutoCompleteTextView engineText;
+    @BindView(R.id.activity_car_selection_newcar_save)
+    protected FloatingActionButton saveButton;
 
     @Inject
     protected DAOProvider daoProvider;
@@ -134,6 +141,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
     private Map<Pair<String, String>, Set<String>> mModelToCCM = new ConcurrentHashMap<>();
 
 
+    @SuppressLint("CheckResult")
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle
@@ -150,12 +158,17 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
             closeThisFragment();
         });
 
+        saveButton.setOnClickListener(v -> {
+            hideKeyboard(v);
+            closeThisFragment();
+        });
+
 
         // initially we set the toolbar exp to gone
         toolbar.setVisibility(View.GONE);
         toolbarExp.setVisibility(View.GONE);
         contentView.setVisibility(View.GONE);
-        downloadView.setVisibility(View.INVISIBLE);
+        downloadView.setVisibility(View.GONE);
 
         RxToolbar.itemClicks(toolbar)
                 .filter(continueWhenFormIsCorrect())
@@ -437,7 +450,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
 
                             dispose();
 
-                            downloadView.setVisibility(View.INVISIBLE);
+                            downloadView.setVisibility(View.GONE);
                         });
                     }
 
@@ -445,7 +458,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
                     public void onError(Throwable e) {
                         LOG.error(e.getMessage(), e);
                         mainThreadWorker.schedule(() -> {
-                            downloadView.setVisibility(View.INVISIBLE);
+                            downloadView.setVisibility(View.GONE);
                         });
                     }
 
