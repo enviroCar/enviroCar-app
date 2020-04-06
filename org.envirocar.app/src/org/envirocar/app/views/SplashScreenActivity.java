@@ -20,13 +20,18 @@ package org.envirocar.app.views;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.widget.ImageView;
+
+import com.race604.drawable.wave.WaveDrawable;
 
 import org.envirocar.app.R;
 import org.envirocar.core.logging.Logger;
 
 import java.util.concurrent.TimeUnit;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.reactivex.Completable;
 import io.reactivex.disposables.Disposable;
@@ -35,10 +40,12 @@ import io.reactivex.disposables.Disposable;
  * @author dewall
  */
 public class SplashScreenActivity extends Activity {
+   @BindView(R.id.imageView2)
+   protected ImageView imageView;
     private static final Logger LOG = Logger.getLogger(SplashScreenActivity.class);
     private static final String HAS_BEEN_SEEN_KEY = "has_been_seen";
     private static final int SPLASH_SCREEN_DURATION = 1500;
-
+    private Drawable waveEnvicrocarLogo;
     private Disposable timerDisposable;
 
 
@@ -49,11 +56,14 @@ public class SplashScreenActivity extends Activity {
             startMainActivity();
             return;
         }
-
+        waveEnvicrocarLogo = new WaveDrawable(getDrawable(R.drawable.img_envirocar_logo_white));
         setContentView(R.layout.activity_splashscreen);
         getWindow().setNavigationBarColor(getResources().getColor(R.color.cario_color_primary_dark));
         ButterKnife.bind(this);
-
+        ((WaveDrawable)waveEnvicrocarLogo).setIndeterminate(true);
+        ((WaveDrawable)waveEnvicrocarLogo).setWaveSpeed(50);
+        ((WaveDrawable)waveEnvicrocarLogo).setWaveAmplitude(1000);
+        imageView.setImageDrawable(waveEnvicrocarLogo);
         if ((getIntent().getFlags() & Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT) != 0) {
             finish();
             return;
