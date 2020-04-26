@@ -42,6 +42,7 @@ dependencies {
     implementation rootProject.ext.materialDialogs
     implementation "com.andkulikov:transitionseverywhere:2.0.0"
     implementation 'de.hdodenhof:circleimageview:3.0.1'
+    implementation 'pl.bclogic:pulsator4droid:1.0.3'
 
     // RxBindings
     implementation rootProject.ext.rxBindingCore

@@ -19,10 +19,11 @@
     with the enviroCar app. If not, see http://www.gnu.org/licenses/.
 
 -->
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
     <LinearLayout
@@ -92,6 +93,26 @@
                     android:minHeight="10dp"/>
 
             </LinearLayout>
+
+            <pl.bclogic.pulsator4droid.library.PulsatorLayout
+                android:id="@+id/pulsator"
+                android:layout_width="match_parent"
+                android:layout_height="150dp"
+                app:pulse_count="4"
+                app:pulse_duration="6000"
+                app:pulse_repeat="0"
+                app:pulse_color="@color/blue_light_cario"
+                app:pulse_startFromScratch="true"
+                app:pulse_interpolator="Decelerate"
+                android:visibility="gone">
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:src="@drawable/ic_bluetooth_searching_blue_24dp"
+                    android:layout_centerInParent="true"/>
+
+            </pl.bclogic.pulsator4droid.library.PulsatorLayout>
 
             <ListView
                 android:id="@+id/activity_obd_selection_layout_available_devices_list"

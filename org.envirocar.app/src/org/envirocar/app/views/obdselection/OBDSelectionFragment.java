@@ -55,6 +55,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
+import pl.bclogic.pulsator4droid.library.PulsatorLayout;
 
 /**
  * TODO JavaDoc
@@ -89,6 +90,8 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
     protected ListView mNewDevicesListView;
     @BindView(R.id.activity_obd_selection_layout_search_devices_progressbar)
     protected ProgressBar mProgressBar;
+    @BindView(R.id.pulsator)
+    protected PulsatorLayout bluetoothPulse;
 
     @BindView(R.id.activity_obd_selection_layout_available_devices_info)
     protected TextView mNewDevicesInfoTextView;
@@ -164,6 +167,8 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
             mNewDevicesArrayAdapter.clear();
             mPairedDevicesAdapter.clear();
             mContentView.setVisibility(View.VISIBLE);
+            bluetoothPulse.setVisibility(View.VISIBLE);
+            bluetoothPulse.start();
             updatePairedDevicesList();
             startBluetoothDiscovery();
         }
@@ -212,6 +217,8 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
 
                         // Dismiss the progressbar.
                         mProgressBar.setVisibility(View.GONE);
+                        bluetoothPulse.stop();
+                        bluetoothPulse.setVisibility(View.GONE);
 
                         // If no devices found, set the corresponding textview to visibile.
                         if (mNewDevicesArrayAdapter.isEmpty()) {
