@@ -41,6 +41,8 @@ dependencies {
     // Third party
     implementation rootProject.ext.apacheCommons
     implementation rootProject.ext.materialDialogs
+    implementation 'androidx.room:room-runtime:2.1.0'
+    annotationProcessor 'androidx.room:room-compiler:2.1.0'
 }
 
 
