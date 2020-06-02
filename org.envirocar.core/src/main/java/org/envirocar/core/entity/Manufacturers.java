@@ -1,17 +1,21 @@
 package org.envirocar.core.entity;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
-@Entity(tableName = "manufacturers")
+
+@Entity(tableName = "manufacturers",
+primaryKeys = "id")
 public class Manufacturers {
-    @PrimaryKey
+    @NonNull
     @ColumnInfo(name = "id")
-    private String id;
+    private java.lang.String id;
 
     @ColumnInfo(name = "name")
-    private String name;
+    private java.lang.String name;
 
     public String getId() {
         return id;
