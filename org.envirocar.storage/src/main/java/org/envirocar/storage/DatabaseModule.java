@@ -20,6 +20,8 @@ package org.envirocar.storage;
 
 import android.content.Context;
 
+import androidx.room.Room;
+import androidx.room.RoomDatabase;
 import androidx.sqlite.db.SupportSQLiteOpenHelper;
 import androidx.sqlite.db.framework.*;
 
@@ -47,6 +49,7 @@ public final class DatabaseModule {
 
     // configs
     private static final String DATABASE_NAME = "envirocar";
+    private static final String VECHILE_DATABASE_NAME = "envirocarvehicle";
     private static final int DATABASE_VERSION = 11;
 
 
@@ -77,6 +80,14 @@ public final class DatabaseModule {
     @Singleton
     EnviroCarDB provideEnvirocarDB(BriteDatabase briteDatabase) {
         return new EnviroCarDBImpl(briteDatabase);
+    }
+
+    @Provides
+    @Singleton
+    EnviroCarVehicleDB provideRoomDatabase(@InjectApplicationScope Context context) {
+        return Room.databaseBuilder(context,EnviroCarVehicleDB.class,VECHILE_DATABASE_NAME)
+                .addCallback(new EnviroCarVehicleDBCallback())
+                .build();
     }
 
 }
