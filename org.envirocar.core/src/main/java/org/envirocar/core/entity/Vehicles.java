@@ -32,7 +32,7 @@ public class Vehicles {
     String commerical_name;
 
     @ColumnInfo(name = "allotment_date")
-    Date allotment_date;
+    String allotment_date;
 
     @ColumnInfo(name = "category")
     String category;
@@ -41,25 +41,25 @@ public class Vehicles {
     String bodywork;
 
     @ColumnInfo(name = "power_source_id")
-    int power_source_id;
+    String power_source_id;
 
     @ColumnInfo(name = "power")
-    int power;
+    String power;
 
     @ColumnInfo(name = "engine_capacity")
     String engine_capacity;
 
     @ColumnInfo(name = "axles")
-    int axles;
+    String axles;
 
     @ColumnInfo(name = "powered_axles")
-    int powered_axles;
+    String powered_axles;
 
     @ColumnInfo(name = "seats")
-    int seats;
+    String seats;
 
     @ColumnInfo(name = "maximum_mass")
-    int maximum_mass;
+    String maximum_mass;
 
     public String getManufacturer_id() {
         return manufacturer_id;
@@ -93,11 +93,11 @@ public class Vehicles {
         this.commerical_name = commerical_name;
     }
 
-    public Date getAllotment_date() {
+    public String getAllotment_date() {
         return allotment_date;
     }
 
-    public void setAllotment_date(Date allotment_date) {
+    public void setAllotment_date(String allotment_date) {
         this.allotment_date = allotment_date;
     }
 
@@ -117,19 +117,19 @@ public class Vehicles {
         this.bodywork = bodywork;
     }
 
-    public int getPower_source_id() {
+    public String getPower_source_id() {
         return power_source_id;
     }
 
-    public void setPower_source_id(int power_source_id) {
+    public void setPower_source_id(String power_source_id) {
         this.power_source_id = power_source_id;
     }
 
-    public int getPower() {
+    public String getPower() {
         return power;
     }
 
-    public void setPower(int power) {
+    public void setPower(String power) {
         this.power = power;
     }
 
@@ -141,35 +141,35 @@ public class Vehicles {
         this.engine_capacity = engine_capacity;
     }
 
-    public int getAxles() {
+    public String getAxles() {
         return axles;
     }
 
-    public void setAxles(int axles) {
+    public void setAxles(String axles) {
         this.axles = axles;
     }
 
-    public int getPowered_axles() {
+    public String getPowered_axles() {
         return powered_axles;
     }
 
-    public void setPowered_axles(int powered_axles) {
+    public void setPowered_axles(String powered_axles) {
         this.powered_axles = powered_axles;
     }
 
-    public int getSeats() {
+    public String getSeats() {
         return seats;
     }
 
-    public void setSeats(int seats) {
+    public void setSeats(String seats) {
         this.seats = seats;
     }
 
-    public int getMaximum_mass() {
+    public String getMaximum_mass() {
         return maximum_mass;
     }
 
-    public void setMaximum_mass(int maximum_mass) {
+    public void setMaximum_mass(String maximum_mass) {
         this.maximum_mass = maximum_mass;
     }
 }

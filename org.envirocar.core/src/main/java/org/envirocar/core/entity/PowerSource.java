@@ -9,7 +9,7 @@ public class PowerSource {
 
     @PrimaryKey
     @ColumnInfo(name = "id")
-    int id;
+    String id;
 
     @ColumnInfo(name = "short_name")
     String short_name;
@@ -17,11 +17,12 @@ public class PowerSource {
     @ColumnInfo(name = "description")
     String description;
 
-    public int getId() {
+
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
