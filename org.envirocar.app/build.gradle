@@ -11,6 +11,7 @@ dependencies {
     implementation rootProject.ext.supportConstraintLayout
     implementation rootProject.ext.androidRoom
     implementation rootProject.ext.androidRoomRxJava
+    annotationProcessor rootProject.ext.supportRoom
 
     implementation rootProject.ext.supportLifecycleExtension
     implementation rootProject.ext.supportLifecycleRuntime
