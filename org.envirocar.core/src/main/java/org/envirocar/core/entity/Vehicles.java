@@ -1,27 +1,30 @@
 package org.envirocar.core.entity;
 
+import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
 
-import java.util.Date;
+
 
 @Entity(tableName = "vehicles",
+primaryKeys = {"manufacturer_id","id"},
 foreignKeys ={ @ForeignKey(entity = Manufacturers.class,
 parentColumns = "id",
 childColumns = "manufacturer_id"),
         @ForeignKey(entity = PowerSource.class,
 parentColumns = "id",
-childColumns = "power_source_id")
+childColumns = "power_source_id"),
 })
 public class Vehicles {
 
-    @PrimaryKey
+
+    @NonNull
     @ColumnInfo(name = "manufacturer_id")
     String manufacturer_id;
 
-    @PrimaryKey
+    @NonNull
     @ColumnInfo(name = "id")
     String id;
 

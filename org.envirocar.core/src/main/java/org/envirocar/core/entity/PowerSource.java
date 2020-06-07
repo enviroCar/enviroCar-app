@@ -1,5 +1,6 @@
 package org.envirocar.core.entity;
 
+import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
@@ -8,6 +9,7 @@ import androidx.room.PrimaryKey;
 public class PowerSource {
 
     @PrimaryKey
+    @NonNull
     @ColumnInfo(name = "id")
     String id;
 
