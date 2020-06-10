@@ -7,11 +7,11 @@ import org.envirocar.core.entity.Vehicles;
 
 import java.util.List;
 
-import io.reactivex.Observable;
+import io.reactivex.Single;
 
 @Dao
 public interface LocalVehicleDAO extends BaseLocalCarDAO<Vehicles> {
 
     @Query("SELECT * FROM vehicles")
-    Observable<List<Vehicles>> getAllVehicles();
+    Single<List<Vehicles>> getAllVehicles();
 }

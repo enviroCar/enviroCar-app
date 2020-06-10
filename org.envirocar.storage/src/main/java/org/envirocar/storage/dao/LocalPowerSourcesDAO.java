@@ -7,11 +7,12 @@ import org.envirocar.core.entity.PowerSource;
 
 import java.util.List;
 
-import io.reactivex.Observable;
+import io.reactivex.Single;
+
 
 @Dao
 public interface LocalPowerSourcesDAO extends BaseLocalCarDAO<PowerSource> {
 
     @Query("SELECT * FROM power_sources")
-    Observable<List<PowerSource>> getAllPowerSources();
+    Single<List<PowerSource>> getAllPowerSources();
 }

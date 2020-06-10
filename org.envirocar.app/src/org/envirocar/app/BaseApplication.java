@@ -50,6 +50,7 @@ import org.envirocar.remote.service.FuelingService;
 import org.envirocar.remote.service.TermsOfUseService;
 import org.envirocar.remote.service.TrackService;
 import org.envirocar.remote.service.UserService;
+import org.envirocar.storage.EnviroCarVehicleDB;
 
 import javax.inject.Inject;
 
@@ -87,7 +88,6 @@ public class BaseApplication extends Application {
     protected LocationHandler locationHandler;
     @Inject
     protected AutomaticUploadNotificationHandler automaticUploadHandler;
-
 
     private CompositeDisposable disposables = new CompositeDisposable();
 

@@ -71,6 +71,7 @@ import org.envirocar.remote.dao.RemoteTermsOfUseDAO;
 import org.envirocar.remote.dao.RemoteTrackDAO;
 import org.envirocar.remote.dao.RemoteUserDAO;
 import org.envirocar.remote.dao.RemoteUserStatisticsDAO;
+import org.envirocar.storage.EnviroCarVehicleDB;
 
 import javax.inject.Singleton;
 
@@ -117,6 +118,7 @@ public interface BaseApplicationComponent {
     // service injections
     void inject(TrackUploadService trackUploadService);
     void inject(EnviroCarDataService enviroCarDataService);
+    void inject(EnviroCarVehicleDB enviroCarVehicleDB);
 
     // interactors
     void inject(GetUserStatistic getUserStatistic);

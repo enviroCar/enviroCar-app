@@ -7,11 +7,12 @@ import org.envirocar.core.entity.Manufacturers;
 
 import java.util.List;
 
-import io.reactivex.Observable;
+import io.reactivex.Single;
+
 
 @Dao
 public interface LocalManufacturersDAO extends BaseLocalCarDAO<Manufacturers> {
 
     @Query("SELECT * FROM manufacturers")
-    Observable<List<Manufacturers>> getAllManufacturers();
+    Single<List<Manufacturers>> getAllManufacturers();
 }

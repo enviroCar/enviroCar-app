@@ -45,21 +45,32 @@ public class DataGenerator {
 
                 stringTokenizer = new StringTokenizer(line, ",");
                 Vehicles vehicles = new Vehicles();
-                vehicles.setManufacturer_id(stringTokenizer.nextToken());
-                vehicles.setId(stringTokenizer.nextToken());
-                stringTokenizer.nextToken();
-                vehicles.setTrade(stringTokenizer.nextToken());
-                vehicles.setCommerical_name(stringTokenizer.nextToken());
-                vehicles.setAllotment_date(stringTokenizer.nextToken());
-                vehicles.setCategory(stringTokenizer.nextToken());
-                vehicles.setBodywork(stringTokenizer.nextToken());
-                vehicles.setPower_source_id(stringTokenizer.nextToken());
-                vehicles.setPower(stringTokenizer.nextToken());
-                vehicles.setEngine_capacity(stringTokenizer.nextToken());
-                vehicles.setAxles(stringTokenizer.nextToken());
-                vehicles.setPowered_axles(stringTokenizer.nextToken());
-                vehicles.setSeats(stringTokenizer.nextToken());
-                vehicles.setMaximum_mass(stringTokenizer.nextToken());
+                Log.e("countToken", "" + stringTokenizer.countTokens());
+                vehicles.setManufacturer_id(stringTokenizer.nextElement().toString());
+                vehicles.setId(stringTokenizer.nextElement().toString());
+                stringTokenizer.nextElement();
+                vehicles.setTrade(stringTokenizer.nextElement().toString());
+
+                vehicles.setCommerical_name(stringTokenizer.nextElement().toString());
+
+                vehicles.setAllotment_date(stringTokenizer.nextElement().toString());
+
+                vehicles.setCategory(stringTokenizer.nextElement().toString());
+
+                vehicles.setBodywork(stringTokenizer.nextElement().toString());
+
+                vehicles.setPower_source_id(stringTokenizer.nextElement().toString());
+
+                vehicles.setPower(stringTokenizer.nextElement().toString());
+
+                vehicles.setEngine_capacity(stringTokenizer.nextElement().toString());
+
+                vehicles.setAxles(stringTokenizer.nextElement().toString());
+
+                vehicles.setPowered_axles(stringTokenizer.nextElement().toString());
+
+                vehicles.setSeats(stringTokenizer.nextElement().toString());
+                vehicles.setMaximum_mass(stringTokenizer.nextElement().toString());
                 vehiclesList.add(vehicles);
 
 

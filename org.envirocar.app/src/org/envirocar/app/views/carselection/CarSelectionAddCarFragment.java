@@ -32,6 +32,7 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.ListAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -49,7 +50,9 @@ import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.views.utils.ECAnimationUtils;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.CarImpl;
+import org.envirocar.core.entity.PowerSource;
 import org.envirocar.core.logging.Logger;
+import org.envirocar.storage.EnviroCarVehicleDB;
 
 import java.util.AbstractList;
 import java.util.ArrayList;
@@ -73,12 +76,14 @@ import butterknife.OnTextChanged;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Observable;
 import io.reactivex.Scheduler;
+import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Function;
 import io.reactivex.functions.Predicate;
 import io.reactivex.observers.DisposableObserver;
+import io.reactivex.observers.DisposableSingleObserver;
 import io.reactivex.schedulers.Schedulers;
 
 /**
@@ -123,6 +128,8 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
     protected DAOProvider daoProvider;
     @Inject
     protected CarPreferenceHandler carManager;
+    @Inject
+    protected EnviroCarVehicleDB enviroCarVehicleDB;
 
     private CompositeDisposable disposables = new CompositeDisposable();
     private Scheduler.Worker mainThreadWorker = AndroidSchedulers.mainThread().createWorker();
@@ -149,7 +156,6 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
             hideKeyboard(v);
             closeThisFragment();
         });
-
 
         // initially we set the toolbar exp to gone
         toolbar.setVisibility(View.GONE);
