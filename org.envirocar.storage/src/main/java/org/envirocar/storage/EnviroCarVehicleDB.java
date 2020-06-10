@@ -1,6 +1,9 @@
 package org.envirocar.storage;
 
+import android.content.Context;
+
 import androidx.room.Database;
+import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
 import org.envirocar.core.entity.Manufacturers;
@@ -18,4 +21,14 @@ public abstract class EnviroCarVehicleDB extends RoomDatabase {
     public abstract LocalPowerSourcesDAO powerSourcesDAO();
     public abstract LocalVehicleDAO vehicleDAO();
 
+    private static EnviroCarVehicleDB enviroCarVehicleDB;
+
+    public static EnviroCarVehicleDB getInstance(Context context) {
+        if (enviroCarVehicleDB == null) {
+            enviroCarVehicleDB =  Room.databaseBuilder(context,EnviroCarVehicleDB.class,"Samew.db")
+                    .addCallback(new EnviroCarVehicleDBCallback(context,enviroCarVehicleDB))
+                    .build();
+        }
+        return enviroCarVehicleDB;
+    }
 }

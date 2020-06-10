@@ -85,9 +85,7 @@ public final class DatabaseModule {
     @Provides
     @Singleton
     EnviroCarVehicleDB provideRoomDatabase(@InjectApplicationScope Context context) {
-        return Room.databaseBuilder(context,EnviroCarVehicleDB.class,VECHILE_DATABASE_NAME)
-                .addCallback(new EnviroCarVehicleDBCallback())
-                .build();
+       return EnviroCarVehicleDB.getInstance(context);
     }
 
 }

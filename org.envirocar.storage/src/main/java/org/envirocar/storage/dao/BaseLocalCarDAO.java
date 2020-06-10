@@ -12,7 +12,7 @@ import java.util.List;
 public interface BaseLocalCarDAO<T> {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    long insert(List<T> t);
+    void insert(List<T> t);
 
     @Update
     void update(T t);

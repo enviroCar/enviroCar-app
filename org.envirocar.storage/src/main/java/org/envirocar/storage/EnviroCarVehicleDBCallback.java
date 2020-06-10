@@ -19,13 +19,14 @@ import javax.inject.Inject;
 
 public class EnviroCarVehicleDBCallback extends RoomDatabase.Callback {
 
-    @Inject
+
     EnviroCarVehicleDB enviroCarVehicleDB;
 
     Context context;
 
-    EnviroCarVehicleDBCallback(Context context) {
+    EnviroCarVehicleDBCallback(Context context,EnviroCarVehicleDB enviroCarVehicleDB) {
         this.context = context;
+        this.enviroCarVehicleDB = enviroCarVehicleDB;
     }
 
     @Override
@@ -33,9 +34,9 @@ public class EnviroCarVehicleDBCallback extends RoomDatabase.Callback {
         super.onCreate(db);
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            List<Vehicles> vehiclesList = DataGenerator.getVehicleData(context, "vehicles");
+            //List<Vehicles> vehiclesList = DataGenerator.getVehicleData(context, "vehicles");
             List<PowerSource> powerSourceList = DataGenerator.getPowerSources(context, "power_sources");
-            enviroCarVehicleDB.vehicleDAO().insert(vehiclesList);
+            //enviroCarVehicleDB.vehicleDAO().insert(vehiclesList);
             enviroCarVehicleDB.powerSourcesDAO().insert(powerSourceList);
 
         });
