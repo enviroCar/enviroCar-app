@@ -7,9 +7,8 @@ import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
 
 
-
 @Entity(tableName = "vehicles",
-primaryKeys = {"manufacturer_id","id"}
+        primaryKeys = {"manufacturer_id", "id"}
 )
 public class Vehicles {
 
@@ -21,6 +20,9 @@ public class Vehicles {
     @NonNull
     @ColumnInfo(name = "id")
     String id;
+
+    @ColumnInfo(name = "manufacturer")
+    String manufacturer;
 
     @ColumnInfo(name = "trade_name")
     String trade;
@@ -88,6 +90,14 @@ public class Vehicles {
 
     public void setCommerical_name(String commerical_name) {
         this.commerical_name = commerical_name;
+    }
+
+    public String getManufacturer() {
+        return manufacturer;
+    }
+
+    public void setManufacturer(String manufacturer) {
+        this.manufacturer = manufacturer;
     }
 
     public String getAllotment_date() {

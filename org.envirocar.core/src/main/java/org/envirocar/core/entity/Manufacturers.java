@@ -8,7 +8,7 @@ import androidx.room.PrimaryKey;
 
 
 @Entity(tableName = "manufacturers",
-primaryKeys = "id")
+        primaryKeys = "id")
 public class Manufacturers {
     @NonNull
     @ColumnInfo(name = "id")

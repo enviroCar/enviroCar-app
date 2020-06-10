@@ -50,6 +50,7 @@ import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.views.utils.ECAnimationUtils;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.CarImpl;
+import org.envirocar.core.entity.Manufacturers;
 import org.envirocar.core.entity.PowerSource;
 import org.envirocar.core.entity.Vehicles;
 import org.envirocar.core.logging.Logger;
@@ -159,7 +160,6 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
             hideKeyboard(v);
             closeThisFragment();
         });
-
         // initially we set the toolbar exp to gone
         toolbar.setVisibility(View.GONE);
         toolbarExp.setVisibility(View.GONE);

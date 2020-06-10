@@ -23,13 +23,6 @@ import java.util.concurrent.Executors;
 @Database(entities = {Manufacturers.class, Vehicles.class, PowerSource.class}, version = 1)
 public abstract class EnviroCarVehicleDB extends RoomDatabase {
 
-    //DAO car selection
-    public abstract LocalManufacturersDAO manufacturersDAO();
-
-    public abstract LocalPowerSourcesDAO powerSourcesDAO();
-
-    public abstract LocalVehicleDAO vehicleDAO();
-
     private static EnviroCarVehicleDB enviroCarVehicleDB;
 
     public static EnviroCarVehicleDB getInstance(Context context) {
@@ -45,14 +38,19 @@ public abstract class EnviroCarVehicleDB extends RoomDatabase {
                                 List<PowerSource> powerSourceList = DataGenerator.getPowerSources(context, "power_sources");
                                 enviroCarVehicleDB.vehicleDAO().insert(vehiclesList);
                                 enviroCarVehicleDB.powerSourcesDAO().insert(powerSourceList);
-
+                                enviroCarVehicleDB.manufacturersDAO().inserManufacturer();
                             });
                         }
                     })
                     .build();
         }
-
         return enviroCarVehicleDB;
-
     }
+
+    //DAO car selection
+    public abstract LocalManufacturersDAO manufacturersDAO();
+
+    public abstract LocalPowerSourcesDAO powerSourcesDAO();
+
+    public abstract LocalVehicleDAO vehicleDAO();
 }

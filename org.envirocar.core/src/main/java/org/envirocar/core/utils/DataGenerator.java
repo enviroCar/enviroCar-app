@@ -48,6 +48,8 @@ public class DataGenerator {
                 vehicles.setManufacturer_id(tokens[0]);
                 vehicles.setId(tokens[1]);
 
+                vehicles.setManufacturer(tokens[2]);
+
                 vehicles.setTrade(tokens[3]);
 
                 vehicles.setCommerical_name(tokens[4]);
@@ -90,7 +92,7 @@ public class DataGenerator {
 
                 //tokenizing the string on , and set power_sources attributes
 
-               String [] tokens = line.split(",");
+                String[] tokens = line.split(",");
                 PowerSource powerSource = new PowerSource();
                 powerSource.setId(tokens[0]);
                 powerSource.setShort_name(tokens[1]);
