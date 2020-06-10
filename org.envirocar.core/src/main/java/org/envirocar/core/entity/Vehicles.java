@@ -9,14 +9,8 @@ import androidx.room.PrimaryKey;
 
 
 @Entity(tableName = "vehicles",
-primaryKeys = {"manufacturer_id","id"},
-foreignKeys ={ @ForeignKey(entity = Manufacturers.class,
-parentColumns = "id",
-childColumns = "manufacturer_id"),
-        @ForeignKey(entity = PowerSource.class,
-parentColumns = "id",
-childColumns = "power_source_id"),
-})
+primaryKeys = {"manufacturer_id","id"}
+)
 public class Vehicles {
 
 

@@ -51,6 +51,7 @@ import org.envirocar.app.views.utils.ECAnimationUtils;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.CarImpl;
 import org.envirocar.core.entity.PowerSource;
+import org.envirocar.core.entity.Vehicles;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.storage.EnviroCarVehicleDB;
 
@@ -64,9 +65,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;

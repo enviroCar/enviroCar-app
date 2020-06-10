@@ -35,7 +35,7 @@ public class DataGenerator {
     public static List<Vehicles> getVehicleData(Context context, String fileName) {
         BufferedReader reader = readFile(context, fileName);
         String line = "";
-        StringTokenizer stringTokenizer = null;
+
         List<Vehicles> vehiclesList = new ArrayList<>();
 
         try {
@@ -43,34 +43,33 @@ public class DataGenerator {
 
                 //tokenizing the string on , and set vehicles attributes
 
-                stringTokenizer = new StringTokenizer(line, ",");
+                String[] tokens = line.split(",");
                 Vehicles vehicles = new Vehicles();
-                Log.e("countToken", "" + stringTokenizer.countTokens());
-                vehicles.setManufacturer_id(stringTokenizer.nextElement().toString());
-                vehicles.setId(stringTokenizer.nextElement().toString());
-                stringTokenizer.nextElement();
-                vehicles.setTrade(stringTokenizer.nextElement().toString());
+                vehicles.setManufacturer_id(tokens[0]);
+                vehicles.setId(tokens[1]);
 
-                vehicles.setCommerical_name(stringTokenizer.nextElement().toString());
+                vehicles.setTrade(tokens[3]);
 
-                vehicles.setAllotment_date(stringTokenizer.nextElement().toString());
+                vehicles.setCommerical_name(tokens[4]);
 
-                vehicles.setCategory(stringTokenizer.nextElement().toString());
+                vehicles.setAllotment_date(tokens[5]);
 
-                vehicles.setBodywork(stringTokenizer.nextElement().toString());
+                vehicles.setCategory(tokens[6]);
 
-                vehicles.setPower_source_id(stringTokenizer.nextElement().toString());
+                vehicles.setBodywork(tokens[7]);
 
-                vehicles.setPower(stringTokenizer.nextElement().toString());
+                vehicles.setPower_source_id(tokens[8]);
 
-                vehicles.setEngine_capacity(stringTokenizer.nextElement().toString());
+                vehicles.setPower(tokens[9]);
 
-                vehicles.setAxles(stringTokenizer.nextElement().toString());
+                vehicles.setEngine_capacity(tokens[10]);
 
-                vehicles.setPowered_axles(stringTokenizer.nextElement().toString());
+                vehicles.setAxles(tokens[11]);
 
-                vehicles.setSeats(stringTokenizer.nextElement().toString());
-                vehicles.setMaximum_mass(stringTokenizer.nextElement().toString());
+                vehicles.setPowered_axles(tokens[12]);
+
+                vehicles.setSeats(tokens[13]);
+                vehicles.setMaximum_mass(tokens[14]);
                 vehiclesList.add(vehicles);
 
 
@@ -84,7 +83,6 @@ public class DataGenerator {
     public static List<PowerSource> getPowerSources(Context context, String fileName) {
         BufferedReader reader = readFile(context, fileName);
         String line = "";
-        StringTokenizer stringTokenizer = null;
         List<PowerSource> powerSourceList = new ArrayList<>();
 
         try {
@@ -92,11 +90,11 @@ public class DataGenerator {
 
                 //tokenizing the string on , and set power_sources attributes
 
-                stringTokenizer = new StringTokenizer(line, ",");
+               String [] tokens = line.split(",");
                 PowerSource powerSource = new PowerSource();
-                powerSource.setId(stringTokenizer.nextToken());
-                powerSource.setShort_name(stringTokenizer.nextToken());
-                powerSource.setDescription(stringTokenizer.nextToken());
+                powerSource.setId(tokens[0]);
+                powerSource.setShort_name(tokens[1]);
+                powerSource.setDescription(tokens[2]);
                 powerSourceList.add(powerSource);
 
             }
