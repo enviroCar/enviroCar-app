@@ -21,6 +21,7 @@ package org.envirocar.app.views.carselection;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -215,6 +216,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
         fueltypeText.setOnItemClickListener((parent, view14, position, id) -> requestNextTextfieldFocus(fueltypeText));
 
         //   dispatchRemoteSensors();
+        fetchVehicles();
         addManufacturer();
         initFocusChangedListener();
         initWatcher();
@@ -398,8 +400,10 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
                     public void onSuccess(List<String> manufacturersNames) {
                         mainThreadWorker.schedule(() -> {
                             if (!manufacturersNames.isEmpty()) {
-                                for (int i = 0; i < manufacturersNames.size(); i++)
+                                for (int i = 0; i < manufacturersNames.size(); i++) {
                                     mManufacturerNames.add(manufacturersNames.get(i));
+                                    //fetchVehicles(manufacturersNames.get(i));
+                                }
                                 updateManufacturerViews();
                             }
                         });
@@ -412,6 +416,42 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
                 });
     }
 
+    private void fetchVehicles() {
+        Single<List<Vehicles>> vehicle = enviroCarVehicleDB.vehicleDAO().getManufacturerVehicles();
+        vehicle.subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .subscribeWith(new DisposableSingleObserver<List<Vehicles>>() {
+                    @Override
+                    public void onSuccess(List<Vehicles> vehicles) {
+                        mainThreadWorker.schedule(() -> {
+                            for (Vehicles vehicles1 : vehicles) {
+                                Car car = new CarImpl();
+                                car.setManufacturer(vehicles1.getManufacturer());
+                                car.setModel(vehicles1.getCommerical_name());
+                                String date = vehicles1.getAllotment_date();
+                                int allotmentDate = convertDateToInt(date);
+                                car.setConstructionYear(allotmentDate);
+                                if (!vehicles1.getEngine_capacity().isEmpty() && vehicles1.getEngine_capacity().matches("[0-9]+"))
+                                    car.setEngineDisplacement(Integer.parseInt(vehicles1.getEngine_capacity()));
+                                addCarToAutocompleteList(car);
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        LOG.error(e.getMessage(),e);
+                    }
+                });
+    }
+
+    private int convertDateToInt(String date) {
+        int convertedDate = 0;
+        for (int i = 6; i < date.length(); i++) {
+            convertedDate = convertedDate * 10 + (date.charAt(i) - 48);
+        }
+        return convertedDate;
+    }
 //    private void dispatchRemoteSensors() {
 //        disposables.add(daoProvider.getSensorDAO()
 //                .getAllCarsObservable()
@@ -617,7 +657,6 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
         if (manufacturer.isEmpty() || model.isEmpty() || year.isEmpty())
             return;
 
-        mManufacturerNames.add(manufacturer);
 
         if (!mCarToModelMap.containsKey(manufacturer))
             mCarToModelMap.put(manufacturer, new HashSet<>());

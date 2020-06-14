@@ -13,5 +13,5 @@ import io.reactivex.Single;
 public interface LocalVehicleDAO extends BaseLocalCarDAO<Vehicles> {
 
     @Query("SELECT * FROM vehicles")
-    Single<List<Vehicles>> getAllVehicles();
+    Single<List<Vehicles>> getManufacturerVehicles();
 }
