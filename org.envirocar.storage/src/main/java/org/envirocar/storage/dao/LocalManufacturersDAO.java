@@ -13,8 +13,8 @@ import io.reactivex.Single;
 @Dao
 public interface LocalManufacturersDAO extends BaseLocalCarDAO<Manufacturers> {
 
-    @Query("SELECT * FROM manufacturers")
-    Single<List<Manufacturers>> getAllManufacturers();
+    @Query("SELECT name FROM manufacturers")
+    Single<List<String>> getAllManufacturers();
 
     @Query("INSERT INTO manufacturers(id, name)\n" +
             "  SELECT DISTINCT\n" +
@@ -25,6 +25,7 @@ public interface LocalManufacturersDAO extends BaseLocalCarDAO<Manufacturers> {
             "      manufacturer_id, \n" +
             "      max(allotment_date) as allotment_date\n" +
             "    FROM vehicles\n" +
+            "WHERE manufacturer != 'manufacturer plaintext'" +
             "    GROUP BY manufacturer_id\n" +
             "  ) AS dates\n" +
             "  JOIN vehicles AS v USING (manufacturer_id)\n" +

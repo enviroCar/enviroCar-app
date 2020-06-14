@@ -78,6 +78,7 @@ import butterknife.OnFocusChange;
 import butterknife.OnItemClick;
 import butterknife.OnTextChanged;
 import io.reactivex.BackpressureStrategy;
+import io.reactivex.Flowable;
 import io.reactivex.Observable;
 import io.reactivex.Scheduler;
 import io.reactivex.Single;
@@ -144,6 +145,14 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
     private Map<String, Set<String>> mModelToYear = new ConcurrentHashMap<>();
     private Map<Pair<String, String>, Set<String>> mModelToCCM = new ConcurrentHashMap<>();
 
+    private static final ArrayAdapter<String> asSortedAdapter(Context context, Set<String> set) {
+        String[] strings = set.toArray(new String[set.size()]);
+        Arrays.sort(strings);
+        return new ArrayAdapter<>(
+                context,
+                R.layout.activity_car_selection_newcar_fueltype_item,
+                strings);
+    }
 
     @Nullable
     @Override
@@ -205,8 +214,8 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
         yearText.setOnItemClickListener((parent, view13, position, id) -> requestNextTextfieldFocus(yearText));
         fueltypeText.setOnItemClickListener((parent, view14, position, id) -> requestNextTextfieldFocus(fueltypeText));
 
-        dispatchRemoteSensors();
-
+        //   dispatchRemoteSensors();
+        addManufacturer();
         initFocusChangedListener();
         initWatcher();
         return view;
@@ -380,6 +389,78 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
         };
     }
 
+    private void addManufacturer() {
+        Single<List<String>> manufacturer = enviroCarVehicleDB.manufacturersDAO().getAllManufacturers();
+        manufacturer.subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .subscribeWith(new DisposableSingleObserver<List<String>>() {
+                    @Override
+                    public void onSuccess(List<String> manufacturersNames) {
+                        mainThreadWorker.schedule(() -> {
+                            if (!manufacturersNames.isEmpty()) {
+                                for (int i = 0; i < manufacturersNames.size(); i++)
+                                    mManufacturerNames.add(manufacturersNames.get(i));
+                                updateManufacturerViews();
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        LOG.error(e.getMessage(), e);
+                    }
+                });
+    }
+
+//    private void dispatchRemoteSensors() {
+//        disposables.add(daoProvider.getSensorDAO()
+//                .getAllCarsObservable()
+//                .toFlowable(BackpressureStrategy.BUFFER)
+//                .onBackpressureBuffer(10000)
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(Schedulers.io())
+//                .toObservable()
+//                .subscribeWith(new DisposableObserver<List<Car>>() {
+//
+//                    @Override
+//                    protected void onStart() {
+//                        LOG.info("onStart() download sensors");
+//                        downloadView.setVisibility(View.VISIBLE);
+//                    }
+//
+//                    @Override
+//                    public void onComplete() {
+//                        LOG.info("onCompleted(): cars successfully downloaded.");
+//
+//                        mainThreadWorker.schedule(() -> {
+//                             Update the manufactuerers in
+    //                         updateSpinner(mManufacturerNames, manufacturerSpinner);
+//                            updateManufacturerViews();
+//
+//                            dispose();
+//
+//                            downloadView.setVisibility(View.INVISIBLE);
+//                        });
+//                    }
+//
+//                    @Override
+//                    public void onError(Throwable e) {
+//                        LOG.error(e.getMessage(), e);
+//                        mainThreadWorker.schedule(() -> {
+//                            downloadView.setVisibility(View.INVISIBLE);
+//                        });
+//                    }
+//
+//                    @Override
+//                    public void onNext(List<Car> cars) {
+//                        for (Car car : cars) {
+//                            if (car != null)
+//                                addCarToAutocompleteList(car);
+//                        }
+//                    }
+//                }));
+//    }
+
     private Function<Car, Car> checkCarAlreadyExist() {
         return car -> {
             String manu = car.getManufacturer();
@@ -417,55 +498,6 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
                 return selectedCar;
             }
         };
-    }
-
-    private void dispatchRemoteSensors() {
-        disposables.add(daoProvider.getSensorDAO()
-                .getAllCarsObservable()
-                .toFlowable(BackpressureStrategy.BUFFER)
-                .onBackpressureBuffer(10000)
-                .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.io())
-                .toObservable()
-                .subscribeWith(new DisposableObserver<List<Car>>() {
-
-                    @Override
-                    protected void onStart() {
-                        LOG.info("onStart() download sensors");
-                        downloadView.setVisibility(View.VISIBLE);
-                    }
-
-                    @Override
-                    public void onComplete() {
-                        LOG.info("onCompleted(): cars successfully downloaded.");
-
-                        mainThreadWorker.schedule(() -> {
-                            // Update the manufactuerers in
-//                            updateSpinner(mManufacturerNames, manufacturerSpinner);
-                            updateManufacturerViews();
-
-                            dispose();
-
-                            downloadView.setVisibility(View.INVISIBLE);
-                        });
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        LOG.error(e.getMessage(), e);
-                        mainThreadWorker.schedule(() -> {
-                            downloadView.setVisibility(View.INVISIBLE);
-                        });
-                    }
-
-                    @Override
-                    public void onNext(List<Car> cars) {
-                        for (Car car : cars) {
-                            if (car != null)
-                                addCarToAutocompleteList(car);
-                        }
-                    }
-                }));
     }
 
     private void initFocusChangedListener() {
@@ -685,15 +717,6 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
         } catch (Exception e) {
             LOG.warn("Unable to find next field or to request focus to next field.");
         }
-    }
-
-    private static final ArrayAdapter<String> asSortedAdapter(Context context, Set<String> set) {
-        String[] strings = set.toArray(new String[set.size()]);
-        Arrays.sort(strings);
-        return new ArrayAdapter<>(
-                context,
-                R.layout.activity_car_selection_newcar_fueltype_item,
-                strings);
     }
 
     /**
