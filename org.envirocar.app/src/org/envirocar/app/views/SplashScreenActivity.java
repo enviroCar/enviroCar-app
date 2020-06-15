@@ -22,7 +22,9 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 
+import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
+import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.core.logging.Logger;
 
 import java.util.concurrent.TimeUnit;
@@ -34,13 +36,17 @@ import io.reactivex.disposables.Disposable;
 /**
  * @author dewall
  */
-public class SplashScreenActivity extends Activity {
+public class SplashScreenActivity extends BaseInjectorActivity {
     private static final Logger LOG = Logger.getLogger(SplashScreenActivity.class);
     private static final String HAS_BEEN_SEEN_KEY = "has_been_seen";
     private static final int SPLASH_SCREEN_DURATION = 1500;
 
     private Disposable timerDisposable;
 
+    @Override
+    protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
+        baseApplicationComponent.inject(this);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

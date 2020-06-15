@@ -95,7 +95,7 @@ public final class DatabaseModule {
     @Provides
     @Singleton
     EnviroCarVehicleDB provideRoomDatabase(@InjectApplicationScope Context context) {
-        enviroCarVehicleDB = Room.databaseBuilder(context, EnviroCarVehicleDB.class, "Samew.db")
+        enviroCarVehicleDB = Room.databaseBuilder(context, EnviroCarVehicleDB.class, VECHILE_DATABASE_NAME)
                 .addCallback(new RoomDatabase.Callback() {
                     @Override
                     public void onCreate(@NonNull SupportSQLiteDatabase db) {
