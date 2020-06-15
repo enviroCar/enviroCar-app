@@ -60,4 +60,4 @@ This app is in operational use in the [CITRAM - Citizen Science for Traffic Mana
 
 ## Contributors
 
-[Here is the list of contributors to this project](https://github.com/enviroCar/enviroCar-app/blob/master/CONTRIBUTORS.md)
+Here is the list of [contributors to this project](https://github.com/enviroCar/enviroCar-app/blob/master/CONTRIBUTORS.md)
