@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -26,12 +26,19 @@ import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
 import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.core.logging.Logger;
+import org.envirocar.storage.EnviroCarVehicleDB;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
+
+import javax.inject.Inject;
 
 import butterknife.ButterKnife;
 import io.reactivex.Completable;
+import io.reactivex.Single;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.observers.DisposableSingleObserver;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * @author dewall
@@ -40,7 +47,8 @@ public class SplashScreenActivity extends BaseInjectorActivity {
     private static final Logger LOG = Logger.getLogger(SplashScreenActivity.class);
     private static final String HAS_BEEN_SEEN_KEY = "has_been_seen";
     private static final int SPLASH_SCREEN_DURATION = 1500;
-
+    @Inject
+    EnviroCarVehicleDB enviroCarVehicleDB;
     private Disposable timerDisposable;
 
     @Override
@@ -51,6 +59,22 @@ public class SplashScreenActivity extends BaseInjectorActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //fetch to db intilization to prepoulate database before the database object used in CarSelection to remove delay
+
+        Single<List<String>> dbInit = enviroCarVehicleDB.manufacturersDAO().getAllManufacturers();
+
+        dbInit.subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .subscribeWith(new DisposableSingleObserver<List<String>>() {
+                    @Override
+                    public void onSuccess(List<String> strings) {
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                    }
+                });
+
         if (savedInstanceState != null && savedInstanceState.getBoolean(HAS_BEEN_SEEN_KEY, false)) {
             startMainActivity();
             return;
