@@ -44,6 +44,10 @@ for existing projects.
 
 The enviroCar App is licensed under the [GNU General Public License, Version 3](https://github.com/enviroCar/enviroCar-app/blob/master/LICENSE).
 
+## Changelog
+
+Check out the [Changelog](https://github.com/enviroCar/enviroCar-app/blob/master/CHANGELOG.md) for current changes.
+
 ## OBD simulator
 
 The repository also contains a simple OBD simulator (dumb, nothing fancy) that can
