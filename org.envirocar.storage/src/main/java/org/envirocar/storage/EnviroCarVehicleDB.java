@@ -23,30 +23,6 @@ import java.util.concurrent.Executors;
 @Database(entities = {Manufacturers.class, Vehicles.class, PowerSource.class}, version = 1)
 public abstract class EnviroCarVehicleDB extends RoomDatabase {
 
-    private static EnviroCarVehicleDB enviroCarVehicleDB;
-
-    public static EnviroCarVehicleDB getInstance(Context context) {
-        if (enviroCarVehicleDB == null) {
-            enviroCarVehicleDB = Room.databaseBuilder(context, EnviroCarVehicleDB.class, "Samew.db")
-                    .addCallback(new Callback() {
-                        @Override
-                        public void onCreate(@NonNull SupportSQLiteDatabase db) {
-                            super.onCreate(db);
-                            Executor executor = Executors.newSingleThreadExecutor();
-                            executor.execute(() -> {
-                                List<Vehicles> vehiclesList = DataGenerator.getVehicleData(context, "vehicles");
-                                List<PowerSource> powerSourceList = DataGenerator.getPowerSources(context, "power_sources");
-                                enviroCarVehicleDB.vehicleDAO().insert(vehiclesList);
-                                enviroCarVehicleDB.powerSourcesDAO().insert(powerSourceList);
-                                enviroCarVehicleDB.manufacturersDAO().inserManufacturer();
-                            });
-                        }
-                    })
-                    .build();
-        }
-        return enviroCarVehicleDB;
-    }
-
     //DAO car selection
     public abstract LocalManufacturersDAO manufacturersDAO();
 

@@ -20,8 +20,10 @@ package org.envirocar.storage;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
+import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.sqlite.db.SupportSQLiteOpenHelper;
 import androidx.sqlite.db.framework.*;
 
@@ -29,8 +31,15 @@ import com.squareup.sqlbrite3.BriteDatabase;
 import com.squareup.sqlbrite3.SqlBrite;
 
 import org.envirocar.core.EnviroCarDB;
+import org.envirocar.core.entity.PowerSource;
+import org.envirocar.core.entity.Vehicles;
 import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.logging.Logger;
+import org.envirocar.core.utils.DataGenerator;
+
+import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import javax.inject.Singleton;
 
@@ -51,6 +60,7 @@ public final class DatabaseModule {
     private static final String DATABASE_NAME = "envirocar";
     private static final String VECHILE_DATABASE_NAME = "envirocarvehicle";
     private static final int DATABASE_VERSION = 11;
+    EnviroCarVehicleDB enviroCarVehicleDB;
 
 
     @Provides
@@ -85,7 +95,23 @@ public final class DatabaseModule {
     @Provides
     @Singleton
     EnviroCarVehicleDB provideRoomDatabase(@InjectApplicationScope Context context) {
-        return EnviroCarVehicleDB.getInstance(context);
+        enviroCarVehicleDB = Room.databaseBuilder(context, EnviroCarVehicleDB.class, "Samew.db")
+                .addCallback(new RoomDatabase.Callback() {
+                    @Override
+                    public void onCreate(@NonNull SupportSQLiteDatabase db) {
+                        super.onCreate(db);
+                        Executor executor = Executors.newSingleThreadExecutor();
+                        executor.execute(() -> {
+                            List<Vehicles> vehiclesList = DataGenerator.getVehicleData(context, "vehicles");
+                            List<PowerSource> powerSourceList = DataGenerator.getPowerSources(context, "power_sources");
+                            enviroCarVehicleDB.vehicleDAO().insert(vehiclesList);
+                            enviroCarVehicleDB.powerSourcesDAO().insert(powerSourceList);
+                            enviroCarVehicleDB.manufacturersDAO().inserManufacturer();
+                        });
+                    }
+                })
+                .build();
+    return enviroCarVehicleDB;
     }
 
 }

@@ -402,7 +402,6 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
                             if (!manufacturersNames.isEmpty()) {
                                 for (int i = 0; i < manufacturersNames.size(); i++) {
                                     mManufacturerNames.add(manufacturersNames.get(i));
-                                    //fetchVehicles(manufacturersNames.get(i));
                                 }
                                 updateManufacturerViews();
                             }
