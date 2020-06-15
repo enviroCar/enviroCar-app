@@ -11,12 +11,12 @@ This is the app for the enviroCar platform. (www.envirocar.org)
 enviroCar Mobile is an Android application for smartphones that can be used to collect Extended Floating Car Data (XFCD). The app communicates with an OBD2 Bluetooth adapter while the user drives. This enables read access to data from the vehicle’s engine control. The data is recorded along with the smartphone’s GPS position data.The driver can view statistics about his drives and publish his data as open data. The latter happens by uploading tracks to the enviroCar server, where the data is available under the ODbL license for further analysis and use. The data can also be viewed and analyzed via the enviroCar website. enviroCar Mobile is one of the enviroCar Citizen Science Platform’s components (www.envirocar.org).
 
 
-### Key Technologies
+**Key Technologies**
 
 -	Android
 -	Java
 
-### Benefits
+**Benefits**
 
 -	Easy collection of Extended Floating Car Data
 - Optional automation of data collection and upload
@@ -51,7 +51,7 @@ be used on another Android device and mock the actual car adapter.
 
 ## References
 
->> [CITRAM - Citizen Science for Traffic Management](https://www.citram.de/)
+This app is in operational use in the [CITRAM - Citizen Science for Traffic Management](https://www.citram.de/) project.
 
 
 ## Contributors
