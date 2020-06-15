@@ -51,7 +51,7 @@ be used on another Android device and mock the actual car adapter.
 
 ## References
 
-This app is in operational use in the [CITRAM - Citizen Science for Traffic Management](https://www.citram.de/) project.
+This app is in operational use in the [CITRAM - Citizen Science for Traffic Management](https://www.citram.de/) project. Check out the [enviroCar website](https://envirocar.org/) for more information about the enviroCar project.
 
 
 ## Contributors
