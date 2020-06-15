@@ -70,6 +70,7 @@ dependencies {
     androidTestImplementation('androidx.test:runner:1.1.0-alpha4') {
         exclude module: 'support-annotations'
     }
+    androidTestImplementation'android.arch.core:core-testing:1.1.0'
     androidTestImplementation('androidx.test:rules:1.1.0-alpha4') {
         exclude module: 'support-annotations'
     }

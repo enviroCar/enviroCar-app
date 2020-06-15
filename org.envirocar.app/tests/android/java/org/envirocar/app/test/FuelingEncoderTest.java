@@ -16,9 +16,9 @@
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
-package org.envirocar.app.test;
+//package org.envirocar.app.test;
 
-public class FuelingEncoderTest extends ResourceLoadingTestCase {
+//public class FuelingEncoderTest extends ResourceLoadingTestCase {
 
 //
 //	@Test
@@ -72,4 +72,4 @@ public class FuelingEncoderTest extends ResourceLoadingTestCase {
 //		return new JSONObject(json);
 //	}
 
-}
+//}
