@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.res.AssetManager;
 import android.util.Log;
 
+import com.opencsv.CSVReader;
+
 import org.envirocar.core.entity.PowerSource;
 import org.envirocar.core.entity.Vehicles;
 
@@ -33,45 +35,68 @@ public class DataGenerator {
     }
 
     public static List<Vehicles> getVehicleData(Context context, String fileName) {
-        BufferedReader reader = readFile(context, fileName);
-        String line = "";
+        CSVReader csvReader = new CSVReader(readFile(context, fileName));
+        String tokens[] = null;
 
         List<Vehicles> vehiclesList = new ArrayList<>();
 
         try {
-            while ((line = reader.readLine()) != null) {
+            while ((tokens = csvReader.readNext()) != null) {
 
-                //tokenizing the string on , and set vehicles attributes
 
-                String[] tokens = line.split(",");
                 Vehicles vehicles = new Vehicles();
+                Log.i("dataVehicle", " " + tokens[8]);
                 vehicles.setManufacturer_id(tokens[0]);
                 vehicles.setId(tokens[1]);
-
                 vehicles.setManufacturer(tokens[2]);
-
-                vehicles.setTrade(tokens[3]);
-
-                vehicles.setCommerical_name(tokens[4]);
-
-                vehicles.setAllotment_date(tokens[5]);
-
-                vehicles.setCategory(tokens[6]);
-
-                vehicles.setBodywork(tokens[7]);
-
-                vehicles.setPower_source_id(tokens[8]);
-
-                vehicles.setPower(tokens[9]);
-
-                vehicles.setEngine_capacity(tokens[10]);
-
-                vehicles.setAxles(tokens[11]);
-
-                vehicles.setPowered_axles(tokens[12]);
-
-                vehicles.setSeats(tokens[13]);
-                vehicles.setMaximum_mass(tokens[14]);
+                if (tokens[3] == null)
+                    vehicles.setTrade(" ");
+                else
+                    vehicles.setTrade(tokens[3]);
+                if (tokens[4] == null)
+                    vehicles.setCommerical_name(" ");
+                else
+                    vehicles.setCommerical_name(tokens[4]);
+                if (tokens[5] == null)
+                    vehicles.setAllotment_date(" ");
+                else
+                    vehicles.setAllotment_date(tokens[5]);
+                if (tokens[6] == null)
+                    vehicles.setCategory(" ");
+                else
+                    vehicles.setCategory(tokens[6]);
+                if (tokens[7] == null)
+                    vehicles.setBodywork(" ");
+                else
+                    vehicles.setBodywork(tokens[7]);
+                if (tokens[8] == null)
+                    vehicles.setPower_source_id(" ");
+                else
+                    vehicles.setPower_source_id(tokens[8]);
+                if (tokens[9] == null)
+                    vehicles.setPower(" ");
+                else
+                    vehicles.setPower(tokens[9]);
+                if (tokens[10] == null)
+                    vehicles.setEngine_capacity(" ");
+                else
+                    vehicles.setEngine_capacity(tokens[10]);
+                if (tokens[11] == null)
+                    vehicles.setAxles(" ");
+                else
+                    vehicles.setAxles(tokens[11]);
+                if (tokens[12] == null)
+                    vehicles.setPowered_axles(" ");
+                else
+                    vehicles.setPowered_axles(tokens[12]);
+                if (tokens[13] == null)
+                    vehicles.setSeats(" ");
+                else
+                    vehicles.setSeats(tokens[13]);
+                if (tokens[14] == null)
+                    vehicles.setMaximum_mass(" ");
+                else
+                    vehicles.setMaximum_mass(tokens[14]);
                 vehiclesList.add(vehicles);
 
 
@@ -83,16 +108,12 @@ public class DataGenerator {
     }
 
     public static List<PowerSource> getPowerSources(Context context, String fileName) {
-        BufferedReader reader = readFile(context, fileName);
-        String line = "";
         List<PowerSource> powerSourceList = new ArrayList<>();
-
+        CSVReader csvReader = new CSVReader(readFile(context, fileName));
+        String tokens[] = null;
         try {
-            while ((line = reader.readLine()) != null) {
+            while ((tokens = csvReader.readNext()) != null) {
 
-                //tokenizing the string on , and set power_sources attributes
-
-                String[] tokens = line.split(",");
                 PowerSource powerSource = new PowerSource();
                 powerSource.setId(tokens[0]);
                 powerSource.setShort_name(tokens[1]);
