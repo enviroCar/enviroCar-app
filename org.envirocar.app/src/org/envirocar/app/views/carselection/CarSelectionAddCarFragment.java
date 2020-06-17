@@ -422,7 +422,6 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
                 .subscribeWith(new DisposableSingleObserver<List<Vehicles>>() {
                     @Override
                     public void onSuccess(List<Vehicles> vehicles) {
-                        mainThreadWorker.schedule(() -> {
                             for (Vehicles vehicles1 : vehicles) {
                                 Car car = new CarImpl();
                                 car.setManufacturer(vehicles1.getManufacturer());
@@ -434,7 +433,6 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
                                     car.setEngineDisplacement(Integer.parseInt(vehicles1.getEngine_capacity()));
                                 addCarToAutocompleteList(car);
                             }
-                        });
                     }
 
                     @Override
