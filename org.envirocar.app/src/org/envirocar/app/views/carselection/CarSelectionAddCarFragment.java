@@ -252,6 +252,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
         modelText.setText("");
         yearText.setText("");
         engineText.setText("");
+        fueltypeText.setText("");
     }
 
     @OnTextChanged(value = R.id.activity_car_selection_newcar_input_model, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
@@ -260,12 +261,14 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
 
         yearText.setText("");
         engineText.setText("");
+        fueltypeText.setText("");
     }
 
     @OnTextChanged(value = R.id.activity_car_selection_newcar_input_constructionyear, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
     protected void onConstructionYearChanged(CharSequence text) {
         yearText.setError(null);
         engineText.setText("");
+        fueltypeText.setText("");
     }
 
     @OnTextChanged(value = R.id.activity_car_selection_newcar_input_fueltype, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
@@ -301,6 +304,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
             modelText.setError(null);
             yearText.setError(null);
             engineText.setError(null);
+            fueltypeText.setError(null);
 
             Car.FuelType fuelType = Car.FuelType.getFuelTybeByTranslatedString(
                     getContext(), fueltypeText.getText().toString().toUpperCase());
