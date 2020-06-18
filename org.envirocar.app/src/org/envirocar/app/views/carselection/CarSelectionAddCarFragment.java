@@ -351,7 +351,6 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
 
             Car.FuelType fueltype = Car.FuelType.getFuelTybeByTranslatedString(getContext(),
                     fueltypeText.getText().toString());
-            Log.i("herFuel",""+fueltypeText.getText().toString());
 
             // create the car
             int year = Integer.parseInt(yearString);
@@ -682,8 +681,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
         String model = car.getModel().trim();
         String year = Integer.toString(car.getConstructionYear());
         Car.FuelType fuelType = car.getFuelType();
-        String fuel = fuelType.toString().toUpperCase();
-        Log.i("fuelT",fuelType+fuel);
+        String fuel = getContext().getString(fuelType.getStringResource());
 
         if (manufacturer.isEmpty() || model.isEmpty() || year.isEmpty())
             return;
