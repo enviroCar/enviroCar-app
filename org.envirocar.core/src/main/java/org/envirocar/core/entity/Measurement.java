@@ -135,7 +135,7 @@ public interface Measurement extends BaseEntity<Measurement> {
             }
 
             public String toString() {
-                return "Energy Consumption";
+                return "Consumption (GPS-based)";
             }
         },
         ENERGY_CONSUMPTION_CO2 {
@@ -146,7 +146,7 @@ public interface Measurement extends BaseEntity<Measurement> {
 
             @Override
             public String toString() {
-                return "Energy Consumption CO2 Emission";
+                return "CO2 Emission (GPS-based)";
             }
         },
         THROTTLE_POSITON {
