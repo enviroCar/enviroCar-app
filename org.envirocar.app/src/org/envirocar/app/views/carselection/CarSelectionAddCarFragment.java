@@ -307,7 +307,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
             fueltypeText.setError(null);
 
             Car.FuelType fuelType = Car.FuelType.getFuelTybeByTranslatedString(
-                    getContext(), fueltypeText.getText().toString().toUpperCase());
+                    getContext(), fueltypeText.getText().toString());
 
             //First check all input forms for empty strings
             View focusView = null;
