@@ -702,7 +702,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
         Pair<String, String> modelYearPair = new Pair<>(model, year);
         if (!mModelYearToFuel.containsKey(modelYearPair))
             mModelYearToFuel.put(modelYearPair, new HashSet<>());
-      mModelYearToFuel.get(modelYearPair).add(fuel);
+        mModelYearToFuel.get(modelYearPair).add(fuel);
 
         if (!mModelToCCM.containsKey(modelYearPair))
             mModelToCCM.put(modelYearPair, new HashSet<>());
@@ -730,13 +730,46 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
     }
 
     private void initWatcher() {
-        disposables.add(RxTextView.afterTextChangeEvents(modelText)
+        disposables.add(RxTextView.textChanges(manufacturerText)
+                .skipInitialValue()
+                .debounce(ERROR_DEBOUNCE_TIME, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .map(t -> t.toString())
+                .subscribe(manufacturer -> {
+                    ListAdapter adapter = manufacturerText.getAdapter();
+                    int flag = 0;
+                    for (int i = 0; i < adapter.getCount(); i++) {
+                        if (adapter.getItem(i).toString().compareTo(manufacturer) == 0) {
+                            flag = 1;
+                            break;
+                        }
+                    }
+                    if (flag == 0) {
+                        manufacturerText.setError(getString(R.string.car_selection_error_select_from_list));
+                        manufacturerText.requestFocus();
+                    }
+                }));
+        disposables.add(RxTextView.textChanges(modelText)
+                .skipInitialValue()
                 .debounce(ERROR_DEBOUNCE_TIME, TimeUnit.MILLISECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
                 .map(t -> t.toString())
                 .subscribe(model -> {
                     if (model.trim().isEmpty()) {
                         modelText.setError(getString(R.string.car_selection_error_empty_input));
+                    } else {
+                        ListAdapter adapter = modelText.getAdapter();
+                        int flag = 0;
+                        for (int i = 0; i < adapter.getCount(); i++) {
+                            if (adapter.getItem(i).toString().compareTo(model) == 0) {
+                                flag = 1;
+                                break;
+                            }
+                        }
+                        if (flag == 0) {
+                            modelText.setError(getString(R.string.car_selection_error_select_from_list));
+                            modelText.requestFocus();
+                        }
                     }
                 }, LOG::error));
 
@@ -748,15 +781,16 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
                 .map(CharSequence::toString)
                 .filter(s -> !s.isEmpty())
                 .subscribe(yearString -> {
-                    try {
-                        int year = Integer.parseInt(yearString);
-                        if (year < CONSTRUCTION_YEAR_MIN || year > CONSTRUCTION_YEAR_MAX) {
-                            yearText.setError(getString(R.string.car_selection_error_invalid_input));
-                            yearText.requestFocus();
+                    ListAdapter adapter = yearText.getAdapter();
+                    int flag = 0;
+                    for (int i = 0; i < adapter.getCount(); i++) {
+                        if (adapter.getItem(i).toString().compareTo(yearString) == 0) {
+                            flag = 1;
+                            break;
                         }
-                    } catch (Exception e) {
-                        LOG.error(String.format("Unable to parse year [%s]", yearString), e);
-                        yearText.setError(getString(R.string.car_selection_error_invalid_input));
+                    }
+                    if (flag == 0) {
+                        yearText.setError(getString(R.string.car_selection_error_select_from_list));
                         yearText.requestFocus();
                     }
                 }, LOG::error));
@@ -771,16 +805,16 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
                 .subscribe(engineString -> {
                     if (engineString.isEmpty())
                         return;
-
-                    try {
-                        int engine = Integer.parseInt(engineString);
-                        if (engine < ENGINE_DISPLACEMENT_MIN || engine > ENGINE_DISPLACEMENT_MAX) {
-                            engineText.setError(getString(R.string.car_selection_error_invalid_input));
-                            engineText.requestFocus();
+                    ListAdapter adapter = engineText.getAdapter();
+                    int flag = 0;
+                    for (int i = 0; i < adapter.getCount(); i++) {
+                        if (adapter.getItem(i).toString().compareTo(engineString) == 0) {
+                            flag = 1;
+                            break;
                         }
-                    } catch (Exception e) {
-                        LOG.error(String.format("Unable to parse engine [%s]", engineString), e);
-                        engineText.setError(getString(R.string.car_selection_error_invalid_input));
+                    }
+                    if (flag == 0) {
+                        engineText.setError(getString(R.string.car_selection_error_select_from_list));
                         engineText.requestFocus();
                     }
                 }, LOG::error));
