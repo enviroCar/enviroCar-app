@@ -20,6 +20,7 @@ package org.envirocar.app.views.carselection;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Pair;
 import android.view.LayoutInflater;
@@ -94,6 +95,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
     private static final int CONSTRUCTION_YEAR_MAX = Calendar.getInstance().get(Calendar.YEAR);
     private static final int ENGINE_DISPLACEMENT_MIN = 500;
     private static final int ENGINE_DISPLACEMENT_MAX = 5000;
+    private static Drawable error;
 
     @BindView(R.id.envirocar_toolbar)
     protected Toolbar toolbar;
@@ -150,7 +152,8 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
             closeThisFragment();
         });
 
-
+        error = getResources().getDrawable(R.drawable.ic_error_red_24dp);
+        error.setBounds(-50,0,0,error.getIntrinsicHeight());
         // initially we set the toolbar exp to gone
         toolbar.setVisibility(View.GONE);
         toolbarExp.setVisibility(View.GONE);
@@ -249,6 +252,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
 
     @OnTextChanged(value = R.id.activity_car_selection_newcar_input_fueltype, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
     protected void onFuelTypeChanged(CharSequence text) {
+        fueltypeText.setError(null);
         if (text.toString().isEmpty())
             return;
 
@@ -287,23 +291,23 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
             //First check all input forms for empty strings
             View focusView = null;
             if (fuelType != Car.FuelType.ELECTRIC && engineText.getText().length() == 0) {
-                engineText.setError(getString(R.string.car_selection_error_empty_input));
+                engineText.setError(getString(R.string.car_selection_error_empty_input),error);
                 focusView = engineText;
             }
             if (fueltypeText.getText().length() == 0) {
-                fueltypeText.setError(getString(R.string.car_selection_error_empty_input));
+                fueltypeText.setError(getString(R.string.car_selection_error_empty_input),error);
                 focusView = fueltypeText;
             }
             if (yearText.getText().length() == 0) {
-                yearText.setError(getString(R.string.car_selection_error_empty_input));
+                yearText.setError(getString(R.string.car_selection_error_empty_input),error);
                 focusView = yearText;
             }
             if (modelText.getText().length() == 0) {
-                modelText.setError(getString(R.string.car_selection_error_empty_input));
+                modelText.setError(getString(R.string.car_selection_error_empty_input),error);
                 focusView = modelText;
             }
             if (manufacturerText.getText().length() == 0) {
-                manufacturerText.setError(getString(R.string.car_selection_error_empty_input));
+                manufacturerText.setError(getString(R.string.car_selection_error_empty_input),error);
                 focusView = manufacturerText;
             }
 
@@ -353,11 +357,11 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
             // Check the values of engine and year for validity.
             if (car.getFuelType() != Car.FuelType.ELECTRIC &&
                     (car.getEngineDisplacement() < 500 || car.getEngineDisplacement() > 5000)) {
-                engineText.setError(getString(R.string.car_selection_error_invalid_input));
+                engineText.setError(getString(R.string.car_selection_error_invalid_input),error);
                 focusView = engineText;
             }
             if (car.getConstructionYear() < 1990 || car.getConstructionYear() > currentYear) {
-                yearText.setError(getString(R.string.car_selection_error_invalid_input));
+                yearText.setError(getString(R.string.car_selection_error_invalid_input),error);
                 focusView = yearText;
             }
 
@@ -619,7 +623,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
                 .map(t -> t.toString())
                 .subscribe(model -> {
                     if (model.trim().isEmpty()) {
-                        modelText.setError(getString(R.string.car_selection_error_empty_input));
+                        modelText.setError(getString(R.string.car_selection_error_empty_input),error);
                     }
                 }, LOG::error));
 
@@ -634,12 +638,12 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
                     try {
                         int year = Integer.parseInt(yearString);
                         if (year < CONSTRUCTION_YEAR_MIN || year > CONSTRUCTION_YEAR_MAX) {
-                            yearText.setError(getString(R.string.car_selection_error_invalid_input));
+                            yearText.setError(getString(R.string.car_selection_error_invalid_input),error);
                             yearText.requestFocus();
                         }
                     } catch (Exception e) {
                         LOG.error(String.format("Unable to parse year [%s]", yearString), e);
-                        yearText.setError(getString(R.string.car_selection_error_invalid_input));
+                        yearText.setError(getString(R.string.car_selection_error_invalid_input),error);
                         yearText.requestFocus();
                     }
                 }, LOG::error));
@@ -658,12 +662,12 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
                     try {
                         int engine = Integer.parseInt(engineString);
                         if (engine < ENGINE_DISPLACEMENT_MIN || engine > ENGINE_DISPLACEMENT_MAX) {
-                            engineText.setError(getString(R.string.car_selection_error_invalid_input));
+                            engineText.setError(getString(R.string.car_selection_error_invalid_input),error);
                             engineText.requestFocus();
                         }
                     } catch (Exception e) {
                         LOG.error(String.format("Unable to parse engine [%s]", engineString), e);
-                        engineText.setError(getString(R.string.car_selection_error_invalid_input));
+                        engineText.setError(getString(R.string.car_selection_error_invalid_input),error);
                         engineText.requestFocus();
                     }
                 }, LOG::error));
