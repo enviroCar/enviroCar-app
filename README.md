@@ -18,6 +18,38 @@ for existing projects.
 
 The enviroCar App is licensed under the [GNU General Public License, Version 3](https://github.com/enviroCar/enviroCar-app/blob/master/LICENSE).
 
+## Recorded Parameters
+|Parametername	        |Unit   	|   	|   	|   	|
+|---	                |---	|---	|---	|---	|
+|Speed 	                |km/h  	|   	|   	|   	|
+|Mass-Air-Flow (MAF)   	|l/s   	|   	|   	|   	|
+|Calculated (MAF)       |g/s   	|   	|   	|   	|
+|RPM                    |u/min 	|   	|   	|   	|
+|Intake Temperature     |c   	|   	|   	|   	|
+|Intake Pressure        |kPa  	|   	|   	|   	|
+|CO2                    |kg/h  	|   	|   	|   	|
+|CO2 (GPS-based)        |kg/h  	|   	|   	|   	|
+|Consumption            |l/h   	|   	|   	|   	|
+|Consumption (GPS-based)|l/h   	|   	|   	|   	|
+|Throttle Position      |%   	|   	|   	|   	|
+|Engine Load            |%   	|   	|   	|   	|
+|GPS Accuracy           |%   	|   	|   	|   	|
+|GPS Speed              |km/h  	|   	|   	|   	|
+|GPS Bearing            |deg   	|   	|   	|   	|
+|GPS Altitude           |m  	|   	|   	|   	|
+|GPS PDOP               |precision   	|   	|   	|   	|
+|GPS HDOP               |precision   	|   	|   	|   	|
+|GPS VDOP               |precision   	|   	|   	|   	|
+|Lambda Voltage         |V   	|   	|   	|   	|
+|Lambda Voltage ER      |ratio 	|       |   	|   	|
+|Lambda Current         |A   	|   	|   	|   	|
+|Lambda Current ER      |ratio  |    	|   	|   	|
+|Fuel System Loop       |boolean|   	|   	|   	|
+|Fuel System Status Code|category|   	|   	|   	|
+|Long Term Trim 1       |%   	|   	|   	|   	|
+|Short Term Trim 1      |%   	|   	|   	|   	|
+
+
 ## OBD simulator
 
 The repository also contains a simple OBD simulator (dumb, nothing fancy) that can
