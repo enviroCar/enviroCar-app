@@ -145,6 +145,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
     private Map<String, Set<String>> mCarToModelMap = new ConcurrentHashMap<>();
     private Map<String, Set<String>> mModelToYear = new ConcurrentHashMap<>();
     private Map<Pair<String, String>, Set<String>> mModelToCCM = new ConcurrentHashMap<>();
+    private Map<Pair<String, String>, Set<String>> mModelYearToFuel = new ConcurrentHashMap<>();
 
     private static final ArrayAdapter<String> asSortedAdapter(Context context, Set<String> set) {
         String[] strings = set.toArray(new String[set.size()]);
@@ -202,10 +203,10 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
                 });
 
 
-        fueltypeText.setAdapter(new FuelTypeAdapter(
-                getContext(),
-                R.layout.activity_car_selection_newcar_fueltype_item,
-                Car.FuelType.values()));
+//        fueltypeText.setAdapter(new FuelTypeAdapter(
+//                getContext(),
+//                R.layout.activity_car_selection_newcar_fueltype_item,
+//                Car.FuelType.values()));
 
 
         fueltypeText.setKeyListener(null);
@@ -302,7 +303,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
             engineText.setError(null);
 
             Car.FuelType fuelType = Car.FuelType.getFuelTybeByTranslatedString(
-                    getContext(), fueltypeText.getText().toString());
+                    getContext(), fueltypeText.getText().toString().toUpperCase());
 
             //First check all input forms for empty strings
             View focusView = null;
@@ -347,9 +348,10 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
             String yearString = yearText.getText().toString();
             String engineString = engineText.getText().toString();
 
-            FuelTypeAdapter fueltypeAdapter = (FuelTypeAdapter) fueltypeText.getAdapter();
+
             Car.FuelType fueltype = Car.FuelType.getFuelTybeByTranslatedString(getContext(),
                     fueltypeText.getText().toString());
+            Log.i("herFuel",""+fueltypeText.getText().toString());
 
             // create the car
             int year = Integer.parseInt(yearString);
@@ -422,24 +424,41 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
                 .subscribeWith(new DisposableSingleObserver<List<Vehicles>>() {
                     @Override
                     public void onSuccess(List<Vehicles> vehicles) {
-                            for (Vehicles vehicles1 : vehicles) {
-                                Car car = new CarImpl();
-                                car.setManufacturer(vehicles1.getManufacturer());
-                                car.setModel(vehicles1.getCommerical_name());
-                                String date = vehicles1.getAllotment_date();
-                                int allotmentDate = convertDateToInt(date);
-                                car.setConstructionYear(allotmentDate);
-                                if (!vehicles1.getEngine_capacity().isEmpty() && vehicles1.getEngine_capacity().matches("[0-9]+"))
-                                    car.setEngineDisplacement(Integer.parseInt(vehicles1.getEngine_capacity()));
-                                addCarToAutocompleteList(car);
-                            }
+                        for (Vehicles vehicles1 : vehicles) {
+                            Car car = new CarImpl();
+                            car.setManufacturer(vehicles1.getManufacturer());
+                            car.setModel(vehicles1.getCommerical_name());
+                            String date = vehicles1.getAllotment_date();
+                            int allotmentDate = convertDateToInt(date);
+                            car.setConstructionYear(allotmentDate);
+                            car.setFuelType(getFuel(vehicles1.getPower_source_id()));
+                            if (!vehicles1.getEngine_capacity().isEmpty() && vehicles1.getEngine_capacity().matches("[0-9]+"))
+                                car.setEngineDisplacement(Integer.parseInt(vehicles1.getEngine_capacity()));
+                            addCarToAutocompleteList(car);
+                        }
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        LOG.error(e.getMessage(),e);
+                        LOG.error(e.getMessage(), e);
                     }
                 });
+    }
+
+    private Car.FuelType getFuel(String id) {
+        String fuel = null;
+        if (id.equals("01"))
+            fuel = "gasoline";
+        else if (id.equals("02"))
+            fuel = "diesel";
+        else if (id.equals("04"))
+            fuel = "electric";
+        else if (id.equals("05") || id.equals("09") || id.equals("38"))
+            fuel = "gas";
+        else
+            fuel = "hybrid";
+
+        return Car.FuelType.resolveFuelType(fuel);
     }
 
     private int convertDateToInt(String date) {
@@ -558,13 +577,17 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
                 String model = modelText.getText().toString();
                 Pair<String, String> modelYear = new Pair<>(model, year);
 
-                updateEngineView(modelYear);
+                updateFuelView(modelYear);
             }
         });
 
-        engineText.setOnFocusChangeListener((v, hasFocus) -> {
+        fueltypeText.setOnFocusChangeListener((v, hasFocus) -> {
             if (!hasFocus) {
-                checkFuelingType();
+                String year = yearText.getText().toString();
+                String model = modelText.getText().toString();
+                Pair<String, String> modelYear = new Pair<>(model, year);
+
+                updateEngineView(modelYear);
             }
         });
     }
@@ -639,6 +662,14 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
         }
     }
 
+    private void updateFuelView(Pair<String, String> model) {
+        if (mModelYearToFuel.containsKey(model)) {
+            fueltypeText.setAdapter(asSortedAdapter(getContext(), mModelYearToFuel.get(model)));
+        } else {
+            fueltypeText.setAdapter(null);
+        }
+    }
+
     /**
      * Inserts the attributes of the car
      *
@@ -650,6 +681,9 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
         String manufacturer = car.getManufacturer().trim();
         String model = car.getModel().trim();
         String year = Integer.toString(car.getConstructionYear());
+        Car.FuelType fuelType = car.getFuelType();
+        String fuel = fuelType.toString().toUpperCase();
+        Log.i("fuelT",fuelType+fuel);
 
         if (manufacturer.isEmpty() || model.isEmpty() || year.isEmpty())
             return;
@@ -664,6 +698,10 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
         mModelToYear.get(model).add(Integer.toString(car.getConstructionYear()));
 
         Pair<String, String> modelYearPair = new Pair<>(model, year);
+        if (!mModelYearToFuel.containsKey(modelYearPair))
+            mModelYearToFuel.put(modelYearPair, new HashSet<>());
+      mModelYearToFuel.get(modelYearPair).add(fuel);
+
         if (!mModelToCCM.containsKey(modelYearPair))
             mModelToCCM.put(modelYearPair, new HashSet<>());
         mModelToCCM.get(modelYearPair).add(Integer.toString(car.getEngineDisplacement()));
