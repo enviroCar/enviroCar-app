@@ -23,7 +23,6 @@
     <string name="car_selection_my_cars">My Cars</string>
     <string name="car_selection_no_car_selected">No car type selected.</string>
     <string name="car_selection_add_car">Create Car</string>
-    <string name="car_selection_enter_info">Enter the details of your car</string>
     <string name="car_selection_header">Select a Car</string>
 
     <string name="car_selection_car_selected" formatted="false">%s %s has been selected as my car.</string>
@@ -42,6 +41,8 @@
     <string name="car_selection_error_invalid_input">Invalid input</string>
     <string name="car_selection_error_select_from_list">Not exist in list</string>
 
-    <string name="car_selection_addcar_info">Please enter the details of your vehicle. Be precise. Parts of this information are especially important for calculating estimated values such as consumption.</string>
+    <string name="car_selection_addcar_info">Please enter the details of your vehicle either by HSN and TSN or details about vehicle attributes</string>
+    <string name="car_selection_hsn_tsn_segmented">HSN/TSN</string>
+    <string name="car_selection_attributes_segmented">Attributes</string>
 
 </resources>

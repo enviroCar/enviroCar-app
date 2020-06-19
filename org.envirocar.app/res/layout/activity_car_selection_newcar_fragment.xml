@@ -22,11 +22,69 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@color/white_cario">
 
     <include layout="@layout/envirocar_toolbar" />
 
     <LinearLayout
+        android:id="@+id/activity_car_selection_newcar_toolbar_exp"
+        android:layout_width="match_parent"
+        android:layout_height="?actionBarSize"
+        android:visibility="visible">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_small"
+                android:layout_marginLeft="@dimen/spacing_large"
+                android:layout_marginBottom="@dimen/spacing_small"
+                android:gravity="bottom"
+                android:text="@string/car_selection_addcar_info"
+                android:textColor="@color/blue_dark_cario"
+                android:textSize="13sp" />
+
+        </RelativeLayout>
+    </LinearLayout>
+
+    <info.hoang8f.android.segmented.SegmentedGroup
+        xmlns:segmentedgroup="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/carSelectionSegmentedGroup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="10dp"
+        android:weightSum="2"
+        android:orientation="horizontal"
+        segmentedgroup:sc_tint_color="@color/cario_color_primary"
+        segmentedgroup:sc_checked_text_color="@color/white_cario"
+        segmentedgroup:sc_border_width="2dp"
+        segmentedgroup:sc_corner_radius="10dp">
+
+        <RadioButton
+            android:id="@+id/HsnTsnSegmentedButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/car_selection_hsn_tsn_segmented"
+            android:checked="true"
+            style="@style/RadioButton" />
+
+        <RadioButton
+            android:id="@+id/attributesSegmentedButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/car_selection_attributes_segmented"
+            style="@style/RadioButton" />
+
+    </info.hoang8f.android.segmented.SegmentedGroup>
+    <!--<LinearLayout
         android:id="@+id/activity_car_selection_newcar_toolbar_exp"
         android:layout_width="match_parent"
         android:layout_height="?actionBarSize"
@@ -201,4 +259,5 @@
             </com.google.android.material.textfield.TextInputLayout>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
+    !-->
 </LinearLayout>
