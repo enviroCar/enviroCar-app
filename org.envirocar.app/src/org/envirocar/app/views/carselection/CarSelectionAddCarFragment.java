@@ -21,21 +21,17 @@ package org.envirocar.app.views.carselection;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.ListAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 
@@ -51,41 +47,28 @@ import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.views.utils.ECAnimationUtils;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.CarImpl;
-import org.envirocar.core.entity.Manufacturers;
-import org.envirocar.core.entity.PowerSource;
 import org.envirocar.core.entity.Vehicles;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.storage.EnviroCarVehicleDB;
 
-import java.util.AbstractList;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnFocusChange;
-import butterknife.OnItemClick;
 import butterknife.OnTextChanged;
-import io.reactivex.BackpressureStrategy;
-import io.reactivex.Flowable;
-import io.reactivex.Observable;
 import io.reactivex.Scheduler;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Function;
 import io.reactivex.functions.Predicate;
 import io.reactivex.observers.DisposableObserver;
@@ -101,10 +84,6 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
     private static final Logger LOG = Logger.getLogger(CarSelectionAddCarFragment.class);
 
     private static final int ERROR_DEBOUNCE_TIME = 750;
-    private static final int CONSTRUCTION_YEAR_MIN = 1990;
-    private static final int CONSTRUCTION_YEAR_MAX = Calendar.getInstance().get(Calendar.YEAR);
-    private static final int ENGINE_DISPLACEMENT_MIN = 500;
-    private static final int ENGINE_DISPLACEMENT_MAX = 5000;
 
     @BindView(R.id.envirocar_toolbar)
     protected Toolbar toolbar;
@@ -202,13 +181,6 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
                     }
                 });
 
-
-//        fueltypeText.setAdapter(new FuelTypeAdapter(
-//                getContext(),
-//                R.layout.activity_car_selection_newcar_fueltype_item,
-//                Car.FuelType.values()));
-
-
         fueltypeText.setKeyListener(null);
 
         manufacturerText.setOnItemClickListener((parent, view1, position, id) -> requestNextTextfieldFocus(manufacturerText));
@@ -216,7 +188,6 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
         yearText.setOnItemClickListener((parent, view13, position, id) -> requestNextTextfieldFocus(yearText));
         fueltypeText.setOnItemClickListener((parent, view14, position, id) -> requestNextTextfieldFocus(fueltypeText));
 
-        //   dispatchRemoteSensors();
         fetchVehicles();
         addManufacturer();
         initFocusChangedListener();
@@ -381,7 +352,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
                 engineText.setError(getString(R.string.car_selection_error_invalid_input));
                 focusView = engineText;
             }
-            if (car.getConstructionYear() < 1990 || car.getConstructionYear() > currentYear) {
+            if (car.getConstructionYear() > currentYear) {
                 yearText.setError(getString(R.string.car_selection_error_invalid_input));
                 focusView = yearText;
             }
@@ -471,54 +442,6 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
         }
         return convertedDate;
     }
-//    private void dispatchRemoteSensors() {
-//        disposables.add(daoProvider.getSensorDAO()
-//                .getAllCarsObservable()
-//                .toFlowable(BackpressureStrategy.BUFFER)
-//                .onBackpressureBuffer(10000)
-//                .subscribeOn(Schedulers.io())
-//                .observeOn(Schedulers.io())
-//                .toObservable()
-//                .subscribeWith(new DisposableObserver<List<Car>>() {
-//
-//                    @Override
-//                    protected void onStart() {
-//                        LOG.info("onStart() download sensors");
-//                        downloadView.setVisibility(View.VISIBLE);
-//                    }
-//
-//                    @Override
-//                    public void onComplete() {
-//                        LOG.info("onCompleted(): cars successfully downloaded.");
-//
-//                        mainThreadWorker.schedule(() -> {
-//                             Update the manufactuerers in
-    //                         updateSpinner(mManufacturerNames, manufacturerSpinner);
-//                            updateManufacturerViews();
-//
-//                            dispose();
-//
-//                            downloadView.setVisibility(View.INVISIBLE);
-//                        });
-//                    }
-//
-//                    @Override
-//                    public void onError(Throwable e) {
-//                        LOG.error(e.getMessage(), e);
-//                        mainThreadWorker.schedule(() -> {
-//                            downloadView.setVisibility(View.INVISIBLE);
-//                        });
-//                    }
-//
-//                    @Override
-//                    public void onNext(List<Car> cars) {
-//                        for (Car car : cars) {
-//                            if (car != null)
-//                                addCarToAutocompleteList(car);
-//                        }
-//                    }
-//                }));
-//    }
 
     private Function<Car, Car> checkCarAlreadyExist() {
         return car -> {
@@ -628,9 +551,6 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
             }
         }
 
-//        if (selectedCar != null && selectedCar.getFuelType() != null) {
-//            fueltypeText.setText(selectedCar.getFuelType().toString());
-//        }
     }
 
     private void updateManufacturerViews() {
@@ -826,36 +746,6 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
             nextField.requestFocus();
         } catch (Exception e) {
             LOG.warn("Unable to find next field or to request focus to next field.");
-        }
-    }
-
-    /**
-     * Custom array adapter for translated fueltypes
-     */
-    private static class FuelTypeAdapter extends ArrayAdapter<String> {
-        private final Car.FuelType[] values;
-
-        public FuelTypeAdapter(@NonNull Context context, int resource, Car.FuelType[] values) {
-            super(context, resource, new AbstractList<String>() {
-                @Override
-                public int size() {
-                    return values.length;
-                }
-
-                @Override
-                public String get(int index) {
-                    if (index == ArrayAdapter.NO_SELECTION)
-                        return null;
-                    return context.getString(values[index].getStringResource());
-                }
-            });
-            this.values = values;
-        }
-
-        public Car.FuelType getOriginal(int index) {
-            if (index == ArrayAdapter.NO_SELECTION)
-                return null;
-            return values[index];
         }
     }
 }
