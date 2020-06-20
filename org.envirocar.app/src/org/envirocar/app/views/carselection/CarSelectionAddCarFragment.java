@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
-package org.envirocar.app.views.carselection;
+/*package org.envirocar.app.views.carselection;
 
 import android.app.Activity;
 import android.content.Context;
@@ -80,6 +80,7 @@ import io.reactivex.schedulers.Schedulers;
  *
  * @author dewall
  */
+/*
 public class CarSelectionAddCarFragment extends BaseInjectorFragment {
     private static final Logger LOG = Logger.getLogger(CarSelectionAddCarFragment.class);
 
@@ -268,6 +269,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
      * exists. If this is the case, then it adds the car to the list of selected cars. If not,
      * then it selects
      */
+/*
     private Predicate<MenuItem> continueWhenFormIsCorrect() {
         return menuItem -> {
             // First, reset the form
@@ -598,6 +600,8 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
      *
      * @param car
      */
+
+/*
     private void addCarToAutocompleteList(Car car) {
 
         mCars.add(car);
@@ -749,3 +753,4 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
         }
     }
 }
+*/
