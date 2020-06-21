@@ -26,8 +26,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentStatePagerAdapter;
+import androidx.viewpager.widget.ViewPager;
 
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
@@ -37,6 +42,7 @@ import org.envirocar.core.logging.Logger;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import info.hoang8f.android.segmented.SegmentedGroup;
 
 public class CarSelectionAddCarFragment extends BaseInjectorFragment {
     private static final Logger LOG = Logger.getLogger(CarSelectionAddCarFragment.class);
@@ -47,11 +53,14 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
     protected Toolbar toolbar;
     @BindView(R.id.activity_car_selection_newcar_toolbar_exp)
     protected View toolbarExp;
-    @BindView(R.id.activity_car_selection_newcar_content_view)
-    protected View contentView;
     @BindView(R.id.activity_car_selection_top)
     protected View topView;
+    @BindView(R.id.carSelectionSegmentedGroup)
+    protected SegmentedGroup segmentedGroup;
+    @BindView(R.id.activity_car_selection_newcar_content_view)
+    protected ViewPager mViewPager;
 
+    private CarSelectionPagerAdapter pagerAdapter;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle
@@ -68,6 +77,46 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
             closeThisFragment();
         });
 
+        pagerAdapter = new CarSelectionPagerAdapter(getChildFragmentManager());
+        mViewPager.setAdapter(pagerAdapter);
+
+        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                if (position == 0) {
+                    segmentedGroup.check(R.id.HsnTsnSegmentedButton);
+                } else {
+                    segmentedGroup.check(R.id.attributesSegmentedButton);
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+
+        segmentedGroup.check(R.id.HsnTsnSegmentedButton);
+
+        segmentedGroup.setOnCheckedChangeListener((radioGroup, i) ->{
+            switch (i) {
+                case R.id.HsnTsnSegmentedButton:
+                    mViewPager.setCurrentItem(0);
+                    break;
+                case R.id.attributesSegmentedButton:
+                    mViewPager.setCurrentItem(1);
+                    break;
+                default:
+                    break;
+
+            }
+        });
+
         return view;
     }
 
@@ -79,7 +128,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
                 R.anim.translate_slide_in_top_fragment);
         ECAnimationUtils.animateShowView(getContext(), toolbarExp,
                 R.anim.translate_slide_in_top_fragment);
-        ECAnimationUtils.animateShowView(getContext(), contentView,
+        ECAnimationUtils.animateShowView(getContext(), mViewPager,
                 R.anim.translate_slide_in_bottom_fragment);
     }
 
@@ -101,7 +150,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
                 ((CarSelectionActivity) getActivity()).overlayView, R.anim.fade_out);
         ECAnimationUtils.animateHideView(getContext(), R.anim
                 .translate_slide_out_top_fragment, toolbar, toolbarExp);
-        ECAnimationUtils.animateHideView(getContext(), contentView, R.anim
+        ECAnimationUtils.animateHideView(getContext(), mViewPager, R.anim
                 .translate_slide_out_bottom, () -> ((CarSelectionUiListener) getActivity()).onHideAddCarFragment());
         ECAnimationUtils.animateHideView(getContext(),topView,R.anim.translate_slide_out_right);
     }
@@ -109,5 +158,33 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
     public void hideKeyboard(View view) {
         InputMethodManager inputMethodManager = (InputMethodManager) getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
         inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+
+    class CarSelectionPagerAdapter extends FragmentStatePagerAdapter {
+
+        private static final int PAGES =2;
+        private CarSelectionHsnTsnFragment hsnTsnFragment;
+        private CarSelectionAttributesFragment attributesFragment;
+
+        public CarSelectionPagerAdapter(@NonNull FragmentManager fm) {
+            super(fm);
+            hsnTsnFragment = new CarSelectionHsnTsnFragment();
+            attributesFragment = new CarSelectionAttributesFragment();
+        }
+
+        @NonNull
+        @Override
+        public Fragment getItem(int position) {
+            if (position == 0) {
+                return hsnTsnFragment;
+            } else {
+                return attributesFragment;
+            }
+        }
+
+        @Override
+        public int getCount() {
+            return PAGES;
+        }
     }
 }
