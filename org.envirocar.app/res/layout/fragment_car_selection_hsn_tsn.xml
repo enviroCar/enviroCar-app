@@ -50,7 +50,8 @@
                     android:id="@+id/fragment_hsntsn_hsn_input"
                     style="@style/envirocar.login.edittext"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
+                    android:layout_height="match_parent"
+                    android:maxLength="4"/>
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -98,7 +99,8 @@
                     style="@style/envirocar.login.edittext"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:inputType="textPersonName" />
+                    android:maxLength="3"
+                    />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -125,7 +127,7 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <com.google.android.material.card.MaterialCardView
-            android:id="@+id/activity_signup_register_button"
+            android:id="@+id/fragment_search_vehicle"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_marginLeft="60dp"

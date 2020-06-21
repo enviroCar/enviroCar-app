@@ -14,4 +14,7 @@ public interface LocalVehicleDAO extends BaseLocalCarDAO<Vehicles> {
 
     @Query("SELECT * FROM vehicles")
     Single<List<Vehicles>> getManufacturerVehicles();
+
+    @Query("SELECT * FROM vehicles where manufacturer_id = :manuId AND id = :vehicleId")
+    Single<Vehicles> getHsnTsnVehicle(String manuId,String vehicleId);
 }
