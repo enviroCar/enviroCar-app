@@ -22,8 +22,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/white_cario">
+    android:orientation="vertical">
 
     <include layout="@layout/envirocar_toolbar" />
 
@@ -31,7 +30,8 @@
         android:id="@+id/activity_car_selection_newcar_toolbar_exp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="visible">
+        android:visibility="visible"
+        android:background="@color/white_cario">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -50,6 +50,12 @@
 
         </RelativeLayout>
     </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:id="@+id/activity_car_selection_top"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@color/white_cario">
     <View
         android:layout_width="match_parent"
         android:layout_height="2dp"
@@ -92,6 +98,23 @@
             style="@style/RadioButton" />
 
     </info.hoang8f.android.segmented.SegmentedGroup>
+
+    </LinearLayout>
+    <androidx.viewpager.widget.ViewPager
+        android:id="@+id/activity_car_selection_newcar_content_view"
+        android:layout_width="match_parent"
+        android:background="@color/white_cario"
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
+   <!-- <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white_cario"
+        android:id="@+id/activity_car_selection_newcar_content_view">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
    <com.google.android.material.floatingactionbutton.FloatingActionButton
        android:layout_width="wrap_content"
@@ -233,6 +256,9 @@
 
         </com.google.android.material.card.MaterialCardView>
     </com.google.android.material.card.MaterialCardView>
+    </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+    !-->
     <!--<LinearLayout
         android:id="@+id/activity_car_selection_newcar_toolbar_exp"
         android:layout_width="match_parent"
