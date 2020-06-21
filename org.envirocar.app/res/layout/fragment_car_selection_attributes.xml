@@ -1,13 +1,200 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
-<TextView
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:text="HELLO"
-    android:gravity="center"
-    android:textSize="39dp"
-    />
-</androidx.constraintlayout.widget.ConstraintLayout>
+    android:background="@color/white_cario"
+    android:orientation="vertical">
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="@dimen/spacing_large"
+        android:backgroundTint="@color/white"
+        android:src="@drawable/ic_directions_car_black_24dp"
+        app:backgroundTint="#000000"
+        app:borderWidth="1dp"
+        app:rippleColor="#000000" />
+
+    <View
+        android:layout_width="3dp"
+        android:layout_height="50dp"
+        android:layout_gravity="center"
+        android:background="#e0e0e0" />
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:foregroundTint="@color/white"
+        app:cardCornerRadius="5dp"
+        app:cardElevation="10dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/fragment_attributes_manufacturer_input_layout"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="40dp"
+                android:layout_marginRight="20dp"
+                app:hintEnabled="false"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <androidx.appcompat.widget.AppCompatEditText
+                    android:id="@+id/fragment_attributes_manufacturer_input"
+                    style="@style/envirocar.login.edittext"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:hint="Manufacturer"
+                    android:textColor="#000000"
+                    android:textSize="14dp" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <View
+                android:layout_width="3dp"
+                android:layout_height="20dp"
+                android:layout_marginTop="@dimen/spacing_small"
+                android:layout_marginRight="70dp"
+                android:layout_marginBottom="@dimen/spacing_small"
+                android:background="#e0e0e0"
+                app:layout_constraintRight_toRightOf="@+id/fragment_attributes_manufacturer_input_layout"
+                app:layout_constraintTop_toTopOf="@+id/fragment_attributes_manufacturer_input_layout" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="20dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginRight="15dp"
+                android:src="@drawable/ic_manufacturer"
+                app:layout_constraintRight_toRightOf="@+id/fragment_attributes_manufacturer_input_layout"
+                app:layout_constraintTop_toTopOf="@+id/fragment_attributes_manufacturer_input_layout" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="50dp">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/fragment_attributes_model_input_layout"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="40dp"
+                android:layout_marginRight="20dp"
+                app:hintEnabled="false"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <androidx.appcompat.widget.AppCompatEditText
+                    android:id="@+id/fragment_attributes_model_input"
+                    style="@style/envirocar.login.edittext"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:hint="Model"
+                    android:inputType="textPersonName"
+                    android:textColor="#000000"
+                    android:textSize="14dp" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <View
+                android:layout_width="3dp"
+                android:layout_height="20dp"
+                android:layout_marginTop="@dimen/spacing_small"
+                android:layout_marginRight="70dp"
+                android:layout_marginBottom="@dimen/spacing_small"
+                android:background="#e0e0e0"
+                app:layout_constraintRight_toRightOf="@+id/fragment_attributes_model_input_layout"
+                app:layout_constraintTop_toTopOf="@+id/fragment_attributes_model_input_layout" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="20dp"
+                android:layout_marginTop="7dp"
+                android:layout_marginRight="15dp"
+                android:src="@drawable/ic_drive_eta_black_24dp"
+                app:layout_constraintRight_toRightOf="@+id/fragment_attributes_model_input_layout"
+                app:layout_constraintTop_toTopOf="@+id/fragment_attributes_model_input_layout" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="100dp">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/fragment_attributes_year_input_layout"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="40dp"
+                android:layout_marginRight="20dp"
+                app:hintEnabled="false"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <androidx.appcompat.widget.AppCompatEditText
+                    android:id="@+id/fragment_attributes_year_input"
+                    style="@style/envirocar.login.edittext"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:hint="Construction Year"
+                    android:inputType="textPersonName"
+                    android:textColor="#000000"
+                    android:textSize="14dp" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <View
+                android:layout_width="3dp"
+                android:layout_height="20dp"
+                android:layout_marginTop="@dimen/spacing_small"
+                android:layout_marginRight="70dp"
+                android:layout_marginBottom="@dimen/spacing_small"
+                android:background="#e0e0e0"
+                app:layout_constraintRight_toRightOf="@+id/fragment_attributes_year_input_layout"
+                app:layout_constraintTop_toTopOf="@+id/fragment_attributes_year_input_layout" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="20dp"
+                android:layout_marginTop="7dp"
+                android:layout_marginRight="15dp"
+                android:src="@drawable/ic_baseline_date_range_24"
+                android:tint="#000000"
+                app:layout_constraintRight_toRightOf="@+id/fragment_attributes_year_input_layout"
+                app:layout_constraintTop_toTopOf="@+id/fragment_attributes_year_input_layout" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/activity_signup_register_button"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginLeft="60dp"
+            android:layout_marginTop="200dp"
+            android:layout_marginRight="60dp"
+            android:layout_marginBottom="50dp"
+            app:cardBackgroundColor="@color/cario_color_primary_dark"
+            app:cardCornerRadius="25dp"
+            app:cardElevation="10dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="Search"
+                android:textColor="@color/white_cario" />
+
+        </com.google.android.material.card.MaterialCardView>
+    </com.google.android.material.card.MaterialCardView>
+
+</LinearLayout>

@@ -1,9 +1,9 @@
-<LinearLayout android:layout_width="match_parent"
-    android:layout_height="match_parent"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:background="@color/white_cario"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    android:orientation="vertical">
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:layout_width="wrap_content"
@@ -11,127 +11,127 @@
         android:layout_gravity="center"
         android:layout_marginTop="@dimen/spacing_large"
         android:backgroundTint="@color/white"
+        android:src="@drawable/ic_directions_car_black_24dp"
         app:backgroundTint="#000000"
         app:borderWidth="1dp"
-        android:src="@drawable/ic_directions_car_black_24dp"
         app:rippleColor="#000000" />
 
     <View
         android:layout_width="3dp"
         android:layout_height="70dp"
         android:layout_gravity="center"
-        android:background="#e0e0e0"/>
+        android:background="#e0e0e0" />
 
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="30dp"
         android:layout_marginRight="30dp"
-        app:cardElevation="10dp"
         android:foregroundTint="@color/white"
-        app:cardCornerRadius="5dp">
+        app:cardCornerRadius="5dp"
+        app:cardElevation="10dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/fragment_hsntsn_hsn_input_layout"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="40dp"
+                android:layout_marginRight="20dp"
+                app:hintEnabled="false"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <androidx.appcompat.widget.AppCompatEditText
+                    android:id="@+id/fragment_hsntsn_hsn_input"
+                    style="@style/envirocar.login.edittext"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <View
+                android:layout_width="3dp"
+                android:layout_height="20dp"
+                android:layout_marginTop="@dimen/spacing_small"
+                android:layout_marginRight="70dp"
+                android:layout_marginBottom="@dimen/spacing_small"
+                android:background="#e0e0e0"
+                app:layout_constraintRight_toRightOf="@+id/fragment_hsntsn_hsn_input_layout"
+                app:layout_constraintTop_toTopOf="@+id/fragment_hsntsn_hsn_input_layout" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginRight="15dp"
+                android:text="HSN"
+                android:textColor="#000000"
+                android:textSize="14dp"
+                app:layout_constraintRight_toRightOf="@+id/fragment_hsntsn_hsn_input_layout"
+                app:layout_constraintTop_toTopOf="@+id/fragment_hsntsn_hsn_input_layout" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            >
+            android:layout_marginTop="50dp">
+
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/activity_signup_username_input_layout"
+                android:id="@+id/fragment_hsntsn_tsn_input_layout"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
-                android:layout_height="40dp"
+                android:layout_height="30dp"
                 android:layout_marginLeft="20dp"
-                app:layout_constraintTop_toTopOf="parent"
-                android:layout_marginRight="20dp"
                 android:layout_marginTop="40dp"
-                app:hintEnabled="false">
+                android:layout_marginRight="20dp"
+                app:hintEnabled="false"
+                app:layout_constraintTop_toTopOf="parent">
 
                 <androidx.appcompat.widget.AppCompatEditText
-                    android:id="@+id/activity_signup_username_input"
+                    android:id="@+id/fragment_hsntsn_tsn_input"
                     style="@style/envirocar.login.edittext"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:inputType="textPersonName" />
 
             </com.google.android.material.textfield.TextInputLayout>
+
             <View
                 android:layout_width="3dp"
-                android:layout_height="30dp"
+                android:layout_height="20dp"
                 android:layout_marginTop="@dimen/spacing_small"
+                android:layout_marginRight="70dp"
                 android:layout_marginBottom="@dimen/spacing_small"
                 android:background="#e0e0e0"
-                app:layout_constraintTop_toTopOf="@+id/activity_signup_username_input_layout"
-                android:layout_marginRight="70dp"
-                app:layout_constraintRight_toRightOf="@+id/activity_signup_username_input_layout"
-                />
+                app:layout_constraintRight_toRightOf="@+id/fragment_hsntsn_tsn_input_layout"
+                app:layout_constraintTop_toTopOf="@+id/fragment_hsntsn_tsn_input_layout" />
+
             <TextView
                 android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:textColor="#000000"
-                android:layout_marginTop="7dp"
-                android:layout_marginRight="15dp"
-                android:textSize="16dp"
-                android:text="HSN"
-                app:layout_constraintTop_toTopOf="@+id/activity_signup_username_input_layout"
-                app:layout_constraintRight_toRightOf="@+id/activity_signup_username_input_layout"/>
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="70dp"
-            >
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/activity_signup_username_input_layout2"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_width="match_parent"
-                android:layout_height="40dp"
-                android:layout_marginLeft="20dp"
-                app:layout_constraintTop_toTopOf="parent"
-                android:layout_marginRight="20dp"
-                android:layout_marginTop="40dp"
-                app:hintEnabled="false">
-
-                <androidx.appcompat.widget.AppCompatEditText
-                    android:id="@+id/activity_signup_username_input2"
-                    style="@style/envirocar.login.edittext"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:inputType="textPersonName"
-                    />
-
-            </com.google.android.material.textfield.TextInputLayout>
-            <View
-                android:layout_width="3dp"
                 android:layout_height="30dp"
-                android:layout_marginTop="@dimen/spacing_small"
-                android:layout_marginBottom="@dimen/spacing_small"
-                android:background="#e0e0e0"
-                app:layout_constraintTop_toTopOf="@+id/activity_signup_username_input_layout2"
-                android:layout_marginRight="70dp"
-                app:layout_constraintRight_toRightOf="@+id/activity_signup_username_input_layout2"
-                />
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:textColor="#000000"
                 android:layout_marginTop="7dp"
                 android:layout_marginRight="15dp"
-                android:textSize="16dp"
                 android:text="TSN"
-                app:layout_constraintTop_toTopOf="@+id/activity_signup_username_input_layout2"
-                app:layout_constraintRight_toRightOf="@+id/activity_signup_username_input_layout2"/>
+                android:textColor="#000000"
+                android:textSize="14dp"
+                app:layout_constraintRight_toRightOf="@+id/fragment_hsntsn_tsn_input_layout"
+                app:layout_constraintTop_toTopOf="@+id/fragment_hsntsn_tsn_input_layout" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/activity_signup_register_button"
             android:layout_width="match_parent"
-            android:layout_marginRight="60dp"
-            android:layout_marginLeft="60dp"
-            android:layout_marginBottom="50dp"
             android:layout_height="50dp"
-            android:layout_marginTop="200dp"
+            android:layout_marginLeft="60dp"
+            android:layout_marginTop="150dp"
+            android:layout_marginRight="60dp"
+            android:layout_marginBottom="50dp"
             app:cardBackgroundColor="@color/cario_color_primary_dark"
             app:cardCornerRadius="25dp"
             app:cardElevation="10dp">
@@ -145,4 +145,28 @@
 
         </com.google.android.material.card.MaterialCardView>
     </com.google.android.material.card.MaterialCardView>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:gravity="center">
+
+        <TextView
+            android:id="@+id/HsnTsnInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="HSN/TSN"
+            android:textColor="@color/blue_light_cario"
+            android:textSize="16dp" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="10dp"
+            android:layout_toLeftOf="@id/HsnTsnInfo"
+            android:src="@drawable/ic_info_black_24dp"
+            android:tint="@color/blue_light_cario" />
+    </RelativeLayout>
 </LinearLayout>
