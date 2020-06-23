@@ -1,0 +1,153 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white_cario">
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:foregroundTint="@color/white"
+        app:cardCornerRadius="5dp"
+        app:cardElevation="10dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/card_layout_icon"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="20dp"
+                android:backgroundTint="@color/white"
+                android:src="@drawable/ic_directions_car_black_24dp"
+                app:backgroundTint="#000000"
+                app:borderWidth="1dp"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/car_layout_vehcile_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:text="A6 B6"
+                android:textColor="@color/blue"
+                android:textSize="18dp"
+                app:layout_constraintRight_toRightOf="@id/card_layout_icon"
+                app:layout_constraintStart_toEndOf="@id/card_layout_icon"
+                app:layout_constraintTop_toTopOf="@id/card_layout_icon" />
+
+            <TextView
+                android:id="@+id/car_layout_manufacturer_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:text="Audi"
+                android:textColor="#000000"
+                android:textSize="16dp"
+                app:layout_constraintLeft_toRightOf="@id/card_layout_icon"
+                app:layout_constraintTop_toBottomOf="@id/car_layout_vehcile_name" />
+
+            <TextView
+                android:id="@+id/car_layout_construction_year"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:text="2017"
+                android:textColor="#000000"
+                android:textSize="16dp"
+                app:layout_constraintLeft_toRightOf="@id/car_layout_manufacturer_name"
+                app:layout_constraintTop_toBottomOf="@id/car_layout_vehcile_name" />
+
+            <View
+                android:layout_width="wrap_content"
+                android:layout_height="2dp"
+                android:background="#e0e0e0"
+                app:layout_constraintLeft_toRightOf="@id/card_layout_icon"
+                app:layout_constraintTop_toBottomOf="@id/car_layout_construction_year" />
+
+            <RelativeLayout
+                android:id="@+id/car_layout_fuel_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                app:layout_constraintLeft_toRightOf="@id/card_layout_icon"
+                app:layout_constraintTop_toBottomOf="@id/car_layout_manufacturer_name">
+
+                <ImageView
+                    android:id="@+id/fuel_icon"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:src="@drawable/ic_fuel_consumption" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_toRightOf="@id/fuel_icon"
+                    android:text="Diesel"
+                    android:textColor="#000000"
+                    android:textSize="14dp" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/car_layout_engine_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="10dp"
+                app:layout_constraintLeft_toRightOf="@id/car_layout_fuel_view"
+                app:layout_constraintTop_toBottomOf="@id/car_layout_manufacturer_name">
+
+                <ImageView
+                    android:id="@+id/engine_icon"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:src="@drawable/ic_engine" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_toRightOf="@id/engine_icon"
+                    android:text="1600 cm\u00B3"
+                    android:textColor="#000000"
+                    android:textSize="14dp" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/car_layout_power_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="10dp"
+                app:layout_constraintLeft_toRightOf="@id/car_layout_engine_view"
+                app:layout_constraintTop_toBottomOf="@id/car_layout_manufacturer_name">
+
+                <ImageView
+                    android:id="@+id/power_icon"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:src="@drawable/ic_baseline_power_24"
+                    android:tint="#000000" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_toRightOf="@id/power_icon"
+                    android:text="1200"
+                    android:textColor="#000000"
+                    android:textSize="14dp" />
+            </RelativeLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+</LinearLayout>
