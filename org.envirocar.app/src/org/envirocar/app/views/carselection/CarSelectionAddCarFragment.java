@@ -600,7 +600,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
      */
     private void addCarToAutocompleteList(Car car) {
 
-        mCars.add(car);
+        //mCars.add(car);
         String manufacturer = car.getManufacturer().trim();
         String model = car.getModel().trim();
         String year = Integer.toString(car.getConstructionYear());
