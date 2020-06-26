@@ -1,8 +1,10 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
+    android:layout_height="match_parent">
+<LinearLayout
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white_cario"
     android:orientation="vertical">
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -27,72 +29,71 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="30dp"
         android:layout_marginRight="30dp"
-        android:foregroundTint="@color/white"
+        android:layout_marginBottom="20dp"
+        app:cardBackgroundColor="@color/white"
         app:cardCornerRadius="5dp"
         app:cardElevation="10dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp">
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/fragment_attributes_manufacturer_input_layout"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_width="match_parent"
-                android:layout_height="30dp"
-                android:layout_marginLeft="20dp"
-                android:layout_marginTop="40dp"
-                android:layout_marginRight="20dp"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="20dp"
                 app:hintEnabled="false"
-                app:layout_constraintTop_toTopOf="parent">
+                app:layout_constraintWidth_max="500dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="@id/activity_car_guideline_left"
+                app:layout_constraintEnd_toEndOf="@id/activity_car_guideline_right">
 
                 <androidx.appcompat.widget.AppCompatEditText
                     android:id="@+id/fragment_attributes_manufacturer_input"
                     style="@style/envirocar.login.edittext"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:backgroundTint="@color/envirocar_color_add_card_background"
                     android:hint="Manufacturer"
+                    android:textSize="16dp"
                     android:textColor="#000000"
-                    android:textSize="14dp" />
+                    android:textColorHint="#A9A9A9"
+                    />
 
             </com.google.android.material.textfield.TextInputLayout>
 
             <View
-                android:layout_width="3dp"
-                android:layout_height="20dp"
+                android:layout_width="1dp"
+                android:layout_height="30dp"
+                android:layout_marginRight="10dp"
                 android:layout_marginTop="@dimen/spacing_small"
-                android:layout_marginRight="70dp"
-                android:layout_marginBottom="@dimen/spacing_small"
-                android:background="#e0e0e0"
-                app:layout_constraintRight_toRightOf="@+id/fragment_attributes_manufacturer_input_layout"
-                app:layout_constraintTop_toTopOf="@+id/fragment_attributes_manufacturer_input_layout" />
+                android:background="#000000"
+                app:layout_constraintRight_toLeftOf="@+id/image_manufacturer"
+               app:layout_constraintTop_toTopOf="@id/fragment_attributes_manufacturer_input_layout"/>
 
             <ImageView
+                android:id="@+id/image_manufacturer"
                 android:layout_width="wrap_content"
                 android:layout_height="20dp"
-                android:layout_marginTop="5dp"
+                android:layout_marginTop="10dp"
                 android:layout_marginRight="15dp"
                 android:src="@drawable/ic_manufacturer"
                 app:layout_constraintRight_toRightOf="@+id/fragment_attributes_manufacturer_input_layout"
                 app:layout_constraintTop_toTopOf="@+id/fragment_attributes_manufacturer_input_layout" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="50dp">
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/fragment_attributes_model_input_layout"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_width="match_parent"
-                android:layout_height="30dp"
-                android:layout_marginLeft="20dp"
-                android:layout_marginTop="40dp"
-                android:layout_marginRight="20dp"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="30dp"
                 app:hintEnabled="false"
-                app:layout_constraintTop_toTopOf="parent">
+                app:layout_constraintTop_toBottomOf="@+id/fragment_attributes_manufacturer_input_layout"
+                app:layout_constraintEnd_toEndOf="@id/activity_car_guideline_right"
+                app:layout_constraintStart_toStartOf="@id/activity_car_guideline_left">
 
                 <androidx.appcompat.widget.AppCompatEditText
                     android:id="@+id/fragment_attributes_model_input"
@@ -100,47 +101,45 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:hint="Model"
+                    android:backgroundTint="@color/envirocar_color_add_card_background"
+                    android:windowSoftInputMode="adjustPan|adjustResize"
                     android:inputType="textPersonName"
                     android:textColor="#000000"
-                    android:textSize="14dp" />
-
+                    android:textColorHint="#A9A9A9"
+                    android:textSize="16dp"/>
             </com.google.android.material.textfield.TextInputLayout>
 
             <View
-                android:layout_width="3dp"
-                android:layout_height="20dp"
+                android:layout_width="1dp"
+                android:layout_height="30dp"
                 android:layout_marginTop="@dimen/spacing_small"
-                android:layout_marginRight="70dp"
+                android:layout_marginRight="10dp"
                 android:layout_marginBottom="@dimen/spacing_small"
-                android:background="#e0e0e0"
-                app:layout_constraintRight_toRightOf="@+id/fragment_attributes_model_input_layout"
+                android:background="#000000"
+                app:layout_constraintRight_toLeftOf="@+id/image_model"
                 app:layout_constraintTop_toTopOf="@+id/fragment_attributes_model_input_layout" />
 
             <ImageView
+                android:id="@+id/image_model"
                 android:layout_width="wrap_content"
                 android:layout_height="20dp"
-                android:layout_marginTop="7dp"
+                android:layout_marginTop="10dp"
                 android:layout_marginRight="15dp"
                 android:src="@drawable/ic_drive_eta_black_24dp"
                 app:layout_constraintRight_toRightOf="@+id/fragment_attributes_model_input_layout"
                 app:layout_constraintTop_toTopOf="@+id/fragment_attributes_model_input_layout" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="100dp">
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/fragment_attributes_year_input_layout"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_width="match_parent"
-                android:layout_height="30dp"
-                android:layout_marginLeft="20dp"
-                android:layout_marginTop="40dp"
-                android:layout_marginRight="20dp"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="30dp"
                 app:hintEnabled="false"
-                app:layout_constraintTop_toTopOf="parent">
+                app:layout_constraintTop_toBottomOf="@+id/fragment_attributes_model_input_layout"
+                app:layout_constraintStart_toStartOf="@id/activity_car_guideline_left"
+                app:layout_constraintEnd_toEndOf="@id/activity_car_guideline_right">
 
                 <androidx.appcompat.widget.AppCompatEditText
                     android:id="@+id/fragment_attributes_year_input"
@@ -148,53 +147,85 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:hint="Construction Year"
+                    android:backgroundTint="@color/envirocar_color_add_card_background"
+                    android:windowSoftInputMode="adjustPan|adjustResize"
                     android:inputType="textPersonName"
                     android:textColor="#000000"
-                    android:textSize="14dp" />
+                    android:textColorHint="#A9A9A9"
+                    android:textSize="16dp"
+                    />
 
             </com.google.android.material.textfield.TextInputLayout>
 
             <View
-                android:layout_width="3dp"
-                android:layout_height="20dp"
+                android:layout_width="1dp"
+                android:layout_height="30dp"
                 android:layout_marginTop="@dimen/spacing_small"
-                android:layout_marginRight="70dp"
+                android:layout_marginRight="10dp"
                 android:layout_marginBottom="@dimen/spacing_small"
-                android:background="#e0e0e0"
-                app:layout_constraintRight_toRightOf="@+id/fragment_attributes_year_input_layout"
+                android:background="#000000"
+                app:layout_constraintRight_toLeftOf="@+id/image_year"
                 app:layout_constraintTop_toTopOf="@+id/fragment_attributes_year_input_layout" />
 
             <ImageView
+                android:id="@+id/image_year"
                 android:layout_width="wrap_content"
                 android:layout_height="20dp"
-                android:layout_marginTop="7dp"
+                android:layout_marginTop="10dp"
                 android:layout_marginRight="15dp"
                 android:src="@drawable/ic_baseline_date_range_24"
                 android:tint="#000000"
                 app:layout_constraintRight_toRightOf="@+id/fragment_attributes_year_input_layout"
                 app:layout_constraintTop_toTopOf="@+id/fragment_attributes_year_input_layout" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <com.google.android.material.card.MaterialCardView
-            android:id="@+id/activity_signup_register_button"
-            android:layout_width="match_parent"
+            android:id="@+id/fragment_car_search_button"
+            android:layout_width="0dp"
             android:layout_height="50dp"
-            android:layout_marginLeft="60dp"
-            android:layout_marginTop="200dp"
-            android:layout_marginRight="60dp"
-            android:layout_marginBottom="50dp"
+            android:layout_marginTop="40dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginHorizontal="16dp"
             app:cardBackgroundColor="@color/cario_color_primary_dark"
             app:cardCornerRadius="25dp"
-            app:cardElevation="10dp">
+            app:cardElevation="10dp"
+            app:layout_constraintTop_toBottomOf="@+id/fragment_attributes_year_input_layout"
+            app:layout_constraintEnd_toStartOf="@id/activity_car_guideline_right"
+            app:layout_constraintStart_toStartOf="@id/activity_car_guideline_left">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:text="Search"
-                android:textColor="@color/white_cario" />
+                android:textColor="@color/white" />
 
         </com.google.android.material.card.MaterialCardView>
-    </com.google.android.material.card.MaterialCardView>
 
+            <View
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/fragment_car_search_button"
+                android:layout_marginTop="20dp"
+                app:layout_constraintEnd_toStartOf="@id/activity_car_guideline_right"
+                app:layout_constraintStart_toStartOf="@id/activity_car_guideline_left"
+                />
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/activity_car_guideline_right"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.90" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/activity_car_guideline_left"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.10" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    </com.google.android.material.card.MaterialCardView>
 </LinearLayout>
+
+</androidx.core.widget.NestedScrollView>
