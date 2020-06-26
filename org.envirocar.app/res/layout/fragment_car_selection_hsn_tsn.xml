@@ -43,93 +43,50 @@
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/fragment_hsntsn_hsn_input_layout"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                     android:layout_width="0dp"
-                    android:layout_height="40dp"
+                    android:layout_height="wrap_content"
                     android:layout_marginTop="20dp"
-                    app:hintEnabled="false"
+                    android:hint="HSN"
                     app:layout_constraintEnd_toEndOf="@id/activity_car_guideline_right"
                     app:layout_constraintStart_toStartOf="@id/activity_car_guideline_left"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintWidth_max="500dp">
 
-                    <androidx.appcompat.widget.AppCompatEditText
+                    <AutoCompleteTextView
                         android:id="@+id/fragment_hsntsn_hsn_input"
-                        style="@style/envirocar.login.edittext"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:backgroundTint="@color/envirocar_color_add_card_background"
                         android:maxLength="4"
+                        android:maxLines="1"
                         android:textColor="#000000"
-                        android:textColorHint="#A9A9A9" />
+                        android:textColorHint="#A9A9A9"
+                        android:textSize="16dp" />
 
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <View
-                    android:layout_width="1dp"
-                    android:layout_height="30dp"
-                    android:layout_marginTop="@dimen/spacing_small"
-                    android:layout_marginRight="10dp"
-                    android:background="#000000"
-                    app:layout_constraintRight_toLeftOf="@+id/text_hsn"
-                    app:layout_constraintTop_toTopOf="@id/fragment_hsntsn_hsn_input_layout" />
-
-                <TextView
-                    android:id="@+id/text_hsn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="20dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginRight="15dp"
-                    android:text="HSN"
-                    android:textColor="#000000"
-                    android:textSize="14dp"
-                    app:layout_constraintRight_toRightOf="@+id/fragment_hsntsn_hsn_input_layout"
-                    app:layout_constraintTop_toTopOf="@+id/fragment_hsntsn_hsn_input_layout" />
-
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/fragment_hsntsn_tsn_input_layout"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                     android:layout_width="0dp"
-                    android:layout_height="40dp"
-                    android:layout_marginTop="30dp"
-                    app:hintEnabled="false"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:hint="TSN"
                     app:layout_constraintEnd_toEndOf="@id/activity_car_guideline_right"
                     app:layout_constraintStart_toStartOf="@id/activity_car_guideline_left"
                     app:layout_constraintTop_toBottomOf="@+id/fragment_hsntsn_hsn_input_layout">
 
-                    <androidx.appcompat.widget.AppCompatEditText
+                    <AutoCompleteTextView
                         android:id="@+id/fragment_hsntsn_tsn_input"
-                        style="@style/envirocar.login.edittext"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:backgroundTint="@color/envirocar_color_add_card_background"
                         android:maxLength="3"
+                        android:maxLines="1"
                         android:textColor="#000000"
-                        android:textColorHint="#A9A9A9" />
+                        android:textColorHint="#A9A9A9"
+                        android:textSize="16dp" />
 
                 </com.google.android.material.textfield.TextInputLayout>
-
-                <View
-                    android:layout_width="1dp"
-                    android:layout_height="30dp"
-                    android:layout_marginTop="@dimen/spacing_small"
-                    android:layout_marginRight="10dp"
-                    android:background="#000000"
-                    app:layout_constraintRight_toLeftOf="@+id/text_tsn"
-                    app:layout_constraintTop_toTopOf="@id/fragment_hsntsn_tsn_input_layout" />
-
-                <TextView
-                    android:id="@+id/text_tsn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="20dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginRight="15dp"
-                    android:text="HSN"
-                    android:textColor="#000000"
-                    android:textSize="14dp"
-                    app:layout_constraintRight_toRightOf="@+id/fragment_hsntsn_tsn_input_layout"
-                    app:layout_constraintTop_toTopOf="@+id/fragment_hsntsn_tsn_input_layout" />
-
 
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/fragment_search_vehicle"
