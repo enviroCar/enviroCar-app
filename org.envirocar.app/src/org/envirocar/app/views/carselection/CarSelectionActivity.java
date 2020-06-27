@@ -55,6 +55,7 @@ import butterknife.ButterKnife;
 import butterknife.BindView;
 import butterknife.OnClick;
 import io.reactivex.Observable;
+import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.DisposableObserver;
@@ -313,21 +314,20 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
     }
 
     @Override
-    public <T> Function<T, Car> createCar(Vehicles vehicle) {
-        return t -> {
-            // Get the car values from Car entitiy
+    public Car createCar(Vehicles vehicle) {
+            // Get the car values from Vehicles entitiy
             String manufacturer = vehicle.getManufacturer();
             String model = vehicle.getCommerical_name();
             String yearString = vehicle.getAllotment_date();
             int year = convertDateToInt(yearString);
             int engine = Integer.parseInt(vehicle.getEngine_capacity());
-            Car.FuelType fuelType = getFuel(vehicle.getId());
+            Car.FuelType fuelType = getFuel(vehicle.getPower_source_id());
             if (fuelType != Car.FuelType.ELECTRIC) {
                 return new CarImpl(manufacturer, model, fuelType, year, engine);
             } else {
                 return new CarImpl(manufacturer, model, fuelType, year);
-            }
-        };
+
+        }
     }
 
     @Override
@@ -345,6 +345,13 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
             fuel = "hybrid";
 
         return Car.FuelType.resolveFuelType(fuel);
+    }
+
+    @Override
+    public void registerCar(Vehicles vehicle) {
+        Car car = createCar(vehicle);
+        mCarManager.registerCarAtServer(car);
+        onCarAdded(car);
     }
 
     private int convertDateToInt(String date) {

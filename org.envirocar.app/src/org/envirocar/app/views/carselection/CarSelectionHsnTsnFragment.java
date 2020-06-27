@@ -37,6 +37,7 @@ public class CarSelectionHsnTsnFragment extends BaseInjectorFragment {
     protected EditText hsnEditText;
     @BindView(R.id.fragment_hsntsn_tsn_input)
     protected EditText tsnEditText;
+    protected BottomSheetFragment bottomSheetFragment;
 
     @Inject
     EnviroCarVehicleDB enviroCarVehicleDB;
@@ -61,9 +62,9 @@ public class CarSelectionHsnTsnFragment extends BaseInjectorFragment {
                 .subscribeWith(new DisposableSingleObserver<Vehicles>() {
                     @Override
                     public void onSuccess(Vehicles vehicles) {
-                        mainThreadWorker.schedule(()->{
-                            Toast.makeText(getContext(),"negi"+vehicles.getEngine_capacity(),Toast.LENGTH_SHORT).show();
-                        });
+                       bottomSheetFragment = new BottomSheetFragment(vehicles);
+                       bottomSheetFragment.show(getFragmentManager(),bottomSheetFragment.getTag());
+                       bottomSheetFragment.setShowsDialog(true);
                     }
 
                     @Override
@@ -77,5 +78,4 @@ public class CarSelectionHsnTsnFragment extends BaseInjectorFragment {
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
         baseApplicationComponent.inject(this);
     }
-
 }

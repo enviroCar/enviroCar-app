@@ -7,8 +7,10 @@ import java.util.function.Function;
 
 public interface CarSelectionCreation {
 
-    <T> Function<T, Car> createCar(Vehicles vehicle);
+    Car createCar(Vehicles vehicle);
 
     Car.FuelType getFuel(String id);
+
+    void registerCar(Vehicles vehilce);
 
 }

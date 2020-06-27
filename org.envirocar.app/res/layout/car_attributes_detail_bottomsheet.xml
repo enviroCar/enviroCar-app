@@ -23,12 +23,14 @@
                 app:cardElevation="5dp">
 
                 <ImageView
+                    android:id="@+id/activity_car_details_cancel"
                     android:layout_width="30dp"
                     android:layout_height="50dp"
                     android:layout_marginLeft="10dp"
                     android:src="@drawable/ic_close_black_24dp" />
 
                 <ImageView
+                    android:id="@+id/activity_car_details_create"
                     android:layout_width="30dp"
                     android:layout_height="50dp"
                     android:layout_gravity="end"
@@ -120,6 +122,47 @@
                 android:paddingRight="@dimen/activity_horizontal_margin">
 
                 <ImageView
+                    android:id="@+id/activity_car_details_attr_engine_image"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_alignParentLeft="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="16dp"
+                    android:alpha="0.54"
+                    android:src="@drawable/ic_engine"
+                    android:tint="#000000"/>
+
+                <TextView
+                    android:id="@+id/activity_car_details_attr_engine_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_centerVertical="true"
+                    android:paddingLeft="48dp"
+                    android:text="Engine"
+                    android:textColor="#ff323232" />
+
+                <TextView
+                    android:id="@+id/activity_car_details_attr_engine_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_toRightOf="@id/activity_car_details_attr_engine_text"
+                    android:gravity="right|center_vertical"
+                    android:text="2235"
+                    android:textColor="#939393" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="@dimen/spacing_xxlarge"
+                android:paddingLeft="@dimen/activity_horizontal_margin"
+                android:paddingRight="@dimen/activity_horizontal_margin">
+
+                <ImageView
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:layout_alignParentLeft="true"
@@ -139,7 +182,7 @@
                     android:textColor="#ff323232" />
 
                 <TextView
-                    android:id="@+id/activity_track_details_attr_year_value"
+                    android:id="@+id/activity_car_details_attr_year_value"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
@@ -178,7 +221,7 @@
                     android:textColor="#ff323232" />
 
                 <TextView
-                    android:id="@+id/activity_track_details_attr_consumption_value"
+                    android:id="@+id/activity_car_details_attr_fuel_value"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
