@@ -47,7 +47,6 @@ import info.hoang8f.android.segmented.SegmentedGroup;
 public class CarSelectionAddCarFragment extends BaseInjectorFragment {
     private static final Logger LOG = Logger.getLogger(CarSelectionAddCarFragment.class);
 
-    private static final int ERROR_DEBOUNCE_TIME = 750;
 
     @BindView(R.id.envirocar_toolbar)
     protected Toolbar toolbar;
