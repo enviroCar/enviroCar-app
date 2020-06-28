@@ -33,6 +33,7 @@ import javax.inject.Inject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.OnEditorAction;
 import io.reactivex.Scheduler;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -114,6 +115,10 @@ public class CarSelectionHsnTsnFragment extends BaseInjectorFragment {
         baseApplicationComponent.inject(this);
     }
 
+    @OnEditorAction(R.id.fragment_hsntsn_tsn_input)
+    protected void implicitSubmit() {
+        onSearchClicked();
+    }
     private void fetchAllVehicles() {
         Single<List<Vehicles>> vehicle = enviroCarVehicleDB.vehicleDAO().getManufacturerVehicles();
         vehicle.subscribeOn(Schedulers.io())
