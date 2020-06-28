@@ -71,6 +71,26 @@ public class CarSelectionHsnTsnFragment extends BaseInjectorFragment {
     protected void onSearchClicked() {
         String hsn = hsnEditText.getText().toString().trim();
         String tsn = tsnEditText.getText().toString().trim();
+        View focusView = null;
+        if (hsn.isEmpty()) {
+            hsnEditText.setError("empty values");
+            focusView = hsnEditText;
+        }
+        if (tsn.isEmpty()) {
+            tsnEditText.setError("empty values");
+            focusView = tsnEditText;
+        }
+
+        //focus on last and stop searching and return
+        if (focusView != null) {
+            focusView.requestFocus();
+            return;
+        }
+
+        // also stop searching if already error becuase of values not in list
+        if (hsnEditText.getError() != null || tsnEditText.getError() != null)
+            return;
+
         Single<Vehicles> vehiclesSingle = enviroCarVehicleDB.vehicleDAO().getHsnTsnVehicle(hsn, tsn);
         vehiclesSingle.subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
