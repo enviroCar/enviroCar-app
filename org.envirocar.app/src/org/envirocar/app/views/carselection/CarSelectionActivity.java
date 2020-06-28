@@ -23,6 +23,8 @@ import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.squareup.otto.Bus;
+import com.squareup.otto.Subscribe;
 
 import androidx.appcompat.widget.Toolbar;
 
@@ -352,6 +354,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
         Car car = createCar(vehicle);
         mCarManager.registerCarAtServer(car);
         onCarAdded(car);
+        closeAddCarCard();
     }
 
     private int convertDateToInt(String date) {

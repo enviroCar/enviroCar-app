@@ -15,7 +15,6 @@ import androidx.annotation.Nullable;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 import org.envirocar.app.R;
-import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Vehicles;
 
@@ -69,7 +68,5 @@ public class BottomSheetFragment extends BottomSheetDialogFragment {
         ((CarSelectionActivity)getActivity()).registerCar(vehicle);
         dismiss();
     }
-
-
 
 }
