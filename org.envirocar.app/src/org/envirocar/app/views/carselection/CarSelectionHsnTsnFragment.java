@@ -121,11 +121,12 @@ public class CarSelectionHsnTsnFragment extends BaseInjectorFragment {
                 .subscribeWith(new DisposableSingleObserver<List<Vehicles>>() {
                     @Override
                     public void onSuccess(List<Vehicles> vehicles) {
-                        for (Vehicles vehicles1 : vehicles) {
-                            if (!hsn.contains(vehicles1.getManufacturer_id()))
-                                hsn.add(vehicles1.getManufacturer_id());
-                            if (!tsn.contains(vehicles1.getId()))
-                                tsn.add(vehicles1.getId());
+                        // we have to skip first row
+                        for (int i = 1; i < vehicles.size(); i++) {
+                            if (!hsn.contains(vehicles.get(i).getManufacturer_id()))
+                                hsn.add(vehicles.get(i).getManufacturer_id());
+                            if (!tsn.contains(vehicles.get(i).getId()))
+                                tsn.add(vehicles.get(i).getId());
                         }
                         mainThreadWorker.schedule(() -> {
                             updateView(hsn, tsn);
