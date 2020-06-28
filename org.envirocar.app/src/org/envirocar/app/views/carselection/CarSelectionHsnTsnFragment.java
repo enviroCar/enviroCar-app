@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.ListAdapter;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -24,6 +25,7 @@ import org.envirocar.storage.EnviroCarVehicleDB;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -34,6 +36,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnEditorAction;
+import butterknife.OnTextChanged;
 import io.reactivex.Scheduler;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -54,6 +57,7 @@ public class CarSelectionHsnTsnFragment extends BaseInjectorFragment {
     private Scheduler.Worker mainThreadWorker = AndroidSchedulers.mainThread().createWorker();
     private Set<String> hsn = new HashSet<>();
     private Set<String> tsn = new HashSet<>();
+    private Map<String, Set<String>> mHsnToTsn = new ConcurrentHashMap<>();
     private CompositeDisposable disposable = new CompositeDisposable();
     private static final int ERROR_DEBOUNCE_TIME = 750;
 
@@ -65,7 +69,19 @@ public class CarSelectionHsnTsnFragment extends BaseInjectorFragment {
         ButterKnife.bind(this, view);
         fetchAllVehicles();
         reactiveTexFieldCheck();
+        focusChangeListener();
+
+        hsnEditText.setOnItemClickListener((parent, view1, position, id) -> requestNextTextFieldFocus(hsnEditText));
         return view;
+    }
+
+    private void requestNextTextFieldFocus(TextView textView) {
+        try {
+            TextView nextField = (TextView) textView.focusSearch(View.FOCUS_DOWN);
+            nextField.requestFocus();
+        } catch (Exception e) {
+
+        }
     }
 
     @OnClick(R.id.fragment_search_vehicle)
@@ -119,6 +135,7 @@ public class CarSelectionHsnTsnFragment extends BaseInjectorFragment {
     protected void implicitSubmit() {
         onSearchClicked();
     }
+
     private void fetchAllVehicles() {
         Single<List<Vehicles>> vehicle = enviroCarVehicleDB.vehicleDAO().getManufacturerVehicles();
         vehicle.subscribeOn(Schedulers.io())
@@ -130,11 +147,12 @@ public class CarSelectionHsnTsnFragment extends BaseInjectorFragment {
                         for (int i = 1; i < vehicles.size(); i++) {
                             if (!hsn.contains(vehicles.get(i).getManufacturer_id()))
                                 hsn.add(vehicles.get(i).getManufacturer_id());
-                            if (!tsn.contains(vehicles.get(i).getId()))
-                                tsn.add(vehicles.get(i).getId());
+                            if (!mHsnToTsn.containsKey(vehicles.get(i).getManufacturer_id()))
+                                mHsnToTsn.put(vehicles.get(i).getManufacturer_id(), new HashSet<>());
+                            mHsnToTsn.get(vehicles.get(i).getManufacturer_id()).add(vehicles.get(i).getId());
                         }
                         mainThreadWorker.schedule(() -> {
-                            updateView(hsn, tsn);
+                            updateHsnView(hsn);
                         });
                     }
 
@@ -145,9 +163,26 @@ public class CarSelectionHsnTsnFragment extends BaseInjectorFragment {
                 });
     }
 
-    private void updateView(Set<String> hsn, Set<String> tsn) {
+    private void updateHsnView(Set<String> hsn) {
         hsnEditText.setAdapter(((CarSelectionActivity) getActivity()).sortedAdapter(getContext(), hsn));
-        tsnEditText.setAdapter(((CarSelectionActivity) getActivity()).sortedAdapter(getContext(), tsn));
+    }
+
+    private void focusChangeListener() {
+        hsnEditText.setOnFocusChangeListener((v, focus) -> {
+            if (!focus) {
+                tsnEditText.setText("");
+                String hsn = hsnEditText.getText().toString();
+                updateTsnView(hsn);
+            }
+        });
+    }
+
+    private void updateTsnView(String hsn) {
+        if (mHsnToTsn.containsKey(hsn)) {
+            tsnEditText.setAdapter(((CarSelectionActivity) getActivity()).sortedAdapter(getContext(), mHsnToTsn.get(hsn)));
+        } else {
+            tsnEditText.setAdapter(null);
+        }
     }
 
     private void reactiveTexFieldCheck() {
