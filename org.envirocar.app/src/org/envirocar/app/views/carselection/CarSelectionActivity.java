@@ -45,7 +45,9 @@ import org.envirocar.core.entity.Vehicles;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.app.handler.DAOProvider;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -317,17 +319,17 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
 
     @Override
     public Car createCar(Vehicles vehicle) {
-            // Get the car values from Vehicles entitiy
-            String manufacturer = vehicle.getManufacturer();
-            String model = vehicle.getCommerical_name();
-            String yearString = vehicle.getAllotment_date();
-            int year = convertDateToInt(yearString);
-            int engine = Integer.parseInt(vehicle.getEngine_capacity());
-            Car.FuelType fuelType = getFuel(vehicle.getPower_source_id());
-            if (fuelType != Car.FuelType.ELECTRIC) {
-                return new CarImpl(manufacturer, model, fuelType, year, engine);
-            } else {
-                return new CarImpl(manufacturer, model, fuelType, year);
+        // Get the car values from Vehicles entitiy
+        String manufacturer = vehicle.getManufacturer();
+        String model = vehicle.getCommerical_name();
+        String yearString = vehicle.getAllotment_date();
+        int year = convertDateToInt(yearString);
+        int engine = Integer.parseInt(vehicle.getEngine_capacity());
+        Car.FuelType fuelType = getFuel(vehicle.getPower_source_id());
+        if (fuelType != Car.FuelType.ELECTRIC) {
+            return new CarImpl(manufacturer, model, fuelType, year, engine);
+        } else {
+            return new CarImpl(manufacturer, model, fuelType, year);
 
         }
     }
@@ -363,6 +365,15 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
             convertedDate = convertedDate * 10 + (date.charAt(i) - 48);
         }
         return convertedDate;
+    }
+
+    public final ArrayAdapter<String> sortedAdapter(Context context, Set<String> set) {
+        String[] strings = set.toArray(new String[set.size()]);
+        Arrays.sort(strings);
+        return new ArrayAdapter<>(
+                context,
+                R.layout.activity_car_selection_newcar_fueltype_item,
+                strings);
     }
 
     /**
