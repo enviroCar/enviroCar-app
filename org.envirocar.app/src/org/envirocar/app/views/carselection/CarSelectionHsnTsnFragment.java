@@ -7,10 +7,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AutoCompleteTextView;
-import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -36,7 +34,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnEditorAction;
-import butterknife.OnTextChanged;
 import io.reactivex.Scheduler;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -214,20 +211,23 @@ public class CarSelectionHsnTsnFragment extends BaseInjectorFragment {
                 .observeOn(AndroidSchedulers.mainThread())
                 .map(t -> t.toString())
                 .subscribe(tsn -> {
-                    ListAdapter adapter = tsnEditText.getAdapter();
-                    int flag = 0;
-                    for (int i = 0; i < adapter.getCount(); i++) {
-                        if (adapter.getItem(i).toString().compareTo(tsn) == 0) {
-                            flag = 1;
-                            break;
+                    try {
+                        ListAdapter adapter = tsnEditText.getAdapter();
+                        int flag = 0;
+                        for (int i = 0; i < adapter.getCount(); i++) {
+                            if (adapter.getItem(i).toString().compareTo(tsn) == 0) {
+                                flag = 1;
+                                break;
+                            }
                         }
-                    }
-                    if (flag == 0) {
-                        tsnEditText.setError("Not in list");
-                        tsnEditText.requestFocus();
-                    } else {
-                        tsnEditText.setError(null);
-                    }
+
+                        if (flag == 0) {
+                            tsnEditText.setError("Not in list");
+                            tsnEditText.requestFocus();
+                        } else {
+                            tsnEditText.setError(null);
+                        }
+                    } catch (Exception e) {}
                 }));
     }
 }
