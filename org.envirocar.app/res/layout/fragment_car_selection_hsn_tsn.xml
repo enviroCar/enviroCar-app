@@ -61,7 +61,7 @@
                         android:maxLines="1"
                         android:textColor="#000000"
                         android:textColorHint="#A9A9A9"
-                        android:inputType="text"
+                        android:inputType="number"
                         android:imeOptions="actionNext"
                         android:textSize="16dp" />
 
@@ -87,7 +87,7 @@
                         android:textColor="#000000"
                         android:textColorHint="#A9A9A9"
                         android:imeOptions="actionDone"
-                        android:inputType="text"
+                        android:inputType="textCapSentences"
                         android:textSize="16dp" />
 
                 </com.google.android.material.textfield.TextInputLayout>

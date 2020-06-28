@@ -170,6 +170,9 @@ public class CarSelectionHsnTsnFragment extends BaseInjectorFragment {
                 tsnEditText.setText("");
                 String hsn = hsnEditText.getText().toString();
                 updateTsnView(hsn);
+            } else {
+                // if focus on hsneditText reset error in tsnEditText
+                tsnEditText.setError(null);
             }
         });
     }
