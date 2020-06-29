@@ -100,6 +100,35 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
 
     @OnClick(R.id.fragment_car_search_button)
     void searchButtonClick() {
+        String manufacturer = manufactureEditText.getText().toString().trim();
+        String model = modelEditText.getText().toString().trim();
+        String year = yearEditText.getText().toString().trim();
+        View focusView = null;
+        if (manufacturer.isEmpty()) {
+            manufactureEditText.setError("empty values");
+            focusView = manufactureEditText;
+        }
+
+        if (model.isEmpty()) {
+            modelEditText.setError("empty values");
+            focusView = modelEditText;
+        }
+
+        if (year.isEmpty()) {
+            yearEditText.setError("empty values");
+            focusView = yearEditText;
+        }
+
+        //focus on last and stop searching and return
+        if (focusView != null) {
+            focusView.requestFocus();
+            return;
+        }
+
+        // also stop searching if already error becuase of values not in list
+        if (manufactureEditText.getError() != null || modelEditText.getError() != null|| yearEditText.getError() != null)
+            return;
+
 
     }
 
