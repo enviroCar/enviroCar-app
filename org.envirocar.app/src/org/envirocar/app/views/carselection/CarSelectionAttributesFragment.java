@@ -5,10 +5,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AutoCompleteTextView;
+import android.widget.ListAdapter;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import com.jakewharton.rxbinding3.widget.RxTextView;
 
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
@@ -22,15 +25,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import butterknife.OnTextChanged;
 import io.reactivex.Scheduler;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.observers.DisposableSingleObserver;
 import io.reactivex.schedulers.Schedulers;
 
@@ -50,6 +56,8 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
     private Map<String, Set<String>> mCarToModelMap = new ConcurrentHashMap<>();
     private Map<String, Set<String>> mModelToYear = new ConcurrentHashMap<>();
     private Scheduler.Worker mainThreadWorker = AndroidSchedulers.mainThread().createWorker();
+    private CompositeDisposable disposable = new CompositeDisposable();
+    private static final int ERROR_DEBOUNCE_TIME = 750;
 
     @Nullable
     @Override
@@ -60,6 +68,7 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
         ButterKnife.bind(this, view);
         fetchVehicles();
         initFocusChangedListener();
+        reactiveTexFieldCheck();
         manufactureEditText.setOnItemClickListener((parent, view1, position, id) -> requestNextTextFieldFocus(manufactureEditText));
         modelEditText.setOnItemClickListener((parent, view12, position, id) -> requestNextTextFieldFocus(modelEditText));
         yearEditText.setOnItemClickListener((parent, view13, position, id) -> requestNextTextFieldFocus(yearEditText));
@@ -87,6 +96,11 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
     @OnTextChanged(value = R.id.fragment_attributes_year_input, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
     protected void onYearChanged() {
         yearEditText.setError(null);
+    }
+
+    @OnClick(R.id.fragment_car_search_button)
+    void searchButtonClick() {
+
     }
 
     private void fetchVehicles() {
@@ -171,5 +185,81 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
         } catch (Exception e) {
             LOG.warn("Unable to find next field or to request focus to next field.");
         }
+    }
+
+    private void reactiveTexFieldCheck() {
+        disposable.add(RxTextView.textChanges(manufactureEditText)
+                .skipInitialValue()
+                .debounce(ERROR_DEBOUNCE_TIME, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .map(t -> t.toString())
+                .subscribe(manufacture -> {
+                    ListAdapter adapter = manufactureEditText.getAdapter();
+                    int flag = 0;
+                    for (int i = 0; i < adapter.getCount(); i++) {
+                        if (adapter.getItem(i).toString().compareTo(manufacture) == 0) {
+                            flag = 1;
+                            break;
+                        }
+                    }
+                    if (flag == 0) {
+                        manufactureEditText.setError("Not in list");
+                        manufactureEditText.requestFocus();
+                    } else {
+                        manufactureEditText.setError(null);
+                    }
+                }));
+
+        disposable.add(RxTextView.textChanges(modelEditText)
+                .skipInitialValue()
+                .debounce(ERROR_DEBOUNCE_TIME, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .map(t -> t.toString())
+                .subscribe(model -> {
+                    try {
+                        ListAdapter adapter = modelEditText.getAdapter();
+                        int flag = 0;
+                        for (int i = 0; i < adapter.getCount(); i++) {
+                            if (adapter.getItem(i).toString().compareTo(model) == 0) {
+                                flag = 1;
+                                break;
+                            }
+                        }
+
+                        if (flag == 0) {
+                            modelEditText.setError("Not in list");
+                            modelEditText.requestFocus();
+                        } else {
+                            modelEditText.setError(null);
+                        }
+                    } catch (Exception e) {
+                    }
+                }));
+
+        disposable.add(RxTextView.textChanges(yearEditText)
+                .skipInitialValue()
+                .debounce(ERROR_DEBOUNCE_TIME, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .map(t -> t.toString())
+                .subscribe(year -> {
+                    try {
+                        ListAdapter adapter = yearEditText.getAdapter();
+                        int flag = 0;
+                        for (int i = 0; i < adapter.getCount(); i++) {
+                            if (adapter.getItem(i).toString().compareTo(year) == 0) {
+                                flag = 1;
+                                break;
+                            }
+                        }
+
+                        if (flag == 0) {
+                            yearEditText.setError("Not in list");
+                            yearEditText.requestFocus();
+                        } else {
+                            yearEditText.setError(null);
+                        }
+                    } catch (Exception e) {
+                    }
+                }));
     }
 }
