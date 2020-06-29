@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AutoCompleteTextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -11,23 +12,100 @@ import androidx.annotation.Nullable;
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
 import org.envirocar.app.injection.BaseInjectorFragment;
+import org.envirocar.core.entity.Vehicles;
+import org.envirocar.core.logging.Logger;
+import org.envirocar.storage.EnviroCarVehicleDB;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+import javax.inject.Inject;
+
+import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.reactivex.Scheduler;
+import io.reactivex.Single;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.observers.DisposableSingleObserver;
+import io.reactivex.schedulers.Schedulers;
 
 public class CarSelectionAttributesFragment extends BaseInjectorFragment {
+
+    @BindView(R.id.fragment_attributes_manufacturer_input)
+    protected AutoCompleteTextView manufactureEditText;
+    @BindView(R.id.fragment_attributes_model_input)
+    protected AutoCompleteTextView modelEditText;
+    @BindView(R.id.fragment_attributes_year_input)
+    protected AutoCompleteTextView yearEditText;
+
+    @Inject
+    EnviroCarVehicleDB enviroCarVehicleDB;
+    private static final Logger LOG = Logger.getLogger(CarSelectionAttributesFragment.class);
+    private Set<String> mManufacturerNames = new HashSet<>();
+    private Map<String, Set<String>> mCarToModelMap = new ConcurrentHashMap<>();
+    private Map<String, Set<String>> mModelToYear = new ConcurrentHashMap<>();
+    private Scheduler.Worker mainThreadWorker = AndroidSchedulers.mainThread().createWorker();
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
 
-        View view = inflater.inflate(R.layout.fragment_car_selection_attributes,container,false);
-        ButterKnife.bind(this,view);
+        View view = inflater.inflate(R.layout.fragment_car_selection_attributes, container, false);
+        ButterKnife.bind(this, view);
+        fetchVehicles();
         return view;
     }
 
     @Override
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
         baseApplicationComponent.inject(this);
+    }
+
+    private void fetchVehicles() {
+        Single<List<Vehicles>> vehicle = enviroCarVehicleDB.vehicleDAO().getManufacturerVehicles();
+        vehicle.subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .subscribeWith(new DisposableSingleObserver<List<Vehicles>>() {
+                    @Override
+                    public void onSuccess(List<Vehicles> vehicles) {
+                        for (Vehicles vehicles1 : vehicles) {
+                            addCarToAutocompleteList(vehicles1);
+                        }
+                        mainThreadWorker.schedule(()->{
+                            updateManufacturerView();
+                        });
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        LOG.error(e.getMessage(), e);
+                    }
+                });
+    }
+
+    private void addCarToAutocompleteList(Vehicles vehicle) {
+        mManufacturerNames.add(vehicle.getManufacturer());
+
+        if (!mCarToModelMap.containsKey(vehicle.getManufacturer()))
+            mCarToModelMap.put(vehicle.getManufacturer(), new HashSet<>());
+        mCarToModelMap.get(vehicle.getManufacturer()).add(vehicle.getCommerical_name());
+
+        if (!mModelToYear.containsKey(vehicle.getCommerical_name()))
+            mModelToYear.put(vehicle.getCommerical_name(), new HashSet<>());
+        int year = ((CarSelectionActivity) getActivity()).convertDateToInt(vehicle.getAllotment_date());
+        String yearString = Integer.toString(year);
+        mModelToYear.get(vehicle.getCommerical_name()).add(yearString);
+    }
+
+    private void updateManufacturerView() {
+        if (!mManufacturerNames.isEmpty()) {
+            manufactureEditText.setAdapter(((CarSelectionActivity)getActivity()).sortedAdapter(getContext(), mManufacturerNames));
+        } else {
+            manufactureEditText.setAdapter(null);
+        }
     }
 }

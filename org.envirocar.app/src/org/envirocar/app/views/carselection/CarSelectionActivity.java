@@ -359,7 +359,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
         closeAddCarCard();
     }
 
-    private int convertDateToInt(String date) {
+    public int convertDateToInt(String date) {
         int convertedDate = 0;
         for (int i = 6; i < date.length(); i++) {
             convertedDate = convertedDate * 10 + (date.charAt(i) - 48);
