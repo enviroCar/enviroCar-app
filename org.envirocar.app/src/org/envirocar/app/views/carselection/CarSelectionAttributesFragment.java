@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AutoCompleteTextView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -26,6 +27,7 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnTextChanged;
 import io.reactivex.Scheduler;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -57,12 +59,34 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
         View view = inflater.inflate(R.layout.fragment_car_selection_attributes, container, false);
         ButterKnife.bind(this, view);
         fetchVehicles();
+        initFocusChangedListener();
+        manufactureEditText.setOnItemClickListener((parent, view1, position, id) -> requestNextTextFieldFocus(manufactureEditText));
+        modelEditText.setOnItemClickListener((parent, view12, position, id) -> requestNextTextFieldFocus(modelEditText));
+        yearEditText.setOnItemClickListener((parent, view13, position, id) -> requestNextTextFieldFocus(yearEditText));
         return view;
     }
 
     @Override
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
         baseApplicationComponent.inject(this);
+    }
+
+    @OnTextChanged(value = R.id.fragment_attributes_manufacturer_input, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
+    protected void onManufacturerChanged() {
+        manufactureEditText.setError(null);
+        modelEditText.setText("");
+        yearEditText.setText("");
+    }
+
+    @OnTextChanged(value = R.id.fragment_attributes_model_input, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
+    protected void onModelChanged() {
+        modelEditText.setError(null);
+        yearEditText.setText("");
+    }
+
+    @OnTextChanged(value = R.id.fragment_attributes_year_input, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
+    protected void onYearChanged() {
+        yearEditText.setError(null);
     }
 
     private void fetchVehicles() {
@@ -75,7 +99,7 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
                         for (Vehicles vehicles1 : vehicles) {
                             addCarToAutocompleteList(vehicles1);
                         }
-                        mainThreadWorker.schedule(()->{
+                        mainThreadWorker.schedule(() -> {
                             updateManufacturerView();
                         });
                     }
@@ -103,9 +127,49 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
 
     private void updateManufacturerView() {
         if (!mManufacturerNames.isEmpty()) {
-            manufactureEditText.setAdapter(((CarSelectionActivity)getActivity()).sortedAdapter(getContext(), mManufacturerNames));
+            manufactureEditText.setAdapter(((CarSelectionActivity) getActivity()).sortedAdapter(getContext(), mManufacturerNames));
         } else {
             manufactureEditText.setAdapter(null);
+        }
+    }
+
+    private void updateModelView(String manufacturer) {
+        if (mCarToModelMap.containsKey(manufacturer)) {
+            modelEditText.setAdapter(((CarSelectionActivity) getActivity()).sortedAdapter(getContext(), mCarToModelMap.get(manufacturer)));
+        } else {
+            modelEditText.setAdapter(null);
+        }
+    }
+
+    private void updateYearView(String model) {
+        if (mModelToYear.containsKey(model)) {
+            yearEditText.setAdapter(((CarSelectionActivity) getActivity()).sortedAdapter(getContext(), mModelToYear.get(model)));
+        } else {
+            yearEditText.setAdapter(null);
+        }
+    }
+
+    private void initFocusChangedListener() {
+        manufactureEditText.setOnFocusChangeListener((v, hasFocus) -> {
+            if (!hasFocus) {
+                String manufacturer = manufactureEditText.getText().toString();
+                updateModelView(manufacturer);
+            }
+        });
+        modelEditText.setOnFocusChangeListener((v, hasFocus) -> {
+            if (!hasFocus) {
+                String model = modelEditText.getText().toString();
+                updateYearView(model);
+            }
+        });
+    }
+
+    private void requestNextTextFieldFocus(TextView textField) {
+        try {
+            TextView nextField = (TextView) textField.focusSearch(View.FOCUS_DOWN);
+            nextField.requestFocus();
+        } catch (Exception e) {
+            LOG.warn("Unable to find next field or to request focus to next field.");
         }
     }
 }
