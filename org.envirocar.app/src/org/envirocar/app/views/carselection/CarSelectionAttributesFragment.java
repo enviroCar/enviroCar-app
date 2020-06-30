@@ -1,6 +1,7 @@
 package org.envirocar.app.views.carselection;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -128,9 +129,23 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
         // also stop searching if already error becuase of values not in list
         if (manufactureEditText.getError() != null || modelEditText.getError() != null|| yearEditText.getError() != null)
             return;
-        List<Vehicles> vehicle = null;
-        CarListFragment carListFragment = new CarListFragment(vehicle);
-        carListFragment.show(getFragmentManager(),carListFragment.getTag());
+        Single<List<Vehicles>> vehicle = enviroCarVehicleDB.vehicleDAO().getVehicleAttributeType(manufacturer,model,year);
+        vehicle.subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .subscribeWith(new DisposableSingleObserver<List<Vehicles>>() {
+                    @Override
+                    public void onSuccess(List<Vehicles> vehiclesList) {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+                });
+        //List<Vehicles> vehicles = null;
+        //CarListFragment carListFragment = new CarListFragment(vehicles);
+        //carListFragment.show(getFragmentManager(),carListFragment.getTag());
     }
 
     private void fetchVehicles() {

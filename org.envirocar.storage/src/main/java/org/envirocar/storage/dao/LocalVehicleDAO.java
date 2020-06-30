@@ -16,5 +16,9 @@ public interface LocalVehicleDAO extends BaseLocalCarDAO<Vehicles> {
     Single<List<Vehicles>> getManufacturerVehicles();
 
     @Query("SELECT * FROM vehicles where manufacturer_id = :manuId AND id = :vehicleId")
-    Single<Vehicles> getHsnTsnVehicle(String manuId,String vehicleId);
+    Single<Vehicles> getHsnTsnVehicle(String manuId, String vehicleId);
+
+    @Query("SELECT * FROM vehicles where manufacturer=:manuName AND commerical_name =:model AND allotment_date LIKE '%' || :year || '%'")
+    Single<List<Vehicles>> getVehicleAttributeType(String manuName, String model, String year);
+
 }
