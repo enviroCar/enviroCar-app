@@ -11,6 +11,6 @@ public interface CarSelectionCreation {
 
     Car.FuelType getFuel(String id);
 
-    void registerCar(Vehicles vehilce);
+    void registerCar(Vehicles vehicle);
 
 }

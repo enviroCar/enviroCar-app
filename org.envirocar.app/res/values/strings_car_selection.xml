@@ -44,5 +44,6 @@
     <string name="car_selection_addcar_info">Please enter the details of your vehicle either by HSN and TSN or details about vehicle attributes</string>
     <string name="car_selection_hsn_tsn_segmented">HSN/TSN</string>
     <string name="car_selection_attributes_segmented">Attributes</string>
+    <string name="create_car_dialog">Create Car</string>
 
 </resources>

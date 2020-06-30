@@ -3,7 +3,8 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:id="@+id/car_layout_card"
-    android:background="@color/white_cario">
+    android:background="@color/white"
+    android:layout_marginTop="20dp">
 
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
@@ -21,10 +22,10 @@
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/card_layout_icon"
-                android:layout_width="60dp"
-                android:layout_height="60dp"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
                 android:layout_marginLeft="10dp"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="10dp"
                 android:backgroundTint="@color/white"
                 android:src="@drawable/ic_directions_car_black_24dp"
                 app:backgroundTint="#000000"
@@ -35,11 +36,12 @@
             <TextView
                 android:id="@+id/car_layout_vehcile_name"
                 android:layout_width="wrap_content"
+                android:maxLines="1"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="10dp"
                 android:text="A6 B6"
                 android:textColor="@color/blue"
-                android:textSize="18dp"
+                android:textSize="14dp"
                 app:layout_constraintRight_toRightOf="@id/card_layout_icon"
                 app:layout_constraintStart_toEndOf="@id/card_layout_icon"
                 app:layout_constraintTop_toTopOf="@id/card_layout_icon" />
@@ -51,7 +53,7 @@
                 android:layout_marginLeft="10dp"
                 android:text="Audi"
                 android:textColor="#000000"
-                android:textSize="16dp"
+                android:textSize="13dp"
                 app:layout_constraintLeft_toRightOf="@id/card_layout_icon"
                 app:layout_constraintTop_toBottomOf="@id/car_layout_vehcile_name" />
 
@@ -62,7 +64,7 @@
                 android:layout_marginLeft="10dp"
                 android:text="2017"
                 android:textColor="#000000"
-                android:textSize="16dp"
+                android:textSize="13dp"
                 app:layout_constraintLeft_toRightOf="@id/car_layout_manufacturer_name"
                 app:layout_constraintTop_toBottomOf="@id/car_layout_vehcile_name" />
 
@@ -77,14 +79,15 @@
                 android:id="@+id/car_layout_fuel_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                app:layout_constraintLeft_toRightOf="@id/card_layout_icon"
+                android:layout_marginTop="15dp"
+                android:layout_marginLeft="20dp"
+                app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/car_layout_manufacturer_name">
 
                 <ImageView
                     android:id="@+id/fuel_icon"
-                    android:layout_width="25dp"
-                    android:layout_height="25dp"
+                    android:layout_width="15dp"
+                    android:layout_height="15dp"
                     android:src="@drawable/ic_fuel_consumption" />
 
                 <TextView
@@ -95,7 +98,7 @@
                     android:layout_toRightOf="@id/fuel_icon"
                     android:text="Diesel"
                     android:textColor="#000000"
-                    android:textSize="14dp" />
+                    android:textSize="12dp" />
             </RelativeLayout>
 
             <RelativeLayout
@@ -103,14 +106,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="10dp"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="15dp"
                 app:layout_constraintLeft_toRightOf="@id/car_layout_fuel_view"
                 app:layout_constraintTop_toBottomOf="@id/car_layout_manufacturer_name">
 
                 <ImageView
                     android:id="@+id/engine_icon"
-                    android:layout_width="25dp"
-                    android:layout_height="25dp"
+                    android:layout_width="15dp"
+                    android:layout_height="15dp"
                     android:src="@drawable/ic_engine" />
 
                 <TextView
@@ -121,7 +124,7 @@
                     android:layout_toRightOf="@id/engine_icon"
                     android:text="1600 cm\u00B3"
                     android:textColor="#000000"
-                    android:textSize="14dp" />
+                    android:textSize="12dp" />
             </RelativeLayout>
 
             <RelativeLayout
@@ -129,14 +132,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="10dp"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="15dp"
                 app:layout_constraintLeft_toRightOf="@id/car_layout_engine_view"
                 app:layout_constraintTop_toBottomOf="@id/car_layout_manufacturer_name">
 
                 <ImageView
                     android:id="@+id/power_icon"
-                    android:layout_width="25dp"
-                    android:layout_height="25dp"
+                    android:layout_width="15dp"
+                    android:layout_height="15dp"
                     android:src="@drawable/ic_baseline_power_24"
                     android:tint="#000000" />
 
@@ -148,7 +151,7 @@
                     android:layout_toRightOf="@id/power_icon"
                     android:text="1200 kW"
                     android:textColor="#000000"
-                    android:textSize="14dp" />
+                    android:textSize="12dp" />
             </RelativeLayout>
 
             <RelativeLayout
@@ -158,13 +161,14 @@
                 android:layout_marginTop="20dp"
                 android:layout_marginRight="10dp"
                 app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+                app:layout_constraintTop_toBottomOf="@id/car_layout_manufacturer_name">
 
                 <TextView
                     android:id="@+id/hsn_view"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="HSN"
+                    android:textSize="12dp"
                     android:textColor="#000000"
                     android:textStyle="bold" />
 
@@ -175,6 +179,7 @@
                     android:layout_marginLeft="10dp"
                     android:layout_toRightOf="@id/hsn_view"
                     android:text="0005"
+                    android:textSize="12dp"
                     android:textColor="#000000" />
             </RelativeLayout>
 
@@ -184,7 +189,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginRight="10dp"
                 app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/hsn_layout">
+                app:layout_constraintTop_toBottomOf="@id/car_layout_manufacturer_name">
 
                 <TextView
                     android:id="@+id/tsn_view"
@@ -192,7 +197,8 @@
                     android:layout_height="wrap_content"
                     android:text="TSN"
                     android:textColor="#000000"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:textSize="12dp"/>
 
                 <TextView
                     android:id="@+id/car_layout_tsn"
@@ -201,6 +207,7 @@
                     android:layout_marginLeft="10dp"
                     android:layout_toRightOf="@id/tsn_view"
                     android:text="155"
+                    android:textSize="12dp"
                     android:textColor="#000000" />
             </RelativeLayout>
 

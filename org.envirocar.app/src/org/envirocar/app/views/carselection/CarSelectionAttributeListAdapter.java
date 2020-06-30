@@ -1,12 +1,16 @@
 package org.envirocar.app.views.carselection;
 
+import android.Manifest;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.envirocar.app.R;
@@ -56,26 +60,36 @@ public class CarSelectionAttributeListAdapter extends RecyclerView.Adapter<CarSe
         holder.vehicleName.setText(vehicle.getCommerical_name());
         holder.constructionYear.setText(vehicle.getAllotment_date());
         holder.fuelType.setText(fuelType);
-        holder.engineCapacity.setText(vehicle.getEngine_capacity());
-        holder.power.setText(vehicle.getPower());
+        if (fuelType.equalsIgnoreCase("electric")) {
+            holder.engineCapacity.setVisibility(View.GONE);
+            holder.imageView.setVisibility(View.GONE);
+        } else
+            holder.engineCapacity.setText(vehicle.getEngine_capacity()+" cm\u00B3");
+        holder.power.setText(vehicle.getPower()+" KW");
 
         holder.carDetailView.setOnClickListener(v -> {
-            Car car = mCallback.createCar(vehicle);
+//            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+//            builder.setMessage("selected car");
+//            builder.setTitle("car select");
+//            AlertDialog dialog = builder.create();
+//            dialog.show();
             DialogUtils.createDefaultDialogBuilder(context,
-                    "Create car?",
+                    R.string.create_car_dialog,
                     R.drawable.ic_directions_car_black_24dp,
-                    contentView)
-                    .positiveText("Create")
-                    .negativeText("Cancel")
-                    .onPositive((materialDialog,dialogAction)->{
-                        mCallback.addAndRegisterCar(car);
-                    });
+                    holder.manufacturerName.getText()+" "+holder.vehicleName.getText()+
+                    " "+holder.fuelType.getText()+" "+holder.engineCapacity.getText()+" ")
+                    .positiveText(R.string.ok)
+                    .onPositive((dialog, which) -> {
+                        mCallback.addAndRegisterCar(vehicle);
+                    })
+                    .negativeText(R.string.cancel)
+                    .show();
         });
     }
 
     @Override
     public int getItemCount() {
-        return 0;
+        return vehiclesList.size();
     }
 
     public class CarSelectionViewHolder extends RecyclerView.ViewHolder {
@@ -98,6 +112,8 @@ public class CarSelectionAttributeListAdapter extends RecyclerView.Adapter<CarSe
         TextView tsnValue;
         @BindView(R.id.car_layout_card)
         View carDetailView;
+        @BindView(R.id.engine_icon)
+        ImageView imageView;
 
         public CarSelectionViewHolder(@NonNull View itemView) {
             super(itemView);

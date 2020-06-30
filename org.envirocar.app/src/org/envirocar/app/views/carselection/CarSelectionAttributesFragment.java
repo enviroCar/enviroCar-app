@@ -135,17 +135,15 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
                 .subscribeWith(new DisposableSingleObserver<List<Vehicles>>() {
                     @Override
                     public void onSuccess(List<Vehicles> vehiclesList) {
-
+                        CarListFragment carListFragment = new CarListFragment(vehiclesList);
+                        carListFragment.show(getFragmentManager(),carListFragment.getTag());
                     }
 
                     @Override
                     public void onError(Throwable e) {
-
+                        Log.i("fetchError",""+e.getMessage());
                     }
                 });
-        //List<Vehicles> vehicles = null;
-        //CarListFragment carListFragment = new CarListFragment(vehicles);
-        //carListFragment.show(getFragmentManager(),carListFragment.getTag());
     }
 
     private void fetchVehicles() {
