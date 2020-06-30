@@ -68,5 +68,4 @@ public class BottomSheetFragment extends BottomSheetDialogFragment {
         ((CarSelectionActivity)getActivity()).registerCar(vehicle);
         dismiss();
     }
-
 }

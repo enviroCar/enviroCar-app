@@ -19,6 +19,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class CarListFragment extends BottomSheetDialogFragment {
 
@@ -60,5 +61,10 @@ public class CarListFragment extends BottomSheetDialogFragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
+    }
+
+    @OnClick(R.id.fragment_car_list_layout_cancel)
+    void cancelSheet() {
+        dismiss();
     }
 }
