@@ -128,8 +128,9 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
         // also stop searching if already error becuase of values not in list
         if (manufactureEditText.getError() != null || modelEditText.getError() != null|| yearEditText.getError() != null)
             return;
-
-
+        List<Vehicles> vehicle = null;
+        CarListFragment carListFragment = new CarListFragment(vehicle);
+        carListFragment.show(getFragmentManager(),carListFragment.getTag());
     }
 
     private void fetchVehicles() {
