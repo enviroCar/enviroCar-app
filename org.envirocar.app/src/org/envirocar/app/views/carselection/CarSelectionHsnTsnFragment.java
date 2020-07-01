@@ -88,7 +88,7 @@ public class CarSelectionHsnTsnFragment extends BaseInjectorFragment {
 
     @OnClick(R.id.fragment_search_vehicle)
     protected void onSearchClicked() {
-        String hsn = hsnEditText.getText().toString().trim();
+        String hsnWithManufactureName = hsnEditText.getText().toString().trim();
         String tsn = tsnEditText.getText().toString().trim();
         View focusView = null;
         if (hsn.isEmpty()) {
@@ -109,6 +109,7 @@ public class CarSelectionHsnTsnFragment extends BaseInjectorFragment {
         // also stop searching if already error becuase of values not in list
         if (hsnEditText.getError() != null || tsnEditText.getError() != null)
             return;
+        String hsn = hsnWithManufactureName.substring(0,4);
 
         Single<Vehicles> vehiclesSingle = enviroCarVehicleDB.vehicleDAO().getHsnTsnVehicle(hsn, tsn);
         vehiclesSingle.subscribeOn(Schedulers.io())
@@ -142,8 +143,8 @@ public class CarSelectionHsnTsnFragment extends BaseInjectorFragment {
         // we have to skip first row
         if (vehiclesList != null)
             for (int i = 1; i < vehiclesList.size(); i++) {
-                if (!hsn.contains(vehiclesList.get(i).getManufacturer_id()))
-                    hsn.add(vehiclesList.get(i).getManufacturer_id());
+                if (!hsn.contains(vehiclesList.get(i).getManufacturer_id()+" "+vehiclesList.get(i).getManufacturer()))
+                    hsn.add(vehiclesList.get(i).getManufacturer_id()+" "+vehiclesList.get(i).getManufacturer());
                 if (!mHsnToTsn.containsKey(vehiclesList.get(i).getManufacturer_id()))
                     mHsnToTsn.put(vehiclesList.get(i).getManufacturer_id(), new HashSet<>());
                 mHsnToTsn.get(vehiclesList.get(i).getManufacturer_id()).add(vehiclesList.get(i).getId());
@@ -159,7 +160,8 @@ public class CarSelectionHsnTsnFragment extends BaseInjectorFragment {
         hsnEditText.setOnFocusChangeListener((v, focus) -> {
             if (!focus) {
                 tsnEditText.setText("");
-                String hsn = hsnEditText.getText().toString();
+                String hsnWithManufactureName = hsnEditText.getText().toString();
+                String hsn = hsnWithManufactureName.substring(0,4);
                 updateTsnView(hsn);
             } else {
                 // if focus on hsneditText reset error in tsnEditText
