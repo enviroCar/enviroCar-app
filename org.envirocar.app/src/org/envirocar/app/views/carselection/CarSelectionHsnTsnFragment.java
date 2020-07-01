@@ -57,6 +57,11 @@ public class CarSelectionHsnTsnFragment extends BaseInjectorFragment {
     private Map<String, Set<String>> mHsnToTsn = new ConcurrentHashMap<>();
     private CompositeDisposable disposable = new CompositeDisposable();
     private static final int ERROR_DEBOUNCE_TIME = 750;
+    private List<Vehicles> vehiclesList;
+
+    CarSelectionHsnTsnFragment(List<Vehicles> vehiclesList) {
+        this.vehiclesList = vehiclesList;
+    }
 
     @Nullable
     @Override
@@ -134,30 +139,16 @@ public class CarSelectionHsnTsnFragment extends BaseInjectorFragment {
     }
 
     private void fetchAllVehicles() {
-        Single<List<Vehicles>> vehicle = enviroCarVehicleDB.vehicleDAO().getManufacturerVehicles();
-        vehicle.subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.io())
-                .subscribeWith(new DisposableSingleObserver<List<Vehicles>>() {
-                    @Override
-                    public void onSuccess(List<Vehicles> vehicles) {
-                        // we have to skip first row
-                        for (int i = 1; i < vehicles.size(); i++) {
-                            if (!hsn.contains(vehicles.get(i).getManufacturer_id()))
-                                hsn.add(vehicles.get(i).getManufacturer_id());
-                            if (!mHsnToTsn.containsKey(vehicles.get(i).getManufacturer_id()))
-                                mHsnToTsn.put(vehicles.get(i).getManufacturer_id(), new HashSet<>());
-                            mHsnToTsn.get(vehicles.get(i).getManufacturer_id()).add(vehicles.get(i).getId());
-                        }
-                        mainThreadWorker.schedule(() -> {
-                            updateHsnView(hsn);
-                        });
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-
-                    }
-                });
+        // we have to skip first row
+        if (vehiclesList != null)
+            for (int i = 1; i < vehiclesList.size(); i++) {
+                if (!hsn.contains(vehiclesList.get(i).getManufacturer_id()))
+                    hsn.add(vehiclesList.get(i).getManufacturer_id());
+                if (!mHsnToTsn.containsKey(vehiclesList.get(i).getManufacturer_id()))
+                    mHsnToTsn.put(vehiclesList.get(i).getManufacturer_id(), new HashSet<>());
+                mHsnToTsn.get(vehiclesList.get(i).getManufacturer_id()).add(vehiclesList.get(i).getId());
+            }
+        updateHsnView(hsn);
     }
 
     private void updateHsnView(Set<String> hsn) {
@@ -230,7 +221,8 @@ public class CarSelectionHsnTsnFragment extends BaseInjectorFragment {
                         } else {
                             tsnEditText.setError(null);
                         }
-                    } catch (Exception e) {}
+                    } catch (Exception e) {
+                    }
                 }));
     }
 }

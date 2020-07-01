@@ -59,6 +59,11 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
     private Scheduler.Worker mainThreadWorker = AndroidSchedulers.mainThread().createWorker();
     private CompositeDisposable disposable = new CompositeDisposable();
     private static final int ERROR_DEBOUNCE_TIME = 750;
+    private List<Vehicles> vehiclesList;
+
+    CarSelectionAttributesFragment(List<Vehicles> vehiclesList) {
+        this.vehiclesList = vehiclesList;
+    }
 
     @Nullable
     @Override
@@ -127,45 +132,32 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
         }
 
         // also stop searching if already error becuase of values not in list
-        if (manufactureEditText.getError() != null || modelEditText.getError() != null|| yearEditText.getError() != null)
+        if (manufactureEditText.getError() != null || modelEditText.getError() != null || yearEditText.getError() != null)
             return;
-        Single<List<Vehicles>> vehicle = enviroCarVehicleDB.vehicleDAO().getVehicleAttributeType(manufacturer,model,year);
+        Single<List<Vehicles>> vehicle = enviroCarVehicleDB.vehicleDAO().getVehicleAttributeType(manufacturer, model, year);
         vehicle.subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .subscribeWith(new DisposableSingleObserver<List<Vehicles>>() {
                     @Override
                     public void onSuccess(List<Vehicles> vehiclesList) {
                         CarListFragment carListFragment = new CarListFragment(vehiclesList);
-                        carListFragment.show(getFragmentManager(),carListFragment.getTag());
+                        carListFragment.show(getFragmentManager(), carListFragment.getTag());
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        Log.i("fetchError",""+e.getMessage());
+                        Log.i("fetchError", "" + e.getMessage());
                     }
                 });
     }
 
     private void fetchVehicles() {
-        Single<List<Vehicles>> vehicle = enviroCarVehicleDB.vehicleDAO().getManufacturerVehicles();
-        vehicle.subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.io())
-                .subscribeWith(new DisposableSingleObserver<List<Vehicles>>() {
-                    @Override
-                    public void onSuccess(List<Vehicles> vehicles) {
-                        for (Vehicles vehicles1 : vehicles) {
-                            addCarToAutocompleteList(vehicles1);
-                        }
-                        mainThreadWorker.schedule(() -> {
-                            updateManufacturerView();
-                        });
-                    }
+        if (vehiclesList != null)
+            for (Vehicles vehicles1 : vehiclesList) {
+                addCarToAutocompleteList(vehicles1);
+            }
+        updateManufacturerView();
 
-                    @Override
-                    public void onError(Throwable e) {
-                        LOG.error(e.getMessage(), e);
-                    }
-                });
     }
 
     private void addCarToAutocompleteList(Vehicles vehicle) {
