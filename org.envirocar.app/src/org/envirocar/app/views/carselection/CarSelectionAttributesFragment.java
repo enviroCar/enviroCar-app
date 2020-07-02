@@ -2,6 +2,7 @@ package org.envirocar.app.views.carselection;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -55,7 +56,7 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
     private static final Logger LOG = Logger.getLogger(CarSelectionAttributesFragment.class);
     private Set<String> mManufacturerNames = new HashSet<>();
     private Map<String, Set<String>> mCarToModelMap = new ConcurrentHashMap<>();
-    private Map<String, Set<String>> mModelToYear = new ConcurrentHashMap<>();
+    private Map<Pair<String, String>, Set<String>> mManufactureModelToYear = new ConcurrentHashMap<>();
     private Scheduler.Worker mainThreadWorker = AndroidSchedulers.mainThread().createWorker();
     private CompositeDisposable disposable = new CompositeDisposable();
     private static final int ERROR_DEBOUNCE_TIME = 750;
@@ -166,12 +167,12 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
         if (!mCarToModelMap.containsKey(vehicle.getManufacturer()))
             mCarToModelMap.put(vehicle.getManufacturer(), new HashSet<>());
         mCarToModelMap.get(vehicle.getManufacturer()).add(vehicle.getCommerical_name());
-
-        if (!mModelToYear.containsKey(vehicle.getCommerical_name()))
-            mModelToYear.put(vehicle.getCommerical_name(), new HashSet<>());
+        Pair<String, String> manufactureModel = new Pair<>(vehicle.getManufacturer(), vehicle.getCommerical_name());
+        if (!mManufactureModelToYear.containsKey(manufactureModel))
+            mManufactureModelToYear.put(manufactureModel, new HashSet<>());
         int year = ((CarSelectionActivity) getActivity()).convertDateToInt(vehicle.getAllotment_date());
         String yearString = Integer.toString(year);
-        mModelToYear.get(vehicle.getCommerical_name()).add(yearString);
+        mManufactureModelToYear.get(manufactureModel).add(yearString);
     }
 
     private void updateManufacturerView() {
@@ -190,9 +191,9 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
         }
     }
 
-    private void updateYearView(String model) {
-        if (mModelToYear.containsKey(model)) {
-            yearEditText.setAdapter(((CarSelectionActivity) getActivity()).sortedAdapter(getContext(), mModelToYear.get(model)));
+    private void updateYearView(Pair<String, String> manufactureModel) {
+        if (mManufactureModelToYear.containsKey(manufactureModel)) {
+            yearEditText.setAdapter(((CarSelectionActivity) getActivity()).sortedAdapter(getContext(), mManufactureModelToYear.get(manufactureModel)));
         } else {
             yearEditText.setAdapter(null);
         }
@@ -208,7 +209,8 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
         modelEditText.setOnFocusChangeListener((v, hasFocus) -> {
             if (!hasFocus) {
                 String model = modelEditText.getText().toString();
-                updateYearView(model);
+                String manufacture = manufactureEditText.getText().toString();
+                updateYearView(new Pair<>(manufacture, model));
             }
         });
     }
