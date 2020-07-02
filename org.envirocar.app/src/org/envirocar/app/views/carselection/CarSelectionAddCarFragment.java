@@ -87,7 +87,6 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
         ButterKnife.bind(this, view);
 
         toolbar.setNavigationIcon(R.drawable.ic_close_white_24dp);
-        toolbar.inflateMenu(R.menu.menu_logbook_add_fueling);
         toolbar.setNavigationOnClickListener(v -> {
             hideKeyboard(v);
             closeThisFragment();
