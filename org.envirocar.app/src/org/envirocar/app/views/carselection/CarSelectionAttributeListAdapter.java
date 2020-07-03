@@ -54,26 +54,41 @@ public class CarSelectionAttributeListAdapter extends RecyclerView.Adapter<CarSe
                 R.layout.fragment_tracklist_delete_track_dialog, null, false);
 
         // set the details of vehicles in card view
-        holder.hsnValue.setText(vehicle.getManufacturer_id());
-        holder.tsnValue.setText(vehicle.getId());
+        holder.hsnTsn.setText(vehicle.getManufacturer_id() + "/" + vehicle.getId());
         holder.manufacturerName.setText(vehicle.getManufacturer());
         holder.vehicleName.setText(vehicle.getCommerical_name());
         holder.constructionYear.setText(vehicle.getAllotment_date());
         holder.fuelType.setText(fuelType);
         if (fuelType.equalsIgnoreCase("electric")) {
-            holder.engineCapacity.setVisibility(View.GONE);
-            holder.imageView.setVisibility(View.GONE);
+            holder.engineView.setVisibility(View.GONE);
+
         } else
-            holder.engineCapacity.setText(vehicle.getEngine_capacity()+" cm\u00B3");
-        holder.power.setText(vehicle.getPower()+" KW");
+            holder.engineCapacity.setText(vehicle.getEngine_capacity() + " cm\u00B3");
+        holder.power.setText(vehicle.getPower() + " KW");
+        holder.imageView1.setTag("downTag");
+        holder.imageView1.setOnClickListener(view -> {
+
+            if (holder.imageView1.getTag() == "downTag") {
+                holder.imageView1.setImageDrawable(context.getDrawable(R.drawable.ic_baseline_keyboard_arrow_up_24));
+                holder.imageView1.setTag("upTag");
+            } else {
+                holder.imageView1.setImageDrawable(context.getDrawable(R.drawable.ic_baseline_keyboard_arrow_down_24));
+                holder.imageView1.setTag("downTag");
+            }
+            if (holder.expandCard.getVisibility() == View.VISIBLE) {
+                holder.expandCard.setVisibility(View.GONE);
+            } else {
+                holder.expandCard.setVisibility(View.VISIBLE);
+            }
+        });
 
         holder.carDetailView.setOnClickListener(v -> {
 
             DialogUtils.createDefaultDialogBuilder(context,
                     R.string.create_car_dialog,
                     R.drawable.ic_directions_car_black_24dp,
-                    holder.manufacturerName.getText()+" "+holder.vehicleName.getText()+
-                    " "+holder.fuelType.getText()+" "+holder.engineCapacity.getText()+" ")
+                    holder.manufacturerName.getText() + " " + holder.vehicleName.getText() +
+                            " " + holder.fuelType.getText() + " " + holder.engineCapacity.getText() + " ")
                     .positiveText(R.string.ok)
                     .onPositive((dialog, which) -> {
                         mCallback.addAndRegisterCar(vehicle);
@@ -102,14 +117,16 @@ public class CarSelectionAttributeListAdapter extends RecyclerView.Adapter<CarSe
         TextView engineCapacity;
         @BindView(R.id.car_layout_power)
         TextView power;
-        @BindView(R.id.car_layout_hsn)
-        TextView hsnValue;
-        @BindView(R.id.car_layout_tsn)
-        TextView tsnValue;
         @BindView(R.id.car_layout_card)
         View carDetailView;
-        @BindView(R.id.engine_icon)
-        ImageView imageView;
+        @BindView(R.id.expandView)
+        ImageView imageView1;
+        @BindView(R.id.car_layout_engine_view)
+        View engineView;
+        @BindView(R.id.car_layout_expanded_card)
+        View expandCard;
+        @BindView(R.id.car_layout_hsn_tsn)
+        TextView hsnTsn;
 
         public CarSelectionViewHolder(@NonNull View itemView) {
             super(itemView);

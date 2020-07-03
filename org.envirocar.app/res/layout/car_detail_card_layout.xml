@@ -1,29 +1,42 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
     android:id="@+id/car_layout_card"
-    android:background="@color/white"
-    android:layout_marginTop="20dp">
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/white_cario">
 
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="20dp"
+        android:layout_marginTop="10dp"
         android:layout_marginRight="20dp"
         android:layout_marginBottom="10dp"
+        android:animateLayoutChanges="false"
         android:foregroundTint="@color/white"
-        app:cardCornerRadius="5dp"
-        app:cardElevation="10dp">
+        app:cardCornerRadius="5dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp">
+
+            <ImageView
+                android:id="@+id/expandView"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginVertical="20dp"
+                android:layout_marginRight="10dp"
+                android:src="@drawable/ic_baseline_keyboard_arrow_down_24"
+                android:tint="@color/blue_dark_cario"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/card_layout_icon"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_marginLeft="10dp"
                 android:layout_marginTop="10dp"
                 android:backgroundTint="@color/white"
@@ -36,12 +49,13 @@
             <TextView
                 android:id="@+id/car_layout_vehcile_name"
                 android:layout_width="wrap_content"
-                android:maxLines="1"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="10dp"
+                android:maxLines="1"
                 android:text="A6 B6"
-                android:textColor="@color/blue"
-                android:textSize="14dp"
+                android:textColor="@color/dark_charcoal"
+                android:textSize="16dp"
+                android:textStyle="bold"
                 app:layout_constraintRight_toRightOf="@id/card_layout_icon"
                 app:layout_constraintStart_toEndOf="@id/card_layout_icon"
                 app:layout_constraintTop_toTopOf="@id/card_layout_icon" />
@@ -52,7 +66,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="10dp"
                 android:text="Audi"
-                android:textColor="@color/black"
+                android:textColor="@color/spanish_gray"
                 android:textSize="13dp"
                 app:layout_constraintLeft_toRightOf="@id/card_layout_icon"
                 app:layout_constraintTop_toBottomOf="@id/car_layout_vehcile_name" />
@@ -63,155 +77,174 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="10dp"
                 android:text="2017"
-                android:textColor="@color/black"
+                android:textColor="@color/spanish_gray"
                 android:textSize="13dp"
                 app:layout_constraintLeft_toRightOf="@id/car_layout_manufacturer_name"
                 app:layout_constraintTop_toBottomOf="@id/car_layout_vehcile_name" />
 
-            <View
-                android:layout_width="wrap_content"
-                android:layout_height="2dp"
-                android:background="@color/gray88"
-                app:layout_constraintLeft_toRightOf="@id/card_layout_icon"
-                app:layout_constraintTop_toBottomOf="@id/car_layout_construction_year" />
-
-            <RelativeLayout
-                android:id="@+id/car_layout_fuel_view"
+            <LinearLayout
+                android:id="@+id/car_layout_expanded_card"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="15dp"
-                android:layout_marginLeft="20dp"
+                android:orientation="vertical"
+                android:visibility="gone"
                 app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/car_layout_manufacturer_name">
+                app:layout_constraintTop_toBottomOf="@+id/card_layout_icon">
 
-                <ImageView
-                    android:id="@+id/fuel_icon"
-                    android:layout_width="15dp"
-                    android:layout_height="15dp"
-                    android:src="@drawable/ic_fuel_consumption" />
-
-                <TextView
-                    android:id="@+id/car_layout_fuel_type"
-                    android:layout_width="wrap_content"
+                <RelativeLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
-                    android:layout_toRightOf="@id/fuel_icon"
-                    android:text="Diesel"
-                    android:textColor="@color/black"
-                    android:textSize="12dp" />
-            </RelativeLayout>
+                    android:minHeight="@dimen/spacing_xxlarge"
+                    android:paddingLeft="@dimen/activity_horizontal_margin"
+                    android:paddingRight="@dimen/activity_horizontal_margin">
 
-            <RelativeLayout
-                android:id="@+id/car_layout_engine_view"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
-                android:layout_marginTop="15dp"
-                app:layout_constraintLeft_toRightOf="@id/car_layout_fuel_view"
-                app:layout_constraintTop_toBottomOf="@id/car_layout_manufacturer_name">
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_alignParentLeft="true"
+                        android:layout_centerVertical="true"
+                        android:layout_marginRight="16dp"
+                        android:alpha="0.54"
+                        android:src="@drawable/ic_directions_car_black_24dp"
+                        android:tint="@color/black" />
 
-                <ImageView
-                    android:id="@+id/engine_icon"
-                    android:layout_width="15dp"
-                    android:layout_height="15dp"
-                    android:src="@drawable/ic_engine" />
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:layout_centerVertical="true"
+                        android:paddingLeft="48dp"
+                        android:text="HSN/TSN"
+                        android:textColor="@color/dark_charcoal" />
 
-                <TextView
-                    android:id="@+id/car_layout_engine_capacity"
-                    android:layout_width="wrap_content"
+                    <TextView
+                        android:id="@+id/car_layout_hsn_tsn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:layout_centerVertical="true"
+                        android:text="7656/AAO"
+                        android:textColor="@color/spanish_gray" />
+
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:id="@+id/car_layout_engine_view"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
-                    android:layout_toRightOf="@id/engine_icon"
-                    android:text="1600 cm\u00B3"
-                    android:textColor="@color/black"
-                    android:textSize="12dp" />
-            </RelativeLayout>
+                    android:minHeight="@dimen/spacing_xxlarge"
+                    android:paddingLeft="@dimen/activity_horizontal_margin"
+                    android:paddingRight="@dimen/activity_horizontal_margin">
 
-            <RelativeLayout
-                android:id="@+id/car_layout_power_view"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
-                android:layout_marginTop="15dp"
-                app:layout_constraintLeft_toRightOf="@id/car_layout_engine_view"
-                app:layout_constraintTop_toBottomOf="@id/car_layout_manufacturer_name">
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_alignParentLeft="true"
+                        android:layout_centerVertical="true"
+                        android:layout_marginRight="16dp"
+                        android:alpha="0.54"
+                        android:src="@drawable/ic_engine" />
 
-                <ImageView
-                    android:id="@+id/power_icon"
-                    android:layout_width="15dp"
-                    android:layout_height="15dp"
-                    android:src="@drawable/ic_baseline_power_24"
-                    android:tint="@color/black" />
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:layout_centerVertical="true"
+                        android:paddingLeft="48dp"
+                        android:text="Engine"
+                        android:textColor="@color/dark_charcoal" />
 
-                <TextView
-                    android:id="@+id/car_layout_power"
-                    android:layout_width="wrap_content"
+                    <TextView
+                        android:id="@+id/car_layout_engine_capacity"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:layout_centerVertical="true"
+                        android:text="1200"
+                        android:textColor="@color/spanish_gray" />
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
-                    android:layout_toRightOf="@id/power_icon"
-                    android:text="1200 kW"
-                    android:textColor="@color/black"
-                    android:textSize="12dp" />
-            </RelativeLayout>
+                    android:minHeight="@dimen/spacing_xxlarge"
+                    android:paddingLeft="@dimen/activity_horizontal_margin"
+                    android:paddingRight="@dimen/activity_horizontal_margin">
 
-            <RelativeLayout
-                android:id="@+id/hsn_layout"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:layout_marginRight="10dp"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/car_layout_manufacturer_name">
+                    <ImageView
+                        android:id="@+id/activity_car_details_attr_car_image"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_alignParentLeft="true"
+                        android:layout_centerVertical="true"
+                        android:layout_marginRight="16dp"
+                        android:alpha="0.54"
+                        android:src="@drawable/ic_fuel_consumption" />
 
-                <TextView
-                    android:id="@+id/hsn_view"
-                    android:layout_width="wrap_content"
+                    <TextView
+                        android:id="@+id/activity_car_details_attr_car_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:layout_centerVertical="true"
+                        android:paddingLeft="48dp"
+                        android:text="Fuel Type"
+                        android:textColor="@color/dark_charcoal" />
+
+                    <TextView
+                        android:id="@+id/car_layout_fuel_type"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:layout_centerVertical="true"
+                        android:layout_toRightOf="@id/activity_car_details_attr_car_text"
+                        android:gravity="right|center_vertical"
+                        android:text="Diesel"
+                        android:textColor="@color/spanish_gray" />
+
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="HSN"
-                    android:textSize="12dp"
-                    android:textColor="@color/black"
-                    android:textStyle="bold" />
+                    android:minHeight="@dimen/spacing_xxlarge"
+                    android:paddingLeft="@dimen/activity_horizontal_margin"
+                    android:paddingRight="@dimen/activity_horizontal_margin">
 
-                <TextView
-                    android:id="@+id/car_layout_hsn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
-                    android:layout_toRightOf="@id/hsn_view"
-                    android:text="0005"
-                    android:textSize="12dp"
-                    android:textColor="@color/black" />
-            </RelativeLayout>
+                    <ImageView
+                        android:id="@+id/activity_car_details_attr_engine_image"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_alignParentLeft="true"
+                        android:layout_centerVertical="true"
+                        android:layout_marginRight="16dp"
+                        android:alpha="0.54"
+                        android:src="@drawable/ic_baseline_power_24"
+                        android:tint="@color/black" />
 
-            <RelativeLayout
-                android:id="@+id/tsn_layout"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginRight="10dp"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/car_layout_manufacturer_name">
+                    <TextView
+                        android:id="@+id/activity_car_details_attr_engine_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:layout_centerVertical="true"
+                        android:paddingLeft="48dp"
+                        android:text="Power"
+                        android:textColor="@color/dark_charcoal" />
 
-                <TextView
-                    android:id="@+id/tsn_view"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="TSN"
-                    android:textColor="@color/black"
-                    android:textStyle="bold"
-                    android:textSize="12dp"/>
+                    <TextView
+                        android:id="@+id/car_layout_power"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:layout_centerVertical="true"
+                        android:layout_toRightOf="@id/activity_car_details_attr_engine_text"
+                        android:gravity="right|center_vertical"
+                        android:text="640 kW"
+                        android:textColor="@color/spanish_gray" />
 
-                <TextView
-                    android:id="@+id/car_layout_tsn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
-                    android:layout_toRightOf="@id/tsn_view"
-                    android:text="155"
-                    android:textSize="12dp"
-                    android:textColor="@color/black" />
-            </RelativeLayout>
-
-
+                </RelativeLayout>
+            </LinearLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </com.google.android.material.card.MaterialCardView>
