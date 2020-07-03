@@ -83,6 +83,12 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
     }
 
     @Override
+    public void onDestroy() {
+        disposable.dispose();
+        super.onDestroy();
+    }
+
+    @Override
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
         baseApplicationComponent.inject(this);
     }

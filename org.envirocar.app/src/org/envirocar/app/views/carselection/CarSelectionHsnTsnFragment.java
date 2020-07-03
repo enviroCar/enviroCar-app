@@ -77,6 +77,13 @@ public class CarSelectionHsnTsnFragment extends BaseInjectorFragment {
         return view;
     }
 
+    @Override
+    public void onDestroy() {
+        disposable.dispose();
+        super.onDestroy();
+
+    }
+
     private void requestNextTextFieldFocus(TextView textView) {
         try {
             TextView nextField = (TextView) textView.focusSearch(View.FOCUS_DOWN);
