@@ -1,6 +1,7 @@
 package org.envirocar.app.views.carselection;
 
 
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -58,6 +59,7 @@ public class CarSelectionHsnTsnFragment extends BaseInjectorFragment {
     private CompositeDisposable disposable = new CompositeDisposable();
     private static final int ERROR_DEBOUNCE_TIME = 750;
     private List<Vehicles> vehiclesList;
+    private Drawable error;
 
     CarSelectionHsnTsnFragment(List<Vehicles> vehiclesList) {
         this.vehiclesList = vehiclesList;
@@ -72,7 +74,8 @@ public class CarSelectionHsnTsnFragment extends BaseInjectorFragment {
         fetchAllVehicles();
         reactiveTexFieldCheck();
         focusChangeListener();
-
+        error = getResources().getDrawable(R.drawable.ic_error_red_24dp);
+        error.setBounds(-50,0,0,error.getIntrinsicHeight());
         hsnEditText.setOnItemClickListener((parent, view1, position, id) -> requestNextTextFieldFocus(hsnEditText));
         return view;
     }
@@ -99,11 +102,11 @@ public class CarSelectionHsnTsnFragment extends BaseInjectorFragment {
         String tsn = tsnEditText.getText().toString().trim();
         View focusView = null;
         if (hsn.isEmpty()) {
-            hsnEditText.setError(getString(R.string.car_selection_error_empty_input));
+            hsnEditText.setError(getString(R.string.car_selection_error_empty_input),error);
             focusView = hsnEditText;
         }
         if (tsn.isEmpty()) {
-            tsnEditText.setError(getString(R.string.car_selection_error_empty_input));
+            tsnEditText.setError(getString(R.string.car_selection_error_empty_input),error);
             focusView = tsnEditText;
         }
 
@@ -205,7 +208,7 @@ public class CarSelectionHsnTsnFragment extends BaseInjectorFragment {
                         }
                     }
                     if (flag == 0) {
-                        hsnEditText.setError(getString(R.string.car_selection_error_select_from_list));
+                        hsnEditText.setError(getString(R.string.car_selection_error_select_from_list),error);
                         hsnEditText.requestFocus();
                     } else {
                         hsnEditText.setError(null);
@@ -229,7 +232,7 @@ public class CarSelectionHsnTsnFragment extends BaseInjectorFragment {
                         }
 
                         if (flag == 0) {
-                            tsnEditText.setError(getString(R.string.car_selection_error_select_from_list));
+                            tsnEditText.setError(getString(R.string.car_selection_error_select_from_list),error);
                             tsnEditText.requestFocus();
                         } else {
                             tsnEditText.setError(null);
