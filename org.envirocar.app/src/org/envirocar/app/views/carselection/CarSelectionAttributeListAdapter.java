@@ -68,11 +68,7 @@ public class CarSelectionAttributeListAdapter extends RecyclerView.Adapter<CarSe
         holder.power.setText(vehicle.getPower()+" KW");
 
         holder.carDetailView.setOnClickListener(v -> {
-//            AlertDialog.Builder builder = new AlertDialog.Builder(context);
-//            builder.setMessage("selected car");
-//            builder.setTitle("car select");
-//            AlertDialog dialog = builder.create();
-//            dialog.show();
+
             DialogUtils.createDefaultDialogBuilder(context,
                     R.string.create_car_dialog,
                     R.drawable.ic_directions_car_black_24dp,

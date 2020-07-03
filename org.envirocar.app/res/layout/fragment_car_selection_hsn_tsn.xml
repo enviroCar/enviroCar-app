@@ -16,15 +16,15 @@
             android:layout_marginTop="@dimen/spacing_large"
             android:backgroundTint="@color/white"
             android:src="@drawable/ic_directions_car_black_24dp"
-            app:backgroundTint="#000000"
+            app:backgroundTint="@color/black"
             app:borderWidth="1dp"
-            app:rippleColor="#000000" />
+            app:rippleColor="@color/black" />
 
         <View
             android:layout_width="3dp"
             android:layout_height="70dp"
             android:layout_gravity="center"
-            android:background="#e0e0e0" />
+            android:background="@color/gray88" />
 
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
@@ -57,11 +57,10 @@
                         android:id="@+id/fragment_hsntsn_hsn_input"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:maxLines="1"
-                        android:textColor="#000000"
-                        android:textColorHint="#A9A9A9"
-                        android:inputType="text"
                         android:imeOptions="actionNext"
+                        android:inputType="text"
+                        android:maxLines="1"
+                        android:textColor="@color/black"
                         android:textSize="16dp" />
 
                 </com.google.android.material.textfield.TextInputLayout>
@@ -81,12 +80,11 @@
                         android:id="@+id/fragment_hsntsn_tsn_input"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:maxLength="3"
-                        android:maxLines="1"
-                        android:textColor="#000000"
-                        android:textColorHint="#A9A9A9"
                         android:imeOptions="actionDone"
                         android:inputType="textCapSentences"
+                        android:maxLength="3"
+                        android:maxLines="1"
+                        android:textColor="@color/black"
                         android:textSize="16dp" />
 
                 </com.google.android.material.textfield.TextInputLayout>

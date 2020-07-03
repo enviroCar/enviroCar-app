@@ -64,7 +64,7 @@
                     android:layout_centerVertical="true"
                     android:paddingLeft="48dp"
                     android:text="Manufacturer"
-                    android:textColor="#ff323232" />
+                    android:textColor="@color/dark_charcoal" />
 
                 <TextView
                     android:id="@+id/activity_car_details_attr_manufacturer_value"
@@ -73,7 +73,7 @@
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
                     android:text="BMW"
-                    android:textColor="#939393" />
+                    android:textColor="@color/spanish_gray" />
             </RelativeLayout>
 
             <RelativeLayout
@@ -101,7 +101,7 @@
                     android:layout_centerVertical="true"
                     android:paddingLeft="48dp"
                     android:text="@string/track_list_details_car"
-                    android:textColor="#ff323232" />
+                    android:textColor="@color/dark_charcoal" />
 
                 <TextView
                     android:id="@+id/activity_car_details_attr_car_value"
@@ -112,7 +112,7 @@
                     android:layout_toRightOf="@id/activity_car_details_attr_car_text"
                     android:gravity="right|center_vertical"
                     android:text="Mercedes Benz A 170"
-                    android:textColor="#939393" />
+                    android:textColor="@color/spanish_gray" />
 
             </RelativeLayout>
 
@@ -132,7 +132,7 @@
                     android:layout_marginRight="16dp"
                     android:alpha="0.54"
                     android:src="@drawable/ic_engine"
-                    android:tint="#000000"/>
+                    android:tint="@color/black"/>
 
                 <TextView
                     android:id="@+id/activity_car_details_attr_engine_text"
@@ -142,7 +142,7 @@
                     android:layout_centerVertical="true"
                     android:paddingLeft="48dp"
                     android:text="Engine"
-                    android:textColor="#ff323232" />
+                    android:textColor="@color/dark_charcoal" />
 
                 <TextView
                     android:id="@+id/activity_car_details_attr_engine_value"
@@ -153,7 +153,7 @@
                     android:layout_toRightOf="@id/activity_car_details_attr_engine_text"
                     android:gravity="right|center_vertical"
                     android:text="2235"
-                    android:textColor="#939393" />
+                    android:textColor="@color/spanish_gray" />
 
             </RelativeLayout>
 
@@ -172,7 +172,7 @@
                     android:layout_marginRight="16dp"
                     android:alpha="0.54"
                     android:src="@drawable/ic_baseline_date_range_24"
-                    android:tint="#000000"/>
+                    android:tint="@color/black"/>
 
                 <TextView
                     android:layout_width="match_parent"
@@ -181,7 +181,7 @@
                     android:layout_centerVertical="true"
                     android:paddingLeft="48dp"
                     android:text="Construction Year"
-                    android:textColor="#ff323232" />
+                    android:textColor="@color/dark_charcoal" />
 
                 <TextView
                     android:id="@+id/activity_car_details_attr_year_value"
@@ -190,7 +190,7 @@
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
                     android:text="2018"
-                    android:textColor="#939393" />
+                    android:textColor="@color/spanish_gray" />
 
             </RelativeLayout>
 
@@ -220,7 +220,7 @@
                     android:layout_centerVertical="true"
                     android:paddingLeft="48dp"
                     android:text="Fuel Type"
-                    android:textColor="#ff323232" />
+                    android:textColor="@color/dark_charcoal" />
 
                 <TextView
                     android:id="@+id/activity_car_details_attr_fuel_value"
@@ -230,7 +230,7 @@
                     android:layout_centerVertical="true"
                     android:gravity="right"
                     android:text="Gasoline"
-                    android:textColor="#939393" />
+                    android:textColor="@color/spanish_gray" />
 
             </RelativeLayout>
 
@@ -251,7 +251,7 @@
                     android:layout_marginRight="16dp"
                     android:alpha="0.54"
                     android:src="@drawable/ic_baseline_power_24"
-                    android:tint="#000000"/>
+                    android:tint="@color/black"/>
 
                 <TextView
                     android:id="@+id/activity_car_details_attr_power_text"
@@ -261,7 +261,7 @@
                     android:layout_centerVertical="true"
                     android:paddingLeft="48dp"
                     android:text="Power"
-                    android:textColor="#ff323232" />
+                    android:textColor="@color/dark_charcoal" />
 
                 <TextView
                     android:id="@+id/activity_car_details_attr_power_value"
@@ -271,7 +271,7 @@
                     android:layout_centerVertical="true"
                     android:gravity="right"
                     android:text="1200 kW"
-                    android:textColor="#939393" />
+                    android:textColor="@color/spanish_gray" />
 
             </RelativeLayout>
         </LinearLayout>

@@ -112,17 +112,17 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
         String year = yearEditText.getText().toString().trim();
         View focusView = null;
         if (manufacturer.isEmpty()) {
-            manufactureEditText.setError("empty values");
+            manufactureEditText.setError(getString(R.string.car_selection_error_empty_input));
             focusView = manufactureEditText;
         }
 
         if (model.isEmpty()) {
-            modelEditText.setError("empty values");
+            modelEditText.setError(getString(R.string.car_selection_error_select_from_list));
             focusView = modelEditText;
         }
 
         if (year.isEmpty()) {
-            yearEditText.setError("empty values");
+            yearEditText.setError(getString(R.string.car_selection_error_select_from_list));
             focusView = yearEditText;
         }
 
@@ -240,7 +240,7 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
                         }
                     }
                     if (flag == 0) {
-                        manufactureEditText.setError("Not in list");
+                        manufactureEditText.setError(getString(R.string.car_selection_error_select_from_list));
                         manufactureEditText.requestFocus();
                     } else {
                         manufactureEditText.setError(null);
@@ -264,7 +264,7 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
                         }
 
                         if (flag == 0) {
-                            modelEditText.setError("Not in list");
+                            modelEditText.setError(getString(R.string.car_selection_error_select_from_list));
                             modelEditText.requestFocus();
                         } else {
                             modelEditText.setError(null);
@@ -290,7 +290,7 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
                         }
 
                         if (flag == 0) {
-                            yearEditText.setError("Not in list");
+                            yearEditText.setError(getString(R.string.car_selection_error_select_from_list));
                             yearEditText.requestFocus();
                         } else {
                             yearEditText.setError(null);

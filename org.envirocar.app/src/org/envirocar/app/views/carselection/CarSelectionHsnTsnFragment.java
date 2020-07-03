@@ -92,11 +92,11 @@ public class CarSelectionHsnTsnFragment extends BaseInjectorFragment {
         String tsn = tsnEditText.getText().toString().trim();
         View focusView = null;
         if (hsn.isEmpty()) {
-            hsnEditText.setError("empty values");
+            hsnEditText.setError(getString(R.string.car_selection_error_empty_input));
             focusView = hsnEditText;
         }
         if (tsn.isEmpty()) {
-            tsnEditText.setError("empty values");
+            tsnEditText.setError(getString(R.string.car_selection_error_empty_input));
             focusView = tsnEditText;
         }
 
@@ -198,7 +198,7 @@ public class CarSelectionHsnTsnFragment extends BaseInjectorFragment {
                         }
                     }
                     if (flag == 0) {
-                        hsnEditText.setError("Not in list");
+                        hsnEditText.setError(getString(R.string.car_selection_error_select_from_list));
                         hsnEditText.requestFocus();
                     } else {
                         hsnEditText.setError(null);
@@ -222,7 +222,7 @@ public class CarSelectionHsnTsnFragment extends BaseInjectorFragment {
                         }
 
                         if (flag == 0) {
-                            tsnEditText.setError("Not in list");
+                            tsnEditText.setError(getString(R.string.car_selection_error_select_from_list));
                             tsnEditText.requestFocus();
                         } else {
                             tsnEditText.setError(null);

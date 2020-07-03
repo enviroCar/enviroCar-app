@@ -28,7 +28,7 @@
                 android:layout_marginTop="10dp"
                 android:backgroundTint="@color/white"
                 android:src="@drawable/ic_directions_car_black_24dp"
-                app:backgroundTint="#000000"
+                app:backgroundTint="@color/black"
                 app:borderWidth="1dp"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -52,7 +52,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="10dp"
                 android:text="Audi"
-                android:textColor="#000000"
+                android:textColor="@color/black"
                 android:textSize="13dp"
                 app:layout_constraintLeft_toRightOf="@id/card_layout_icon"
                 app:layout_constraintTop_toBottomOf="@id/car_layout_vehcile_name" />
@@ -63,7 +63,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="10dp"
                 android:text="2017"
-                android:textColor="#000000"
+                android:textColor="@color/black"
                 android:textSize="13dp"
                 app:layout_constraintLeft_toRightOf="@id/car_layout_manufacturer_name"
                 app:layout_constraintTop_toBottomOf="@id/car_layout_vehcile_name" />
@@ -71,7 +71,7 @@
             <View
                 android:layout_width="wrap_content"
                 android:layout_height="2dp"
-                android:background="#e0e0e0"
+                android:background="@color/gray88"
                 app:layout_constraintLeft_toRightOf="@id/card_layout_icon"
                 app:layout_constraintTop_toBottomOf="@id/car_layout_construction_year" />
 
@@ -97,7 +97,7 @@
                     android:layout_marginLeft="10dp"
                     android:layout_toRightOf="@id/fuel_icon"
                     android:text="Diesel"
-                    android:textColor="#000000"
+                    android:textColor="@color/black"
                     android:textSize="12dp" />
             </RelativeLayout>
 
@@ -123,7 +123,7 @@
                     android:layout_marginLeft="10dp"
                     android:layout_toRightOf="@id/engine_icon"
                     android:text="1600 cm\u00B3"
-                    android:textColor="#000000"
+                    android:textColor="@color/black"
                     android:textSize="12dp" />
             </RelativeLayout>
 
@@ -141,7 +141,7 @@
                     android:layout_width="15dp"
                     android:layout_height="15dp"
                     android:src="@drawable/ic_baseline_power_24"
-                    android:tint="#000000" />
+                    android:tint="@color/black" />
 
                 <TextView
                     android:id="@+id/car_layout_power"
@@ -150,7 +150,7 @@
                     android:layout_marginLeft="10dp"
                     android:layout_toRightOf="@id/power_icon"
                     android:text="1200 kW"
-                    android:textColor="#000000"
+                    android:textColor="@color/black"
                     android:textSize="12dp" />
             </RelativeLayout>
 
@@ -169,7 +169,7 @@
                     android:layout_height="wrap_content"
                     android:text="HSN"
                     android:textSize="12dp"
-                    android:textColor="#000000"
+                    android:textColor="@color/black"
                     android:textStyle="bold" />
 
                 <TextView
@@ -180,7 +180,7 @@
                     android:layout_toRightOf="@id/hsn_view"
                     android:text="0005"
                     android:textSize="12dp"
-                    android:textColor="#000000" />
+                    android:textColor="@color/black" />
             </RelativeLayout>
 
             <RelativeLayout
@@ -196,7 +196,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="TSN"
-                    android:textColor="#000000"
+                    android:textColor="@color/black"
                     android:textStyle="bold"
                     android:textSize="12dp"/>
 
@@ -208,7 +208,7 @@
                     android:layout_toRightOf="@id/tsn_view"
                     android:text="155"
                     android:textSize="12dp"
-                    android:textColor="#000000" />
+                    android:textColor="@color/black" />
             </RelativeLayout>
 
 

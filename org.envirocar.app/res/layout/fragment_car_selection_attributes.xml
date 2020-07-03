@@ -15,7 +15,7 @@
             android:layout_marginTop="@dimen/spacing_large"
             android:backgroundTint="@color/white"
             android:src="@drawable/ic_directions_car_black_24dp"
-            app:backgroundTint="#000000"
+            app:backgroundTint="@color/black"
             app:borderWidth="1dp"
             app:rippleColor="#000000" />
 
@@ -23,7 +23,7 @@
             android:layout_width="3dp"
             android:layout_height="50dp"
             android:layout_gravity="center"
-            android:background="#e0e0e0" />
+            android:background="@color/gray88" />
 
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
@@ -58,7 +58,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:maxLines="1"
-                        android:textColor="#000000"
+                        android:textColor="@color/black"
                         android:textSize="16dp" />
 
                 </com.google.android.material.textfield.TextInputLayout>
@@ -82,8 +82,7 @@
                         android:layout_height="match_parent"
                         android:inputType="textPersonName"
                         android:maxLines="1"
-                        android:textColor="#000000"
-                        android:textColorHint="#A9A9A9"
+                        android:textColor="@color/black"
                         android:textSize="16dp" />
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -106,8 +105,7 @@
                         android:layout_height="match_parent"
                         android:inputType="textPersonName"
                         android:singleLine="true"
-                        android:textColor="#000000"
-                        android:textColorHint="#A9A9A9"
+                        android:textColor="@color/black"
                         android:textSize="16dp" />
 
                 </com.google.android.material.textfield.TextInputLayout>
