@@ -77,4 +77,195 @@ public class TrackTable {
     @ColumnInfo(name = KEY_TRACK_METADATA)
     Blob carMetadata;
 
+    public static String getKeyTrackId() {
+        return KEY_TRACK_ID;
+    }
+
+    public static String getKeyTrackName() {
+        return KEY_TRACK_NAME;
+    }
+
+    public static String getKeyTrackDescription() {
+        return KEY_TRACK_DESCRIPTION;
+    }
+
+    public static String getKeyTrackStartTime() {
+        return KEY_TRACK_START_TIME;
+    }
+
+    public static String getKeyTrackEndTime() {
+        return KEY_TRACK_END_TIME;
+    }
+
+    public static String getKeyTrackLength() {
+        return KEY_TRACK_LENGTH;
+    }
+
+    public static String getKeyRemoteId() {
+        return KEY_REMOTE_ID;
+    }
+
+    public static String getKeyTrackState() {
+        return KEY_TRACK_STATE;
+    }
+
+    public static String getKeyTrackCarManufacturer() {
+        return KEY_TRACK_CAR_MANUFACTURER;
+    }
+
+    public static String getKeyTrackCarModel() {
+        return KEY_TRACK_CAR_MODEL;
+    }
+
+    public static String getKeyTrackCarFuelType() {
+        return KEY_TRACK_CAR_FUEL_TYPE;
+    }
+
+    public static String getKeyTrackCarYear() {
+        return KEY_TRACK_CAR_YEAR;
+    }
+
+    public static String getKeyTrackCarEngineDisplacement() {
+        return KEY_TRACK_CAR_ENGINE_DISPLACEMENT;
+    }
+
+    public static String getKeyTrackCarVin() {
+        return KEY_TRACK_CAR_VIN;
+    }
+
+    public static String getKeyTrackCarId() {
+        return KEY_TRACK_CAR_ID;
+    }
+
+    public static String getKeyTrackMetadata() {
+        return KEY_TRACK_METADATA;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public Blob getName() {
+        return name;
+    }
+
+    public void setName(Blob name) {
+        this.name = name;
+    }
+
+    public Blob getDescription() {
+        return description;
+    }
+
+    public void setDescription(Blob description) {
+        this.description = description;
+    }
+
+    public Blob getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(Blob startTime) {
+        this.startTime = startTime;
+    }
+
+    public Blob getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(Blob endTime) {
+        this.endTime = endTime;
+    }
+
+    public Blob getTrackLength() {
+        return trackLength;
+    }
+
+    public void setTrackLength(Blob trackLength) {
+        this.trackLength = trackLength;
+    }
+
+    public Blob getRemoteId() {
+        return remoteId;
+    }
+
+    public void setRemoteId(Blob remoteId) {
+        this.remoteId = remoteId;
+    }
+
+    public Blob getTrackState() {
+        return trackState;
+    }
+
+    public void setTrackState(Blob trackState) {
+        this.trackState = trackState;
+    }
+
+    public Blob getCarManufacturer() {
+        return carManufacturer;
+    }
+
+    public void setCarManufacturer(Blob carManufacturer) {
+        this.carManufacturer = carManufacturer;
+    }
+
+    public Blob getCarModel() {
+        return carModel;
+    }
+
+    public void setCarModel(Blob carModel) {
+        this.carModel = carModel;
+    }
+
+    public Blob getCarFuelType() {
+        return carFuelType;
+    }
+
+    public void setCarFuelType(Blob carFuelType) {
+        this.carFuelType = carFuelType;
+    }
+
+    public Blob getTrackCarYear() {
+        return trackCarYear;
+    }
+
+    public void setTrackCarYear(Blob trackCarYear) {
+        this.trackCarYear = trackCarYear;
+    }
+
+    public Blob getCarEngineDisplacement() {
+        return carEngineDisplacement;
+    }
+
+    public void setCarEngineDisplacement(Blob carEngineDisplacement) {
+        this.carEngineDisplacement = carEngineDisplacement;
+    }
+
+    public Blob getCarVin() {
+        return carVin;
+    }
+
+    public void setCarVin(Blob carVin) {
+        this.carVin = carVin;
+    }
+
+    public Blob getCarId() {
+        return carId;
+    }
+
+    public void setCarId(Blob carId) {
+        this.carId = carId;
+    }
+
+    public Blob getCarMetadata() {
+        return carMetadata;
+    }
+
+    public void setCarMetadata(Blob carMetadata) {
+        this.carMetadata = carMetadata;
+    }
 }
