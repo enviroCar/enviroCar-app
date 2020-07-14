@@ -19,6 +19,8 @@
 package org.envirocar.app.services.autoconnect;
 
 import android.bluetooth.BluetoothDevice;
+import android.content.Context;
+import android.os.PowerManager;
 
 import com.squareup.otto.Bus;
 
@@ -49,13 +51,13 @@ public class AutoRecordingModule {
         };
     }
 
-//    @Provides
-//    @AutoRecordingScope
-//    public PowerManager.WakeLock provideWakeLock() {
-//        PowerManager powerManager = (PowerManager) service.getSystemService(Context.POWER_SERVICE);
-//        PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "AutoRecordingService::lock");
-//        return wakeLock;
-//    }
+    @Provides
+    @AutoRecordingScope
+    public PowerManager.WakeLock provideWakeLock() {
+        PowerManager powerManager = (PowerManager) service.getSystemService(Context.POWER_SERVICE);
+        PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "AutoRecordingService::lock");
+        return wakeLock;
+    }
 
     @Provides
     @AutoRecordingScope
