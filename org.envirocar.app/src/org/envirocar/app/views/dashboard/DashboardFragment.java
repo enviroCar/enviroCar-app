@@ -699,10 +699,17 @@ public class DashboardFragment extends BaseInjectorFragment {
             case RECORDING_INIT:
                 break;
             case RECORDING_RUNNING:
-                if (this.connectingDialog != null) {
-                    this.connectingDialog.dismiss();
-                    this.connectingDialog = null;
-                    RecordingScreenActivity.navigate(getContext());
+                switch (this.modeSegmentedGroup.getCheckedRadioButtonId()) {
+                    case R.id.fragment_dashboard_gps_mode_button:
+                        RecordingScreenActivity.navigate(getContext());
+                        break;
+                    case R.id.fragment_dashboard_obd_mode_button:
+                        if (this.connectingDialog != null) {
+                            this.connectingDialog.dismiss();
+                            this.connectingDialog = null;
+                            RecordingScreenActivity.navigate(getContext());
+                        }
+                        break;
                 }
                 break;
             case RECORDING_STOPPED:
