@@ -175,7 +175,7 @@ public class GPSRecordingStrategy implements LifecycleObserver, RecordingStrateg
         disposables.add(
                 locationProvider.startLocating()
                         .subscribeOn(AndroidSchedulers.mainThread())
-                        .observeOn(Schedulers.io())
+                        .observeOn(Schedulers.newThread())
                         .subscribe(() -> LOG.info("Completed"), LOG::error));
 
         /// Init transitions
