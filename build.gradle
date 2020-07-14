@@ -47,8 +47,8 @@ allprojects {
 ext {
     androidPlugin = 'com.android.tools.build:gradle:3.1.2'
     minSdkVersion = 21
-    compileSdkVersion = 28
-    targetSdkVersion = 28
+    compileSdkVersion = 29
+    targetSdkVersion = 29
     buildToolsVersion = '28.0.3'
     versionCode = 47
     versionName = "1.1.7"
