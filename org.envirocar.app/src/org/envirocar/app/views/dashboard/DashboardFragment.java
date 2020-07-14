@@ -84,6 +84,7 @@ import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.core.events.gps.GpsStateChangedEvent;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.utils.PermissionUtils;
+import org.envirocar.core.utils.ServiceUtils;
 import org.envirocar.obd.events.TrackRecordingServiceStateChangedEvent;
 import org.envirocar.obd.service.BluetoothServiceState;
 
@@ -426,12 +427,12 @@ public class DashboardFragment extends BaseInjectorFragment {
                                 .onNegative((dialog, which) -> getActivity().stopService(obdRecordingIntent))
                                 .show();
 
-                        ContextCompat.startForegroundService(getActivity(), obdRecordingIntent);
+                        ServiceUtils.startService(getActivity(), obdRecordingIntent);
                     }
                     break;
                 case R.id.fragment_dashboard_gps_mode_button:
                     Intent gpsOnlyIntent = new Intent(getActivity(), RecordingService.class);
-                    ContextCompat.startForegroundService(getActivity(), gpsOnlyIntent);
+                    ServiceUtils.startService(getActivity(), gpsOnlyIntent);
                     break;
                 default:
                     break;
