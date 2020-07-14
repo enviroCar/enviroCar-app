@@ -20,6 +20,7 @@ package org.envirocar.app.handler;
 
 import android.content.Context;
 import android.content.Intent;
+import android.icu.text.AlphabeticIndex;
 
 import com.squareup.otto.Bus;
 
@@ -98,67 +99,6 @@ public class TrackRecordingHandler {
         BaseApplication.get(context).getBaseApplicationComponent().inject(this);
     }
 
-//    public DisposableSingleObserver<Track> startNewTrack(PublishSubject<Measurement> publishSubject) {
-//        return getActiveTrackReference(true)
-//                .subscribeOn(Schedulers.io())
-//                .observeOn(Schedulers.io())
-//                .subscribeWith(new DisposableSingleObserver<Track>() {
-//
-//                    @Override
-//                    public void onError(Throwable e) {
-//                        LOGGER.error(e.getMessage(), e);
-//                    }
-//
-//                    @Override
-//                    public void onSuccess(Track track) {
-//                        publishSubject.doOnDispose(() -> {
-//                            LOGGER.info("doOnUnsubscribe(): finish current track.");
-//                            finishCurrentTrack();
-//                        }).subscribeWith(new DisposableObserver<Measurement>() {
-//
-//                            @Override
-//                            protected void onStart() {
-//                                LOGGER.info("NewMeasurementSubject onStart()");
-//                            }
-//
-//                            @Override
-//                            public void onComplete() {
-//                                LOGGER.info("NewMeasurementSubject onCompleted()");
-//                                currentTrack = track;
-//                                finishCurrentTrack();
-//                            }
-//
-//                            @Override
-//                            public void onError(Throwable e) {
-//                                LOGGER.error(e.getMessage(), e);
-//                                currentTrack = track;
-//                                finishCurrentTrack();
-//                            }
-//
-//                            @Override
-//                            public void onNext(Measurement measurement) {
-//                                LOGGER.info("onNextMeasurement()");
-//                                if (isDisposed())
-//                                    return;
-//                                LOGGER.info("Insert new measurement ");
-//
-//                                // set the track database ID of the current active track
-//                                measurement.setTrackId(track.getTrackID());
-//                                track.getMeasurements().add(measurement);
-//                                currentTrack = track;
-//                                try {
-//                                    mEnvirocarDB.insertMeasurement(measurement);
-//                                } catch (MeasurementSerializationException e) {
-//                                    LOGGER.error(e.getMessage(), e);
-//                                    finishCurrentTrack();
-//                                }
-//                            }
-//                        });
-//                    }
-//                });
-//    }
-
-
     private Observable<Track> createNewDatabaseTrackObservable() {
         return Observable.create(emitter -> {
             String date = format.format(new Date());
@@ -227,12 +167,7 @@ public class TrackRecordingHandler {
         return Completable.create(emitter -> {
             LOGGER.info("Stopping the recording service.");
             try {
-                if (ServiceUtils.isServiceRunning(mContext, RecordingService.class)) {
-                    mContext.getApplicationContext().stopService(new Intent(mContext, RecordingService.class));
-                }
-                if (ServiceUtils.isServiceRunning(mContext, RecordingService.class)) {
-                    mContext.getApplicationContext().stopService(new Intent(mContext, RecordingService.class));
-                }
+                ServiceUtils.stopService(mContext, RecordingService.class);
                 LOGGER.info("Recording services stopped");
                 emitter.onComplete();
             } catch (Exception e) {
@@ -262,35 +197,6 @@ public class TrackRecordingHandler {
                 });
     }
 
-/*    public void stopBackgroundRecordingServices() {
-        LOGGER.info("stopBackgroundRecordingServices()");
-        if (ServiceUtils.isServiceRunning(mContext, OBDRecordingService.class)) {
-            mContext.getApplicationContext()
-                    .stopService(new Intent(mContext, OBDRecordingService.class));
-        }
-
-        if (ServiceUtils.isServiceRunning(mContext, GPSOnlyRecordingService.class)) {
-            mContext.getApplicationContext()
-                    .stopService(new Intent(mContext, GPSOnlyRecordingService.class));
-        }
-
-*//*        ActivityManager amgr = (ActivityManager) mContext.getSystemService(Context
-                .ACTIVITY_SERVICE);
-
-        List<ActivityManager.RunningAppProcessInfo> list = amgr.getRunningAppProcesses();
-        if (list != null) {
-            for (int i = 0; i < list.size(); i++) {
-                ActivityManager.RunningAppProcessInfo apinfo = list.get(i);
-
-                String[] pkgList = apinfo.pkgList;
-                if (apinfo.processName.startsWith("org.envirocar.app.services.OBD")) {
-                    for (int j = 0; j < pkgList.length; j++) {
-                        amgr.killBackgroundProcesses(pkgList[j]);
-                    }
-                }
-            }
-        }*//*
-    }*/
 
     /**
      * Returns the most recent track, which is not finished yet. It only returns the track when
