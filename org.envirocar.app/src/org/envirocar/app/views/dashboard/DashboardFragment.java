@@ -84,6 +84,7 @@ import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.core.events.gps.GpsStateChangedEvent;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.utils.PermissionUtils;
+import org.envirocar.core.utils.ServiceUtils;
 import org.envirocar.obd.events.TrackRecordingServiceStateChangedEvent;
 import org.envirocar.obd.service.BluetoothServiceState;
 
@@ -426,12 +427,12 @@ public class DashboardFragment extends BaseInjectorFragment {
                                 .onNegative((dialog, which) -> getActivity().stopService(obdRecordingIntent))
                                 .show();
 
-                        ContextCompat.startForegroundService(getActivity(), obdRecordingIntent);
+                        ServiceUtils.startService(getActivity(), obdRecordingIntent);
                     }
                     break;
                 case R.id.fragment_dashboard_gps_mode_button:
                     Intent gpsOnlyIntent = new Intent(getActivity(), RecordingService.class);
-                    ContextCompat.startForegroundService(getActivity(), gpsOnlyIntent);
+                    ServiceUtils.startService(getActivity(), gpsOnlyIntent);
                     break;
                 default:
                     break;
@@ -699,10 +700,17 @@ public class DashboardFragment extends BaseInjectorFragment {
             case RECORDING_INIT:
                 break;
             case RECORDING_RUNNING:
-                if (this.connectingDialog != null) {
-                    this.connectingDialog.dismiss();
-                    this.connectingDialog = null;
-                    RecordingScreenActivity.navigate(getContext());
+                switch (this.modeSegmentedGroup.getCheckedRadioButtonId()) {
+                    case R.id.fragment_dashboard_gps_mode_button:
+                        RecordingScreenActivity.navigate(getContext());
+                        break;
+                    case R.id.fragment_dashboard_obd_mode_button:
+                        if (this.connectingDialog != null) {
+                            this.connectingDialog.dismiss();
+                            this.connectingDialog = null;
+                            RecordingScreenActivity.navigate(getContext());
+                        }
+                        break;
                 }
                 break;
             case RECORDING_STOPPED:

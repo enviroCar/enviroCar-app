@@ -251,7 +251,7 @@ public class RecordingNotification implements LifecycleObserver {
                 .setAutoCancel(true).build();
 
         // notify change
-        context.startForeground(notificationId, this.notification);
+        this.context.startForeground(notificationId, this.notification);
     }
 
     /**
