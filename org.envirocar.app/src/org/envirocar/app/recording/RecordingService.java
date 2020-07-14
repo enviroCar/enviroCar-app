@@ -22,6 +22,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.IBinder;
+import android.os.PowerManager;
 
 import androidx.annotation.Nullable;
 
@@ -32,6 +33,7 @@ import org.envirocar.app.injection.ScopedBaseInjectorService;
 import org.envirocar.app.recording.events.RecordingStateEvent;
 import org.envirocar.app.recording.notification.RecordingNotification;
 import org.envirocar.app.recording.notification.SpeechOutput;
+import org.envirocar.app.recording.provider.LocationProvider;
 import org.envirocar.app.recording.provider.RecordingDetailsProvider;
 import org.envirocar.app.recording.strategy.RecordingStrategy;
 import org.envirocar.app.rxutils.RxBroadcastReceiver;
@@ -42,7 +44,9 @@ import org.envirocar.core.utils.ServiceUtils;
 
 import javax.inject.Inject;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * @author dewall
@@ -58,10 +62,6 @@ public class RecordingService extends ScopedBaseInjectorService {
         return RECORDING_STATE != RecordingState.RECORDING_STOPPED;
     }
 
-    public static void stopService(Context context) {
-        ServiceUtils.stopService(context, RecordingService.class);
-    }
-
     // Injected variables
     @Inject
     protected SpeechOutput speechOutput;
@@ -71,6 +71,11 @@ public class RecordingService extends ScopedBaseInjectorService {
     protected RecordingDetailsProvider recordingDetailsProvider;
     @Inject
     protected RecordingStrategy.Factory recordingFactory;
+    @Inject
+    protected LocationProvider locationProvider;
+    @Inject
+    protected PowerManager.WakeLock wakeLock;
+
 
     private RecordingStrategy recordingStrategy;
     private RecordingNotification recordingNotification;
@@ -125,6 +130,12 @@ public class RecordingService extends ScopedBaseInjectorService {
         // Select recording algorithm and start
         this.recordingStrategy = recordingFactory.create();
         getLifecycle().addObserver(recordingStrategy);
+        this.disposables.add(
+                locationProvider.startLocating()
+                        .subscribeOn(AndroidSchedulers.mainThread())
+                        .observeOn(Schedulers.newThread())
+                        .doOnDispose(() -> LOG.info("Location Provider has been disposed!"))
+                        .subscribe(() -> LOG.info("Completed"), LOG::error));
         this.recordingStrategy.startRecording(this, new RecordingStrategy.RecordingListener() {
             @Override
             public void onRecordingStateChanged(RecordingState recordingState) {
@@ -143,6 +154,8 @@ public class RecordingService extends ScopedBaseInjectorService {
             }
         });
 
+        wakeLock.acquire();
+
         return START_NOT_STICKY;
     }
 
@@ -150,6 +163,10 @@ public class RecordingService extends ScopedBaseInjectorService {
     public void onDestroy() {
         super.onDestroy();
         LOG.info("Destroying RecordingService.");
+
+        if (wakeLock != null && wakeLock.isHeld()){
+            wakeLock.release();
+        }
 
         if (recordingStrategy != null) {
             recordingStrategy.stopRecording();

@@ -19,6 +19,7 @@
 package org.envirocar.app.recording;
 
 import android.content.Context;
+import android.os.PowerManager;
 
 import com.squareup.otto.Bus;
 
@@ -37,6 +38,8 @@ import org.envirocar.app.recording.strategy.RecordingStrategy;
 import org.envirocar.app.recording.strategy.obd.OBDConnectionHandler;
 import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.EnviroCarDB;
+
+import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
@@ -80,6 +83,13 @@ public class RecordingModule {
 //    public RecordingNotification provideRecordingNotification(@InjectApplicationScope Context context, Bus eventBus) {
 //        return new RecordingNotification(context, eventBus);
 //    }
+
+    @Provides
+    @RecordingScope
+    public PowerManager.WakeLock provideWakeLock(@InjectApplicationScope Context context) {
+        return ((PowerManager) context.getSystemService(Context.POWER_SERVICE))
+                .newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "org.envirocar.app:wakelock");
+    }
 
     @Provides
     @RecordingScope

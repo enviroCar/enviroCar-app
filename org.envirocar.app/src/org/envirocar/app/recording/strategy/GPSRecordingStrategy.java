@@ -67,6 +67,7 @@ import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 
@@ -143,14 +144,26 @@ public class GPSRecordingStrategy implements LifecycleObserver, RecordingStrateg
     public void startRecording(Service service, RecordingListener listener) {
         this.listener = listener;
 
-        Intent activityTransitionIntent = new Intent(TRANSITIONS_RECEIVER_ACTION);
-        this.activityTransitionIntent = PendingIntent.getBroadcast(service, 0, activityTransitionIntent, 0);
+//        Intent activityTransitionIntent = new Intent(TRANSITIONS_RECEIVER_ACTION);
+//        this.activityTransitionIntent = PendingIntent.getBroadcast(service, 0, activityTransitionIntent, 0);
+//
+//        IntentFilter intentFilter = new IntentFilter(TRANSITIONS_RECEIVER_ACTION);
+//        disposables.add(RxBroadcastReceiver.create(context, intentFilter)
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(Schedulers.io())
+//                .compose(checkDrivingState())
+//                .compose(receiveMeasurements())
+//                .compose(enhanceMeasurements())
+//                .compose(trackDatabaseSink.storeInDatabase())
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(Schedulers.io())
+//                .doOnDispose(() -> listener.onRecordingStateChanged(RecordingState.RECORDING_STOPPED))
+//                .subscribeWith(recordingObserver()));
 
-        IntentFilter intentFilter = new IntentFilter(TRANSITIONS_RECEIVER_ACTION);
-        disposables.add(RxBroadcastReceiver.create(context, intentFilter)
+        disposables.add(Observable.just("")
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
-                .compose(checkDrivingState())
+                .doOnNext(s -> listener.onRecordingStateChanged(RecordingState.RECORDING_RUNNING))
                 .compose(receiveMeasurements())
                 .compose(enhanceMeasurements())
                 .compose(trackDatabaseSink.storeInDatabase())
@@ -162,7 +175,7 @@ public class GPSRecordingStrategy implements LifecycleObserver, RecordingStrateg
         disposables.add(
                 locationProvider.startLocating()
                         .subscribeOn(AndroidSchedulers.mainThread())
-                        .observeOn(Schedulers.io())
+                        .observeOn(Schedulers.newThread())
                         .subscribe(() -> LOG.info("Completed"), LOG::error));
 
         /// Init transitions

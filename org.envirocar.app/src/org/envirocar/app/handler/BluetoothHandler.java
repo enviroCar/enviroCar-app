@@ -145,40 +145,6 @@ public class BluetoothHandler {
         this.context.registerReceiver(mBluetoothStateChangedReceiver, filter);
     }
 
-    /**
-     * Starts the connection to the bluetooth device if not already active.
-     */
-    public void startOBDConnectionService() {
-        if (!ServiceUtils.isServiceRunning(context, RecordingService.class))
-            context.getApplicationContext()
-                    .startService(new Intent(context, RecordingService.class));
-    }
-
-
-    public void stopOBDConnectionService() {
-        if (ServiceUtils.isServiceRunning(context, RecordingService.class)) {
-            context.getApplicationContext()
-                    .stopService(new Intent(context, RecordingService.class));
-        }
-
-        ActivityManager amgr = (ActivityManager) context.getSystemService(Context
-                .ACTIVITY_SERVICE);
-
-        List<ActivityManager.RunningAppProcessInfo> list = amgr.getRunningAppProcesses();
-        if (list != null) {
-            for (int i = 0; i < list.size(); i++) {
-                ActivityManager.RunningAppProcessInfo apinfo = list.get(i);
-
-                String[] pkgList = apinfo.pkgList;
-                if (apinfo.processName.startsWith("org.envirocar.app.services.OBD")) {
-                    for (int j = 0; j < pkgList.length; j++) {
-                        amgr.killBackgroundProcesses(pkgList[j]);
-                    }
-                }
-            }
-        }
-    }
-
     @Produce
     public BluetoothStateChangedEvent produceBluetoothStateChangedEvent() {
         return new BluetoothStateChangedEvent(isBluetoothEnabled(), getSelectedBluetoothDevice());

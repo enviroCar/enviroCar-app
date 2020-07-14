@@ -23,6 +23,7 @@ import android.location.GpsStatus;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.location.OnNmeaMessageListener;
 import android.os.Bundle;
 
 import com.squareup.otto.Bus;
@@ -75,93 +76,100 @@ public class LocationProvider {
         }
     };
 
-    /**
-     * Used for receiving NMEA sentences from the GPS.
-     */
-    private final GpsStatus.NmeaListener mNmeaListener = new GpsStatus.NmeaListener() {
-        @Override
-        public void onNmeaReceived(long timestamp, String nmea) {
-            // eg2.: $GPGSA,A,3,19,28,14,18,27,22,31,39,,,,,1.7,1.0,1.3*35
-            if (nmea.startsWith(GPGSA)) {
-                boolean fix = true;
-                if (nmea.charAt(7) == ',' || nmea.charAt(9) == '1') {
-                    fix = false;    // no GPS fix, skip.
-                }
+//    /**
+//     * Used for receiving NMEA sentences from the GPS.
+//     */
+//    private final OnNmeaMessageListener nmeaListener = new OnNmeaMessageListener() {
+//        @Override
+//        public void onNmeaMessage(String nmea, long timestamp) {
+//
+//        }
+//    };
 
-                int checksumIndex = nmea.lastIndexOf("*");
-                String[] values;
-                if (checksumIndex > 0) {
-                    values = nmea.substring(0, checksumIndex).split(NMEA_SEP);
-                } else {
-                    return;     // no checksum, skip.
-                }
-
-                int numberOfSats = resolveSatelliteCount(values);
-
-                // fire an event on the GPS status (fix and number of sats)
-                mBus.post(new GpsSatelliteFixEvent(numberOfSats, fix));
-
-                Double pdop = null, hdop = null, vdop = null;
-                if (values.length > 15) {
-                    pdop = parseDopString(values[15]);
-                }
-                if (values.length > 16) {
-                    hdop = parseDopString(values[16]);
-                }
-                if (values.length > 17) {
-                    vdop = parseDopString(values[17]);
-                }
-
-                // Only if positional, horizontal, and vertical DOP is available, then
-                // set the DOP accordingly.
-                if (pdop != null || hdop != null || vdop != null) {
-                    // Dultion of Precision (DOP) to specify multiplicative effect of
-                    // navigation satellite geometry on positional measurement precision.
-                    // fire an event on the GPS DOP
-                    mBus.post(new GpsDOPEvent(pdop, hdop, vdop));
-                }
-            }
-        }
-
-        /**
-         * Resolves the number of satellites.
-         *
-         * @param values
-         * @return number of satellites.
-         */
-        private int resolveSatelliteCount(String[] values) {
-            if (values == null || values.length < 3) {
-                return 0;
-            }
-
-            int result = 0;
-            for (int i = 3; i < 15; i++) {
-                if (i > values.length - 1) {
-                    break;
-                }
-
-                if (!values[i].trim().isEmpty()) {
-                    result++;
-                }
-            }
-            return result;
-        }
-
-        /**
-         *
-         * @param string
-         * @return
-         */
-        private Double parseDopString(String string) {
-            if (string == null || string.isEmpty()) return null;
-            try {
-                return Double.parseDouble(string.trim());
-            } catch (RuntimeException e) {
-                // TODO no exception catching?
-            }
-            return null;
-        }
-    };
+//    private final GpsStatus.NmeaListener mNmeaListener = new GpsStatus.NmeaListener() {
+//        @Override
+//        public void onNmeaReceived(long timestamp, String nmea) {
+//            // eg2.: $GPGSA,A,3,19,28,14,18,27,22,31,39,,,,,1.7,1.0,1.3*35
+//            if (nmea.startsWith(GPGSA)) {
+//                boolean fix = true;
+//                if (nmea.charAt(7) == ',' || nmea.charAt(9) == '1') {
+//                    fix = false;    // no GPS fix, skip.
+//                }
+//
+//                int checksumIndex = nmea.lastIndexOf("*");
+//                String[] values;
+//                if (checksumIndex > 0) {
+//                    values = nmea.substring(0, checksumIndex).split(NMEA_SEP);
+//                } else {
+//                    return;     // no checksum, skip.
+//                }
+//
+//                int numberOfSats = resolveSatelliteCount(values);
+//
+//                // fire an event on the GPS status (fix and number of sats)
+//                mBus.post(new GpsSatelliteFixEvent(numberOfSats, fix));
+//
+//                Double pdop = null, hdop = null, vdop = null;
+//                if (values.length > 15) {
+//                    pdop = parseDopString(values[15]);
+//                }
+//                if (values.length > 16) {
+//                    hdop = parseDopString(values[16]);
+//                }
+//                if (values.length > 17) {
+//                    vdop = parseDopString(values[17]);
+//                }
+//
+//                // Only if positional, horizontal, and vertical DOP is available, then
+//                // set the DOP accordingly.
+//                if (pdop != null || hdop != null || vdop != null) {
+//                    // Dultion of Precision (DOP) to specify multiplicative effect of
+//                    // navigation satellite geometry on positional measurement precision.
+//                    // fire an event on the GPS DOP
+//                    mBus.post(new GpsDOPEvent(pdop, hdop, vdop));
+//                }
+//            }
+//        }
+//
+//        /**
+//         * Resolves the number of satellites.
+//         *
+//         * @param values
+//         * @return number of satellites.
+//         */
+//        private int resolveSatelliteCount(String[] values) {
+//            if (values == null || values.length < 3) {
+//                return 0;
+//            }
+//
+//            int result = 0;
+//            for (int i = 3; i < 15; i++) {
+//                if (i > values.length - 1) {
+//                    break;
+//                }
+//
+//                if (!values[i].trim().isEmpty()) {
+//                    result++;
+//                }
+//            }
+//            return result;
+//        }
+//
+//        /**
+//         *
+//         * @param string
+//         * @return
+//         */
+//        private Double parseDopString(String string) {
+//            if (string == null || string.isEmpty()) return null;
+//            try {
+//                return Double.parseDouble(string.trim());
+//            } catch (RuntimeException e) {
+//                // TODO no exception catching?
+//            }
+//            return null;
+//        }
+//    };
 
     // Injected variables.
     private final Context mContext;
@@ -199,12 +207,12 @@ public class LocationProvider {
                 emitter.onError(new PermissionException("User has not activated Location permission"));
 
             mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, mLocationListener);
-            mLocationManager.addNmeaListener(mNmeaListener);
+//            mLocationManager.addNmeaListener(mNmeaListener);
 
             emitter.setCancellable(() -> {
                 LOGGER.info("stopLocating()");
                 mLocationManager.removeUpdates(mLocationListener);
-                mLocationManager.removeNmeaListener(mNmeaListener);
+//                mLocationManager.removeNmeaListener(mNmeaListener);
             });
         });
     }

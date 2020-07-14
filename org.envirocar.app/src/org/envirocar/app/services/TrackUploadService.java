@@ -63,8 +63,8 @@ public class TrackUploadService extends BaseInjectorService {
     private static final Logger LOG = Logger.getLogger(TrackUploadService.class);
     private static final int NOTIFICATION_ID = 52;
 
-    @Inject
-    protected TrackRecordingHandler trackRecordingHandler;
+//    @Inject
+//    protected TrackRecordingHandler trackRecordingHandler;
     @Inject
     protected EnviroCarDB enviroCarDB;
     @Inject
