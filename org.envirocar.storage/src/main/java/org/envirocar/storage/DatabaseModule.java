@@ -77,8 +77,8 @@ public final class DatabaseModule {
 
     @Provides
     @Singleton
-    EnviroCarDB provideEnvirocarDB(BriteDatabase briteDatabase) {
-        return new EnviroCarDBImpl(briteDatabase);
+    EnviroCarDB provideEnvirocarDB(TrackRoomDatabase trackRoomDatabase) {
+        return new EnviroCarDBImpl(trackRoomDatabase);
     }
 
     @Provides

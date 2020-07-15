@@ -5,7 +5,10 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
-import java.sql.Blob;
+import org.envirocar.core.logging.Logger;
+import org.envirocar.core.util.TrackMetadata;
+import org.json.JSONException;
+
 import java.util.function.Function;
 
 @Entity(tableName = "tracks")
@@ -27,6 +30,8 @@ public class TrackTable {
     public static final String KEY_TRACK_CAR_VIN = "vin";
     public static final String KEY_TRACK_CAR_ID = "carId";
     public static final String KEY_TRACK_METADATA = "trackMetadata";
+
+    private static final Logger LOG = Logger.getLogger(TrackTable.class);
 
     @PrimaryKey
     @NonNull
@@ -218,7 +223,40 @@ public class TrackTable {
         track.setEndTime(Long.parseLong(trackTable.getEndTime()));
         track.setLength(Double.parseDouble(trackTable.getTrackLength()));
 
-        //int statusColumn = trackTable.getTrackState();
+        if (trackTable.getTrackState()!=null){
+            track.setTrackStatus(Track.TrackStatus.valueOf(trackTable.getTrackState()));
+        } else {
+            track.setTrackStatus(Track.TrackStatus.FINISHED);
+        }
+
+        if(trackTable.getCarMetadata()!=null) {
+            try {
+                track.setMetadata(TrackMetadata.fromJson(trackTable.getCarMetadata()));
+            } catch (JSONException e) {
+                LOG.warn(e.getMessage(), e);
+            }
+        }
+        track.setCar(createCarFromTrackTable(trackTable));
+
         return track;
+    }
+
+    private static Car createCarFromTrackTable(TrackTable trackTable) {
+        if (trackTable.getCarManufacturer() == null ||
+                trackTable.getCarModel() == null ||
+                trackTable.getTrackCarYear() == null ||
+                trackTable.getCarFuelType() == null ||
+                trackTable.getCarEngineDisplacement() == null) {
+            return null;
+        }
+
+        String manufacturer = trackTable.getCarManufacturer();
+        String model = trackTable.getCarModel();
+        String carId = trackTable.getCarId();
+        Car.FuelType fuelType = Car.FuelType.valueOf(trackTable.getCarFuelType());
+        int engineDisplacement = Integer.parseInt(trackTable.getCarEngineDisplacement());
+        int year = Integer.parseInt(trackTable.getTrackCarYear());
+
+        return new CarImpl(carId, manufacturer, model, fuelType, year, engineDisplacement);
     }
 }

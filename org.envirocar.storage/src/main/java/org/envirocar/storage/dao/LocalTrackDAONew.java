@@ -1,7 +1,6 @@
 package org.envirocar.storage.dao;
 
 import android.database.Cursor;
-import android.database.Observable;
 
 import androidx.room.Dao;
 import androidx.room.Insert;
@@ -17,6 +16,7 @@ import java.sql.Blob;
 import java.util.List;
 
 import io.reactivex.Flowable;
+import io.reactivex.Observable;
 
 @Dao
 public interface LocalTrackDAONew {
