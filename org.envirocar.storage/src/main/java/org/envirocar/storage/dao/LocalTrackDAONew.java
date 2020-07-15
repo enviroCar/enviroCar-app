@@ -1,6 +1,7 @@
 package org.envirocar.storage.dao;
 
 import android.database.Cursor;
+import android.database.Observable;
 
 import androidx.room.Dao;
 import androidx.room.Insert;
@@ -20,8 +21,8 @@ import io.reactivex.Flowable;
 @Dao
 public interface LocalTrackDAONew {
 
-    @Query("SELECT *FROM TRACKS WHERE _id = :trackId")
-    Flowable<TrackTable> getTrack(int trackId);
+    @Query("SELECT * FROM TRACKS WHERE _id = :trackId")
+    Observable<TrackTable> getTrack(int trackId);
 
     @Query("SELECT * FROM TRACKS")
     Flowable<List<TrackTable>> getAllTracks();
@@ -30,13 +31,13 @@ public interface LocalTrackDAONew {
     Flowable<List<TrackTable>> getAllTracksByCar(Blob carId);
 
     @Query("SELECT * FROM TRACKS WHERE remoteId IS NULL")
-    Flowable<TrackTable> getAllLocalTracks();
+    Flowable<List<TrackTable>> getAllLocalTracks();
 
     @Query("SELECT COUNT(*) FROM TRACKS WHERE remoteId IS NULL")
     Flowable<Integer> getAllLocalTracksCount();
 
     @Query("SELECT * FROM TRACKS WHERE remoteId IS NOT NULL")
-    Flowable<TrackTable> getAllRemoteTracks();
+    Flowable<List<TrackTable>> getAllRemoteTracks();
 
     @Insert(onConflict = OnConflictStrategy.FAIL)
     long insertTrack(TrackTable trackTable);

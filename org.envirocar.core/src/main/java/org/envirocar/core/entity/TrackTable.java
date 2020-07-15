@@ -6,6 +6,7 @@ import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
 import java.sql.Blob;
+import java.util.function.Function;
 
 @Entity(tableName = "tracks")
 public class TrackTable {
@@ -33,113 +34,49 @@ public class TrackTable {
     int id;
 
     @ColumnInfo(name = KEY_TRACK_NAME)
-    Blob name;
+    String name;
 
     @ColumnInfo(name = KEY_TRACK_DESCRIPTION)
-    Blob description;
+    String description;
 
     @ColumnInfo(name = KEY_TRACK_START_TIME)
-    Blob startTime;
+    String startTime;
 
     @ColumnInfo(name = KEY_TRACK_END_TIME)
-    Blob endTime;
+    String endTime;
 
     @ColumnInfo(name = KEY_TRACK_LENGTH)
-    Blob trackLength;
+    String trackLength;
 
     @ColumnInfo(name = KEY_REMOTE_ID)
-    Blob remoteId;
+    String remoteId;
 
     @ColumnInfo(name = KEY_TRACK_STATE)
-    Blob trackState;
+    String trackState;
 
     @ColumnInfo(name = KEY_TRACK_CAR_MANUFACTURER)
-    Blob carManufacturer;
+    String carManufacturer;
 
     @ColumnInfo(name = KEY_TRACK_CAR_MODEL)
-    Blob carModel;
+    String carModel;
 
     @ColumnInfo(name = KEY_TRACK_CAR_FUEL_TYPE)
-    Blob carFuelType;
+    String carFuelType;
 
     @ColumnInfo(name = KEY_TRACK_CAR_YEAR)
-    Blob trackCarYear;
+    String trackCarYear;
 
     @ColumnInfo(name = KEY_TRACK_CAR_ENGINE_DISPLACEMENT)
-    Blob carEngineDisplacement;
+    String carEngineDisplacement;
 
     @ColumnInfo(name = KEY_TRACK_CAR_VIN)
-    Blob carVin;
+    String carVin;
 
     @ColumnInfo(name = KEY_TRACK_CAR_ID)
-    Blob carId;
+    String carId;
 
     @ColumnInfo(name = KEY_TRACK_METADATA)
-    Blob carMetadata;
-
-    public static String getKeyTrackId() {
-        return KEY_TRACK_ID;
-    }
-
-    public static String getKeyTrackName() {
-        return KEY_TRACK_NAME;
-    }
-
-    public static String getKeyTrackDescription() {
-        return KEY_TRACK_DESCRIPTION;
-    }
-
-    public static String getKeyTrackStartTime() {
-        return KEY_TRACK_START_TIME;
-    }
-
-    public static String getKeyTrackEndTime() {
-        return KEY_TRACK_END_TIME;
-    }
-
-    public static String getKeyTrackLength() {
-        return KEY_TRACK_LENGTH;
-    }
-
-    public static String getKeyRemoteId() {
-        return KEY_REMOTE_ID;
-    }
-
-    public static String getKeyTrackState() {
-        return KEY_TRACK_STATE;
-    }
-
-    public static String getKeyTrackCarManufacturer() {
-        return KEY_TRACK_CAR_MANUFACTURER;
-    }
-
-    public static String getKeyTrackCarModel() {
-        return KEY_TRACK_CAR_MODEL;
-    }
-
-    public static String getKeyTrackCarFuelType() {
-        return KEY_TRACK_CAR_FUEL_TYPE;
-    }
-
-    public static String getKeyTrackCarYear() {
-        return KEY_TRACK_CAR_YEAR;
-    }
-
-    public static String getKeyTrackCarEngineDisplacement() {
-        return KEY_TRACK_CAR_ENGINE_DISPLACEMENT;
-    }
-
-    public static String getKeyTrackCarVin() {
-        return KEY_TRACK_CAR_VIN;
-    }
-
-    public static String getKeyTrackCarId() {
-        return KEY_TRACK_CAR_ID;
-    }
-
-    public static String getKeyTrackMetadata() {
-        return KEY_TRACK_METADATA;
-    }
+    String carMetadata;
 
     public int getId() {
         return id;
@@ -149,123 +86,139 @@ public class TrackTable {
         this.id = id;
     }
 
-    public Blob getName() {
+    public String getName() {
         return name;
     }
 
-    public void setName(Blob name) {
+    public void setName(String name) {
         this.name = name;
     }
 
-    public Blob getDescription() {
+    public String getDescription() {
         return description;
     }
 
-    public void setDescription(Blob description) {
+    public void setDescription(String description) {
         this.description = description;
     }
 
-    public Blob getStartTime() {
+    public String getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(Blob startTime) {
+    public void setStartTime(String startTime) {
         this.startTime = startTime;
     }
 
-    public Blob getEndTime() {
+    public String getEndTime() {
         return endTime;
     }
 
-    public void setEndTime(Blob endTime) {
+    public void setEndTime(String endTime) {
         this.endTime = endTime;
     }
 
-    public Blob getTrackLength() {
+    public String getTrackLength() {
         return trackLength;
     }
 
-    public void setTrackLength(Blob trackLength) {
+    public void setTrackLength(String trackLength) {
         this.trackLength = trackLength;
     }
 
-    public Blob getRemoteId() {
+    public String getRemoteId() {
         return remoteId;
     }
 
-    public void setRemoteId(Blob remoteId) {
+    public void setRemoteId(String remoteId) {
         this.remoteId = remoteId;
     }
 
-    public Blob getTrackState() {
+    public String getTrackState() {
         return trackState;
     }
 
-    public void setTrackState(Blob trackState) {
+    public void setTrackState(String trackState) {
         this.trackState = trackState;
     }
 
-    public Blob getCarManufacturer() {
+    public String getCarManufacturer() {
         return carManufacturer;
     }
 
-    public void setCarManufacturer(Blob carManufacturer) {
+    public void setCarManufacturer(String carManufacturer) {
         this.carManufacturer = carManufacturer;
     }
 
-    public Blob getCarModel() {
+    public String getCarModel() {
         return carModel;
     }
 
-    public void setCarModel(Blob carModel) {
+    public void setCarModel(String carModel) {
         this.carModel = carModel;
     }
 
-    public Blob getCarFuelType() {
+    public String getCarFuelType() {
         return carFuelType;
     }
 
-    public void setCarFuelType(Blob carFuelType) {
+    public void setCarFuelType(String carFuelType) {
         this.carFuelType = carFuelType;
     }
 
-    public Blob getTrackCarYear() {
+    public String getTrackCarYear() {
         return trackCarYear;
     }
 
-    public void setTrackCarYear(Blob trackCarYear) {
+    public void setTrackCarYear(String trackCarYear) {
         this.trackCarYear = trackCarYear;
     }
 
-    public Blob getCarEngineDisplacement() {
+    public String getCarEngineDisplacement() {
         return carEngineDisplacement;
     }
 
-    public void setCarEngineDisplacement(Blob carEngineDisplacement) {
+    public void setCarEngineDisplacement(String carEngineDisplacement) {
         this.carEngineDisplacement = carEngineDisplacement;
     }
 
-    public Blob getCarVin() {
+    public String getCarVin() {
         return carVin;
     }
 
-    public void setCarVin(Blob carVin) {
+    public void setCarVin(String carVin) {
         this.carVin = carVin;
     }
 
-    public Blob getCarId() {
+    public String getCarId() {
         return carId;
     }
 
-    public void setCarId(Blob carId) {
+    public void setCarId(String carId) {
         this.carId = carId;
     }
 
-    public Blob getCarMetadata() {
+    public String getCarMetadata() {
         return carMetadata;
     }
 
-    public void setCarMetadata(Blob carMetadata) {
+    public void setCarMetadata(String carMetadata) {
         this.carMetadata = carMetadata;
+    }
+
+    public  static final Function<TrackTable,Track> MAPPER = trackTable -> trackTableToTrack(trackTable);
+
+    public static Track trackTableToTrack(TrackTable trackTable) {
+        Track track = new TrackImpl();
+        track.setTrackID(new Track.TrackId(trackTable.getId()));
+        track.setRemoteID(trackTable.getRemoteId());
+        track.setName(trackTable.getName());
+        track.setDescription(trackTable.getDescription());
+        track.setStartTime(Long.parseLong(trackTable.getStartTime()));
+        track.setEndTime(Long.parseLong(trackTable.getEndTime()));
+        track.setLength(Double.parseDouble(trackTable.getTrackLength()));
+
+        //int statusColumn = trackTable.getTrackState();
+        return track;
     }
 }
