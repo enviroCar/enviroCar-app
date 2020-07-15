@@ -5,7 +5,14 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+import org.envirocar.core.logging.Logger;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.sql.Blob;
+
+import io.reactivex.functions.Function;
 
 @Entity(tableName = "measurements")
 public class MeasurementTable {
@@ -84,4 +91,36 @@ public class MeasurementTable {
     public void setKeyTrack(String keyTrack) {
         this.keyTrack = keyTrack;
     }
+
+    private static final Logger LOG = Logger.getLogger(MeasurementTable.class);
+
+    public static final Function<? super MeasurementTable, ? extends Measurement> MAPPER = measurementTable ->
+            measurementTableToMeasurement(measurementTable);
+
+    private static Measurement measurementTableToMeasurement(MeasurementTable measurementTable) {
+        Measurement measurement = new MeasurementImpl();
+        measurement.setLatitude(Double.parseDouble(measurementTable.getKeyLatitude()));
+        measurement.setLongitude(Double.parseDouble(measurementTable.getKeyLongitude()));
+        measurement.setTime(Integer.parseInt(measurementTable.getKeyTime()));
+        measurement.setTrackId(new Track.TrackId(Long.parseLong(measurementTable.getKeyTrack())));
+
+        String rawData = measurementTable.getKeyProperties();
+        if (rawData != null) {
+            try {
+                JSONObject json = new JSONObject(rawData);
+                JSONArray names = json.names();
+                if (names != null) {
+                    for (int j = 0; j < names.length(); j++) {
+                        String key = names.getString(j);
+                        measurement.setProperty(Measurement.PropertyKey.valueOf(key), json
+                                .getDouble(key));
+                    }
+                }
+            } catch (JSONException e) {
+                LOG.severe("could not load properties", e);
+            }
+        }
+        return measurement;
+    }
+
 }
