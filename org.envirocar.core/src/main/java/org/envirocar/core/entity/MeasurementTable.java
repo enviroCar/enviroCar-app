@@ -11,6 +11,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.sql.Blob;
+import java.util.Map;
 
 import io.reactivex.functions.Function;
 
@@ -42,7 +43,7 @@ public class MeasurementTable {
     String keyTime;
 
     @ColumnInfo(name = KEY_TRACK)
-    String keyTrack;
+    int keyTrack;
 
     public int getRowId() {
         return rowId;
@@ -84,11 +85,11 @@ public class MeasurementTable {
         this.keyTime = keyTime;
     }
 
-    public String getKeyTrack() {
+    public int getKeyTrack() {
         return keyTrack;
     }
 
-    public void setKeyTrack(String keyTrack) {
+    public void setKeyTrack(int keyTrack) {
         this.keyTrack = keyTrack;
     }
 
@@ -102,7 +103,7 @@ public class MeasurementTable {
         measurement.setLatitude(Double.parseDouble(measurementTable.getKeyLatitude()));
         measurement.setLongitude(Double.parseDouble(measurementTable.getKeyLongitude()));
         measurement.setTime(Integer.parseInt(measurementTable.getKeyTime()));
-        measurement.setTrackId(new Track.TrackId(Long.parseLong(measurementTable.getKeyTrack())));
+        measurement.setTrackId(new Track.TrackId(measurementTable.getKeyTrack()));
 
         String rawData = measurementTable.getKeyProperties();
         if (rawData != null) {
@@ -123,4 +124,26 @@ public class MeasurementTable {
         return measurement;
     }
 
+    public static MeasurementTable measurementToMeasurementTable(Measurement measurement) {
+        MeasurementTable measurementTable = new MeasurementTable();
+        measurementTable.setKeyLatitude(measurement.getLatitude().toString());
+        measurementTable.setKeyLongitude(measurement.getLongitude().toString());
+        measurementTable.setKeyTime(""+measurement.getTime());
+        measurementTable.setKeyTrack((int)measurement.getTrackId().getId());
+        measurementTable.setKeyProperties(createPropertiesString(measurement));
+        return measurementTable;
+    }
+
+    private static String createPropertiesString(Measurement measurement) {
+        JSONObject result = new JSONObject();
+        Map<Measurement.PropertyKey, Double> properties = measurement.getAllProperties();
+        for (Measurement.PropertyKey key : properties.keySet()) {
+            try {
+                result.put(key.name(), properties.get(key));
+            } catch (JSONException e) {
+                LOG.warn("Error while parsing measurement property " + key.name() + "=" + properties.get(key) + "; " + e.getMessage());
+            }
+        }
+        return result.toString();
+    }
 }
