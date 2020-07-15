@@ -25,19 +25,19 @@ public interface LocalTrackDAONew {
     Observable<TrackTable> getTrack(int trackId);
 
     @Query("SELECT * FROM TRACKS")
-    Flowable<List<TrackTable>> getAllTracks();
+    List<TrackTable> getAllTracks();
 
     @Query("SELECT * FROM TRACKS WHERE carId =:carId")
-    Flowable<List<TrackTable>> getAllTracksByCar(String carId);
+    List<TrackTable> getAllTracksByCar(String carId);
 
     @Query("SELECT * FROM TRACKS WHERE remoteId IS NULL")
-    Flowable<List<TrackTable>> getAllLocalTracks();
+    List<TrackTable> getAllLocalTracks();
 
     @Query("SELECT COUNT(*) FROM TRACKS WHERE remoteId IS NULL")
-    Flowable<Integer> getAllLocalTracksCount();
+    Observable<Integer> getAllLocalTracksCount();
 
     @Query("SELECT * FROM TRACKS WHERE remoteId IS NOT NULL")
-    Flowable<List<TrackTable>> getAllRemoteTracks();
+    List<TrackTable> getAllRemoteTracks();
 
     @Insert(onConflict = OnConflictStrategy.FAIL)
     long insertTrack(TrackTable trackTable);
@@ -63,7 +63,7 @@ public interface LocalTrackDAONew {
     @Query("SELECT * FROM tracks" +
             " WHERE state"  + "='ONGOING'" +
             " ORDER BY _id DESC LIMIT 1")
-    Flowable<TrackTable> getActiveTrack();
+    Observable<TrackTable> getActiveTrack();
 
     @Query("DELETE FROM MEASUREMENTS WHERE track=:trackId AND time>=:time")
     void automaticDeleteMeasurement(long time, int trackId);
