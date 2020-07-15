@@ -137,6 +137,8 @@ public class RecordingService extends ScopedBaseInjectorService {
                         .doOnDispose(() -> LOG.info("Location Provider has been disposed!"))
                         .subscribe(() -> LOG.info("Completed"), LOG::error));
         this.recordingStrategy.startRecording(this, new RecordingStrategy.RecordingListener() {
+            private boolean trackFinished = false;
+
             @Override
             public void onRecordingStateChanged(RecordingState recordingState) {
                 RECORDING_STATE = recordingState;
@@ -149,8 +151,11 @@ public class RecordingService extends ScopedBaseInjectorService {
 
             @Override
             public void onTrackFinished(Track track) {
-                LOG.info("Track has been finished. Throwing TrackFinishedEvent.");
-                bus.post(new TrackFinishedEvent(track));
+                if (!trackFinished) {
+                    trackFinished = true;
+                    LOG.info("Track has been finished. Throwing TrackFinishedEvent.");
+                    bus.post(new TrackFinishedEvent(track));
+                }
             }
         });
 

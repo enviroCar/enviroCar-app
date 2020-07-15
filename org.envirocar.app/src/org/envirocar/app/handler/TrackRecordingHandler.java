@@ -182,7 +182,7 @@ public class TrackRecordingHandler {
                     LOGGER.info("Trying to stop track");
 
                     // Fire a new TrackFinishedEvent on the event bus.
-                    mBus.post(new TrackFinishedEvent(currentTrack));
+//                    mBus.post(new TrackFinishedEvent(currentTrack));
                     LOGGER.info("posted via eventbus");
                     track.setTrackStatus(Track.TrackStatus.FINISHED);
 
