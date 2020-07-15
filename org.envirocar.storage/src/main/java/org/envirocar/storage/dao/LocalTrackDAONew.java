@@ -1,5 +1,7 @@
 package org.envirocar.storage.dao;
 
+import android.database.Cursor;
+
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
@@ -56,5 +58,33 @@ public interface LocalTrackDAONew {
 
     @Query("DELETE  FROM measurements WHERE track=:trackId ")
     void deleteMeasuremnt(Track.TrackId trackId);
+
+    @Query("SELECT * FROM tracks" +
+            " WHERE state"  + "='ONGOING'" +
+            " ORDER BY _id DESC LIMIT 1")
+    Flowable<TrackTable> getActiveTrack();
+
+    @Query("DELETE FROM MEASUREMENTS WHERE track=:trackId AND time>=:time")
+    void automaticDeleteMeasurement(long time, Track.TrackId trackId);
+
+    @Query("SELECT * FROM measurements" +
+            " WHERE track = :trackId " +
+            "ORDER BY time DESC")
+    Flowable<TrackTable> fetchMeasurement(Track.TrackId trackId);
+
+    @Query("SELECT * FROM MEASUREMENTS"+
+            " WHERE track = :trackId "+
+            " ORDER BY time ASC")
+    Flowable<TrackTable> fetchMeasurementSilent(Track.TrackId trackId);
+
+    @Query("SELECT time FROM MEASUREMENTS"+
+            " WHERE track = :trackId "+
+            " ORDER BY time ASC LIMIT 1")
+    Cursor fetchStartTimeSilent(Track.TrackId trackId);
+
+    @Query("SELECT time FROM MEASUREMENTS"+
+            " WHERE track = :trackId "+
+            " ORDER BY time DESC LIMIT 1")
+    Cursor fetchEndTimeSilent(Track.TrackId trackId);
 
 }
