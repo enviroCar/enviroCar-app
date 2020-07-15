@@ -230,7 +230,7 @@ public class LocationProvider {
                     });
                 }
             } catch (Exception e) {
-                LOGGER.error("Error while initiating NMEA Listener");
+                LOGGER.error("Error while initiating NMEA Listener", e);
                 emitter.setCancellable(() -> {
                     LOGGER.info("stopLocating()");
                     mLocationManager.removeUpdates(mLocationListener);
