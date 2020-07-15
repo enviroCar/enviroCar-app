@@ -1,5 +1,8 @@
 package org.envirocar.core.entity;
 
+import android.content.ContentValues;
+import android.database.Cursor;
+
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
@@ -9,7 +12,9 @@ import org.envirocar.core.logging.Logger;
 import org.envirocar.core.util.TrackMetadata;
 import org.json.JSONException;
 
-import java.util.function.Function;
+import java.util.List;
+
+import io.reactivex.functions.Function;
 
 @Entity(tableName = "tracks")
 public class TrackTable {
@@ -211,7 +216,7 @@ public class TrackTable {
         this.carMetadata = carMetadata;
     }
 
-    public  static final Function<TrackTable,Track> MAPPER = trackTable -> trackTableToTrack(trackTable);
+    public static final Function<? super TrackTable, ? extends Track> MAPPER = trackTable -> trackTableToTrack(trackTable);
 
     public static Track trackTableToTrack(TrackTable trackTable) {
         Track track = new TrackImpl();
@@ -258,5 +263,39 @@ public class TrackTable {
         int year = Integer.parseInt(trackTable.getTrackCarYear());
 
         return new CarImpl(carId, manufacturer, model, fuelType, year, engineDisplacement);
+    }
+
+    public static TrackTable trackToTrackTable(Track track) {
+        TrackTable trackTable = new TrackTable();
+        if (track.getTrackID() != null && track.getTrackID().getId() != 0) {
+            trackTable.setId((int)track.getTrackID().getId());
+        }
+        trackTable.setName(track.getName());
+        trackTable.setDescription(track.getDescription());
+        if (track.isRemoteTrack()) {
+            trackTable.setRemoteId(track.getRemoteID());
+        }
+        trackTable.setTrackState(track.getTrackStatus().toString());
+        trackTable.setStartTime(track.getStartTime().toString());
+        trackTable.setEndTime(track.getEndTime().toString());
+        trackTable.setTrackLength(track.getLength().toString());
+        if (track.getCar() != null) {
+           trackTable.setCarManufacturer(track.getCar().getManufacturer());
+            trackTable.setCarModel(track.getCar().getModel());
+            trackTable.setCarFuelType(track.getCar().getFuelType().name());
+            trackTable.setCarId(track.getCar().getId());
+            trackTable.setCarEngineDisplacement(""+track.getCar().getEngineDisplacement());
+            trackTable.setTrackCarYear(""+track.getCar().getConstructionYear());
+        }
+
+        if (track.getMetadata() != null) {
+            try {
+                trackTable.setCarMetadata(track.getMetadata().toJsonString());
+            } catch (JSONException e) {
+                LOG.warn(e.getMessage(), e);
+            }
+        }
+
+        return trackTable;
     }
 }

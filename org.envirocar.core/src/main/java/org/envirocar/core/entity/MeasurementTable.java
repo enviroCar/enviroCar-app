@@ -23,63 +23,19 @@ public class MeasurementTable {
     int rowId;
 
     @ColumnInfo(name = KEY_LATITUDE)
-    Blob keyLatitude;
+    String keyLatitude;
 
     @ColumnInfo(name = KEY_LONGITUDE)
-    Blob keyLongitude;
+    String keyLongitude;
 
     @ColumnInfo(name = KEY_PROPERTIES)
-    Blob keyProperties;
+    String keyProperties;
 
     @ColumnInfo(name = KEY_TIME)
-    Blob keyTime;
+    String keyTime;
 
     @ColumnInfo(name = KEY_TRACK)
-    int keyTrack;
-
-    public static String getKeyTime() {
-        return KEY_TIME;
-    }
-
-    public void setKeyTime(Blob keyTime) {
-        this.keyTime = keyTime;
-    }
-
-    public static String getKeyLongitude() {
-        return KEY_LONGITUDE;
-    }
-
-    public void setKeyLongitude(Blob keyLongitude) {
-        this.keyLongitude = keyLongitude;
-    }
-
-    public static String getKeyLatitude() {
-        return KEY_LATITUDE;
-    }
-
-    public void setKeyLatitude(Blob keyLatitude) {
-        this.keyLatitude = keyLatitude;
-    }
-
-    public static String getKeyRowid() {
-        return KEY_ROWID;
-    }
-
-    public static String getKeyProperties() {
-        return KEY_PROPERTIES;
-    }
-
-    public void setKeyProperties(Blob keyProperties) {
-        this.keyProperties = keyProperties;
-    }
-
-    public static String getKeyTrack() {
-        return KEY_TRACK;
-    }
-
-    public void setKeyTrack(int keyTrack) {
-        this.keyTrack = keyTrack;
-    }
+    String keyTrack;
 
     public int getRowId() {
         return rowId;
@@ -87,5 +43,45 @@ public class MeasurementTable {
 
     public void setRowId(int rowId) {
         this.rowId = rowId;
+    }
+
+    public String getKeyLatitude() {
+        return keyLatitude;
+    }
+
+    public void setKeyLatitude(String keyLatitude) {
+        this.keyLatitude = keyLatitude;
+    }
+
+    public String getKeyLongitude() {
+        return keyLongitude;
+    }
+
+    public void setKeyLongitude(String keyLongitude) {
+        this.keyLongitude = keyLongitude;
+    }
+
+    public String getKeyProperties() {
+        return keyProperties;
+    }
+
+    public void setKeyProperties(String keyProperties) {
+        this.keyProperties = keyProperties;
+    }
+
+    public String getKeyTime() {
+        return keyTime;
+    }
+
+    public void setKeyTime(String keyTime) {
+        this.keyTime = keyTime;
+    }
+
+    public String getKeyTrack() {
+        return keyTrack;
+    }
+
+    public void setKeyTrack(String keyTrack) {
+        this.keyTrack = keyTrack;
     }
 }

@@ -28,7 +28,7 @@ public interface LocalTrackDAONew {
     Flowable<List<TrackTable>> getAllTracks();
 
     @Query("SELECT * FROM TRACKS WHERE carId =:carId")
-    Flowable<List<TrackTable>> getAllTracksByCar(Blob carId);
+    Flowable<List<TrackTable>> getAllTracksByCar(String carId);
 
     @Query("SELECT * FROM TRACKS WHERE remoteId IS NULL")
     Flowable<List<TrackTable>> getAllLocalTracks();
@@ -49,16 +49,16 @@ public interface LocalTrackDAONew {
     int updateTrack(TrackTable trackTable);
 
     @Query("UPDATE TRACKS SET carId = :newCarId WHERE carId  = :currentId")
-    void updateCarId(Blob newCarId, Blob currentId);
+    void updateCarId(String newCarId, String currentId);
 
     @Query("DELETE FROM TRACKS WHERE _id = :trackId")
     void deleteTrack(int trackId);
 
     @Query("UPDATE TRACKS SET remoteId = :remoteId WHERE _id = :trackId")
-    void updateTrackRemoteId(Blob remoteId, int trackId);
+    void updateTrackRemoteId(String remoteId, int trackId);
 
     @Query("DELETE  FROM measurements WHERE track=:trackId ")
-    void deleteMeasuremnt(Track.TrackId trackId);
+    void deleteMeasuremnt(int trackId);
 
     @Query("SELECT * FROM tracks" +
             " WHERE state"  + "='ONGOING'" +
@@ -66,26 +66,26 @@ public interface LocalTrackDAONew {
     Flowable<TrackTable> getActiveTrack();
 
     @Query("DELETE FROM MEASUREMENTS WHERE track=:trackId AND time>=:time")
-    void automaticDeleteMeasurement(long time, Track.TrackId trackId);
+    void automaticDeleteMeasurement(long time, int trackId);
 
     @Query("SELECT * FROM measurements" +
             " WHERE track = :trackId " +
             "ORDER BY time DESC")
-    Flowable<TrackTable> fetchMeasurement(Track.TrackId trackId);
+    Flowable<TrackTable> fetchMeasurement(int trackId);
 
     @Query("SELECT * FROM MEASUREMENTS"+
             " WHERE track = :trackId "+
             " ORDER BY time ASC")
-    Flowable<TrackTable> fetchMeasurementSilent(Track.TrackId trackId);
+    Flowable<TrackTable> fetchMeasurementSilent(int trackId);
 
     @Query("SELECT time FROM MEASUREMENTS"+
             " WHERE track = :trackId "+
             " ORDER BY time ASC LIMIT 1")
-    Cursor fetchStartTimeSilent(Track.TrackId trackId);
+    Cursor fetchStartTimeSilent(int trackId);
 
     @Query("SELECT time FROM MEASUREMENTS"+
             " WHERE track = :trackId "+
             " ORDER BY time DESC LIMIT 1")
-    Cursor fetchEndTimeSilent(Track.TrackId trackId);
+    Cursor fetchEndTimeSilent(int trackId);
 
 }
