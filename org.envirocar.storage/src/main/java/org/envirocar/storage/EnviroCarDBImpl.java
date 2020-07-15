@@ -55,15 +55,16 @@ public class EnviroCarDBImpl implements EnviroCarDB {
     private static final Logger LOG = Logger.getLogger(EnviroCarDBImpl.class);
 
     protected BriteDatabase briteDatabase;
+    protected TrackRoomDatabase trackRoomDatabase;
 
     /**
      * Constructor.
      *
-     * @param briteDatabase the Database instance.
+     * @param trackRoomDatabase the Database instance.
      */
     @Inject
-    public EnviroCarDBImpl(BriteDatabase briteDatabase) {
-        this.briteDatabase = briteDatabase;
+    public EnviroCarDBImpl(TrackRoomDatabase trackRoomDatabase) {
+        this.trackRoomDatabase = trackRoomDatabase;
     }
 
     @Override
