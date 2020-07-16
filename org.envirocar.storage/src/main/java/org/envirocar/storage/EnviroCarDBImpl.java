@@ -250,12 +250,7 @@ public class EnviroCarDBImpl implements EnviroCarDB {
     public void updateTrackMetadata(final Track track, final TrackMetadata trackMetadata) throws
             TrackSerializationException {
         try {
-            ContentValues newValues = new ContentValues();
-            newValues.put(TrackTable.KEY_TRACK_METADATA, trackMetadata.toJsonString());
-
-            briteDatabase.update(TrackTable.TABLE_TRACK, SQLiteDatabase.CONFLICT_FAIL, newValues,
-                    TrackTable.KEY_TRACK_ID + "=?",
-                    Long.toString(track.getTrackID().getId()));
+            trackRoomDatabase.getTrackDAONew().updateTrackMetadata(trackMetadata.toJsonString(),Long.parseLong(track.getTrackID().toString()));
         } catch (JSONException e) {
             LOG.error(e.getMessage(), e);
             throw new TrackSerializationException(e);

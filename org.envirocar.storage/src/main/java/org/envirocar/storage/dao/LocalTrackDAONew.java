@@ -59,7 +59,7 @@ public interface LocalTrackDAONew {
     void deleteMeasuremnt(Long trackId);
 
     @Query("SELECT * FROM tracks" +
-            " WHERE state"  + "='ONGOING'" +
+            " WHERE state" + "='ONGOING'" +
             " ORDER BY _id DESC LIMIT 1")
     Observable<TrackTable> getActiveTrack();
 
@@ -71,19 +71,21 @@ public interface LocalTrackDAONew {
             "ORDER BY time DESC")
     Flowable<TrackTable> fetchMeasurement(Long trackId);
 
-    @Query("SELECT * FROM MEASUREMENTS"+
-            " WHERE track = :trackId "+
+    @Query("SELECT * FROM MEASUREMENTS" +
+            " WHERE track = :trackId " +
             " ORDER BY time ASC")
     List<MeasurementTable> fetchMeasurementSilent(Long trackId);
 
-    @Query("SELECT time FROM MEASUREMENTS"+
-            " WHERE track = :trackId "+
+    @Query("SELECT time FROM MEASUREMENTS" +
+            " WHERE track = :trackId " +
             " ORDER BY time ASC LIMIT 1")
     Cursor fetchStartTimeSilent(Long trackId);
 
-    @Query("SELECT time FROM MEASUREMENTS"+
-            " WHERE track = :trackId "+
+    @Query("SELECT time FROM MEASUREMENTS" +
+            " WHERE track = :trackId " +
             " ORDER BY time DESC LIMIT 1")
     Cursor fetchEndTimeSilent(Long trackId);
 
+    @Query("UPDATE TRACKS SET trackMetadata = :metaData WHERE _id = :trackId")
+    void updateTrackMetadata(String metaData, Long trackId);
 }
