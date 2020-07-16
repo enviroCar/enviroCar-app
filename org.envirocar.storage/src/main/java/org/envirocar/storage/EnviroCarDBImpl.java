@@ -363,7 +363,7 @@ public class EnviroCarDBImpl implements EnviroCarDB {
     }
 
     private Observable<Track> fetchTrackObservable(Track.TrackId trackId, boolean lazy) {
-        return trackRoomDatabase.getTrackDAONew().getTrack(Integer.parseInt(trackId.toString()))
+        return trackRoomDatabase.getTrackDAONew().getTrack(Long.parseLong(trackId.toString()))
                 .map(org.envirocar.core.entity.TrackTable.MAPPER)
                 .take(1)
                 .timeout(100, TimeUnit.MILLISECONDS)
@@ -466,17 +466,15 @@ public class EnviroCarDBImpl implements EnviroCarDB {
     }
 
     private Track fetchMeasurementsSilent(final Track track) {
-        track.setMeasurements(MeasurementTable.fromCursorToList(briteDatabase.query(
-                "SELECT * FROM " + MeasurementTable.TABLE_NAME +
-                        " WHERE " + MeasurementTable.KEY_TRACK +
-                        "=\"" + track.getTrackID() + "\"" +
-                        " ORDER BY " + MeasurementTable.KEY_TIME + " ASC", (String[]) null)));
+        track.setMeasurements(org.envirocar.core.entity.MeasurementTable.fromMeasurementTableListToMeasurement(
+                trackRoomDatabase.getTrackDAONew().fetchMeasurementSilent(Long.parseLong(track.getTrackID().toString()))
+        ));
         track.setLazyMeasurements(false);
         return track;
     }
 
     private Track fetchStartEndTimeSilent(final Track track) {
-        Cursor startTime = trackRoomDatabase.getTrackDAONew().fetchStartTimeSilent(Integer.parseInt(track.getTrackID().toString()));
+        Cursor startTime = trackRoomDatabase.getTrackDAONew().fetchStartTimeSilent(Long.parseLong(track.getTrackID().toString()));
 
         if (startTime.moveToFirst()) {
             track.setStartTime(
@@ -484,7 +482,7 @@ public class EnviroCarDBImpl implements EnviroCarDB {
                             startTime.getColumnIndex(MeasurementTable.KEY_TIME)));
         }
 
-        Cursor endTime = trackRoomDatabase.getTrackDAONew().fetchEndTimeSilent(Integer.parseInt(track.getTrackID().toString()));
+        Cursor endTime = trackRoomDatabase.getTrackDAONew().fetchEndTimeSilent(Long.parseLong(track.getTrackID().toString()));
 
         if (endTime.moveToFirst()) {
             track.setEndTime(

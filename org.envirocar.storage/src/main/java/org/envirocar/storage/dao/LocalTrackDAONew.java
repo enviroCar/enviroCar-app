@@ -22,7 +22,7 @@ import io.reactivex.Observable;
 public interface LocalTrackDAONew {
 
     @Query("SELECT * FROM TRACKS WHERE _id = :trackId")
-    Observable<TrackTable> getTrack(int trackId);
+    Observable<TrackTable> getTrack(Long trackId);
 
     @Query("SELECT * FROM TRACKS")
     List<TrackTable> getAllTracks();
@@ -52,13 +52,13 @@ public interface LocalTrackDAONew {
     void updateCarId(String newCarId, String currentId);
 
     @Query("DELETE FROM TRACKS WHERE _id = :trackId")
-    void deleteTrack(int trackId);
+    void deleteTrack(Long trackId);
 
     @Query("UPDATE TRACKS SET remoteId = :remoteId WHERE _id = :trackId")
-    void updateTrackRemoteId(String remoteId, int trackId);
+    void updateTrackRemoteId(String remoteId, Long trackId);
 
     @Query("DELETE  FROM measurements WHERE track=:trackId ")
-    void deleteMeasuremnt(int trackId);
+    void deleteMeasuremnt(Long trackId);
 
     @Query("SELECT * FROM tracks" +
             " WHERE state"  + "='ONGOING'" +
@@ -66,26 +66,26 @@ public interface LocalTrackDAONew {
     Observable<TrackTable> getActiveTrack();
 
     @Query("DELETE FROM MEASUREMENTS WHERE track=:trackId AND time>=:time")
-    void automaticDeleteMeasurement(long time, int trackId);
+    void automaticDeleteMeasurement(long time, Long trackId);
 
     @Query("SELECT * FROM measurements" +
             " WHERE track = :trackId " +
             "ORDER BY time DESC")
-    Flowable<TrackTable> fetchMeasurement(int trackId);
+    Flowable<TrackTable> fetchMeasurement(Long trackId);
 
     @Query("SELECT * FROM MEASUREMENTS"+
             " WHERE track = :trackId "+
             " ORDER BY time ASC")
-    Flowable<TrackTable> fetchMeasurementSilent(int trackId);
+    List<MeasurementTable> fetchMeasurementSilent(Long trackId);
 
     @Query("SELECT time FROM MEASUREMENTS"+
             " WHERE track = :trackId "+
             " ORDER BY time ASC LIMIT 1")
-    Cursor fetchStartTimeSilent(int trackId);
+    Cursor fetchStartTimeSilent(Long trackId);
 
     @Query("SELECT time FROM MEASUREMENTS"+
             " WHERE track = :trackId "+
             " ORDER BY time DESC LIMIT 1")
-    Cursor fetchEndTimeSilent(int trackId);
+    Cursor fetchEndTimeSilent(Long trackId);
 
 }

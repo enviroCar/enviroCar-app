@@ -1,5 +1,7 @@
 package org.envirocar.core.entity;
 
+import android.database.Cursor;
+
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
@@ -11,6 +13,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.sql.Blob;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import io.reactivex.functions.Function;
@@ -145,5 +149,14 @@ public class MeasurementTable {
             }
         }
         return result.toString();
+    }
+
+    public static List<Measurement> fromMeasurementTableListToMeasurement(List<MeasurementTable> measurementTableList) {
+        List<Measurement> res = new ArrayList<>();
+        for(MeasurementTable measurementTable : measurementTableList) {
+            res.add(measurementTableToMeasurement(measurementTable));
+        }
+
+        return res;
     }
 }
