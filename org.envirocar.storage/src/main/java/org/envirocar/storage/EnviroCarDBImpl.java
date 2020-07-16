@@ -45,11 +45,6 @@ import io.reactivex.ObservableTransformer;
 import io.reactivex.functions.Function;
 
 
-/**
- * TODO JavaDoc
- *
- * @author dewall
- */
 @Singleton
 public class EnviroCarDBImpl implements EnviroCarDB {
     private static final Logger LOG = Logger.getLogger(EnviroCarDBImpl.class);
@@ -120,7 +115,6 @@ public class EnviroCarDBImpl implements EnviroCarDB {
     @Override
     public Observable<Void> clearTables() {
         return Observable.create(emitter -> {
-            // TODO
         });
     }
 
@@ -241,12 +235,7 @@ public class EnviroCarDBImpl implements EnviroCarDB {
 
     @Override
     public void updateTrackRemoteID(final Track track, final String remoteID) {
-        ContentValues newValues = new ContentValues();
-        newValues.put(TrackTable.KEY_REMOTE_ID, remoteID);
-
-        briteDatabase.update(TrackTable.TABLE_TRACK, SQLiteDatabase.CONFLICT_FAIL, newValues,
-                TrackTable.KEY_TRACK_ID + "=?",
-                Long.toString(track.getTrackID().getId()));
+        trackRoomDatabase.getTrackDAONew().updateTrackRemoteId(remoteID,Long.parseLong(track.getTrackID().toString()));
     }
 
     @Override
