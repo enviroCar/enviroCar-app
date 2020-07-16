@@ -37,6 +37,9 @@ public interface LocalTrackDAONew {
     @Query("SELECT * FROM TRACKS WHERE remoteId IS NOT NULL")
     List<TrackTable> getAllRemoteTracks();
 
+    @Query("SELECT _id FROM tracks WHERE remoteId IS NOT NULL")
+    Observable<List<Long>> getAllRemoteTracksId();
+
     @Insert(onConflict = OnConflictStrategy.FAIL)
     long insertTrack(TrackTable trackTable);
 

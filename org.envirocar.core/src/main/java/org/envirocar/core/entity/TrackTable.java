@@ -12,6 +12,7 @@ import org.envirocar.core.logging.Logger;
 import org.envirocar.core.util.TrackMetadata;
 import org.json.JSONException;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.functions.Function;
@@ -298,4 +299,14 @@ public class TrackTable {
 
         return trackTable;
     }
+
+    public static final Function<? super List<Long>, ? extends List<Track.TrackId>>
+            TO_TRACK_ID_LIST_MAPPER = (Function<List<Long>, List<Track.TrackId>>) trackIdList -> {
+        List<Track.TrackId> idList = new ArrayList<>(trackIdList.size());
+
+        for (Long trackId : trackIdList) {
+            idList.add(new Track.TrackId(trackId));
+        }
+        return idList;
+    };
 }

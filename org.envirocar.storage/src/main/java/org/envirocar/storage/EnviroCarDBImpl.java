@@ -27,6 +27,7 @@ import com.squareup.sqlbrite3.BriteDatabase;
 import org.envirocar.core.EnviroCarDB;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
+import org.envirocar.core.entity.TrackTable;
 import org.envirocar.core.exception.MeasurementSerializationException;
 import org.envirocar.core.exception.TrackSerializationException;
 import org.envirocar.core.logging.Logger;
@@ -199,11 +200,7 @@ public class EnviroCarDBImpl implements EnviroCarDB {
 
     @Override
     public Observable<List<Track.TrackId>> deleteAllRemoteTracks() {
-        return briteDatabase.createQuery(TrackTable.TABLE_TRACK,
-                "SELECT " + TrackTable.KEY_TRACK_ID + ", " + TrackTable.KEY_REMOTE_ID +
-                        " FROM " + TrackTable.TABLE_TRACK +
-                        " WHERE " + TrackTable.KEY_REMOTE_ID + " IS NOT NULL")
-                .map(query -> query.run())
+        return trackRoomDatabase.getTrackDAONew().getAllRemoteTracksId()
                 .map(TrackTable.TO_TRACK_ID_LIST_MAPPER)
                 .map(trackIds -> {
                     for (Track.TrackId trackId : trackIds)
