@@ -106,7 +106,7 @@ public class MeasurementTable {
         Measurement measurement = new MeasurementImpl();
         measurement.setLatitude(Double.parseDouble(measurementTable.getKeyLatitude()));
         measurement.setLongitude(Double.parseDouble(measurementTable.getKeyLongitude()));
-        measurement.setTime(Integer.parseInt(measurementTable.getKeyTime()));
+        measurement.setTime(Long.parseLong(measurementTable.getKeyTime()));
         measurement.setTrackId(new Track.TrackId(measurementTable.getKeyTrack()));
 
         String rawData = measurementTable.getKeyProperties();
