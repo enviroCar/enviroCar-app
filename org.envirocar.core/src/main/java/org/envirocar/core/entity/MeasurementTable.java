@@ -28,7 +28,7 @@ public class MeasurementTable {
     @PrimaryKey
     @NonNull
     @ColumnInfo(name = KEY_ROWID)
-    int rowId;
+    Long rowId;
 
     @ColumnInfo(name = KEY_LATITUDE)
     String keyLatitude;
@@ -43,13 +43,13 @@ public class MeasurementTable {
     String keyTime;
 
     @ColumnInfo(name = KEY_TRACK)
-    int keyTrack;
+    Long keyTrack;
 
-    public int getRowId() {
+    public Long getRowId() {
         return rowId;
     }
 
-    public void setRowId(int rowId) {
+    public void setRowId(Long rowId) {
         this.rowId = rowId;
     }
 
@@ -85,11 +85,11 @@ public class MeasurementTable {
         this.keyTime = keyTime;
     }
 
-    public int getKeyTrack() {
+    public Long getKeyTrack() {
         return keyTrack;
     }
 
-    public void setKeyTrack(int keyTrack) {
+    public void setKeyTrack(Long keyTrack) {
         this.keyTrack = keyTrack;
     }
 
@@ -129,7 +129,7 @@ public class MeasurementTable {
         measurementTable.setKeyLatitude(measurement.getLatitude().toString());
         measurementTable.setKeyLongitude(measurement.getLongitude().toString());
         measurementTable.setKeyTime(""+measurement.getTime());
-        measurementTable.setKeyTrack((int)measurement.getTrackId().getId());
+        measurementTable.setKeyTrack(measurement.getTrackId().getId());
         measurementTable.setKeyProperties(createPropertiesString(measurement));
         return measurementTable;
     }

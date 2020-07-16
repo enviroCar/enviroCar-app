@@ -114,7 +114,7 @@ public class EnviroCarDBImpl implements EnviroCarDB {
 
     @Override
     public Observable<List<Track>> getAllRemoteTracks(boolean lazy) {
-        return fetchTracksObservable(lazy);
+        return fetchTracksRemoteObservable(lazy);
     }
 
     @Override
@@ -140,6 +140,8 @@ public class EnviroCarDBImpl implements EnviroCarDB {
                 }
             }
         } catch (Exception e){
+            LOG.info(String.format("insertTrack(): " +
+                    "track has been successfully inserted ->[id = %s]",""+e.getMessage()));
         }
     }
 

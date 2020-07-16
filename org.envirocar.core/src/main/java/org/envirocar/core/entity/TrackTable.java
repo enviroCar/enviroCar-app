@@ -41,7 +41,7 @@ public class TrackTable {
     @PrimaryKey
     @NonNull
     @ColumnInfo(name = KEY_TRACK_ID)
-    int id;
+    Long id;
 
     @ColumnInfo(name = KEY_TRACK_NAME)
     String name;
@@ -88,11 +88,11 @@ public class TrackTable {
     @ColumnInfo(name = KEY_TRACK_METADATA)
     String carMetadata;
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -268,7 +268,7 @@ public class TrackTable {
     public static TrackTable trackToTrackTable(Track track) {
         TrackTable trackTable = new TrackTable();
         if (track.getTrackID() != null && track.getTrackID().getId() != 0) {
-            trackTable.setId((int)track.getTrackID().getId());
+            trackTable.setId(track.getTrackID().getId());
         }
         trackTable.setName(track.getName());
         trackTable.setDescription(track.getDescription());
