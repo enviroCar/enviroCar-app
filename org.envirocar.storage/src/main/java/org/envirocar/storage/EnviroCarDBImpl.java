@@ -141,7 +141,7 @@ public class EnviroCarDBImpl implements EnviroCarDB {
             }
         } catch (Exception e){
             LOG.info(String.format("insertTrack(): " +
-                    "track has been successfully inserted ->[id = %s]",""+e.getMessage()));
+                    "insertion fail ->[id = %s]",""+e.getMessage()));
         }
     }
 
@@ -161,8 +161,8 @@ public class EnviroCarDBImpl implements EnviroCarDB {
     @Override
     public boolean updateTrack(Track track) {
         LOG.info(String.format("updateTrack(%s)", track.getTrackID()));
-        ContentValues trackValues = TrackTable.toContentValues(track);
-        int update = briteDatabase.update(TrackTable.TABLE_TRACK, SQLiteDatabase.CONFLICT_FAIL, trackValues, TrackTable.KEY_TRACK_ID + "=" + track.getTrackID());
+        org.envirocar.core.entity.TrackTable trackTable = org.envirocar.core.entity.TrackTable.trackToTrackTable(track);
+        int update = trackRoomDatabase.getTrackDAONew().updateTrack(trackTable);
         return update != -1;
     }
 
@@ -179,17 +179,13 @@ public class EnviroCarDBImpl implements EnviroCarDB {
 
     @Override
     public boolean updateCarIdOfTracks(String currentId, String newId) {
-        ContentValues values = new ContentValues();
-        values.put(TrackTable.KEY_TRACK_CAR_ID, newId);
-        briteDatabase.update(TrackTable.TABLE_TRACK, SQLiteDatabase.CONFLICT_FAIL, values,
-                TrackTable.KEY_TRACK_CAR_ID + "=?", currentId);
+        trackRoomDatabase.getTrackDAONew().updateCarId(newId,currentId);
         return true;
     }
 
     @Override
     public void deleteTrack(Track.TrackId trackId) {
-        briteDatabase.delete(TrackTable.TABLE_TRACK,
-                TrackTable.KEY_TRACK_ID + "='" + trackId + "'");
+        trackRoomDatabase.getTrackDAONew().deleteTrack(Long.parseLong(trackId.toString()));
         deleteMeasurementsOfTrack(trackId);
     }
 

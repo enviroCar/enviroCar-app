@@ -9,10 +9,8 @@ import androidx.room.Query;
 import androidx.room.Update;
 
 import org.envirocar.core.entity.MeasurementTable;
-import org.envirocar.core.entity.Track;
 import org.envirocar.core.entity.TrackTable;
 
-import java.sql.Blob;
 import java.util.List;
 
 import io.reactivex.Flowable;
