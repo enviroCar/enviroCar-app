@@ -67,7 +67,7 @@ public interface LocalTrackDAONew {
     Observable<TrackTable> getActiveTrack();
 
     @Query("DELETE FROM MEASUREMENTS WHERE track=:trackId AND time>=:time")
-    void automaticDeleteMeasurement(long time, Long trackId);
+    void automaticDeleteMeasurement(String time, Long trackId);
 
     @Query("SELECT * FROM measurements" +
             " WHERE track = :trackId " +
