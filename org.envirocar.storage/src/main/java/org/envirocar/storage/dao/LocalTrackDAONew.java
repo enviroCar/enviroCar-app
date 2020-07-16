@@ -79,6 +79,9 @@ public interface LocalTrackDAONew {
             " ORDER BY time ASC")
     List<MeasurementTable> fetchMeasurementSilent(Long trackId);
 
+    @Query("SELECT * FROM measurements WHERE track=:trackId ORDER BY time ASC LIMIT 1")
+    Observable<MeasurementTable> fetchStartTime(Long trackId);
+
     @Query("SELECT time FROM MEASUREMENTS" +
             " WHERE track = :trackId " +
             " ORDER BY time ASC LIMIT 1")
