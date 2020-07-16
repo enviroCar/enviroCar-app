@@ -71,8 +71,8 @@ public interface LocalTrackDAONew {
 
     @Query("SELECT * FROM measurements" +
             " WHERE track = :trackId " +
-            "ORDER BY time DESC")
-    Flowable<TrackTable> fetchMeasurement(Long trackId);
+            "ORDER BY time ASC")
+    Observable<List<MeasurementTable>> fetchMeasurement(Long trackId);
 
     @Query("SELECT * FROM MEASUREMENTS" +
             " WHERE track = :trackId " +

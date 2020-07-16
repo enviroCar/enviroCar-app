@@ -302,13 +302,8 @@ public class EnviroCarDBImpl implements EnviroCarDB {
     }
 
     private Observable<Track> fetchMeasurements(final Track track) {
-        return briteDatabase.createQuery(
-                MeasurementTable.TABLE_NAME,
-                "SELECT * FROM " + MeasurementTable.TABLE_NAME +
-                        " WHERE " + MeasurementTable.KEY_TRACK +
-                        "=\"" + track.getTrackID() + "\"" +
-                        " ORDER BY " + MeasurementTable.KEY_TIME + " ASC")
-                .mapToList(MeasurementTable.MAPPER)
+        return trackRoomDatabase.getTrackDAONew().fetchMeasurement(Long.parseLong(track.getTrackID().toString()))
+                .map(measurementList->org.envirocar.core.entity.MeasurementTable.fromMeasurementTableListToMeasurement(measurementList))
                 .map(measurements -> {
                     track.setMeasurements(measurements);
                     track.setLazyMeasurements(false);
