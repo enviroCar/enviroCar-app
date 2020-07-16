@@ -305,13 +305,9 @@ public class EnviroCarDBImpl implements EnviroCarDB {
     }
 
     private void deleteMeasurementsOfTrack(Track.TrackId trackId) {
-        BriteDatabase.Transaction transaction = briteDatabase.newTransaction();
         try {
-            briteDatabase.delete(MeasurementTable.TABLE_NAME,
-                    MeasurementTable.KEY_TRACK + "='" + trackId + "'");
-            transaction.markSuccessful();
-        } finally {
-            transaction.end();
+            trackRoomDatabase.getTrackDAONew().deleteMeasuremnt(Long.parseLong(trackId.toString()));
+        } catch (Exception e){
         }
     }
 
