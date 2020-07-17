@@ -18,14 +18,10 @@
  */
 package org.envirocar.storage;
 
-import android.content.ContentValues;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-
-import com.squareup.sqlbrite3.BriteDatabase;
-
 import org.envirocar.core.EnviroCarDB;
 import org.envirocar.core.entity.Measurement;
+import org.envirocar.core.entity.MeasurementTable;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.entity.TrackTable;
 import org.envirocar.core.exception.MeasurementSerializationException;
@@ -50,7 +46,6 @@ import io.reactivex.functions.Function;
 public class EnviroCarDBImpl implements EnviroCarDB {
     private static final Logger LOG = Logger.getLogger(EnviroCarDBImpl.class);
 
-    protected BriteDatabase briteDatabase;
     protected TrackRoomDatabase trackRoomDatabase;
 
     /**
@@ -122,7 +117,7 @@ public class EnviroCarDBImpl implements EnviroCarDB {
     public void insertTrack(final Track track) throws TrackSerializationException {
         LOG.info("insertTrack(): trying to insert a new track");
         try {
-            long result = trackRoomDatabase.getTrackDAONew().insertTrack(org.envirocar.core.entity.TrackTable.trackToTrackTable(track));
+            long result = trackRoomDatabase.getTrackDAONew().insertTrack(TrackTable.trackToTrackTable(track));
             Track.TrackId trackId = new Track.TrackId(result);
             track.setTrackID(trackId);
             LOG.info(String.format("insertTrack(): " +
@@ -131,13 +126,13 @@ public class EnviroCarDBImpl implements EnviroCarDB {
             if (track.getMeasurements().size() > 0) {
                 for (Measurement measurement : track.getMeasurements()) {
                     measurement.setTrackId(trackId);
-                    trackRoomDatabase.getTrackDAONew().insertMeasurement(org.envirocar.core.entity.MeasurementTable.measurementToMeasurementTable(measurement));
-                insertMeasurement(measurement);
+                    trackRoomDatabase.getTrackDAONew().insertMeasurement(MeasurementTable.measurementToMeasurementTable(measurement));
+                    insertMeasurement(measurement);
                 }
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             LOG.info(String.format("insertTrack(): " +
-                    "insertion fail ->[id = %s]",""+e.fillInStackTrace()));
+                    "insertion fail ->[id = %s]", "" + e.fillInStackTrace()));
         }
     }
 
@@ -157,7 +152,7 @@ public class EnviroCarDBImpl implements EnviroCarDB {
     @Override
     public boolean updateTrack(Track track) {
         LOG.info(String.format("updateTrack(%s)", track.getTrackID()));
-        org.envirocar.core.entity.TrackTable trackTable = org.envirocar.core.entity.TrackTable.trackToTrackTable(track);
+        TrackTable trackTable =TrackTable.trackToTrackTable(track);
         int update = trackRoomDatabase.getTrackDAONew().updateTrack(trackTable);
         return update != -1;
     }
@@ -175,7 +170,7 @@ public class EnviroCarDBImpl implements EnviroCarDB {
 
     @Override
     public boolean updateCarIdOfTracks(String currentId, String newId) {
-        trackRoomDatabase.getTrackDAONew().updateCarId(newId,currentId);
+        trackRoomDatabase.getTrackDAONew().updateCarId(newId, currentId);
         return true;
     }
 
@@ -214,7 +209,7 @@ public class EnviroCarDBImpl implements EnviroCarDB {
     public void insertMeasurement(final Measurement measurement) throws
             MeasurementSerializationException {
         LOG.info("inserted measurement into track " + measurement.getTrackId());
-        trackRoomDatabase.getTrackDAONew().insertMeasurement(org.envirocar.core.entity.MeasurementTable.measurementToMeasurementTable(measurement));
+        trackRoomDatabase.getTrackDAONew().insertMeasurement(MeasurementTable.measurementToMeasurementTable(measurement));
     }
 
     @Override
@@ -233,7 +228,7 @@ public class EnviroCarDBImpl implements EnviroCarDB {
 
     @Override
     public void updateTrackRemoteID(final Track track, final String remoteID) {
-        trackRoomDatabase.getTrackDAONew().updateTrackRemoteId(remoteID,Long.parseLong(track.getTrackID().toString()));
+        trackRoomDatabase.getTrackDAONew().updateTrackRemoteId(remoteID, Long.parseLong(track.getTrackID().toString()));
     }
 
     @Override
@@ -248,7 +243,7 @@ public class EnviroCarDBImpl implements EnviroCarDB {
     public void updateTrackMetadata(final Track track, final TrackMetadata trackMetadata) throws
             TrackSerializationException {
         try {
-            trackRoomDatabase.getTrackDAONew().updateTrackMetadata(trackMetadata.toJsonString(),Long.parseLong(track.getTrackID().toString()));
+            trackRoomDatabase.getTrackDAONew().updateTrackMetadata(trackMetadata.toJsonString(), Long.parseLong(track.getTrackID().toString()));
         } catch (JSONException e) {
             LOG.error(e.getMessage(), e);
             throw new TrackSerializationException(e);
@@ -289,22 +284,22 @@ public class EnviroCarDBImpl implements EnviroCarDB {
     private void deleteMeasurementsOfTrack(Track.TrackId trackId) {
         try {
             trackRoomDatabase.getTrackDAONew().deleteMeasuremnt(Long.parseLong(trackId.toString()));
-        } catch (Exception e){
+        } catch (Exception e) {
         }
     }
 
     @Override
     public void automaticDeleteMeasurements(long time, Track.TrackId trackId) {
         try {
-            trackRoomDatabase.getTrackDAONew().automaticDeleteMeasurement(String.valueOf(time),Long.parseLong(trackId.toString()));
+            trackRoomDatabase.getTrackDAONew().automaticDeleteMeasurement(String.valueOf(time), Long.parseLong(trackId.toString()));
 
-        } catch (Exception e){
+        } catch (Exception e) {
         }
     }
 
     private Observable<Track> fetchMeasurements(final Track track) {
         return trackRoomDatabase.getTrackDAONew().fetchMeasurement(Long.parseLong(track.getTrackID().toString()))
-                .map(measurementList->org.envirocar.core.entity.MeasurementTable.fromMeasurementTableListToMeasurement(measurementList))
+                .map(measurementList -> MeasurementTable.fromMeasurementTableListToMeasurement(measurementList))
                 .map(measurements -> {
                     track.setMeasurements(measurements);
                     track.setLazyMeasurements(false);
@@ -314,7 +309,7 @@ public class EnviroCarDBImpl implements EnviroCarDB {
 
     private Observable<Track> fetchStartTime(final Track track) {
         return trackRoomDatabase.getTrackDAONew().fetchStartTime(Long.parseLong(track.getTrackID().toString()))
-                .map(org.envirocar.core.entity.MeasurementTable.MAPPER)
+                .map(MeasurementTable.MAPPER)
                 .map(measurement -> {
                     track.setStartTime(measurement.getTime());
                     track.setLazyMeasurements(true);
@@ -324,7 +319,7 @@ public class EnviroCarDBImpl implements EnviroCarDB {
 
     private Observable<Track> fetchTrackObservable(Track.TrackId trackId, boolean lazy) {
         return trackRoomDatabase.getTrackDAONew().getTrack(Long.parseLong(trackId.toString()))
-                .map(org.envirocar.core.entity.TrackTable.MAPPER)
+                .map(TrackTable.MAPPER)
                 .take(1)
                 .timeout(100, TimeUnit.MILLISECONDS)
                 .compose(fetchTrackObservable(lazy));
@@ -343,19 +338,18 @@ public class EnviroCarDBImpl implements EnviroCarDB {
             if (track == null)
                 return null;
 
-            // return the track either leither or completly fetched.
             return lazy ? fetchStartEndTimeSilent(track) : fetchMeasurementsSilent(track);
         });
     }
 
     private Observable<List<Track>> fetchTracksObservable(boolean lazy) {
         Observable<List<Track>> listObservable = Observable.create(emitter -> {
-            List<org.envirocar.core.entity.TrackTable> trackTableList = trackRoomDatabase
+            List<TrackTable> trackTableList = trackRoomDatabase
                     .getTrackDAONew().getAllTracks();
 
             ArrayList<Track> tracks = new ArrayList<>();
             for (org.envirocar.core.entity.TrackTable trackTable : trackTableList) {
-                tracks.add(org.envirocar.core.entity.TrackTable.trackTableToTrack(trackTable));
+                tracks.add(TrackTable.trackTableToTrack(trackTable));
             }
 
             emitter.onNext(tracks);
@@ -366,12 +360,12 @@ public class EnviroCarDBImpl implements EnviroCarDB {
 
     private Observable<List<Track>> fetchTracksCarObservable(String carId, boolean lazy) {
         Observable<List<Track>> listObservable = Observable.create(emitter -> {
-            List<org.envirocar.core.entity.TrackTable> trackTableList = trackRoomDatabase
+            List<TrackTable> trackTableList = trackRoomDatabase
                     .getTrackDAONew().getAllTracksByCar(carId);
 
             ArrayList<Track> tracks = new ArrayList<>();
-            for (org.envirocar.core.entity.TrackTable trackTable : trackTableList) {
-                tracks.add(org.envirocar.core.entity.TrackTable.trackTableToTrack(trackTable));
+            for (TrackTable trackTable : trackTableList) {
+                tracks.add(TrackTable.trackTableToTrack(trackTable));
             }
 
             emitter.onNext(tracks);
@@ -387,7 +381,7 @@ public class EnviroCarDBImpl implements EnviroCarDB {
 
             ArrayList<Track> tracks = new ArrayList<>();
             for (org.envirocar.core.entity.TrackTable trackTable : trackTableList) {
-                tracks.add(org.envirocar.core.entity.TrackTable.trackTableToTrack(trackTable));
+                tracks.add(TrackTable.trackTableToTrack(trackTable));
             }
 
             emitter.onNext(tracks);
@@ -403,7 +397,7 @@ public class EnviroCarDBImpl implements EnviroCarDB {
 
             ArrayList<Track> tracks = new ArrayList<>();
             for (org.envirocar.core.entity.TrackTable trackTable : trackTableList) {
-                tracks.add(org.envirocar.core.entity.TrackTable.trackTableToTrack(trackTable));
+                tracks.add(TrackTable.trackTableToTrack(trackTable));
             }
 
             emitter.onNext(tracks);
@@ -426,7 +420,7 @@ public class EnviroCarDBImpl implements EnviroCarDB {
     }
 
     private Track fetchMeasurementsSilent(final Track track) {
-        track.setMeasurements(org.envirocar.core.entity.MeasurementTable.fromMeasurementTableListToMeasurement(
+        track.setMeasurements(MeasurementTable.fromMeasurementTableListToMeasurement(
                 trackRoomDatabase.getTrackDAONew().fetchMeasurementSilent(Long.parseLong(track.getTrackID().toString()))
         ));
         track.setLazyMeasurements(false);

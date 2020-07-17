@@ -132,7 +132,7 @@ public class MeasurementTable {
         MeasurementTable measurementTable = new MeasurementTable();
         measurementTable.setKeyLatitude(measurement.getLatitude().toString());
         measurementTable.setKeyLongitude(measurement.getLongitude().toString());
-        measurementTable.setKeyTime(""+measurement.getTime());
+        measurementTable.setKeyTime("" + measurement.getTime());
         measurementTable.setKeyTrack(measurement.getTrackId().getId());
         measurementTable.setKeyProperties(createPropertiesString(measurement));
         return measurementTable;
@@ -153,7 +153,7 @@ public class MeasurementTable {
 
     public static List<Measurement> fromMeasurementTableListToMeasurement(List<MeasurementTable> measurementTableList) {
         List<Measurement> res = new ArrayList<>();
-        for(MeasurementTable measurementTable : measurementTableList) {
+        for (MeasurementTable measurementTable : measurementTableList) {
             res.add(measurementTableToMeasurement(measurementTable));
         }
 
