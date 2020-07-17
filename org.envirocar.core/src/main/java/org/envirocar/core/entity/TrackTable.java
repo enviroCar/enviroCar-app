@@ -39,7 +39,7 @@ public class TrackTable {
 
     private static final Logger LOG = Logger.getLogger(TrackTable.class);
 
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
     @NonNull
     @ColumnInfo(name = KEY_TRACK_ID)
     Long id;
@@ -229,13 +229,13 @@ public class TrackTable {
         track.setEndTime(Long.parseLong(trackTable.getEndTime()));
         track.setLength(Double.parseDouble(trackTable.getTrackLength()));
 
-        if (trackTable.getTrackState()!=null){
+        if (trackTable.getTrackState() != null) {
             track.setTrackStatus(Track.TrackStatus.valueOf(trackTable.getTrackState()));
         } else {
             track.setTrackStatus(Track.TrackStatus.FINISHED);
         }
 
-        if(trackTable.getCarMetadata()!=null) {
+        if (trackTable.getCarMetadata() != null) {
             try {
                 track.setMetadata(TrackMetadata.fromJson(trackTable.getCarMetadata()));
             } catch (JSONException e) {
@@ -269,7 +269,7 @@ public class TrackTable {
     public static TrackTable trackToTrackTable(Track track) {
         TrackTable trackTable = new TrackTable();
         if (track.getTrackID() != null && track.getTrackID().getId() != 0) {
-            trackTable.setId(track.getTrackID().getId());
+            trackTable.setId(Long.parseLong(track.getTrackID().toString()));
         }
         trackTable.setName(track.getName());
         trackTable.setDescription(track.getDescription());
@@ -278,15 +278,16 @@ public class TrackTable {
         }
         trackTable.setTrackState(track.getTrackStatus().toString());
         trackTable.setStartTime(track.getStartTime().toString());
-        trackTable.setEndTime(track.getEndTime().toString());
+        if (track.getEndTime() != null)
+            trackTable.setEndTime(track.getEndTime().toString());
         trackTable.setTrackLength(track.getLength().toString());
         if (track.getCar() != null) {
-           trackTable.setCarManufacturer(track.getCar().getManufacturer());
+            trackTable.setCarManufacturer(track.getCar().getManufacturer());
             trackTable.setCarModel(track.getCar().getModel());
             trackTable.setCarFuelType(track.getCar().getFuelType().name());
             trackTable.setCarId(track.getCar().getId());
-            trackTable.setCarEngineDisplacement(""+track.getCar().getEngineDisplacement());
-            trackTable.setTrackCarYear(""+track.getCar().getConstructionYear());
+            trackTable.setCarEngineDisplacement("" + track.getCar().getEngineDisplacement());
+            trackTable.setTrackCarYear("" + track.getCar().getConstructionYear());
         }
 
         if (track.getMetadata() != null) {

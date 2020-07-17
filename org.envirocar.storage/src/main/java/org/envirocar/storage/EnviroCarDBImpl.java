@@ -132,11 +132,12 @@ public class EnviroCarDBImpl implements EnviroCarDB {
                 for (Measurement measurement : track.getMeasurements()) {
                     measurement.setTrackId(trackId);
                     trackRoomDatabase.getTrackDAONew().insertMeasurement(org.envirocar.core.entity.MeasurementTable.measurementToMeasurementTable(measurement));
+                insertMeasurement(measurement);
                 }
             }
         } catch (Exception e){
             LOG.info(String.format("insertTrack(): " +
-                    "insertion fail ->[id = %s]",""+e.getMessage()));
+                    "insertion fail ->[id = %s]",""+e.fillInStackTrace()));
         }
     }
 
