@@ -40,6 +40,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.squareup.otto.Bus;
 
 import org.envirocar.app.BuildConfig;
 import org.envirocar.app.R;
@@ -52,6 +53,7 @@ import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.app.views.utils.DialogUtils;
 import org.envirocar.app.views.utils.ECAnimationUtils;
 import org.envirocar.core.entity.Track;
+import org.envirocar.core.events.TrackDeletedEvent;
 import org.envirocar.core.exception.NotConnectedException;
 import org.envirocar.core.exception.UnauthorizedException;
 import org.envirocar.core.logging.Logger;
@@ -91,6 +93,8 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
     protected TrackDAOHandler mTrackDAOHandler;
     @Inject
     protected TrackUploadHandler mTrackUploadHandler;
+    @Inject
+    Bus mbus;
 
     @BindView(R.id.fragment_tracklist_info)
     protected View infoView;
@@ -384,6 +388,7 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
             public void onComplete() {
                 LOG.info(String.format("onCompleted() delete track -> [%s]",
                         track.getName()));
+                mbus.post(new TrackDeletedEvent(track));
             }
 
             @Override
