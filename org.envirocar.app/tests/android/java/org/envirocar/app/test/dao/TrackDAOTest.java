@@ -126,4 +126,33 @@ public class TrackDAOTest {
 
         return measurement;
     }
+
+    // measurement at coordinate (6.484647742341846,51.22555184174763)
+    private Measurement getFirstMeasurement() {
+        Measurement measurement = new MeasurementImpl(6.484647742341846,51.22555184174763);
+
+        // measurement after 5 minutes
+        measurement.setTime(Long.parseLong("222805"));
+        measurement.setProperty(Measurement.PropertyKey.SPEED,12.5615234375);
+        measurement.setProperty(Measurement.PropertyKey.THROTTLE_POSITON,5.000000037252903);
+        measurement.setProperty(Measurement.PropertyKey.LAMBDA_VOLTAGE,1.513700514606171);
+        measurement.setProperty(Measurement.PropertyKey.LAMBDA_VOLTAGE_ER,1.0000181384557436);
+        measurement.setProperty(Measurement.PropertyKey.INTAKE_TEMPERATURE,30.00);
+        measurement.setProperty(Measurement.PropertyKey.CONSUMPTION,2.185267835541966);
+        measurement.setProperty(Measurement.PropertyKey.GPS_HDOP,1.5);
+        measurement.setProperty(Measurement.PropertyKey.MAF,6.647766861371622);
+        measurement.setProperty(Measurement.PropertyKey.INTAKE_PRESSURE,28.672228395938873);
+        measurement.setProperty(Measurement.PropertyKey.ENGINE_LOAD,15.356523162875305);
+        measurement.setProperty(Measurement.PropertyKey.GPS_ACCURACY,8.00);
+        measurement.setProperty(Measurement.PropertyKey.GPS_SPEED,13.391946992250269);
+        measurement.setProperty(Measurement.PropertyKey.GPS_PDOP,3.3);
+        measurement.setProperty(Measurement.PropertyKey.RPM,1597.7370463609695);
+        measurement.setProperty(Measurement.PropertyKey.GPS_VDOP,2.8999999999999995);
+        measurement.setProperty(Measurement.PropertyKey.CO2,5.13537941352362);
+        measurement.setProperty(Measurement.PropertyKey.GPS_ALTITUDE,62.568650654852405);
+        measurement.setProperty(Measurement.PropertyKey.GPS_BEARING,299.50311279296875);
+
+
+        return measurement;
+    }
 }
