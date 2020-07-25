@@ -9,6 +9,8 @@ import org.envirocar.app.R;
 import org.envirocar.core.EnviroCarDB;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.CarImpl;
+import org.envirocar.core.entity.Measurement;
+import org.envirocar.core.entity.MeasurementImpl;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.entity.TrackImpl;
 import org.envirocar.core.entity.TrackTable;
@@ -54,7 +56,6 @@ public class TrackDAOTest {
     @Test
     public void trackTest() {
 
-
     }
 
     // create new car
@@ -94,5 +95,35 @@ public class TrackDAOTest {
         Assert.assertTrue("Car Description", numTrack.get(0).getDescription().equals(String.format("Track with Car %s.", car != null ? car.getModel() : "null")));
         Assert.assertTrue("Expected 1 got" + numTrack.size(), numTrack.size() == 1);
         Assert.assertNotNull(numTrack);
+    }
+
+    private Measurement getIntialMeasurement() {
+        //initial measurement
+        Measurement measurement = new MeasurementImpl();
+        // data set for intial measurement
+        measurement.setLatitude(6.4847174678758375);
+        measurement.setLongitude(51.22546715521443);
+        measurement.setTime(Long.parseLong("222800"));
+
+        // initially recording just started so speed is 0
+        measurement.setProperty(Measurement.PropertyKey.SPEED,0.00);
+        measurement.setProperty(Measurement.PropertyKey.THROTTLE_POSITON,6.127659738063812);
+        measurement.setProperty(Measurement.PropertyKey.LAMBDA_VOLTAGE,1.452168180985609);
+        measurement.setProperty(Measurement.PropertyKey.LAMBDA_VOLTAGE_ER,0.9903972702086321);
+        measurement.setProperty(Measurement.PropertyKey.INTAKE_TEMPERATURE,29.99999910593033);
+        measurement.setProperty(Measurement.PropertyKey.CONSUMPTION,1.781552855748061);
+        measurement.setProperty(Measurement.PropertyKey.GPS_HDOP,1.5);
+        measurement.setProperty(Measurement.PropertyKey.MAF,5.4196322499235805);
+        measurement.setProperty(Measurement.PropertyKey.INTAKE_PRESSURE,33.99999949336052);
+        measurement.setProperty(Measurement.PropertyKey.ENGINE_LOAD,20.09168342647675);
+        measurement.setProperty(Measurement.PropertyKey.GPS_ACCURACY,8.00000011920929);
+        measurement.setProperty(Measurement.PropertyKey.GPS_SPEED,0.0);
+        measurement.setProperty(Measurement.PropertyKey.GPS_PDOP,3.3);
+        measurement.setProperty(Measurement.PropertyKey.RPM,782.9921875);
+        measurement.setProperty(Measurement.PropertyKey.GPS_VDOP,2.9);
+        measurement.setProperty(Measurement.PropertyKey.CO2,4.186649211007944);
+        measurement.setProperty(Measurement.PropertyKey.GPS_ALTITUDE,57.48786670887175);
+
+        return measurement;
     }
 }
