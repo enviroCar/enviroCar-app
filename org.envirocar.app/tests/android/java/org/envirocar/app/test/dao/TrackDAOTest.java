@@ -171,6 +171,16 @@ public class TrackDAOTest {
         // get all track having car id == carNewId
         List<Track> trackUsingCarId = enviroCarDB.getAllTracksByCar(carNewId, false).blockingFirst();
         Assert.assertTrue("Expected 1", trackUsingCarId.size() == 1);
+
+        //track count before track delete
+        Integer trackCountBefore = enviroCarDB.getAllLocalTracksCount().blockingFirst();
+        Assert.assertTrue("Expected 1",trackCountBefore.equals(1));
+
+        enviroCarDB.deleteTrack(track);
+
+        //track count after track delete
+        Integer trackCountAfter= enviroCarDB.getAllLocalTracksCount().blockingFirst();
+        Assert.assertTrue("Expected 0",trackCountAfter.equals(0));
     }
 
     // create new car
