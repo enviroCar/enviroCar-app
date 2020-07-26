@@ -174,13 +174,31 @@ public class TrackDAOTest {
 
         //track count before track delete
         Integer trackCountBefore = enviroCarDB.getAllLocalTracksCount().blockingFirst();
-        Assert.assertTrue("Expected 1",trackCountBefore.equals(1));
+        Assert.assertTrue("Expected 1", trackCountBefore.equals(1));
 
         enviroCarDB.deleteTrack(track);
 
         //track count after track delete
-        Integer trackCountAfter= enviroCarDB.getAllLocalTracksCount().blockingFirst();
-        Assert.assertTrue("Expected 0",trackCountAfter.equals(0));
+        Integer trackCountAfter = enviroCarDB.getAllLocalTracksCount().blockingFirst();
+        Assert.assertTrue("Expected 0", trackCountAfter.equals(0));
+
+        //check measurement table also deleted
+        List<MeasurementTable> measurementList = trackRoomDatabase.getTrackDAONew().fetchMeasurementSilent(Long.parseLong(track.getTrackID().toString()));
+        Assert.assertTrue("Expected measurement table 0 ", measurementList.size() == 0);
+
+        // insert track again and update set remote id and fetch remote tracks
+        try {
+            enviroCarDB.insertTrack(track);
+        } catch (TrackSerializationException e) {
+            Assert.assertTrue("track insertion failed", false);
+            e.printStackTrace();
+        }
+
+        track.setRemoteID("579634f9e4b086b281bf935c");
+        enviroCarDB.updateTrack(track);
+
+        List<Track> remoteTrack = enviroCarDB.getAllRemoteTracks().blockingFirst();
+        Assert.assertTrue("Expected remote track 1", remoteTrack.size() == 1);
     }
 
     // create new car
