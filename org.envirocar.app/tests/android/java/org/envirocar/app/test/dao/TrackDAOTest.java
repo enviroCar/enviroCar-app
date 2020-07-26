@@ -11,10 +11,13 @@ import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.CarImpl;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.MeasurementImpl;
+import org.envirocar.core.entity.MeasurementTable;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.entity.TrackImpl;
 import org.envirocar.core.entity.TrackTable;
+import org.envirocar.core.exception.MeasurementSerializationException;
 import org.envirocar.core.exception.TrackSerializationException;
+import org.envirocar.core.utils.LocationUtils;
 import org.envirocar.storage.EnviroCarDBImpl;
 import org.envirocar.storage.TrackRoomDatabase;
 import org.junit.After;
@@ -25,12 +28,16 @@ import org.junit.runner.RunWith;
 
 import java.sql.Time;
 import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 
 import io.reactivex.Observable;
 import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.observers.DisposableObserver;
+import io.reactivex.schedulers.Schedulers;
 
 @RunWith(AndroidJUnit4.class)
 public class TrackDAOTest {
@@ -55,6 +62,48 @@ public class TrackDAOTest {
 
     @Test
     public void trackTest() {
+
+        //recording just started creating new track and insert track in database
+        Measurement measurement = getIntialMeasurement();
+        Track track = null;
+        try {
+            track = createNewTrack(measurement.getTime());
+        } catch (TrackSerializationException e) {
+            Assert.assertNotNull(track);
+            e.printStackTrace();
+        }
+
+        //successfully created new track
+        measurement.setTrackId(track.getTrackID());
+
+        //insert measurement into database
+        try {
+            enviroCarDB.insertMeasurement(measurement);
+            track.setEndTime(measurement.getTime());
+
+            //update track length
+            int numOfTracks = track.getMeasurements().size();
+            if (numOfTracks > 0) {
+                Measurement lastMeasurement = track.getMeasurements().get(numOfTracks - 1);
+                double distanceToLast = LocationUtils.getDistance(lastMeasurement, measurement);
+                track.setLength(track.getLength() + distanceToLast);
+            }
+
+            //update track with new measurement received
+            track.getMeasurements().add(measurement);
+
+            //update track in database
+            enviroCarDB.updateTrack(track);
+        } catch (MeasurementSerializationException e) {
+            Assert.assertTrue("measurement insertion failed",false);
+            e.printStackTrace();
+        }
+
+        //check track has been updated with initial measurement
+        Track trackupdated = enviroCarDB.getTrack(track.getTrackID()).blockingFirst();
+
+        // since it is initial measurement so size of measurement in track should be 1
+        Assert.assertTrue("Expected 1",trackupdated.getMeasurements().size()==1);
 
     }
 
@@ -154,5 +203,22 @@ public class TrackDAOTest {
 
 
         return measurement;
+    }
+
+    private Track createNewTrack(long startTime) throws TrackSerializationException {
+        String date = SimpleDateFormat.getDateInstance().format(new Date());
+        Car car = createCar();
+
+        Track track = new TrackImpl();
+        track.setCar(car);
+        track.setName("Track " + date);
+        track.setDescription(String.format("Track with Car %s.", car != null ? car.getModel() : "null"));
+
+        //initial track length is 0
+        track.setLength(0.0);
+        track.setStartTime(startTime);
+
+        enviroCarDB.insertTrack(track);
+        return track;
     }
 }
