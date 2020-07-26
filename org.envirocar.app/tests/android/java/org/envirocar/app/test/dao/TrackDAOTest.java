@@ -108,7 +108,7 @@ public class TrackDAOTest {
         // insert first measurement
 
         // part of current track so set measurement track id
-        Measurement measurement1 = new MeasurementImpl();
+        Measurement measurement1;
         measurement1 = getFirstMeasurement();
         measurement1.setTrackId(track.getTrackID());
         //insert measurement into database
@@ -148,6 +148,12 @@ public class TrackDAOTest {
         // chech track length
         Assert.assertTrue("Track length not valid",trackupdated1.getLength().equals(LocationUtils.getDistance(6.4847174678758375,
                 51.22546715521443,6.484647742341846,51.22555184174763)));
+
+        //check for initial measurement in track
+        Assert.assertTrue("Initial measurement not equal",trackupdated1.getMeasurements().get(0).getAllProperties().equals(measurement.getAllProperties()));
+
+        //check for first measurement in track
+        Assert.assertTrue("First measurement not equal",trackupdated1.getMeasurements().get(1).getAllProperties().equals(measurement1.getAllProperties()));
     }
 
     // create new car
