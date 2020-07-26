@@ -105,6 +105,46 @@ public class TrackDAOTest {
         // since it is initial measurement so size of measurement in track should be 1
         Assert.assertTrue("Expected 1",trackupdated.getMeasurements().size()==1);
 
+        // insert first measurement
+
+        // part of current track so set measurement track id
+        Measurement measurement1 = new MeasurementImpl();
+        measurement1 = getFirstMeasurement();
+        measurement.setTrackId(track.getTrackID());
+        //insert measurement into database
+
+        try {
+            enviroCarDB.insertMeasurement(measurement);
+            track.setEndTime(measurement.getTime());
+
+            //update track length
+            int numOfTracks = track.getMeasurements().size();
+            if (numOfTracks > 0) {
+                Measurement lastMeasurement = track.getMeasurements().get(numOfTracks - 1);
+                double distanceToLast = LocationUtils.getDistance(lastMeasurement, measurement);
+                track.setLength(track.getLength() + distanceToLast);
+            }
+
+            //update track with new measurement received
+            track.getMeasurements().add(measurement);
+
+            //update track in database
+            enviroCarDB.updateTrack(track);
+        } catch (MeasurementSerializationException e) {
+            Assert.assertTrue("measurement insertion failed",false);
+            e.printStackTrace();
+        }
+
+        Track trackupdated1 = enviroCarDB.getTrack(track.getTrackID()).blockingFirst();
+
+        // since it is first measurement so size of measurement in track should be 2
+        Assert.assertTrue("Expected 2",trackupdated1.getMeasurements().size()==2);
+
+        Track active = enviroCarDB.getActiveTrackObservable(false).blockingFirst();
+
+        //current track is not finish so active track id must be equal to current track id
+        Assert.assertTrue("active track not equal",active.getTrackID().equals(track.getTrackID()));
+
     }
 
     // create new car
