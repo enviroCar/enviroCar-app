@@ -154,6 +154,15 @@ public class TrackDAOTest {
 
         //check for first measurement in track
         Assert.assertTrue("First measurement not equal",trackupdated1.getMeasurements().get(1).getAllProperties().equals(measurement1.getAllProperties()));
+
+        //finish current track and update the track database and check for active track reference
+        track.setTrackStatus(Track.TrackStatus.FINISHED);
+        enviroCarDB.updateTrack(track);
+
+        List<Track> localTracks = enviroCarDB.getAllLocalTracks().blockingFirst();
+        Assert.assertTrue("Local tracks expected 1",localTracks.size()==1);
+        Assert.assertTrue("Track status should be finished",localTracks.get(0).getTrackStatus().equals(Track.TrackStatus.FINISHED));
+
     }
 
     // create new car
