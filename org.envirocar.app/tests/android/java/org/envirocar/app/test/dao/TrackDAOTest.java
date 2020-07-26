@@ -95,7 +95,7 @@ public class TrackDAOTest {
             //update track in database
             enviroCarDB.updateTrack(track);
         } catch (MeasurementSerializationException e) {
-            Assert.assertTrue("measurement insertion failed",false);
+            Assert.assertTrue("measurement insertion failed", false);
             e.printStackTrace();
         }
 
@@ -103,7 +103,7 @@ public class TrackDAOTest {
         Track trackupdated = enviroCarDB.getTrack(track.getTrackID()).blockingFirst();
 
         // since it is initial measurement so size of measurement in track should be 1
-        Assert.assertTrue("Expected 1",trackupdated.getMeasurements().size()==1);
+        Assert.assertTrue("Expected 1", trackupdated.getMeasurements().size() == 1);
 
         // insert first measurement
 
@@ -131,38 +131,46 @@ public class TrackDAOTest {
             //update track in database
             enviroCarDB.updateTrack(track);
         } catch (MeasurementSerializationException e) {
-            Assert.assertTrue("measurement insertion failed",false);
+            Assert.assertTrue("measurement insertion failed", false);
             e.printStackTrace();
         }
 
         Track trackupdated1 = enviroCarDB.getTrack(track.getTrackID()).blockingFirst();
 
         // since it is first measurement so size of measurement in track should be 2
-        Assert.assertTrue("Expected 2",trackupdated1.getMeasurements().size()==2);
+        Assert.assertTrue("Expected 2", trackupdated1.getMeasurements().size() == 2);
 
         Track active = enviroCarDB.getActiveTrackObservable(false).blockingFirst();
 
         //current track is not finish so active track id must be equal to current track id
-        Assert.assertTrue("active track not equal",active.getTrackID().equals(track.getTrackID()));
+        Assert.assertTrue("active track not equal", active.getTrackID().equals(track.getTrackID()));
 
         // chech track length
-        Assert.assertTrue("Track length not valid",trackupdated1.getLength().equals(LocationUtils.getDistance(6.4847174678758375,
-                51.22546715521443,6.484647742341846,51.22555184174763)));
+        Assert.assertTrue("Track length not valid", trackupdated1.getLength().equals(LocationUtils.getDistance(6.4847174678758375,
+                51.22546715521443, 6.484647742341846, 51.22555184174763)));
 
         //check for initial measurement in track
-        Assert.assertTrue("Initial measurement not equal",trackupdated1.getMeasurements().get(0).getAllProperties().equals(measurement.getAllProperties()));
+        Assert.assertTrue("Initial measurement not equal", trackupdated1.getMeasurements().get(0).getAllProperties().equals(measurement.getAllProperties()));
 
         //check for first measurement in track
-        Assert.assertTrue("First measurement not equal",trackupdated1.getMeasurements().get(1).getAllProperties().equals(measurement1.getAllProperties()));
+        Assert.assertTrue("First measurement not equal", trackupdated1.getMeasurements().get(1).getAllProperties().equals(measurement1.getAllProperties()));
 
         //finish current track and update the track database and check for active track reference
         track.setTrackStatus(Track.TrackStatus.FINISHED);
         enviroCarDB.updateTrack(track);
 
         List<Track> localTracks = enviroCarDB.getAllLocalTracks().blockingFirst();
-        Assert.assertTrue("Local tracks expected 1",localTracks.size()==1);
-        Assert.assertTrue("Track status should be finished",localTracks.get(0).getTrackStatus().equals(Track.TrackStatus.FINISHED));
+        Assert.assertTrue("Local tracks expected 1", localTracks.size() == 1);
+        Assert.assertTrue("Track status should be finished", localTracks.get(0).getTrackStatus().equals(Track.TrackStatus.FINISHED));
 
+        //update car id of track
+        String carNewId = "475059423dfasd8";
+        boolean updateCarId = enviroCarDB.updateCarIdOfTracks("5750591ee4b09078f98673d8", carNewId);
+        Assert.assertTrue("Car id update fail", updateCarId);
+
+        // get all track having car id == carNewId
+        List<Track> trackUsingCarId = enviroCarDB.getAllTracksByCar(carNewId, false).blockingFirst();
+        Assert.assertTrue("Expected 1", trackUsingCarId.size() == 1);
     }
 
     // create new car
@@ -213,51 +221,51 @@ public class TrackDAOTest {
         measurement.setTime(Long.parseLong("222800"));
 
         // initially recording just started so speed is 0
-        measurement.setProperty(Measurement.PropertyKey.SPEED,0.00);
-        measurement.setProperty(Measurement.PropertyKey.THROTTLE_POSITON,6.127659738063812);
-        measurement.setProperty(Measurement.PropertyKey.LAMBDA_VOLTAGE,1.452168180985609);
-        measurement.setProperty(Measurement.PropertyKey.LAMBDA_VOLTAGE_ER,0.9903972702086321);
-        measurement.setProperty(Measurement.PropertyKey.INTAKE_TEMPERATURE,29.99999910593033);
-        measurement.setProperty(Measurement.PropertyKey.CONSUMPTION,1.781552855748061);
-        measurement.setProperty(Measurement.PropertyKey.GPS_HDOP,1.5);
-        measurement.setProperty(Measurement.PropertyKey.MAF,5.4196322499235805);
-        measurement.setProperty(Measurement.PropertyKey.INTAKE_PRESSURE,33.99999949336052);
-        measurement.setProperty(Measurement.PropertyKey.ENGINE_LOAD,20.09168342647675);
-        measurement.setProperty(Measurement.PropertyKey.GPS_ACCURACY,8.00000011920929);
-        measurement.setProperty(Measurement.PropertyKey.GPS_SPEED,0.0);
-        measurement.setProperty(Measurement.PropertyKey.GPS_PDOP,3.3);
-        measurement.setProperty(Measurement.PropertyKey.RPM,782.9921875);
-        measurement.setProperty(Measurement.PropertyKey.GPS_VDOP,2.9);
-        measurement.setProperty(Measurement.PropertyKey.CO2,4.186649211007944);
-        measurement.setProperty(Measurement.PropertyKey.GPS_ALTITUDE,57.48786670887175);
+        measurement.setProperty(Measurement.PropertyKey.SPEED, 0.00);
+        measurement.setProperty(Measurement.PropertyKey.THROTTLE_POSITON, 6.127659738063812);
+        measurement.setProperty(Measurement.PropertyKey.LAMBDA_VOLTAGE, 1.452168180985609);
+        measurement.setProperty(Measurement.PropertyKey.LAMBDA_VOLTAGE_ER, 0.9903972702086321);
+        measurement.setProperty(Measurement.PropertyKey.INTAKE_TEMPERATURE, 29.99999910593033);
+        measurement.setProperty(Measurement.PropertyKey.CONSUMPTION, 1.781552855748061);
+        measurement.setProperty(Measurement.PropertyKey.GPS_HDOP, 1.5);
+        measurement.setProperty(Measurement.PropertyKey.MAF, 5.4196322499235805);
+        measurement.setProperty(Measurement.PropertyKey.INTAKE_PRESSURE, 33.99999949336052);
+        measurement.setProperty(Measurement.PropertyKey.ENGINE_LOAD, 20.09168342647675);
+        measurement.setProperty(Measurement.PropertyKey.GPS_ACCURACY, 8.00000011920929);
+        measurement.setProperty(Measurement.PropertyKey.GPS_SPEED, 0.0);
+        measurement.setProperty(Measurement.PropertyKey.GPS_PDOP, 3.3);
+        measurement.setProperty(Measurement.PropertyKey.RPM, 782.9921875);
+        measurement.setProperty(Measurement.PropertyKey.GPS_VDOP, 2.9);
+        measurement.setProperty(Measurement.PropertyKey.CO2, 4.186649211007944);
+        measurement.setProperty(Measurement.PropertyKey.GPS_ALTITUDE, 57.48786670887175);
 
         return measurement;
     }
 
     // measurement at coordinate (6.484647742341846,51.22555184174763)
     private Measurement getFirstMeasurement() {
-        Measurement measurement = new MeasurementImpl(6.484647742341846,51.22555184174763);
+        Measurement measurement = new MeasurementImpl(6.484647742341846, 51.22555184174763);
 
         // measurement after 5 minutes
         measurement.setTime(Long.parseLong("222805"));
-        measurement.setProperty(Measurement.PropertyKey.SPEED,12.5615234375);
-        measurement.setProperty(Measurement.PropertyKey.THROTTLE_POSITON,5.000000037252903);
-        measurement.setProperty(Measurement.PropertyKey.LAMBDA_VOLTAGE,1.513700514606171);
-        measurement.setProperty(Measurement.PropertyKey.LAMBDA_VOLTAGE_ER,1.0000181384557436);
-        measurement.setProperty(Measurement.PropertyKey.INTAKE_TEMPERATURE,30.00);
-        measurement.setProperty(Measurement.PropertyKey.CONSUMPTION,2.185267835541966);
-        measurement.setProperty(Measurement.PropertyKey.GPS_HDOP,1.5);
-        measurement.setProperty(Measurement.PropertyKey.MAF,6.647766861371622);
-        measurement.setProperty(Measurement.PropertyKey.INTAKE_PRESSURE,28.672228395938873);
-        measurement.setProperty(Measurement.PropertyKey.ENGINE_LOAD,15.356523162875305);
-        measurement.setProperty(Measurement.PropertyKey.GPS_ACCURACY,8.00);
-        measurement.setProperty(Measurement.PropertyKey.GPS_SPEED,13.391946992250269);
-        measurement.setProperty(Measurement.PropertyKey.GPS_PDOP,3.3);
-        measurement.setProperty(Measurement.PropertyKey.RPM,1597.7370463609695);
-        measurement.setProperty(Measurement.PropertyKey.GPS_VDOP,2.8999999999999995);
-        measurement.setProperty(Measurement.PropertyKey.CO2,5.13537941352362);
-        measurement.setProperty(Measurement.PropertyKey.GPS_ALTITUDE,62.568650654852405);
-        measurement.setProperty(Measurement.PropertyKey.GPS_BEARING,299.50311279296875);
+        measurement.setProperty(Measurement.PropertyKey.SPEED, 12.5615234375);
+        measurement.setProperty(Measurement.PropertyKey.THROTTLE_POSITON, 5.000000037252903);
+        measurement.setProperty(Measurement.PropertyKey.LAMBDA_VOLTAGE, 1.513700514606171);
+        measurement.setProperty(Measurement.PropertyKey.LAMBDA_VOLTAGE_ER, 1.0000181384557436);
+        measurement.setProperty(Measurement.PropertyKey.INTAKE_TEMPERATURE, 30.00);
+        measurement.setProperty(Measurement.PropertyKey.CONSUMPTION, 2.185267835541966);
+        measurement.setProperty(Measurement.PropertyKey.GPS_HDOP, 1.5);
+        measurement.setProperty(Measurement.PropertyKey.MAF, 6.647766861371622);
+        measurement.setProperty(Measurement.PropertyKey.INTAKE_PRESSURE, 28.672228395938873);
+        measurement.setProperty(Measurement.PropertyKey.ENGINE_LOAD, 15.356523162875305);
+        measurement.setProperty(Measurement.PropertyKey.GPS_ACCURACY, 8.00);
+        measurement.setProperty(Measurement.PropertyKey.GPS_SPEED, 13.391946992250269);
+        measurement.setProperty(Measurement.PropertyKey.GPS_PDOP, 3.3);
+        measurement.setProperty(Measurement.PropertyKey.RPM, 1597.7370463609695);
+        measurement.setProperty(Measurement.PropertyKey.GPS_VDOP, 2.8999999999999995);
+        measurement.setProperty(Measurement.PropertyKey.CO2, 5.13537941352362);
+        measurement.setProperty(Measurement.PropertyKey.GPS_ALTITUDE, 62.568650654852405);
+        measurement.setProperty(Measurement.PropertyKey.GPS_BEARING, 299.50311279296875);
 
 
         return measurement;
