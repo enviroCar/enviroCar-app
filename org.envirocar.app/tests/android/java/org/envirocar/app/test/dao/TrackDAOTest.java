@@ -110,23 +110,23 @@ public class TrackDAOTest {
         // part of current track so set measurement track id
         Measurement measurement1 = new MeasurementImpl();
         measurement1 = getFirstMeasurement();
-        measurement.setTrackId(track.getTrackID());
+        measurement1.setTrackId(track.getTrackID());
         //insert measurement into database
 
         try {
-            enviroCarDB.insertMeasurement(measurement);
-            track.setEndTime(measurement.getTime());
+            enviroCarDB.insertMeasurement(measurement1);
+            track.setEndTime(measurement1.getTime());
 
             //update track length
             int numOfTracks = track.getMeasurements().size();
             if (numOfTracks > 0) {
                 Measurement lastMeasurement = track.getMeasurements().get(numOfTracks - 1);
-                double distanceToLast = LocationUtils.getDistance(lastMeasurement, measurement);
+                double distanceToLast = LocationUtils.getDistance(lastMeasurement, measurement1);
                 track.setLength(track.getLength() + distanceToLast);
             }
 
             //update track with new measurement received
-            track.getMeasurements().add(measurement);
+            track.getMeasurements().add(measurement1);
 
             //update track in database
             enviroCarDB.updateTrack(track);
@@ -145,6 +145,9 @@ public class TrackDAOTest {
         //current track is not finish so active track id must be equal to current track id
         Assert.assertTrue("active track not equal",active.getTrackID().equals(track.getTrackID()));
 
+        // chech track length
+        Assert.assertTrue("Track length not valid",trackupdated1.getLength().equals(LocationUtils.getDistance(6.4847174678758375,
+                51.22546715521443,6.484647742341846,51.22555184174763)));
     }
 
     // create new car
