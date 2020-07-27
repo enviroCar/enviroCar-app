@@ -20,6 +20,7 @@ package org.envirocar.app.views.dashboard;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -597,6 +598,11 @@ public class DashboardFragment extends BaseInjectorFragment {
             userDistanceTextView.setText(String.format("%s km", Math.round(event.totalDistance)));
             userDurationTextView.setText(formatTimeForDashboard(event.totalDuration));
         });
+    }
+
+    @OnClick(R.id.fragment_dashboard_obd_help)
+    void onOBDHelpClicked() {
+
     }
 
     private void updateUserLogin(User user) {
