@@ -46,11 +46,25 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="5dp">
         <ImageView
-            android:layout_width="wrap_content"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_gravity="left"
+            android:layout_marginStart="10dp"
+            android:tint="@color/white"
+            android:scaleType="fitCenter"
+            android:src="@drawable/others_help" />
+
+        <ImageView
+            android:layout_width="match_parent"
             android:layout_height="30dp"
             android:scaleType="fitCenter"
             android:src="@drawable/img_envirocar_logo_white" />
+        </RelativeLayout>
     </LinearLayout>
 
     <androidx.core.widget.NestedScrollView
