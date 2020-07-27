@@ -1,0 +1,35 @@
+<LinearLayout android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:textSize="18dp"
+        android:textColor="@color/blue_dark_cario"
+        android:textStyle="bold"
+        android:text="Locate DLC (Diagnostic Link Connector)"/>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="170dp"
+        android:src="@drawable/locateobd"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:layout_height="wrap_content"
+        android:text="This is somewhat triangular shape 16- pin connector\n
+that is commonly locate underneath the left hand side of the dash near the
+steering column. If you have trouble locating DLC,refer owner manual"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:text="www.wikiobd.co.uk"
+        android:autoLink="web"/>
+</LinearLayout>
