@@ -1,0 +1,53 @@
+<LinearLayout android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:textSize="18dp"
+        android:textColor="@color/blue_dark_cario"
+        android:textStyle="bold"
+        android:text="Connect enviroCar App to OBD Bluetooth"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_marginTop="30dp"
+        android:layout_marginLeft="50dp"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:text="1. Select"/>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginTop="10dp"
+        android:src="@drawable/connectobd"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="50dp"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:text="2. Turn on Bluetooth"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="50dp"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:text="3. Connect to bluetooth signal with names\n
+     similar to: OBDII, VLINK, ELM327 etc."/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="50dp"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:text="4. All set start recording track"/>
+
+</LinearLayout>

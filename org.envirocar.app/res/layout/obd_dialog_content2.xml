@@ -10,9 +10,7 @@
         android:textSize="18dp"
         android:textColor="@color/blue_dark_cario"
         android:textStyle="bold"
-        android:text="Locate DLC (Diagnostic Link Connector)"/>
-
-
+        android:text="Plug OBD into Car's OBD Port"/>
 
     <TextView
         android:layout_width="match_parent"
