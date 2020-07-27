@@ -15,7 +15,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_marginTop="30dp"
-        android:layout_marginLeft="50dp"
+        android:layout_marginLeft="30dp"
         android:layout_height="wrap_content"
         android:textStyle="bold"
         android:text="1. Select"/>
@@ -28,7 +28,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_marginTop="10dp"
-        android:layout_marginLeft="50dp"
+        android:layout_marginLeft="30dp"
         android:layout_height="wrap_content"
         android:textStyle="bold"
         android:text="2. Turn on Bluetooth"/>
@@ -36,16 +36,15 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_marginTop="10dp"
-        android:layout_marginLeft="50dp"
+        android:layout_marginLeft="30dp"
         android:layout_height="wrap_content"
         android:textStyle="bold"
-        android:text="3. Connect to bluetooth signal with names\n
-     similar to: OBDII, VLINK, ELM327 etc."/>
+        android:text="3. Connect to bluetooth signal with names similar to: OBDII, VLINK, ELM327 etc."/>
 
     <TextView
         android:layout_width="match_parent"
         android:layout_marginTop="10dp"
-        android:layout_marginLeft="50dp"
+        android:layout_marginLeft="30dp"
         android:layout_height="wrap_content"
         android:textStyle="bold"
         android:text="4. All set start recording track"/>

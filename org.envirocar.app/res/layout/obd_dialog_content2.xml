@@ -7,14 +7,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAlignment="center"
-        android:textSize="18dp"
+        android:textSize="16dp"
         android:textColor="@color/blue_dark_cario"
         android:textStyle="bold"
         android:text="Plug OBD into Car's OBD Port"/>
 
     <TextView
         android:layout_width="match_parent"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="100dp"
         android:textAlignment="center"
         android:layout_height="wrap_content"
         android:text="Plug OBD bluetooth into Car's OBD Port,"/>

@@ -53,8 +53,15 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentStatePagerAdapter;
+import androidx.viewpager.widget.PagerAdapter;
+import androidx.viewpager.widget.ViewPager;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.android.material.dialog.MaterialDialogs;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.jakewharton.rxbinding3.appcompat.RxToolbar;
@@ -75,7 +82,10 @@ import org.envirocar.app.recording.events.RecordingStateEvent;
 import org.envirocar.app.views.carselection.CarSelectionActivity;
 import org.envirocar.app.views.login.SigninActivity;
 import org.envirocar.app.views.obdselection.OBDSelectionActivity;
+import org.envirocar.app.views.others.OthersFragment;
 import org.envirocar.app.views.recordingscreen.RecordingScreenActivity;
+import org.envirocar.app.views.tracklist.TrackListPagerFragment;
+import org.envirocar.app.views.utils.DialogUtils;
 import org.envirocar.app.views.utils.SizeSyncTextView;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.events.NewCarTypeSelectedEvent;
@@ -256,7 +266,7 @@ public class DashboardFragment extends BaseInjectorFragment {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
             case LOCATION_PERMISSION_REQUEST_CODE: {
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     LOG.info("Location permission has been granted");
                     Snackbar.make(getView(), "Location Permission granted.",
                             BaseTransientBottomBar.LENGTH_SHORT).show();
@@ -465,7 +475,7 @@ public class DashboardFragment extends BaseInjectorFragment {
     @OnClick(R.id.fragment_dashboard_indicator_gps)
     protected void onGPSIndicatorClicked() {
         LOG.info("GPS indicator clicked");
-        Intent intent=new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+        Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
         getActivity().startActivity(intent);
     }
 
@@ -603,6 +613,8 @@ public class DashboardFragment extends BaseInjectorFragment {
     @OnClick(R.id.fragment_dashboard_obd_help)
     void onOBDHelpClicked() {
 
+        DialogFragment dialog = new ObdHelpFragment();
+        dialog.show(getChildFragmentManager(),"dialog");
     }
 
     private void updateUserLogin(User user) {
