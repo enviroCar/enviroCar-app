@@ -1,7 +1,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -18,7 +18,7 @@
             android:layout_gravity="center"
             android:layout_marginLeft="@dimen/spacing_large"
             android:src="@drawable/obd"
-            android:tint="@color/white"/>
+            android:tint="@color/white" />
 
         <TextView
             android:id="@+id/general_dialog_view_title"
@@ -29,13 +29,44 @@
             android:text="OBD Help"
             android:textColor="@color/white"
             android:textSize="@dimen/text_xlarge"
-            android:textStyle="bold"/>
+            android:textStyle="bold" />
 
     </LinearLayout>
 
-   <androidx.viewpager.widget.ViewPager
-       android:id="@+id/obd_help_viewpager"
-       android:layout_width="wrap_content"
-       android:layout_height="300dp"/>
+    <androidx.viewpager.widget.ViewPager
+        android:id="@+id/obd_help_viewpager"
+        android:layout_width="wrap_content"
+        android:layout_height="300dp" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="10dp">
+
+        <TextView
+            android:id="@+id/obd_help_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cancel"
+            android:textAlignment="center"
+            android:textColor="@color/blue_dark_cario"
+            android:textSize="16dp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/obd_help_next"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="30dp"
+            android:text="Next"
+            android:textAlignment="center"
+            android:textColor="@color/blue_dark_cario"
+            android:textSize="16dp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
 
 </LinearLayout>
