@@ -17,22 +17,15 @@
 
     <ImageView
         android:layout_width="match_parent"
-        android:layout_height="130dp"
-        android:src="@drawable/locateobd" />
+        android:layout_height="180dp"
+        android:src="@drawable/findobddesig" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="30dp"
-        android:layout_marginRight="30dp"
-        android:text="This is somewhat triangular shape 16- pin connector
-that is commonly locate underneath the left hand side of the dash near the
-steering column. If you have trouble locating DLC,refer owner manual" />
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:text= "@string/obd_help_content"
+        android:autoLink="web"/>
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:autoLink="web"
-        android:text="www.wikiobd.co.uk"
-        android:textAlignment="center" />
 </LinearLayout>
