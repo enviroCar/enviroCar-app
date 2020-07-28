@@ -18,7 +18,7 @@ public class ObdContent3Fragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        View contentView = inflater.inflate(R.layout.obd_dialog_content3,container,false);
+        View contentView = inflater.inflate(R.layout.obd_dialog_content3, container, false);
         return contentView;
     }
 }

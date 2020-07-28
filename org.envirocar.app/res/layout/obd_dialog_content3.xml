@@ -1,52 +1,52 @@
-<LinearLayout android:layout_width="match_parent"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    xmlns:android="http://schemas.android.com/apk/res/android" >
+    android:orientation="vertical">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="10dp"
+        android:text="Connect enviroCar App to OBD Bluetooth"
         android:textAlignment="center"
-        android:textSize="18dp"
         android:textColor="@color/blue_dark_cario"
-        android:textStyle="bold"
-        android:text="Connect enviroCar App to OBD Bluetooth"/>
+        android:textSize="16dp"
+        android:textStyle="bold" />
 
     <TextView
         android:layout_width="match_parent"
-        android:layout_marginTop="30dp"
-        android:layout_marginLeft="30dp"
         android:layout_height="wrap_content"
-        android:textStyle="bold"
-        android:text="1. Select"/>
+        android:layout_marginLeft="30dp"
+        android:layout_marginTop="20dp"
+        android:text="1. Select" />
 
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_marginTop="10dp"
-        android:src="@drawable/connectobd"/>
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_marginTop="10dp"
-        android:layout_marginLeft="30dp"
-        android:layout_height="wrap_content"
-        android:textStyle="bold"
-        android:text="2. Turn on Bluetooth"/>
+        android:src="@drawable/connectobd" />
 
     <TextView
         android:layout_width="match_parent"
-        android:layout_marginTop="10dp"
-        android:layout_marginLeft="30dp"
         android:layout_height="wrap_content"
-        android:textStyle="bold"
-        android:text="3. Connect to bluetooth signal with names similar to: OBDII, VLINK, ELM327 etc."/>
+        android:layout_marginLeft="30dp"
+        android:layout_marginTop="10dp"
+        android:text="2. Turn on Bluetooth" />
 
     <TextView
         android:layout_width="match_parent"
-        android:layout_marginTop="10dp"
-        android:layout_marginLeft="30dp"
         android:layout_height="wrap_content"
-        android:textStyle="bold"
-        android:text="4. All set start recording track"/>
+        android:layout_marginLeft="30dp"
+        android:layout_marginTop="10dp"
+        android:text="3. Connect to bluetooth signal with names similar to: OBDII, VLINK, ELM327 etc." />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="30dp"
+        android:layout_marginTop="10dp"
+        android:text="4. All set start recording track" />
 
 </LinearLayout>

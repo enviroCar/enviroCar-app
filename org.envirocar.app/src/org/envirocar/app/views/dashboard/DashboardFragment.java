@@ -614,7 +614,7 @@ public class DashboardFragment extends BaseInjectorFragment {
     void onOBDHelpClicked() {
 
         DialogFragment dialog = new ObdHelpFragment();
-        dialog.show(getChildFragmentManager(),"dialog");
+        dialog.show(getChildFragmentManager(), "dialog");
     }
 
     private void updateUserLogin(User user) {
