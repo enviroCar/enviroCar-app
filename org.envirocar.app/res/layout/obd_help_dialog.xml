@@ -45,8 +45,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            android:orientation="vertical"
-            android:background="@color/blue_dark_cario">
+            android:background="@color/blue_dark_cario"
+            android:orientation="vertical">
 
             <View
                 android:layout_width="match_parent"
@@ -62,23 +62,24 @@
                 android:id="@+id/contentChange"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="16dp"
                 android:layout_alignParentRight="true"
-                android:layout_marginRight="20dp"
                 android:layout_centerInParent="true"
+                android:layout_marginRight="20dp"
+                android:text="NEXT"
                 android:textColor="@color/white"
-                android:text="NEXT"/>
+                android:textSize="16dp" />
+
             <TextView
                 android:id="@+id/contentChangePrev"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="16dp"
                 android:layout_alignParentLeft="true"
-                android:layout_marginLeft="20dp"
-                android:visibility="gone"
                 android:layout_centerInParent="true"
+                android:layout_marginLeft="20dp"
+                android:text="PREV"
                 android:textColor="@color/white"
-                android:text="PREV"/>
+                android:textSize="16dp"
+                android:visibility="gone" />
         </RelativeLayout>
     </RelativeLayout>
 
