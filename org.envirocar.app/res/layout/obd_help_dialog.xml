@@ -1,72 +1,85 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/blue_dark_cario"
-        android:minHeight="?android:attr/actionBarSize"
-        android:orientation="horizontal"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+        android:layout_marginTop="10dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:text="OBD Help"
+            android:textColor="@color/blue_dark_cario"
+            android:textSize="20dp" />
 
         <ImageView
-            android:id="@+id/general_dialog_view_icon"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
-            android:layout_gravity="center"
-            android:layout_marginLeft="@dimen/spacing_large"
-            android:src="@drawable/obd"
-            android:tint="@color/white" />
+            android:id="@+id/obdDialogClose"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="10dp"
+            android:src="@drawable/ic_close_black_24dp" />
+    </RelativeLayout>
 
-        <TextView
-            android:id="@+id/general_dialog_view_title"
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="10dp"
+        android:background="@color/white_cario" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.viewpager.widget.ViewPager
+            android:id="@+id/obd_help_viewpager"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="49dp" />
+
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginLeft="@dimen/spacing_large"
-            android:text="OBD Help"
-            android:textColor="@color/white"
-            android:textSize="@dimen/text_xlarge"
-            android:textStyle="bold" />
+            android:layout_alignParentBottom="true"
+            android:orientation="vertical"
+            android:background="@color/blue_dark_cario">
 
-    </LinearLayout>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/envirocar_color_divider_grey" />
 
-    <androidx.viewpager.widget.ViewPager
-        android:id="@+id/obd_help_viewpager"
-        android:layout_width="wrap_content"
-        android:layout_height="300dp" />
+            <me.relex.circleindicator.CircleIndicator
+                android:id="@+id/dialogCircleIndicator"
+                android:layout_width="match_parent"
+                android:layout_height="48dp" />
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="right"
-        android:layout_marginTop="10dp"
-        android:layout_marginRight="20dp"
-        android:layout_marginBottom="10dp">
-
-        <TextView
-            android:id="@+id/obd_help_cancel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Cancel"
-            android:textAlignment="center"
-            android:textColor="@color/blue_dark_cario"
-            android:textSize="16dp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/obd_help_next"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="30dp"
-            android:text="Next"
-            android:textAlignment="center"
-            android:textColor="@color/blue_dark_cario"
-            android:textSize="16dp"
-            android:textStyle="bold" />
-
-    </LinearLayout>
+            <TextView
+                android:id="@+id/contentChange"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="16dp"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="20dp"
+                android:layout_centerInParent="true"
+                android:textColor="@color/white"
+                android:text="NEXT"/>
+            <TextView
+                android:id="@+id/contentChangePrev"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="16dp"
+                android:layout_alignParentLeft="true"
+                android:layout_marginLeft="20dp"
+                android:visibility="gone"
+                android:layout_centerInParent="true"
+                android:textColor="@color/white"
+                android:text="PREV"/>
+        </RelativeLayout>
+    </RelativeLayout>
 
 </LinearLayout>
