@@ -19,15 +19,18 @@ import org.envirocar.app.R;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import me.relex.circleindicator.CircleIndicator;
 
 
 public class ObdHelpFragment extends DialogFragment {
     @BindView(R.id.obd_help_viewpager)
     ViewPager viewPager;
-    @BindView(R.id.obd_help_cancel)
-    TextView helpCancel;
-    @BindView(R.id.obd_help_next)
-    TextView helpNext;
+    @BindView(R.id.dialogCircleIndicator)
+    CircleIndicator circleIndicator;
+    @BindView(R.id.contentChange)
+    TextView nextText;
+    @BindView(R.id.contentChangePrev)
+    TextView prevText;
 
     @Nullable
     @Override
@@ -37,9 +40,11 @@ public class ObdHelpFragment extends DialogFragment {
 
         ButterKnife.bind(this, contentView);
 
+
         FragmentStatePagerAdapter fragmentStatePagerAdapter;
         fragmentStatePagerAdapter = new OBDPager(getChildFragmentManager());
         viewPager.setAdapter(fragmentStatePagerAdapter);
+        circleIndicator.setViewPager(viewPager);
 
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
@@ -50,9 +55,15 @@ public class ObdHelpFragment extends DialogFragment {
             @Override
             public void onPageSelected(int position) {
                 if (position == 2) {
-                    helpNext.setVisibility(View.GONE);
+                    nextText.setText("FINISH");
                 } else {
-                    helpNext.setVisibility(View.VISIBLE);
+                    nextText.setText("NEXT");
+                }
+
+                if (position == 0) {
+                    prevText.setVisibility(View.GONE);
+                } else {
+                    prevText.setVisibility(View.VISIBLE);
                 }
             }
 
@@ -65,14 +76,29 @@ public class ObdHelpFragment extends DialogFragment {
         return contentView;
     }
 
-    @OnClick(R.id.obd_help_next)
-    void nextClick() {
-        viewPager.setCurrentItem(viewPager.getCurrentItem() + 1);
+    @Override
+    public void onResume() {
+        super.onResume();
+        getDialog().getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
     }
 
-    @OnClick(R.id.obd_help_cancel)
-    void cancelClick() {
+    @OnClick(R.id.obdDialogClose)
+    void closeDialog() {
         dismiss();
+    }
+
+    @OnClick(R.id.contentChange)
+    void changeContent() {
+        if (viewPager.getCurrentItem() != 2) {
+            viewPager.setCurrentItem(viewPager.getCurrentItem() + 1);
+        } else {
+            dismiss();
+        }
+    }
+
+    @OnClick(R.id.contentChangePrev)
+    void prevContent() {
+        viewPager.setCurrentItem(viewPager.getCurrentItem() - 1);
     }
 
     private class OBDPager extends FragmentStatePagerAdapter {
