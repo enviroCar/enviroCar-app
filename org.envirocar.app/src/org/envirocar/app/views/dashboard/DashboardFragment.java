@@ -116,6 +116,7 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.observers.DisposableCompletableObserver;
 import io.reactivex.schedulers.Schedulers;
+import smartdevelop.ir.eram.showcaseviewlib.GuideView;
 
 /**
  * @author dewall
@@ -252,6 +253,8 @@ public class DashboardFragment extends BaseInjectorFragment {
                 .doOnNext(this::setRecordingMode)
                 .doOnError(LOG::error)
                 .blockingFirst();
+
+        spotlightShowCase(contentView, "OBD HELP", "Help to connect obd with app", 2, R.id.fragment_dashboard_obd_help);
 
         return contentView;
     }
@@ -782,5 +785,26 @@ public class DashboardFragment extends BaseInjectorFragment {
         for (SizeSyncTextView textView : indicatorSyncGroup) {
             textView.setOnTextSizeChangedListener(listener);
         }
+    }
+
+    private void spotlightShowCase(View contentView, String head, String content, int nextTarget, int id) {
+        new GuideView.Builder(getContext())
+                .setTitle(head)
+                .setContentText(content)
+                .setTargetView(contentView.findViewById(id))
+                .setContentTextSize(12)
+                .setTitleTextSize(16)
+                .setDismissType(GuideView.DismissType.outside)
+                .setGuideListener(view -> {
+                    switch (nextTarget) {
+                        case 2:
+                            spotlightShowCase(contentView, "OBD select", "Connect", 3, R.id.fragment_dashboard_indicator_obd);
+                            break;
+                    }
+                })
+                .build()
+                .show();
+
+
     }
 }
