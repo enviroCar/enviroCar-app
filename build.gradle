@@ -117,6 +117,7 @@ ext {
     segmentedUIController = 'info.hoang8f:android-segmented:1.0.6'
     apacheCommons = 'org.apache.commons:commons-compress:1.18'
     circleIndicator = 'me.relex:circleindicator:2.1.4'
+    showCaseView = 'com.github.mreram:showcaseview:1.0.5'
 
     // Testing
     junit = 'junit:junit:4.12'

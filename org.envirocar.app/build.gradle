@@ -43,6 +43,7 @@ dependencies {
     implementation "com.andkulikov:transitionseverywhere:2.0.0"
     implementation 'de.hdodenhof:circleimageview:3.0.1'
     implementation rootProject.ext.circleIndicator
+    implementation rootProject.ext.showCaseView
 
     // RxBindings
     implementation rootProject.ext.rxBindingCore
