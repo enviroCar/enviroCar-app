@@ -71,4 +71,12 @@
 
     <string name="dashboard_engine_not_running_dialog_title">Connection Failed</string>
     <string name="dashboard_engine_not_running_dialog_content">Unable to connect to the engine. Please make sure that the engine is running.</string>
+    <string name="dashboard_walkthrough_user_track">Displays user Local and Remote Track data </string>
+    <string name="dashboard_walkthrough_bluetooth">Indicator based on device bluetooth status</string>
+    <string name="dashboard_walkthrough_obd">Indicator shows the OBD connectivity status</string>
+    <string name="dashboard_walkthrough_gps">Indicator show device GPS status</string>
+    <string name="dashboard_walkthrough_car">Indicator show if car is selected or not</string>
+    <string name="dashboard_walkthrough_pairOBD">Pair OBD device with app</string>
+    <string name="dashboard_walkthrough_carType">Select your car type</string>
+    <string name="dashboard_walkthrough_recordTrack">Start recording track on all indicator set</string>
 </resources>
