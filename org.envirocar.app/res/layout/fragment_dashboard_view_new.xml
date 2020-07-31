@@ -371,6 +371,7 @@
                     app:layout_constraintTop_toBottomOf="@+id/fragment_dashboard_banner">
 
                     <LinearLayout
+                        android:id="@+id/user_statistics"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_margin="7dp"

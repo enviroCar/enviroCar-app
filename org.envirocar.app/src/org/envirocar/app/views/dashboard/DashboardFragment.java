@@ -791,6 +791,7 @@ public class DashboardFragment extends BaseInjectorFragment {
         new GuideView.Builder(getContext())
                 .setTitle(head)
                 .setContentText(content)
+                .setGravity(GuideView.Gravity.center)
                 .setTargetView(contentView.findViewById(id))
                 .setContentTextSize(12)
                 .setTitleTextSize(16)
@@ -798,8 +799,37 @@ public class DashboardFragment extends BaseInjectorFragment {
                 .setGuideListener(view -> {
                     switch (nextTarget) {
                         case 2:
-                            spotlightShowCase(contentView, "OBD select", "Connect", 3, R.id.fragment_dashboard_indicator_obd);
+                            spotlightShowCase(contentView, "Track Details", "Displays user Local and Remote Track data ", 3, R.id.user_statistics);
                             break;
+
+                        case 3:
+                            spotlightShowCase(contentView,"Buetooth","Indicator based on device bluetooth status",4,R.id.fragment_dashboard_indicator_bluetooth_layout);
+                            break;
+
+                        case 4:
+                            spotlightShowCase(contentView,"OBD","Indiactor shows the OBD connectivity status",5,R.id.fragment_dashboard_indicator_obd_layout);
+                            break;
+
+                        case 5:
+                            spotlightShowCase(contentView,"GPS","Indicator show device GPS status",6,R.id.fragment_dashboard_indicator_gps);
+                            break;
+
+                        case  6:
+                            spotlightShowCase(contentView,"Car","Indicator show if car is selected or not",7,R.id.fragment_dashboard_indicator_car);
+                            break;
+
+                        case 7:
+                            spotlightShowCase(contentView,"OBD select","Pair OBD device with app",8,R.id.fragment_dashboard_obdselection_layout);
+                            break;
+
+                        case 8:
+                            spotlightShowCase(contentView,"Car select","Select your car type",9,R.id.fragment_dashboard_carselection_layout);
+                            break;
+
+                        case 9:
+                            spotlightShowCase(contentView,"Track record","Start recording track on all indicator set",10,R.id.fragment_dashboard_start_track_button);
+                            break;
+
                     }
                 })
                 .build()
