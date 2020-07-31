@@ -63,6 +63,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import smartdevelop.ir.eram.showcaseviewlib.GuideView;
 
 /**
  * @author dewall
@@ -150,6 +151,7 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
         // set keep screen on setting
         boolean keepScreenOn = ApplicationSettings.getDisplayStaysActiveObservable(this).blockingFirst();
         this.trackDetailsContainer.setKeepScreenOn(keepScreenOn);
+        spotlightShowCase("GPS", "Displays GPS status ", 3, R.id.activity_recscreen_trackdetails_gps);
     }
 
     @Override
@@ -376,4 +378,47 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
             view.startAnimation(animation);
         }
     }
+
+    private void spotlightShowCase(String head, String content, int nextTarget, int id) {
+        new GuideView.Builder(this)
+                .setTitle(head)
+                .setContentText(content)
+                .setGravity(GuideView.Gravity.center)
+                .setTargetView(findViewById(id))
+                .setContentTextSize(12)
+                .setTitleTextSize(16)
+                .setDismissType(GuideView.DismissType.outside)
+                .setGuideListener(view -> {
+                    switch (nextTarget) {
+
+                        case 2:
+                            spotlightShowCase("Bluetooth", "Displays OBD connectivity status ", 3, R.id.activity_recscreen_trackdetails_bluetooth);
+                            break;
+
+                        case 3:
+                            spotlightShowCase("Time elapsed", "Displays track recording time ", 4, R.id.activity_recscreen_trackdetails_timer);
+                            break;
+
+                        case 4:
+                            spotlightShowCase("Speed", "Displays average speed ", 5, R.id.activity_recscreen_trackdetails_speed);
+                            break;
+
+                        case 5:
+                            spotlightShowCase("Distance", "Displays total distance covered ", 6, R.id.activity_recscreen_trackdetails_distance);
+                            break;
+
+                        case 6:
+                            spotlightShowCase("Stop track", "Finish recording track ", 7, R.id.activity_recscreen_stopbutton);
+                            break;
+
+                        case 7:
+                            spotlightShowCase("Switch mode", "Switch between tachometer and map mode ", 8, R.id.activity_recscreen_switchbutton);
+                            break;
+
+                    }
+                })
+                .build()
+                .show();
+    }
+
 }
