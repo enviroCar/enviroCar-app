@@ -151,7 +151,11 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
         // set keep screen on setting
         boolean keepScreenOn = ApplicationSettings.getDisplayStaysActiveObservable(this).blockingFirst();
         this.trackDetailsContainer.setKeepScreenOn(keepScreenOn);
-        spotlightShowCase("GPS", "Displays GPS status ", 3, R.id.activity_recscreen_trackdetails_gps);
+
+        boolean statusShown = getSharedPreferences("Walkthrough", Context.MODE_PRIVATE).getBoolean("RecordingScreenWalkthrough",false);
+
+        if(!statusShown)
+        spotlightShowCase("GPS", "Displays GPS status ", 2, R.id.activity_recscreen_trackdetails_gps);
     }
 
     @Override
@@ -392,29 +396,27 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
                     switch (nextTarget) {
 
                         case 2:
-                            spotlightShowCase("Bluetooth", "Displays OBD connectivity status ", 3, R.id.activity_recscreen_trackdetails_bluetooth);
+                            spotlightShowCase("Time elapsed", "Displays track recording time ", 3, R.id.activity_recscreen_trackdetails_timer);
                             break;
 
                         case 3:
-                            spotlightShowCase("Time elapsed", "Displays track recording time ", 4, R.id.activity_recscreen_trackdetails_timer);
+                            spotlightShowCase("Speed", "Displays average speed ", 4, R.id.activity_recscreen_trackdetails_speed);
                             break;
 
                         case 4:
-                            spotlightShowCase("Speed", "Displays average speed ", 5, R.id.activity_recscreen_trackdetails_speed);
+                            spotlightShowCase("Distance", "Displays total distance covered ", 5, R.id.activity_recscreen_trackdetails_distance);
                             break;
 
                         case 5:
-                            spotlightShowCase("Distance", "Displays total distance covered ", 6, R.id.activity_recscreen_trackdetails_distance);
+                            spotlightShowCase("Stop track", "Finish recording track ", 6, R.id.activity_recscreen_stopbutton);
                             break;
 
                         case 6:
-                            spotlightShowCase("Stop track", "Finish recording track ", 7, R.id.activity_recscreen_stopbutton);
+                            spotlightShowCase("Switch mode", "Switch between tachometer and map mode ", 7, R.id.activity_recscreen_switchbutton);
                             break;
-
                         case 7:
-                            spotlightShowCase("Switch mode", "Switch between tachometer and map mode ", 8, R.id.activity_recscreen_switchbutton);
+                            getSharedPreferences("Walkthrough",Context.MODE_PRIVATE).edit().putBoolean("RecordingScreenWalkthrough",true).commit();
                             break;
-
                     }
                 })
                 .build()

@@ -22,6 +22,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothDevice;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -254,6 +255,9 @@ public class DashboardFragment extends BaseInjectorFragment {
                 .doOnError(LOG::error)
                 .blockingFirst();
 
+        boolean statusShown = getActivity().getSharedPreferences("Walkthrough", Context.MODE_PRIVATE).getBoolean("DashboardWalkthrough",false);
+
+        if(!statusShown)
         spotlightShowCase(contentView, "OBD HELP", "Help to connect obd with app", 2, R.id.fragment_dashboard_obd_help);
 
         return contentView;
@@ -828,6 +832,10 @@ public class DashboardFragment extends BaseInjectorFragment {
 
                         case 9:
                             spotlightShowCase(contentView,"Track record","Start recording track on all indicator set",10,R.id.fragment_dashboard_start_track_button);
+                            break;
+
+                        case 10:
+                            getActivity().getSharedPreferences("Walkthrough",Context.MODE_PRIVATE).edit().putBoolean("DashboardWalkthrough",true).commit();
                             break;
 
                     }
