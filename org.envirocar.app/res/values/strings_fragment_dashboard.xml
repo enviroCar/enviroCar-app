@@ -79,4 +79,5 @@
     <string name="dashboard_walkthrough_pairOBD">Pair OBD device with app</string>
     <string name="dashboard_walkthrough_carType">Select your car type</string>
     <string name="dashboard_walkthrough_recordTrack">Start recording track on all indicator set</string>
+    <string name="dashboard_walkthrough_obd_help">Help to connect obd with app</string>
 </resources>

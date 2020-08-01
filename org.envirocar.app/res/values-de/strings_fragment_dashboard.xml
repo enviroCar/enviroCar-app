@@ -71,4 +71,13 @@
 
     <string name="dashboard_engine_not_running_dialog_title">Verbindung Fehlgeschlagen</string>
     <string name="dashboard_engine_not_running_dialog_content">Die Verbindung zum Fahrzeug kann nicht hergestellt werden. Bitte stellen Sie sicher, dass der Motor läuft.</string>
+    <string name="dashboard_walkthrough_user_track">Zeigt lokale und Remote-Track-Benutzerdaten an </string>
+    <string name="dashboard_walkthrough_bluetooth">Anzeige basierend auf dem Bluetooth-Status des Geräts</string>
+    <string name="dashboard_walkthrough_obd">Die Anzeige zeigt den OBD-Konnektivitätsstatus an</string>
+    <string name="dashboard_walkthrough_gps">Anzeige zeigt den GPS-Status des Geräts an</string>
+    <string name="dashboard_walkthrough_car">Anzeige zeigt an, ob das Auto ausgewählt ist oder nicht</string>
+    <string name="dashboard_walkthrough_pairOBD">Koppeln Sie das OBD-Gerät mit der App</string>
+    <string name="dashboard_walkthrough_carType">Wählen Sie Ihren Fahrzeugtyp</string>
+    <string name="dashboard_walkthrough_recordTrack">Starten Sie die Aufnahme aller Spuren</string>
+    <string name="dashboard_walkthrough_obd_help">Hilfe zum Verbinden von obd mit der App</string>
 </resources>

@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -152,10 +152,10 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
         boolean keepScreenOn = ApplicationSettings.getDisplayStaysActiveObservable(this).blockingFirst();
         this.trackDetailsContainer.setKeepScreenOn(keepScreenOn);
 
-        boolean statusShown = getSharedPreferences("Walkthrough", Context.MODE_PRIVATE).getBoolean("RecordingScreenWalkthrough",false);
+        boolean statusShown = getSharedPreferences("Walkthrough", Context.MODE_PRIVATE).getBoolean("RecordingScreenWalkthrough", false);
 
-        if(!statusShown)
-        spotlightShowCase("GPS", "Displays GPS status ", 2, R.id.activity_recscreen_trackdetails_gps);
+        if (!statusShown)
+            spotlightShowCase("GPS", getString(R.string.recording_screen_track_gps), 2, R.id.activity_recscreen_trackdetails_gps);
     }
 
     @Override
@@ -296,9 +296,9 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
     }
 
     @Subscribe
-    public void onRecordingStateEvent(RecordingStateEvent event){
+    public void onRecordingStateEvent(RecordingStateEvent event) {
         LOG.info("Received event: %s", event.toString());
-        if (event.recordingState == RecordingState.RECORDING_STOPPED){
+        if (event.recordingState == RecordingState.RECORDING_STOPPED) {
             runOnUiThread(() -> this.finish());
         }
     }
@@ -396,26 +396,26 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
                     switch (nextTarget) {
 
                         case 2:
-                            spotlightShowCase("Time elapsed", "Displays track recording time ", 3, R.id.activity_recscreen_trackdetails_timer);
+                            spotlightShowCase("Time elapsed", getString(R.string.recording_screen_track_time), 3, R.id.activity_recscreen_trackdetails_timer);
                             break;
 
                         case 3:
-                            spotlightShowCase("Speed", "Displays average speed ", 4, R.id.activity_recscreen_trackdetails_speed);
+                            spotlightShowCase("Speed", getString(R.string.recording_screen_track_speed), 4, R.id.activity_recscreen_trackdetails_speed);
                             break;
 
                         case 4:
-                            spotlightShowCase("Distance", "Displays total distance covered ", 5, R.id.activity_recscreen_trackdetails_distance);
+                            spotlightShowCase("Distance", getString(R.string.recording_screen_track_distance), 5, R.id.activity_recscreen_trackdetails_distance);
                             break;
 
                         case 5:
-                            spotlightShowCase("Stop track", "Finish recording track ", 6, R.id.activity_recscreen_stopbutton);
+                            spotlightShowCase("Stop track", getString(R.string.recording_screen_track_finish), 6, R.id.activity_recscreen_stopbutton);
                             break;
 
                         case 6:
-                            spotlightShowCase("Switch mode", "Switch between tachometer and map mode ", 7, R.id.activity_recscreen_switchbutton);
+                            spotlightShowCase("Switch mode", getString(R.string.recording_screen_track_mode), 7, R.id.activity_recscreen_switchbutton);
                             break;
                         case 7:
-                            getSharedPreferences("Walkthrough",Context.MODE_PRIVATE).edit().putBoolean("RecordingScreenWalkthrough",true).commit();
+                            getSharedPreferences("Walkthrough", Context.MODE_PRIVATE).edit().putBoolean("RecordingScreenWalkthrough", true).commit();
                             break;
                     }
                 })

@@ -255,10 +255,10 @@ public class DashboardFragment extends BaseInjectorFragment {
                 .doOnError(LOG::error)
                 .blockingFirst();
 
-        boolean statusShown = getActivity().getSharedPreferences("Walkthrough", Context.MODE_PRIVATE).getBoolean("DashboardWalkthrough",false);
+        boolean statusShown = getActivity().getSharedPreferences("Walkthrough", Context.MODE_PRIVATE).getBoolean("DashboardWalkthrough", false);
 
-        if(!statusShown)
-        spotlightShowCase(contentView, "OBD HELP", "Help to connect obd with app", 2, R.id.fragment_dashboard_obd_help);
+        if (!statusShown)
+            spotlightShowCase(contentView, "OBD HELP", getString(R.string.dashboard_walkthrough_obd_help), 2, R.id.fragment_dashboard_obd_help);
 
         return contentView;
     }
@@ -807,35 +807,35 @@ public class DashboardFragment extends BaseInjectorFragment {
                             break;
 
                         case 3:
-                            spotlightShowCase(contentView,"Buetooth",getString(R.string.dashboard_walkthrough_bluetooth),4,R.id.fragment_dashboard_indicator_bluetooth_layout);
+                            spotlightShowCase(contentView, "Buetooth", getString(R.string.dashboard_walkthrough_bluetooth), 4, R.id.fragment_dashboard_indicator_bluetooth_layout);
                             break;
 
                         case 4:
-                            spotlightShowCase(contentView,"OBD",getString(R.string.dashboard_walkthrough_obd),5,R.id.fragment_dashboard_indicator_obd_layout);
+                            spotlightShowCase(contentView, "OBD", getString(R.string.dashboard_walkthrough_obd), 5, R.id.fragment_dashboard_indicator_obd_layout);
                             break;
 
                         case 5:
-                            spotlightShowCase(contentView,"GPS",getString(R.string.dashboard_walkthrough_gps),6,R.id.fragment_dashboard_indicator_gps);
+                            spotlightShowCase(contentView, "GPS", getString(R.string.dashboard_walkthrough_gps), 6, R.id.fragment_dashboard_indicator_gps);
                             break;
 
-                        case  6:
-                            spotlightShowCase(contentView,"Car",getString(R.string.dashboard_walkthrough_car),7,R.id.fragment_dashboard_indicator_car);
+                        case 6:
+                            spotlightShowCase(contentView, "Car", getString(R.string.dashboard_walkthrough_car), 7, R.id.fragment_dashboard_indicator_car);
                             break;
 
                         case 7:
-                            spotlightShowCase(contentView,"OBD select",getString(R.string.dashboard_walkthrough_pairOBD),8,R.id.fragment_dashboard_obdselection_layout);
+                            spotlightShowCase(contentView, "OBD select", getString(R.string.dashboard_walkthrough_pairOBD), 8, R.id.fragment_dashboard_obdselection_layout);
                             break;
 
                         case 8:
-                            spotlightShowCase(contentView,"Car select",getString(R.string.dashboard_walkthrough_carType),9,R.id.fragment_dashboard_carselection_layout);
+                            spotlightShowCase(contentView, "Car select", getString(R.string.dashboard_walkthrough_carType), 9, R.id.fragment_dashboard_carselection_layout);
                             break;
 
                         case 9:
-                            spotlightShowCase(contentView,"Track record",getString(R.string.dashboard_walkthrough_recordTrack),10,R.id.fragment_dashboard_start_track_button);
+                            spotlightShowCase(contentView, "Track record", getString(R.string.dashboard_walkthrough_recordTrack), 10, R.id.fragment_dashboard_start_track_button);
                             break;
 
                         case 10:
-                            getActivity().getSharedPreferences("Walkthrough",Context.MODE_PRIVATE).edit().putBoolean("DashboardWalkthrough",true).commit();
+                            getActivity().getSharedPreferences("Walkthrough", Context.MODE_PRIVATE).edit().putBoolean("DashboardWalkthrough", true).commit();
                             break;
 
                     }

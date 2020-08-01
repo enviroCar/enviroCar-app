@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
 
     Copyright (C) 2013 - 2020 the enviroCar community
 
@@ -42,41 +41,41 @@
     <string name="car">Fahrzeug</string>
 
     <string name="menu_delete">Löschen</string>
-	<string name="default_track_description">Fahrt mit Fahrzeug %s.</string>
+    <string name="default_track_description">Fahrt mit Fahrzeug %s.</string>
 
     <string name="gasoline">Benzin</string>
     <string name="diesel">Diesel</string>
 
     <string name="track_statistics">Statistiken</string>
     <string name="track_statistics_distance">Distanz</string>
-	
-	<string name="welcome_message">Willkommen, %s</string>
+
+    <string name="welcome_message">Willkommen, %s</string>
     <string name="goodbye_message">Auf Wiederstehen, %s</string>
     <string name="problem_description">Beschreiben Sie Ihr Problem</string>
 
     <string name="envirocar.org">http://www.envirocar.org</string>
     <string name="categories">Kategorien:</string>
-    
+
     <string name="imperial_unit">Imperiale Maßeinheiten?</string>
 
-	<string name="action_send_log">Senden</string>
+    <string name="action_send_log">Senden</string>
 
     <string name="menu_cancel">Abbrechen</string>
 
     <string name="send_log_0">Mit Hilfe dieses Features lassen sich Fehler und Missverhalten der App reproduzieren.
 	    Wenn Sie ein Problem-Bericht einsenden, helfen sie aktiv mit, die enviroCar app zu verbessern.</string>
-	<string name="send_log_1">Dieses Feature nutzt den \"Senden an\" Mechanismus.
+    <string name="send_log_1">Dieses Feature nutzt den \"Senden an\" Mechanismus.
 	    Dies ermöglicht beispielsweise das einsenden des Berichts mit Ihrem Email-Client. Falls Ihr Gerät über
 	    keine Email-Client verfügt, können Sie den Bericht manuell von Ihrem Gerät laden, z.B per Bluetooth oder USB.
 	    In diesem Fall begrüßen wir eine manuelle Übermittlung des Fehlerberichts per Email. Der Bericht ist an folgender Stelle abgelegt:</string>
-	<string name="send_log_when_label" tools:ignore="Typos">Ungefähre Anzahl Minuten seit dem Problem:</string>
-	<string name="send_log_comments_label">(Kommentar)</string>
-	<string name="send_log_time_past_hint">(vergangene Zeit seit Problem)</string>
+    <string name="send_log_when_label" tools:ignore="Typos">Ungefähre Anzahl Minuten seit dem Problem:</string>
+    <string name="send_log_comments_label">(Kommentar)</string>
+    <string name="send_log_time_past_hint">(vergangene Zeit seit Problem)</string>
 
     <string name="track_finished">Fahrt abgeschlossen: </string>
     <string name="track_finishing_failed">Abschließen der Fahrt fehlgeschlagen</string>
     <string name="track_finished_no_measurements">Die abzuschließende Fahrt enthielt keine Messungen</string>
-	<string name="general_error_please_report">Programmfehler - Bitte melden Sie das Problem</string>
+    <string name="general_error_please_report">Programmfehler - Bitte melden Sie das Problem</string>
 
     <string name="submit">Absenden</string>
 
@@ -132,6 +131,13 @@
     <string name="notification_autoupload_uploading_sub">%s wird als Open Data auf die enviroCar-Plattform geschoben.</string>
     <string name="notification_autoupload_error_title">Hochladen einer Fahrt fehlerhaft</string>
     <string name="notification_autoupload_error_sub">Fehler beim Hochladen auf die enviroCar-Plattform.</string>
+
+    <string name="recording_screen_track_time">Zeigt die Aufnahmezeit des Tracks an</string>
+    <string name="recording_screen_track_speed">Zeigt die Durchschnittsgeschwindigkeit an</string>
+    <string name="recording_screen_track_distance">Zeigt die zurückgelegte Gesamtstrecke an</string>
+    <string name="recording_screen_track_finish">Beenden Sie die Aufnahme</string>
+    <string name="recording_screen_track_mode">Wechseln Sie zwischen Drehzahlmesser und Kartenmodus</string>
+    <string name="recording_screen_track_gps">Zeigt den GPS-Status an</string>
 
 
     <!-- ################# -->
