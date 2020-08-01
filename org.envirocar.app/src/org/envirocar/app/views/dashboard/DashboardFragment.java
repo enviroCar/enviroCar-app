@@ -815,11 +815,11 @@ public class DashboardFragment extends BaseInjectorFragment {
                             break;
 
                         case 5:
-                            spotlightShowCase(contentView, "GPS", getString(R.string.dashboard_walkthrough_gps), 6, R.id.fragment_dashboard_indicator_gps);
+                            spotlightShowCase(contentView, "GPS", getString(R.string.dashboard_walkthrough_gps), 6, R.id.fragment_dashboard_indicator_gps_layout);
                             break;
 
                         case 6:
-                            spotlightShowCase(contentView, "Car", getString(R.string.dashboard_walkthrough_car), 7, R.id.fragment_dashboard_indicator_car);
+                            spotlightShowCase(contentView, "Car", getString(R.string.dashboard_walkthrough_car), 7, R.id.fragment_dashboard_indicator_car_layout);
                             break;
 
                         case 7:
