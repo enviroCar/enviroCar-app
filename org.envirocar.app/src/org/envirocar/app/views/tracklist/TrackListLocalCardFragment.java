@@ -235,8 +235,9 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
                         public void onStart() {
                             LOG.info("onStart() allLocalTracks");
                             mMainThreadWorker.schedule(() -> {
-                                mProgressView.setVisibility(View.VISIBLE);
-                                mProgressText.setText(R.string.track_list_loading_tracks);
+                                mProgressView.setVisibility(View.INVISIBLE);
+                                shimmerTrackLocal.setVisibility(View.VISIBLE);
+                                shimmerTrackLocal.startShimmer();
                             });
 
                         }
@@ -257,6 +258,9 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
                             Snackbar.make(getView(),
                                     R.string.track_list_loading_tracks_error_snackbar,
                                     Snackbar.LENGTH_LONG).show();
+
+                            shimmerTrackLocal.stopShimmer();
+                            shimmerTrackLocal.setVisibility(View.GONE);
                         }
 
                         @Override
@@ -271,19 +275,18 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
                                 }
                             }
 
-                            mProgressView.setVisibility(View.INVISIBLE);
                             if (newTrackAdded) {
                                 Collections.sort(mTrackList);
 
                                 mRecyclerView.setVisibility(View.VISIBLE);
                                 infoView.setVisibility(View.GONE);
                                 mRecyclerViewAdapter.notifyDataSetChanged();
-
-                                ECAnimationUtils.animateShowView(getActivity(), mFAB,
-                                        R.anim.translate_slide_in_bottom_fragment);
                             } else if (mTrackList.isEmpty()) {
                                 showNoLocalTracksInfo();
                             }
+
+                            shimmerTrackLocal.stopShimmer();
+                            shimmerTrackLocal.setVisibility(View.GONE);
                         }
                     });
 
