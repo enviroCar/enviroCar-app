@@ -1,0 +1,72 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/fragment_layout_card_view"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/card_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_margin="8dp"
+        card_view:cardCornerRadius="4dp"
+        card_view:cardElevation="6dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clipChildren="false"
+            android:clipToPadding="false">
+
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/fragment_tracklist_cardlayout_toolbar"
+                style="@style/enviroCar.Toolbar"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:background="#dddddd">
+
+
+                <View
+                    android:id="@+id/name"
+                    android:layout_width="230dp"
+                    android:layout_height="20dp"
+                    android:layout_marginBottom="10dp"
+                    android:background="@color/envirocar_color_divider_grey" />
+
+            </androidx.appcompat.widget.Toolbar>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:layout_below="@id/fragment_tracklist_cardlayout_toolbar">
+
+            </RelativeLayout>
+
+
+            <com.github.jorgecastilloprz.FABProgressCircle
+                android:id="@+id/fragment_tracklist_cardlayout_remote_progresscircle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="@dimen/fab_margin_16"
+                android:paddingTop="@dimen/fab_margin_download_button_top"
+                card_view:reusable="true">
+
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/fragment_tracklist_cardlayout_remote_downloadfab"
+                    style="@style/Widget.enviroCar.Fab"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/spacing_small"
+                    android:backgroundTint="#dddddd"
+                    android:src="@drawable/ic_cloud_download_white_24dp"
+                    tools:elevation="12dp"
+                    tools:rippleColor="@color/cario_color_primary_dark" />
+
+            </com.github.jorgecastilloprz.FABProgressCircle>
+        </RelativeLayout>
+    </androidx.cardview.widget.CardView>
+</LinearLayout>
