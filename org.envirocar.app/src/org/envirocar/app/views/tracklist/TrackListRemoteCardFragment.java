@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -46,6 +46,8 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
+
+import static android.view.View.GONE;
 
 
 /**
@@ -82,13 +84,13 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<T
 
         if (mUserManager.isLoggedIn()) {
             mRecyclerView.setVisibility(View.VISIBLE);
-            infoView.setVisibility(View.GONE);
+            infoView.setVisibility(GONE);
         } else {
             showText(R.drawable.img_logged_out,
                     R.string.track_list_bg_not_logged_in,
                     R.string.track_list_bg_not_logged_in_sub);
             mProgressView.setVisibility(View.INVISIBLE);
-            mRecyclerView.setVisibility(View.GONE);
+            mRecyclerView.setVisibility(GONE);
             mRecyclerViewAdapter.mTrackDataset.clear();
             mRecyclerViewAdapter.notifyDataSetChanged();
         }
@@ -265,8 +267,9 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<T
                         public void onStart() {
                             LOG.info("onStart() tracks in db");
                             mMainThreadWorker.schedule(() -> {
-                                mProgressView.setVisibility(View.VISIBLE);
-                                mProgressText.setText(R.string.track_list_loading_tracks);
+
+                                shimmerTrack.setVisibility(View.VISIBLE);
+                                shimmerTrack.startShimmer();
                             });
                         }
 
@@ -308,8 +311,9 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<T
                         public void onStart() {
                             LOG.info("onStart() tracks in db");
                             mMainThreadWorker.schedule(() -> {
-                                mProgressView.setVisibility(View.VISIBLE);
-                                mProgressText.setText(R.string.track_list_loading_tracks);
+                                mProgressView.setVisibility(View.INVISIBLE);
+                                shimmerTrack.setVisibility(View.VISIBLE);
+                                shimmerTrack.startShimmer();
                             });
                         }
 
@@ -337,9 +341,8 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<T
                                             R.string.track_list_bg_unauthorized_sub);
                                 }
                             }
-
-                            ECAnimationUtils.animateHideView(getActivity(), mProgressView,
-                                    R.anim.fade_out);
+                            shimmerTrack.stopShimmer();
+                            shimmerTrack.setVisibility(GONE);
                         }
 
                         @Override
@@ -382,7 +385,8 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<T
                 isSorted = true;
                 sortTrackList();
             }
-            ECAnimationUtils.animateHideView(getActivity(), mProgressView, R.anim.fade_out);
+            shimmerTrack.stopShimmer();
+            shimmerTrack.setVisibility(GONE);
 
             if (mTrackList.isEmpty()) {
                 showText(R.drawable.img_tracks,
@@ -393,12 +397,12 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<T
 
         if (!mTrackList.isEmpty()) {
             mRecyclerView.setVisibility(View.VISIBLE);
-            infoView.setVisibility(View.GONE);
+            infoView.setVisibility(GONE);
             mRecyclerViewAdapter.notifyDataSetChanged();
         }
     }
 
-    private void sortTrackList(){
+    private void sortTrackList() {
         Collections.sort(mTrackList, (o1, o2) -> {
             if (o1.getStartTime() < o2.getStartTime())
                 return 1;
