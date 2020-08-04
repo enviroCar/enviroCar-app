@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -152,7 +152,6 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
         // set keep screen on setting
         boolean keepScreenOn = ApplicationSettings.getDisplayStaysActiveObservable(this).blockingFirst();
         this.trackDetailsContainer.setKeepScreenOn(keepScreenOn);
-        outerView.setScaleX(-1f);
     }
 
     @Override
@@ -221,6 +220,14 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
                     finish();
                 })
                 .show();
+    }
+
+    @OnClick(R.id.activity_recscreen_mirror)
+    protected void onMiroorFlip() {
+        if (outerView.getScaleX() == 1f)
+            outerView.setScaleX(-1f);
+        else
+            outerView.setScaleX(1f);
     }
 
     @Subscribe
@@ -293,9 +300,9 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
     }
 
     @Subscribe
-    public void onRecordingStateEvent(RecordingStateEvent event){
+    public void onRecordingStateEvent(RecordingStateEvent event) {
         LOG.info("Received event: %s", event.toString());
-        if (event.recordingState == RecordingState.RECORDING_STOPPED){
+        if (event.recordingState == RecordingState.RECORDING_STOPPED) {
             runOnUiThread(() -> this.finish());
         }
     }
