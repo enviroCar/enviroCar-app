@@ -111,6 +111,8 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
     protected LinearLayout tempomatContainer;
     @BindView(R.id.activity_recscreen_stopbutton)
     protected LinearLayout stopTrackRecordingButton;
+    @BindView(R.id.activity_recscreen_mirror)
+    View outerView;
 
     // state variables
     private RecordingType recordingType;
@@ -150,6 +152,7 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
         // set keep screen on setting
         boolean keepScreenOn = ApplicationSettings.getDisplayStaysActiveObservable(this).blockingFirst();
         this.trackDetailsContainer.setKeepScreenOn(keepScreenOn);
+        outerView.setScaleX(-1f);
     }
 
     @Override
