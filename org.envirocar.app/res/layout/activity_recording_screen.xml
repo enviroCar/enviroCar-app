@@ -244,6 +244,23 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/activity_recscreen_switchMirror"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="40dp"
+                android:background="@drawable/roundedwhitebutton">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="8dp"
+                    android:src="@drawable/ic_baseline_flip_24"
+                    android:tint="@color/cario_color_primary" />
+
+            </LinearLayout>
+
+            <LinearLayout
                 android:id="@+id/activity_recscreen_switchbutton"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
