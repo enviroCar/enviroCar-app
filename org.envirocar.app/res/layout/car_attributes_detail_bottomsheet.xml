@@ -117,6 +117,7 @@
             </RelativeLayout>
 
             <RelativeLayout
+                android:id="@+id/bottomSheetEngineLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:minHeight="@dimen/spacing_xxlarge"

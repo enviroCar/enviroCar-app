@@ -36,6 +36,8 @@ public class BottomSheetFragment extends BottomSheetDialogFragment {
     TextView power;
     @BindView(R.id.activity_car_details_attr_engine_value)
     TextView engine;
+    @BindView(R.id.bottomSheetEngineLayout)
+    View engineLayout;
 
     Vehicles vehicle;
 
@@ -54,7 +56,11 @@ public class BottomSheetFragment extends BottomSheetDialogFragment {
         Car.FuelType fuelType = ((CarSelectionActivity)getActivity()).getFuel(vehicle.getPower_source_id());
         fuel.setText(getContext().getString(fuelType.getStringResource()));
         power.setText(vehicle.getPower()+" kW");
-        engine.setText(vehicle.getEngine_capacity()+" cm\u00B3");
+        if (fuelType != Car.FuelType.ELECTRIC) {
+            engine.setText(vehicle.getEngine_capacity() + " cm\u00B3");
+        } else {
+            engineLayout.setVisibility(View.GONE);
+        }
         return view;
     }
 
