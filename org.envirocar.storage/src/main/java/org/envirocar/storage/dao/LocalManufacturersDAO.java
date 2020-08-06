@@ -7,14 +7,15 @@ import org.envirocar.core.entity.Manufacturers;
 
 import java.util.List;
 
+import io.reactivex.Observable;
 import io.reactivex.Single;
 
 
 @Dao
 public interface LocalManufacturersDAO extends BaseLocalCarDAO<Manufacturers> {
 
-    @Query("SELECT name FROM manufacturers")
-    Single<List<String>> getAllManufacturers();
+    @Query("SELECT * FROM manufacturers")
+    Observable<List<Manufacturers>> getAllManufacturers();
 
     @Query("INSERT INTO manufacturers(id, name)\n" +
             "  SELECT DISTINCT\n" +
