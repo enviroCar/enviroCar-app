@@ -25,6 +25,8 @@ import android.os.Bundle;
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
 import org.envirocar.app.injection.BaseInjectorActivity;
+import org.envirocar.app.views.carselection.CarSelectionAddCarFragment;
+import org.envirocar.core.entity.Manufacturers;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.storage.EnviroCarVehicleDB;
 
@@ -35,8 +37,11 @@ import javax.inject.Inject;
 
 import butterknife.ButterKnife;
 import io.reactivex.Completable;
+import io.reactivex.Observable;
 import io.reactivex.Single;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.observers.DisposableObserver;
 import io.reactivex.observers.DisposableSingleObserver;
 import io.reactivex.schedulers.Schedulers;
 
@@ -61,17 +66,23 @@ public class SplashScreenActivity extends BaseInjectorActivity {
         super.onCreate(savedInstanceState);
         //fetch to db intilization to prepoulate database before the database object used in CarSelection to remove delay
 
-        Single<List<String>> dbInit = enviroCarVehicleDB.manufacturersDAO().getAllManufacturers();
-
+        Observable<List<Manufacturers>> dbInit = enviroCarVehicleDB.manufacturersDAO().getAllManufacturers();
         dbInit.subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.io())
-                .subscribeWith(new DisposableSingleObserver<List<String>>() {
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new DisposableObserver<List<Manufacturers>>() {
                     @Override
-                    public void onSuccess(List<String> strings) {
+                    public void onNext(List<Manufacturers> manufacturersList1) {
+
                     }
 
                     @Override
                     public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+
                     }
                 });
 
