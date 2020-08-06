@@ -40,6 +40,7 @@ import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
 import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.app.views.utils.ECAnimationUtils;
+import org.envirocar.core.entity.Manufacturers;
 import org.envirocar.core.entity.Vehicles;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.storage.EnviroCarVehicleDB;
@@ -51,8 +52,10 @@ import javax.inject.Inject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import info.hoang8f.android.segmented.SegmentedGroup;
+import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.observers.DisposableObserver;
 import io.reactivex.observers.DisposableSingleObserver;
 import io.reactivex.schedulers.Schedulers;
 
@@ -75,7 +78,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
     EnviroCarVehicleDB enviroCarVehicleDB;
 
     private CarSelectionPagerAdapter pagerAdapter;
-    private List<Vehicles> vehiclesList;
+    private List<Manufacturers> manufacturersList;
 
     @Nullable
     @Override
@@ -163,23 +166,29 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
     }
 
     private void fetchVehicles() {
-        Single<List<Vehicles>> vehicle = enviroCarVehicleDB.vehicleDAO().getManufacturerVehicles();
-        vehicle.subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.io())
-                .subscribeWith(new DisposableSingleObserver<List<Vehicles>>() {
+        Observable<List<Manufacturers>> manufacturers = enviroCarVehicleDB.manufacturersDAO().getAllManufacturers();
+        manufacturers.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new DisposableObserver<List<Manufacturers>>() {
                     @Override
-                    public void onSuccess(List<Vehicles> vehiclesList1) {
-                        AndroidSchedulers.mainThread().createWorker().schedule(() -> {
-                            vehiclesList = vehiclesList1;
-                            pagerAdapter = new CarSelectionPagerAdapter(getChildFragmentManager());
-                            mViewPager.setAdapter(pagerAdapter);
-                        });
+                    public void onNext(List<Manufacturers> manufacturersList1) {
+                        manufacturersList = manufacturersList1;
+                        pagerAdapter = new CarSelectionPagerAdapter(getChildFragmentManager());
+                        mViewPager.setAdapter(pagerAdapter);
                     }
 
                     @Override
                     public void onError(Throwable e) {
+                        LOG.info("manufactureFetch() :", e.getMessage());
+                    }
+
+                    @Override
+                    public void onComplete() {
+
                     }
                 });
+
+
     }
 
     public void closeThisFragment() {
@@ -206,8 +215,8 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
 
         public CarSelectionPagerAdapter(@NonNull FragmentManager fm) {
             super(fm);
-            hsnTsnFragment = new CarSelectionHsnTsnFragment(vehiclesList);
-            attributesFragment = new CarSelectionAttributesFragment(vehiclesList);
+            hsnTsnFragment = new CarSelectionHsnTsnFragment(manufacturersList);
+            attributesFragment = new CarSelectionAttributesFragment(manufacturersList);
         }
 
         @NonNull
