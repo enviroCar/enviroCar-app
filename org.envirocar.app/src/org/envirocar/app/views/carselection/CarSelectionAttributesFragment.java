@@ -19,6 +19,7 @@ import com.jakewharton.rxbinding3.widget.RxTextView;
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
 import org.envirocar.app.injection.BaseInjectorFragment;
+import org.envirocar.core.entity.Manufacturers;
 import org.envirocar.core.entity.Vehicles;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.storage.EnviroCarVehicleDB;
@@ -36,10 +37,12 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnTextChanged;
+import io.reactivex.Observable;
 import io.reactivex.Scheduler;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.observers.DisposableObserver;
 import io.reactivex.observers.DisposableSingleObserver;
 import io.reactivex.schedulers.Schedulers;
 
@@ -61,11 +64,11 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
     private Scheduler.Worker mainThreadWorker = AndroidSchedulers.mainThread().createWorker();
     private CompositeDisposable disposable = new CompositeDisposable();
     private static final int ERROR_DEBOUNCE_TIME = 750;
-    private List<Vehicles> vehiclesList;
+    private List<Manufacturers> manufacturersList;
     private static Drawable error;
 
-    CarSelectionAttributesFragment(List<Vehicles> vehiclesList) {
-        this.vehiclesList = vehiclesList;
+    CarSelectionAttributesFragment(List<Manufacturers> manufacturersList) {
+        this.manufacturersList = manufacturersList;
     }
 
     @Nullable
@@ -75,11 +78,11 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
 
         View view = inflater.inflate(R.layout.fragment_car_selection_attributes, container, false);
         ButterKnife.bind(this, view);
-        fetchVehicles();
+        fetchManufactureres();
         initFocusChangedListener();
         reactiveTexFieldCheck();
         error = getResources().getDrawable(R.drawable.ic_error_red_24dp);
-        error.setBounds(-50,0,0,error.getIntrinsicHeight());
+        error.setBounds(-50, 0, 0, error.getIntrinsicHeight());
         manufactureEditText.setOnItemClickListener((parent, view1, position, id) -> requestNextTextFieldFocus(manufactureEditText));
         modelEditText.setOnItemClickListener((parent, view12, position, id) -> requestNextTextFieldFocus(modelEditText));
         yearEditText.setOnItemClickListener((parent, view13, position, id) -> requestNextTextFieldFocus(yearEditText));
@@ -122,17 +125,17 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
         String year = yearEditText.getText().toString().trim();
         View focusView = null;
         if (manufacturer.isEmpty()) {
-            manufactureEditText.setError(getString(R.string.car_selection_error_empty_input),error);
+            manufactureEditText.setError(getString(R.string.car_selection_error_empty_input), error);
             focusView = manufactureEditText;
         }
 
         if (model.isEmpty()) {
-            modelEditText.setError(getString(R.string.car_selection_error_select_from_list),error);
+            modelEditText.setError(getString(R.string.car_selection_error_select_from_list), error);
             focusView = modelEditText;
         }
 
         if (year.isEmpty()) {
-            yearEditText.setError(getString(R.string.car_selection_error_select_from_list),error);
+            yearEditText.setError(getString(R.string.car_selection_error_select_from_list), error);
             focusView = yearEditText;
         }
 
@@ -162,13 +165,38 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
                 });
     }
 
-    private void fetchVehicles() {
-        if (vehiclesList != null)
-            for (Vehicles vehicles1 : vehiclesList) {
-                addCarToAutocompleteList(vehicles1);
+    private void fetchManufactureres() {
+        if (manufacturersList != null)
+            for (Manufacturers manufacturers : manufacturersList) {
+                mManufacturerNames.add(manufacturers.getName());
             }
         updateManufacturerView();
 
+    }
+
+    private void fetchVehicles(String manufacturersName) {
+        Observable<List<Vehicles>> getManufacturersVehicles = enviroCarVehicleDB.vehicleDAO().getManufacturerVehicles(manufacturersName);
+        getManufacturersVehicles.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new DisposableObserver<List<Vehicles>>() {
+                    @Override
+                    public void onNext(List<Vehicles> vehiclesList) {
+                        for (Vehicles vehicles : vehiclesList) {
+                            addCarToAutocompleteList(vehicles);
+                        }
+                        updateModelView(manufacturersName);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        LOG.info("vehicleFetch():",e.getMessage());
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
     }
 
     private void addCarToAutocompleteList(Vehicles vehicle) {
@@ -213,7 +241,7 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
         manufactureEditText.setOnFocusChangeListener((v, hasFocus) -> {
             if (!hasFocus) {
                 String manufacturer = manufactureEditText.getText().toString();
-                updateModelView(manufacturer);
+                fetchVehicles(manufacturer);
             }
         });
         modelEditText.setOnFocusChangeListener((v, hasFocus) -> {
@@ -250,7 +278,7 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
                         }
                     }
                     if (flag == 0) {
-                        manufactureEditText.setError(getString(R.string.car_selection_error_select_from_list),error);
+                        manufactureEditText.setError(getString(R.string.car_selection_error_select_from_list), error);
                         manufactureEditText.requestFocus();
                     } else {
                         manufactureEditText.setError(null);
@@ -274,7 +302,7 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
                         }
 
                         if (flag == 0) {
-                            modelEditText.setError(getString(R.string.car_selection_error_select_from_list),error);
+                            modelEditText.setError(getString(R.string.car_selection_error_select_from_list), error);
                             modelEditText.requestFocus();
                         } else {
                             modelEditText.setError(null);
@@ -300,7 +328,7 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
                         }
 
                         if (flag == 0) {
-                            yearEditText.setError(getString(R.string.car_selection_error_select_from_list),error);
+                            yearEditText.setError(getString(R.string.car_selection_error_select_from_list), error);
                             yearEditText.requestFocus();
                         } else {
                             yearEditText.setError(null);
