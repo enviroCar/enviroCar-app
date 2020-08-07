@@ -1,0 +1,49 @@
+<LinearLayout android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/blue_dark_cario"
+    android:orientation="vertical"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <TextView
+        android:id="@+id/onBoardingHead"
+        android:layout_marginTop="30dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:text="Record"
+        android:textStyle="bold"
+        android:textColor="@color/white"
+        android:textSize="30dp"/>
+
+    <TextView
+        android:id="@+id/onBoardingText"
+        android:layout_marginTop="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:text="your track data "
+        android:textColor="@color/white"
+        android:textSize="16dp"/>
+
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/onBoardingAnim"
+        android:layout_marginTop="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        app:lottie_autoPlay="true"
+        app:lottie_loop="true"
+        app:lottie_rawRes="@raw/map"/>
+
+    <TextView
+        android:id="@+id/onBoardingDesc"
+        android:layout_marginTop="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:text="by connecting app with OBD,\n OBD connecting
+help can be found in Dashboard"
+        android:textColor="@color/white"
+        android:textSize="16dp"/>
+
+</LinearLayout>
