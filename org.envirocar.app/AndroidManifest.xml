@@ -94,6 +94,9 @@
             android:name=".views.recordingscreen.RecordingScreenActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".views.onboarding.OnBoardingActivity"
+            android:screenOrientation="portrait" />
 
         <!-- Services -->
         <service android:name=".recording.RecordingService"

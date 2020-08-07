@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/blue_dark_cario">
+
+        <androidx.viewpager.widget.ViewPager
+            android:id="@+id/onboardingViewpager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="140dp"/>
+
+        <me.relex.circleindicator.CircleIndicator
+            android:id="@+id/onboardingIndicator"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="80dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/onBoardingButton"
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:layout_alignParentBottom="true"
+            android:backgroundTint="@color/white_cario"
+            android:text="NEXT"
+            android:textStyle="bold"
+            android:textColor="@color/blue_dark_cario"
+            android:textSize="16dp"/>
+
+    </RelativeLayout>
+
+</LinearLayout>
