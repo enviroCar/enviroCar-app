@@ -2,6 +2,8 @@ package org.envirocar.app.views.onboarding;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatTextView;
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
@@ -27,7 +29,9 @@ public class OnBoardingActivity extends AppCompatActivity {
     @BindView(R.id.onboardingIndicator)
     CircleIndicator circleIndicator;
     @BindView(R.id.onBoardingButton)
-    MaterialButton button;
+    CardView button;
+    @BindView(R.id.onBoardingButtonText)
+    AppCompatTextView buttonText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,9 +51,9 @@ public class OnBoardingActivity extends AppCompatActivity {
             @Override
             public void onPageSelected(int position) {
                 if(position == 2) {
-                    button.setText("FINISH");
+                    buttonText.setText("FINISH");
                 } else {
-                    button.setText("NEXT");
+                    buttonText.setText("NEXT");
                 }
 
             }
@@ -68,6 +72,7 @@ public class OnBoardingActivity extends AppCompatActivity {
             getSharedPreferences("OnBoarding",MODE_PRIVATE).edit().putBoolean("HasSeen",true).commit();
             Intent intent = new Intent(this, BaseMainActivity.class);
             startActivity(intent);
+            finish();
         } else {
             viewPager.setCurrentItem(viewPager.getCurrentItem()+1);
         }

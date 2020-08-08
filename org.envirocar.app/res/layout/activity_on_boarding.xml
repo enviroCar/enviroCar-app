@@ -23,16 +23,34 @@
             android:layout_alignParentBottom="true"
             android:layout_marginBottom="80dp" />
 
-        <com.google.android.material.button.MaterialButton
+        <androidx.cardview.widget.CardView
             android:id="@+id/onBoardingButton"
             android:layout_width="match_parent"
-            android:layout_height="70dp"
+            android:layout_height="48dp"
+            android:layout_marginBottom="40dp"
             android:layout_alignParentBottom="true"
-            android:backgroundTint="@color/white_cario"
-            android:text="NEXT"
-            android:textStyle="bold"
-            android:textColor="@color/blue_dark_cario"
-            android:textSize="16dp"/>
+            android:layout_marginLeft="60dp"
+            android:layout_marginRight="60dp"
+            android:foreground="?android:attr/selectableItemBackground"
+            app:cardBackgroundColor="@color/dashboard_button_selector"
+            app:cardCornerRadius="25dp"
+            app:cardElevation="10dp">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/onBoardingButtonText"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_gravity="center"
+                android:layout_marginLeft="32dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginRight="32dp"
+                android:layout_marginBottom="8dp"
+                android:gravity="center"
+                android:text="NEXT"
+                android:textSize="18dp"
+                android:textColor="@color/white_cario" />
+
+        </androidx.cardview.widget.CardView>
 
     </RelativeLayout>
 
