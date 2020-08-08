@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -132,12 +132,18 @@ public class OthersFragment extends BaseInjectorFragment {
     @OnClick(R.id.othersReportIssue)
     protected void onReportIssueClicked() {
 //        if (checkPermissions()) {
-            //access granted
-            Intent intent = new Intent(getActivity(), SendLogFileActivity.class);
-            startActivity(intent);
+        //access granted
+        Intent intent = new Intent(getActivity(), SendLogFileActivity.class);
+        startActivity(intent);
 //        } else {
 //            requestPermissions();
 //        }
+    }
+
+    @OnClick(R.id.othersLicense)
+    protected void onClickLicense() {
+        LicenseDialogFragment licenseDialogFragment = new LicenseDialogFragment();
+        licenseDialogFragment.show(getChildFragmentManager(), "LicenseDialog");
     }
 
     @OnClick(R.id.othersRateUs)
@@ -296,20 +302,22 @@ public class OthersFragment extends BaseInjectorFragment {
 
     private DisposableCompletableObserver logOut() {
         return new DisposableCompletableObserver() {
-            User tempUser=null;
-            MaterialDialog dialog=null;
+            User tempUser = null;
+            MaterialDialog dialog = null;
+
             @Override
             public void onStart() {
 
                 this.tempUser = mUserManager.getUser();
 
-                this.dialog=new MaterialDialog.Builder(getContext())
+                this.dialog = new MaterialDialog.Builder(getContext())
                         .title(R.string.activity_login_logout_progress_dialog_title)
                         .content(R.string.activity_login_logout_progress_dialog_content)
                         .progress(true, 0)
                         .cancelable(false)
                         .show();
             }
+
             @Override
             public void onComplete() {
                 Snackbar.make(getActivity().findViewById(R.id.navigation),
