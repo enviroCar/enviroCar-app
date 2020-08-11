@@ -27,6 +27,7 @@ dependencies {
     implementation rootProject.ext.gson
     implementation rootProject.ext.playServicesLocation
     implementation rootProject.ext.findBugs
+    implementation rootProject.ext.playCore
 
     // RxJava for Android
     implementation rootProject.ext.rxAndroid
