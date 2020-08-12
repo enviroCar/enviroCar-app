@@ -18,7 +18,7 @@
  */
 package org.envirocar.app.test;
 
-public class UserTest extends ResourceLoadingTestCase {
+//public class UserTest extends ResourceLoadingTestCase {
 
 //	@Test
 //	public void testUserParsing() throws IOException, JSONException {
@@ -29,4 +29,4 @@ public class UserTest extends ResourceLoadingTestCase {
 //		Assert.assertTrue("unexpected username", getUserStatistic.getUsername().equals("matthes"));
 //	}
 	
-}
+//}

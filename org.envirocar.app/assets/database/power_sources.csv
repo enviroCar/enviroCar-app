@@ -1,0 +1,39 @@
+Code,Kurzbezeichnung,Kraftstoffart bzw. Energiequelle
+1,Benzin,Benzin
+2,Diesel,Diesel
+3,Vielstoff,Vielstoff
+4,Elektro,Reines Elektrofahrzeug
+5,Flüssiggas,Flüssiggas (LPG)
+6,Benzin/Flüssiggas,Bivalenter Betrieb mit Benzin oder Flüssiggas
+7,Benzin/komp.Erdgas,Bivalenter Betrieb mit Benzin oder komprimiertem Erdgas
+8,Hybr.Benzin/E,Kombinierter Betrieb mit Benzin und Elektromotor
+9,Erdgas NG,Erdgas (NG)
+10,Hybr.Diesel/E,Kombinierter Betrieb mit Diesel und Elektormotor
+11,Wasserstoff,Wasserstoff
+12,Hybr.Wasserst./E,Kombinierter Betrieb mit Wasserstoff und Elektromotor
+13,Wasserstoff/Benzin,Bivalenter Betrieb mit Wasserstoff oder Benzin
+14,Wasserst./Benzin/E,Bivalenter Betrieb mit Wasserstoff oder Benzin kombiniert mit Elektromotor
+15,BZ/Wasserstoff,"Brennstoffzelle mit Primärenergie Wasserstoff (Elektromotor, Arbeitsverfahren FCV)"
+16,BZ/Benzin,Brennstoffzelle mit Primärenergie Benzin
+17,BZ/Methanol,Brennstoffzelle mit Primärenergie Methanol
+18,BZ/Ethanol,Brennstoffzelle mit Primärenergie Ethanol
+19,Hybr.Vielstoff/E,Kombinierter Betrieb mit Vielstoff und Elektromotor
+22,Hybr.Erdgas/E,Kombinierter Betrieb mit Erdgas und Elektromotor
+23,Benzin/Ethanol,Benzin/Ethanol (hierunter ist ein Kraftstoffgemisch mit überwiegendem Ethanolanteil zu verstehen wie z. B. E85)
+24,Hybr.Flüssiggas/E,Kombinierter Betrieb mit Flüssiggas (LPG) und Elektromotor
+25,Hybr.B/E ext.aufl.,Hybridantrieb mit Benzin und extern aufladbarem elektrischen Speicher (Plug-in-Hybrid)
+26,Hybr.D/E ext.aufl.,Hybridantrieb mit Diesel und extern aufladbarem elektrischen Speicher (Plug-in-Hybrid)
+27,Hybr.LPG/E ext.aufl.,Hybridantrieb mit Flüssiggas (LPG) und extern aufladbarem elektrischen Speicher (Plug-in-Hybrid)
+28,Hybr.W/E ext.aufl.,Hybridantrieb mit Wasserstoff und extern aufladbarem elektrischen Speicher (Plug-in-Hybrid)
+29,Hybr.V/E ext.aufl.,Hybridantrieb mit Vielstoff und extern aufladbarem elektrischen Speicher (Plug-in-Hybrid)
+30,Hybr.NG/E ext.aufl.,Hybridantrieb mit Erdgas (NG) und extern aufladbarem elektrischen Speicher (Plug-in-Hybrid)
+31,Hybr.Wod.B/Eext.aufl,Hybridantrieb mit bivalentem Betrieb mit Wasserstoff oder Benzin und extern aufladbarem elektrischen Speicher (Plug-in-Hybrid)
+32,Wasserstoff/NG,Wasserstoff/Erdgas (hierunter ist ein Kraftstoffgemisch zu verstehen)
+33,Hybr.W/NG/E ext.aufl,Hybridantrieb mit Wasserstoff/Erdgas und extern aufladbarem elektrischen Speicher (Plug-in-Hybrid)
+34,Ethanol,"Ethanol (hierunter ist auch ein Kraftstoffgemisch zu verstehen, dem neben Ethanol noch andere Kraftstoffe - ausgenommen Benzin (s. Code 0023) - oder Additive (z. B. Zündverbesserer) zugesetzt wurden (z. B. E95))"
+35,Hybr.BZ/W/E,Hybridantrieb mit Brennstoffzelle (Elektromotor) und Wasserstoff (Verbrennungsmotor) (Arbeitsverfahren NOVC-FCHV)
+36,Hybr.BZ/W/E ext. aufl.,"Hybridantrieb mit Brennstoffzelle (Elektromotor) und Wasserstoff (Verbrennungsmotor) sowie extern aufladbarem elektrischen Speicher (Plug-in-Hybrid, Arbeitsverfahren OVC-FCHV)"
+37,Zweistoff LNG/Diesel,Zweistoffbetrieb mit verflüssigtem Erdgas (LNG) und Diesel
+38,Verflüssigtes Erdgas (LNG),Verflüssigtes Erdgas (LNG)
+9999,Andere,Andere
+0,Unbekannt,Unbekannt

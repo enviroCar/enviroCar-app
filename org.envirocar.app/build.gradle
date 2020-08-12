@@ -9,6 +9,9 @@ dependencies {
     implementation rootProject.ext.supportCardview
     implementation rootProject.ext.supportRecyclerview
     implementation rootProject.ext.supportConstraintLayout
+    implementation rootProject.ext.androidRoom
+    implementation rootProject.ext.androidRoomRxJava
+    annotationProcessor rootProject.ext.supportRoom
 
     implementation rootProject.ext.supportLifecycleExtension
     implementation rootProject.ext.supportLifecycleRuntime
@@ -67,6 +70,7 @@ dependencies {
     androidTestImplementation('androidx.test:runner:1.1.0-alpha4') {
         exclude module: 'support-annotations'
     }
+    androidTestImplementation'android.arch.core:core-testing:1.1.0'
     androidTestImplementation('androidx.test:rules:1.1.0-alpha4') {
         exclude module: 'support-annotations'
     }
