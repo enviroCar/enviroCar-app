@@ -10,7 +10,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.3'
+        classpath 'com.android.tools.build:gradle:3.6.3'
         classpath "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.12.1"
         classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
     }
@@ -119,6 +119,7 @@ ext {
     mapbox = 'com.mapbox.mapboxsdk:mapbox-android-sdk:8.1.0'
     segmentedUIController = 'info.hoang8f:android-segmented:1.0.6'
     apacheCommons = 'org.apache.commons:commons-compress:1.18'
+    openCSVReader = 'com.opencsv:opencsv:4.6'
 
     // Testing
     junit = 'junit:junit:4.12'

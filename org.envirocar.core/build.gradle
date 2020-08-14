@@ -41,6 +41,7 @@ dependencies {
     // Third party
     implementation rootProject.ext.apacheCommons
     implementation rootProject.ext.materialDialogs
+    implementation rootProject.ext.openCSVReader
 
     //Room
     implementation rootProject.ext.androidRoom
