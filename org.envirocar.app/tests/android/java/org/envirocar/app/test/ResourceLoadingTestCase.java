@@ -18,31 +18,30 @@
  */
 package org.envirocar.app.test;
 
-//import android.test.AndroidTestCase;
-//import android.test.InstrumentationTestCase;
-//
-//import java.io.IOException;
-//import java.io.InputStream;
-//import java.util.Scanner;
-//
-//public class ResourceLoadingTestCase extends InstrumentationTestCase {
-//
-//	protected String readJson(InputStream in) {
-//		Scanner sc = new Scanner(in, "UTF-8");
-//
-//		StringBuilder sb = new StringBuilder();
-//		while (sc.hasNext()) {
-//			sb.append(sc.nextLine());
-//			sb.append(System.getProperty("line.separator"));
-//		}
-//
-//		sc.close();
-//		return sb.toString();
-//	}
-//
-//	protected String readJsonAsset(String assetRes) throws IOException {
-//		return readJson(getClass().getResourceAsStream(assetRes));
-//	}
-//
-//}
-//
+import android.test.AndroidTestCase;
+import android.test.InstrumentationTestCase;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Scanner;
+
+public class ResourceLoadingTestCase extends InstrumentationTestCase {
+
+	protected String readJson(InputStream in) {
+		Scanner sc = new Scanner(in, "UTF-8");
+
+		StringBuilder sb = new StringBuilder();
+		while (sc.hasNext()) {
+			sb.append(sc.nextLine());
+			sb.append(System.getProperty("line.separator"));
+		}
+
+		sc.close();
+		return sb.toString();
+	}
+
+	protected String readJsonAsset(String assetRes) throws IOException {
+		return readJson(getClass().getResourceAsStream(assetRes));
+	}
+
+}
