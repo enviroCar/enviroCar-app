@@ -72,7 +72,7 @@ public final class DatabaseModule {
 
     @Provides
     @Singleton
-    TrackRoomDatabase provideRoomDatabase(@InjectApplicationScope Context context) {
+    TrackRoomDatabase provideRoomTrackDatabase(@InjectApplicationScope Context context) {
         return Room.databaseBuilder(context, TrackRoomDatabase.class, DATABASE_NAME)
                 .allowMainThreadQueries()
                 .build();
