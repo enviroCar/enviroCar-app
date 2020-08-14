@@ -18,7 +18,7 @@
  */
 package org.envirocar.app.test;
 
-//public class FuelingEncoderTest extends ResourceLoadingTestCase {
+public class FuelingEncoderTest extends ResourceLoadingTestCase {
 
 //
 //	@Test
@@ -72,4 +72,4 @@ package org.envirocar.app.test;
 //		return new JSONObject(json);
 //	}
 
-//}
+}
