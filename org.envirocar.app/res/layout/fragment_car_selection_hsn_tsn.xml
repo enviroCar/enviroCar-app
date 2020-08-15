@@ -2,162 +2,111 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white_cario">
+    android:background="@color/white">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="wrap_content">
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="@dimen/spacing_large"
-            android:backgroundTint="@color/white"
-            android:src="@drawable/ic_directions_car_black_24dp"
-            app:backgroundTint="@color/black"
-            app:borderWidth="1dp"
-            app:rippleColor="@color/black" />
-
-        <View
-            android:layout_width="3dp"
-            android:layout_height="70dp"
-            android:layout_gravity="center"
-            android:background="@color/gray88" />
-
-        <com.google.android.material.card.MaterialCardView
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="30dp"
-            android:layout_marginRight="30dp"
-            android:layout_marginBottom="20dp"
-            app:cardBackgroundColor="@color/white"
-            app:cardCornerRadius="5dp"
-            app:cardElevation="10dp">
+            android:layout_marginBottom="20dp">
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/fragment_hsntsn_hsn_input_layout"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="20dp">
+                android:layout_marginTop="10dp"
+                android:hint="HSN"
+                app:layout_constraintEnd_toEndOf="@id/activity_car_guideline_right"
+                app:layout_constraintStart_toStartOf="@id/activity_car_guideline_left"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintWidth_max="500dp">
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/fragment_hsntsn_hsn_input_layout"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
-                    android:hint="HSN"
-                    app:layout_constraintEnd_toEndOf="@id/activity_car_guideline_right"
-                    app:layout_constraintStart_toStartOf="@id/activity_car_guideline_left"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintWidth_max="500dp">
+                <AutoCompleteTextView
+                    android:id="@+id/fragment_hsntsn_hsn_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:imeOptions="actionNext"
+                    android:inputType="text"
+                    android:maxLines="1"
+                    android:textColor="@color/black"
+                    android:textSize="16dp" />
 
-                    <AutoCompleteTextView
-                        android:id="@+id/fragment_hsntsn_hsn_input"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:imeOptions="actionNext"
-                        android:inputType="text"
-                        android:maxLines="1"
-                        android:textColor="@color/black"
-                        android:textSize="16dp" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-                </com.google.android.material.textfield.TextInputLayout>
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/fragment_hsntsn_tsn_input_layout"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:hint="TSN"
+                app:layout_constraintEnd_toEndOf="@id/activity_car_guideline_right"
+                app:layout_constraintStart_toStartOf="@id/activity_car_guideline_left"
+                app:layout_constraintTop_toBottomOf="@+id/fragment_hsntsn_hsn_input_layout">
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/fragment_hsntsn_tsn_input_layout"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
-                    android:hint="TSN"
-                    app:layout_constraintEnd_toEndOf="@id/activity_car_guideline_right"
-                    app:layout_constraintStart_toStartOf="@id/activity_car_guideline_left"
-                    app:layout_constraintTop_toBottomOf="@+id/fragment_hsntsn_hsn_input_layout">
+                <AutoCompleteTextView
+                    android:id="@+id/fragment_hsntsn_tsn_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:imeOptions="actionDone"
+                    android:inputType="textCapSentences"
+                    android:maxLength="3"
+                    android:maxLines="1"
+                    android:textColor="@color/black"
+                    android:textSize="16dp" />
 
-                    <AutoCompleteTextView
-                        android:id="@+id/fragment_hsntsn_tsn_input"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:imeOptions="actionDone"
-                        android:inputType="textCapSentences"
-                        android:maxLength="3"
-                        android:maxLines="1"
-                        android:textColor="@color/black"
-                        android:textSize="16dp" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-                </com.google.android.material.textfield.TextInputLayout>
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/fragment_search_vehicle"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:layout_centerHorizontal="true"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="30dp"
+                app:cardBackgroundColor="@color/cario_color_primary_dark"
+                app:cardCornerRadius="25dp"
+                app:cardElevation="10dp"
+                app:layout_constraintEnd_toStartOf="@id/activity_car_guideline_right"
+                app:layout_constraintStart_toStartOf="@id/activity_car_guideline_left"
+                app:layout_constraintTop_toBottomOf="@+id/fragment_hsntsn_tsn_input_layout">
 
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/fragment_search_vehicle"
-                    android:layout_width="0dp"
-                    android:layout_height="50dp"
-                    android:layout_centerHorizontal="true"
-                    android:layout_marginHorizontal="16dp"
-                    android:layout_marginTop="40dp"
-                    app:cardBackgroundColor="@color/cario_color_primary_dark"
-                    app:cardCornerRadius="25dp"
-                    app:cardElevation="10dp"
-                    app:layout_constraintEnd_toStartOf="@id/activity_car_guideline_right"
-                    app:layout_constraintStart_toStartOf="@id/activity_car_guideline_left"
-                    app:layout_constraintTop_toBottomOf="@+id/fragment_hsntsn_tsn_input_layout">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:text="Search"
-                        android:textColor="@color/white_cario" />
-
-                </com.google.android.material.card.MaterialCardView>
-
-                <View
+                <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
-                    app:layout_constraintEnd_toStartOf="@id/activity_car_guideline_right"
-                    app:layout_constraintStart_toStartOf="@id/activity_car_guideline_left"
-                    app:layout_constraintTop_toBottomOf="@id/fragment_search_vehicle" />
+                    android:layout_gravity="center"
+                    android:text="Search"
+                    android:textColor="@color/white_cario" />
 
-                <androidx.constraintlayout.widget.Guideline
-                    android:id="@+id/activity_car_guideline_right"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    app:layout_constraintGuide_percent="0.90" />
+            </com.google.android.material.card.MaterialCardView>
 
-                <androidx.constraintlayout.widget.Guideline
-                    android:id="@+id/activity_car_guideline_left"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    app:layout_constraintGuide_percent="0.10" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:gravity="center">
-
-            <TextView
-                android:id="@+id/HsnTsnInfo"
+            <View
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="HSN/TSN"
-                android:textColor="@color/blue_light_cario"
-                android:textSize="16dp" />
+                android:layout_marginTop="20dp"
+                app:layout_constraintEnd_toStartOf="@id/activity_car_guideline_right"
+                app:layout_constraintStart_toStartOf="@id/activity_car_guideline_left"
+                app:layout_constraintTop_toBottomOf="@id/fragment_search_vehicle" />
 
-            <ImageView
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/activity_car_guideline_right"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginRight="10dp"
-                android:layout_toLeftOf="@id/HsnTsnInfo"
-                android:src="@drawable/ic_info_black_24dp"
-                android:tint="@color/blue_light_cario" />
-        </RelativeLayout>
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.90" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/activity_car_guideline_left"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.10" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </LinearLayout>
+
+
 </androidx.core.widget.NestedScrollView>
