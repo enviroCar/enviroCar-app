@@ -1,4 +1,4 @@
-# enviroCar Android App
+# EnviroCar Android App
 
 This is the app for the enviroCar platform. (www.envirocar.org)
 
