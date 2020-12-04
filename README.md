@@ -30,7 +30,7 @@ enviroCar is an Android application for smartphones that can be used to collect 
 
 ### Installation
 
-Use the Google Play Store to install the [enviroCar](https://play.google.com/store/apps/details?id=org.envirocar.app) app on your device.
+Use the Google Play Store to install the [enviroCar app](https://play.google.com/store/apps/details?id=org.envirocar.app) on your device.
 
 We are planning to include the project into F-Droid in the near future.
 
@@ -45,7 +45,7 @@ for existing projects.
 The enviroCar App is licensed under the [GNU General Public License, Version 3](https://github.com/enviroCar/enviroCar-app/blob/master/LICENSE).
 
 ## Recorded Parameters
-|Parametername	        |Unit   	|
+|Parameter Name	        |Unit   	|
 |---	                |---	|
 |Speed 	                |km/h  	|
 |Mass-Air-Flow (MAF)   	|l/s   	|
