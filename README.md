@@ -1,6 +1,6 @@
 # enviroCar Android App
 
-This is the app for the enviroCar platform. (www.envirocar.org)
+This is the android app for the enviroCar platform. (www.envirocar.org)
 
 ## Description
 
@@ -8,7 +8,7 @@ This is the app for the enviroCar platform. (www.envirocar.org)
 
 **Collecting and analyzing vehicle sensor data**
 
-enviroCar Mobile is an Android application for smartphones that can be used to collect Extended Floating Car Data (XFCD). The app communicates with an OBD2 Bluetooth adapter while the user drives. This enables read access to data from the vehicle’s engine control. The data is recorded along with the smartphone’s GPS position data.The driver can view statistics about his drives and publish his data as open data. The latter happens by uploading tracks to the enviroCar server, where the data is available under the ODbL license for further analysis and use. The data can also be viewed and analyzed via the enviroCar website. enviroCar Mobile is one of the enviroCar Citizen Science Platform’s components (www.envirocar.org).
+enviroCar is an Android application for smartphones that can be used to collect Extended Floating Car Data (XFCD). The app communicates with an OBD2 Bluetooth adapter while the user drives. This enables read access to data from the vehicle’s engine control. The data is recorded along with the smartphone’s GPS position data. The driver can view statistics about his drives and publish his data as open data. The latter happens by uploading tracks to the enviroCar server, where the data is available under the ODbL license for further analysis and use. The data can also be viewed and analyzed via the enviroCar website. enviroCar Mobile is one of the enviroCar Citizen Science Platform’s components (www.envirocar.org).
 
 
 **Key Technologies**
@@ -18,7 +18,7 @@ enviroCar Mobile is an Android application for smartphones that can be used to c
 
 **Benefits**
 
--	Easy collection of Extended Floating Car Data
+-	Easy collection of Extended Floating Car Data(XFCD)
 - Optional automation of data collection and upload
 - Estimation of fuel consumption and CO2 emissions
 - Publishing anonymized track data as Open Data
@@ -30,7 +30,7 @@ enviroCar Mobile is an Android application for smartphones that can be used to c
 
 ### Installation
 
-Use the [Google Play Store](https://play.google.com/store/apps/details?id=org.envirocar.app) to install the app on your device.
+Use the Google Play Store to install the [enviroCar](https://play.google.com/store/apps/details?id=org.envirocar.app) app on your device.
 
 We are planning to include the project into F-Droid in the near future.
 
