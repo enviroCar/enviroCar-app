@@ -1,5 +1,5 @@
 # enviroCar Android App
-<a href='https://play-lh.googleusercontent.com/zYEemPQehhQvvoiRagKenypFjqCw21_ly37vN_Jjf0uPuYhuSG2Ek0oIBbyQwvry0dY=s360-rw'>enviroCar</a>enviroCar allows you to use your car’s sensor data to investigate the impact that your driving style has on environmental factors such as fuel consumption, CO2 levels, and noise emissions. You can compare your driving statistics and you can optimize your driving efficiency while also reducing your car’s running costs!
+<a href='https://play-lh.googleusercontent.com/zYEemPQehhQvvoiRagKenypFjqCw21_ly37vN_Jjf0uPuYhuSG2Ek0oIBbyQwvry0dY=s360-rw'>enviroCar</a> allows you to use your car’s sensor data to investigate the impact that your driving style has on environmental factors such as fuel consumption, CO2 levels, and noise emissions. You can compare your driving statistics and you can optimize your driving efficiency while also reducing your car’s running costs!
 This is the app for the enviroCar platform. (www.envirocar.org)
 
 ## Description
@@ -41,8 +41,7 @@ enviroCar Mobile is an Android application for smartphones that can be used to c
 
 ### Installation
 
-Use the [Google Play Store](https://play.google.com/store/apps/details?id=org.envirocar.app) to install the app on your device.
-
+Use the Google Play Store to install the app on your device.<a href='https://play.google.com/store/apps/details?id=org.envirocar.app'><img align='right' height='46' src='./docs/images/google_play_badge.png'></a>
 We are planning to include the project into F-Droid in the near future.
 
 ## Development
