@@ -59,8 +59,8 @@ for existing projects.
 The enviroCar App is licensed under the [GNU General Public License, Version 3](https://github.com/enviroCar/enviroCar-app/blob/master/LICENSE).
 
 ## Recorded Parameters
-|Parametername	        |Unit   	| 
-|---	                |---	|---	|
+|Parametername	        |Unit   	|   	|   	|   	| 
+|---	                |---	|---	|---	|---	|---	|
 |Speed 	                |km/h  	|   	|   	|   	|
 |Mass-Air-Flow (MAF)   	|l/s   	|   	|   	|   	|
 |Calculated (MAF)       |g/s   	|   	|   	|   	|
