@@ -1,6 +1,7 @@
 # enviroCar Android App
-<a href='https://play-lh.googleusercontent.com/zYEemPQehhQvvoiRagKenypFjqCw21_ly37vN_Jjf0uPuYhuSG2Ek0oIBbyQwvry0dY=s360-rw'>enviroCar</a> allows you to use your car’s sensor data to investigate the impact that your driving style has on environmental factors such as fuel consumption, CO2 levels, and noise emissions. You can compare your driving statistics and you can optimize your driving efficiency while also reducing your car’s running costs!
-This is the app for the enviroCar platform. (www.envirocar.org)
+<img height='175' src="https://play.google.com/store/apps/details?id=org.envirocar.app" align="left" hspace="1" vspace="1">
+
+<a href='www.envirocar.org'>enviroCar</a> allows you to use your car’s sensor data to investigate the impact that your driving style has on environmental factors such as fuel consumption, CO2 levels, and noise emissions. You can compare your driving statistics and you can optimize your driving efficiency while also reducing your car’s running costs!
 
 ## Description
 
