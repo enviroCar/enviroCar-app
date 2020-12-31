@@ -20,6 +20,8 @@ package org.envirocar.app.handler.userstatistics;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 
@@ -61,7 +63,7 @@ public class UserStatisticsProcessor extends AbstractCachable<UserStatisticsProc
     private static final String PREF_KEY_TOTALDURATION = "totalDuration";
 
 
-    protected static final class UserStatisticsHolder {
+    protected static final class UserStatisticsHolder{
         private String username;
 
         private int numTracks;
