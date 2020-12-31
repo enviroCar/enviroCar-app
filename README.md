@@ -1,8 +1,6 @@
 # enviroCar Android App
-<img height='175' src="https://play-lh.googleusercontent.com/zYEemPQehhQvvoiRagKenypFjqCw21_ly37vN_Jjf0uPuYhuSG2Ek0oIBbyQwvry0dY=s360-rw" align="left" hspace="1" vspace="1">
-
-<a href='https://www.envirocar.org/?lng=en'>enviroCar</a> allows you to use your car’s sensor data to investigate the impact that your driving style has on environmental factors such as fuel consumption, CO2 levels, and noise emissions. You can compare your driving statistics and you can optimize your driving efficiency while also reducing your car’s running costs! 
-Share your data with the enviroCar Citizen Science Community and collaborate with other citizens, scientists and urban planners investigating such questions as what the effective spatial characteristics of fuel consumption are in your city, how traffic planning can be optimized to reduce emissions effectively and what we can learn from average speed maps.
+<a href='https://play-lh.googleusercontent.com/zYEemPQehhQvvoiRagKenypFjqCw21_ly37vN_Jjf0uPuYhuSG2Ek0oIBbyQwvry0dY=s360-rw'>enviroCar</a>enviroCar allows you to use your car’s sensor data to investigate the impact that your driving style has on environmental factors such as fuel consumption, CO2 levels, and noise emissions. You can compare your driving statistics and you can optimize your driving efficiency while also reducing your car’s running costs!
+This is the app for the enviroCar platform. (www.envirocar.org)
 
 ## Description
 
@@ -43,8 +41,7 @@ enviroCar Mobile is an Android application for smartphones that can be used to c
 
 ### Installation
 
-Use the Google Play Store to install the app on your device.
-<a href='https://play.google.com/store/apps/details?id=org.envirocar.app'><img align='right' height='66' src='https://raw.githubusercontent.com/fossasia/phimpme-android/development/docs/images/google_play_badge.png'></a>
+Use the [Google Play Store](https://play.google.com/store/apps/details?id=org.envirocar.app) to install the app on your device.
 
 We are planning to include the project into F-Droid in the near future.
 
@@ -88,6 +85,7 @@ The enviroCar App is licensed under the [GNU General Public License, Version 3](
 |Fuel System Status Code|category|   	|   	|   	|
 |Long Term Trim 1       |%   	|   	|   	|   	|
 |Short Term Trim 1      |%   	|   	|   	|   	|
+
 
 ## Changelog
 
