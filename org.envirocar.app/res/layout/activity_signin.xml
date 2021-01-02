@@ -95,8 +95,9 @@
             app:layout_constraintEnd_toEndOf="@id/activity_signin_guideline_right"
             app:layout_constraintStart_toStartOf="@id/activity_signin_guideline_left"
             app:layout_constraintTop_toBottomOf="@+id/activity_signin_username_input_layout"
-            app:layout_constraintWidth_max="500dp">
-
+            app:layout_constraintWidth_max="500dp"
+            app:passwordToggleEnabled="true"
+            >
             <androidx.appcompat.widget.AppCompatEditText
                 android:id="@+id/activity_login_password_input"
                 style="@style/envirocar.login.edittext"
@@ -105,7 +106,8 @@
                 android:drawableLeft="@drawable/ic_action_pass"
                 android:hint="@string/password"
                 android:imeOptions="actionDone"
-                android:inputType="textPassword" />
+                android:inputType="textPassword"
+                app:passwordToggleEnabled="true" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
