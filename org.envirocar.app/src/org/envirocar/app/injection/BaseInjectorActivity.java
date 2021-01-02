@@ -18,28 +18,15 @@
  */
 package org.envirocar.app.injection;
 
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.viewpager.widget.ViewPager;
-
-import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
-
-import com.google.android.material.bottomnavigation.BottomNavigationItemView;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.squareup.otto.Bus;
 
 import org.envirocar.app.BaseApplication;
 import org.envirocar.app.BaseApplicationComponent;
-import org.envirocar.app.R;
-
 import javax.inject.Inject;
-
-import butterknife.BindView;
-
 
 /**
  * @author dewall
@@ -86,9 +73,5 @@ public abstract class BaseInjectorActivity extends AppCompatActivity {
         }
         super.onOptionsItemSelected(item);
         return false;
-    }
-
-    public void GotoMYTRACKS(View view) {
-        navigationBottomBar.setSelectedItemId(R.id.navigation_my_tracks);
     }
 }
