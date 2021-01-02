@@ -20,6 +20,7 @@ package org.envirocar.app.views.login;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -61,7 +62,7 @@ import io.reactivex.schedulers.Schedulers;
  */
 public class SigninActivity extends BaseInjectorActivity {
     private static final Logger LOG = Logger.getLogger(SigninActivity.class);
-
+    private static Drawable error;
     public static void startActivity(Context context) {
         Intent intent = new Intent(context, SigninActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
@@ -96,9 +97,10 @@ public class SigninActivity extends BaseInjectorActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signin);
         getWindow().setNavigationBarColor(getResources().getColor(R.color.cario_color_primary_dark));
-
         // inject the views
         ButterKnife.bind(this);
+        error = getResources().getDrawable(R.drawable.ic_error_red_24dp);
+        error.setBounds(-55,0,0,error.getIntrinsicHeight());
     }
 
     @Override
@@ -131,7 +133,6 @@ public class SigninActivity extends BaseInjectorActivity {
     protected void onLoginClicked() {
         LOG.info("Clicked on the login button");
         View focusView = null;
-
         // Reset errors
         this.usernameEditText.setError(null);
         this.passwordEditText.setError(null);
@@ -142,13 +143,13 @@ public class SigninActivity extends BaseInjectorActivity {
 
         // check for valid password
         if (password == null || password.isEmpty() || password.equals("")) {
-            this.passwordEditText.setError(getString(R.string.error_field_required));
+            this.passwordEditText.setError(getString(R.string.error_field_required),error);
             focusView = this.passwordEditText;
         }
 
         // check for valid username
         if (username == null || username.isEmpty() || username.equals("")) {
-            this.usernameEditText.setError(getString(R.string.error_field_required));
+            this.usernameEditText.setError(getString(R.string.error_field_required),error);
             focusView = this.usernameEditText;
         }
 
@@ -201,7 +202,7 @@ public class SigninActivity extends BaseInjectorActivity {
                         if (e instanceof LoginException) {
                             switch (((LoginException) e).getType()) {
                                 case PASSWORD_INCORRECT:
-                                    passwordEditText.setError(getString(R.string.error_incorrect_password));
+                                    passwordEditText.setError(getString(R.string.error_incorrect_password),error);
                                     break;
                                 case MAIL_NOT_CONFIREMED:
                                     new MaterialDialog.Builder(SigninActivity.this)

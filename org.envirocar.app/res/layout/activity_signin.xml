@@ -96,8 +96,8 @@
             app:layout_constraintStart_toStartOf="@id/activity_signin_guideline_left"
             app:layout_constraintTop_toBottomOf="@+id/activity_signin_username_input_layout"
             app:layout_constraintWidth_max="500dp"
-            app:passwordToggleEnabled="true">
-
+            app:passwordToggleEnabled="true"
+            >
             <androidx.appcompat.widget.AppCompatEditText
                 android:id="@+id/activity_login_password_input"
                 style="@style/envirocar.login.edittext"
