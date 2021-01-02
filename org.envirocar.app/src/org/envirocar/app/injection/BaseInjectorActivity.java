@@ -38,11 +38,6 @@ public abstract class BaseInjectorActivity extends AppCompatActivity {
     @Inject
     protected Bus mBus;
 
-    // BindView variables.
-    @BindView(R.id.navigation)
-    protected BottomNavigationView navigationBottomBar;
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
