@@ -20,8 +20,6 @@ package org.envirocar.app.handler.userstatistics;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.util.Log;
-import android.view.View;
 
 import androidx.annotation.NonNull;
 
