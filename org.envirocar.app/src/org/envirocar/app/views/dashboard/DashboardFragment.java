@@ -495,7 +495,7 @@ public class DashboardFragment extends BaseInjectorFragment {
     }
 
     @OnClick(R.id.cardView2)
-    protected void Go_to_MyTracks(){
+    protected void GoToMyTracks(){
         BottomNavigationView bottomView= getActivity().findViewById(R.id.navigation);
         bottomView.setSelectedItemId(R.id.navigation_my_tracks);
     }
