@@ -20,6 +20,7 @@ package org.envirocar.app.views.login;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -61,7 +62,7 @@ import io.reactivex.schedulers.Schedulers;
  */
 public class SigninActivity extends BaseInjectorActivity {
     private static final Logger LOG = Logger.getLogger(SigninActivity.class);
-
+    private static Drawable error;
     public static void startActivity(Context context) {
         Intent intent = new Intent(context, SigninActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
@@ -99,6 +100,8 @@ public class SigninActivity extends BaseInjectorActivity {
 
         // inject the views
         ButterKnife.bind(this);
+        error = getResources().getDrawable(R.drawable.ic_error_red_24dp);
+        error.setBounds(-55,0,0,error.getIntrinsicHeight());
     }
 
     @Override
@@ -142,7 +145,7 @@ public class SigninActivity extends BaseInjectorActivity {
 
         // check for valid password
         if (password == null || password.isEmpty() || password.equals("")) {
-            this.passwordEditText.setError(getString(R.string.error_field_required));
+            this.passwordEditText.setError(getString(R.string.error_field_required),error);
             focusView = this.passwordEditText;
         }
 
@@ -201,7 +204,7 @@ public class SigninActivity extends BaseInjectorActivity {
                         if (e instanceof LoginException) {
                             switch (((LoginException) e).getType()) {
                                 case PASSWORD_INCORRECT:
-                                    passwordEditText.setError(getString(R.string.error_incorrect_password));
+                                    passwordEditText.setError(getString(R.string.error_incorrect_password),error);
                                     break;
                                 case MAIL_NOT_CONFIREMED:
                                     new MaterialDialog.Builder(SigninActivity.this)
@@ -215,7 +218,7 @@ public class SigninActivity extends BaseInjectorActivity {
                                     passwordEditText.setError(getString(R.string.error_host_not_found));
                                     break;
                                 default:
-                                    passwordEditText.setError(getString(R.string.logbook_invalid_input));
+                                    passwordEditText.setError(getString(R.string.logbook_invalid_input),error);
                                     break;
                             }
                         } else if (checkNetworkConnection() != true) {
