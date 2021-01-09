@@ -22,6 +22,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -44,7 +45,6 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -54,8 +54,15 @@ import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.content.ContextCompat;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.android.play.core.appupdate.AppUpdateInfo;
+import com.google.android.play.core.appupdate.AppUpdateManager;
+import com.google.android.play.core.appupdate.AppUpdateManagerFactory;
+import com.google.android.play.core.install.model.AppUpdateType;
+import com.google.android.play.core.install.model.UpdateAvailability;
+import com.google.android.play.core.tasks.Task;
 import com.jakewharton.rxbinding3.appcompat.RxToolbar;
 import com.squareup.otto.Subscribe;
 
@@ -91,7 +98,6 @@ import org.envirocar.obd.service.BluetoothServiceState;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-
 import javax.inject.Inject;
 
 import butterknife.BindView;
@@ -105,6 +111,8 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.observers.DisposableCompletableObserver;
 import io.reactivex.schedulers.Schedulers;
+
+import static android.app.Activity.RESULT_OK;
 
 /**
  * @author dewall
@@ -201,6 +209,8 @@ public class DashboardFragment extends BaseInjectorFragment {
     // some private variables
     private MaterialDialog connectingDialog;
     private List<SizeSyncTextView> indicatorSyncGroup;
+    private AppUpdateManager appUpdateManager;
+    private Task<AppUpdateInfo> appUpdateInfoTask;
 
     @Override
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
@@ -230,6 +240,9 @@ public class DashboardFragment extends BaseInjectorFragment {
         toolbar.getOverflowIcon().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
         RxToolbar.itemClicks(this.toolbar).subscribe(this::onToolbarItemClicked);
 
+        appUpdateManager = AppUpdateManagerFactory.create(getContext());
+        appUpdateInfoTask = appUpdateManager.getAppUpdateInfo();
+
         //
         this.updateUserLogin(userHandler.getUser());
 
@@ -249,13 +262,26 @@ public class DashboardFragment extends BaseInjectorFragment {
     public void onResume() {
         super.onResume();
         this.updateStatisticsVisibility(this.statisticsKnown);
+        appUpdateManager
+                .getAppUpdateInfo()
+                .addOnSuccessListener(
+                        appUpdateInfo -> {
+                            if (appUpdateInfo.updateAvailability()
+                                    == UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS) {
+                                try {
+                                    appUpdateManager.startUpdateFlowForResult(appUpdateInfo, AppUpdateType.IMMEDIATE, getActivity(), 121);
+                                } catch (IntentSender.SendIntentException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        });
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
             case LOCATION_PERMISSION_REQUEST_CODE: {
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     LOG.info("Location permission has been granted");
                     Snackbar.make(getView(), "Location Permission granted.",
                             BaseTransientBottomBar.LENGTH_SHORT).show();
@@ -464,8 +490,14 @@ public class DashboardFragment extends BaseInjectorFragment {
     @OnClick(R.id.fragment_dashboard_indicator_gps)
     protected void onGPSIndicatorClicked() {
         LOG.info("GPS indicator clicked");
-        Intent intent=new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+        Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
         getActivity().startActivity(intent);
+    }
+
+    @OnClick(R.id.cardView2)
+    protected void goToMyTracks(){
+        BottomNavigationView bottomView= getActivity().findViewById(R.id.navigation);
+        bottomView.setSelectedItemId(R.id.navigation_my_tracks);
     }
 
     @Subscribe
@@ -763,6 +795,25 @@ public class DashboardFragment extends BaseInjectorFragment {
 
         for (SizeSyncTextView textView : indicatorSyncGroup) {
             textView.setOnTextSizeChangedListener(listener);
+        }
+    }
+
+    private void appUpdateCheck() {
+        appUpdateInfoTask.addOnSuccessListener(appUpdateInfo -> {
+            if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)) {
+                try {
+                    appUpdateManager.startUpdateFlowForResult(appUpdateInfo, AppUpdateType.IMMEDIATE, getActivity(), 121);
+                } catch (IntentSender.SendIntentException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (requestCode == 121 && resultCode != RESULT_OK) {
+            appUpdateCheck();
         }
     }
 }
