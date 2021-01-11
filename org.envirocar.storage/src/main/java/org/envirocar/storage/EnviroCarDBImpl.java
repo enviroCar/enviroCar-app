@@ -108,6 +108,12 @@ public class EnviroCarDBImpl implements EnviroCarDB {
     }
 
     @Override
+    public Observable<Integer> getAllLocalTracksCount() {
+        return Observable.just(briteDatabase.getReadableDatabase().query("SELECT * FROM " + TrackTable.TABLE_TRACK +
+                " WHERE " + TrackTable.KEY_REMOTE_ID + " IS NULL").getCount());
+    }
+
+    @Override
     public Observable<List<Track>> getAllRemoteTracks() {
         return getAllRemoteTracks(false);
     }

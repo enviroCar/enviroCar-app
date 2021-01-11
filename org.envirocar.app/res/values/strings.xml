@@ -82,20 +82,18 @@
 
     <string name="ok" translatable="false">OK</string>
 
-
-
-
     <string name="driving">Driving</string>
+    <string name="categories">Categories:</string>
 
 
     <string name="gps_track_details">*This is a GPS based track. It cannot be uploaded to the open data.</string>
     <string name="dashboard_signin_prompt">Sign in to upload your tracks</string>
-
+    <string name="problem_description">Describe your Problem</string>
 
     <string name="submit">Submit</string>
 
     <!-- Splashscreen -->
-    <string name="activity_splashscreen_subtitle">Start Today. \nJoin the Community.</string>
+    <string name="activity_splashscreen_subtitle" translatable="false">Start Today. \nJoin the Community.</string>
 
     <!-- ################# -->
     <!-- Sign In / Sign Up -->
@@ -108,16 +106,18 @@
     <!-- ################# -->
     <string name="report_issue_header">Report an Issue</string>
     <string name="report_issue_summary">Summary of what went wrong</string>
-    <string name="report_issue_time_since_crash">Time since crash:</string>
-    <string name="report_issue_minutes">in minutes</string>
+    <string name="report_issue_time_since_crash">Estimated time</string>
+    <string name="report_issue_minutes">10:00</string>
+
+    <string name="report_issue_no_checkbox_selected_title">No Checkbox Selected</string>
+    <string name="report_issue_no_checkbox_selected_content">You have not selected any of the checkboxes. These help developers sort through issues quickly and resolve them. Please consider filling those that are relevant.</string>
+    <string name="report_issue_no_checkbox_send_anyway">Send Report Anyway</string>
 
     <string name="report_issue_text">
         Timestamps are automatically included in the logs. Sending us reports helps us reproduce unexpected behavior or crashes.
         This makes enviroCar better and more stable. Click the send button below to email this report to us.</string>
     <string name="report_issue_bottom_text">This feature uses the default \"Send To\" mechanism.
-	    If you invoke it with your Email client, you can easily send the report via email. If you do not have an Email client installed,
-	    you can save the log file on a PC, e.g. through Bluetooth or USB. \n\nIn such cases we appreciate sending
-	    in the reporting bundle manually. They are stored at the following locations:</string>
+	    If you invoke it with your Email client, you can easily send the report via email.</string>
     <string name="report_issue_desc_text">A more detailed description</string>
     <string name="report_issue_button">Send Report</string>
     <string-array name="report_issue_subject_header">
@@ -135,7 +135,6 @@
         <item>[FEATURE REQ]</item>
     </string-array>
 
-
     <!-- ################# -->
     <!--  Preference Keys  -->
     <!-- ################# -->
@@ -150,9 +149,8 @@
     <string name="prefkey_imperial_unit" tools:ignore="MissingTranslation">pref_imperial_unit</string>
     <string name="prefkey_text_to_speech" tools:ignore="MissingTranslation">pref_text_to_speech</string>
     <string name="prefkey_display_always_active" tools:ignore="MissingTranslation">pref_display_always_active</string>
-    <string name="prefkey_always_upload" tools:ignore="MissingTranslation">pref_always_upload</string>
+    <string name="prefkey_automatic_upload" tools:ignore="MissingTranslation">pref_automatic_upload</string>
     <string name="prefkey_gps_mode_ar" tools:ignore="MissingTranslation">prefkey_gps_mode_ar</string>
-
 
     <!-- ################# -->
     <!--   Notifications   -->
@@ -165,4 +163,21 @@
     <string name="notification_autorecording_no_car_selected_subtext">No car selected. Please go to the Car selection and select one.</string>
     <string name="notification_autorecording_gps_disabled_subtext">GPS is disabled. Please activate your GPS.</string>
     <string name="notification_autorecording_bluetooth_disabled_subtext">Bluetooth is disabled. Please activate your Bluetooth.</string>
+
+    <string name="notification_autoupload_success_title">Track Upload Successful</string>
+    <string name="notification_autoupload_success_sub">%s has been successfully pushed as Open Data to the enviroCar platform.</string>
+    <string name="notification_autoupload_uploading_title">Uploading Track</string>
+    <string name="notification_autoupload_uploading_sub">%s gets pushed as Open Data to the enviroCar platform.</string>
+    <string name="notification_autoupload_error_title">Track Upload Error</string>
+    <string name="notification_autoupload_error_sub">Error while uploading to the enviroCar platform.</string>
+
+    <!-- ################# -->
+    <!--    Permissions    -->
+    <!-- ################# -->
+    <string name="permissions_request_dialog">The enviroCar App requires additional permissions for recording tracks, which you can confirm manually in the following. This includes the exact positioning of the smartphone, so that collected parameters of a journey can be spatially located, and the write permission to the external memory, so that logs can be generated and transmitted via the "Report issue" function.</string>
+
+    <!-- ###################### -->
+    <!--    Extended MapView    -->
+    <!-- ###################### -->
+    <string name="mapview_extended_select_phenomena">Attribut Selection</string>
 </resources>

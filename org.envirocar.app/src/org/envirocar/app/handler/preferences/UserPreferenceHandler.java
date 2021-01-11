@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- * <p>
+ *
  * This file is part of the enviroCar app.
- * <p>
+ *
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * <p>
+ *
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- * <p>
+ *
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -56,6 +56,7 @@ public class UserPreferenceHandler extends AbstractCachable<User> implements Use
     private static final String KEY_TOKEN = "token";
     private static final String KEY_EMAIL = "email";
     private static final String KEY_ACCEPTED_TERMS_OF_USE_VERSION = "acceptedTermsOfUseVersion";
+    private static final String KEY_ACCEPTED_PRIVACY_STATEMENT = "acceptedPrivacyStatement";
     private static final String KEY_USER_PREFERENCES = "userPrefs";
 
 
@@ -91,6 +92,7 @@ public class UserPreferenceHandler extends AbstractCachable<User> implements Use
 
         User user = new UserImpl(username, token, mail, firstName, lastName);
         user.setTermsOfUseVersion(prefs.getString(KEY_ACCEPTED_TERMS_OF_USE_VERSION, null));
+        user.setPrivacyStatementVersion(prefs.getString(KEY_ACCEPTED_PRIVACY_STATEMENT, null));
         return user;
     }
 
@@ -103,6 +105,8 @@ public class UserPreferenceHandler extends AbstractCachable<User> implements Use
         e.putString(KEY_TOKEN, user.getToken());
         e.putString(KEY_EMAIL, user.getMail());
         e.putString(KEY_ACCEPTED_TERMS_OF_USE_VERSION, user.getTermsOfUseVersion());
+        if(user.getPrivacyStatementVersion() != null)
+            e.putString(KEY_ACCEPTED_PRIVACY_STATEMENT, user.getPrivacyStatementVersion());
         e.commit();
     }
 

@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -104,7 +104,7 @@ public class LoadBasedEnergyConsumptionAlgorithm implements ConsumptionAlgorithm
      */
     @Override
     public double calculateConsumption(Measurement measurement) throws FuelConsumptionException, UnsupportedFuelTypeException {
-        double speedNow = measurement.getProperty(Measurement.PropertyKey.SPEED);
+        double speedNow = getSpeed(measurement);
         double datetimeNow = measurement.getTime();
         double longitudeNow = measurement.getLongitude();
         double latitudeNow = measurement.getLatitude();
@@ -127,7 +127,7 @@ public class LoadBasedEnergyConsumptionAlgorithm implements ConsumptionAlgorithm
             this.distanceRadiansTemp = Math.max(this.distanceRadiansTemp, -1);
 
             this.distanceRadians = Math.acos(distanceRadiansTemp);
-            this.distanceMeter = this.distanceRadians * this.RADIUS_EARTH;
+            this.distanceMeter = this.distanceRadians * RADIUS_EARTH;
 
             // atan returns angle between -pi/2 and pi/2
             this.theta = Math.toDegrees(Math.atan((altitudeNow - this.altitudePrev) / this.distanceMeter));
@@ -175,10 +175,19 @@ public class LoadBasedEnergyConsumptionAlgorithm implements ConsumptionAlgorithm
         switch (this.fuelType) {
             case DIESEL:
                 return consumption * DIESEL_CONSUMPTION_TO_CO2_FACTOR;
+            // TODO what is the factor for gas?
             case GASOLINE:
+            case HYBRID:
+            case GAS:
                 return consumption * GASOLINE_CONSUMPTION_TO_CO2_FACTOR;
             default:
-                throw new FuelConsumptionException(String.format("FuelType {} is not supported", this.fuelType.toString()));
+                throw new FuelConsumptionException(String.format("FuelType %s is not supported", this.fuelType.toString()));
         }
+    }
+
+    private double getSpeed(Measurement measurement){
+        return measurement.hasProperty(Measurement.PropertyKey.SPEED) ?
+                measurement.getProperty(Measurement.PropertyKey.SPEED) :
+                measurement.getProperty(Measurement.PropertyKey.GPS_SPEED);
     }
 }

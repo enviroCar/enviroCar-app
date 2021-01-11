@@ -20,6 +20,7 @@ package org.envirocar.app.views.others;
 
 
 import android.Manifest;
+import android.app.Service;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -50,6 +51,7 @@ import org.envirocar.app.views.settings.SettingsActivity;
 import org.envirocar.app.views.utils.DialogUtils;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.logging.Logger;
+import org.envirocar.core.utils.ServiceUtils;
 
 import java.util.concurrent.TimeUnit;
 
@@ -60,6 +62,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.observers.DisposableCompletableObserver;
 import io.reactivex.schedulers.Schedulers;
 
 /**
@@ -128,13 +131,13 @@ public class OthersFragment extends BaseInjectorFragment {
 
     @OnClick(R.id.othersReportIssue)
     protected void onReportIssueClicked() {
-        if (checkPermissions()) {
+//        if (checkPermissions()) {
             //access granted
             Intent intent = new Intent(getActivity(), SendLogFileActivity.class);
             startActivity(intent);
-        } else {
-            requestPermissions();
-        }
+//        } else {
+//            requestPermissions();
+//        }
     }
 
     @OnClick(R.id.othersRateUs)
@@ -155,12 +158,7 @@ public class OthersFragment extends BaseInjectorFragment {
                 .positiveText(getString(R.string.menu_logout_envirocar_positive))
                 .negativeText(getString(R.string.menu_logout_envirocar_negative))
                 .content(getString(R.string.menu_logout_envirocar_content))
-                .callback(new MaterialDialog.ButtonCallback() {
-                    @Override
-                    public void onPositive(MaterialDialog dialog) {
-                        logOut();
-                    }
-                })
+                .onPositive((dialog, which) -> mUserManager.logOut().subscribe(logOut()))
                 .show();
     }
 
@@ -287,48 +285,47 @@ public class OthersFragment extends BaseInjectorFragment {
 
 
     private void shutdownEnviroCar() {
-        AutoRecordingService.stopService(getActivity());
-        RecordingService.stopService(getActivity());
+        ServiceUtils.stopService(getActivity(), AutoRecordingService.class);
+        ServiceUtils.stopService(getActivity(), RecordingService.class);
 
         mMainThreadWorker.schedule(() -> {
-            System.runFinalizersOnExit(true);
-            System.exit(0);
+            android.os.Process.killProcess(android.os.Process.myUid());
+            getActivity().finishAndRemoveTask();
         }, 750, TimeUnit.MILLISECONDS);
     }
 
-    private void logOut() {
-        if (mUserManager.isLoggedIn()) {
-            final MaterialDialog dialog = new MaterialDialog.Builder(getActivity())
-                    .title(R.string.activity_login_logout_progress_dialog_title)
-                    .content(R.string.activity_login_logout_progress_dialog_content)
-                    .progress(true, 0)
-                    .cancelable(false)
-                    .build();
-            dialog.show();
+    private DisposableCompletableObserver logOut() {
+        return new DisposableCompletableObserver() {
+            User tempUser=null;
+            MaterialDialog dialog=null;
+            @Override
+            public void onStart() {
 
-            User user = mUserManager.getUser();
+                this.tempUser = mUserManager.getUser();
 
-            mBackgroundWorker.schedule(() -> {
-                // Log out the getUserStatistic
-                mUserManager.logOut();
-
-                // Finally, delete all tracks that are associated to the previous getUserStatistic.
-                mTrackDAOHandler.deleteAllRemoteTracksLocally();
-                // Close the dialog.
+                this.dialog=new MaterialDialog.Builder(getContext())
+                        .title(R.string.activity_login_logout_progress_dialog_title)
+                        .content(R.string.activity_login_logout_progress_dialog_content)
+                        .progress(true, 0)
+                        .cancelable(false)
+                        .show();
+            }
+            @Override
+            public void onComplete() {
+                Snackbar.make(getActivity().findViewById(R.id.navigation),
+                        String.format(getString(R.string.goodbye_message), tempUser.getUsername()),
+                        Snackbar.LENGTH_LONG).show();
                 dialog.dismiss();
 
-                mMainThreadWorker.schedule(() -> {
-                    // Show a snackbar that indicates the finished logout
-                    Snackbar.make(getActivity().findViewById(R.id.navigation),
-                            String.format(getString(R.string.goodbye_message), user
-                                    .getUsername()),
-                            Snackbar.LENGTH_LONG).show();
-                    //disable logout button
-                    othersLogOut.setVisibility(View.GONE);
-                    othersLogOutDivider.setVisibility(View.GONE);
-                });
-            });
-        }
+                othersLogOutDivider.setVisibility(View.GONE);
+                othersLogOut.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                dialog.dismiss();
+            }
+        };
     }
 
 }

@@ -83,34 +83,24 @@ public class MapExpandedActivity extends BaseInjectorActivity {
 
     @BindView(R.id.activity_map_follow_fab)
     protected FloatingActionButton mCentreFab;
-
     @BindView(R.id.activity_map_visualise_fab)
     protected FloatingActionButton mVisualiseFab;
-
     @BindView(R.id.activity_track_details_expanded_map_cancel)
     protected ImageView mMapViewExpandedCancel;
-
     @BindView(R.id.activity_track_details_expanded_map)
     protected MapView mMapViewExpanded;
-
     @BindView(R.id.activity_track_details_expanded_map_container)
     protected ConstraintLayout mMapViewExpandedContainer;
-
     @BindView(R.id.legendCard)
     protected CardView legendCard;
-
     @BindView(R.id.legend)
     protected ImageView legend;
-
     @BindView(R.id.legend_start)
     protected TextView legendStart;
-
     @BindView(R.id.legend_mid)
     protected TextView legendMid;
-
     @BindView(R.id.legend_end)
     protected TextView legendEnd;
-
     @BindView(R.id.legend_unit)
     protected TextView legendName;
 
@@ -189,14 +179,11 @@ public class MapExpandedActivity extends BaseInjectorActivity {
     protected void onClickVisualiseFab() {
         LOG.info("onClickVisualiseFab");
         AlertDialog.Builder b = new AlertDialog.Builder(this);
-        b.setTitle("Phenomena to Visualise");
-        b.setItems(spinnerStrings.toArray(new String[0]), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                dialogInterface.dismiss();
-                LOG.info("Choice: " + i);
-                makeMapChanges(i);
-            }
+        b.setTitle(R.string.mapview_extended_select_phenomena);
+        b.setItems(spinnerStrings.toArray(new String[0]), (dialogInterface, i) -> {
+            dialogInterface.dismiss();
+            LOG.info("Choice: " + i);
+            makeMapChanges(i);
         });
         b.show();
 
@@ -226,11 +213,15 @@ public class MapExpandedActivity extends BaseInjectorActivity {
                         style.addLayerBelow(trackMapOverlay.getGradientLineLayer(options.get(choice)), "marker-layer1");
 
                         //Set legend values
-                        legendStart.setText(DECIMAL_FORMATTER.format(trackMapOverlay.getGradMin()));
-                        legendEnd.setText(DECIMAL_FORMATTER.format(trackMapOverlay.getGradMax()));
-                        Float mid = (trackMapOverlay.getGradMin() + trackMapOverlay.getGradMax()) / 2;
-                        legendMid.setText(DECIMAL_FORMATTER.format(mid));
-                        legendName.setText(options.get(choice).getStringResource());
+                        try {
+                            legendStart.setText(DECIMAL_FORMATTER.format(trackMapOverlay.getGradMin()));
+                            legendEnd.setText(DECIMAL_FORMATTER.format(trackMapOverlay.getGradMax()));
+                            Float mid = (trackMapOverlay.getGradMin() + trackMapOverlay.getGradMax()) / 2;
+                            legendMid.setText(DECIMAL_FORMATTER.format(mid));
+                            legendName.setText(options.get(choice).getStringResource());
+                        } catch (Exception e){
+                            LOG.error("Error while formatting legend.", e);
+                        }
                     }
                 });
             } else {

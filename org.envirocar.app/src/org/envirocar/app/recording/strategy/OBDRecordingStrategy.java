@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -32,6 +32,7 @@ import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.preferences.CarPreferenceHandler;
 import org.envirocar.app.recording.RecordingState;
+import org.envirocar.app.recording.events.EngineNotRunningEvent;
 import org.envirocar.app.recording.notification.SpeechOutput;
 import org.envirocar.app.recording.provider.LocationProvider;
 import org.envirocar.app.recording.provider.TrackDatabaseSink;
@@ -94,6 +95,8 @@ public class OBDRecordingStrategy implements RecordingStrategy {
     private LoadBasedEnergyConsumptionAlgorithm energyConsumptionAlgorithm;
 
     private boolean isRecording = false;
+    private boolean isTrackFinished = false;
+    private Track track = null;
 
     /**
      * Constructor.
@@ -132,6 +135,7 @@ public class OBDRecordingStrategy implements RecordingStrategy {
     @Override
     public void startRecording(Service service, RecordingListener listener) {
         this.listener = listener;
+        this.isTrackFinished = false;
 
         disposables.add(
                 obdConnectionHandler.getOBDConnectionObservable(bluetoothHandler.getSelectedBluetoothDevice())
@@ -147,7 +151,7 @@ public class OBDRecordingStrategy implements RecordingStrategy {
         disposables.add(
                 locationProvider.startLocating()
                         .subscribeOn(AndroidSchedulers.mainThread())
-                        .observeOn(Schedulers.io())
+                        .observeOn(Schedulers.newThread())
                         .doOnDispose(() -> LOG.info("Location Provider has been disposed!"))
                         .subscribe(() -> LOG.info("Completed"), LOG::error));
     }
@@ -170,16 +174,17 @@ public class OBDRecordingStrategy implements RecordingStrategy {
             isRecording = false;
         }
         listener.onRecordingStateChanged(RecordingState.RECORDING_STOPPED);
+        notifyTrackFinished(track);
     }
 
     private DisposableObserver<Track> initializeObserver() {
         return new DisposableObserver<Track>() {
-            private Track track;
 
             @Override
             protected void onStart() {
                 LOG.info("Starting the Bluetooth connection to the selected adapter");
                 listener.onRecordingStateChanged(RecordingState.RECORDING_INIT);
+                track = null;
 
                 try {
                     recognizer = new OBDConnectionRecognizer();
@@ -192,7 +197,7 @@ public class OBDRecordingStrategy implements RecordingStrategy {
             @Override
             public void onNext(Track o) {
                 LOG.info(String.format("Started new Track with ID=%s", o.getTrackID()));
-                this.track = o;
+                track = o;
             }
 
             @Override
@@ -206,9 +211,17 @@ public class OBDRecordingStrategy implements RecordingStrategy {
             public void onComplete() {
                 LOG.info("Finished the recording of the track.");
                 listener.onRecordingStateChanged(RecordingState.RECORDING_STOPPED);
+                notifyTrackFinished(track);
                 stopOBDConnectionRecognizer();
             }
         };
+    }
+
+    private void notifyTrackFinished(Track track) {
+        if (!isTrackFinished && track != null) {
+            this.listener.onTrackFinished(track);
+            this.isTrackFinished = true;
+        }
     }
 
 
@@ -235,6 +248,12 @@ public class OBDRecordingStrategy implements RecordingStrategy {
                         LOG.info("Connection verified. Starting to read measurements.");
                         listener.onRecordingStateChanged(RecordingState.RECORDING_RUNNING);
                         emitter.onNext(socket);
+                    }
+
+                    @Override
+                    public void onEngineNotRunning() {
+                        listener.onRecordingStateChanged(RecordingState.RECORDING_STOPPED);
+                        eventBus.post(new EngineNotRunningEvent());
                     }
 
                     @Override

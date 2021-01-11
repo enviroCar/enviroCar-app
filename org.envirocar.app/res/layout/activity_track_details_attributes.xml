@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
 
     Copyright (C) 2013 - 2019 the enviroCar community
 
@@ -20,19 +19,18 @@
 
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:paddingBottom="16dp"
-              android:paddingTop="16dp"
-              android:orientation="vertical">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingTop="16dp"
+    android:paddingBottom="16dp">
 
-
-    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:minHeight="@dimen/spacing_xxlarge"
-                    android:paddingLeft="@dimen/activity_horizontal_margin"
-                    android:paddingRight="@dimen/activity_horizontal_margin">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="@dimen/spacing_xxlarge"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin">
 
         <ImageView
             android:id="@+id/activity_track_details_attr_car_image"
@@ -42,7 +40,7 @@
             android:layout_centerVertical="true"
             android:layout_marginRight="16dp"
             android:alpha="0.54"
-            android:src="@drawable/ic_drive_eta_black_24dp"/>
+            android:src="@drawable/ic_drive_eta_black_24dp" />
 
         <TextView
             android:id="@+id/activity_track_details_attr_car_text"
@@ -52,7 +50,7 @@
             android:layout_centerVertical="true"
             android:paddingLeft="48dp"
             android:text="@string/track_list_details_car"
-            android:textColor="#ff323232"/>
+            android:textColor="#ff323232" />
 
         <TextView
             android:id="@+id/activity_track_details_attr_car_value"
@@ -63,16 +61,16 @@
             android:layout_toRightOf="@id/activity_track_details_attr_car_text"
             android:gravity="right|center_vertical"
             android:text="Mercedes Benz A 170"
-            android:textColor="#939393"/>
+            android:textColor="#939393" />
 
     </RelativeLayout>
 
-    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:minHeight="@dimen/spacing_xxlarge"
-                    android:paddingLeft="@dimen/activity_horizontal_margin"
-                    android:paddingRight="@dimen/activity_horizontal_margin">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="@dimen/spacing_xxlarge"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin">
 
         <ImageView
             android:layout_width="24dp"
@@ -81,7 +79,7 @@
             android:layout_centerVertical="true"
             android:layout_marginRight="16dp"
             android:alpha="0.54"
-            android:src="@drawable/ic_timer_black_24dp"/>
+            android:src="@drawable/ic_timer_black_24dp" />
 
         <TextView
             android:layout_width="match_parent"
@@ -90,7 +88,7 @@
             android:layout_centerVertical="true"
             android:paddingLeft="48dp"
             android:text="@string/track_list_details_start"
-            android:textColor="#ff323232"/>
+            android:textColor="#ff323232" />
 
         <TextView
             android:id="@+id/activity_track_details_attr_begin_value"
@@ -99,15 +97,15 @@
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
             android:text="09.07.2015 17:52:27"
-            android:textColor="#939393"/>
+            android:textColor="#939393" />
     </RelativeLayout>
 
-    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:minHeight="@dimen/spacing_xxlarge"
-                    android:paddingLeft="@dimen/activity_horizontal_margin"
-                    android:paddingRight="@dimen/activity_horizontal_margin">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="@dimen/spacing_xxlarge"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin">
 
         <ImageView
             android:layout_width="24dp"
@@ -116,7 +114,7 @@
             android:layout_centerVertical="true"
             android:layout_marginRight="16dp"
             android:alpha="0.54"
-            android:src="@drawable/ic_timelapse_black_24dp"/>
+            android:src="@drawable/ic_timelapse_black_24dp" />
 
         <TextView
             android:layout_width="match_parent"
@@ -125,7 +123,7 @@
             android:layout_centerVertical="true"
             android:paddingLeft="48dp"
             android:text="@string/track_list_details_end"
-            android:textColor="#ff323232"/>
+            android:textColor="#ff323232" />
 
         <TextView
             android:id="@+id/activity_track_details_attr_end_value"
@@ -134,16 +132,17 @@
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
             android:text="09.07.2015 18:06:26"
-            android:textColor="#939393"/>
+            android:textColor="#939393" />
+
     </RelativeLayout>
 
-    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                    android:id="@+id/consumption_container"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:minHeight="@dimen/spacing_xxlarge"
-                    android:paddingLeft="@dimen/activity_horizontal_margin"
-                    android:paddingRight="@dimen/activity_horizontal_margin">
+    <RelativeLayout
+        android:id="@+id/consumption_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="@dimen/spacing_xxlarge"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin">
 
         <ImageView
             android:id="@+id/activity_track_details_attr_consumption_image"
@@ -153,16 +152,17 @@
             android:layout_centerVertical="true"
             android:layout_marginRight="16dp"
             android:alpha="0.54"
-            android:src="@drawable/ic_fuel_consumption"/>
+            android:src="@drawable/ic_fuel_consumption" />
 
         <TextView
+            android:id="@+id/activity_track_details_attr_consumption_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_centerVertical="true"
             android:paddingLeft="48dp"
             android:text="@string/track_list_details_consumption"
-            android:textColor="#ff323232"/>
+            android:textColor="#ff323232" />
 
         <TextView
             android:id="@+id/activity_track_details_attr_consumption_value"
@@ -172,17 +172,17 @@
             android:layout_centerVertical="true"
             android:gravity="right"
             android:text="Consumption"
-            android:textColor="#939393"/>
+            android:textColor="#939393" />
 
     </RelativeLayout>
 
-    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/co2_container"
-                    android:minHeight="@dimen/spacing_xxlarge"
-                    android:paddingLeft="@dimen/activity_horizontal_margin"
-                    android:paddingRight="@dimen/activity_horizontal_margin">
+    <RelativeLayout
+        android:id="@+id/co2_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="@dimen/spacing_xxlarge"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin">
 
         <ImageView
             android:id="@+id/activity_track_details_attr_emission_image"
@@ -192,16 +192,17 @@
             android:layout_centerVertical="true"
             android:layout_marginRight="16dp"
             android:alpha="0.54"
-            android:src="@drawable/ic_co2_emission"/>
+            android:src="@drawable/ic_co2_emission" />
 
         <TextView
+            android:id="@+id/activity_track_details_attr_emission_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_centerVertical="true"
             android:paddingLeft="48dp"
             android:text="@string/track_list_details_emission"
-            android:textColor="#ff323232"/>
+            android:textColor="#ff323232" />
 
         <TextView
             android:id="@+id/activity_track_details_attr_emission_value"
@@ -211,16 +212,137 @@
             android:layout_centerVertical="true"
             android:gravity="right"
             android:text="emission"
-            android:textColor="#939393"/>
+            android:textColor="#939393" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/activity_track_details_speed_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="@dimen/spacing_xxlarge"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin">
+
+        <ImageView
+            android:id="@+id/activity_track_details_speed_image"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="16dp"
+            android:alpha="0.54"
+            android:src="@drawable/speed"
+            android:tint="@android:color/black"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:paddingLeft="48dp"
+            android:text="@string/track_list_details_speed"
+            android:textColor="#ff323232" />
+
+        <TextView
+            android:id="@+id/activity_track_details_speed_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:gravity="right"
+            android:text="0 km/h"
+            android:textColor="#939393" />
+
+    </RelativeLayout>
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/activity_track_details_stops_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="@dimen/spacing_xxlarge"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin">
+
+        <ImageView
+            android:id="@+id/activity_track_details_stops_image"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="16dp"
+            android:alpha="0.54"
+            android:src="@drawable/ic_stopcount"
+            android:tint="@android:color/black"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:paddingLeft="48dp"
+            android:text="@string/track_list_num_stops"
+            android:textColor="#ff323232" />
+
+        <TextView
+            android:id="@+id/activity_track_details_stops_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:gravity="right"
+            android:text="0"
+            android:textColor="#939393" />
+
+    </RelativeLayout>
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/activity_track_details_stoptime_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="@dimen/spacing_xxlarge"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin">
+
+        <ImageView
+            android:id="@+id/activity_track_details_stoptime_image"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="16dp"
+            android:alpha="0.65"
+            android:src="@drawable/ic_stoptime"
+            android:tint="@android:color/black"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:paddingLeft="48dp"
+            android:text="@string/track_list_total_stoptime"
+            android:textColor="#ff323232" />
+
+        <TextView
+            android:id="@+id/activity_track_details_stoptime_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:gravity="right"
+            android:text="0"
+            android:textColor="#939393" />
+
     </RelativeLayout>
 
     <TextView
+        android:id="@+id/descriptionTv"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/descriptionTv"
         android:paddingLeft="64dp"
         android:paddingRight="@dimen/activity_horizontal_margin"
-        android:textSize="10sp"
-        android:text="* = Bei diesen Werten handelt es sich um geschätzte Werte, die sich deutlich von den realen Werten unterscheiden können. Wir können daher keine Gewährleistung für diese Angaben geben."/>
+        android:text="* = Bei diesen Werten handelt es sich um geschätzte Werte, die sich deutlich von den realen Werten unterscheiden können. Wir können daher keine Gewährleistung für diese Angaben geben."
+        android:textSize="10sp" />
 
 </LinearLayout>

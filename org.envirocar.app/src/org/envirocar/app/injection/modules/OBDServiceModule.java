@@ -34,12 +34,12 @@ import dagger.Provides;
 @Module
 public class OBDServiceModule {
 
-    @Singleton
-    @Provides
-    PowerManager.WakeLock provideWakeLock(@InjectApplicationScope Context context) {
-        return ((PowerManager) context.getSystemService(Context.POWER_SERVICE))
-                .newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "org.envirocar.app:wakelock");
-    }
+//    @Singleton
+//    @Provides
+//    PowerManager.WakeLock provideWakeLock(@InjectApplicationScope Context context) {
+//        return ((PowerManager) context.getSystemService(Context.POWER_SERVICE))
+//                .newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "org.envirocar.app:wakelock");
+//    }
 
 //    @Singleton
 //    @Provides

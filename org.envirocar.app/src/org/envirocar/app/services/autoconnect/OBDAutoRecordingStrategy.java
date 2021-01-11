@@ -49,7 +49,6 @@ import io.reactivex.Scheduler;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.exceptions.Exceptions;
-import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
 /**
@@ -199,32 +198,34 @@ public class OBDAutoRecordingStrategy implements AutoRecordingStrategy {
         }
     }
 
+    private Runnable autoconnectRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (preconditionsFulfilled()) {
+                try {
+                    BluetoothDevice selectedBluetoothDevice = bluetoothHandler.getSelectedBluetoothDevice();
+                    Boolean connectionEstablished = tryDirectConnection(selectedBluetoothDevice);
+                    if(connectionEstablished != null && connectionEstablished){
+                        callback.onRecordingTypeConditionsMet();
+                    }
+                } catch (Exception e) {
+                    LOG.error(e.getMessage());
+                }
+            } else {
+                LOG.error("Preconditions are not satisfied.");
+            }
+
+            detectionDisposable = scheduler.schedule(this, discoveryInterval, TimeUnit.SECONDS);
+        }
+    };
+
     private void updateDetectionObservable() {
         if (this.detectionDisposable != null) {
             detectionDisposable.dispose();
             detectionDisposable = null;
         }
 
-        this.detectionDisposable = this.scheduler.schedule(() -> {
-            Observable.just(preconditionsFulfilled())
-                    .map(preconditionsFulfilled -> {
-                        LOG.info("trying to connect");
-                        if (!preconditionsFulfilled) {
-                            throw new RuntimeException("Preconditions are not satisfied");
-                        }
-                        return preconditionsFulfilled;
-                    })
-                    .map(aLong -> bluetoothHandler.getSelectedBluetoothDevice())
-                    .map(this::tryDirectConnection)
-                    .retryWhen(throwableObservable -> throwableObservable.flatMap(error -> Observable.timer(discoveryInterval, TimeUnit.SECONDS)))
-                    .doOnNext(aBoolean -> {
-                        if (aBoolean) {
-                            callback.onRecordingTypeConditionsMet();
-                        }
-                    })
-                    .doOnError(LOG::error)
-                    .subscribe();
-        }, discoveryInterval, TimeUnit.SECONDS);
+        this.detectionDisposable = this.scheduler.schedule(this.autoconnectRunnable);
     }
 
     // Alternative approach compared to discovery. OBDLink unfortunately does not support to be discovered by default
@@ -245,7 +246,6 @@ public class OBDAutoRecordingStrategy implements AutoRecordingStrategy {
                 LOG.info("Successful connected to device");
                 return true;
             } catch (Exception e) {
-                LOG.info("Trying fallback socket");
                 socket = new FallbackBluetoothSocket(socket.getUnderlyingSocket());
                 socket.connect();
                 LOG.info("Successful connected to device with SocketWrapper");

@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
 
     Copyright (C) 2013 - 2019 the enviroCar community
 
@@ -20,38 +19,39 @@
 
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="horizontal"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="24dp"
+    android:orientation="horizontal">
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
         android:layout_gravity="center"
-        android:padding="@dimen/spacing_large"
-        android:layout_weight="1">
+        android:layout_weight="1"
+        android:orientation="vertical">
 
         <TextView
             android:layout_width="match_parent"
-            android:gravity="left"
             android:layout_height="wrap_content"
-            android:text="@string/track_list_upload_track_content"/>
+            android:gravity="left"
+            android:text="@string/track_list_upload_track_content" />
 
         <TextView
             android:id="@+id/fragment_tracklist_uploading_single_dialog_trackname"
             android:layout_width="match_parent"
-            android:padding="@dimen/spacing_medium"
-            android:gravity="center"
             android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:text="Track"/>
+            android:gravity="center"
+            android:padding="@dimen/spacing_medium"
+            android:text="Track"
+            android:textStyle="bold" />
 
     </LinearLayout>
 
     <ProgressBar
-        android:layout_width="wrap_content"
-        android:layout_gravity="center"
-        android:layout_height="wrap_content"/>
+        android:layout_marginLeft="16dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_gravity="center" />
 
 </LinearLayout>

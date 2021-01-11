@@ -1,47 +1,46 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
 package org.envirocar.app.views.carselection;
 
 import android.app.Activity;
-import android.graphics.Point;
+import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Pair;
-import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
-import android.widget.Spinner;
+import android.widget.AutoCompleteTextView;
+import android.widget.ListAdapter;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 
+import com.google.android.material.textfield.TextInputLayout;
 import com.jakewharton.rxbinding3.appcompat.RxToolbar;
+import com.jakewharton.rxbinding3.widget.RxTextView;
 
 import org.envirocar.app.R;
 import org.envirocar.app.handler.preferences.CarPreferenceHandler;
@@ -53,7 +52,9 @@ import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.CarImpl;
 import org.envirocar.core.logging.Logger;
 
+import java.util.AbstractList;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashSet;
@@ -61,14 +62,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnFocusChange;
+import butterknife.OnItemClick;
+import butterknife.OnTextChanged;
 import io.reactivex.BackpressureStrategy;
+import io.reactivex.Observable;
 import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Function;
 import io.reactivex.functions.Predicate;
@@ -83,7 +90,14 @@ import io.reactivex.schedulers.Schedulers;
 public class CarSelectionAddCarFragment extends BaseInjectorFragment {
     private static final Logger LOG = Logger.getLogger(CarSelectionAddCarFragment.class);
 
-    @BindView(R.id.activity_car_selection_newcar_toolbar)
+    private static final int ERROR_DEBOUNCE_TIME = 750;
+    private static final int CONSTRUCTION_YEAR_MIN = 1990;
+    private static final int CONSTRUCTION_YEAR_MAX = Calendar.getInstance().get(Calendar.YEAR);
+    private static final int ENGINE_DISPLACEMENT_MIN = 500;
+    private static final int ENGINE_DISPLACEMENT_MAX = 5000;
+    private static Drawable error;
+
+    @BindView(R.id.envirocar_toolbar)
     protected Toolbar toolbar;
     @BindView(R.id.activity_car_selection_newcar_toolbar_exp)
     protected View toolbarExp;
@@ -92,40 +106,27 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
     @BindView(R.id.activity_car_selection_newcar_download_layout)
     protected View downloadView;
 
-    @BindView(R.id.activity_car_selection_newcar_manufacturer)
-    protected TextView manufacturerText;
-    @BindView(R.id.activity_car_selection_newcar_manufacturer_spinner)
-    protected Spinner manufacturerSpinner;
-
-    @BindView(R.id.activity_car_selection_newcar_model)
-    protected TextView modelText;
-    @BindView(R.id.activity_car_selection_newcar_model_spinner)
-    protected Spinner modelSpinner;
-
-    @BindView(R.id.activity_car_selection_newcar_year)
-    protected TextView yearText;
-    @BindView(R.id.activity_car_selection_newcar_year_spinner)
-    protected Spinner yearSpinner;
-
-    @BindView(R.id.activity_car_selection_newcar_engine)
-    protected TextView engineText;
-    @BindView(R.id.activity_car_selection_newcar_engine_spinner)
-    protected Spinner engineSpinner;
-
-    @BindView(R.id.activity_car_selection_newcar_radio_group)
-    protected RadioGroup fuelTypeRadioGroup;
-    @BindView(R.id.activity_car_selection_newcar_radio_group_gasoline)
-    protected RadioButton gasolineRadio;
-    @BindView(R.id.activity_car_selection_newcar_radio_group_diesel)
-    protected RadioButton dieselRadio;
+    @BindView(R.id.activity_car_selection_newcar_layout_manufacturer)
+    protected TextInputLayout manufacturerLayout;
+    @BindView(R.id.activity_car_selection_newcar_input_manufacturer)
+    protected AutoCompleteTextView manufacturerText;
+    @BindView(R.id.activity_car_selection_newcar_input_model)
+    protected AutoCompleteTextView modelText;
+    @BindView(R.id.activity_car_selection_newcar_input_constructionyear)
+    protected AutoCompleteTextView yearText;
+    @BindView(R.id.activity_car_selection_newcar_input_fueltype)
+    protected AutoCompleteTextView fueltypeText;
+    @BindView(R.id.activity_car_selection_newcar_layout_engine)
+    protected TextInputLayout engineLayout;
+    @BindView(R.id.activity_car_selection_newcar_input_engine)
+    protected AutoCompleteTextView engineText;
 
     @Inject
     protected DAOProvider daoProvider;
     @Inject
     protected CarPreferenceHandler carManager;
 
-    private Disposable sensorsSubscription;
-    private Disposable createCarSubscription;
+    private CompositeDisposable disposables = new CompositeDisposable();
     private Scheduler.Worker mainThreadWorker = AndroidSchedulers.mainThread().createWorker();
 
     private Set<Car> mCars = new HashSet<>();
@@ -133,6 +134,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
     private Map<String, Set<String>> mCarToModelMap = new ConcurrentHashMap<>();
     private Map<String, Set<String>> mModelToYear = new ConcurrentHashMap<>();
     private Map<Pair<String, String>, Set<String>> mModelToCCM = new ConcurrentHashMap<>();
+
 
     @Nullable
     @Override
@@ -143,18 +145,6 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
         View view = inflater.inflate(R.layout.activity_car_selection_newcar_fragment, container, false);
         ButterKnife.bind(this, view);
 
-        // Get the display size in pixels
-        Display display = getActivity().getWindowManager().getDefaultDisplay();
-        Point size = new Point();
-        display.getSize(size);
-        int width = size.x;
-
-        // Set the dropdown width of the spinner to half of the display pixel width.
-        manufacturerSpinner.setDropDownWidth(width / 2);
-        modelSpinner.setDropDownWidth(width / 2);
-        yearSpinner.setDropDownWidth(width / 2);
-        engineSpinner.setDropDownWidth(width / 2);
-
         toolbar.setNavigationIcon(R.drawable.ic_close_white_24dp);
         toolbar.inflateMenu(R.menu.menu_logbook_add_fueling);
         toolbar.setNavigationOnClickListener(v -> {
@@ -162,14 +152,15 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
             closeThisFragment();
         });
 
-
+        error = getResources().getDrawable(R.drawable.ic_error_red_24dp);
+        error.setBounds(-50,0,0,error.getIntrinsicHeight());
         // initially we set the toolbar exp to gone
         toolbar.setVisibility(View.GONE);
         toolbarExp.setVisibility(View.GONE);
         contentView.setVisibility(View.GONE);
         downloadView.setVisibility(View.INVISIBLE);
 
-        createCarSubscription = RxToolbar.itemClicks(toolbar)
+        RxToolbar.itemClicks(toolbar)
                 .filter(continueWhenFormIsCorrect())
                 .map(createCarFromForm())
                 .filter(continueWhenCarHasCorrectValues())
@@ -195,10 +186,23 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
                 });
 
 
+        fueltypeText.setAdapter(new FuelTypeAdapter(
+                getContext(),
+                R.layout.activity_car_selection_newcar_fueltype_item,
+                Car.FuelType.values()));
+
+
+        fueltypeText.setKeyListener(null);
+
+        manufacturerText.setOnItemClickListener((parent, view1, position, id) -> requestNextTextfieldFocus(manufacturerText));
+        modelText.setOnItemClickListener((parent, view12, position, id) -> requestNextTextfieldFocus(modelText));
+        yearText.setOnItemClickListener((parent, view13, position, id) -> requestNextTextfieldFocus(yearText));
+        fueltypeText.setOnItemClickListener((parent, view14, position, id) -> requestNextTextfieldFocus(fueltypeText));
+
         dispatchRemoteSensors();
 
         initFocusChangedListener();
-        initTextWatcher();
+        initWatcher();
         return view;
     }
 
@@ -218,16 +222,55 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
     public void onDestroy() {
         LOG.info("onDestroy()");
 
-        if (sensorsSubscription != null && !sensorsSubscription.isDisposed()) {
-            sensorsSubscription.dispose();
-        }
-        if (createCarSubscription != null && !createCarSubscription.isDisposed()) {
-            createCarSubscription.dispose();
-        }
-
+        // release all disposables.
+        disposables.clear();
         super.onDestroy();
     }
 
+    @OnTextChanged(value = R.id.activity_car_selection_newcar_input_manufacturer, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
+    protected void onManufacturerChanged(CharSequence text) {
+        manufacturerText.setError(null);
+
+        modelText.setText("");
+        yearText.setText("");
+        engineText.setText("");
+    }
+
+    @OnTextChanged(value = R.id.activity_car_selection_newcar_input_model, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
+    protected void onModelChanged(CharSequence text) {
+        modelText.setError(null);
+
+        yearText.setText("");
+        engineText.setText("");
+    }
+
+    @OnTextChanged(value = R.id.activity_car_selection_newcar_input_constructionyear, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
+    protected void onConstructionYearChanged(CharSequence text) {
+        yearText.setError(null);
+        engineText.setText("");
+    }
+
+    @OnTextChanged(value = R.id.activity_car_selection_newcar_input_fueltype, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
+    protected void onFuelTypeChanged(CharSequence text) {
+        fueltypeText.setError(null);
+        if (text.toString().isEmpty())
+            return;
+
+        Car.FuelType fuelType = Car.FuelType.getFuelTybeByTranslatedString(getContext(), text.toString());
+
+        if (Car.FuelType.ELECTRIC.equals(fuelType)) {
+            engineLayout.setVisibility(View.GONE);
+            engineText.setVisibility(View.GONE);
+        } else {
+            engineLayout.setVisibility(View.VISIBLE);
+            engineText.setVisibility(View.VISIBLE);
+        }
+    }
+
+    @OnTextChanged(value = R.id.activity_car_selection_newcar_input_engine)
+    protected void onEngineDisplacementChanged(CharSequence text) {
+        engineText.setError(null);
+    }
 
     /**
      * Add car button onClick listener. When clicked, it tries to find out if the car already
@@ -242,23 +285,29 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
             yearText.setError(null);
             engineText.setError(null);
 
-            View focusView = null;
+            Car.FuelType fuelType = Car.FuelType.getFuelTybeByTranslatedString(
+                    getContext(), fueltypeText.getText().toString());
 
             //First check all input forms for empty strings
-            if (engineText.getText().length() == 0) {
-                engineText.setError("Cannot be empty");
+            View focusView = null;
+            if (fuelType != Car.FuelType.ELECTRIC && engineText.getText().length() == 0) {
+                engineText.setError(getString(R.string.car_selection_error_empty_input),error);
                 focusView = engineText;
             }
+            if (fueltypeText.getText().length() == 0) {
+                fueltypeText.setError(getString(R.string.car_selection_error_empty_input),error);
+                focusView = fueltypeText;
+            }
             if (yearText.getText().length() == 0) {
-                yearText.setError("Cannot be empty");
+                yearText.setError(getString(R.string.car_selection_error_empty_input),error);
                 focusView = yearText;
             }
             if (modelText.getText().length() == 0) {
-                modelText.setError("Cannot be empty");
+                modelText.setError(getString(R.string.car_selection_error_empty_input),error);
                 focusView = modelText;
             }
             if (manufacturerText.getText().length() == 0) {
-                manufacturerText.setError("Cannot be empty");
+                manufacturerText.setError(getString(R.string.car_selection_error_empty_input),error);
                 focusView = manufacturerText;
             }
 
@@ -281,12 +330,22 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
             String model = modelText.getText().toString();
             String yearString = yearText.getText().toString();
             String engineString = engineText.getText().toString();
-            Car.FuelType fuelType = gasolineRadio.isChecked() ?
-                    Car.FuelType.GASOLINE : Car.FuelType.DIESEL;
+
+            FuelTypeAdapter fueltypeAdapter = (FuelTypeAdapter) fueltypeText.getAdapter();
+            Car.FuelType fueltype = Car.FuelType.getFuelTybeByTranslatedString(getContext(),
+                    fueltypeText.getText().toString());
 
             // create the car
-            return new CarImpl(manufacturer, model, fuelType,
-                    Integer.parseInt(yearString), Integer.parseInt(engineString));
+            int year = Integer.parseInt(yearString);
+            if (fueltype != Car.FuelType.ELECTRIC) {
+                try {
+                    int engine = Integer.parseInt(engineString);
+                    return new CarImpl(manufacturer, model, fueltype, year, engine);
+                } catch (Exception e) {
+                    LOG.error(String.format("Unable to parse engine [%s]", engineString), e);
+                }
+            }
+            return new CarImpl(manufacturer, model, fueltype, year);
         };
     }
 
@@ -296,12 +355,13 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
             View focusView = null;
 
             // Check the values of engine and year for validity.
-            if (car.getEngineDisplacement() < 500 || car.getEngineDisplacement() > 5000) {
-                engineText.setError("Invalid value");
+            if (car.getFuelType() != Car.FuelType.ELECTRIC &&
+                    (car.getEngineDisplacement() < 500 || car.getEngineDisplacement() > 5000)) {
+                engineText.setError(getString(R.string.car_selection_error_invalid_input),error);
                 focusView = engineText;
             }
             if (car.getConstructionYear() < 1990 || car.getConstructionYear() > currentYear) {
-                yearText.setError("Invalid value");
+                yearText.setError(getString(R.string.car_selection_error_invalid_input),error);
                 focusView = yearText;
             }
 
@@ -355,7 +415,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
     }
 
     private void dispatchRemoteSensors() {
-        sensorsSubscription = daoProvider.getSensorDAO()
+        disposables.add(daoProvider.getSensorDAO()
                 .getAllCarsObservable()
                 .toFlowable(BackpressureStrategy.BUFFER)
                 .onBackpressureBuffer(10000)
@@ -376,13 +436,9 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
 
                         mainThreadWorker.schedule(() -> {
                             // Update the manufactuerers in
-                            updateSpinner(mManufacturerNames, manufacturerSpinner);
+//                            updateSpinner(mManufacturerNames, manufacturerSpinner);
+                            updateManufacturerViews();
 
-                            // Set the initial selection of the manufacturer to NO SELECTION
-                            manufacturerSpinner.setSelection(Adapter.NO_SELECTION, true);
-
-                            // Initialize the spinner.
-                            initSpinner();
                             dispose();
 
                             downloadView.setVisibility(View.INVISIBLE);
@@ -404,90 +460,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
                                 addCarToAutocompleteList(car);
                         }
                     }
-                });
-    }
-
-    private void initTextWatcher() {
-        manufacturerText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                // Nothing to do..
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                // nothing to do..
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                manufacturerText.setError(null);
-
-                modelText.setText("");
-                yearText.setText("");
-                engineText.setText("");
-
-                modelSpinner.setAdapter(null);
-                yearSpinner.setAdapter(null);
-                engineSpinner.setAdapter(null);
-            }
-        });
-
-        modelText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                // Nothing to do..
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                // Nothing to do..
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                modelText.setError(null);
-
-                yearText.setText("");
-                engineText.setText("");
-            }
-        });
-
-        yearText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                // Nothing to do..
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                // Nothing to do..
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                yearText.setError(null);
-
-                engineText.setText("");
-            }
-        });
-
-        engineText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                // Nothing to do..
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                // Nothing to do..
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                engineText.setError(null);
-            }
-        });
+                }));
     }
 
     private void initFocusChangedListener() {
@@ -518,82 +491,6 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
         engineText.setOnFocusChangeListener((v, hasFocus) -> {
             if (!hasFocus) {
                 checkFuelingType();
-            }
-        });
-    }
-
-    private void initSpinner() {
-        manufacturerSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String manufacturer = parent.getItemAtPosition(position).toString();
-                LOG.info(String.format("manufactuererSpinner.onItemSelected(%s)", manufacturer));
-
-                // update the manufacturer textview.
-                manufacturerText.setText(manufacturer);
-                ((TextView) view).setText(null);
-
-                // update the model views
-                updateModelViews(manufacturer);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-
-        modelSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String model = parent.getItemAtPosition(position).toString();
-                LOG.info(String.format("modelSpinner.onItemSelected(%s)", model));
-
-                modelText.setText(model);
-                ((TextView) view).setText(null);
-
-                updateYearView(model);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-
-        yearSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String year = parent.getItemAtPosition(position).toString();
-                LOG.info(String.format("yearSpinner.onItemSelected(%s)", year));
-
-                yearText.setText(year);
-                ((TextView) view).setText(null);
-
-                updateEngineView(new Pair<>(modelText.getText().toString(), year));
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-
-        engineSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String engine = parent.getItemAtPosition(position).toString();
-                LOG.info(String.format("engineSpinner.onItemSelected(%s)", engine));
-
-                engineText.setText(engine);
-                ((TextView) view).setText(null);
-
-                checkFuelingType();
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
             }
         });
     }
@@ -631,66 +528,41 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
             }
         }
 
-        if (selectedCar != null &&
-                selectedCar.getFuelType() != null &&
-                selectedCar.getFuelType() == Car.FuelType.DIESEL) {
-            dieselRadio.setChecked(true);
-        } else {
-            gasolineRadio.setChecked(true);
-        }
+//        if (selectedCar != null && selectedCar.getFuelType() != null) {
+//            fueltypeText.setText(selectedCar.getFuelType().toString());
+//        }
     }
 
     private void updateManufacturerViews() {
         if (!mManufacturerNames.isEmpty()) {
-            updateSpinner(mManufacturerNames, manufacturerSpinner);
+            manufacturerText.setAdapter(asSortedAdapter(getContext(), mManufacturerNames));
         } else {
-            modelSpinner.setAdapter(null);
+            manufacturerText.setAdapter(null);
         }
     }
 
     private void updateModelViews(String manufacturer) {
         if (mCarToModelMap.containsKey(manufacturer)) {
-            updateSpinner(mCarToModelMap.get(manufacturer), modelSpinner);
+            modelText.setAdapter(asSortedAdapter(getContext(), mCarToModelMap.get(manufacturer)));
         } else {
-            modelSpinner.setAdapter(null);
+            modelText.setAdapter(null);
         }
     }
 
     private void updateYearView(String model) {
         if (mModelToYear.containsKey(model)) {
-            updateSpinner(mModelToYear.get(model), yearSpinner);
+            yearText.setAdapter(asSortedAdapter(getContext(), mModelToYear.get(model)));
         } else {
-            yearSpinner.setAdapter(null);
+            yearText.setAdapter(null);
         }
     }
 
     private void updateEngineView(Pair<String, String> model) {
         if (mModelToCCM.containsKey(model)) {
-            updateSpinner(mModelToCCM.get(model), engineSpinner);
+            engineText.setAdapter(asSortedAdapter(getContext(), mModelToCCM.get(model)));
         } else {
-            engineSpinner.setAdapter(null);
+            engineText.setAdapter(null);
         }
-    }
-
-    private void updateAutoComplete(Set<String> toSet, TextView textView) {
-        List<String> list = new ArrayList<>();
-        list.addAll(toSet);
-        Collections.sort(list);
-
-//        ArrayAdapter<String>
-    }
-
-    private void updateSpinner(Set<String> toSet, Spinner spinner) {
-        List<String> list = new ArrayList<>();
-        list.addAll(toSet);
-        Collections.sort(list);
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                getActivity(),
-                R.layout.activity_car_selection_newcar_spinner_item,
-                list.toArray(new String[list.size()]));
-
-        spinner.setAdapter(adapter);
     }
 
     /**
@@ -701,12 +573,14 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
     private void addCarToAutocompleteList(Car car) {
 
         mCars.add(car);
-        String manufacturer = car.getManufacturer();
-        String model = car.getModel();
-        String year = "" + car.getConstructionYear();
+        String manufacturer = car.getManufacturer().trim();
+        String model = car.getModel().trim();
+        String year = Integer.toString(car.getConstructionYear());
 
-        if (!mManufacturerNames.contains(manufacturer))
-            mManufacturerNames.add(manufacturer);
+        if (manufacturer.isEmpty() || model.isEmpty() || year.isEmpty())
+            return;
+
+        mManufacturerNames.add(manufacturer);
 
         if (!mCarToModelMap.containsKey(manufacturer))
             mCarToModelMap.put(manufacturer, new HashSet<>());
@@ -740,5 +614,110 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
     @Override
     protected void injectDependencies(BaseApplicationComponent appComponent) {
         appComponent.inject(this);
+    }
+
+    private void initWatcher() {
+        disposables.add(RxTextView.afterTextChangeEvents(modelText)
+                .debounce(ERROR_DEBOUNCE_TIME, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .map(t -> t.toString())
+                .subscribe(model -> {
+                    if (model.trim().isEmpty()) {
+                        modelText.setError(getString(R.string.car_selection_error_empty_input),error);
+                    }
+                }, LOG::error));
+
+        // Year input validity check.
+        disposables.add(RxTextView.textChanges(yearText)
+                .skipInitialValue()
+                .debounce(ERROR_DEBOUNCE_TIME, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .map(CharSequence::toString)
+                .filter(s -> !s.isEmpty())
+                .subscribe(yearString -> {
+                    try {
+                        int year = Integer.parseInt(yearString);
+                        if (year < CONSTRUCTION_YEAR_MIN || year > CONSTRUCTION_YEAR_MAX) {
+                            yearText.setError(getString(R.string.car_selection_error_invalid_input),error);
+                            yearText.requestFocus();
+                        }
+                    } catch (Exception e) {
+                        LOG.error(String.format("Unable to parse year [%s]", yearString), e);
+                        yearText.setError(getString(R.string.car_selection_error_invalid_input),error);
+                        yearText.requestFocus();
+                    }
+                }, LOG::error));
+
+        // Engine input validity check.
+        disposables.add(RxTextView.textChanges(engineText)
+                .skipInitialValue()
+                .debounce(ERROR_DEBOUNCE_TIME, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .map(CharSequence::toString)
+                .filter(s -> !s.isEmpty())
+                .subscribe(engineString -> {
+                    if (engineString.isEmpty())
+                        return;
+
+                    try {
+                        int engine = Integer.parseInt(engineString);
+                        if (engine < ENGINE_DISPLACEMENT_MIN || engine > ENGINE_DISPLACEMENT_MAX) {
+                            engineText.setError(getString(R.string.car_selection_error_invalid_input),error);
+                            engineText.requestFocus();
+                        }
+                    } catch (Exception e) {
+                        LOG.error(String.format("Unable to parse engine [%s]", engineString), e);
+                        engineText.setError(getString(R.string.car_selection_error_invalid_input),error);
+                        engineText.requestFocus();
+                    }
+                }, LOG::error));
+    }
+
+    private void requestNextTextfieldFocus(TextView textField) {
+        try {
+            TextView nextField = (TextView) textField.focusSearch(View.FOCUS_DOWN);
+            nextField.requestFocus();
+        } catch (Exception e) {
+            LOG.warn("Unable to find next field or to request focus to next field.");
+        }
+    }
+
+    private static final ArrayAdapter<String> asSortedAdapter(Context context, Set<String> set) {
+        String[] strings = set.toArray(new String[set.size()]);
+        Arrays.sort(strings);
+        return new ArrayAdapter<>(
+                context,
+                R.layout.activity_car_selection_newcar_fueltype_item,
+                strings);
+    }
+
+    /**
+     * Custom array adapter for translated fueltypes
+     */
+    private static class FuelTypeAdapter extends ArrayAdapter<String> {
+        private final Car.FuelType[] values;
+
+        public FuelTypeAdapter(@NonNull Context context, int resource, Car.FuelType[] values) {
+            super(context, resource, new AbstractList<String>() {
+                @Override
+                public int size() {
+                    return values.length;
+                }
+
+                @Override
+                public String get(int index) {
+                    if (index == ArrayAdapter.NO_SELECTION)
+                        return null;
+                    return context.getString(values[index].getStringResource());
+                }
+            });
+            this.values = values;
+        }
+
+        public Car.FuelType getOriginal(int index) {
+            if (index == ArrayAdapter.NO_SELECTION)
+                return null;
+            return values[index];
+        }
     }
 }

@@ -56,9 +56,7 @@ public class NativeBluetoothSocket extends BluetoothSocketWrapper {
 
 	@Override
 	public void connect() throws IOException {
-		LOG.error("This gets called");
 		socket.connect();
-		LOG.error("and this?");
 	}
 
 	@Override

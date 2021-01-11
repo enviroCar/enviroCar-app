@@ -41,7 +41,8 @@
 
         <TextView
             style="@style/enviroCar.Help.content"
-            android:text="@string/help_content_1"/>
+            android:text="@string/help_content_1"
+            android:autoLink="web"/>
 
         <include layout="@layout/help_divider"/>
 
@@ -122,12 +123,6 @@
                 android:text="@string/help_content_2_1_enum_3"/>
 
         </LinearLayout>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_medium"
-            android:text="@string/help_content_2_2"/>
 
         <TextView
             style="@style/enviroCar.Help.headline2"

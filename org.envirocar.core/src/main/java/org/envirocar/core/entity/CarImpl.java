@@ -1,22 +1,26 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
 package org.envirocar.core.entity;
+
+import androidx.annotation.Nullable;
+
+import java.util.Objects;
 
 /**
  * TODO JavaDoc
@@ -43,6 +47,18 @@ public class CarImpl implements Car {
      * Constructor.
      */
     public CarImpl() {
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param manufacturer       the manufacturer
+     * @param model              the model
+     * @param fuelType           the fueltype
+     * @param constructionYear   the year of construction
+     */
+    public CarImpl(String manufacturer, String model, FuelType fuelType, int constructionYear) {
+        this(manufacturer, model, fuelType, constructionYear, -1);
     }
 
     /**
@@ -150,6 +166,11 @@ public class CarImpl implements Car {
     }
 
     @Override
+    public boolean hasEngineDispalcement() {
+        return this.fuelType != FuelType.ELECTRIC && engineDisplacement != -1;
+    }
+
+    @Override
     public int getEngineDisplacement() {
         return engineDisplacement;
     }
@@ -161,44 +182,25 @@ public class CarImpl implements Car {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(manufacturer);
-        sb.append(" ");
-        sb.append(model);
-        sb.append(" ");
-        sb.append(constructionYear);
-        sb.append(" (");
-        sb.append(fuelType);
-        sb.append(" / ");
-        sb.append(engineDisplacement);
-        sb.append("cc)");
-        return sb.toString();
+        return String.format("%s %s %d (%s / %dcc)", manufacturer, model, constructionYear, fuelType, engineDisplacement);
     }
 
     @Override
     public boolean equals(Object o) {
-        boolean result = false;
-        if (o instanceof CarImpl) {
-            CarImpl c = (CarImpl) o;
-            result = this.fuelType == c.fuelType
-                    && this.manufacturer.equals(c.manufacturer)
-                    && this.model.equals(c.model)
-                    //                    && this.id.equals(c.id)
-                    && this.constructionYear == c.constructionYear
-                    && this.engineDisplacement == c.engineDisplacement;
-        }
-        return result;
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CarImpl car = (CarImpl) o;
+        return constructionYear == car.constructionYear &&
+                engineDisplacement == car.engineDisplacement &&
+                Objects.equals(id, car.id) &&
+                Objects.equals(model, car.model) &&
+                Objects.equals(manufacturer, car.manufacturer) &&
+                fuelType == car.fuelType;
     }
 
     @Override
     public int hashCode() {
-        int result = fuelType.hashCode();
-        result = 31 * result + manufacturer.hashCode();
-        result = 31 * result + model.hashCode();
-        //        result = 31 * result + (id != null ? id.hashCode() : 0);
-        result = 31 * result + constructionYear;
-        result = 31 * result + engineDisplacement;
-        return result;
+        return Objects.hash(id, model, manufacturer, fuelType, constructionYear, engineDisplacement);
     }
 
     @Override

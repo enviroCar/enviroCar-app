@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -61,8 +61,7 @@ import java.util.zip.ZipOutputStream;
 
 public class Util {
     private static final Logger logger = Logger.getLogger(Util.class);
-    public static final String NEW_LINE_CHAR = System
-            .getProperty("line.separator");
+    public static final String NEW_LINE_CHAR = System.getProperty("line.separator");
     public static final String EXTERNAL_SUB_FOLDER = "enviroCar";
     private static ISO8601DateFormat jacksonFormat = new ISO8601DateFormat();
 
@@ -85,24 +84,47 @@ public class Util {
         return f;
     }
 
+    public static File createFileOnInternalStorage(String path, String filename) throws IOException{
+        File directory = resolveInternalStorageBaseFolder(path);
+        File f = new File(directory, filename);
+        f.createNewFile();
+        if (!f.isFile()) {
+            throw new IOException(filename + " is not a file!");
+        }
+        return f;
+    }
+
     public static File resolveCacheFolder(Context ctx) {
         return ctx.getCacheDir();
     }
 
     public static File resolveExternalStorageBaseFolder() throws IOException {
-        File directory = new File(Environment.getExternalStorageDirectory()
+
+        File directory = new File(Environment.getDataDirectory()
                 + File.separator + EXTERNAL_SUB_FOLDER);
+//        File directory = new File(context.getFilesDir() + File.separator + EXTERNAL_SUB_FOLDER);
 
         if (!directory.exists()) {
             directory.mkdir();
         }
         if (!directory.isDirectory()) {
-            throw new IOException(directory.getAbsolutePath()
-                    + " is not a directory!");
+            throw new IOException(directory.getAbsolutePath() + " is not a directory!");
         }
 
         return directory;
     }
+
+    public static File resolveInternalStorageBaseFolder(String path) throws IOException {
+        File directory = new File(path + File.separator + EXTERNAL_SUB_FOLDER);
+        if (!directory.exists()) {
+            directory.mkdir();
+        }
+        if (!directory.isDirectory()) {
+            throw new IOException(directory.getAbsolutePath() + " is not a directory!");
+        }
+        return directory;
+    }
+
 
     /**
      * Zips a list of files into the target archive.

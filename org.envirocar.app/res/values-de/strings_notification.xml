@@ -46,7 +46,7 @@
     <string name="notification_connected_action">Aufzeichnung beenden</string>
 
     <string name="notification_stopping_title">Beende Aufzeichnung...</string>
-    <string name="notification_stopping_description">Track recording is not in progress.</string>
+    <string name="notification_stopping_description">Aufzeichnung ist nicht im Gange.</string>
 
     <string name="notification_slide_down">Hier ziehen um Notiz zu erweitern</string>
     <string name="notification_automatic_track_upload_title">Automatisches Hochladen von Fahrten</string>
@@ -57,7 +57,7 @@
 
     <string name="banner_error_ok">Ok</string>
     <string name="banner_bluetooth_error_title">Bluetooth ist aus!</string>
-    <string name="banner_bluetooth_error_content">Bitte stelen Bluetooth an</string>
+    <string name="banner_bluetooth_error_content">Bitte stelle Bluetooth an</string>
     <string name="banner_obd_adapter_error_title">Kein OBD Adapter ausgewählt!</string>
     <string name="banner_obd_adapter_error_content">Bitte wähle ein OBD Gerät aus</string>
     <string name="banner_gps_error_title">GPS ist aus!</string>

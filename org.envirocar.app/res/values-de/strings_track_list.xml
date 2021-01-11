@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
 
-    Copyright (C) 2013 - 2019 the enviroCar community
+    Copyright (C) 2013 - 2020 the enviroCar community
 
     This file is part of the enviroCar app.
 
@@ -30,10 +30,18 @@
     <string name="track_list_delete_track_success_template">%s wurde erfolgreich gelöscht.</string>
 
     <string name="track_list_upload_track_uploading">Fahrt wird hochgeladen</string>
-    <string name="track_list_upload_track_no_measurements">Die Fahrt enthält nicht genug Messungen um diese anonymisiert hochzuladen.</string>
+    <string name="track_list_upload_track_no_measurements">Die Fahrt enthält nicht genug Messungen, um diese anonymisiert hochzuladen.</string>
     <string name="track_list_upload_track_general_error">Fehler während des Hochladens. Versuchen Sie es später erneut.</string>
     <string name="track_list_upload_track_content">Die folgende Fahrt wird als Open Data auf den enviroCar Server hochgeladen: </string>
     <string name="track_list_upload_track_success_template">Die Fahrt \'%s\' wurde erfolgreich hochgeladen.</string>
+
+    <string name="track_list_upload_error_no_measurements">Die Fahrt enthält nicht genügend Messungen, um sie als verschleierte Fahrt hochzuladen.</string>
+    <string name="track_list_upload_error_no_valid_car">Hochladen der Fahrt nicht möglich. Der Fahrt ist kein gültiges Fahrzeug zugeordnet.</string>
+    <string name="track_list_upload_error_already_uploaded">Hochladen der Fahrt nicht möglich. Die Fahrt wurde bereits hochgeladen.</string>
+    <string name="track_list_upload_error_no_network_connection">Hochladen der Fahrt nicht möglich. Es besteht keine Verbindung mit dem Internet.</string>
+    <string name="track_list_upload_error_not_logged_in">Hochladen der Fahrt nicht möglich. Sie sind nicht mit ihrem Account angemeldet.</string>
+    <string name="track_list_upload_error_gps_track">Hochladen der Fahrt nicht möglich. Das Hochladen von GPS-basierten Tracks ist derzeit nicht möglich.</string>
+    <string name="track_list_upload_error_unauthorized">Hochladen der Fahrt nicht möglich. Sie sind nicht authorisiert.</string>
 
     <string name="track_list_loading_tracks">Lade Fahrten...</string>
     <string name="track_list_loading_tracks_error_snackbar">Fehler beim Laden der Daten.\nBitte senden Sie einen Fehlerreport.</string>
@@ -62,15 +70,19 @@
 
     <string name="track_list_details_duration">Dauer</string>
     <string name="track_list_details_distance">Distanz</string>
-    <string name="track_list_details_car">Fahrzeug:</string>
-    <string name="track_list_details_start">Beginn:</string>
-    <string name="track_list_details_end">Ende:</string>
-    <string name="track_list_details_consumption">Verbrauch*:</string>
-    <string name="track_list_details_emission">CO\u2082 Ausstoß*:</string>
+    <string name="track_list_details_car">Fahrzeug</string>
+    <string name="track_list_details_start">Beginn</string>
+    <string name="track_list_details_end">Ende</string>
+    <string name="track_list_details_consumption">Verbrauch*</string>
+    <string name="track_list_details_emission">CO\u2082 Ausstoß*</string>
+    <string name="track_list_details_speed">&#216; Geschwindigkeit</string>
+    <string name="track_list_num_stops">Anzahl Stopps</string>
+    <string name="track_list_total_stoptime">Gesamtstoppzeit</string>
     <string name="track_list_details_diesel_not_supported">DIESEL NICHT\nUNTERSTÜTZT</string>
 
     <string name="track_list_upload_all_tracks_title">Alle Fahrten Hochladen?</string>
     <string name="track_list_upload_all_tracks_content">Sie sind dabei alle ihre Fahrten auf den enviroCar Server als Open Data hochzuladen. Alle Fahrten werden damit ihrem Benutzerkonto zugewiesen und anaonymisiert für andere zugreifbar.\n\nMöchten Sie fortfahren?</string>
+    <string name="track_list_upload_all_tracks_complete_template">%d of %d Fahrten wurden erfolgreich hochgeladen. %d Fahrten hatten zu wenig Messungen.</string>
     <string name="track_list_uploading_please_wait">Bitte warten...</string>
 
     <string name="track_list_details_subtitle_template">Ihre Fahrt mit %s %s am %s.</string>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
 
-    Copyright (C) 2013 - 2019 the enviroCar community
+    Copyright (C) 2013 - 2020 the enviroCar community
 
     This file is part of the enviroCar app.
 
@@ -29,7 +29,7 @@
     <string name="login">Anmelden</string>
     <string name="sign_in">Anmeldung</string>
     <string name="sign_up">Registrierung</string>
-    <string name="email">E-Mail</string>
+    <string name="email">EMail</string>
 
 
     <string name="login_register">Einloggen/Registrieren</string>
@@ -52,8 +52,10 @@
 	
 	<string name="welcome_message">Willkommen, %s</string>
     <string name="goodbye_message">Auf Wiederstehen, %s</string>
+    <string name="problem_description">Beschreiben Sie Ihr Problem</string>
 
     <string name="envirocar.org">http://www.envirocar.org</string>
+    <string name="categories">Kategorien:</string>
     
     <string name="imperial_unit">Imperiale Maßeinheiten?</string>
 
@@ -86,15 +88,15 @@
     <string name="report_issue_time_since_crash">Ungefährer Zeitpunkt:</string>
     <string name="report_issue_minutes">10:00</string>
 
+    <string name="report_issue_no_checkbox_selected_title">Keine Kategorie ausgewählt</string>
+    <string name="report_issue_no_checkbox_selected_content">Sie haben keines der Kategorien markiert. Diese helfen jedoch den Entwicklern, Probleme zu kategorisieren und schneller zu lösen. Bitte erwägen Sie, die relevanten Felder auszufüllen.</string>
+    <string name="report_issue_no_checkbox_send_anyway">Bericht trotzdem senden</string>
+
     <string name="report_issue_text">
         Zeitstempel werden automatisch in die Protokolle aufgenommen. Das Senden von Berichten an uns hilft uns,
-        unerwartetes Verhalten oder Abstürze zu reproduzieren. Das macht enviroCar besser und stabiler.
-        Klicken Sie auf die Schaltfläche Senden unten, um diesen Bericht per E-Mail an uns zu senden.</string>
-    <string name="report_issue_bottom_text">Diese Funktion verwendet die Standardeinstellung \"Senden an\".
-        Wenn Sie es mit Ihrem E-Mail-Client aufrufen, können Sie den Bericht ganz einfach per E-Mail versenden.
-        Wenn Sie keinen E-Mail-Client installiert haben, können Sie die Protokolldatei auf einem PC speichern,
-        z.B. über Bluetooth oder USB. \n\nIn solchen Fällen bitten wir Sie, das Berichtspaket manuell einzusenden.
-        Sie werden an den folgenden Stellen aufbewahrt:</string>
+        unerwartetes Verhalten oder Abstürze zu reproduzieren. Dadurch können wir enviroCar stabilisieren und verbessern.
+        Klicken Sie auf unten auf die Schaltfläche "Bericht Senden", um diesen Bericht per EMail inklusive Protokolldaten an uns zu senden.</string>
+    <string name="report_issue_bottom_text">Diese Funktion verwendet die Standardeinstellung \"Senden an\".</string>
     <string name="report_issue_desc_text">Eine detailliertere Beschreibung</string>
     <string name="report_issue_button">Bericht Absenden</string>
     <string-array name="report_issue_subject_header">
@@ -124,4 +126,21 @@
     <string name="notification_autorecording_gps_disabled_subtext">GPS ist deaktiviert. Bitte aktivieren Sie Ihr GPS.</string>
     <string name="notification_autorecording_bluetooth_disabled_subtext">Bluetooth ist deaktiviert. Bitte aktivieren Sie Ihr Bluetooth.</string>
 
+    <string name="notification_autoupload_success_title">Hochladen einer Fahrt erfolgreich</string>
+    <string name="notification_autoupload_success_sub">%s wurde erfolgreich auf die enviroCar-Plattform übertragen.</string>
+    <string name="notification_autoupload_uploading_title">Hochladen einer Fahrt</string>
+    <string name="notification_autoupload_uploading_sub">%s wird als Open Data auf die enviroCar-Plattform geschoben.</string>
+    <string name="notification_autoupload_error_title">Hochladen einer Fahrt fehlerhaft</string>
+    <string name="notification_autoupload_error_sub">Fehler beim Hochladen auf die enviroCar-Plattform.</string>
+
+
+    <!-- ################# -->
+    <!--    Permissions    -->
+    <!-- ################# -->
+    <string name="permissions_request_dialog">Die enviroCar App benötigt für die Aufzeichnung von Fahrten weitere Berechtigung, die Sie im Folgenden manuell bestätigen können. Hierzu gehört zum einem die genaue Positionsbestimmung des Smartphones, damit gesammelte Parameter einer Fahrt im Raum verortet werden können, und zum anderen die Schreibberechtigung auf den externen Speicher, damit Logs generiert und im Falle von Fehlverhalten durch die Funktion "Problem melden" an uns übermittelt werden können. </string>
+
+    <!-- ###################### -->
+    <!--    Extended MapView    -->
+    <!-- ###################### -->
+    <string name="mapview_extended_select_phenomena">Attributauswahl</string>
 </resources>

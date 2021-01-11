@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
 
     Copyright (C) 2013 - 2019 the enviroCar community
 
@@ -37,6 +36,14 @@
     <string name="track_list_upload_track_content">Uploading the following track as Open Data to the enviroCar server:</string>
     <string name="track_list_upload_track_success_template">The upload of track \'%s\' was successful.</string>
 
+    <string name="track_list_upload_error_no_measurements">The track does not contain enough measurements to upload as obfuscated track.</string>
+    <string name="track_list_upload_error_no_valid_car">Unable to upload track. The track does not have a valid car assigned.</string>
+    <string name="track_list_upload_error_already_uploaded">Unable to upload track. The track has already been uploaded.</string>
+    <string name="track_list_upload_error_no_network_connection">Unable to upload track. Not connection to the internet available.</string>
+    <string name="track_list_upload_error_not_logged_in">Unable to upload track. You are not logged in to any account yet.</string>
+    <string name="track_list_upload_error_gps_track">Unable to upload track. The upload of GPS-based tracks is currently not possible.</string>
+    <string name="track_list_upload_error_unauthorized">Unable to upload track. You are not authorized to do that.</string>
+
     <string name="track_list_loading_tracks">Loading...</string>
     <string name="track_list_loading_tracks_error_snackbar">Error while loading the data.\nPlease send an error report.</string>
     <string name="track_list_loading_lremote_tracks_error">Error while loading downloaded remote tracks.</string>
@@ -63,15 +70,19 @@
 
     <string name="track_list_details_duration">Duration</string>
     <string name="track_list_details_distance">Distance</string>
-    <string name="track_list_details_car">Car:</string>
-    <string name="track_list_details_start">Start:</string>
-    <string name="track_list_details_end">End:</string>
-    <string name="track_list_details_consumption">Consumption:</string>
-    <string name="track_list_details_emission">CO\u2082 Emission:</string>
+    <string name="track_list_details_car">Car</string>
+    <string name="track_list_details_start">Start</string>
+    <string name="track_list_details_end">End</string>
+    <string name="track_list_details_consumption">Consumption*</string>
+    <string name="track_list_details_emission">CO\u2082 Emission*</string>
+    <string name="track_list_details_speed">&#216; Speed</string>
+    <string name="track_list_num_stops">Number of Stops</string>
+    <string name="track_list_total_stoptime">Total stop time</string>
     <string name="track_list_details_diesel_not_supported">NOT SUPPORTED\nFOR DIESEL</string>
 
     <string name="track_list_upload_all_tracks_title">Upload All Local Tracks?</string>
     <string name="track_list_upload_all_tracks_content">You are about to upload all tracks. This means that all tracks will be uploaded and assigned to your account.\n\nDo you want to continue?</string>
+    <string name="track_list_upload_all_tracks_complete_template">%d of %d tracks have been successfully uploaded. %d tracks had to less measurements to upload.</string>
     <string name="track_list_uploading_please_wait">Please wait...</string>
 
     <string name="track_list_details_subtitle_template">Your Track with %s %s on %s.</string>

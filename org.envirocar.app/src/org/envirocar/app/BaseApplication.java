@@ -36,6 +36,7 @@ import org.acra.annotation.AcraCore;
 import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.app.handler.LocationHandler;
 import org.envirocar.app.handler.userstatistics.UserStatisticsProcessor;
+import org.envirocar.app.notifications.AutomaticUploadNotificationHandler;
 import org.envirocar.app.notifications.NotificationHandler;
 import org.envirocar.app.rxutils.RxBroadcastReceiver;
 import org.envirocar.core.injection.InjectApplicationScope;
@@ -60,7 +61,7 @@ import io.reactivex.disposables.CompositeDisposable;
  */
 @AcraCore(buildConfigClass = BuildConfig.class, reportSenderFactoryClasses = ACRASenderFactory.class)
 public class BaseApplication extends Application {
-    private static final Logger LOG = Logger.getLogger(BaseApplication.class);
+    private static Logger LOG = Logger.getLogger(BaseApplication.class);
 
     BaseApplicationComponent baseApplicationComponent;
     protected BroadcastReceiver mScreenReceiver;
@@ -84,6 +85,8 @@ public class BaseApplication extends Application {
     protected UserStatisticsProcessor statisticsProcessor;
     @Inject
     protected LocationHandler locationHandler;
+    @Inject
+    protected AutomaticUploadNotificationHandler automaticUploadHandler;
 
 
     private CompositeDisposable disposables = new CompositeDisposable();
@@ -91,6 +94,8 @@ public class BaseApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        // hack
+        Logger.addFileHandlerLocation(getFilesDir().getAbsolutePath());
 
         Mapbox.getInstance(this, "");
 

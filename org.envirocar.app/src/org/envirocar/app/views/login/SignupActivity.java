@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -20,6 +20,7 @@ package org.envirocar.app.views.login;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.Selection;
 import android.text.Spannable;
@@ -39,6 +40,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.jakewharton.rxbinding3.widget.RxCompoundButton;
+import com.jakewharton.rxbinding3.widget.RxTextView;
 
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
@@ -54,6 +57,8 @@ import org.envirocar.core.logging.Logger;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 
@@ -70,6 +75,12 @@ import io.reactivex.schedulers.Schedulers;
  */
 public class SignupActivity extends BaseInjectorActivity {
     private static final Logger LOG = Logger.getLogger(SignupActivity.class);
+
+    private static final String EMAIL_REGEX = "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
+    private static final String PASSWORD_REGEX = "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{6,}$";
+    private static final String USERNAME_REGEX = "^[a-z0-9_-]{6,}$";
+    private static final int CHECK_FORM_DELAY = 750;
+    private static Drawable error;
 
     public static void startActivity(Context context) {
         Intent intent = new Intent(context, SignupActivity.class);
@@ -98,6 +109,10 @@ public class SignupActivity extends BaseInjectorActivity {
     protected CheckBox touCheckbox;
     @BindView(R.id.activity_signup_tou_text)
     protected TextView touText;
+    @BindView(R.id.activity_signup_ps_checkbox)
+    protected CheckBox psCheckbox;
+    @BindView(R.id.activity_signup_ps_text)
+    protected TextView psText;
 
     private final Scheduler.Worker mainThreadWorker = AndroidSchedulers.mainThread().createWorker();
     private final Scheduler.Worker backgroundWorker = Schedulers.newThread().createWorker();
@@ -117,8 +132,12 @@ public class SignupActivity extends BaseInjectorActivity {
         // inject the views
         ButterKnife.bind(this);
 
+        error = getResources().getDrawable(R.drawable.ic_error_red_24dp);
+        error.setBounds(-50,0,0,error.getIntrinsicHeight());
+
         // make terms of use and privacy statement clickable
         this.makeClickableTextLinks();
+        observeFormInputs();
     }
 
     @Override
@@ -137,12 +156,6 @@ public class SignupActivity extends BaseInjectorActivity {
 
     @OnClick(R.id.activity_signup_register_button)
     protected void onRegisterAccountButtonClicked() {
-        // reset errors
-        this.usernameEditText.setError(null);
-        this.emailEditText.setError(null);
-        this.password1EditText.setError(null);
-        this.password2EditText.setError(null);
-        this.touCheckbox.setError(null);
 
         // We do not want to have dublicate registration processes.
         if (this.registerSubscription != null && !this.registerSubscription.isDisposed()) {
@@ -152,59 +165,32 @@ public class SignupActivity extends BaseInjectorActivity {
         // Get all the values of the edittexts
         final String username = usernameEditText.getText().toString().trim();
         final String email = emailEditText.getText().toString().trim();
-        final String password = password1EditText.getText().toString();
+        final String password1 = password1EditText.getText().toString();
         final String password2 = password2EditText.getText().toString();
 
-        View focusView = null;
-
-        // check for valid passwords
-        if (password == null || password.isEmpty() || password.equals("")) {
-            password1EditText.setError(getString(R.string.error_field_required));
-            focusView = this.password1EditText;
-        } else if (password.length() < 6) {
-            password1EditText.setError(getString(R.string.error_invalid_password));
-            focusView = this.password1EditText;
-        }
-
-        // check if the password confirm is empty
-        if (password2 == null || password2.isEmpty() || password2.equals("")) {
-            password2EditText.setError(getString(R.string.error_field_required));
-            focusView = password2EditText;
-        }
-
-        // Check for a valid email address.
-        if (TextUtils.isEmpty(email)) {
-            emailEditText.setError(getString(R.string.error_field_required));
-            focusView = emailEditText;
-        } else if (!email.matches("^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\" +
-                ".[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$")) {
-            emailEditText.setError(getString(R.string.error_invalid_email));
-            focusView = emailEditText;
-        }
-
-        // check for valid username
-        if (username == null || username.isEmpty() || username.equals("")) {
-            usernameEditText.setError(getString(R.string.error_field_required));
-            focusView = usernameEditText;
-        } else if (username.length() < 6) {
-            usernameEditText.setError(getString(R.string.error_invalid_username));
-            focusView = usernameEditText;
-        }
-
-        // check if passwords match
-        if (!password.equals(password2)) {
-            usernameEditText.setError(getString(R.string.error_passwords_not_matching));
-            focusView = usernameEditText;
-        }
-
         // check if tou and privacy statement have been accepted.
+        View focusView = null;
         if (!touCheckbox.isChecked()) {
             touCheckbox.setError("some error");
             focusView = touCheckbox;
         }
-//        if (!mAcceptPrivacyCheckbox.isChecked()) {
-//            mAcceptPrivacyCheckbox.setError("some error");
-//        }
+        if (!psCheckbox.isChecked()) {
+            psCheckbox.setError("some error");
+            focusView = psCheckbox;
+        }
+
+        if (!checkPasswordMatch(password1, password2)) {
+            focusView = password2EditText;
+        }
+        if (!checkPasswordValidity(password1)) {
+            focusView = password1EditText;
+        }
+        if (!checkEmailValidity(email)) {
+            focusView = emailEditText;
+        }
+        if (!checkUsernameValidity(username)) {
+            focusView = usernameEditText;
+        }
 
         // Check if an error occured.
         if (focusView != null) {
@@ -218,7 +204,7 @@ public class SignupActivity extends BaseInjectorActivity {
             imm.hideSoftInputFromWindow(password1EditText.getWindowToken(), 0);
 
             // finally submit registration
-            this.register(username, email, password);
+            this.register(username, email, password1);
         }
     }
 
@@ -289,7 +275,6 @@ public class SignupActivity extends BaseInjectorActivity {
     }
 
     private void makeClickableTextLinks() {
-
         List<Pair<String, View.OnClickListener>> clickableStrings = Arrays.asList(
                 new Pair<>(getString(R.string.terms_and_conditions), v -> {
                     LOG.info("Terms and Conditions clicked. Showing dialog");
@@ -301,30 +286,32 @@ public class SignupActivity extends BaseInjectorActivity {
                 })
         );
 
-        SpannableString string = new SpannableString(touText.getText());
-        for (Pair<String, View.OnClickListener> link : clickableStrings) {
-            ClickableSpan span = new ClickableSpan() {
-                @Override
-                public void onClick(@NonNull View widget) {
-                    Selection.setSelection((Spannable) ((TextView) widget).getText(), 0);
-                    widget.invalidate();
-                    link.second.onClick(widget);
-                }
+        for (TextView textView : Arrays.asList(touText, psText)) {
+            SpannableString string = new SpannableString(textView.getText());
+            for (Pair<String, View.OnClickListener> link : clickableStrings) {
+                ClickableSpan span = new ClickableSpan() {
+                    @Override
+                    public void onClick(@NonNull View widget) {
+                        Selection.setSelection((Spannable) ((TextView) widget).getText(), 0);
+                        widget.invalidate();
+                        link.second.onClick(widget);
+                    }
 
-                @Override
-                public void updateDrawState(@NonNull TextPaint ds) {
-                    ds.setColor(getResources().getColor(R.color.green_dark_cario));
-                }
-            };
+                    @Override
+                    public void updateDrawState(@NonNull TextPaint ds) {
+                        ds.setColor(getResources().getColor(R.color.green_dark_cario));
+                    }
+                };
 
-            int start = touText.getText().toString().indexOf(link.first);
-            if (start > 0) {
-                string.setSpan(span, start, start + link.first.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                int start = textView.getText().toString().indexOf(link.first);
+                if (start > 0) {
+                    string.setSpan(span, start, start + link.first.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                }
             }
-        }
 
-        touText.setMovementMethod(LinkMovementMethod.getInstance());
-        touText.setText(string, TextView.BufferType.SPANNABLE);
+            textView.setMovementMethod(LinkMovementMethod.getInstance());
+            textView.setText(string, TextView.BufferType.SPANNABLE);
+        }
     }
 
     private void showTermsOfUseDialog() {
@@ -339,4 +326,132 @@ public class SignupActivity extends BaseInjectorActivity {
                 .subscribe(ps -> LOG.info("Closed Dialog"));
     }
 
+    /**
+     * Checks for a valid username
+     */
+    private boolean checkUsernameValidity(String username) {
+        // reset error text
+        usernameEditText.setError(null);
+
+        boolean isValidUsername = true;
+        if (username == null || username.isEmpty() || username.equals("")) {
+            usernameEditText.setError(getString(R.string.error_field_required));
+            isValidUsername = false;
+        } else if (username.length() < 6) {
+            usernameEditText.setError(getString(R.string.error_invalid_username));
+            isValidUsername = false;
+        } else if (!Pattern.matches(USERNAME_REGEX,username)) {
+            usernameEditText.setError(getString(R.string.error_username_contain_special));
+            isValidUsername = false;
+        }
+        return isValidUsername;
+    }
+
+    /**
+     * Check for a valid email address.
+     */
+    private boolean checkEmailValidity(String email) {
+        boolean isValidEmail = true;
+        if (TextUtils.isEmpty(email)) {
+            emailEditText.setError(getString(R.string.error_field_required));
+            isValidEmail = false;
+        } else if (!Pattern.matches(EMAIL_REGEX, email)) {
+            emailEditText.setError(getString(R.string.error_invalid_email));
+            isValidEmail = false;
+        }
+        return isValidEmail;
+    }
+
+    /**
+     * Checks for a valid password
+     */
+    private boolean checkPasswordValidity(String password) {
+        boolean isValidPassword = true;
+        if (password == null || password.isEmpty() || password.equals("")) {
+            password1EditText.setError(getString(R.string.error_field_required),error);
+            isValidPassword = false;
+        } else if (password.length() < 6) {
+            password1EditText.setError(getString(R.string.error_invalid_password),error);
+            isValidPassword = false;
+        } else if (!Pattern.matches(PASSWORD_REGEX, password)) {
+            password1EditText.setError(getString(R.string.error_field_weak_password),error);
+            isValidPassword = false;
+        } else {
+            final String password2 = password2EditText.getText().toString().trim();
+            if (!password2.equals("") && !password2.isEmpty() && password2 != null) {
+                checkPasswordMatch(password, password2);
+            }
+        }
+        return isValidPassword;
+    }
+
+    /**
+     * Check for a valid match between the two passwords
+     */
+    private boolean checkConfirmPasswordValidity(String password2) {
+        boolean isValidMatch = true;
+        if (password2 == null || password2.isEmpty() || password2.equals("")) {
+            password2EditText.setError(getString(R.string.error_field_required),error);
+            isValidMatch = false;
+        } else {
+            final String password1 = password1EditText.getText().toString().trim();
+            if (!password1.equals("") && !password1.isEmpty() && password1 != null) {
+                isValidMatch = checkPasswordMatch(password1, password2);
+            }
+        }
+        return isValidMatch;
+    }
+
+    /**
+     * check if passwords match
+     */
+    private boolean checkPasswordMatch(String password, String password2) {
+        boolean isValidMatch = password.equals(password2);
+        if (!isValidMatch) {
+            password1EditText.setError(getString(R.string.error_passwords_not_matching),error);
+            password2EditText.setError(getString(R.string.error_passwords_not_matching),error);
+        } else {
+            password1EditText.setError(null);
+            password2EditText.setError(null);
+        }
+        return isValidMatch;
+    }
+
+    private void observeFormInputs() {
+        RxTextView.textChanges(usernameEditText)
+                .skipInitialValue()
+                .debounce(CHECK_FORM_DELAY, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .map(CharSequence::toString)
+                .subscribe(this::checkUsernameValidity, LOG::error);
+
+        RxTextView.textChanges(emailEditText).
+                skipInitialValue()
+                .debounce(CHECK_FORM_DELAY, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .map(CharSequence::toString)
+                .subscribe(this::checkEmailValidity, LOG::error);
+
+        RxTextView.textChanges(password1EditText)
+                .skipInitialValue()
+                .debounce(CHECK_FORM_DELAY, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .map(CharSequence::toString)
+                .subscribe(this::checkPasswordValidity, LOG::error);
+
+        RxTextView.textChanges(password2EditText)
+                .skipInitialValue()
+                .debounce(CHECK_FORM_DELAY, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .map(CharSequence::toString)
+                .subscribe(this::checkConfirmPasswordValidity, LOG::error);
+
+        RxCompoundButton.checkedChanges(touCheckbox)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(b -> touCheckbox.setError(null), LOG::error);
+
+        RxCompoundButton.checkedChanges(psCheckbox)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(b -> psCheckbox.setError(null), LOG::error);
+    }
 }

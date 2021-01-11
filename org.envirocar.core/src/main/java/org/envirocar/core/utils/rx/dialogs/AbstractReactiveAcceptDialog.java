@@ -133,7 +133,7 @@ public abstract class AbstractReactiveAcceptDialog<T extends BaseEntity> {
      */
     private MaterialDialog.Builder createInfoDialogBuilder(Spanned content) {
         return new MaterialDialog.Builder(activityContext)
-                .title(params.getTitleRes())
+//                .title(params.getTitleRes())
                 .content(content)
                 .cancelable(true)
                 .negativeText(params.getPositiveTextRes())

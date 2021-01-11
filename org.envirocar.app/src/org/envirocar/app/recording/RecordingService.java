@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -22,25 +22,31 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.IBinder;
+import android.os.PowerManager;
 
 import androidx.annotation.Nullable;
 
 import com.squareup.otto.Bus;
 
-import org.envirocar.app.injection.ScopedBaseInjectorService;
 import org.envirocar.app.BaseApplication;
+import org.envirocar.app.injection.ScopedBaseInjectorService;
 import org.envirocar.app.recording.events.RecordingStateEvent;
 import org.envirocar.app.recording.notification.RecordingNotification;
 import org.envirocar.app.recording.notification.SpeechOutput;
+import org.envirocar.app.recording.provider.LocationProvider;
 import org.envirocar.app.recording.provider.RecordingDetailsProvider;
 import org.envirocar.app.recording.strategy.RecordingStrategy;
 import org.envirocar.app.rxutils.RxBroadcastReceiver;
+import org.envirocar.core.entity.Track;
+import org.envirocar.core.events.TrackFinishedEvent;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.utils.ServiceUtils;
 
 import javax.inject.Inject;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * @author dewall
@@ -52,8 +58,8 @@ public class RecordingService extends ScopedBaseInjectorService {
     public static final String ACTION_STOP_TRACK_RECORDING = "action_stop_track_recording";
     public static RecordingState RECORDING_STATE = RecordingState.RECORDING_STOPPED;
 
-    public static void stopService(Context context) {
-        ServiceUtils.stopService(context, RecordingService.class);
+    public static boolean isRunning(){
+        return RECORDING_STATE != RecordingState.RECORDING_STOPPED;
     }
 
     // Injected variables
@@ -65,12 +71,15 @@ public class RecordingService extends ScopedBaseInjectorService {
     protected RecordingDetailsProvider recordingDetailsProvider;
     @Inject
     protected RecordingStrategy.Factory recordingFactory;
+    @Inject
+    protected LocationProvider locationProvider;
+    @Inject
+    protected PowerManager.WakeLock wakeLock;
+
 
     private RecordingStrategy recordingStrategy;
     private RecordingNotification recordingNotification;
-
     private CompositeDisposable disposables = new CompositeDisposable();
-
 
     @Override
     protected void setupServiceComponent() {
@@ -121,14 +130,36 @@ public class RecordingService extends ScopedBaseInjectorService {
         // Select recording algorithm and start
         this.recordingStrategy = recordingFactory.create();
         getLifecycle().addObserver(recordingStrategy);
-        recordingStrategy.startRecording(this, recordingState -> {
-            RECORDING_STATE = recordingState;
-            bus.post(new RecordingStateEvent(recordingState));
+        this.disposables.add(
+                locationProvider.startLocating()
+                        .subscribeOn(AndroidSchedulers.mainThread())
+                        .observeOn(Schedulers.newThread())
+                        .doOnDispose(() -> LOG.info("Location Provider has been disposed!"))
+                        .subscribe(() -> LOG.info("Completed"), LOG::error));
+        this.recordingStrategy.startRecording(this, new RecordingStrategy.RecordingListener() {
+            private boolean trackFinished = false;
 
-            if (recordingState == RecordingState.RECORDING_STOPPED) {
-                stopSelf();
+            @Override
+            public void onRecordingStateChanged(RecordingState recordingState) {
+                RECORDING_STATE = recordingState;
+                bus.post(new RecordingStateEvent(recordingState));
+
+                if (recordingState == RecordingState.RECORDING_STOPPED) {
+                    stopSelf();
+                }
+            }
+
+            @Override
+            public void onTrackFinished(Track track) {
+                if (!trackFinished) {
+                    trackFinished = true;
+                    LOG.info("Track has been finished. Throwing TrackFinishedEvent.");
+                    bus.post(new TrackFinishedEvent(track));
+                }
             }
         });
+
+        wakeLock.acquire();
 
         return START_NOT_STICKY;
     }
@@ -137,6 +168,10 @@ public class RecordingService extends ScopedBaseInjectorService {
     public void onDestroy() {
         super.onDestroy();
         LOG.info("Destroying RecordingService.");
+
+        if (wakeLock != null && wakeLock.isHeld()){
+            wakeLock.release();
+        }
 
         if (recordingStrategy != null) {
             recordingStrategy.stopRecording();

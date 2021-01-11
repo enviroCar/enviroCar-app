@@ -51,123 +51,162 @@
             android:id="@+id/textView6"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="166dp"
-            android:layout_marginLeft="166dp"
-            android:layout_marginEnd="165dp"
-            android:layout_marginRight="165dp"
             android:text="@string/sign_up"
             android:textColor="@color/white_cario"
             android:textSize="26dp"
-            android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.6"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/activity_login_logo" />
 
-        <EditText
-            android:id="@+id/activity_signup_username_input"
-            style="@style/envirocar.login.edittext"
-            android:layout_below="@+id/activity_login_logo"
-            android:layout_centerHorizontal="true"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/activity_signup_username_input_layout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
             android:layout_marginTop="40dp"
-            android:drawableLeft="@drawable/ic_action_user"
-            android:hint="@string/username"
-            android:inputType="textPersonName"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.496"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView6" />
+            app:hintEnabled="false"
+            app:layout_constraintEnd_toEndOf="@id/activity_signup_guideline_right"
+            app:layout_constraintStart_toStartOf="@id/activity_signup_guideline_left"
+            app:layout_constraintTop_toBottomOf="@+id/textView6"
+            app:layout_constraintWidth_max="500dp">
 
-        <EditText
-            android:id="@+id/activity_signup_email_input"
-            style="@style/envirocar.login.edittext"
-            android:layout_below="@+id/activity_login_logo"
-            android:layout_centerHorizontal="true"
+            <androidx.appcompat.widget.AppCompatEditText
+                android:id="@+id/activity_signup_username_input"
+                style="@style/envirocar.login.edittext"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@+id/activity_login_logo"
+                android:layout_centerHorizontal="true"
+                android:drawableLeft="@drawable/ic_action_user"
+                android:hint="@string/username"
+                android:inputType="textPersonName" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/activity_signup_email_input_layout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
             android:layout_marginTop="24dp"
-            android:drawableLeft="@drawable/ic_action_mail"
-            android:hint="@string/email"
-            android:inputType="textPersonName"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.496"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/activity_signup_username_input" />
+            app:hintEnabled="false"
+            app:layout_constraintEnd_toEndOf="@id/activity_signup_guideline_right"
+            app:layout_constraintStart_toStartOf="@id/activity_signup_guideline_left"
+            app:layout_constraintTop_toBottomOf="@+id/activity_signup_username_input_layout"
+            app:layout_constraintWidth_max="500dp">
 
-        <EditText
-            android:id="@+id/activity_signup_password_1"
-            style="@style/envirocar.login.edittext"
-            android:layout_below="@+id/activity_signin_username_input"
+            <androidx.appcompat.widget.AppCompatEditText
+                android:id="@+id/activity_signup_email_input"
+                style="@style/envirocar.login.edittext"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:drawableLeft="@drawable/ic_action_mail"
+                android:hint="@string/email"
+                android:inputType="textPersonName" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/activity_signup_password_1_layout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
             android:layout_marginTop="24dp"
-            android:drawableLeft="@drawable/ic_action_pass"
-            android:hint="@string/password"
-            android:inputType="textPassword"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.496"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/activity_signup_email_input" />
+            app:hintEnabled="false"
+            app:layout_constraintEnd_toEndOf="@id/activity_signup_guideline_right"
+            app:layout_constraintStart_toStartOf="@id/activity_signup_guideline_left"
+            app:layout_constraintTop_toBottomOf="@+id/activity_signup_email_input_layout"
+            app:layout_constraintWidth_max="500dp"
+            app:passwordToggleEnabled="true">
 
+            <androidx.appcompat.widget.AppCompatEditText
+                android:id="@+id/activity_signup_password_1"
+                style="@style/envirocar.login.edittext"
+                android:layout_width="match_parent"
+                android:drawableStart="@drawable/ic_action_pass"
+                android:hint="@string/password"
+                android:inputType="textPassword" />
 
-        <EditText
-            android:id="@+id/activity_signup_password_2"
-            style="@style/envirocar.login.edittext"
-            android:layout_below="@+id/activity_signin_username_input"
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/activity_signup_password_2_layout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
             android:layout_marginTop="24dp"
-            android:drawableLeft="@drawable/ic_action_pass"
-            android:hint="@string/confirm_password"
-            android:inputType="textPassword"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/activity_signup_password_1" />
+            app:hintEnabled="false"
+            app:layout_constraintEnd_toEndOf="@id/activity_signup_guideline_right"
+            app:layout_constraintStart_toStartOf="@id/activity_signup_guideline_left"
+            app:layout_constraintTop_toBottomOf="@+id/activity_signup_password_1_layout"
+            app:layout_constraintWidth_max="500dp"
+            app:passwordToggleEnabled="true">
 
+            <androidx.appcompat.widget.AppCompatEditText
+                android:id="@+id/activity_signup_password_2"
+                style="@style/envirocar.login.edittext"
+                android:layout_width="match_parent"
+                android:drawableStart="@drawable/ic_action_pass"
+                android:hint="@string/confirm_password"
+                android:inputType="textPassword" />
+
+        </com.google.android.material.textfield.TextInputLayout>
 
         <CheckBox
             android:id="@+id/activity_signup_tou_checkbox"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
             android:layout_marginTop="28dp"
             android:buttonTint="@color/white_cario"
-            app:layout_constraintEnd_toStartOf="@+id/activity_signup_tou_text"
-            app:layout_constraintHorizontal_bias="1.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/activity_signup_password_2" />
+            app:layout_constraintStart_toStartOf="@id/activity_signup_guideline_left"
+            app:layout_constraintTop_toBottomOf="@+id/activity_signup_password_2_layout" />
 
         <TextView
             android:id="@+id/activity_signup_tou_text"
-            android:layout_width="270dp"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginTop="28dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
-            android:minLines="5"
-            android:paddingLeft="@dimen/activity_vertical_margin"
-            android:text="@string/register_acknowledge_text"
+            android:text="@string/signup_acknowledge_tou_text"
             android:textColor="@color/white_cario"
             android:textColorLink="@color/blue_light_cario"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.624"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/activity_signup_password_2" />
+            app:layout_constraintBottom_toTopOf="@id/activity_signup_tou_checkbox"
+            app:layout_constraintEnd_toEndOf="@id/activity_signup_guideline_right"
+            app:layout_constraintStart_toEndOf="@id/activity_signup_tou_checkbox"
+            app:layout_constraintTop_toBottomOf="@+id/activity_signup_tou_checkbox" />
+
+        <CheckBox
+            android:id="@+id/activity_signup_ps_checkbox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:buttonTint="@color/white_cario"
+            app:layout_constraintStart_toStartOf="@id/activity_signup_guideline_left"
+            app:layout_constraintTop_toBottomOf="@+id/activity_signup_tou_text" />
+
+        <TextView
+            android:id="@+id/activity_signup_ps_text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/signup_acknowledge_ps_text"
+            android:textColor="@color/white_cario"
+            android:textColorLink="@color/blue_light_cario"
+            app:layout_constraintBottom_toTopOf="@+id/activity_signup_ps_checkbox"
+            app:layout_constraintEnd_toEndOf="@id/activity_signup_guideline_right"
+            app:layout_constraintStart_toEndOf="@id/activity_signup_ps_checkbox"
+            app:layout_constraintTop_toBottomOf="@+id/activity_signup_ps_checkbox" />
 
         <androidx.cardview.widget.CardView
             android:id="@+id/activity_signup_register_button"
             android:layout_width="0dp"
             android:layout_height="50dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginHorizontal="16dp"
             android:layout_centerHorizontal="true"
-            android:layout_marginStart="55dp"
-            android:layout_marginLeft="55dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="55dp"
-            android:layout_marginRight="55dp"
             app:cardBackgroundColor="@color/cario_color_primary_dark"
             app:cardCornerRadius="25dp"
             app:cardElevation="10dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/activity_signup_tou_text">
+            app:layout_constraintEnd_toEndOf="@id/activity_signup_guideline_right"
+            app:layout_constraintStart_toStartOf="@id/activity_signup_guideline_left"
+            app:layout_constraintTop_toBottomOf="@+id/activity_signup_ps_text">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -208,5 +247,20 @@
                 android:textColor="@color/white_cario" />
 
         </LinearLayout>
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/activity_signup_guideline_right"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.87" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/activity_signup_guideline_left"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.13" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

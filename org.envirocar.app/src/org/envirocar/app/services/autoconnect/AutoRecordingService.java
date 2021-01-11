@@ -32,7 +32,6 @@ import org.envirocar.app.injection.ScopedBaseInjectorService;
 import org.envirocar.app.notifications.NotificationHandler;
 import org.envirocar.app.notifications.ServiceStateForNotification;
 import org.envirocar.app.recording.RecordingService;
-import org.envirocar.app.recording.RecordingState;
 import org.envirocar.app.recording.RecordingType;
 import org.envirocar.app.recording.events.RecordingStateEvent;
 import org.envirocar.app.recording.events.RecordingTypeSelectedEvent;
@@ -72,6 +71,7 @@ public class AutoRecordingService extends ScopedBaseInjectorService implements A
     @Inject
     protected AutoRecordingStrategy.Factory factory;
     @Inject
+    @AutoRecordingScope
     protected PowerManager.WakeLock wakeLock;
     @Inject
     protected AutoRecordingNotification notification;
@@ -179,10 +179,9 @@ public class AutoRecordingService extends ScopedBaseInjectorService implements A
     @Subscribe
     public void onRecordingTypeSelectedEvent(RecordingTypeSelectedEvent event) {
         LOG.info("Received event [%]", event.toString());
-        if (this.recordingType != event.recordingType &&
-                RecordingService.RECORDING_STATE != RecordingState.RECORDING_RUNNING) {
+        if (this.recordingType != event.recordingType && !RecordingService.isRunning()) {
             this.recordingType = event.recordingType;
-            updateAutoRecording();
+            this.updateAutoRecording();
         } else {
             this.recordingType = event.recordingType;
         }
@@ -257,7 +256,7 @@ public class AutoRecordingService extends ScopedBaseInjectorService implements A
     private void startRecordingService() {
         if (!ServiceUtils.isServiceRunning(getApplicationContext(), RecordingService.class)) {
             // Start the GPS Only Connection Service
-            getApplicationContext().startService(new Intent(this, RecordingService.class));
+            ServiceUtils.startService(this, RecordingService.class);
         }
     }
 }

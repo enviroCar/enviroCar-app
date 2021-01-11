@@ -162,6 +162,11 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<T
                             .TrackCardViewHolder viewHolder) {
                         onDownloadTrackClickedInner(track, viewHolder);
                     }
+
+                    @Override
+                    public void onLongPressedTrack(Track track) {
+                        createDeleteTrackDialog(track);
+                    }
                 });
     }
 
