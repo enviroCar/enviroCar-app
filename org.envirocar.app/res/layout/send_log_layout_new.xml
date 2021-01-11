@@ -82,7 +82,7 @@
                         android:layout_height="wrap_content"
                         android:gravity="start|top"
                         android:imeOptions="actionNext"
-                        android:inputType="number"
+                        android:inputType="date|time"
                         android:padding="12dp" />
 
                 </com.google.android.material.textfield.TextInputLayout>
