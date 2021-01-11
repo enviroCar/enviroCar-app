@@ -56,6 +56,12 @@ import androidx.core.content.ContextCompat;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.android.play.core.appupdate.AppUpdateInfo;
+import com.google.android.play.core.appupdate.AppUpdateManager;
+import com.google.android.play.core.appupdate.AppUpdateManagerFactory;
+import com.google.android.play.core.install.model.AppUpdateType;
+import com.google.android.play.core.install.model.UpdateAvailability;
+import com.google.android.play.core.tasks.Task;
 import com.jakewharton.rxbinding3.appcompat.RxToolbar;
 import com.squareup.otto.Subscribe;
 
@@ -105,6 +111,8 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.observers.DisposableCompletableObserver;
 import io.reactivex.schedulers.Schedulers;
+
+import static android.app.Activity.RESULT_OK;
 
 /**
  * @author dewall
@@ -201,6 +209,8 @@ public class DashboardFragment extends BaseInjectorFragment {
     // some private variables
     private MaterialDialog connectingDialog;
     private List<SizeSyncTextView> indicatorSyncGroup;
+    private AppUpdateManager appUpdateManager;
+    private Task<AppUpdateInfo> appUpdateInfoTask;
 
     @Override
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
@@ -249,6 +259,37 @@ public class DashboardFragment extends BaseInjectorFragment {
     public void onResume() {
         super.onResume();
         this.updateStatisticsVisibility(this.statisticsKnown);
+        appUpdateManager
+                .getAppUpdateInfo()
+                .addOnSuccessListener(
+                        appUpdateInfo -> {
+                            if (appUpdateInfo.updateAvailability()
+                                    == UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS) {
+                                try {
+                                    appUpdateManager.startUpdateFlowForResult(appUpdateInfo, AppUpdateType.IMMEDIATE, getActivity(), 121);
+                                } catch (IntentSender.SendIntentException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        });
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case LOCATION_PERMISSION_REQUEST_CODE: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    LOG.info("Location permission has been granted");
+                    Snackbar.make(getView(), "Location Permission granted.",
+                            BaseTransientBottomBar.LENGTH_SHORT).show();
+                    onStartTrackButtonClicked();
+                } else {
+                    LOG.info("Location permission has been denied");
+                    Snackbar.make(getView(), "Location Permission denied.",
+                            BaseTransientBottomBar.LENGTH_LONG).show();
+                }
+            }
+        }
     }
 
     @Override
@@ -464,7 +505,7 @@ public class DashboardFragment extends BaseInjectorFragment {
     @OnClick(R.id.fragment_dashboard_indicator_gps)
     protected void onGPSIndicatorClicked() {
         LOG.info("GPS indicator clicked");
-        Intent intent=new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+        Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
         getActivity().startActivity(intent);
     }
 
@@ -763,6 +804,25 @@ public class DashboardFragment extends BaseInjectorFragment {
 
         for (SizeSyncTextView textView : indicatorSyncGroup) {
             textView.setOnTextSizeChangedListener(listener);
+        }
+    }
+
+    private void appUpdateCheck() {
+        appUpdateInfoTask.addOnSuccessListener(appUpdateInfo -> {
+            if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)) {
+                try {
+                    appUpdateManager.startUpdateFlowForResult(appUpdateInfo, AppUpdateType.IMMEDIATE, getActivity(), 121);
+                } catch (IntentSender.SendIntentException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (requestCode == 121 && resultCode != RESULT_OK) {
+            appUpdateCheck();
         }
     }
 }
