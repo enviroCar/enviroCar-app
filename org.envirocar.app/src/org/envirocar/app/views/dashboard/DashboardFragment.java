@@ -55,6 +55,7 @@ import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.content.ContextCompat;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.play.core.appupdate.AppUpdateInfo;
@@ -493,6 +494,12 @@ public class DashboardFragment extends BaseInjectorFragment {
         LOG.info("GPS indicator clicked");
         Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
         getActivity().startActivity(intent);
+    }
+
+    @OnClick(R.id.cardView2)
+    protected void goToMyTracks(){
+        BottomNavigationView bottomView= getActivity().findViewById(R.id.navigation);
+        bottomView.setSelectedItemId(R.id.navigation_my_tracks);
     }
 
     @Subscribe
