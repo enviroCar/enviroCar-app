@@ -603,9 +603,14 @@ public class DashboardFragment extends BaseInjectorFragment {
                 // set indicator color accordingly
                 this.carIndicator.setEnabled(false);
             } else {
+
+                this.carSelectionTextPrimary.setText(String.format("%s",getResources().getString(R.string.dashboard_carselection_no_car_selected)));
+                this.carSelectionTextSecondary.setText(String.format("%s",getResources().getString(R.string.dashboard_carselection_no_car_selected_advise)));
+
                 // set warning indicator color
                 this.carIndicator.setEnabled(true);
             }
+
             this.updateStartTrackButton();
         });
     }
@@ -717,6 +722,10 @@ public class DashboardFragment extends BaseInjectorFragment {
             // set indicator color
             this.obdIndicator.setEnabled(false);
         } else {
+
+            bluetoothSelectionTextPrimary.setText(getResources().getText(R.string.dashboard_obd_not_selected));
+            bluetoothSelectionTextSecondary.setText(getResources().getText(R.string.dashboard_obd_not_selected_advise));
+
             this.obdIndicator.setEnabled(true);
         }
         this.updateStartTrackButton();
