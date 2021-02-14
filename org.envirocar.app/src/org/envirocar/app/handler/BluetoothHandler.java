@@ -167,7 +167,7 @@ public class BluetoothHandler {
             return null;
 
         // Get the preferences of the device.
-        Pair<String, String> bluetoothDevice = ApplicationSettings.getSelectedBluetoothAdapterObservable(context).blockingFirst();
+        Pair<String, String> bluetoothDevice = (Pair<String, String>) ApplicationSettings.getSelectedBluetoothAdapterObservable(context).blockingFirst();
 
         // If the device address is not empty and the device is still a paired device, get the
         // corresponding BluetoothDevice and return it.

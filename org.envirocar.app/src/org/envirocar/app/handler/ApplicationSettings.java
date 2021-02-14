@@ -207,12 +207,12 @@ public class ApplicationSettings {
                 .asObservable();
     }
 
-    public static Observable<Pair<String, String>> getSelectedBluetoothAdapterObservable(Context context) {
+    public static Observable getSelectedBluetoothAdapterObservable(Context context) {
         return getRxSharedPreferences(context)
                 .getString(PREF_SELECTED_BLUETOOTH_ADDRESS).asObservable()
                 .map(address -> {
                     String name = getSharedPreferences(context).getString(PREF_SELECTED_BLUETOOTH_NAME, "");
-                    return new Pair(name, address);
+                    return new Pair<>(name, address);
                 });
     }
 

@@ -18,6 +18,7 @@
  */
 package org.envirocar.app.views.login;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
@@ -27,8 +28,8 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
 
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.app.ActivityOptionsCompat;
 
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -42,6 +43,7 @@ import org.envirocar.app.handler.agreement.AgreementManager;
 import org.envirocar.app.handler.preferences.UserPreferenceHandler;
 import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.core.logging.Logger;
+import org.jetbrains.annotations.NotNull;
 
 import javax.inject.Inject;
 
@@ -62,6 +64,7 @@ import io.reactivex.schedulers.Schedulers;
 public class SigninActivity extends BaseInjectorActivity {
     private static final Logger LOG = Logger.getLogger(SigninActivity.class);
 
+
     public static void startActivity(Context context) {
         Intent intent = new Intent(context, SigninActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
@@ -78,7 +81,7 @@ public class SigninActivity extends BaseInjectorActivity {
 
     // Injected Views
     @BindView(R.id.activity_signin_username_input)
-    protected EditText usernameEditText;
+    protected EditText usernamesEditText;
     @BindView(R.id.activity_login_password_input)
     protected EditText passwordEditText;
     @BindView(R.id.activity_login_logo)
@@ -133,11 +136,11 @@ public class SigninActivity extends BaseInjectorActivity {
         View focusView = null;
 
         // Reset errors
-        this.usernameEditText.setError(null);
+        this.usernamesEditText.setError(null);
         this.passwordEditText.setError(null);
 
         // Store values at the time of the login attempt
-        String username = usernameEditText.getText().toString().trim();
+        String username = usernamesEditText.getText().toString().trim();
         String password = passwordEditText.getText().toString();
 
         // check for valid password
@@ -148,8 +151,8 @@ public class SigninActivity extends BaseInjectorActivity {
 
         // check for valid username
         if (username == null || username.isEmpty() || username.equals("")) {
-            this.usernameEditText.setError(getString(R.string.error_field_required));
-            focusView = this.usernameEditText;
+            this.usernamesEditText.setError(getString(R.string.error_field_required));
+            focusView = this.usernamesEditText;
         }
 
         if (focusView != null) {
@@ -195,13 +198,15 @@ public class SigninActivity extends BaseInjectorActivity {
                         finish();
                     }
 
+                    @SuppressLint("ShowToast")
                     @Override
-                    public void onError(Throwable e) {
+                    public void onError(@NotNull Throwable e) {
                         dialog.dismiss();
                         if (e instanceof LoginException) {
                             switch (((LoginException) e).getType()) {
-                                case PASSWORD_INCORRECT:
-                                    passwordEditText.setError(getString(R.string.error_incorrect_password));
+                                case CREDENTIALS_INCORRECT:
+                                    passwordEditText.setError("anyone is wrong");
+                                    usernamesEditText.setError("anyone is wrong");
                                     break;
                                 case MAIL_NOT_CONFIREMED:
                                     new MaterialDialog.Builder(SigninActivity.this)
@@ -214,13 +219,10 @@ public class SigninActivity extends BaseInjectorActivity {
                                 case UNABLE_TO_COMMUNICATE_WITH_SERVER:
                                     passwordEditText.setError(getString(R.string.error_host_not_found));
                                     break;
-                                default:
-                                    passwordEditText.setError(getString(R.string.logbook_invalid_input));
-                                    break;
+
                             }
-                        } else if (checkNetworkConnection() != true) {
-                            Snackbar.make(findViewById(R.id.activity_signin_login_button), String.format(getString(R.string.error_not_connected_to_network)), Snackbar.LENGTH_SHORT).show();
-                        }
+                        } else if (!checkNetworkConnection())
+                            Snackbar.make(findViewById(R.id.activity_signin_login_button), getString(R.string.error_not_connected_to_network), Snackbar.LENGTH_SHORT).show();
                     }
                 });
     }
@@ -228,8 +230,6 @@ public class SigninActivity extends BaseInjectorActivity {
     private boolean checkNetworkConnection() {
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-        if (networkInfo != null && networkInfo.isConnected())
-            return true;
-        return false;
+        return networkInfo != null && networkInfo.isConnected();
     }
 }

@@ -76,9 +76,9 @@ import io.reactivex.schedulers.Schedulers;
 public class SignupActivity extends BaseInjectorActivity {
     private static final Logger LOG = Logger.getLogger(SignupActivity.class);
 
-    private static final String EMAIL_REGEX = "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
+    private static final String EMAIL_REGEX = "^[_A-Za-z0-9-+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
     private static final String PASSWORD_REGEX = "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{6,}$";
-    private static final String USERNAME_REGEX = "^[a-z0-9_-]{6,}$";
+    private static final String USERNAME_REGEX = "^[a-zA-Z0-9_-]{6,}$";
     private static final int CHECK_FORM_DELAY = 750;
     private static Drawable error;
 

@@ -257,7 +257,7 @@ public class SendLogFileActivity extends BaseInjectorActivity {
             stringBuilder.append(car.getManufacturer() + " " + car.getModel());
         else
             stringBuilder.append("No Car Selected.");
-        Pair<String, String> btNameAddress = ApplicationSettings.getSelectedBluetoothAdapterObservable(this).blockingFirst();
+        Pair<String, String> btNameAddress = (Pair<String, String>) ApplicationSettings.getSelectedBluetoothAdapterObservable(this).blockingFirst();
         stringBuilder.append("\nBluetooth Adapter: ");
         stringBuilder.append(btNameAddress.first);
         stringBuilder.append("\n");

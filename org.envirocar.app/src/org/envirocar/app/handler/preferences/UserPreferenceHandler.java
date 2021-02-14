@@ -107,7 +107,7 @@ public class UserPreferenceHandler extends AbstractCachable<User> implements Use
         e.putString(KEY_ACCEPTED_TERMS_OF_USE_VERSION, user.getTermsOfUseVersion());
         if(user.getPrivacyStatementVersion() != null)
             e.putString(KEY_ACCEPTED_PRIVACY_STATEMENT, user.getPrivacyStatementVersion());
-        e.commit();
+        e.apply();
     }
 
     /**
@@ -174,7 +174,7 @@ public class UserPreferenceHandler extends AbstractCachable<User> implements Use
                 emitter.onError(new LoginException(e.getMessage(), LoginException.ErrorType.MAIL_NOT_CONFIREMED));
             } catch (UnauthorizedException e) {
                 LOG.warn(e.getMessage(), e);
-                emitter.onError(new LoginException(e.getMessage(), LoginException.ErrorType.PASSWORD_INCORRECT));
+                emitter.onError(new LoginException(e.getMessage(), LoginException.ErrorType.CREDENTIALS_INCORRECT));
             } catch (Exception e) {
                 LOG.warn(e.getMessage(), e);
                 emitter.onError(e);
