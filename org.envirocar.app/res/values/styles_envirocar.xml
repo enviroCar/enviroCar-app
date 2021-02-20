@@ -21,7 +21,8 @@
 -->
 <resources xmlns:tools="http://schemas.android.com/tools" xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <style name="Theme.Cario" parent="Theme.MaterialComponents.Light.NoActionBar">
+    <style name="Theme.Cario" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="android:forceDarkAllowed">true</item>
         <item name="actionBarItemBackground">@drawable/selectable_background_cario</item>
         <item name="popupMenuStyle">@style/PopupMenu.Cario</item>
         <item name="dropDownListViewStyle">@style/DropDownListView.Cario</item>
@@ -35,6 +36,7 @@
         <item name="colorAccent">@color/blue_light_cario</item>
         <item name="background">@color/background_material_dark</item>
         <item name="android:navigationBarColor">@color/cario_color_primary_dark</item>
+
 
         <item name="android:windowContentTransitions" tools:targetApi="lollipop">true</item>
         <item name="android:actionMenuTextColor">@color/white</item>

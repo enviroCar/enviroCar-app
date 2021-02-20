@@ -18,6 +18,7 @@
  */
 package org.envirocar.app.views.login;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
@@ -417,6 +418,7 @@ public class SignupActivity extends BaseInjectorActivity {
         return isValidMatch;
     }
 
+    @SuppressLint("CheckResult")
     private void observeFormInputs() {
         RxTextView.textChanges(usernameEditText)
                 .skipInitialValue()

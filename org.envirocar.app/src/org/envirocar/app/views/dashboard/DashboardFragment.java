@@ -43,11 +43,13 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
@@ -114,6 +116,7 @@ public class DashboardFragment extends BaseInjectorFragment {
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1203;
 
+
     // View Injections
     @BindView(R.id.fragment_dashboard_toolbar)
     protected Toolbar toolbar;
@@ -122,6 +125,8 @@ public class DashboardFragment extends BaseInjectorFragment {
     @BindView(R.id.fragment_dashboard_logged_in_layout)
     protected View loggedInLayout;
 
+
+    @SuppressLint("NonConstantResourceId")
     @BindView(R.id.fragment_dashboard_user_tracks_layout)
     protected View userTracksLayout;
     @BindView(R.id.fragment_dashboard_user_tracks_textview)
@@ -202,6 +207,7 @@ public class DashboardFragment extends BaseInjectorFragment {
     private MaterialDialog connectingDialog;
     private List<SizeSyncTextView> indicatorSyncGroup;
 
+
     @Override
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
         baseApplicationComponent.inject(this);
@@ -214,6 +220,8 @@ public class DashboardFragment extends BaseInjectorFragment {
         setHasOptionsMenu(true);
 
         this.disposables = new CompositeDisposable();
+
+
     }
 
     @Nullable
@@ -243,6 +251,7 @@ public class DashboardFragment extends BaseInjectorFragment {
                 .blockingFirst();
 
         return contentView;
+
     }
 
     @Override

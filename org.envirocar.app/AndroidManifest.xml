@@ -37,7 +37,7 @@
 
     <application
         android:name=".BaseApplication"
-        android:allowBackup="true"
+
         android:icon="@mipmap/ic_launcher_round"
         android:label="@string/app_name"
         android:theme="@style/Theme.Cario">
@@ -45,45 +45,45 @@
         <!-- Activities -->
         <activity
             android:name=".views.trackdetails.TrackDetailsActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="fullSensor" />
         <activity
             android:name=".views.trackdetails.MapExpandedActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="fullSensor" />
         <activity
             android:name=".views.carselection.CarSelectionActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="fullSensor" />
         <activity
             android:name=".views.obdselection.OBDSelectionActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="fullSensor" />
         <activity
             android:name=".views.trackdetails.TrackStatisticsActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="fullSensor" />
         <activity
             android:name=".views.login.SigninActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="fullSensor" />
         <activity
             android:name=".views.login.SignupActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="fullSensor" />
         <activity
             android:name=".views.others.SendLogFileActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="fullSensor" />
         <activity
             android:name=".views.logbook.LogbookActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="fullSensor" />
         <activity
             android:name=".views.others.HelpActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="fullSensor" />
         <activity
             android:name=".views.BaseMainActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="fullSensor" />
         <activity
             android:name=".views.settings.SettingsActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="fullSensor" />
         <activity
             android:name=".views.SplashScreenActivity"
             android:label="@string/app_name"
             android:launchMode="singleTop"
-            android:screenOrientation="portrait"
+            android:screenOrientation="fullSensor"
             android:theme="@style/Theme.Cario">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -94,7 +94,7 @@
         <activity
             android:name=".views.recordingscreen.RecordingScreenActivity"
             android:launchMode="singleTop"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="fullSensor" />
 
         <!-- Services -->
         <service android:name=".recording.RecordingService"
@@ -109,7 +109,7 @@
         <service
             android:name=".aidl.EnviroCarDataService"
             android:enabled="true"
-            android:exported="true">
+            android:exported="false">
             <!--<intent-filter>-->
             <!--<action android:name="service.envirocarobd" />-->
             <!--</intent-filter>-->

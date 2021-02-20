@@ -23,7 +23,7 @@
     <!-- ################# -->
     <!--  General Strings  -->
     <!-- ################# -->
-    <string name="username">Username</string>
+
     <string name="password">Password</string>
     <string name="confirm_password">Confirm Password</string>
     <string name="login">Login</string>
@@ -82,12 +82,12 @@
 
     <string name="ok" translatable="false">OK</string>
 
-    <string name="driving">Driving</string>
+    <string name="driving" translatable="false">Driving</string>
     <string name="categories">Categories:</string>
 
 
-    <string name="gps_track_details">*This is a GPS based track. It cannot be uploaded to the open data.</string>
-    <string name="dashboard_signin_prompt">Sign in to upload your tracks</string>
+    <string name="gps_track_details" translatable="false">*This is a GPS based track. It cannot be uploaded to the open data.</string>
+    <string name="dashboard_signin_prompt" translatable="false">Sign in to upload your tracks</string>
     <string name="problem_description">Describe your Problem</string>
 
     <string name="submit">Submit</string>
@@ -180,4 +180,8 @@
     <!--    Extended MapView    -->
     <!-- ###################### -->
     <string name="mapview_extended_select_phenomena">Attribut Selection</string>
+    <string name="username">Username</string>
+    <string name="bluetooth" translatable="false">Bluetooth</string>
+
+    <string name="dark_mode" translatable="false">Dark Mode</string>
 </resources>

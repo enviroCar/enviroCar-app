@@ -51,6 +51,7 @@
             android:layout_height="30dp"
             android:scaleType="fitCenter"
             android:src="@drawable/img_envirocar_logo_white" />
+
     </LinearLayout>
 
     <androidx.core.widget.NestedScrollView
@@ -122,7 +123,7 @@
                         android:layout_weight="1"
                         android:fontFamily="@font/roboto"
                         android:gravity="center"
-                        android:text="Username"
+                        android:text="@string/username"
                         android:textColor="@color/white_cario"
                         android:textStyle="bold"
                         app:autoSizeMaxTextSize="18sp"
@@ -183,7 +184,7 @@
                             android:fontFamily="@font/roboto_medium"
                             android:gravity="bottom|center_horizontal"
                             android:maxLines="1"
-                            android:text="Bluetooth"
+                            android:text="@string/bluetooth"
                             android:textColor="#000000"
                             app:autoSizeMaxTextSize="15sp"
                             app:autoSizeMinTextSize="10sp"
@@ -770,4 +771,6 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
         </FrameLayout>
     </androidx.core.widget.NestedScrollView>
+
+
 </RelativeLayout>

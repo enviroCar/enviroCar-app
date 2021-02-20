@@ -20,10 +20,14 @@ package org.envirocar.app.views.settings;
 
 import android.os.Bundle;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.Switch;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.fragment.app.DialogFragment;
 import androidx.preference.CheckBoxPreference;
 import androidx.preference.Preference;
@@ -42,10 +46,17 @@ import org.envirocar.app.views.settings.custom.TimePickerPreferenceDialog;
  */
 public class SettingsActivity extends AppCompatActivity {
 
+    
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_settings);
+
+
+
+
 
         // add the settingsfragment
         getSupportFragmentManager()
@@ -56,9 +67,7 @@ public class SettingsActivity extends AppCompatActivity {
 
     public static class SettingsFragment extends PreferenceFragmentCompat {
 
-        private Preference automaticRecording;
         private Preference searchInterval;
-        private Preference enableGPSMode;
         private Preference gpsTrimDuration;
         private Preference gpsAutoRecording;
 
@@ -72,24 +81,27 @@ public class SettingsActivity extends AppCompatActivity {
             super.onViewCreated(view, savedInstanceState);
 
             // find all preferences
-            this.automaticRecording = findPreference(getString(R.string.prefkey_automatic_recording));
+            Preference automaticRecording = findPreference(getString(R.string.prefkey_automatic_recording));
             this.searchInterval = findPreference(getString(R.string.prefkey_search_interval));
-            this.enableGPSMode = findPreference(getString(R.string.prefkey_enable_gps_based_track_recording));
+            Preference enableGPSMode = findPreference(getString(R.string.prefkey_enable_gps_based_track_recording));
             this.gpsTrimDuration = findPreference(getString(R.string.prefkey_track_trim_duration));
             this.gpsAutoRecording = findPreference(getString(R.string.prefkey_gps_mode_ar));
 
 
+
             // set initial state
+            assert automaticRecording != null;
             this.searchInterval.setVisible(((CheckBoxPreference) automaticRecording).isChecked());
+            assert enableGPSMode != null;
             this.gpsTrimDuration.setVisible(((CheckBoxPreference) enableGPSMode).isChecked());
             this.gpsAutoRecording.setVisible(((CheckBoxPreference) enableGPSMode).isChecked());
 
             // set preference change listener
-            this.automaticRecording.setOnPreferenceChangeListener((preference, newValue) -> {
+            automaticRecording.setOnPreferenceChangeListener((preference, newValue) -> {
                 searchInterval.setVisible((boolean) newValue);
                 return true;
             });
-            this.enableGPSMode.setOnPreferenceChangeListener(((preference, newValue) -> {
+            enableGPSMode.setOnPreferenceChangeListener(((preference, newValue) -> {
                 if (!(boolean) newValue) {
                     ApplicationSettings.setSelectedRecordingType(getContext(), RecordingType.OBD_ADAPTER_BASED);
                 }
@@ -98,6 +110,9 @@ public class SettingsActivity extends AppCompatActivity {
                 return true;
             }));
         }
+
+
+
 
         @Override
         public void onDisplayPreferenceDialog(Preference preference) {
@@ -112,6 +127,7 @@ public class SettingsActivity extends AppCompatActivity {
 
             if (fragment != null) {
                 fragment.setTargetFragment(this, 0);
+                assert this.getFragmentManager() != null;
                 fragment.show(this.getFragmentManager(), "android.support.v7.preference.PreferenceFragment.DIALOG");
             } else {
                 super.onDisplayPreferenceDialog(preference);

@@ -54,6 +54,7 @@
             android:summary="@string/pref_obfuscate_track_summary"
             android:title="@string/pref_obfuscate_track"
             app:iconSpaceReserved="false" />
+
         <org.envirocar.app.views.settings.custom.SamplingRatePreference
             android:defaultValue="5"
             android:inputType="number"

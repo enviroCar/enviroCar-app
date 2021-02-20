@@ -49,27 +49,29 @@ public class AbstractCacheDAO {
     }
 
     public JsonObject readCache(String cachedFile) throws IOException {
+        assert cacheDirectoryProvider != null;
         File directory = cacheDirectoryProvider.getBaseFolder();
 
         File f = new File(directory, cachedFile);
 
         if (f.isFile()) {
-            JsonObject tou = Util.readJsonContents(f);
-            return tou;
+            return Util.readJsonContents(f);
         }
 
         throw new IOException(String.format("Could not read file %s", cachedFile));
     }
 
     public boolean cacheFileExists(String cachedFile) {
+        assert cacheDirectoryProvider != null;
         File directory = cacheDirectoryProvider.getBaseFolder();
 
         File f = new File(directory, cachedFile);
 
-        return f != null && f.isFile();
+        return f.isFile();
     }
 
     protected void storeCache(String cacheFileName, String content) throws IOException {
+        assert this.cacheDirectoryProvider != null;
         File file = new File(this.cacheDirectoryProvider.getBaseFolder(), cacheFileName);
         Util.saveContentsToFile(content, file);
     }

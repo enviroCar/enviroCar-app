@@ -45,6 +45,7 @@
             android:key="pref_text_to_speech"
             android:summary="@string/pref_text_to_speech_summary"
             android:title="@string/pref_text_to_speech" />
+
     </PreferenceCategory>
 
 </PreferenceScreen>
