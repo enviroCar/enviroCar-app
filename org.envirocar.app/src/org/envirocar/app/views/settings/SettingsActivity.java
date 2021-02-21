@@ -18,16 +18,19 @@
  */
 package org.envirocar.app.views.settings;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.CompoundButton;
 import android.widget.Switch;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.preference.CheckBoxPreference;
 import androidx.preference.Preference;
@@ -45,6 +48,8 @@ import org.envirocar.app.views.settings.custom.TimePickerPreferenceDialog;
  * @author dewall
  */
 public class SettingsActivity extends AppCompatActivity {
+    SwitchCompat aSwitch;
+    SharedPreferences sharedPreferences=null;
 
     
 
@@ -53,9 +58,37 @@ public class SettingsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_settings);
+        aSwitch=findViewById(R.id.switch1);
+
+        sharedPreferences=getSharedPreferences("night",0);
+        boolean bool=sharedPreferences.getBoolean("night_mode",true);
+        if(bool)
+        {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+            aSwitch.setChecked(true);
+        }
+        aSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if(b)
+                {
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                    aSwitch.setChecked(true);
+                    SharedPreferences.Editor editor=sharedPreferences.edit();
+                    editor.putBoolean("night_mode",true);
+                    editor.apply();
+                }
+                else{
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                    aSwitch.setChecked(false);
+                    SharedPreferences.Editor editor=sharedPreferences.edit();
+                    editor.putBoolean("night_mode",false);
+                    editor.apply();
 
 
-
+                }
+            }
+        });
 
 
         // add the settingsfragment
