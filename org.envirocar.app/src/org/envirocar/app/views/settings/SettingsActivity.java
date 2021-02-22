@@ -61,32 +61,29 @@ public class SettingsActivity extends AppCompatActivity {
         aSwitch=findViewById(R.id.switch1);
 
         sharedPreferences=getSharedPreferences("night",0);
-        boolean bool=sharedPreferences.getBoolean("night_mode",true);
+        boolean bool=sharedPreferences.getBoolean("night_mode",false);
         if(bool)
         {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
             aSwitch.setChecked(true);
         }
-        aSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if(b)
-                {
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-                    aSwitch.setChecked(true);
-                    SharedPreferences.Editor editor=sharedPreferences.edit();
-                    editor.putBoolean("night_mode",true);
-                    editor.apply();
-                }
-                else{
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-                    aSwitch.setChecked(false);
-                    SharedPreferences.Editor editor=sharedPreferences.edit();
-                    editor.putBoolean("night_mode",false);
-                    editor.apply();
+        aSwitch.setOnCheckedChangeListener((compoundButton, b) -> {
+            if(b)
+            {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                aSwitch.setChecked(true);
+                SharedPreferences.Editor editor=sharedPreferences.edit();
+                editor.putBoolean("night_mode",true);
+                editor.apply();
+            }
+            else{
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                aSwitch.setChecked(false);
+                SharedPreferences.Editor editor=sharedPreferences.edit();
+                editor.putBoolean("night_mode",false);
+                editor.apply();
 
 
-                }
             }
         });
 
