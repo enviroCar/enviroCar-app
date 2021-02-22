@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <color name="colorPrimaryNight">#000000</color>
+    <color name="colorPrimaryDarkNight"> #171717</color>
+    <color name="colorAccentNight" > #FFFFFF</color>
+    <color name="textColor" >#FFFFFFFF</color>
+    <color name="pressed_cario_n">#8CBF3F</color>
+    <color name="actionbar_title_font_cario_n">#FFFFFF</color>
+    <color name="blue_dark_cario_n">#0065A0</color>
+    <color name="blue_light_cario_n">#048ABF</color>
+    <color name="green_dark_cario_n">#8CBF3F</color>
+    <color name="green_light_cario_n">#B9D989</color>
+    <color name="white_cario_n">#F2F2F2</color>
+    <color name="white_cario_transparent_n">#414a4c</color>
+    <color name="cario_color_primary_n">@color/blue_dark_cario</color>
+    <color name="cario_color_primary_dark_n">#FF01456C</color>
+    <color name="cario_color_tempomat_background_n">#ffffff</color>
+    <color name="envirocar_color_divider_grey_n">#414a4c</color>
+
+    <color name="envirocar_color_add_card_background_n">#4757A0</color>
+
+    <color name="cario_warning_red_n">#B00020</color>
+
+</resources>
