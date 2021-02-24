@@ -44,6 +44,7 @@ import org.envirocar.core.events.bluetooth.BluetoothPairingChangedEvent;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.core.logging.Logger;
 
+import java.util.Objects;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -226,7 +227,6 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
                             mNewDevicesInfoTextView.setText(String.format(string,
                                     Integer.toString(mNewDevicesArrayAdapter.getCount())));
                         }
-
                         showSnackbar("Discovery Finished!");
                     }
 
@@ -243,9 +243,12 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
 
                         // if the discovered device is not already part of the list, then
                         // add it to the list and add an entry to the array adapter.
+                        String activeDeviceName  = device.getName();
                         if (!mPairedDevicesAdapter.contains(device) &&
                                 !mNewDevicesArrayAdapter.contains(device)) {
-                            mNewDevicesArrayAdapter.add(device);
+                            if(activeDeviceName != null){
+                                mNewDevicesArrayAdapter.add(device);
+                            }
                         }
                     }
                 });
