@@ -20,10 +20,14 @@ package org.envirocar.app.views.obdselection;
 
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothDevice;
+import android.content.DialogInterface;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -302,18 +306,33 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
             textview.setText(String.format(getString(
                     R.string.obd_selection_dialog_pairing_content_template), device.getName()));
 
-            // Create the Dialog
-            new AlertDialog.Builder(getActivity())
-                    .setView(contentView)
-                    .setPositiveButton(R.string.obd_selection_dialog_pairing_title,
-                            (dialog, which) -> {
-                                // If this button is clicked, pair with the given device
-                                view1.setClickable(false);
-                                pairDevice(device, view1);
-                            })
-                    .setNegativeButton(R.string.cancel, null) // Nothing to do on cancel
-                    .create()
-                    .show();
+
+            //Create the Dialog
+            AlertDialog alertDialog = new AlertDialog.Builder(getActivity()).create();
+            alertDialog.setView(contentView);
+            alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.obd_selection_dialog_pairing_title),
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            // If this button is clicked, pair with the given device
+                            view1.setClickable(false);
+                            pairDevice(device, view1);
+                        }
+                    });
+            alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, getString(R.string.cancel),
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            // Nothing to do on cancel
+                        }
+                    });
+            alertDialog.show();
+
+            Button btnPositive = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+            );
+            params.setMargins(20,0,0,0);
+            btnPositive.setLayoutParams(params);
         });
     }
 
