@@ -18,15 +18,22 @@
  */
 package org.envirocar.app.views.carselection;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import androidx.appcompat.widget.Toolbar;
+
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
@@ -219,14 +226,56 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
                                 "" + car.getConstructionYear(),
                                 "" + car.getEngineDisplacement()));
 
-                        // If the car has been removed successfully...
-                        if (mCarManager.removeCar(car)) {
-                            showSnackbar(String.format(
-                                    getString(R.string.car_selection_car_deleted_tmp),
-                                    car.getManufacturer(), car.getModel()));
-                        }
-                        // then remove it from the list and show a snackbar.
-                        mCarListAdapter.removeCarItem(car);
+                        // Dialog view
+                        View alertDialogView = LayoutInflater.from(CarSelectionActivity.this).inflate(R.layout
+                                .car_deletion_dialog_view, null, false);
+
+                        // Set toolbar style
+                        Toolbar toolbar1 = alertDialogView.findViewById(R.id
+                                .car_deletion_pairing_dialog_toolbar);
+                        toolbar1.setTitle(R.string.car_deselection_dialog_delete_pairing_title);
+                        toolbar1.setNavigationIcon(R.drawable.ic_drive_eta_white_24dp);
+                        toolbar1.setTitleTextColor(CarSelectionActivity.this.getResources().getColor(R.color
+                                .white_cario));
+
+                        // Set text view
+                        TextView textview = alertDialogView.findViewById(R.id
+                                .car_deletion_dialog_text);
+                        textview.setText(String.format(getString(
+                                R.string.car_deselection_dialog_delete_pairing_content_template), car.getManufacturer(), car.getModel()));
+
+                        // Create the Dialog.
+                        AlertDialog.Builder alertDialog = new AlertDialog.Builder(CarSelectionActivity.this);
+                        alertDialog.setView(alertDialogView);
+                        alertDialog.setPositiveButton(R.string.car_deselection_dialog_delete_title,
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        // If the car has been removed successfully...
+                                        if (mCarManager.removeCar(car)) {
+                                            showSnackbar(String.format(
+                                                    getString(R.string.car_selection_car_deleted_tmp),
+                                                    car.getManufacturer(), car.getModel()));
+                                        }
+                                        // then remove it from the list and show a snackbar.
+                                        mCarListAdapter.removeCarItem(car);// Nothing to do on cancel
+                                    }
+                                });
+                        alertDialog.setNegativeButton(R.string.menu_cancel,
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        // Nothing to do on cancel
+                                    }
+                                });
+                        AlertDialog dialog = alertDialog.create();
+                        dialog.show();
+
+                        Button btnPositive = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                                LinearLayout.LayoutParams.WRAP_CONTENT,
+                                LinearLayout.LayoutParams.WRAP_CONTENT
+                        );
+                        params.setMargins(20,0,0,0);
+                        btnPositive.setLayoutParams(params);
                     }
                 });
         mCarListView.setAdapter(mCarListAdapter);

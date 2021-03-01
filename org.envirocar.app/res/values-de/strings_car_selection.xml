@@ -31,6 +31,10 @@
     <string name="car_selection_successfully_added_tmp" formatted="false">%s %s wurde hinzugefügt.</string>
     <string name="car_selection_already_in_list_tmp" formatted="false">%s %s ist bereits in der Liste.</string>
 
+    <string name="car_deselection_dialog_delete_pairing_title">Auto löschen ?</string>
+    <string name="car_deselection_dialog_delete_title">Auto löschen</string>
+    <string name="car_deselection_dialog_delete_pairing_content_template" formatted="false">Möchten Sie löschen %s %s?</string>
+
     <string name="car_selection_manufacturer">Hersteller</string>
     <string name="car_selection_model">Modell</string>
     <string name="car_selection_construction_year">Herstellungsjahr</string>
