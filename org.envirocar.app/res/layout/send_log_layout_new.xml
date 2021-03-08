@@ -65,8 +65,8 @@
                     android:background="@android:color/transparent"
                     android:fontFamily="@font/roboto_medium"
                     android:text="@string/report_issue_time_since_crash"
-                    android:layout_marginLeft="4dp"
-                    android:layout_marginRight="16dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginEnd="16dp"
                     android:textColor="@color/cario_color_primary_dark"
                     android:textSize="18sp" />
 
@@ -74,13 +74,14 @@
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/report_issue_minutes">
+                    app:hintEnabled="false">
 
                     <androidx.appcompat.widget.AppCompatEditText
                         android:id="@+id/report_issue_time_since_crash"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="start|top"
+                        android:hint="@string/report_issue_minutes"
                         android:imeOptions="actionNext"
                         android:inputType="date|time"
                         android:padding="12dp" />

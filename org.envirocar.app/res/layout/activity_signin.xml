@@ -28,7 +28,7 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content">
 
         <ImageView
             android:layout_width="match_parent"
@@ -55,7 +55,7 @@
             android:layout_height="wrap_content"
             android:text="@string/sign_in"
             android:textColor="@color/white_cario"
-            android:textSize="26dp"
+            android:textSize="26sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/activity_login_logo" />
@@ -78,8 +78,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@drawable/login_edittext_rounded_corner_shape"
-                android:drawableLeft="@drawable/ic_action_user"
+                android:drawableStart="@drawable/ic_action_user"
                 android:hint="@string/username"
+                android:inputType="textPersonName"
                 android:imeOptions="actionNext"
                 android:singleLine="true" />
 
@@ -102,7 +103,7 @@
                 style="@style/envirocar.login.edittext"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:drawableLeft="@drawable/ic_action_pass"
+                android:drawableStart="@drawable/ic_action_pass"
                 android:hint="@string/password"
                 android:imeOptions="actionDone"
                 android:inputType="textPassword" />
