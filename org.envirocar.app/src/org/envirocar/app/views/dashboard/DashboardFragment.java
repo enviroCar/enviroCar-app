@@ -26,6 +26,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.transition.AutoTransition;
 import android.transition.ChangeBounds;
 import android.transition.Slide;
@@ -441,25 +442,29 @@ public class DashboardFragment extends BaseInjectorFragment {
     @OnClick(R.id.fragment_dashboard_indicator_car)
     protected void onCarIndicatorClicked() {
         LOG.info("Car Indicator clicked");
-        // TODO
+        Intent intent = new Intent(getActivity(), CarSelectionActivity.class);
+        getActivity().startActivity(intent);
     }
 
     @OnClick(R.id.fragment_dashboard_indicator_obd)
     protected void onObdIndicatorClicked() {
         LOG.info("OBD indicator clicked");
-        // TODO
+        Intent intent = new Intent(getActivity(), OBDSelectionActivity.class);
+        getActivity().startActivity(intent);
     }
 
     @OnClick(R.id.fragment_dashboard_indicator_bluetooth)
     protected void onBluetoothIndicatorClicked() {
         LOG.info("Bluetooth indicator clicked");
-        // TODO
+        Intent intent = new Intent(getActivity(), OBDSelectionActivity.class);
+        getActivity().startActivity(intent);
     }
 
     @OnClick(R.id.fragment_dashboard_indicator_gps)
     protected void onGPSIndicatorClicked() {
         LOG.info("GPS indicator clicked");
-        // TODO
+        Intent intent=new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+        getActivity().startActivity(intent);
     }
 
     @Subscribe

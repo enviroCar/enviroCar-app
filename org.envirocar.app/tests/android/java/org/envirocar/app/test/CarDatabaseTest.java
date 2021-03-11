@@ -83,7 +83,7 @@ public class CarDatabaseTest {
     }
 
     private void fetchVehicleData() {
-        Single<List<Vehicles>> vehicle = enviroCarVehicleDB.vehicleDAO().getManufacturerVehicles();
+        Single<List<Vehicles>> vehicle = enviroCarVehicleDB.vehicleDAO().getManufacturerVehiclesList();
         vehicle.subscribeWith(new DisposableSingleObserver<List<Vehicles>>() {
             @Override
             public void onSuccess(List<Vehicles> vehicles) {

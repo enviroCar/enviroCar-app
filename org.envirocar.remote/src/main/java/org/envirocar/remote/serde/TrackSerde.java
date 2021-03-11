@@ -57,6 +57,8 @@ import java.util.Set;
 import static org.envirocar.core.entity.Measurement.PropertyKey.CALCULATED_MAF;
 import static org.envirocar.core.entity.Measurement.PropertyKey.CO2;
 import static org.envirocar.core.entity.Measurement.PropertyKey.CONSUMPTION;
+import static org.envirocar.core.entity.Measurement.PropertyKey.ENERGY_CONSUMPTION;
+import static org.envirocar.core.entity.Measurement.PropertyKey.ENERGY_CONSUMPTION_CO2;
 import static org.envirocar.core.entity.Measurement.PropertyKey.ENGINE_LOAD;
 import static org.envirocar.core.entity.Measurement.PropertyKey.FUEL_SYSTEM_LOOP;
 import static org.envirocar.core.entity.Measurement.PropertyKey.FUEL_SYSTEM_STATUS_CODE;
@@ -98,6 +100,8 @@ public class TrackSerde extends AbstractJsonSerde implements JsonSerializer<Trac
         supportedPhenomenons.add(INTAKE_PRESSURE);
         supportedPhenomenons.add(INTAKE_TEMPERATURE);
         supportedPhenomenons.add(CONSUMPTION);
+        supportedPhenomenons.add(ENERGY_CONSUMPTION);
+        supportedPhenomenons.add(ENERGY_CONSUMPTION_CO2);
         supportedPhenomenons.add(ENGINE_LOAD);
         supportedPhenomenons.add(THROTTLE_POSITON);
         supportedPhenomenons.add(GPS_ACCURACY);

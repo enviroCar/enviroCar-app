@@ -13,6 +13,9 @@ import io.reactivex.Single;
 @Dao
 public interface LocalVehicleDAO extends BaseLocalCarDAO<Vehicles> {
 
+    @Query("SELECT * FROM vehicles")
+    Single<List<Vehicles>> getManufacturerVehiclesList();
+
     @Query("SELECT * FROM vehicles WHERE manufacturer_id = :manuId")
     Observable<List<Vehicles>> getManufacturerVehiclesId(String manuId);
 
