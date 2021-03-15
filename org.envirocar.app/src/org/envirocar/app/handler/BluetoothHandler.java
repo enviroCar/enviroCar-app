@@ -26,7 +26,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.util.Log;
 import android.util.Pair;
+import android.widget.Toast;
 
 import com.google.common.base.Preconditions;
 import com.squareup.otto.Bus;
@@ -62,6 +64,7 @@ import io.reactivex.schedulers.Schedulers;
 @Singleton
 public class BluetoothHandler {
     private static final Logger LOGGER = Logger.getLogger(BluetoothHandler.class);
+    private static final String BLUETOOTH_TAG = "BluetoothHandler";
 
 
     private final Context context;
@@ -463,7 +466,13 @@ public class BluetoothHandler {
      * @return the set of already paired Bluetooth devices.
      */
     public Set<BluetoothDevice> getPairedBluetoothDevices() {
-        return mBluetoothAdapter.getBondedDevices();
+        try{
+            return mBluetoothAdapter.getBondedDevices();
+        }
+        catch (Exception e){
+            Log.e(BLUETOOTH_TAG, "getPairedBluetoothDevices: " + e);
+        }
+        return null;
     }
 
     public boolean isAutoconnecting() {

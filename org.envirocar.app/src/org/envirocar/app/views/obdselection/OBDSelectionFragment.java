@@ -21,6 +21,7 @@ package org.envirocar.app.views.obdselection;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothDevice;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -377,17 +378,23 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
      */
     private void updatePairedDevicesList() {
         // Get the set of paired devices.
-        Set<BluetoothDevice> pairedDevices = mBluetoothHandler.getPairedBluetoothDevices();
+        try {
+            Set<BluetoothDevice> pairedDevices = mBluetoothHandler.getPairedBluetoothDevices();
 
-        // For each device, add an entry to the list view.
-        mPairedDevicesAdapter.addAll(pairedDevices);
-        mPairedDevicesAdapter.setSelectedBluetoothDevice(mBluetoothHandler
-                .getSelectedBluetoothDevice());
+            // For each device, add an entry to the list view.
+            mPairedDevicesAdapter.addAll(pairedDevices);
+            mPairedDevicesAdapter.setSelectedBluetoothDevice(mBluetoothHandler
+                    .getSelectedBluetoothDevice());
 
-        // Make the paired devices textview visible if there are paired devices
-        if (!pairedDevices.isEmpty()) {
-            mPairedDevicesTextView.setVisibility(View.VISIBLE);
+            // Make the paired devices textview visible if there are paired devices
+            if (!pairedDevices.isEmpty()) {
+                mPairedDevicesTextView.setVisibility(View.VISIBLE);
+            }
         }
+        catch (Exception e){
+            Log.e("OBDSelectionFragment", "updatePairedDevicesList: ", e);
+        }
+
     }
 
     /**

@@ -19,6 +19,7 @@
 package org.envirocar.app.interactor;
 
 import android.app.Activity;
+import android.util.Log;
 
 import org.envirocar.app.R;
 import org.envirocar.app.handler.DAOProvider;
@@ -109,23 +110,28 @@ public class ValidateAcceptedTerms extends Interactor<Boolean, ValidateAcceptedT
 
     private Function<TermsOfUse, Observable<TermsOfUse>> checkTermsOfUseAcceptance(User user, Activity activity) {
         return termsOfUse -> {
-            LOG.info(String.format("Retrieved terms of use for user [%s] with version [%s]",
-                    user.getUsername(), user.getTermsOfUseVersion()));
+            try {
+                LOG.info(String.format("Retrieved terms of use for user [%s] with version [%s]",
+                        user.getUsername(), user.getTermsOfUseVersion()));
+                boolean hasAccepted = termsOfUse.getIssuedDate().equals(user.getTermsOfUseVersion());
 
-            boolean hasAccepted = termsOfUse.getIssuedDate().equals(user.getTermsOfUseVersion());
-
-            // If the user has accepted, then just return the generic type
-            if (hasAccepted) {
-                return Observable.just(termsOfUse);
+                // If the user has accepted, then just return the generic type
+                if (hasAccepted) {
+                    return Observable.just(termsOfUse);
+                }
+                // If the input activity is not null, then create an dialog observable.
+                else if (activity != null) {
+                    return createTermsOfUseDialogObservable(user, termsOfUse, activity);
+                }
+                // Otherwise, throw an exception.
+                else {
+                    throw new TermsOfUseException("The user has not accepted the terms of use");
+                }
             }
-            // If the input activity is not null, then create an dialog observable.
-            else if (activity != null) {
-                return createTermsOfUseDialogObservable(user, termsOfUse, activity);
+            catch (Exception e){
+                Log.e("ValidateAcceptedTerms", "checkTermsOfUseAcceptance: ", e);
             }
-            // Otherwise, throw an exception.
-            else {
-                throw new TermsOfUseException("The user has not accepted the terms of use");
-            }
+            return null;
         };
     }
 
