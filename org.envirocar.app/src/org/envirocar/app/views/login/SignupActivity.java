@@ -352,10 +352,10 @@ public class SignupActivity extends BaseInjectorActivity {
      */
     private boolean checkEmailValidity(String email) {
         boolean isValidEmail = true;
-        if (TextUtils.isEmpty(email)) {
+        if (TextUtils.isEmpty(email.trim())) {
             emailEditText.setError(getString(R.string.error_field_required));
             isValidEmail = false;
-        } else if (!Pattern.matches(EMAIL_REGEX, email)) {
+        } else if (!Pattern.matches(EMAIL_REGEX, email.trim())) {
             emailEditText.setError(getString(R.string.error_invalid_email));
             isValidEmail = false;
         }
