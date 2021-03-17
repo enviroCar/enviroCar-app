@@ -185,6 +185,9 @@ public class SignupActivity extends BaseInjectorActivity {
         if (!checkPasswordValidity(password1)) {
             focusView = password1EditText;
         }
+        if (!checkConfirmPasswordValidity(password2)) {
+            focusView = password2EditText;
+        }
         if (!checkEmailValidity(email)) {
             focusView = emailEditText;
         }
