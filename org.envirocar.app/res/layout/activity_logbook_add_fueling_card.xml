@@ -273,6 +273,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginRight="@dimen/spacing_large"
                         android:layout_weight="2"
+                        android:focusable="false"
+                        android:cursorVisible="false"
                         android:hint="0.00 €"
                         android:inputType="numberDecimal"/>
                 </LinearLayout>
