@@ -27,7 +27,10 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content">
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
         <ImageView
             android:id="@+id/imageView"
@@ -204,11 +207,15 @@
             app:cardBackgroundColor="@color/cario_color_primary_dark"
             app:cardCornerRadius="25dp"
             app:cardElevation="10dp"
+            android:clickable="true"
+            android:foreground="?android:attr/selectableItemBackground"
             app:layout_constraintEnd_toEndOf="@id/activity_signup_guideline_right"
             app:layout_constraintStart_toStartOf="@id/activity_signup_guideline_left"
-            app:layout_constraintTop_toBottomOf="@+id/activity_signup_ps_text">
+            app:layout_constraintTop_toBottomOf="@+id/activity_signup_ps_text"
+            android:focusable="true">
 
             <TextView
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
@@ -231,20 +238,35 @@
             app:layout_constraintTop_toBottomOf="@+id/activity_signup_register_button">
 
             <TextView
+                android:textColor="@color/white_cario"
+                android:textStyle="bold"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="5dp"
                 android:text="@string/already_registered_question" />
 
-            <TextView
+            <androidx.cardview.widget.CardView
+                android:layout_marginTop="7dp"
+            app:cardBackgroundColor="@color/cario_color_primary_dark"
+            app:cardCornerRadius="25dp"
+            android:elevation="10dp"
+                android:layout_gravity="center"
                 android:id="@+id/activity_signup_login_button"
+                android:layout_width="180dp"
+                android:layout_height="50dp"
+                android:clickable="true"
+                android:foreground="?android:attr/selectableItemBackground"
+                android:importantForAccessibility="yes"
+                android:focusable="true">
+            <TextView
+                android:text="@string/already_registered_sign_in"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:focusable="true"
+                android:layout_gravity="center"
                 android:importantForAccessibility="yes"
-                android:text="@string/already_registered_sign_in"
                 android:textAppearance="@android:style/TextAppearance.Medium"
-                android:textColor="@color/white_cario" />
+                android:textColor="@color/white_cario"/>
+            </androidx.cardview.widget.CardView>
 
         </LinearLayout>
 
@@ -262,5 +284,6 @@
             android:orientation="vertical"
             app:layout_constraintGuide_percent="0.13" />
 
+    </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>
