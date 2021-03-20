@@ -22,8 +22,7 @@
 <resources>
 
     <string name="help_headline_1">1. About enviroCar</string>
-    <string name="help_content_1">This app is part of the Citizen Science platform enviroCar (<a href="www.enviroCar.org">www.enviroCar.org</a>). You can use it to collect and analyze test drives and provide the measured data as Open Data.\n\nenviroCar is currently in a beta phase. As a result, the software’s stability is not yet comparable to standards associated with mature software.\n\nWe welcome your feedback (enviroCar@52north.org)! Your advice and suggestions help us to improve the software.\n\n</string>
-
+    <string name="help_content_1">This app is part of the Citizen Science platform enviroCar (www.enviroCar.org). You can use it to collect and analyze test drives and provide the measured data as Open Data.\n\nenviroCar is currently in a beta phase. As a result, the software’s stability is not yet comparable to standards associated with mature software.\n\nWe welcome your feedback (enviroCar@52north.org)! Your advice and suggestions help us to improve the software.\n\n</string>
     <string name="help_headline_2">2. Getting started</string>
     <string name="help_headline_2_1">2.1. Login/Register</string>
     <string name="help_content_2_1">In order to take full advantage of the enviroCar app\'s functional range, you must have a user account for the enviroCar platform. This enables you to upload your tracks as Open Data and evaluate them using the website\'s various analysis tools.</string>
