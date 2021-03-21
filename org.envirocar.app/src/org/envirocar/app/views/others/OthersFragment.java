@@ -149,6 +149,14 @@ public class OthersFragment extends BaseInjectorFragment {
             startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + appPackageName)));
         }
     }
+    @OnClick(R.id.othersDevelop)
+    protected void onDevelopClicked() {
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_VIEW);
+        intent.addCategory(Intent.CATEGORY_BROWSABLE);
+        intent.setData(Uri.parse("https://github.com/enviroCar/enviroCar-app"));
+        startActivity(intent);
+    }
 
     @OnClick(R.id.othersLogOut)
     protected void onLogOutClicked() {
