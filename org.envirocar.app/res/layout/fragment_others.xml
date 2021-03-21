@@ -211,6 +211,7 @@
 
 
             </LinearLayout>
+
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
@@ -236,6 +237,37 @@
                     android:layout_height="wrap_content"
                     android:textSize="17sp"
                     android:text="@string/develop"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginEnd="10dp" />
+
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/envirocar_color_divider_grey"
+                />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:id="@+id/othersFeedback"
+                android:padding="8dp"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:padding="6dp"
+                    android:src="@drawable/email_black" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="17sp"
+                    android:text="@string/send_feedback"
                     android:layout_marginStart="15dp"
                     android:layout_marginEnd="10dp" />
 
