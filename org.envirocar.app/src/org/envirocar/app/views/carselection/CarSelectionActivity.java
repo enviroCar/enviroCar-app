@@ -106,6 +106,8 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
         // Inject all annotated views.
         ButterKnife.bind(this);
 
+        mFab.setVisibility(View.VISIBLE);
+
         // Set the toolbar as default actionbar.
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
@@ -145,6 +147,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
     @OnClick(R.id.activity_car_selection_new_car_fab)
     public void onClickNewCarButton() {
         showAddCarFragment();
+        mFab.setVisibility(View.GONE);
     }
 
     @Override
