@@ -177,4 +177,5 @@
     <!--    Extended MapView    -->
     <!-- ###################### -->
     <string name="mapview_extended_select_phenomena">Attribut Selection</string>
+    <string name="develop">Develop</string>
 </resources>
