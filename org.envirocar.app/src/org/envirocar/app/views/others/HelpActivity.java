@@ -39,7 +39,7 @@ public class HelpActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         TextView textView = findViewById(R.id.aboutText);
-        String text = "This app is part of the Citizen Science platform enviroCar (www.enviroCar.org). You can use it to collect and analyze test drives and provide the measured data as Open Data.\n\nnenviroCar is currently in a beta phase. As a result, the software’s stability is not yet comparable to standards associated with mature software.\n\nnWe welcome your feedback (enviroCar@52north.org)! Your advice and suggestions help us to improve the software.\n\n";
+        String text = "This app is part of the Citizen Science platform enviroCar (www.enviroCar.org). You can use it to collect and analyze test drives and provide the measured data as Open Data.\n\nenviroCar is currently in a beta phase. As a result, the software’s stability is not yet comparable to standards associated with mature software.\n\nWe welcome your feedback (enviroCar@52north.org)! Your advice and suggestions help us to improve the software.\n\n";
         SpannableString ss = new SpannableString(text);
         ClickableSpan clickableSpan1 = new ClickableSpan() {
             @Override
