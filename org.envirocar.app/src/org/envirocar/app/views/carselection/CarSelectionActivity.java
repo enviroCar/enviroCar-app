@@ -26,6 +26,7 @@ import androidx.appcompat.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 
 import org.envirocar.app.BaseApplicationComponent;
@@ -59,7 +60,6 @@ import io.reactivex.schedulers.Schedulers;
  */
 public class CarSelectionActivity extends BaseInjectorActivity implements CarSelectionUiListener {
     private static final Logger LOG = Logger.getLogger(CarSelectionActivity.class);
-
     private static final int DURATION_SHEET_ANIMATION = 350;
 
     @BindView(R.id.activity_car_selection_layout_content)
@@ -78,6 +78,9 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
 
     @BindView(R.id.activity_car_selection_layout_carlist)
     protected ListView mCarListView;
+
+    @BindView(R.id.no_car_found_layout)
+    protected LinearLayout no_car_found;
 
     @Inject
     protected DAOProvider mDAOProvider;
@@ -102,7 +105,6 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
 
         // Set the content view of this activity.
         setContentView(R.layout.activity_car_selection_layout);
-
         // Inject all annotated views.
         ButterKnife.bind(this);
 
@@ -227,6 +229,11 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
                         }
                         // then remove it from the list and show a snackbar.
                         mCarListAdapter.removeCarItem(car);
+
+
+                        if(usedCars.isEmpty())
+                            no_car_found.setVisibility(View.VISIBLE);
+
                     }
                 });
         mCarListView.setAdapter(mCarListAdapter);
@@ -254,6 +261,10 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
                     public void onComplete() {
                         LOG.info("onCompleted() loading of all cars");
                         loadingView.setVisibility(View.INVISIBLE);
+                        if(usedCars.isEmpty())
+                            no_car_found.setVisibility(View.VISIBLE);
+                        else
+                            no_car_found.setVisibility(View.GONE);
                     }
 
                     @Override
@@ -270,6 +281,9 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
                                 usedCars.add(car);
                         }
                         mCarListAdapter.notifyDataSetInvalidated();
+                        if(!usedCars.isEmpty())
+                            no_car_found.setVisibility(View.GONE);
+
                     }
                 });
     }
@@ -304,6 +318,10 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
             showSnackbar(String.format(getString(R.string.car_selection_already_in_list_tmp),
                     car.getManufacturer(), car.getModel()));
         }
+        if(!mCarManager.hasCars())
+            no_car_found.setVisibility(View.VISIBLE);
+        else
+            no_car_found.setVisibility(View.GONE);
     }
 
 

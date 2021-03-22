@@ -19,6 +19,7 @@
 package org.envirocar.app.views.carselection;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,6 +36,7 @@ import org.envirocar.core.logging.Logger;
 import org.envirocar.core.utils.CarUtils;
 
 import java.util.List;
+import java.util.*;
 
 import butterknife.ButterKnife;
 import butterknife.BindView;
@@ -189,7 +191,7 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
     }
 
     /**
-     * Adds a new {@link Car} to the list and finally invalidates the lsit.
+     * Adds a new {@link Car} to the list and finally invalidates the list.
      *
      * @param car the car to add to the list
      */

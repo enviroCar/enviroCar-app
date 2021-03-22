@@ -78,6 +78,9 @@ dependencies {
     api project(path: ':org.envirocar.storage')
     api project(path: ':org.envirocar.algorithm')
     implementation 'com.github.enviroCar:enviroCar-aidl:d67cfa49f3'
+
+    //lottie declaration
+    implementation 'com.airbnb.android:lottie:3.4.1'
 }
 
 
