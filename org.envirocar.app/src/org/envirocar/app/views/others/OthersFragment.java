@@ -157,7 +157,12 @@ public class OthersFragment extends BaseInjectorFragment {
         intent.setData(Uri.parse("https://github.com/enviroCar/enviroCar-app"));
         startActivity(intent);
     }
-
+    @OnClick(R.id.othersFeedback)
+    protected void onFeedbackClicked() {
+        Intent intent = new Intent (Intent.ACTION_VIEW , Uri.parse("mailto:" + "enviroCar@52north.org"));
+        intent.putExtra(Intent.EXTRA_SUBJECT, "EnviroCar app feedback");
+        startActivity(intent);
+    }
     @OnClick(R.id.othersLogOut)
     protected void onLogOutClicked() {
 

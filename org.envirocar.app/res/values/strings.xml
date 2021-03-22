@@ -178,4 +178,5 @@
     <!-- ###################### -->
     <string name="mapview_extended_select_phenomena">Attribut Selection</string>
     <string name="develop">Develop</string>
+    <string name="send_feedback">Send Feedback/Suggestion</string>
 </resources>
