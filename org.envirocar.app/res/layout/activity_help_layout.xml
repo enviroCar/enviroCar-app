@@ -40,9 +40,9 @@
             android:text="@string/help_headline_1"/>
 
         <TextView
+            android:id="@+id/aboutText"
             style="@style/enviroCar.Help.content"
-            android:text="@string/help_content_1"
-            android:autoLink="web"/>
+        android:text="@string/help_content_1"/>
 
         <include layout="@layout/help_divider"/>
 
