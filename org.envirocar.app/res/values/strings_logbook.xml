@@ -43,6 +43,7 @@
     <string name="logbook_dialog_uploading_fueling_header">Uploading</string>
     <string name="logbook_dialog_uploading_fueling_car">Registering car type before uploading fueling.</string>
     <string name="logbook_dialog_uploading_fueling_content">Uploading the fueling.</string>
+    <string name="logbook_addition_success_tmp">Fueling has been successfully added to the server.</string>
     <string name="logbook_background_not_logged_in_first">NOT LOGGED IN</string>
     <string name="logbook_background_no_fuelings_first">NO FUELINGS</string>
     <string name="logbook_background_no_fuelings_second">There are no fuelings assigned\nto the current user.</string>
