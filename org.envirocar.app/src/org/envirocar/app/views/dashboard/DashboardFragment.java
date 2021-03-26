@@ -636,6 +636,10 @@ public class DashboardFragment extends BaseInjectorFragment {
             this.toolbar.inflateMenu(R.menu.menu_dashboard_logged_in);
             this.textView.setText(user.getUsername());
 
+            // Show a snackbar when user is successfully logged in
+            Snackbar.make(getActivity().findViewById(R.id.navigation),
+                    String.format(getString(R.string.welcome_message), user.getUsername()),
+                    Snackbar.LENGTH_LONG).show();
 
             ConstraintSet set = new ConstraintSet();
             set.constrainPercentHeight(bannerLayout.getId(), 0.25f);
