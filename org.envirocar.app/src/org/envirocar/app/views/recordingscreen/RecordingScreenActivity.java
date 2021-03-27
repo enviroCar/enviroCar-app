@@ -215,9 +215,11 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
                 .positiveText(R.string.ok)
                 .onPositive((dialog, which) -> {
                     trackRecordingHandler.finishCurrentTrack();
+                    startActivity(new Intent(RecordingScreenActivity.this,BaseMainActivity.class));
                     finish();
                 })
                 .show();
+
     }
 
     @Subscribe
