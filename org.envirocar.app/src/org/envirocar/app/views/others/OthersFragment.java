@@ -276,11 +276,13 @@ public class OthersFragment extends BaseInjectorFragment {
      */
     private void showSnackbar(final int mainTextStringId, final int actionStringId,
                               View.OnClickListener listener) {
-        Snackbar.make(
+        Snackbar snackbar = Snackbar.make(
                 getActivity().findViewById(R.id.navigation),
                 getString(mainTextStringId),
                 Snackbar.LENGTH_INDEFINITE)
-                .setAction(getString(actionStringId), listener).show();
+                .setAction(getString(actionStringId), listener);
+        snackbar.setBackgroundTint(getResources().getColor(R.color.blue_light_cario));
+        snackbar.show();
     }
 
 

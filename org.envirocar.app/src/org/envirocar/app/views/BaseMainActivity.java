@@ -326,7 +326,9 @@ public class BaseMainActivity extends BaseInjectorActivity {
     }
 
     private void showSnackbar(String info) {
-        Snackbar.make(navigationBottomBar, info, Snackbar.LENGTH_LONG).show();
+        Snackbar snackbar = Snackbar.make(navigationBottomBar, info, Snackbar.LENGTH_LONG);
+        snackbar.setBackgroundTint(getResources().getColor(R.color.blue_light_cario));
+        snackbar.show();
     }
 
     private class PageSlider extends FragmentStatePagerAdapter {

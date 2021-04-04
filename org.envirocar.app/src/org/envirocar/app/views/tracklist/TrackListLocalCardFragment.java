@@ -254,9 +254,11 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
                                     R.string.track_list_bg_error,
                                     R.string.track_list_bg_error_sub);
 
-                            Snackbar.make(getView(),
+                            Snackbar snackbar = Snackbar.make(getView(),
                                     R.string.track_list_loading_tracks_error_snackbar,
-                                    Snackbar.LENGTH_LONG).show();
+                                    Snackbar.LENGTH_LONG);
+                            snackbar.setBackgroundTint(getResources().getColor(R.color.blue_light_cario));
+                            snackbar.show();
                         }
 
                         @Override

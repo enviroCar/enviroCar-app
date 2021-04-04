@@ -189,9 +189,10 @@ public class SigninActivity extends BaseInjectorActivity {
                     @Override
                     public void onComplete() {
                         dialog.dismiss();
-                        Snackbar.make(logoImageView, String.format(getResources().getString(
-                                R.string.welcome_message), username), Snackbar.LENGTH_LONG)
-                                .show();
+                        Snackbar snackbar = Snackbar.make(logoImageView, String.format(getResources().getString(
+                                R.string.welcome_message), username), Snackbar.LENGTH_LONG);
+                        snackbar.setBackgroundTint(getResources().getColor(R.color.blue_light_cario));
+                        snackbar.show();
                         finish();
                     }
 
@@ -219,7 +220,9 @@ public class SigninActivity extends BaseInjectorActivity {
                                     break;
                             }
                         } else if (checkNetworkConnection() != true) {
-                            Snackbar.make(findViewById(R.id.activity_signin_login_button), String.format(getString(R.string.error_not_connected_to_network)), Snackbar.LENGTH_SHORT).show();
+                            Snackbar snackbar = Snackbar.make(findViewById(R.id.activity_signin_login_button), String.format(getString(R.string.error_not_connected_to_network)), Snackbar.LENGTH_SHORT);
+                            snackbar.setBackgroundTint(getResources().getColor(R.color.blue_light_cario));
+                            snackbar.show();
                         }
                     }
                 });
