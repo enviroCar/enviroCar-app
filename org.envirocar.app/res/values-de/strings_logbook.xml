@@ -36,7 +36,7 @@
     <string name="logbook_error_communication">Keine Verbindung zum Server.</string>
     <string name="logbook_error_unauthorized">Sie sind dafür nicht authentifiziert. Bitte loggen Sie sich mit dem jeweiligen Account ein.</string>
     <string name="logbook_error_resource_conflict">Fehler beim hochladen: Der Eintrag existiert bereits.</string>
-    <string name="logbook_error_form_blank_input">Dieses Feld darf nicht leer sein</string>
+    <string name="logbook_error_form_blank_input">Dies ist ein Pflichtfeld.</string>
     <string name="logbook_deletion_success_tmp">Eintrag wurde erfolgreich vom Server gelöscht</string>
     <string name="logbook_dialog_delete_fueling_header">Löschen des Tankeintrags?</string>
     <string name="logbook_dialog_delete_fueling_content">Möchten Sie wirklich den Logbucheintrag löschen?"</string>
