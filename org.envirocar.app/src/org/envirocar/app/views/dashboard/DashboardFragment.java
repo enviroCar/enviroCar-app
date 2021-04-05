@@ -227,7 +227,7 @@ public class DashboardFragment extends BaseInjectorFragment {
                 .setLaunchTimes(2) // Specifies the number of times the app must launch by user for the dialog popup to show.
                 .setRemindInterval(3) // Specifies the number of days after "Remind Me Later" is clicked, the dialog popup will show.
                 .setShowLaterButton(true)
-                .setDebug(true) // IMPORTANT: Set true only for testing purposes. DO NOT set true for release-app.
+                .setDebug(false) // IMPORTANT: Set true only for testing purposes. DO NOT set true for release-app.
                 .setOnClickButtonListener(new OnClickButtonListener() { // callback listener.
                     @Override
                     public void onClickButton(int which) {
