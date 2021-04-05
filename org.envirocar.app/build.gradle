@@ -47,6 +47,8 @@ dependencies {
     implementation rootProject.ext.rxBindingCore
     implementation rootProject.ext.rxBindingAppCompat
 
+    implementation 'com.github.hotchemi:android-rate:1.0.1'
+
     // MapBox SDK
     implementation(rootProject.ext.mapbox) {
         transitive = true
