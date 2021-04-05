@@ -32,7 +32,7 @@
     <string name="email">E-Mail</string>
 
 
-    <string name="login_register">Login/Register</string>
+    <string name="register">Register</string>
     <string name="today">Today</string>
     <string name="yesterday">Yesterday</string>
     <string name="cancel">Cancel</string>

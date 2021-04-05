@@ -80,6 +80,7 @@ import org.envirocar.app.recording.events.EngineNotRunningEvent;
 import org.envirocar.app.recording.events.RecordingStateEvent;
 import org.envirocar.app.views.carselection.CarSelectionActivity;
 import org.envirocar.app.views.login.SigninActivity;
+import org.envirocar.app.views.login.SignupActivity;
 import org.envirocar.app.views.obdselection.OBDSelectionActivity;
 import org.envirocar.app.views.recordingscreen.RecordingScreenActivity;
 import org.envirocar.app.views.utils.SizeSyncTextView;
@@ -310,6 +311,10 @@ public class DashboardFragment extends BaseInjectorFragment {
                     .content(getString(R.string.menu_logout_envirocar_content))
                     .onPositive((dialog, which) -> userHandler.logOut().subscribe(onLogoutSubscriber()))
                     .show();
+        }
+        else if (menuItem.getItemId()== R.id.dashboard_action_register) {
+            //Start the register activity
+            SignupActivity.startActivity(getContext());
         }
     }
 

@@ -27,7 +27,14 @@
     <item
         android:id="@+id/dashboard_action_login"
         android:orderInCategory="100"
-        android:title="@string/login_register"
-        app:showAsAction="collapseActionView" />
+        android:title="@string/login"
+        app:showAsAction="ifRoom|withText"
+        android:icon="@drawable/ic_baseline_login_36"/>
+
+   <item android:id="@+id/dashboard_action_register"
+    android:orderInCategory="100"
+    android:title="@string/register"
+    app:showAsAction="ifRoom|withText"
+    android:icon="@drawable/ic_baseline_account_circle_36"/>
 
 </menu>
