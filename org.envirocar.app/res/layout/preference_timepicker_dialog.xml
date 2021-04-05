@@ -42,27 +42,35 @@
             android:layout_width="70dip"
             android:layout_height="wrap_content"
             android:focusable="true"
-            android:focusableInTouchMode="true" />
+            android:theme="@style/NumberPickerSelectorStyle"
+            android:focusableInTouchMode="true"
+            android:scrollbars="none"/>
 
         <TextView
+            android:layout_marginStart="4dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="m " />
+            android:text="m "
+            android:textColor="#000"/>
 
         <NumberPicker
             android:id="@+id/preference_timepicker_seconds_picker"
             android:layout_width="70dip"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="5dip"
+            android:layout_height="match_parent"
+            android:layout_marginStart="10dip"
             android:focusable="true"
-            android:focusableInTouchMode="true" />
+            android:theme="@style/NumberPickerSelectorStyle"
+            android:focusableInTouchMode="true"
+            android:scrollbars="none"/>
 
         <TextView
+            android:layout_marginStart="4dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="s" />
+            android:text="s"
+            android:textColor="#000"/>
 
     </LinearLayout>
 </LinearLayout>

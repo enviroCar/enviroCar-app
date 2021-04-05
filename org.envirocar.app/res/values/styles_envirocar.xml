@@ -84,4 +84,7 @@
     <style name="DialogStyle" parent="Theme.AppCompat.Light.Dialog">
         <item name="colorAccent">@color/blue_dark_cario</item>
     </style>
+    <style name="NumberPickerSelectorStyle" parent="" >
+        <item name="colorControlNormal">@color/blue_dark_cario</item>
+    </style>
 </resources>
