@@ -34,7 +34,7 @@
         android:layout_centerVertical="true"
         android:layout_marginLeft="@dimen/spacing_medium"
         android:alpha="0.54"
-        android:src="@drawable/ic_drive_eta_black_24dp" />
+        android:src="@drawable/ic_directions_car_black_24dp" />
 
     <RadioButton
         android:id="@+id/activity_car_selection_layout_carlist_entry_radio"
