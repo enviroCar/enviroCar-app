@@ -20,6 +20,7 @@ package org.envirocar.app.views.login;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -33,6 +34,7 @@ import androidx.core.app.ActivityOptionsCompat;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.android.material.snackbar.Snackbar;
+import com.jakewharton.rxbinding3.widget.RxTextView;
 
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
@@ -42,6 +44,9 @@ import org.envirocar.app.handler.agreement.AgreementManager;
 import org.envirocar.app.handler.preferences.UserPreferenceHandler;
 import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.core.logging.Logger;
+
+import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 
@@ -61,6 +66,10 @@ import io.reactivex.schedulers.Schedulers;
  */
 public class SigninActivity extends BaseInjectorActivity {
     private static final Logger LOG = Logger.getLogger(SigninActivity.class);
+    private static final String USERNAME_REGEX = "^[A-Za-z0-9_-]{6,}$";
+    private static final String PASSWORD_REGEX = "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{6,}$";
+    private static final int CHECK_FORM_DELAY = 750;
+    private static Drawable error;
 
     public static void startActivity(Context context) {
         Intent intent = new Intent(context, SigninActivity.class);
@@ -99,6 +108,11 @@ public class SigninActivity extends BaseInjectorActivity {
 
         // inject the views
         ButterKnife.bind(this);
+
+        error = getResources().getDrawable(R.drawable.ic_error_red_24dp);
+        error.setBounds(-75,0,0,error.getIntrinsicHeight());
+
+        observeFormInputs();
     }
 
     @Override
@@ -140,15 +154,10 @@ public class SigninActivity extends BaseInjectorActivity {
         String username = usernameEditText.getText().toString().trim();
         String password = passwordEditText.getText().toString();
 
-        // check for valid password
-        if (password == null || password.isEmpty() || password.equals("")) {
-            this.passwordEditText.setError(getString(R.string.error_field_required));
-            focusView = this.passwordEditText;
+        if (!checkPasswordValidity(password)) {
+            focusView = passwordEditText;
         }
-
-        // check for valid username
-        if (username == null || username.isEmpty() || username.equals("")) {
-            this.usernameEditText.setError(getString(R.string.error_field_required));
+        if(!checkUsernameValidity(username)) {
             focusView = this.usernameEditText;
         }
 
@@ -201,7 +210,7 @@ public class SigninActivity extends BaseInjectorActivity {
                         if (e instanceof LoginException) {
                             switch (((LoginException) e).getType()) {
                                 case PASSWORD_INCORRECT:
-                                    passwordEditText.setError(getString(R.string.error_incorrect_password));
+                                    passwordEditText.setError(getString(R.string.error_incorrect_password),error);
                                     break;
                                 case MAIL_NOT_CONFIREMED:
                                     new MaterialDialog.Builder(SigninActivity.this)
@@ -212,10 +221,10 @@ public class SigninActivity extends BaseInjectorActivity {
                                             .build().show();
                                     break;
                                 case UNABLE_TO_COMMUNICATE_WITH_SERVER:
-                                    passwordEditText.setError(getString(R.string.error_host_not_found));
+                                    passwordEditText.setError(getString(R.string.error_host_not_found),error);
                                     break;
                                 default:
-                                    passwordEditText.setError(getString(R.string.logbook_invalid_input));
+                                    passwordEditText.setError(getString(R.string.logbook_invalid_input),error);
                                     break;
                             }
                         } else if (checkNetworkConnection() != true) {
@@ -232,4 +241,58 @@ public class SigninActivity extends BaseInjectorActivity {
             return true;
         return false;
     }
+
+    /**
+     * Checks for a valid username
+     */
+    private boolean checkUsernameValidity(String username) {
+        // reset error text
+        usernameEditText.setError(null);
+
+        boolean isValidUsername = true;
+        if (username == null || username.isEmpty() || username.equals("")) {
+            usernameEditText.setError(getString(R.string.error_field_required));
+            isValidUsername = false;
+        } else if (username.length() < 6) {
+            usernameEditText.setError(getString(R.string.error_invalid_username));
+            isValidUsername = false;
+        } else if (!Pattern.matches(USERNAME_REGEX,username)) {
+            usernameEditText.setError(getString(R.string.error_username_contain_special));
+            isValidUsername = false;
+        }
+        return isValidUsername;
+    }
+
+    /**
+     * Checks for a valid password
+     */
+    private boolean checkPasswordValidity(String password) {
+        boolean isValidPassword = true;
+        if (password == null || password.isEmpty() || password.equals("")) {
+            passwordEditText.setError(getString(R.string.error_field_required),error);
+            isValidPassword = false;
+        } else if (password.length() < 6) {
+            passwordEditText.setError(getString(R.string.error_invalid_password),error);
+            isValidPassword = false;
+        } else if (!Pattern.matches(PASSWORD_REGEX, password)) {
+            passwordEditText.setError(getString(R.string.error_field_weak_password),error);
+            isValidPassword = false;
+        }
+        return isValidPassword;
+    }
+
+    private void observeFormInputs() {
+        RxTextView.textChanges(usernameEditText)
+                .skipInitialValue()
+                .debounce(CHECK_FORM_DELAY, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .map(CharSequence::toString)
+                .subscribe(this::checkUsernameValidity, LOG::error);
+
+        RxTextView.textChanges(passwordEditText)
+                .skipInitialValue()
+                .debounce(CHECK_FORM_DELAY, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .map(CharSequence::toString)
+                .subscribe(this::checkPasswordValidity, LOG::error);}
 }
