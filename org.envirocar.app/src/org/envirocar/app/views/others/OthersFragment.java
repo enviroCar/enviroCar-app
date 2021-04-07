@@ -33,6 +33,7 @@ import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -158,6 +159,7 @@ public class OthersFragment extends BaseInjectorFragment {
                 .positiveText(getString(R.string.menu_logout_envirocar_positive))
                 .negativeText(getString(R.string.menu_logout_envirocar_negative))
                 .content(getString(R.string.menu_logout_envirocar_content))
+                .icon(ContextCompat.getDrawable(getActivity(), R.drawable.ic_logout_black_24dp))
                 .onPositive((dialog, which) -> mUserManager.logOut().subscribe(logOut()))
                 .show();
     }
