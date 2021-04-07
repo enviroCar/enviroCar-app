@@ -33,6 +33,7 @@ import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -169,6 +170,7 @@ public class OthersFragment extends BaseInjectorFragment {
                 .positiveText(getString(R.string.menu_close_envirocar_positive))
                 .negativeText(getString(R.string.cancel))
                 .content(getString(R.string.menu_close_envirocar_content))
+                .icon(ContextCompat.getDrawable(getActivity(), R.drawable.ic_others_close_24))
                 .callback(new MaterialDialog.ButtonCallback() {
                     @Override
                     public void onPositive(MaterialDialog dialog) {
