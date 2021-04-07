@@ -82,7 +82,7 @@
 	    the OBD-II adapter. You could try to unplug and plug the adapter, then restart measurements.</string>
 
     <string name="general_error_please_report">General Track Error - Please report this issue</string>
-    <string name="Dark_Mode_Content" translatable="false" tools:ignore="MissingTranslation">Select the emtpy checkbox to enable dark theme</string>
+    <string name="Dark_Mode_Content" translatable="false" tools:ignore="MissingTranslation">Enable/Disable to view the app in dark/light mode</string>
 
 
 
