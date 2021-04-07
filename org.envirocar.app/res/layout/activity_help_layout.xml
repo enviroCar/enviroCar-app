@@ -25,6 +25,10 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:clipToPadding="false"
+    android:scrollbars="vertical"
+    android:scrollbarSize="10sp"
+    android:scrollbarThumbVertical="@color/cario_color_primary"
+    android:fadeScrollbars="true"
     app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
     <LinearLayout
