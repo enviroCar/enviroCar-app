@@ -187,8 +187,8 @@
                         android:layout_gravity="center"
                         android:layout_margin="@dimen/spacing_medium"
                         android:alpha="0.54"
-                        android:src="@drawable/ic_fuel_consumption"
-                        android:visibility="invisible"/>
+                        android:src="@drawable/ic_fuel_volume"
+                        android:visibility="visible"/>
 
                     <TextView
                         android:layout_width="0dp"
@@ -221,8 +221,8 @@
                         android:layout_gravity="center"
                         android:layout_margin="@dimen/spacing_medium"
                         android:alpha="0.54"
-                        android:src="@drawable/ic_fuel_consumption"
-                        android:visibility="invisible"/>
+                        android:src="@drawable/ic_price_litre"
+                        android:visibility="visible"/>
 
                     <TextView
                         android:layout_width="0dp"
@@ -255,8 +255,8 @@
                         android:layout_gravity="center"
                         android:layout_margin="@dimen/spacing_medium"
                         android:alpha="0.54"
-                        android:src="@drawable/ic_fuel_consumption"
-                        android:visibility="invisible"/>
+                        android:src="@drawable/ic_total_price"
+                        android:visibility="visible"/>
 
                     <TextView
                         android:layout_width="0dp"
@@ -339,8 +339,8 @@
                         android:layout_gravity="center"
                         android:layout_margin="@dimen/spacing_medium"
                         android:alpha="0.54"
-                        android:src="@drawable/ic_fuel_consumption"
-                        android:visibility="invisible"/>
+                        android:src="@drawable/ic_missed_fueling"
+                        android:visibility="visible"/>
 
                     <TextView
                         android:layout_width="0dp"
