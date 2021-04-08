@@ -30,16 +30,19 @@
             android:key="@string/prefkey_automatic_upload"
             android:summary="@string/pref_automatic_upload_sub"
             android:title="@string/pref_automatic_upload"
+            android:icon="@drawable/ic_automatic_upload_24"
             app:iconSpaceReserved="false" />
         <CheckBoxPreference
             android:key="@string/prefkey_display_always_active"
             android:summary="@string/pref_display_always_activ_sub"
             android:title="@string/pref_display_always_activ"
+            android:icon="@drawable/ic_keep_screen_on_24"
             app:iconSpaceReserved="false" />
         <CheckBoxPreference
             android:key="@string/prefkey_text_to_speech"
             android:summary="@string/pref_text_to_speech_summary"
             android:title="@string/pref_text_to_speech"
+            android:icon="@drawable/ic_verbal_announcement_24"
             app:iconSpaceReserved="false" />
         <!--        <CheckBoxPreference-->
         <!--            android:enabled="false"-->
@@ -53,6 +56,7 @@
             android:key="@string/prefkey_privacy"
             android:summary="@string/pref_obfuscate_track_summary"
             android:title="@string/pref_obfuscate_track"
+            android:icon="@drawable/ic_start_destination_24"
             app:iconSpaceReserved="false" />
         <org.envirocar.app.views.settings.custom.SamplingRatePreference
             android:defaultValue="5"
@@ -61,6 +65,7 @@
             android:maxLength="8"
             android:summary="@string/sampling_rate_summary"
             android:title="@string/sampling_rate_title"
+            android:icon="@drawable/ic_sampling_rate_24"
             app:iconSpaceReserved="false" />
     </PreferenceCategory>
 
@@ -71,17 +76,20 @@
             android:key="@string/prefkey_automatic_recording"
             android:summary="@string/pref_bluetooth_auto_connect_summary"
             android:title="@string/pref_bluetooth_auto_connect"
+            android:icon="@drawable/ic_auto_connect_24"
             app:iconSpaceReserved="false" />
         <org.envirocar.app.views.settings.custom.AutoConnectIntervalPreference
             android:defaultValue="60"
             android:key="@string/prefkey_search_interval"
             android:summary="@string/pref_bluetooth_discovery_interval_summary"
             android:title="@string/pref_bluetooth_discovery_interval"
+            android:icon="@drawable/ic_discovery_interval_24"
             app:iconSpaceReserved="false" />
         <CheckBoxPreference
             android:key="@string/prefkey_enable_diesel_consumption"
             android:summary="@string/preference_beta_diesel_consumption_sum"
             android:title="@string/preference_beta_diesel_consumption"
+            android:icon="@drawable/ic_diesel_consumption_24"
             app:iconSpaceReserved="false" />
     </PreferenceCategory>
     <PreferenceCategory
@@ -92,18 +100,21 @@
             android:key="@string/prefkey_enable_gps_based_track_recording"
             android:summary="@string/preference_beta_enable_gps_based_track_recording_sum"
             android:title="@string/preference_beta_enable_gps_based_track_recording"
+            android:icon="@drawable/ic_gps_track_24"
             app:iconSpaceReserved="false" />
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="@string/prefkey_gps_mode_ar"
             android:summary="@string/pref_gps_mode_ar_summary"
             android:title="@string/pref_gps_mode_ar_title"
+            android:icon="@drawable/ic_auto_record_24"
             app:iconSpaceReserved="false" />
         <org.envirocar.app.views.settings.custom.GPSTrimDurationPreference
             android:defaultValue="110"
             android:key="@string/prefkey_track_trim_duration"
             android:summary="@string/pref_track_cut_duration_summary"
             android:title="@string/pref_track_cut_duration"
+            android:icon="@drawable/ic_track_trim_24"
             app:iconSpaceReserved="false" />
     </PreferenceCategory>
 
@@ -114,6 +125,7 @@
             android:key="@string/prefkey_enable_debug_logging"
             android:summary="@string/enable_debug_logging_summary"
             android:title="@string/enable_debug_logging"
+            android:icon="@drawable/ic_debug_logging_24"
             app:iconSpaceReserved="false" />
     </PreferenceCategory>
 
