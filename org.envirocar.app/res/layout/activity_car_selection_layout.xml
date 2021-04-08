@@ -101,6 +101,11 @@
                     android:layout_height="match_parent"
                     android:choiceMode="singleChoice"
                     android:divider="#00000000"
+                    android:scrollbars="vertical"
+                    android:scrollbarSize="10sp"
+                    android:scrollbarThumbVertical="@color/cario_color_primary"
+                    android:fadeScrollbars="true"
+                    android:fastScrollEnabled="true"
                     android:padding="@dimen/spacing_medium"/>
 
                 <TextView
