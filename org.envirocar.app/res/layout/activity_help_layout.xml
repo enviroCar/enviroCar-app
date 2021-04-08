@@ -37,7 +37,8 @@
         <TextView
             style="@style/enviroCar.Help.headline1"
             android:layout_marginTop="@dimen/spacing_large"
-            android:text="@string/help_headline_1"/>
+            android:text="@string/help_headline_1"
+            android:drawableEnd="@drawable/ic_about"/>
 
         <TextView
             style="@style/enviroCar.Help.content"
@@ -48,11 +49,13 @@
 
         <TextView
             style="@style/enviroCar.Help.headline1"
-            android:text="@string/help_headline_2"/>
+            android:text="@string/help_headline_2"
+            android:drawableEnd="@drawable/ic_getting_started"/>
 
         <TextView
             style="@style/enviroCar.Help.headline2"
-            android:text="@string/help_headline_2_1"/>
+            android:text="@string/help_headline_2_1"
+            android:drawableEnd="@drawable/ic_login"/>
 
         <TextView
             style="@style/enviroCar.Help.content"
@@ -127,7 +130,8 @@
         <TextView
             style="@style/enviroCar.Help.headline2"
             android:layout_marginTop="@dimen/spacing_large"
-            android:text="@string/help_headline_2_2"/>
+            android:text="@string/help_headline_2_2"
+            android:drawableEnd="@drawable/ic_select_car"/>
 
         <TextView
             style="@style/enviroCar.Help.content"
@@ -136,7 +140,8 @@
         <TextView
             style="@style/enviroCar.Help.headline2"
             android:layout_marginTop="@dimen/spacing_large"
-            android:text="@string/help_headline_2_3"/>
+            android:text="@string/help_headline_2_3"
+            android:drawableEnd="@drawable/ic_connect_adapter"/>
 
         <TextView
             style="@style/enviroCar.Help.content"
@@ -146,7 +151,8 @@
 
         <TextView
             style="@style/enviroCar.Help.headline1"
-            android:text="@string/help_headline_3"/>
+            android:text="@string/help_headline_3"
+            android:drawableEnd="@drawable/ic_record_track"/>
 
         <TextView
             style="@style/enviroCar.Help.content"
@@ -245,7 +251,8 @@
         <!-- 4. -->
         <TextView
             style="@style/enviroCar.Help.headline1"
-            android:text="@string/help_headline_4"/>
+            android:text="@string/help_headline_4"
+            android:drawableEnd="@drawable/ic_observe_tracks"/>
 
         <TextView
             style="@style/enviroCar.Help.content"
@@ -253,7 +260,8 @@
 
         <TextView
             style="@style/enviroCar.Help.headline2"
-            android:text="@string/help_headline_4_1"/>
+            android:text="@string/help_headline_4_1"
+            android:drawableEnd="@drawable/ic_track_details"/>
 
         <TextView
             style="@style/enviroCar.Help.content"
@@ -261,7 +269,8 @@
 
         <TextView
             style="@style/enviroCar.Help.headline2"
-            android:text="@string/help_headline_4_2"/>
+            android:text="@string/help_headline_4_2"
+            android:drawableEnd="@drawable/ic_upload_track"/>
 
         <TextView
             style="@style/enviroCar.Help.content"
@@ -280,7 +289,8 @@
         <!-- 5. -->
         <TextView
             style="@style/enviroCar.Help.headline1"
-            android:text="@string/help_headline_6"/>
+            android:text="@string/help_headline_6"
+            android:drawableEnd="@drawable/ic_feedback"/>
 
         <TextView
             style="@style/enviroCar.Help.content"
