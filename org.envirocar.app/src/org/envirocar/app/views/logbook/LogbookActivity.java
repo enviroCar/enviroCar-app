@@ -21,6 +21,8 @@ package org.envirocar.app.views.logbook;
 import android.os.Bundle;
 import com.google.android.material.snackbar.Snackbar;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
+
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageView;
@@ -136,6 +138,7 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
                         .content(R.string.logbook_dialog_delete_fueling_content)
                         .positiveText(R.string.menu_delete)
                         .negativeText(R.string.cancel)
+                        .icon(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_delete_fueling_24))
                         .onPositive((materialDialog, dialogAction) -> deleteFueling(fueling))
                         .show();
                 return false;
