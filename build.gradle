@@ -95,7 +95,7 @@ ext {
     rxPreferences = 'com.f2prateek.rx.preferences2:rx-preferences:2.0.0'
 
     // RxBindings
-    def rxbinding_version = "3.0.0"
+    def rxbinding_version = "3.1.0"
     rxBindingCore = "com.jakewharton.rxbinding3:rxbinding-core:$rxbinding_version"
     rxBindingAppCompat = "com.jakewharton.rxbinding3:rxbinding-appcompat:$rxbinding_version"
 
