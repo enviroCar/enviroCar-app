@@ -60,7 +60,7 @@ ext {
     supportV7 = 'androidx.appcompat:appcompat:1.1.0'
     supportDesign = 'com.google.android.material:material:1.1.0'
     supportCardview = 'androidx.cardview:cardview:1.0.0'
-    supportRecyclerview = 'androidx.recyclerview:recyclerview:1.0.0'
+    supportRecyclerview = 'androidx.recyclerview:recyclerview:1.2.0'
     supportConstraintLayout = 'androidx.constraintlayout:constraintlayout:1.1.3'
     androidxPreference = 'androidx.preference:preference:1.1.0'
 
