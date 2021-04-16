@@ -103,12 +103,12 @@ public class OBDSelectionActivity extends BaseInjectorActivity implements
         mEnableBTText.setText(isBTEnabled ?
                 R.string.obd_selection_bluetooth_on :
                 R.string.obd_selection_bluetooth_off);
-        mSwitch.setChecked(mBluetoothHandler.isBluetoothEnabled());
 
         mSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
-                //                mSwitch.setChecked(false);
+                //  If Bluetooth is allowed then mSwitch checked
                 mBluetoothHandler.enableBluetooth(OBDSelectionActivity.this);
+                mSwitch.setChecked(mBluetoothHandler.isBluetoothEnabled());
             } else {
                 mBluetoothHandler.disableBluetooth(OBDSelectionActivity.this);
             }
