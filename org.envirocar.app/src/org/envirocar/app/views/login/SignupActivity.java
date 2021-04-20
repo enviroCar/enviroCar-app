@@ -40,6 +40,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.android.material.snackbar.Snackbar;
 import com.jakewharton.rxbinding3.widget.RxCompoundButton;
 import com.jakewharton.rxbinding3.widget.RxTextView;
 
@@ -266,6 +267,7 @@ public class SignupActivity extends BaseInjectorActivity {
                 mainThreadWorker.schedule(() -> {
                     usernameEditText.setError(getString(R.string.error_host_not_found));
                     usernameEditText.requestFocus();
+                    Snackbar.make(findViewById(R.id.activity_signup_register_button), String.format(getString(R.string.error_not_connected_to_network)), Snackbar.LENGTH_SHORT).show();
                 });
 
                 // Dismiss the progress dialog.
