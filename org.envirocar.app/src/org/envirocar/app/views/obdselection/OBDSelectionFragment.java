@@ -18,8 +18,10 @@
  */
 package org.envirocar.app.views.obdselection;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothDevice;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,6 +34,8 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.squareup.otto.Subscribe;
@@ -63,6 +67,7 @@ import io.reactivex.schedulers.Schedulers;
  */
 public class OBDSelectionFragment extends BaseInjectorFragment {
     private static final Logger LOGGER = Logger.getLogger(OBDSelectionFragment.class);
+    private static final int MY_PERMISSIONS_REQUEST_LOCATION = 1;
 
     @Override
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
@@ -182,74 +187,92 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
 
         // Before starting a fresh discovery of bluetooth devices, clear
         // the current adapter.
-        mNewDevicesArrayAdapter.clear();
 
-        mBTDiscoverySubscription = mBluetoothHandler.startBluetoothDiscoveryOnlyUnpaired()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnDispose(() -> {
-                    LOGGER.info("Canceling bluetooth device discovery");
-                    mBluetoothHandler.stopBluetoothDeviceDiscovery();
-                })
-                .subscribeWith(new DisposableObserver<BluetoothDevice>() {
 
-                    @Override
-                    public void onStart() {
-                        LOGGER.info("Blutooth discovery started.");
+        // Check if the location permission is granted or not
+        //  if granted then clear and discover
+        //  if not granted show dialog and request permission
 
-                        // Show the progressbar
-                        mProgressBar.setVisibility(View.VISIBLE);
+        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED){
+            // Discovering of new bluetooth devices
+            mNewDevicesArrayAdapter.clear();
+            mBTDiscoverySubscription = mBluetoothHandler.startBluetoothDiscoveryOnlyUnpaired()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .doOnDispose(() -> {
+                        LOGGER.info("Canceling bluetooth device discovery");
+                        mBluetoothHandler.stopBluetoothDeviceDiscovery();
+                    })
+                    .subscribeWith(new DisposableObserver<BluetoothDevice>() {
 
-                        // Set info view to "searching...".
-                        mNewDevicesInfoTextView.setText(R.string
-                                .bluetooth_pairing_preference_info_searching_devices);
-                        showSnackbar(getString(R.string.obd_selection_discovery_started));
-                    }
+                        @Override
+                        public void onStart() {
+                            LOGGER.info("Blutooth discovery started.");
 
-                    @Override
-                    public void onComplete() {
-                        LOGGER.info("Bluetooth discovery finished.");
+                            // Show the progressbar
+                            mProgressBar.setVisibility(View.VISIBLE);
 
-                        // Dismiss the progressbar.
-                        mProgressBar.setVisibility(View.GONE);
-
-                        // If no devices found, set the corresponding textview to visibile.
-                        if (mNewDevicesArrayAdapter.isEmpty()) {
+                            // Set info view to "searching...".
                             mNewDevicesInfoTextView.setText(R.string
-                                    .select_bluetooth_preference_info_no_device_found);
-                        } else if (mNewDevicesArrayAdapter.getCount() == 1) {
-                            mNewDevicesInfoTextView.setText(R.string
-                                    .bluetooth_pairing_preference_info_device_found);
-                        } else {
-                            String string = getString(R.string
-                                    .bluetooth_pairing_preference_info_devices_found);
-                            mNewDevicesInfoTextView.setText(String.format(string,
-                                    Integer.toString(mNewDevicesArrayAdapter.getCount())));
+                                    .bluetooth_pairing_preference_info_searching_devices);
+                            showSnackbar(getString(R.string.obd_selection_discovery_started));
                         }
 
-                        showSnackbar("Discovery Finished!");
-                    }
+                        @Override
+                        public void onComplete() {
+                            LOGGER.info("Bluetooth discovery finished.");
 
-                    @Override
-                    public void onError(Throwable e) {
-                        LOGGER.error("Error while discovering bluetooth devices", e);
-                    }
+                            // Dismiss the progressbar.
+                            mProgressBar.setVisibility(View.GONE);
 
-                    @Override
-                    public void onNext(BluetoothDevice device) {
-                        LOGGER.info(String.format(
-                                "Bluetooth device detected: [name=%s, address=%s]",
-                                device.getName(), device.getAddress()));
+                            // If no devices found, set the corresponding textview to visibile.
+                            if (mNewDevicesArrayAdapter.isEmpty()) {
+                                mNewDevicesInfoTextView.setText(R.string
+                                        .select_bluetooth_preference_info_no_device_found);
+                            } else if (mNewDevicesArrayAdapter.getCount() == 1) {
+                                mNewDevicesInfoTextView.setText(R.string
+                                        .bluetooth_pairing_preference_info_device_found);
+                            } else {
+                                String string = getString(R.string
+                                        .bluetooth_pairing_preference_info_devices_found);
+                                mNewDevicesInfoTextView.setText(String.format(string,
+                                        Integer.toString(mNewDevicesArrayAdapter.getCount())));
+                            }
 
-                        // if the discovered device is not already part of the list, then
-                        // add it to the list and add an entry to the array adapter.
-                        if (!mPairedDevicesAdapter.contains(device) &&
-                                !mNewDevicesArrayAdapter.contains(device)) {
-                            mNewDevicesArrayAdapter.add(device);
+                            showSnackbar("Discovery Finished!");
                         }
-                    }
-                });
+
+                        @Override
+                        public void onError(Throwable e) {
+                            LOGGER.error("Error while discovering bluetooth devices", e);
+                        }
+
+                        @Override
+                        public void onNext(BluetoothDevice device) {
+                            LOGGER.info(String.format(
+                                    "Bluetooth device detected: [name=%s, address=%s]",
+                                    device.getName(), device.getAddress()));
+
+                            // if the discovered device is not already part of the list, then
+                            // add it to the list and add an entry to the array adapter.
+                            if (!mPairedDevicesAdapter.contains(device) &&
+                                    !mNewDevicesArrayAdapter.contains(device)) {
+                                mNewDevicesArrayAdapter.add(device);
+                            }
+                        }
+                    });
+        }
+
+        else{
+            // request for the permission
+
+
+        }
     }
+
+
+
 
     private void setupListViews() {
         BluetoothDevice selectedBTDevice = mBluetoothHandler.getSelectedBluetoothDevice();
