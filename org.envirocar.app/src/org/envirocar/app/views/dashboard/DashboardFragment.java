@@ -49,12 +49,14 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.content.ContextCompat;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.play.core.appupdate.AppUpdateInfo;
@@ -208,7 +210,7 @@ public class DashboardFragment extends BaseInjectorFragment {
     private boolean statisticsKnown = false;
 
     // some private variables
-    private MaterialDialog connectingDialog;
+    private AlertDialog connectingDialog;
     private List<SizeSyncTextView> indicatorSyncGroup;
     private AppUpdateManager appUpdateManager;
     private Task<AppUpdateInfo> appUpdateInfoTask;
@@ -444,15 +446,33 @@ public class DashboardFragment extends BaseInjectorFragment {
                         BluetoothDevice device = bluetoothHandler.getSelectedBluetoothDevice();
 
                         Intent obdRecordingIntent = new Intent(getActivity(), RecordingService.class);
-                        this.connectingDialog = new MaterialDialog.Builder(getActivity())
-                                .iconRes(R.drawable.ic_bluetooth_searching_black_24dp)
-                                .title(R.string.dashboard_connecting)
-                                .content(String.format(getString(R.string.dashboard_connecting_find_template), device.getName()))
-                                .progress(true, 0)
-                                .negativeText(R.string.cancel)
-                                .cancelable(false)
-                                .onNegative((dialog, which) -> getActivity().stopService(obdRecordingIntent))
-                                .show();
+
+                        View contentView = LayoutInflater.from(getActivity())
+                                .inflate(R.layout.dashboard_dialog_start_track, null, false);
+
+                        // Set toolbar style
+                        Toolbar toolbar1 = contentView.findViewById(R.id.genral_dialog_toolbar);
+                        toolbar1.setTitle(R.string.dashboard_connecting);
+                        toolbar1.setNavigationIcon(ContextCompat.getDrawable(getActivity(),
+                                R.drawable.img_tracks_white_24dp));
+                        toolbar1.setTitleTextColor(getResources().getColor(R.color.white_cario));
+
+                        // Set text view
+                        TextView textview = contentView.findViewById(R.id.general_dialog_text);
+                        textview.setText(String.format(getString(
+                                R.string.dashboard_connecting_find_template), device.getName()));
+
+                        // Create AlertDialog.
+                        MaterialAlertDialogBuilder builder =
+                                new MaterialAlertDialogBuilder(getActivity(), R.style.MaterialDialog);
+
+                        builder.setView(contentView);
+                        builder.setCancelable(false);
+                        builder.setNegativeButton(R.string.cancel,
+                                (dialog, which) -> getActivity().stopService(obdRecordingIntent));
+
+                        final AlertDialog show = builder.show();
+                        this.connectingDialog = show;
 
                         ServiceUtils.startService(getActivity(), obdRecordingIntent);
                     }
