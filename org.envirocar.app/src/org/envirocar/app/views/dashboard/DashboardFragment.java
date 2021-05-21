@@ -27,6 +27,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.provider.Settings;
 import android.transition.AutoTransition;
 import android.transition.ChangeBounds;
@@ -473,6 +474,21 @@ public class DashboardFragment extends BaseInjectorFragment {
 
                         final AlertDialog show = builder.show();
                         this.connectingDialog = show;
+
+                        // If the device is not found to start the track, dismiss the Dialog in 10 sec
+                        new CountDownTimer(15000, 1000) {
+                            @Override
+                            public void onTick(long millisUntilFinished) {
+                            }
+                            @Override
+                            public void onFinish() {
+                                connectingDialog.dismiss();
+                                getActivity().stopService(obdRecordingIntent);
+                                Snackbar.make(getView(),
+                                        String.format(getString(R.string.dashboard_connecting_not_found_template),
+                                                device.getName()),Snackbar.LENGTH_LONG).show();
+                            }
+                        }.start();
 
                         ServiceUtils.startService(getActivity(), obdRecordingIntent);
                     }

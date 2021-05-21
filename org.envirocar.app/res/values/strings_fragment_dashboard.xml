@@ -30,6 +30,7 @@
 
     <string name="dashboard_connecting">Connecting...</string>
     <string name="dashboard_connecting_find_template">Trying to find \'%s\'.</string>
+    <string name="dashboard_connecting_not_found_template">Unable to find \'%s\'. Please try again later.</string>
     <string name="dashboard_connecting_found_template">\'%s\' is in range. Trying to connect.</string>
 
     <string name="dashboard_recording_settings_header">Recording Settings</string>
