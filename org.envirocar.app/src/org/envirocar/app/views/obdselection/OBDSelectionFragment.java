@@ -265,8 +265,10 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
                                 // If discovering of a device takes more than 15 sec it is still discovered
                                 // and added to mNewDevicesArrayAdapter but displayed as discovery is finished
                                 // if the needed device is not found , redecover button is used.
-                                mProgressBar.setVisibility(View.GONE);
-                                showSnackbar("Discovery Finished!");
+                                if (mBluetoothHandler.isBluetoothEnabled()) {
+                                    mProgressBar.setVisibility(View.GONE);
+                                    showSnackbar("Discovery Finished!");
+                                }
                             }
                         }.start();
 
