@@ -23,15 +23,22 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.CountDownTimer;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.app.ActivityOptionsCompat;
+import androidx.core.content.ContextCompat;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.envirocar.app.BaseApplicationComponent;
@@ -179,11 +186,30 @@ public class SigninActivity extends BaseInjectorActivity {
 
                     @Override
                     protected void onStart() {
-                        dialog = new MaterialDialog.Builder(SigninActivity.this)
-                                .title(R.string.activity_login_logging_in_dialog_title)
-                                .progress(true, 0)
-                                .cancelable(false)
-                                .show();
+
+                        View contentView = LayoutInflater.from(SigninActivity.this)
+                                .inflate(R.layout.dashboard_dialog_start_track, null, false);
+
+                        // Set toolbar style
+                        Toolbar toolbar1 = contentView.findViewById(R.id.genral_dialog_toolbar);
+                        toolbar1.setTitle(R.string.dashboard_connecting);
+                        toolbar1.setTitleTextColor(getResources().getColor(R.color.white_cario));
+
+                        // Set text view
+                        TextView textview = contentView.findViewById(R.id.general_dialog_text);
+                        textview.setText(R.string.activity_login_logging_in_dialog_title);
+
+                        // Create AlertDialog.
+                        MaterialAlertDialogBuilder builder =
+                                new MaterialAlertDialogBuilder(SigninActivity.this, R.style.MaterialDialog);
+
+
+                        builder.setView(contentView);
+                        builder.setCancelable(false);
+                        //builder.setNegativeButton(R.string.cancel, (dialog, which) -> SigninActivity.this.stopService(obdRecordingIntent));
+
+                        builder.show();
+
                     }
 
                     @Override
