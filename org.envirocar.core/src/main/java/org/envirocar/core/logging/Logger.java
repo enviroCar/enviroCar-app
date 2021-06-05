@@ -34,7 +34,7 @@ import java.util.List;
  * @author matthes rieke
  *
  */
-public class Logger {
+public class Logger{
 
     public static final int SEVERE = 1;
     public static final int WARNING = 2;
