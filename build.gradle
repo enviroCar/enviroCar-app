@@ -57,7 +57,7 @@ ext {
 
     // Android dependencies.
     supportV4 = 'androidx.legacy:legacy-support-v4:1.0.0'
-    supportV7 = 'androidx.appcompat:appcompat:1.1.0'
+    supportV7 = 'androidx.appcompat:appcompat:1.2.0'
     supportDesign = 'com.google.android.material:material:1.1.0'
     supportCardview = 'androidx.cardview:cardview:1.0.0'
     supportRecyclerview = 'androidx.recyclerview:recyclerview:1.0.0'
