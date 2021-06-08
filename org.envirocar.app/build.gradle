@@ -41,8 +41,8 @@ dependencies {
     implementation rootProject.ext.fabProgressCircle
     implementation rootProject.ext.segmentedUIController
     implementation rootProject.ext.materialDialogs
-    implementation "com.andkulikov:transitionseverywhere:2.0.0"
-    implementation 'de.hdodenhof:circleimageview:3.0.1'
+    implementation "com.andkulikov:transitionseverywhere:2.1.0"
+    implementation 'de.hdodenhof:circleimageview:3.1.0'
 
     // RxBindings
     implementation rootProject.ext.rxBindingCore
