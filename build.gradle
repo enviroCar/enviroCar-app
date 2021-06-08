@@ -119,6 +119,6 @@ ext {
     apacheCommons = 'org.apache.commons:commons-compress:1.20'
 
     // Testing
-    junit = 'junit:junit:4.12'
+    junit = 'junit:junit:4.13.2'
 
 }
