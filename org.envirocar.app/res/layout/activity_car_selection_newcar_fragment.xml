@@ -22,183 +22,97 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
     android:orientation="vertical">
 
     <include layout="@layout/envirocar_toolbar" />
 
-    <LinearLayout
-        android:id="@+id/activity_car_selection_newcar_toolbar_exp"
+    <RelativeLayout
+        android:id="@+id/activity_car_selection_top"
         android:layout_width="match_parent"
-        android:layout_height="?actionBarSize"
-        android:background="@color/blue_dark_cario"
-        android:visibility="visible">
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
-                android:layout_marginLeft="@dimen/spacing_large"
-                android:layout_marginBottom="@dimen/spacing_medium"
-                android:gravity="bottom"
-                android:text="@string/car_selection_enter_info"
-                android:textColor="@color/white_cario"
-                android:textSize="13sp" />
-
-        </RelativeLayout>
-    </LinearLayout>
-
-    <androidx.core.widget.NestedScrollView
-        android:id="@+id/activity_car_selection_newcar_content_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/white">
+        android:layout_height="290dp">
 
         <LinearLayout
+            android:id="@+id/activity_car_selection_newcar_toolbar_exp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="260dp"
+            android:background="@drawable/bottom_right_corner"
             android:orientation="vertical"
-            android:padding="16dp">
-
-            <LinearLayout
-                android:id="@+id/activity_car_selection_newcar_download_layout"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center">
-
-                <ProgressBar
-                    android:id="@+id/activity_car_selection_newcar_progress"
-                    style="?android:attr/progressBarStyleSmall"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentLeft="true"
-                    android:layout_alignParentTop="true" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginLeft="@dimen/spacing_large"
-                    android:text="Loading data..." />
-
-            </LinearLayout>
+            android:visibility="visible">
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/spacing_large"
+                android:layout_marginTop="60dp"
+                android:text="Car Selection"
+                android:textColor="@color/white"
+                android:textSize="26dp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/spacing_large"
+                android:layout_marginTop="10dp"
                 android:text="@string/car_selection_addcar_info"
-                android:fontFamily="@font/roboto_light1"
-                android:layout_marginVertical="8dp"/>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/activity_car_selection_newcar_layout_manufacturer"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/car_selection_manufacturer"
-                android:layout_marginVertical="8dp"
-                android:layout_marginHorizontal="16dp"
-                app:startIconDrawable="@drawable/ic_manufacturer">
-
-                <AutoCompleteTextView
-                    android:id="@+id/activity_car_selection_newcar_input_manufacturer"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingLeft="12dp"
-                    android:imeOptions="actionNext"
-                    android:maxLines="1"
-                    android:singleLine="true"/>
-
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/activity_car_selection_newcar_layout_model"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/car_selection_model"
-                android:layout_marginVertical="8dp"
-                android:layout_marginHorizontal="16dp"
-                app:startIconDrawable="@drawable/ic_directions_car_black_24dp">
-
-                <AutoCompleteTextView
-                    android:id="@+id/activity_car_selection_newcar_input_model"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingLeft="12dp"
-                    android:imeOptions="actionNext"
-                    android:maxLines="1"
-                    android:singleLine="true"/>
-
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/activity_car_selection_newcar_layout_constructionyear"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/car_selection_construction_year"
-                android:layout_marginVertical="8dp"
-                android:layout_marginHorizontal="16dp"
-                app:startIconDrawable="@drawable/ic_date_24dp">
-
-                <AutoCompleteTextView
-                    android:id="@+id/activity_car_selection_newcar_input_constructionyear"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingLeft="12dp"
-                    android:inputType="number"
-                    android:imeOptions="actionNext"
-                    android:maxLines="1"
-                    android:singleLine="true" />
-
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/activity_car_selection_newcar_layout_fueltype"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/fuel_type"
-                android:maxLines="1"
-                android:layout_marginVertical="8dp"
-                android:layout_marginHorizontal="16dp"
-                app:startIconDrawable="@drawable/ic_gas">
-
-                <AutoCompleteTextView
-                    android:id="@+id/activity_car_selection_newcar_input_fueltype"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="text"
-                    android:editable="false" />
-
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/activity_car_selection_newcar_layout_engine"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/car_selection_engine_displacement"
-                android:layout_marginVertical="8dp"
-                android:layout_marginHorizontal="16dp"
-                app:startIconDrawable="@drawable/ic_engine">
-
-                <AutoCompleteTextView
-                    android:id="@+id/activity_car_selection_newcar_input_engine"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingLeft="12dp"
-                    android:inputType="number"
-                    android:imeOptions="actionDone"
-                    android:maxLines="1"
-                    android:singleLine="true" />
-
-            </com.google.android.material.textfield.TextInputLayout>
+                android:textColor="@color/gray88"
+                android:textSize="13sp"
+                android:textStyle="italic" />
         </LinearLayout>
-    </androidx.core.widget.NestedScrollView>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="10dp"
+            android:backgroundTint="@color/white"
+            android:src="@drawable/ic_directions_car_black_24dp"
+            app:backgroundTint="@color/black"
+            app:borderWidth="1dp"
+            app:rippleColor="@color/black" />
+    </RelativeLayout>
+
+    <info.hoang8f.android.segmented.SegmentedGroup xmlns:segmentedgroup="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/carSelectionSegmentedGroup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="10dp"
+        android:background="@color/white"
+        android:orientation="horizontal"
+        android:weightSum="2"
+        segmentedgroup:sc_border_width="2dp"
+        segmentedgroup:sc_checked_text_color="@color/white_cario"
+        segmentedgroup:sc_corner_radius="10dp"
+        segmentedgroup:sc_tint_color="@color/cario_color_primary">
+
+        <RadioButton
+            android:id="@+id/HsnTsnSegmentedButton"
+            style="@style/RadioButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:checked="true"
+            android:text="@string/car_selection_hsn_tsn_segmented" />
+
+        <RadioButton
+            android:id="@+id/attributesSegmentedButton"
+            style="@style/RadioButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/car_selection_attributes_segmented" />
+
+    </info.hoang8f.android.segmented.SegmentedGroup>
+
+    <androidx.viewpager.widget.ViewPager
+        android:id="@+id/activity_car_selection_newcar_content_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@color/white" />
 </LinearLayout>
