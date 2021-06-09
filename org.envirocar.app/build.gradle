@@ -42,7 +42,7 @@ dependencies {
     implementation rootProject.ext.segmentedUIController
     implementation rootProject.ext.materialDialogs
     implementation "com.andkulikov:transitionseverywhere:2.1.0"
-    implementation 'de.hdodenhof:circleimageview:3.1.0'
+    implementation 'de.hdodenhof:circleimageview:3.0.1'
 
     // RxBindings
     implementation rootProject.ext.rxBindingCore
@@ -55,8 +55,8 @@ dependencies {
 
     // Test
     testImplementation 'junit:junit:4.13.2'
-    testImplementation 'org.mockito:mockito-core:3.10.0'
-    testImplementation('org.powermock:powermock-api-mockito:1.7.4') {
+    testImplementation 'org.mockito:mockito-core:3.11.0'
+    testImplementation('org.powermock:powermock-api-mockito:1.6.2') {
         exclude module: 'hamcrest-core'
         exclude module: 'objenesis'
     }
@@ -65,10 +65,10 @@ dependencies {
         exclude module: 'objenesis'
     }
     androidTestImplementation 'junit:junit:4.13.2'
-    androidTestImplementation('androidx.test:runner:1.3.0') {
+    androidTestImplementation('androidx.test:runner:1.4.0-beta02') {
         exclude module: 'support-annotations'
     }
-    androidTestImplementation('androidx.test:rules:1.3.0') {
+    androidTestImplementation('androidx.test:rules:1.4.0-beta02') {
         exclude module: 'support-annotations'
     }
 
