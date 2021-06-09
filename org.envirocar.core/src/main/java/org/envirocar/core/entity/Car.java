@@ -115,13 +115,20 @@ public interface Car extends BaseEntity<Car>, Serializable {
                 return GASOLINE;
             } else if (fuelType.equals(DIESEL.toString())) {
                 return DIESEL;
+            } else if (fuelType.equals(GAS.toString())) {
+                return GAS;
+            } else if (fuelType.equals(ELECTRIC.toString())) {
+                return ELECTRIC;
+            } else if (fuelType.equals(HYBRID.toString())) {
+                return HYBRID;
             }
+            else
             return null;
         }
 
-        public static Car.FuelType getFuelTybeByTranslatedString(Context context, String fueltype){
-            for (Car.FuelType fuelType : Car.FuelType.values()){
-                if (context.getString(fuelType.getStringResource()).equals(fueltype)){
+        public static Car.FuelType getFuelTybeByTranslatedString(Context context, String fueltype) {
+            for (Car.FuelType fuelType : Car.FuelType.values()) {
+                if (context.getString(fuelType.getStringResource()).equals(fueltype)) {
                     return fuelType;
                 }
             }
