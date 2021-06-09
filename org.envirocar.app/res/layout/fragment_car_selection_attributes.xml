@@ -1,0 +1,135 @@
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/fragment_attributes_manufacturer_input_layout"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:hint="Manufacturer"
+                app:layout_constraintEnd_toEndOf="@id/activity_car_guideline_right"
+                app:layout_constraintStart_toStartOf="@id/activity_car_guideline_left"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintWidth_max="500dp"
+                app:startIconDrawable="@drawable/ic_manufacturer">
+
+                <AutoCompleteTextView
+                    android:id="@+id/fragment_attributes_manufacturer_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:maxLines="1"
+                    android:textColor="@color/black"
+                    android:textSize="16dp" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/fragment_attributes_model_input_layout"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:hint="Model"
+                app:layout_constraintEnd_toEndOf="@id/activity_car_guideline_right"
+                app:layout_constraintStart_toStartOf="@id/activity_car_guideline_left"
+                app:layout_constraintTop_toBottomOf="@+id/fragment_attributes_manufacturer_input_layout"
+                app:layout_constraintWidth_max="500dp"
+                app:startIconDrawable="@drawable/ic_drive_eta_black_24dp">
+
+                <AutoCompleteTextView
+                    android:id="@+id/fragment_attributes_model_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:inputType="textPersonName"
+                    android:maxLines="1"
+                    android:textColor="@color/black"
+                    android:textSize="16dp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/fragment_attributes_year_input_layout"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:hint="Construction Year"
+                app:layout_constraintEnd_toEndOf="@id/activity_car_guideline_right"
+                app:layout_constraintStart_toStartOf="@id/activity_car_guideline_left"
+                app:layout_constraintTop_toBottomOf="@+id/fragment_attributes_model_input_layout"
+                app:layout_constraintWidth_max="500dp"
+                app:startIconDrawable="@drawable/ic_baseline_date_range_24">
+
+                <AutoCompleteTextView
+                    android:id="@+id/fragment_attributes_year_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:inputType="textPersonName"
+                    android:singleLine="true"
+                    android:textColor="@color/black"
+                    android:textSize="16dp" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/fragment_car_search_button"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:layout_centerHorizontal="true"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="30dp"
+                app:cardBackgroundColor="@color/cario_color_primary_dark"
+                app:cardCornerRadius="25dp"
+                app:cardElevation="10dp"
+                app:layout_constraintEnd_toStartOf="@id/activity_car_guideline_right"
+                app:layout_constraintStart_toStartOf="@id/activity_car_guideline_left"
+                app:layout_constraintTop_toBottomOf="@+id/fragment_attributes_year_input_layout">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="Search"
+                    android:textColor="@color/white" />
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <View
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                app:layout_constraintEnd_toStartOf="@id/activity_car_guideline_right"
+                app:layout_constraintStart_toStartOf="@id/activity_car_guideline_left"
+                app:layout_constraintTop_toBottomOf="@id/fragment_car_search_button" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/activity_car_guideline_right"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.90" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/activity_car_guideline_left"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.10" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </LinearLayout>
+
+</androidx.core.widget.NestedScrollView>

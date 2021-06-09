@@ -29,19 +29,19 @@ public class ResourceLoadingTestCase extends InstrumentationTestCase {
 
 	protected String readJson(InputStream in) {
 		Scanner sc = new Scanner(in, "UTF-8");
-		
+
 		StringBuilder sb = new StringBuilder();
 		while (sc.hasNext()) {
 			sb.append(sc.nextLine());
 			sb.append(System.getProperty("line.separator"));
 		}
-		
+
 		sc.close();
 		return sb.toString();
 	}
-	
+
 	protected String readJsonAsset(String assetRes) throws IOException {
 		return readJson(getClass().getResourceAsStream(assetRes));
 	}
-	
+
 }

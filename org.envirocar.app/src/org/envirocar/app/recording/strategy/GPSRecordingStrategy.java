@@ -75,7 +75,7 @@ import io.reactivex.schedulers.Schedulers;
  * @author dewall
  */
 public class GPSRecordingStrategy implements LifecycleObserver, RecordingStrategy {
-    private static final Logger LOG = Logger.getLogger(OBDRecordingStrategy.class);
+    private static final Logger LOG = Logger.getLogger(GPSRecordingStrategy.class);
     private static final String TRANSITIONS_RECEIVER_ACTION = BuildConfig.APPLICATION_ID + "TRANSITIONS_RECEIVER_ACTION";
 
     // final injected variables

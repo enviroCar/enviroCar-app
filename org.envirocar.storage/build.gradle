@@ -41,5 +41,13 @@ dependencies {
 
     // Modules
     api project(path : ':org.envirocar.core')
+
+    //Room dependencies
+    implementation rootProject.ext.androidRoom
+    annotationProcessor rootProject.ext.supportRoom
+    implementation rootProject.ext.androidRoomRxJava
+
+    implementation rootProject.ext.rxBindingCore
+    implementation rootProject.ext.rxBindingAppCompat
 }
 
