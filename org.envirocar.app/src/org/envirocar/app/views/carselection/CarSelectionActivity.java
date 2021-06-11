@@ -175,7 +175,6 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
                 .replace(R.id.activity_car_selection_container, this.addCarFragment)
                 .commit();
 
-
         // this card was already visible. Therefore, return false.
         return true;
     }
@@ -305,16 +304,17 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
             int count = mCarListAdapter.getCount();
             if(count == 1) {
                 mCarManager.setCar(car);
+                showSnackbar(String.format(getString(R.string.car_selection_car_selected_after_add),
+                        car.getManufacturer(), car.getModel()));
+
+                //Update the listview
+                setupListView();
             }
         } else {
             showSnackbar(String.format(getString(R.string.car_selection_already_in_list_tmp),
                     car.getManufacturer(), car.getModel()));
         }
-        finish();
-        overridePendingTransition(0, 0);
-        startActivity(getIntent());
     }
-
 
     /**
      * Array adapter for the automatic completion of the AutoCompleteTextView. The intention of
@@ -332,7 +332,6 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
         public AutoCompleteArrayAdapter(Context context, int resource, String[] objects) {
             super(context, resource, objects);
         }
-
 
         @Override
         public int getCount() {
