@@ -35,8 +35,11 @@ import org.envirocar.app.recording.RecordingModule;
 import org.envirocar.app.services.TrackUploadService;
 import org.envirocar.app.services.autoconnect.AutoRecordingComponent;
 import org.envirocar.app.services.autoconnect.AutoRecordingModule;
+import org.envirocar.app.views.SplashScreenActivity;
 import org.envirocar.app.views.carselection.CarSelectionActivity;
 import org.envirocar.app.views.carselection.CarSelectionAddCarFragment;
+import org.envirocar.app.views.carselection.CarSelectionAttributesFragment;
+import org.envirocar.app.views.carselection.CarSelectionHsnTsnFragment;
 import org.envirocar.app.views.dashboard.DashboardFragment;
 import org.envirocar.app.views.logbook.LogbookActivity;
 import org.envirocar.app.views.logbook.LogbookAddFuelingFragment;
@@ -71,6 +74,7 @@ import org.envirocar.remote.dao.RemoteTermsOfUseDAO;
 import org.envirocar.remote.dao.RemoteTrackDAO;
 import org.envirocar.remote.dao.RemoteUserDAO;
 import org.envirocar.remote.dao.RemoteUserStatisticsDAO;
+import org.envirocar.storage.EnviroCarVehicleDB;
 
 import javax.inject.Singleton;
 
@@ -104,6 +108,7 @@ public interface BaseApplicationComponent {
     void inject(OBDSelectionActivity obdSelectionActivity);
     void inject(TrackDetailsActivity trackDetailsActivity);
     void inject(TrackStatisticsActivity trackStatisticsActivity);
+    void inject(SplashScreenActivity splashScreenActivity);
 
     // fragment injections
     void inject(DashboardFragment dashboardFragment);
@@ -113,10 +118,13 @@ public interface BaseApplicationComponent {
     void inject(LogbookAddFuelingFragment logbookAddFuelingFragment);
     void inject(OBDSelectionFragment obdSelectionFragment);
     void inject(OthersFragment othersFragment);
+    void inject(CarSelectionHsnTsnFragment hsnTsnFragment);
+    void inject(CarSelectionAttributesFragment attributesFragment);
 
     // service injections
     void inject(TrackUploadService trackUploadService);
     void inject(EnviroCarDataService enviroCarDataService);
+    void inject(EnviroCarVehicleDB enviroCarVehicleDB);
 
     // interactors
     void inject(GetUserStatistic getUserStatistic);
@@ -144,7 +152,6 @@ public interface BaseApplicationComponent {
     RemoteAnnouncementsDAO getRemoteAnnouncementsDAO();
     CacheAnnouncementsDAO getCacheAnnouncementsDAO();
     Retrofit provideRetrofit();
-    SqlBrite provideSqlBrite();
 
 
 }

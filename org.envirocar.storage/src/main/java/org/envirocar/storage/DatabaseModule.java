@@ -20,6 +20,12 @@ package org.envirocar.storage;
 
 import android.content.Context;
 
+import androidx.room.Room;
+import androidx.room.RoomDatabase;
+import androidx.annotation.NonNull;
+import androidx.room.Room;
+import androidx.room.RoomDatabase;
+import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.sqlite.db.SupportSQLiteOpenHelper;
 import androidx.sqlite.db.framework.*;
 
@@ -27,8 +33,15 @@ import com.squareup.sqlbrite3.BriteDatabase;
 import com.squareup.sqlbrite3.SqlBrite;
 
 import org.envirocar.core.EnviroCarDB;
+import org.envirocar.core.entity.PowerSource;
+import org.envirocar.core.entity.Vehicles;
 import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.logging.Logger;
+import org.envirocar.core.utils.DataGenerator;
+
+import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import javax.inject.Singleton;
 
@@ -47,36 +60,44 @@ public final class DatabaseModule {
 
     // configs
     private static final String DATABASE_NAME = "envirocar";
+    private static final String VECHILE_DATABASE_NAME = "envirocarvehicle";
     private static final int DATABASE_VERSION = 11;
-
+    EnviroCarVehicleDB enviroCarVehicleDB;
 
     @Provides
     @Singleton
-    SqlBrite provideSqlBrite() {
-        return new SqlBrite.Builder()
-                .logger(message -> LOG.info(message))
+    EnviroCarDB provideEnvirocarDB(TrackRoomDatabase trackRoomDatabase) {
+        return new EnviroCarDBImpl(trackRoomDatabase);
+    }
+
+    @Provides
+    @Singleton
+    TrackRoomDatabase provideRoomTrackDatabase(@InjectApplicationScope Context context) {
+        return Room.databaseBuilder(context, TrackRoomDatabase.class, DATABASE_NAME)
+                .allowMainThreadQueries()
                 .build();
     }
 
     @Provides
     @Singleton
-    BriteDatabase provideBriteDatabase(@InjectApplicationScope Context context, SqlBrite sqlBrite) {
-        SupportSQLiteOpenHelper.Configuration config = SupportSQLiteOpenHelper.Configuration.builder(context)
-                .name(DATABASE_NAME)
-                .callback(new EnviroCarDBCallback(DATABASE_VERSION))
+    EnviroCarVehicleDB provideRoomDatabase(@InjectApplicationScope Context context) {
+        enviroCarVehicleDB = Room.databaseBuilder(context, EnviroCarVehicleDB.class, VECHILE_DATABASE_NAME)
+                .addCallback(new RoomDatabase.Callback() {
+                    @Override
+                    public void onCreate(@NonNull SupportSQLiteDatabase db) {
+                        super.onCreate(db);
+                        Executor executor = Executors.newSingleThreadExecutor();
+                        executor.execute(() -> {
+                            List<Vehicles> vehiclesList = DataGenerator.getVehicleData(context, "vehicles");
+                            List<PowerSource> powerSourceList = DataGenerator.getPowerSources(context, "power_sources");
+                            enviroCarVehicleDB.vehicleDAO().insert(vehiclesList);
+                            enviroCarVehicleDB.powerSourcesDAO().insert(powerSourceList);
+                            enviroCarVehicleDB.manufacturersDAO().inserManufacturer();
+                        });
+                    }
+                })
                 .build();
-
-        SupportSQLiteOpenHelper helper = new FrameworkSQLiteOpenHelperFactory().create(config);
-        BriteDatabase db = sqlBrite.wrapDatabaseHelper(helper, Schedulers.io());
-        db.setLoggingEnabled(true);
-
-        return db;
-    }
-
-    @Provides
-    @Singleton
-    EnviroCarDB provideEnvirocarDB(BriteDatabase briteDatabase) {
-        return new EnviroCarDBImpl(briteDatabase);
+    return enviroCarVehicleDB;
     }
 
 }

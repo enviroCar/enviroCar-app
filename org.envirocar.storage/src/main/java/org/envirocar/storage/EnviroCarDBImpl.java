@@ -1,32 +1,29 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
 package org.envirocar.storage;
 
-import android.content.ContentValues;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-
-import com.squareup.sqlbrite3.BriteDatabase;
-
 import org.envirocar.core.EnviroCarDB;
 import org.envirocar.core.entity.Measurement;
+import org.envirocar.core.entity.MeasurementTable;
 import org.envirocar.core.entity.Track;
+import org.envirocar.core.entity.TrackTable;
 import org.envirocar.core.exception.MeasurementSerializationException;
 import org.envirocar.core.exception.TrackSerializationException;
 import org.envirocar.core.logging.Logger;
@@ -45,25 +42,20 @@ import io.reactivex.ObservableTransformer;
 import io.reactivex.functions.Function;
 
 
-/**
- * TODO JavaDoc
- *
- * @author dewall
- */
 @Singleton
 public class EnviroCarDBImpl implements EnviroCarDB {
     private static final Logger LOG = Logger.getLogger(EnviroCarDBImpl.class);
 
-    protected BriteDatabase briteDatabase;
+    protected TrackRoomDatabase trackRoomDatabase;
 
     /**
      * Constructor.
      *
-     * @param briteDatabase the Database instance.
+     * @param trackRoomDatabase the Database instance.
      */
     @Inject
-    public EnviroCarDBImpl(BriteDatabase briteDatabase) {
-        this.briteDatabase = briteDatabase;
+    public EnviroCarDBImpl(TrackRoomDatabase trackRoomDatabase) {
+        this.trackRoomDatabase = trackRoomDatabase;
     }
 
     @Override
@@ -73,9 +65,7 @@ public class EnviroCarDBImpl implements EnviroCarDB {
 
     @Override
     public Observable<Track> getTrack(Track.TrackId trackId, boolean lazy) {
-        return fetchTrackObservable(
-                "SELECT * FROM " + TrackTable.TABLE_TRACK +
-                        " WHERE " + TrackTable.KEY_TRACK_ID + "=" + trackId, lazy);
+        return fetchTrackObservable(trackId, lazy);
     }
 
     @Override
@@ -85,14 +75,12 @@ public class EnviroCarDBImpl implements EnviroCarDB {
 
     @Override
     public Observable<List<Track>> getAllTracks(final boolean lazy) {
-        return fetchTracksObservable(
-                "SELECT * FROM " + TrackTable.TABLE_TRACK, lazy);
+        return fetchTracksObservable(lazy);
     }
 
     @Override
     public Observable<List<Track>> getAllTracksByCar(String carID, boolean lazy) {
-        return fetchTracksObservable("SELECT * FROM " + TrackTable.TABLE_TRACK +
-                " WHERE " + TrackTable.KEY_TRACK_CAR_ID + "='" + carID + "'", lazy);
+        return fetchTracksCarObservable(carID, lazy);
     }
 
     @Override
@@ -102,15 +90,12 @@ public class EnviroCarDBImpl implements EnviroCarDB {
 
     @Override
     public Observable<List<Track>> getAllLocalTracks(boolean lazy) {
-        return fetchTracksObservable(
-                "SELECT * FROM " + TrackTable.TABLE_TRACK +
-                        " WHERE " + TrackTable.KEY_REMOTE_ID + " IS NULL", lazy);
+        return fetchTracksLocalObservable(lazy);
     }
 
     @Override
     public Observable<Integer> getAllLocalTracksCount() {
-        return Observable.just(briteDatabase.getReadableDatabase().query("SELECT * FROM " + TrackTable.TABLE_TRACK +
-                " WHERE " + TrackTable.KEY_REMOTE_ID + " IS NULL").getCount());
+        return trackRoomDatabase.getTrackDAONew().getAllLocalTracksCount();
     }
 
     @Override
@@ -120,25 +105,19 @@ public class EnviroCarDBImpl implements EnviroCarDB {
 
     @Override
     public Observable<List<Track>> getAllRemoteTracks(boolean lazy) {
-        return fetchTracksObservable(
-                "SELECT * FROM " + TrackTable.TABLE_TRACK +
-                        " WHERE " + TrackTable.KEY_REMOTE_ID + " IS NOT NULL", lazy);
+        return fetchTracksRemoteObservable(lazy);
     }
 
     @Override
     public Observable<Void> clearTables() {
         return Observable.create(emitter -> {
-            BriteDatabase.Transaction transaction = briteDatabase.newTransaction();
-            // TODO
         });
     }
 
     public void insertTrack(final Track track) throws TrackSerializationException {
         LOG.info("insertTrack(): trying to insert a new track");
-        BriteDatabase.Transaction transaction = briteDatabase.newTransaction();
         try {
-            long result = briteDatabase.insert(TrackTable.TABLE_TRACK, SQLiteDatabase.CONFLICT_FAIL,
-                    TrackTable.toContentValues(track));
+            long result = trackRoomDatabase.getTrackDAONew().insertTrack(TrackTable.trackToTrackTable(track));
             Track.TrackId trackId = new Track.TrackId(result);
             track.setTrackID(trackId);
             LOG.info(String.format("insertTrack(): " +
@@ -147,14 +126,13 @@ public class EnviroCarDBImpl implements EnviroCarDB {
             if (track.getMeasurements().size() > 0) {
                 for (Measurement measurement : track.getMeasurements()) {
                     measurement.setTrackId(trackId);
-                    briteDatabase.insert(MeasurementTable.TABLE_NAME, SQLiteDatabase.CONFLICT_FAIL,
-                            MeasurementTable.toContentValues(measurement));
+                    trackRoomDatabase.getTrackDAONew().insertMeasurement(MeasurementTable.measurementToMeasurementTable(measurement));
+                    insertMeasurement(measurement);
                 }
             }
-
-            transaction.markSuccessful();
-        } finally {
-            transaction.close();
+        } catch (Exception e) {
+            LOG.info(String.format("insertTrack(): " +
+                    "insertion fail ->[id = %s]", "" + e.fillInStackTrace()));
         }
     }
 
@@ -174,8 +152,8 @@ public class EnviroCarDBImpl implements EnviroCarDB {
     @Override
     public boolean updateTrack(Track track) {
         LOG.info(String.format("updateTrack(%s)", track.getTrackID()));
-        ContentValues trackValues = TrackTable.toContentValues(track);
-        int update = briteDatabase.update(TrackTable.TABLE_TRACK, SQLiteDatabase.CONFLICT_FAIL, trackValues, TrackTable.KEY_TRACK_ID + "=" + track.getTrackID());
+        TrackTable trackTable =TrackTable.trackToTrackTable(track);
+        int update = trackRoomDatabase.getTrackDAONew().updateTrack(trackTable);
         return update != -1;
     }
 
@@ -192,17 +170,13 @@ public class EnviroCarDBImpl implements EnviroCarDB {
 
     @Override
     public boolean updateCarIdOfTracks(String currentId, String newId) {
-        ContentValues values = new ContentValues();
-        values.put(TrackTable.KEY_TRACK_CAR_ID, newId);
-        briteDatabase.update(TrackTable.TABLE_TRACK, SQLiteDatabase.CONFLICT_FAIL, values,
-                TrackTable.KEY_TRACK_CAR_ID + "=?", currentId);
+        trackRoomDatabase.getTrackDAONew().updateCarId(newId, currentId);
         return true;
     }
 
     @Override
     public void deleteTrack(Track.TrackId trackId) {
-        briteDatabase.delete(TrackTable.TABLE_TRACK,
-                TrackTable.KEY_TRACK_ID + "='" + trackId + "'");
+        trackRoomDatabase.getTrackDAONew().deleteTrack(Long.parseLong(trackId.toString()));
         deleteMeasurementsOfTrack(trackId);
     }
 
@@ -222,11 +196,7 @@ public class EnviroCarDBImpl implements EnviroCarDB {
 
     @Override
     public Observable<List<Track.TrackId>> deleteAllRemoteTracks() {
-        return briteDatabase.createQuery(TrackTable.TABLE_TRACK,
-                "SELECT " + TrackTable.KEY_TRACK_ID + ", " + TrackTable.KEY_REMOTE_ID +
-                        " FROM " + TrackTable.TABLE_TRACK +
-                        " WHERE " + TrackTable.KEY_REMOTE_ID + " IS NOT NULL")
-                .map(query -> query.run())
+        return trackRoomDatabase.getTrackDAONew().getAllRemoteTracksId()
                 .map(TrackTable.TO_TRACK_ID_LIST_MAPPER)
                 .map(trackIds -> {
                     for (Track.TrackId trackId : trackIds)
@@ -239,8 +209,7 @@ public class EnviroCarDBImpl implements EnviroCarDB {
     public void insertMeasurement(final Measurement measurement) throws
             MeasurementSerializationException {
         LOG.info("inserted measurement into track " + measurement.getTrackId());
-        briteDatabase.insert(MeasurementTable.TABLE_NAME, SQLiteDatabase.CONFLICT_FAIL,
-                MeasurementTable.toContentValues(measurement));
+        trackRoomDatabase.getTrackDAONew().insertMeasurement(MeasurementTable.measurementToMeasurementTable(measurement));
     }
 
     @Override
@@ -259,12 +228,7 @@ public class EnviroCarDBImpl implements EnviroCarDB {
 
     @Override
     public void updateTrackRemoteID(final Track track, final String remoteID) {
-        ContentValues newValues = new ContentValues();
-        newValues.put(TrackTable.KEY_REMOTE_ID, remoteID);
-
-        briteDatabase.update(TrackTable.TABLE_TRACK, SQLiteDatabase.CONFLICT_FAIL, newValues,
-                TrackTable.KEY_TRACK_ID + "=?",
-                Long.toString(track.getTrackID().getId()));
+        trackRoomDatabase.getTrackDAONew().updateTrackRemoteId(remoteID, Long.parseLong(track.getTrackID().toString()));
     }
 
     @Override
@@ -279,12 +243,7 @@ public class EnviroCarDBImpl implements EnviroCarDB {
     public void updateTrackMetadata(final Track track, final TrackMetadata trackMetadata) throws
             TrackSerializationException {
         try {
-            ContentValues newValues = new ContentValues();
-            newValues.put(TrackTable.KEY_TRACK_METADATA, trackMetadata.toJsonString());
-
-            briteDatabase.update(TrackTable.TABLE_TRACK, SQLiteDatabase.CONFLICT_FAIL, newValues,
-                    TrackTable.KEY_TRACK_ID + "=?",
-                    Long.toString(track.getTrackID().getId()));
+            trackRoomDatabase.getTrackDAONew().updateTrackMetadata(trackMetadata.toJsonString(), Long.parseLong(track.getTrackID().toString()));
         } catch (JSONException e) {
             LOG.error(e.getMessage(), e);
             throw new TrackSerializationException(e);
@@ -319,45 +278,28 @@ public class EnviroCarDBImpl implements EnviroCarDB {
 
     @Override
     public Observable<Track> getActiveTrackObservable(boolean lazy) {
-        return fetchTrackObservable(
-                "SELECT * FROM " + TrackTable.TABLE_TRACK +
-                        " WHERE " + TrackTable.KEY_TRACK_STATE + "='" +
-                        Track.TrackStatus.ONGOING + "'" +
-                        " ORDER BY " + TrackTable.KEY_TRACK_ID + " DESC" +
-                        " LIMIT 1", lazy);
+        return fetchActiveTrackObservable(lazy);
     }
 
     private void deleteMeasurementsOfTrack(Track.TrackId trackId) {
-        BriteDatabase.Transaction transaction = briteDatabase.newTransaction();
         try {
-            briteDatabase.delete(MeasurementTable.TABLE_NAME,
-                    MeasurementTable.KEY_TRACK + "='" + trackId + "'");
-            transaction.markSuccessful();
-        } finally {
-            transaction.end();
+            trackRoomDatabase.getTrackDAONew().deleteMeasuremnt(Long.parseLong(trackId.toString()));
+        } catch (Exception e) {
         }
     }
 
     @Override
     public void automaticDeleteMeasurements(long time, Track.TrackId trackId) {
-        BriteDatabase.Transaction transaction = briteDatabase.newTransaction();
         try {
-            briteDatabase.delete(MeasurementTable.TABLE_NAME,
-                    MeasurementTable.KEY_TRACK + "='" + trackId + "' AND " + MeasurementTable.KEY_TIME + " >= " + time);
-            transaction.markSuccessful();
-        } finally {
-            transaction.end();
+            trackRoomDatabase.getTrackDAONew().automaticDeleteMeasurement(String.valueOf(time), Long.parseLong(trackId.toString()));
+
+        } catch (Exception e) {
         }
     }
 
     private Observable<Track> fetchMeasurements(final Track track) {
-        return briteDatabase.createQuery(
-                MeasurementTable.TABLE_NAME,
-                "SELECT * FROM " + MeasurementTable.TABLE_NAME +
-                        " WHERE " + MeasurementTable.KEY_TRACK +
-                        "=\"" + track.getTrackID() + "\"" +
-                        " ORDER BY " + MeasurementTable.KEY_TIME + " ASC")
-                .mapToList(MeasurementTable.MAPPER)
+        return trackRoomDatabase.getTrackDAONew().fetchMeasurement(Long.parseLong(track.getTrackID().toString()))
+                .map(measurementList -> MeasurementTable.fromMeasurementTableListToMeasurement(measurementList))
                 .map(measurements -> {
                     track.setMeasurements(measurements);
                     track.setLazyMeasurements(false);
@@ -366,14 +308,8 @@ public class EnviroCarDBImpl implements EnviroCarDB {
     }
 
     private Observable<Track> fetchStartTime(final Track track) {
-        return briteDatabase.createQuery(
-                MeasurementTable.TABLE_NAME,
-                "SELECT * FROM " + MeasurementTable.TABLE_NAME +
-                        " WHERE " + MeasurementTable.KEY_TRACK +
-                        "=\"" + track.getTrackID() + "\"" +
-                        " ORDER BY " + MeasurementTable.KEY_TIME + " ASC" +
-                        " LIMIT 1")
-                .mapToOne(MeasurementTable.MAPPER)
+        return trackRoomDatabase.getTrackDAONew().fetchStartTime(Long.parseLong(track.getTrackID().toString()))
+                .map(MeasurementTable.MAPPER)
                 .map(measurement -> {
                     track.setStartTime(measurement.getTime());
                     track.setLazyMeasurements(true);
@@ -381,10 +317,17 @@ public class EnviroCarDBImpl implements EnviroCarDB {
                 });
     }
 
-    private Observable<Track> fetchTrackObservable(String sql, boolean lazy) {
-        return briteDatabase
-                .createQuery(TrackTable.TABLE_TRACK, sql)
-                .mapToOne(TrackTable.MAPPER)
+    private Observable<Track> fetchTrackObservable(Track.TrackId trackId, boolean lazy) {
+        return trackRoomDatabase.getTrackDAONew().getTrack(Long.parseLong(trackId.toString()))
+                .map(TrackTable.MAPPER)
+                .take(1)
+                .timeout(100, TimeUnit.MILLISECONDS)
+                .compose(fetchTrackObservable(lazy));
+    }
+
+    private Observable<Track> fetchActiveTrackObservable(boolean lazy) {
+        return trackRoomDatabase.getTrackDAONew().getActiveTrack()
+                .map(org.envirocar.core.entity.TrackTable.MAPPER)
                 .take(1)
                 .timeout(100, TimeUnit.MILLISECONDS)
                 .compose(fetchTrackObservable(lazy));
@@ -395,18 +338,66 @@ public class EnviroCarDBImpl implements EnviroCarDB {
             if (track == null)
                 return null;
 
-            // return the track either leither or completly fetched.
             return lazy ? fetchStartEndTimeSilent(track) : fetchMeasurementsSilent(track);
         });
     }
 
-    private Observable<List<Track>> fetchTracksObservable(String sql, boolean lazy) {
+    private Observable<List<Track>> fetchTracksObservable(boolean lazy) {
         Observable<List<Track>> listObservable = Observable.create(emitter -> {
-            Cursor query = briteDatabase.getReadableDatabase().query(sql);
+            List<TrackTable> trackTableList = trackRoomDatabase
+                    .getTrackDAONew().getAllTracks();
 
             ArrayList<Track> tracks = new ArrayList<>();
-            for (query.moveToFirst(); !query.isAfterLast(); query.moveToNext()) {
-                tracks.add(TrackTable.MAPPER.apply(query));
+            for (org.envirocar.core.entity.TrackTable trackTable : trackTableList) {
+                tracks.add(TrackTable.trackTableToTrack(trackTable));
+            }
+
+            emitter.onNext(tracks);
+            emitter.onComplete();
+        });
+        return listObservable.compose(fetchTracks(lazy));
+    }
+
+    private Observable<List<Track>> fetchTracksCarObservable(String carId, boolean lazy) {
+        Observable<List<Track>> listObservable = Observable.create(emitter -> {
+            List<TrackTable> trackTableList = trackRoomDatabase
+                    .getTrackDAONew().getAllTracksByCar(carId);
+
+            ArrayList<Track> tracks = new ArrayList<>();
+            for (TrackTable trackTable : trackTableList) {
+                tracks.add(TrackTable.trackTableToTrack(trackTable));
+            }
+
+            emitter.onNext(tracks);
+            emitter.onComplete();
+        });
+        return listObservable.compose(fetchTracks(lazy));
+    }
+
+    private Observable<List<Track>> fetchTracksLocalObservable(boolean lazy) {
+        Observable<List<Track>> listObservable = Observable.create(emitter -> {
+            List<org.envirocar.core.entity.TrackTable> trackTableList = trackRoomDatabase
+                    .getTrackDAONew().getAllLocalTracks();
+
+            ArrayList<Track> tracks = new ArrayList<>();
+            for (org.envirocar.core.entity.TrackTable trackTable : trackTableList) {
+                tracks.add(TrackTable.trackTableToTrack(trackTable));
+            }
+
+            emitter.onNext(tracks);
+            emitter.onComplete();
+        });
+        return listObservable.compose(fetchTracks(lazy));
+    }
+
+    private Observable<List<Track>> fetchTracksRemoteObservable(boolean lazy) {
+        Observable<List<Track>> listObservable = Observable.create(emitter -> {
+            List<org.envirocar.core.entity.TrackTable> trackTableList = trackRoomDatabase
+                    .getTrackDAONew().getAllRemoteTracks();
+
+            ArrayList<Track> tracks = new ArrayList<>();
+            for (org.envirocar.core.entity.TrackTable trackTable : trackTableList) {
+                tracks.add(TrackTable.trackTableToTrack(trackTable));
             }
 
             emitter.onNext(tracks);
@@ -429,22 +420,15 @@ public class EnviroCarDBImpl implements EnviroCarDB {
     }
 
     private Track fetchMeasurementsSilent(final Track track) {
-        track.setMeasurements(MeasurementTable.fromCursorToList(briteDatabase.query(
-                "SELECT * FROM " + MeasurementTable.TABLE_NAME +
-                        " WHERE " + MeasurementTable.KEY_TRACK +
-                        "=\"" + track.getTrackID() + "\"" +
-                        " ORDER BY " + MeasurementTable.KEY_TIME + " ASC", (String[]) null)));
+        track.setMeasurements(MeasurementTable.fromMeasurementTableListToMeasurement(
+                trackRoomDatabase.getTrackDAONew().fetchMeasurementSilent(Long.parseLong(track.getTrackID().toString()))
+        ));
         track.setLazyMeasurements(false);
         return track;
     }
 
     private Track fetchStartEndTimeSilent(final Track track) {
-        Cursor startTime = briteDatabase.query(
-                "SELECT " + MeasurementTable.KEY_TIME +
-                        " FROM " + MeasurementTable.TABLE_NAME +
-                        " WHERE " + MeasurementTable.KEY_TRACK +
-                        "=\"" + track.getTrackID() + "\"" +
-                        " ORDER BY " + MeasurementTable.KEY_TIME + " ASC LIMIT 1");
+        Cursor startTime = trackRoomDatabase.getTrackDAONew().fetchStartTimeSilent(Long.parseLong(track.getTrackID().toString()));
 
         if (startTime.moveToFirst()) {
             track.setStartTime(
@@ -452,12 +436,7 @@ public class EnviroCarDBImpl implements EnviroCarDB {
                             startTime.getColumnIndex(MeasurementTable.KEY_TIME)));
         }
 
-        Cursor endTime = briteDatabase.query(
-                "SELECT " + MeasurementTable.KEY_TIME +
-                        " FROM " + MeasurementTable.TABLE_NAME +
-                        " WHERE " + MeasurementTable.KEY_TRACK +
-                        "=\"" + track.getTrackID() + "\"" +
-                        " ORDER BY " + MeasurementTable.KEY_TIME + " DESC LIMIT 1");
+        Cursor endTime = trackRoomDatabase.getTrackDAONew().fetchEndTimeSilent(Long.parseLong(track.getTrackID().toString()));
 
         if (endTime.moveToFirst()) {
             track.setEndTime(
