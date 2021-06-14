@@ -30,12 +30,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.envirocar.app.BaseApplicationComponent;
@@ -153,12 +157,26 @@ public class OthersFragment extends BaseInjectorFragment {
     @OnClick(R.id.othersLogOut)
     protected void onLogOutClicked() {
 
-        new MaterialDialog.Builder(getActivity())
-                .title(getString(R.string.menu_logout_envirocar_title))
-                .positiveText(getString(R.string.menu_logout_envirocar_positive))
-                .negativeText(getString(R.string.menu_logout_envirocar_negative))
-                .content(getString(R.string.menu_logout_envirocar_content))
-                .onPositive((dialog, which) -> mUserManager.logOut().subscribe(logOut()))
+        View contentView = LayoutInflater.from(getActivity())
+                .inflate(R.layout.general_dialog_layout, null, false);
+
+        // Set toolbar style
+        Toolbar toolbar1 = contentView.findViewById(R.id
+                .genral_dialog_toolbar);
+        toolbar1.setTitle(R.string.menu_logout_envirocar_title);
+        //toolbar1.setNavigationIcon(ContextCompat.getDrawable(getActivity(), R.drawable.ic_logout_black_24dp));
+        toolbar1.setTitleTextColor(
+                getResources().getColor(R.color.white_cario));
+
+        // Set text view
+        TextView textview = contentView.findViewById(R.id.general_dialog_text);
+        textview.setText(getString(R.string.menu_logout_envirocar_content));
+
+        new MaterialAlertDialogBuilder(getActivity(), R.style.MaterialDialog)
+                .setView(contentView)
+                .setPositiveButton(R.string.menu_logout_envirocar_positive,
+                        (dialog, which) -> mUserManager.logOut().subscribe(logOut()))
+                .setNegativeButton(R.string.menu_logout_envirocar_negative,null)
                 .show();
     }
 
