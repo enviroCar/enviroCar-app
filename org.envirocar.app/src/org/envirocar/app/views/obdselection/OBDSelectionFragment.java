@@ -34,6 +34,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.R;
@@ -303,7 +304,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
                     R.string.obd_selection_dialog_pairing_content_template), device.getName()));
 
             // Create the Dialog
-            new AlertDialog.Builder(getActivity())
+            new MaterialAlertDialogBuilder(getActivity(), R.style.MaterialDialog)
                     .setView(contentView)
                     .setPositiveButton(R.string.obd_selection_dialog_pairing_title,
                             (dialog, which) -> {
@@ -312,7 +313,6 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
                                 pairDevice(device, view1);
                             })
                     .setNegativeButton(R.string.cancel, null) // Nothing to do on cancel
-                    .create()
                     .show();
         });
     }
