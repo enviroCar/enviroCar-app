@@ -278,7 +278,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<T
                         @Override
                         public void onError(Throwable e) {
                             LOG.error(e.getMessage(), e);
-                            showSnackbar(R.string.track_list_loading_lremote_tracks_error);
+                            showSnackbar(R.string.track_list_loading_lremote_tracks_error+e.getMessage());
                         }
 
                         @Override
