@@ -19,8 +19,13 @@
 package org.envirocar.app.views.logbook;
 
 import android.os.Bundle;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
+
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageView;
@@ -131,12 +136,27 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long
                     id) {
                 final Fueling fueling = fuelings.get(position);
-                new MaterialDialog.Builder(LogbookActivity.this)
-                        .title(R.string.logbook_dialog_delete_fueling_header)
-                        .content(R.string.logbook_dialog_delete_fueling_content)
-                        .positiveText(R.string.menu_delete)
-                        .negativeText(R.string.cancel)
-                        .onPositive((materialDialog, dialogAction) -> deleteFueling(fueling))
+
+                View contentView = LayoutInflater.from(LogbookActivity.this)
+                        .inflate(R.layout.general_dialog_layout, null, false);
+
+                // Set toolbar style
+                Toolbar toolbar1 = contentView.findViewById(R.id
+                        .genral_dialog_toolbar);
+                toolbar1.setTitle(R.string.logbook_dialog_delete_fueling_header);
+                toolbar1.setNavigationIcon(ContextCompat.getDrawable(LogbookActivity.this, R.drawable.others_logbook_white_24dp));
+                toolbar1.setTitleTextColor(
+                        getResources().getColor(R.color.white_cario));
+
+                // Set text view
+                TextView textview = contentView.findViewById(R.id.general_dialog_text);
+                textview.setText(R.string.logbook_dialog_delete_fueling_content);
+
+                new MaterialAlertDialogBuilder(LogbookActivity.this, R.style.MaterialDialog)
+                        .setView(contentView)
+                        .setPositiveButton(R.string.menu_delete,
+                                (dialog, which) -> deleteFueling(fueling))
+                        .setNegativeButton(R.string.cancel,null)
                         .show();
                 return false;
             }
