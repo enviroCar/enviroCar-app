@@ -182,19 +182,28 @@ public class OthersFragment extends BaseInjectorFragment {
 
     @OnClick(R.id.othersCloseEnviroCar)
     protected void onCloseEnviroCarClicked() {
-        new MaterialDialog.Builder(getActivity())
-                .title(getString(R.string.menu_close_envirocar_title))
-                .positiveText(getString(R.string.menu_close_envirocar_positive))
-                .negativeText(getString(R.string.cancel))
-                .content(getString(R.string.menu_close_envirocar_content))
-                .callback(new MaterialDialog.ButtonCallback() {
-                    @Override
-                    public void onPositive(MaterialDialog dialog) {
-                        shutdownEnviroCar();
-                    }
-                })
-                .show();
+        View contentView = LayoutInflater.from(getActivity())
+                .inflate(R.layout.general_dialog_layout, null, false);
 
+        // Set toolbar style
+        Toolbar toolbar1 = contentView.findViewById(R.id
+                .genral_dialog_toolbar);
+        toolbar1.setTitle(R.string.menu_close_envirocar_title);
+        //toolbar1.setNavigationIcon(ContextCompat.getDrawable(getActivity(), R.drawable.ic_others_close_24));
+        toolbar1.setTitleTextColor(
+                getResources().getColor(R.color.white_cario));
+
+        // Set text view
+        TextView textview = contentView.findViewById(R.id.general_dialog_text);
+        textview.setText(getString(R.string.menu_close_envirocar_content));
+
+
+        new MaterialAlertDialogBuilder(getActivity(), R.style.MaterialDialog)
+                .setView(contentView)
+                .setPositiveButton(R.string.menu_close_envirocar_positive,
+                        (dialog, which) -> shutdownEnviroCar())
+                .setNegativeButton(R.string.menu_logout_envirocar_negative,null)
+                .show();
     }
 
     /**
