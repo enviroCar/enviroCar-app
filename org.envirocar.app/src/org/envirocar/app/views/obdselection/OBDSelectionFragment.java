@@ -337,17 +337,14 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
                 device.getName()));
 
         // Create the AlertDialog.
-        new MaterialDialog.Builder(getActivity())
-                .customView(contentView, false)
-                .positiveText(R.string.bluetooth_pairing_preference_dialog_remove_pairing)
-                .negativeText(R.string.menu_cancel)
-                .callback(new MaterialDialog.ButtonCallback() {
-                    @Override
-                    public void onPositive(MaterialDialog dialog) {
-                        LOGGER.debug("OnPositiveButton clicked to remove pairing.");
-                        unpairDevice(device);
-                    }
-                })
+        new MaterialAlertDialogBuilder(getActivity(), R.style.MaterialDialog)
+                .setView(contentView)
+                .setPositiveButton(R.string.bluetooth_pairing_preference_dialog_remove_pairing,
+                        (dialog, which) -> {
+                            LOGGER.debug("OnPositiveButton clicked to remove pairing.");
+                            unpairDevice(device);
+                        })
+                .setNegativeButton(R.string.menu_cancel,null) // Nothing to do on cancel
                 .show();
     }
 
