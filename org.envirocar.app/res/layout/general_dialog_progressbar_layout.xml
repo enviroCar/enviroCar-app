@@ -19,14 +19,14 @@
     android:layout_height="match_parent">
 
     <androidx.appcompat.widget.Toolbar
-        android:id="@+id/genral_dialog_toolbar"
+        android:id="@+id/genral_dialog_progressbar_toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/blue_dark_cario"
         android:title="" />
 
     <ProgressBar
-        android:id="@+id/progress"
+        android:id="@+id/progress_bar"
         android:layout_marginTop="-7dp"
         android:layout_marginBottom="-7dp"
         android:layout_width="match_parent"
@@ -36,7 +36,7 @@
         />
 
     <TextView
-        android:id="@+id/general_dialog_text"
+        android:id="@+id/general_dialog_progressbar_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="20dp"

@@ -452,14 +452,14 @@ public class DashboardFragment extends BaseInjectorFragment {
                                 .inflate(R.layout.general_dialog_progressbar_layout, null, false);
 
                         // Set toolbar style
-                        Toolbar toolbar1 = contentView.findViewById(R.id.genral_dialog_toolbar);
+                        Toolbar toolbar1 = contentView.findViewById(R.id.genral_dialog_progressbar_toolbar);
                         toolbar1.setTitle(R.string.dashboard_connecting);
                         toolbar1.setNavigationIcon(ContextCompat.getDrawable(getActivity(),
-                                R.drawable.ic_bluetooth_searching_black_24dp));
+                                R.drawable.ic_bluetooth_searching_white_24dp));
                         toolbar1.setTitleTextColor(getResources().getColor(R.color.white_cario));
 
                         // Set text view
-                        TextView textview = contentView.findViewById(R.id.general_dialog_text);
+                        TextView textview = contentView.findViewById(R.id.general_dialog_progressbar_text);
                         textview.setText(String.format(getString(
                                 R.string.dashboard_connecting_find_template), device.getName()));
 
