@@ -75,7 +75,7 @@ ext {
     supportLifecycleCompiler = "androidx.lifecycle:lifecycle-compiler:$lifecycle_version"
 
     // database dependencies
-    def sqlite_version = "2.0.1"
+    def sqlite_version = "2.1.0"
     supportSqlite = "androidx.sqlite:sqlite:$sqlite_version"
     supportSqliteFramework = "androidx.sqlite:sqlite-framework:$sqlite_version"
     sqlBrite = 'com.squareup.sqlbrite3:sqlbrite:3.2.0'
