@@ -34,6 +34,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.widget.Toolbar;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
@@ -173,18 +174,15 @@ public class BluetoothPairingPreference extends DialogPreference {
             textview.setText(String.format("Do you want to pair with %s?", device.getName()));
 
             // Create the Dialog
-            new AlertDialog.Builder(getContext())
+            new MaterialAlertDialogBuilder(getContext(), R.style.MaterialDialog)
                     .setView(contentView)
-                    .setPositiveButton("Pair Device", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            // If this button is clicked, pair with the given device
-                            view1.setClickable(false);
-                            pairDevice(device, view1);
-                        }
-                    })
-                    .setNegativeButton("Cancel", null) // Nothing to do on cancel
-                    .create()
+                    .setPositiveButton(R.string.obd_selection_dialog_pairing_title,
+                            (dialog, which) -> {
+                                // If this button is clicked, pair with the given device
+                                view1.setClickable(false);
+                                pairDevice(device, view1);
+                            })
+                    .setNegativeButton(R.string.cancel, null) // Nothing to do on cancel
                     .show();
         });
 
@@ -198,7 +196,7 @@ public class BluetoothPairingPreference extends DialogPreference {
             // Set toolbar style
             Toolbar toolbar1 = contentView.findViewById(R.id
                     .bluetooth_selection_preference_pairing_dialog_toolbar);
-            toolbar1.setTitle("Bluetooth Device");
+            toolbar1.setTitle(R.string.obd_selection_dialog_delete_pairing_title);
             toolbar1.setNavigationIcon(R.drawable.ic_bluetooth_white_24dp);
             toolbar1.setTitleTextColor(getContext().getResources().getColor(R.color
                     .white_cario));
@@ -210,19 +208,14 @@ public class BluetoothPairingPreference extends DialogPreference {
                     .getName()));
 
             // Create the AlertDialog.
-            new AlertDialog.Builder(getContext())
+            new MaterialAlertDialogBuilder(getContext(), R.style.MaterialDialog)
                     .setView(contentView)
                     .setPositiveButton(R.string.bluetooth_pairing_preference_dialog_remove_pairing,
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    LOGGER.debug("OnPositiveButton clicked for remove pairing.");
-                                    unpairDevice(device);
-                                }
+                            (dialog, which) -> {
+                                LOGGER.debug("OnPositiveButton clicked to remove pairing.");
+                                unpairDevice(device);
                             })
-                    .setNegativeButton(R.string.menu_cancel, null) // Nothing to do on
-                    // cancel.
-                    .create()
+                    .setNegativeButton(R.string.menu_cancel,null) // Nothing to do on cancel
                     .show();
         });
 
