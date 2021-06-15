@@ -310,7 +310,7 @@ public class DashboardFragment extends BaseInjectorFragment {
             Toolbar toolbar1 = contentView.findViewById(R.id
                     .genral_dialog_toolbar);
             toolbar1.setTitle(R.string.menu_logout_envirocar_title);
-            //toolbar1.setNavigationIcon(ContextCompat.getDrawable(getActivity(), ));
+            toolbar1.setNavigationIcon(ContextCompat.getDrawable(getActivity(), R.drawable.ic_logout_white_24dp));
             toolbar1.setTitleTextColor(
                     getResources().getColor(R.color.white_cario));
 
