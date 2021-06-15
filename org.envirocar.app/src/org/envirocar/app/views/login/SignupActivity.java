@@ -31,6 +31,7 @@ import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.util.Pair;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
@@ -38,8 +39,12 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.jakewharton.rxbinding3.widget.RxCompoundButton;
 import com.jakewharton.rxbinding3.widget.RxTextView;
 
@@ -226,16 +231,27 @@ public class SignupActivity extends BaseInjectorActivity {
                     // Dismiss the progress dialog.
                     dialog.dismiss();
 
-                    final MaterialDialog d = new MaterialDialog.Builder(SignupActivity.this)
-                            .title(R.string.register_success_dialog_title)
-                            .content(R.string.register_success_dialog_content)
-                            .cancelable(false)
-                            .positiveText(R.string.ok)
-                            .cancelListener(dialog1 -> {
+                    View contentView = LayoutInflater.from(SignupActivity.this)
+                            .inflate(R.layout.general_dialog_layout, null, false);
+
+                    // Set toolbar style
+                    Toolbar toolbar1 = contentView.findViewById(R.id.genral_dialog_toolbar);
+                    toolbar1.setTitle(R.string.register_success_dialog_title);
+                    //toolbar1.setNavigationIcon(ContextCompat.getDrawable(SignupActivity.this,R.drawable.ic_baseline_email_24));
+                    toolbar1.setTitleTextColor(getResources().getColor(R.color.white_cario));
+
+                    // Set text view
+                    TextView textview = contentView.findViewById(R.id.general_dialog_text);
+                    textview.setText(getString(R.string.register_success_dialog_content));
+
+                    final AlertDialog d = new MaterialAlertDialogBuilder(SignupActivity.this,R.style.MaterialDialog)
+                            .setView(contentView)
+                            .setCancelable(false)
+                            .setOnCancelListener(dialog1 -> {
                                 LOG.info("canceled");
                                 finish();
                             })
-                            .onAny((a, b) -> {
+                            .setPositiveButton(R.string.ok,(a, b) -> {
                                 LOG.info("onPositive");
                                 finish();
                             })
