@@ -22,6 +22,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -30,9 +31,12 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.BaseApplicationComponent;
@@ -50,6 +54,7 @@ import org.envirocar.app.recording.RecordingState;
 import org.envirocar.app.recording.RecordingType;
 import org.envirocar.app.recording.events.RecordingStateEvent;
 import org.envirocar.app.views.BaseMainActivity;
+import org.envirocar.app.views.login.SigninActivity;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.core.events.gps.GpsSatelliteFixEvent;
 import org.envirocar.core.logging.Logger;
@@ -208,15 +213,27 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
     @OnClick(R.id.activity_recscreen_stopbutton)
     protected void onStopButtonClicked() {
         LOG.info("Stop button has been clicked. Showing dialog to request confirmation");
-        new MaterialDialog.Builder(this)
-                .title(R.string.dashboard_dialog_stop_track)
-                .content(R.string.dashboard_dialog_stop_track_content)
-                .negativeText(R.string.cancel)
-                .positiveText(R.string.ok)
-                .onPositive((dialog, which) -> {
+
+        View contentView = LayoutInflater.from(this)
+                .inflate(R.layout.general_dialog_layout, null, false);
+
+        // Set toolbar style
+        Toolbar toolbar1 = contentView.findViewById(R.id.genral_dialog_toolbar);
+        toolbar1.setTitle(R.string.dashboard_dialog_stop_track);
+        //toolbar1.setNavigationIcon(ContextCompat.getDrawable(this,R.drawable.img_tracks));
+        toolbar1.setTitleTextColor(getResources().getColor(R.color.white_cario));
+
+        // Set text view
+        TextView textview = contentView.findViewById(R.id.general_dialog_text);
+        textview.setText(getString(R.string.dashboard_dialog_stop_track_content));
+
+        new MaterialAlertDialogBuilder(this,R.style.MaterialDialog)
+                .setView(contentView)
+                .setPositiveButton(R.string.ok,(dialog, which) -> {
                     trackRecordingHandler.finishCurrentTrack();
                     finish();
                 })
+                .setNegativeButton(R.string.cancel,null)
                 .show();
     }
 
