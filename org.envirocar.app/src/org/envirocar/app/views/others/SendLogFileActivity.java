@@ -26,8 +26,10 @@ import android.os.Bundle;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 
 import android.util.Pair;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,8 +39,10 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
@@ -46,6 +50,7 @@ import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.preferences.CarPreferenceHandler;
 import org.envirocar.app.injection.BaseInjectorActivity;
+import org.envirocar.app.views.login.SigninActivity;
 import org.envirocar.app.views.reportissue.CheckBoxItem;
 import org.envirocar.app.views.reportissue.CheckboxBaseAdapter;
 import org.envirocar.core.entity.Car;
@@ -182,14 +187,28 @@ public class SendLogFileActivity extends BaseInjectorActivity {
      * @param reportBundle
      */
     public void createNoCheckboxDialog(File reportBundle) {
-        new MaterialDialog.Builder(this)
-                .title(R.string.report_issue_no_checkbox_selected_title)
-                .content(R.string.report_issue_no_checkbox_selected_content)
-                .positiveText(R.string.report_issue_no_checkbox_send_anyway)
-                .negativeText(R.string.cancel)
-                .cancelable(false)
-                .onPositive((materialDialog, dialogAction) -> sendLogFile(reportBundle))
-                .onNegative((materialDialog, dialogAction) -> LOG.info("Log report not send"))
+
+        View contentView = LayoutInflater.from(this)
+                .inflate(R.layout.general_dialog_layout, null, false);
+
+        // Set toolbar style
+        Toolbar toolbar1 = contentView.findViewById(R.id.genral_dialog_toolbar);
+        toolbar1.setTitle(R.string.report_issue_no_checkbox_selected_title);
+        toolbar1.setNavigationIcon(ContextCompat.getDrawable(this,
+                R.drawable.ic_baseline_check_circle_24));
+        toolbar1.setTitleTextColor(getResources().getColor(R.color.white_cario));
+
+        // Set text view
+        TextView textview = contentView.findViewById(R.id.general_dialog_text);
+        textview.setText(getString(R.string.report_issue_no_checkbox_selected_content));
+
+        new MaterialAlertDialogBuilder(this,R.style.MaterialDialog)
+                .setView(contentView)
+                .setCancelable(true)
+                .setPositiveButton(R.string.report_issue_no_checkbox_send_anyway,
+                        (materialDialog, dialogAction) -> sendLogFile(reportBundle))
+                .setNegativeButton(R.string.cancel,
+                        (materialDialog, dialogAction) -> LOG.info("Log report not send"))
                 .show();
     }
 
