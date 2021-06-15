@@ -59,11 +59,11 @@ dependencies {
     // Test
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.mockito:mockito-core:3.11.0'
-    testImplementation('org.powermock:powermock-api-mockito:1.6.2') {
+    testImplementation('org.powermock:powermock-api-mockito:1.7.4') {
         exclude module: 'hamcrest-core'
         exclude module: 'objenesis'
     }
-    testImplementation('org.powermock:powermock-module-junit4:1.6.2') {
+    testImplementation('org.powermock:powermock-module-junit4:2.0.9') {
         exclude module: 'hamcrest-core'
         exclude module: 'objenesis'
     }
