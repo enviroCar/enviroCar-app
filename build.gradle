@@ -121,7 +121,7 @@ ext {
     fabProgressCircle = 'com.github.jorgecastilloprz:fabprogresscircle:1.01'
     mapbox = 'com.mapbox.mapboxsdk:mapbox-android-sdk:9.2.1'
     segmentedUIController = 'info.hoang8f:android-segmented:1.0.6'
-    apacheCommons = 'org.apache.commons:commons-compress:1.18'
+    apacheCommons = 'org.apache.commons:commons-compress:1.20'
     openCSVReader = 'com.opencsv:opencsv:4.6'
 
     // Testing
