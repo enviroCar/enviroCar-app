@@ -23,15 +23,20 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 
+import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.app.ActivityOptionsCompat;
+import androidx.core.content.ContextCompat;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.envirocar.app.BaseApplicationComponent;
@@ -204,12 +209,26 @@ public class SigninActivity extends BaseInjectorActivity {
                                     passwordEditText.setError(getString(R.string.error_incorrect_password));
                                     break;
                                 case MAIL_NOT_CONFIREMED:
-                                    new MaterialDialog.Builder(SigninActivity.this)
-                                            .cancelable(true)
-                                            .positiveText(R.string.ok)
-                                            .title(R.string.login_mail_not_confirmed_dialog_title)
-                                            .content(R.string.login_mail_not_confirmed_dialog_content)
-                                            .build().show();
+
+                                    View contentView = LayoutInflater.from(SigninActivity.this)
+                                            .inflate(R.layout.general_dialog_layout, null, false);
+
+                                    // Set toolbar style
+                                    Toolbar toolbar1 = contentView.findViewById(R.id.genral_dialog_toolbar);
+                                    toolbar1.setTitle(R.string.login_mail_not_confirmed_dialog_title);
+                                    toolbar1.setNavigationIcon(ContextCompat.getDrawable(SigninActivity.this,
+                                            R.drawable.ic_baseline_email_24));
+                                    toolbar1.setTitleTextColor(getResources().getColor(R.color.white_cario));
+
+                                    // Set text view
+                                    TextView textview = contentView.findViewById(R.id.general_dialog_text);
+                                    textview.setText(getString(R.string.login_mail_not_confirmed_dialog_content));
+
+                                    new MaterialAlertDialogBuilder(SigninActivity.this,R.style.MaterialDialog)
+                                            .setView(contentView)
+                                            .setCancelable(true)
+                                            .setPositiveButton(R.string.ok,null)
+                                            .show();
                                     break;
                                 case UNABLE_TO_COMMUNICATE_WITH_SERVER:
                                     passwordEditText.setError(getString(R.string.error_host_not_found));
