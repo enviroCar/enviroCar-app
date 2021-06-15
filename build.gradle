@@ -69,7 +69,7 @@ ext {
     supportRoom = 'androidx.room:room-compiler:2.2.5'
 
 
-    def lifecycle_version = "2.0.0"
+    def lifecycle_version = "2.2.0"
     supportLifecycleExtension = "androidx.lifecycle:lifecycle-extensions:$lifecycle_version"
     supportLifecycleRuntime = "androidx.lifecycle:lifecycle-runtime:$lifecycle_version"
     supportLifecycleCompiler = "androidx.lifecycle:lifecycle-compiler:$lifecycle_version"
