@@ -482,25 +482,35 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(new DisposableObserver<Void>() {
-                    private MaterialDialog dialog;
+                    private MaterialAlertDialogBuilder dialog;
 
                     @Override
                     public void onStart() {
                         LOG.info("Started the creation of a fueling.");
-                        dialog = new MaterialDialog.Builder(getContext())
-                                .progress(true, 0)
-                                .title(R.string.logbook_dialog_uploading_fueling_header)
-                                .content(R.string.logbook_dialog_uploading_fueling_content)
-                                .cancelable(false)
-                                .show();
+
+                        View contentView = LayoutInflater.from(getContext())
+                                .inflate(R.layout.general_dialog_progressbar_layout, null, false);
+
+                        // Set toolbar style
+                        Toolbar toolbar1 = contentView.findViewById(R.id.genral_dialog_progressbar_toolbar);
+                        toolbar1.setTitle(R.string.logbook_dialog_uploading_fueling_header);
+                        //toolbar1.setNavigationIcon(ContextCompat.getDrawable(SigninActivity.this, R.drawable.ic_bluetooth_searching_white_24dp));
+                        toolbar1.setTitleTextColor(getResources().getColor(R.color.white_cario));
+
+                        // Set text view
+                        TextView textview = contentView.findViewById(R.id.general_dialog_progressbar_text);
+                        textview.setText(R.string.logbook_dialog_uploading_fueling_content);
+
+                        dialog = new MaterialAlertDialogBuilder(getContext(), R.style.MaterialDialog);
+                        dialog.setView(contentView);
+                        dialog.setCancelable(false);
+                        dialog.show();
                     }
 
                     @Override
                     public void onComplete() {
                         LOG.info(String.format("Successfully uploaded fueling -> [%s]", fueling
                                 .getRemoteID()));
-
-                        dialog.dismiss();
 
                         ((LogbookUiListener) getActivity()).onFuelingUploaded(fueling);
                         ((LogbookUiListener) getActivity()).onHideAddFuelingCard();
@@ -516,7 +526,6 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
                         } else if (e instanceof UnauthorizedException) {
                             showSnackbarInfo(R.string.logbook_error_unauthorized);
                         }
-                        dialog.dismiss();
                     }
 
                     @Override
