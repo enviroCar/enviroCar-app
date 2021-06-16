@@ -237,7 +237,8 @@ public class SignupActivity extends BaseInjectorActivity {
                     // Set toolbar style
                     Toolbar toolbar1 = contentView.findViewById(R.id.genral_dialog_toolbar);
                     toolbar1.setTitle(R.string.register_success_dialog_title);
-                    //toolbar1.setNavigationIcon(ContextCompat.getDrawable(SignupActivity.this,R.drawable.ic_baseline_email_24));
+                    toolbar1.setNavigationIcon(ContextCompat.getDrawable(SignupActivity.this
+                            ,R.drawable.ic_baseline_login_24));
                     toolbar1.setTitleTextColor(getResources().getColor(R.color.white_cario));
 
                     // Set text view

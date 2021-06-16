@@ -220,7 +220,7 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
         // Set toolbar style
         Toolbar toolbar1 = contentView.findViewById(R.id.genral_dialog_toolbar);
         toolbar1.setTitle(R.string.dashboard_dialog_stop_track);
-        //toolbar1.setNavigationIcon(ContextCompat.getDrawable(this,R.drawable.img_tracks));
+        toolbar1.setNavigationIcon(ContextCompat.getDrawable(this, R.drawable.ic_outline_stop_circle_24));
         toolbar1.setTitleTextColor(getResources().getColor(R.color.white_cario));
 
         // Set text view
