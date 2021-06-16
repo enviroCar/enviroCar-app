@@ -145,7 +145,7 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
                         .genral_dialog_toolbar);
                 toolbar1.setTitle(R.string.logbook_dialog_delete_fueling_header);
                 toolbar1.setNavigationIcon(ContextCompat.getDrawable(LogbookActivity.this,
-                        R.drawable.others_logbook_white_24dp));
+                        R.drawable.ic_delete_fueling_24));
                 toolbar1.setTitleTextColor(
                         getResources().getColor(R.color.white_cario));
 
