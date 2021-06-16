@@ -23,15 +23,20 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 
+import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.app.ActivityOptionsCompat;
+import androidx.core.content.ContextCompat;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.envirocar.app.BaseApplicationComponent;
@@ -175,20 +180,32 @@ public class SigninActivity extends BaseInjectorActivity {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(new DisposableCompletableObserver() {
-                    private MaterialDialog dialog;
+                    private MaterialAlertDialogBuilder dialog;
 
                     @Override
                     protected void onStart() {
-                        dialog = new MaterialDialog.Builder(SigninActivity.this)
-                                .title(R.string.activity_login_logging_in_dialog_title)
-                                .progress(true, 0)
-                                .cancelable(false)
-                                .show();
+                        View contentView = LayoutInflater.from(SigninActivity.this)
+                                .inflate(R.layout.general_dialog_progressbar_layout, null, false);
+
+                        // Set toolbar style
+                        Toolbar toolbar1 = contentView.findViewById(R.id.genral_dialog_progressbar_toolbar);
+                        toolbar1.setTitle(R.string.activity_login_logging_in_dialog_title);
+                        //toolbar1.setNavigationIcon(ContextCompat.getDrawable(SigninActivity.this, R.drawable.ic_bluetooth_searching_white_24dp));
+                        toolbar1.setTitleTextColor(getResources().getColor(R.color.white_cario));
+
+                        // Set text view
+                        TextView textview = contentView.findViewById(R.id.general_dialog_progressbar_text);
+                        textview.setText("");
+
+                        dialog = new MaterialAlertDialogBuilder(SigninActivity.this, R.style.MaterialDialog);
+                        dialog.setView(contentView);
+                        dialog.setCancelable(false);
+                        dialog.show();
                     }
 
                     @Override
                     public void onComplete() {
-                        dialog.dismiss();
+                        //dialog.dismiss();
                         Snackbar.make(logoImageView, String.format(getResources().getString(
                                 R.string.welcome_message), username), Snackbar.LENGTH_LONG)
                                 .show();
@@ -197,7 +214,7 @@ public class SigninActivity extends BaseInjectorActivity {
 
                     @Override
                     public void onError(Throwable e) {
-                        dialog.dismiss();
+                        //dialog.dismiss();
                         if (e instanceof LoginException) {
                             switch (((LoginException) e).getType()) {
                                 case PASSWORD_INCORRECT:
