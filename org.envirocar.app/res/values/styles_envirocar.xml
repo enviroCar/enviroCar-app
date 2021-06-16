@@ -92,12 +92,10 @@
     </style>
 
     <style name="PositiveButtonStyle" parent="@style/Widget.MaterialComponents.Button.TextButton.Dialog">
-        <item name="android:textColor">#FFFFFF</item>
-        <item name="backgroundTint">@color/cario_color_primary</item>
+        <item name="android:textColor">@color/blue_light_cario</item>
     </style>
 
     <style name="NegativeButtonStyle" parent="@style/Widget.MaterialComponents.Button.TextButton.Dialog">
-        <item name="android:textColor">#FFFFFF</item>
-        <item name="backgroundTint">@color/cario_color_primary</item>
+        <item name="android:textColor">@color/blue_light_cario</item>
     </style>
 </resources>
