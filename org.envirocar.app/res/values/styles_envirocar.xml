@@ -81,8 +81,11 @@
         <item name="theme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
     </style>
 
-    <style name="DialogStyle" parent="Theme.AppCompat.Light.Dialog">
-        <item name="colorAccent">@color/blue_dark_cario</item>
+    <style name="DialogStyle" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
+        <item name="materialAlertDialogTitlePanelStyle">@style/TitlePaneStyle</item>
+        <item name="materialAlertDialogTitleTextStyle">@style/TitleTextStyle</item>
+        <item name="buttonBarPositiveButtonStyle">@style/PositiveButtonStyle</item>
+        <item name="buttonBarNegativeButtonStyle">@style/NegativeButtonStyle</item>
     </style>
 
     <style name="MaterialDialog" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">

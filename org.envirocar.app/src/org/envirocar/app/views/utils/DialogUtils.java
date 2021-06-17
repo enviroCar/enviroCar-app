@@ -62,19 +62,8 @@ public class DialogUtils {
 
     public static MaterialAlertDialogBuilder createDefaultDialogBuilder(
             Context context, String title, int iconRes, View customView) {
-        View layout = LayoutInflater.from(context)
-                .inflate(R.layout.general_dialog_view, null, false);
 
-        TextView titleView = layout.findViewById(R.id.general_dialog_view_title);
-        ImageView imageView = layout.findViewById(R.id.general_dialog_view_icon);
-        FrameLayout contentView = layout.findViewById(R.id
-                .general_dialog_view_content);
-
-        titleView.setText(title);
-        imageView.setImageResource(iconRes);
-        contentView.addView(customView);
-
-        return new MaterialAlertDialogBuilder(context).setView(layout);
+        return new MaterialAlertDialogBuilder(context).setView(null);
     }
 
 
