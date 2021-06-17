@@ -32,9 +32,8 @@
 
         <NumberPicker
             android:id="@+id/preference_sampling_rate_dialog_picker"
-            android:layout_width="70dip"
+            android:layout_width="100dip"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="5dip"
             android:focusable="true"
             android:focusableInTouchMode="true" />
 
@@ -42,6 +41,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:layout_marginLeft="5dp"
             android:text="s" />
 
     </LinearLayout>
