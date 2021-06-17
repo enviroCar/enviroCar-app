@@ -31,7 +31,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.appcompat.widget.Toolbar;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.content.ContextCompat;
 
@@ -214,7 +213,7 @@ public class SigninActivity extends BaseInjectorActivity {
                                             .inflate(R.layout.general_dialog_layout, null, false);
 
                                     // Set toolbar style
-                                    Toolbar toolbar1 = contentView.findViewById(R.id.genral_dialog_toolbar);
+                                    Toolbar toolbar1 = contentView.findViewById(R.id.general_dialog_toolbar);
                                     toolbar1.setTitle(R.string.login_mail_not_confirmed_dialog_title);
                                     toolbar1.setNavigationIcon(ContextCompat.getDrawable(SigninActivity.this,
                                             R.drawable.ic_baseline_email_24));

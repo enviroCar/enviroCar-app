@@ -33,7 +33,7 @@
 
     <string name="car_deselection_dialog_delete_pairing_title">Auto löschen?</string>
     <string name="car_deselection_dialog_delete_title">Auto löschen</string>
-    <string name="car_deselection_dialog_delete_pairing_content_template" formatted="false">Möchten Sie löschen %s %s?</string>
+    <string name="car_deselection_dialog_delete_pairing_content_template" formatted="false">Möchten Sie %s %s löschen?</string>
 
     <string name="car_selection_manufacturer">Hersteller</string>
     <string name="car_selection_model">Modell</string>

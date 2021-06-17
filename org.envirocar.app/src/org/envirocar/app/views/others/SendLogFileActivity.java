@@ -41,7 +41,6 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import org.envirocar.app.BaseApplicationComponent;
@@ -50,7 +49,6 @@ import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.preferences.CarPreferenceHandler;
 import org.envirocar.app.injection.BaseInjectorActivity;
-import org.envirocar.app.views.login.SigninActivity;
 import org.envirocar.app.views.reportissue.CheckBoxItem;
 import org.envirocar.app.views.reportissue.CheckboxBaseAdapter;
 import org.envirocar.core.entity.Car;
@@ -62,7 +60,6 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -192,7 +189,7 @@ public class SendLogFileActivity extends BaseInjectorActivity {
                 .inflate(R.layout.general_dialog_layout, null, false);
 
         // Set toolbar style
-        Toolbar toolbar1 = contentView.findViewById(R.id.genral_dialog_toolbar);
+        Toolbar toolbar1 = contentView.findViewById(R.id.general_dialog_toolbar);
         toolbar1.setTitle(R.string.report_issue_no_checkbox_selected_title);
         toolbar1.setNavigationIcon(ContextCompat.getDrawable(this,
                 R.drawable.ic_baseline_check_circle_24));

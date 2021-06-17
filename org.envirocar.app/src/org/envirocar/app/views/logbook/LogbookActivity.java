@@ -32,8 +32,6 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.afollestad.materialdialogs.MaterialDialog;
-
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.preferences.CarPreferenceHandler;
@@ -142,7 +140,7 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
 
                 // Set toolbar style
                 Toolbar toolbar1 = contentView.findViewById(R.id
-                        .genral_dialog_toolbar);
+                        .general_dialog_toolbar);
                 toolbar1.setTitle(R.string.logbook_dialog_delete_fueling_header);
                 toolbar1.setNavigationIcon(ContextCompat.getDrawable(LogbookActivity.this,
                         R.drawable.ic_delete_fueling_24));

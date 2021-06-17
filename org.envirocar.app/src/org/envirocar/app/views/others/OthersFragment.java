@@ -20,7 +20,6 @@ package org.envirocar.app.views.others;
 
 
 import android.Manifest;
-import android.app.Service;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -162,7 +161,7 @@ public class OthersFragment extends BaseInjectorFragment {
 
         // Set toolbar style
         Toolbar toolbar1 = contentView.findViewById(R.id
-                .genral_dialog_toolbar);
+                .general_dialog_toolbar);
         toolbar1.setTitle(R.string.menu_logout_envirocar_title);
         toolbar1.setNavigationIcon(ContextCompat.getDrawable(getActivity(), R.drawable.ic_logout_white_24dp));
         toolbar1.setTitleTextColor(
@@ -187,7 +186,7 @@ public class OthersFragment extends BaseInjectorFragment {
 
         // Set toolbar style
         Toolbar toolbar1 = contentView.findViewById(R.id
-                .genral_dialog_toolbar);
+                .general_dialog_toolbar);
         toolbar1.setTitle(R.string.menu_close_envirocar_title);
         toolbar1.setNavigationIcon(ContextCompat.getDrawable(getActivity(), R.drawable.ic_others_close_24));
         toolbar1.setTitleTextColor(

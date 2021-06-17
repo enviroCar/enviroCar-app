@@ -233,7 +233,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
 
                         // Set toolbar style
                         Toolbar toolbar1 = contentView.findViewById(R.id
-                                .genral_dialog_toolbar);
+                                .general_dialog_toolbar);
                         toolbar1.setTitle(R.string.car_deselection_dialog_delete_pairing_title);
                         toolbar1.setNavigationIcon(ContextCompat.getDrawable(CarSelectionActivity.this, R.drawable.ic_drive_eta_white_24dp));
                         toolbar1.setTitleTextColor(

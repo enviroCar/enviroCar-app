@@ -45,7 +45,6 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -110,7 +109,6 @@ import info.hoang8f.android.segmented.SegmentedGroup;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.functions.Consumer;
 import io.reactivex.observers.DisposableCompletableObserver;
 import io.reactivex.schedulers.Schedulers;
 
@@ -308,7 +306,7 @@ public class DashboardFragment extends BaseInjectorFragment {
 
             // Set toolbar style
             Toolbar toolbar1 = contentView.findViewById(R.id
-                    .genral_dialog_toolbar);
+                    .general_dialog_toolbar);
             toolbar1.setTitle(R.string.menu_logout_envirocar_title);
             toolbar1.setNavigationIcon(ContextCompat.getDrawable(getActivity(), R.drawable.ic_logout_white_24dp));
             toolbar1.setTitleTextColor(

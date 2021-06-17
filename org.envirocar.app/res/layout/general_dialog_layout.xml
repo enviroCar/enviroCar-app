@@ -19,7 +19,7 @@
     android:layout_height="match_parent">
 
     <androidx.appcompat.widget.Toolbar
-        android:id="@+id/genral_dialog_toolbar"
+        android:id="@+id/general_dialog_toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/blue_dark_cario"
