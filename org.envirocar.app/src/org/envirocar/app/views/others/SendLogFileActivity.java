@@ -184,23 +184,10 @@ public class SendLogFileActivity extends BaseInjectorActivity {
      * @param reportBundle
      */
     public void createNoCheckboxDialog(File reportBundle) {
-
-        View contentView = LayoutInflater.from(this)
-                .inflate(R.layout.general_dialog_layout, null, false);
-
-        // Set toolbar style
-        Toolbar toolbar1 = contentView.findViewById(R.id.general_dialog_toolbar);
-        toolbar1.setTitle(R.string.report_issue_no_checkbox_selected_title);
-        toolbar1.setNavigationIcon(ContextCompat.getDrawable(this,
-                R.drawable.ic_baseline_check_circle_24));
-        toolbar1.setTitleTextColor(getResources().getColor(R.color.white_cario));
-
-        // Set text view
-        TextView textview = contentView.findViewById(R.id.general_dialog_text);
-        textview.setText(getString(R.string.report_issue_no_checkbox_selected_content));
-
         new MaterialAlertDialogBuilder(this,R.style.MaterialDialog)
-                .setView(contentView)
+                .setTitle(R.string.report_issue_no_checkbox_selected_title)
+                .setMessage(R.string.report_issue_no_checkbox_selected_content)
+                .setIcon(R.drawable.ic_baseline_check_circle_24)
                 .setCancelable(true)
                 .setPositiveButton(R.string.report_issue_no_checkbox_send_anyway,
                         (materialDialog, dialogAction) -> sendLogFile(reportBundle))

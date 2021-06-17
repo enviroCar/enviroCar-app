@@ -212,21 +212,10 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
     protected void onStopButtonClicked() {
         LOG.info("Stop button has been clicked. Showing dialog to request confirmation");
 
-        View contentView = LayoutInflater.from(this)
-                .inflate(R.layout.general_dialog_layout, null, false);
-
-        // Set toolbar style
-        Toolbar toolbar1 = contentView.findViewById(R.id.general_dialog_toolbar);
-        toolbar1.setTitle(R.string.dashboard_dialog_stop_track);
-        toolbar1.setNavigationIcon(ContextCompat.getDrawable(this, R.drawable.ic_outline_stop_circle_24));
-        toolbar1.setTitleTextColor(getResources().getColor(R.color.white_cario));
-
-        // Set text view
-        TextView textview = contentView.findViewById(R.id.general_dialog_text);
-        textview.setText(getString(R.string.dashboard_dialog_stop_track_content));
-
         new MaterialAlertDialogBuilder(this,R.style.MaterialDialog)
-                .setView(contentView)
+                .setTitle(R.string.dashboard_dialog_stop_track)
+                .setMessage(R.string.dashboard_dialog_stop_track_content)
+                .setIcon(R.drawable.ic_outline_stop_circle_24)
                 .setPositiveButton(R.string.ok,(dialog, which) -> {
                     trackRecordingHandler.finishCurrentTrack();
                     finish();

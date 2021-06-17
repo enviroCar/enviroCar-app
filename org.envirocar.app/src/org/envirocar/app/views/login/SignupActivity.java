@@ -231,22 +231,10 @@ public class SignupActivity extends BaseInjectorActivity {
                     // Dismiss the progress dialog.
                     dialog.dismiss();
 
-                    View contentView = LayoutInflater.from(SignupActivity.this)
-                            .inflate(R.layout.general_dialog_layout, null, false);
-
-                    // Set toolbar style
-                    Toolbar toolbar1 = contentView.findViewById(R.id.general_dialog_toolbar);
-                    toolbar1.setTitle(R.string.register_success_dialog_title);
-                    toolbar1.setNavigationIcon(ContextCompat.getDrawable(SignupActivity.this
-                            ,R.drawable.ic_baseline_login_24));
-                    toolbar1.setTitleTextColor(getResources().getColor(R.color.white_cario));
-
-                    // Set text view
-                    TextView textview = contentView.findViewById(R.id.general_dialog_text);
-                    textview.setText(getString(R.string.register_success_dialog_content));
-
                     final AlertDialog d = new MaterialAlertDialogBuilder(SignupActivity.this,R.style.MaterialDialog)
-                            .setView(contentView)
+                            .setTitle(R.string.register_success_dialog_title)
+                            .setMessage(R.string.register_success_dialog_content)
+                            .setIcon(R.drawable.ic_baseline_login_24)
                             .setCancelable(false)
                             .setOnCancelListener(dialog1 -> {
                                 LOG.info("canceled");

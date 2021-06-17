@@ -228,25 +228,12 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
                                 "" + car.getConstructionYear(),
                                 "" + car.getEngineDisplacement()));
 
-                        View contentView = LayoutInflater.from(CarSelectionActivity.this)
-                                .inflate(R.layout.general_dialog_layout, null, false);
-
-                        // Set toolbar style
-                        Toolbar toolbar1 = contentView.findViewById(R.id
-                                .general_dialog_toolbar);
-                        toolbar1.setTitle(R.string.car_deselection_dialog_delete_pairing_title);
-                        toolbar1.setNavigationIcon(ContextCompat.getDrawable(CarSelectionActivity.this, R.drawable.ic_drive_eta_white_24dp));
-                        toolbar1.setTitleTextColor(
-                                getResources().getColor(R.color.white_cario));
-
-                        // Set text view
-                        TextView textview = contentView.findViewById(R.id.general_dialog_text);
-                        textview.setText(String.format(getString(
-                                R.string.car_deselection_dialog_delete_pairing_content_template), car.getManufacturer(), car.getModel()));
-
                         // Create a dialog to confirm the car deletion
                         new MaterialAlertDialogBuilder(CarSelectionActivity.this, R.style.MaterialDialog)
-                                .setView(contentView)
+                                .setTitle(R.string.car_deselection_dialog_delete_pairing_title)
+                                .setMessage(String.format(getString(R.string.car_deselection_dialog_delete_pairing_content_template),
+                                        car.getManufacturer(), car.getModel()))
+                                .setIcon(R.drawable.ic_drive_eta_white_24dp)
                                 .setPositiveButton(R.string.car_deselection_dialog_delete_title, (dialog, which) -> {
                                     // If the car has been removed successfully...
                                     if (mCarManager.removeCar(car)) {

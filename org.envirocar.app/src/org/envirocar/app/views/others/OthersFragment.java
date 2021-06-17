@@ -155,24 +155,11 @@ public class OthersFragment extends BaseInjectorFragment {
 
     @OnClick(R.id.othersLogOut)
     protected void onLogOutClicked() {
-
-        View contentView = LayoutInflater.from(getActivity())
-                .inflate(R.layout.general_dialog_layout, null, false);
-
-        // Set toolbar style
-        Toolbar toolbar1 = contentView.findViewById(R.id
-                .general_dialog_toolbar);
-        toolbar1.setTitle(R.string.menu_logout_envirocar_title);
-        toolbar1.setNavigationIcon(ContextCompat.getDrawable(getActivity(), R.drawable.ic_logout_white_24dp));
-        toolbar1.setTitleTextColor(
-                getResources().getColor(R.color.white_cario));
-
-        // Set text view
-        TextView textview = contentView.findViewById(R.id.general_dialog_text);
-        textview.setText(getString(R.string.menu_logout_envirocar_content));
-
+        // show dialog
         new MaterialAlertDialogBuilder(getActivity(), R.style.MaterialDialog)
-                .setView(contentView)
+                .setTitle(R.string.menu_logout_envirocar_title)
+                .setMessage(R.string.menu_logout_envirocar_content)
+                .setIcon(R.drawable.ic_logout_white_24dp)
                 .setPositiveButton(R.string.menu_logout_envirocar_positive,
                         (dialog, which) -> mUserManager.logOut().subscribe(logOut()))
                 .setNegativeButton(R.string.menu_logout_envirocar_negative,null)
@@ -181,24 +168,11 @@ public class OthersFragment extends BaseInjectorFragment {
 
     @OnClick(R.id.othersCloseEnviroCar)
     protected void onCloseEnviroCarClicked() {
-        View contentView = LayoutInflater.from(getActivity())
-                .inflate(R.layout.general_dialog_layout, null, false);
-
-        // Set toolbar style
-        Toolbar toolbar1 = contentView.findViewById(R.id
-                .general_dialog_toolbar);
-        toolbar1.setTitle(R.string.menu_close_envirocar_title);
-        toolbar1.setNavigationIcon(ContextCompat.getDrawable(getActivity(), R.drawable.ic_others_close_24));
-        toolbar1.setTitleTextColor(
-                getResources().getColor(R.color.white_cario));
-
-        // Set text view
-        TextView textview = contentView.findViewById(R.id.general_dialog_text);
-        textview.setText(getString(R.string.menu_close_envirocar_content));
-
-
+        // show closing dialog 
         new MaterialAlertDialogBuilder(getActivity(), R.style.MaterialDialog)
-                .setView(contentView)
+                .setTitle(R.string.menu_close_envirocar_title)
+                .setMessage(R.string.menu_close_envirocar_content)
+                .setIcon(R.drawable.ic_others_close_24)
                 .setPositiveButton(R.string.menu_close_envirocar_positive,
                         (dialog, which) -> shutdownEnviroCar())
                 .setNegativeButton(R.string.menu_logout_envirocar_negative,null)

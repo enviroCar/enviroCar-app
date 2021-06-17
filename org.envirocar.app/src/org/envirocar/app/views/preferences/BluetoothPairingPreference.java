@@ -22,6 +22,7 @@ import android.app.AlertDialog;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.res.Resources;
 import android.preference.DialogPreference;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -157,25 +158,12 @@ public class BluetoothPairingPreference extends DialogPreference {
         mNewDevicesListView.setOnItemClickListener((parent, view1, position, id) -> {
             final BluetoothDevice device = mNewDevicesArrayAdapter.getItem(position);
 
-            View contentView = LayoutInflater.from(getContext()).inflate(R.layout
-                    .bluetooth_pairing_preference_device_pairing_dialog, null, false);
-
-            // Set toolbar style
-            Toolbar toolbar1 = contentView.findViewById(R.id
-                    .bluetooth_selection_preference_pairing_dialog_toolbar);
-            toolbar1.setTitle(R.string.bluetooth_pairing_preference_toolbar_title);
-            toolbar1.setNavigationIcon(R.drawable.ic_bluetooth_white_24dp);
-            toolbar1.setTitleTextColor(getContext().getResources().getColor(R.color
-                    .white_cario));
-
-            // Set text view
-            TextView textview = contentView.findViewById(R.id
-                    .bluetooth_selection_preference_pairing_dialog_text);
-            textview.setText(String.format("Do you want to pair with %s?", device.getName()));
 
             // Create the Dialog
             new MaterialAlertDialogBuilder(getContext(), R.style.MaterialDialog)
-                    .setView(contentView)
+                    .setTitle(R.string.bluetooth_pairing_preference_toolbar_title)
+                    .setMessage(String.format(getContext().getString(R.string.obd_selection_dialog_pairing_content_template),device.getName()))
+                    .setIcon(R.drawable.ic_bluetooth_white_24dp)
                     .setPositiveButton(R.string.obd_selection_dialog_pairing_title,
                             (dialog, which) -> {
                                 // If this button is clicked, pair with the given device
@@ -190,26 +178,11 @@ public class BluetoothPairingPreference extends DialogPreference {
         mPairedDevicesListView.setOnItemClickListener((parent, view1, position, id) -> {
             final BluetoothDevice device = mPairedDevicesAdapter.getItem(position);
 
-            View contentView = LayoutInflater.from(getContext()).inflate(R.layout
-                    .bluetooth_pairing_preference_device_pairing_dialog, null, false);
-
-            // Set toolbar style
-            Toolbar toolbar1 = contentView.findViewById(R.id
-                    .bluetooth_selection_preference_pairing_dialog_toolbar);
-            toolbar1.setTitle(R.string.obd_selection_dialog_delete_pairing_title);
-            toolbar1.setNavigationIcon(R.drawable.ic_bluetooth_white_24dp);
-            toolbar1.setTitleTextColor(getContext().getResources().getColor(R.color
-                    .white_cario));
-
-            // Set text view
-            TextView textview = contentView.findViewById(R.id
-                    .bluetooth_selection_preference_pairing_dialog_text);
-            textview.setText(String.format("Do you want to remove the pairing with %s?", device
-                    .getName()));
-
             // Create the AlertDialog.
             new MaterialAlertDialogBuilder(getContext(), R.style.MaterialDialog)
-                    .setView(contentView)
+                    .setTitle(R.string.obd_selection_dialog_delete_pairing_title)
+                    .setMessage(String.format(getContext().getString(R.string.obd_selection_dialog_delete_pairing_content_template),device.getName()))
+                    .setIcon(R.drawable.ic_bluetooth_white_24dp)
                     .setPositiveButton(R.string.bluetooth_pairing_preference_dialog_remove_pairing,
                             (dialog, which) -> {
                                 LOGGER.debug("OnPositiveButton clicked to remove pairing.");

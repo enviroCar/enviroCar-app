@@ -208,23 +208,11 @@ public class SigninActivity extends BaseInjectorActivity {
                                     passwordEditText.setError(getString(R.string.error_incorrect_password));
                                     break;
                                 case MAIL_NOT_CONFIREMED:
-
-                                    View contentView = LayoutInflater.from(SigninActivity.this)
-                                            .inflate(R.layout.general_dialog_layout, null, false);
-
-                                    // Set toolbar style
-                                    Toolbar toolbar1 = contentView.findViewById(R.id.general_dialog_toolbar);
-                                    toolbar1.setTitle(R.string.login_mail_not_confirmed_dialog_title);
-                                    toolbar1.setNavigationIcon(ContextCompat.getDrawable(SigninActivity.this,
-                                            R.drawable.ic_baseline_email_24));
-                                    toolbar1.setTitleTextColor(getResources().getColor(R.color.white_cario));
-
-                                    // Set text view
-                                    TextView textview = contentView.findViewById(R.id.general_dialog_text);
-                                    textview.setText(getString(R.string.login_mail_not_confirmed_dialog_content));
-
+                                    // show alert dialog
                                     new MaterialAlertDialogBuilder(SigninActivity.this,R.style.MaterialDialog)
-                                            .setView(contentView)
+                                            .setTitle(R.string.login_mail_not_confirmed_dialog_title)
+                                            .setMessage(R.string.login_mail_not_confirmed_dialog_content)
+                                            .setIcon(R.drawable.ic_baseline_email_24)
                                             .setCancelable(true)
                                             .setPositiveButton(R.string.ok,null)
                                             .show();
