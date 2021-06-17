@@ -218,8 +218,7 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
                     R.string.request_storage_permission_title,
                     R.drawable.others_settings,
                     R.string.permission_rationale_file)
-                    .positiveText(R.string.ok)
-                    .onPositive((dialog, which) -> {
+                    .setPositiveButton(R.string.ok,(dialog, which) -> {
                         // Request permission
                         ActivityCompat.requestPermissions(getActivity(),
                                 new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
@@ -307,9 +306,7 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
                 R.string.trackviews_delete_track_dialog_headline,
                 R.drawable.ic_delete_white_24dp,
                 contentView)
-                .positiveText(R.string.ok)
-                .negativeText(R.string.cancel)
-                .onPositive((materialDialog, dialogAction) ->
+                .setPositiveButton((R.string.ok),(materialDialog, dialogAction) ->
                         mBackgroundWorker.schedule(() -> {
                             // On a positive button click, then delete the track.
                             if (upToDateRef.isLocalTrack())
@@ -317,6 +314,7 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
                             else
                                 deleteRemoteTrack(track);
                         }))
+                .setNegativeButton(R.string.cancel,null)
                 .show();
     }
 

@@ -168,7 +168,7 @@ public class OthersFragment extends BaseInjectorFragment {
 
     @OnClick(R.id.othersCloseEnviroCar)
     protected void onCloseEnviroCarClicked() {
-        // show closing dialog 
+        // show closing dialog
         new MaterialAlertDialogBuilder(getActivity(), R.style.MaterialDialog)
                 .setTitle(R.string.menu_close_envirocar_title)
                 .setMessage(R.string.menu_close_envirocar_content)
@@ -202,13 +202,12 @@ public class OthersFragment extends BaseInjectorFragment {
                     R.string.request_storage_permission_title,
                     R.drawable.others_settings,
                     R.string.permission_rationale_file)
-                    .positiveText(R.string.ok)
-                    .onPositive((dialog, which) -> {
+                    .setPositiveButton(R.string.ok,((dialog, which) -> {
                         // Request permission
                         ActivityCompat.requestPermissions(getActivity(),
                                 new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                                 REQUEST_PERMISSIONS_REQUEST_CODE);
-                    })
+                    }))
                     .show();
 
 

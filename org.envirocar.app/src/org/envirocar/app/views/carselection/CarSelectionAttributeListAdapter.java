@@ -89,11 +89,10 @@ public class CarSelectionAttributeListAdapter extends RecyclerView.Adapter<CarSe
                     R.drawable.ic_directions_car_black_24dp,
                     holder.manufacturerName.getText() + " " + holder.vehicleName.getText() +
                             " " + holder.fuelType.getText() + " " + holder.engineCapacity.getText() + " ")
-                    .positiveText(R.string.ok)
-                    .onPositive((dialog, which) -> {
+                    .setPositiveButton(R.string.ok,(dialog, which) -> {
                         mCallback.addAndRegisterCar(vehicle);
                     })
-                    .negativeText(R.string.cancel)
+                    .setNegativeButton(R.string.cancel,null)
                     .show();
         });
     }
