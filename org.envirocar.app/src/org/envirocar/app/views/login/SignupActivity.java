@@ -231,7 +231,7 @@ public class SignupActivity extends BaseInjectorActivity {
                     // Dismiss the progress dialog.
                     dialog.dismiss();
 
-                    final AlertDialog d = new MaterialAlertDialogBuilder(SignupActivity.this,R.style.MaterialDialog)
+                    new MaterialAlertDialogBuilder(SignupActivity.this,R.style.MaterialDialog)
                             .setTitle(R.string.register_success_dialog_title)
                             .setMessage(R.string.register_success_dialog_content)
                             .setIcon(R.drawable.ic_baseline_login_24)
