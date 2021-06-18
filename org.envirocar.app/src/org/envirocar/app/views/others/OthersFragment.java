@@ -29,12 +29,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -51,7 +48,6 @@ import org.envirocar.app.recording.RecordingService;
 import org.envirocar.app.services.autoconnect.AutoRecordingService;
 import org.envirocar.app.views.logbook.LogbookActivity;
 import org.envirocar.app.views.settings.SettingsActivity;
-import org.envirocar.app.views.utils.DialogUtils;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.utils.ServiceUtils;
@@ -198,19 +194,17 @@ public class OthersFragment extends BaseInjectorFragment {
         if (shouldProvideRationale) {
             LOGGER.debug("Requesting File Permission. Displaying permission rationale to provide additional context.");
 
-            DialogUtils.createDefaultDialogBuilder(getContext(),
-                    R.string.request_storage_permission_title,
-                    R.drawable.others_settings,
-                    R.string.permission_rationale_file)
-                    .setPositiveButton(R.string.ok,((dialog, which) -> {
+            new MaterialAlertDialogBuilder(getContext(), R.style.MaterialDialog)
+                    .setTitle(R.string.request_storage_permission_title)
+                    .setMessage(R.string.permission_rationale_file)
+                    .setIcon(R.drawable.others_settings)
+                    .setPositiveButton(R.string.ok,(dialog, which) -> {
                         // Request permission
                         ActivityCompat.requestPermissions(getActivity(),
                                 new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                                 REQUEST_PERMISSIONS_REQUEST_CODE);
-                    }))
+                    })
                     .show();
-
-
         } else {
             LOGGER.debug("Requesting permission");
             // Request permission. It's possible this can be auto answered if device policy
