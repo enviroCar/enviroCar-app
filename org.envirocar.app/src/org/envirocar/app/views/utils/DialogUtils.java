@@ -25,7 +25,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import org.envirocar.app.R;
 
@@ -36,47 +36,40 @@ import org.envirocar.app.R;
  */
 public class DialogUtils {
 
-    public static MaterialDialog.Builder createDefaultDialogBuilder(
+    @Deprecated
+    public static MaterialAlertDialogBuilder createDefaultDialogBuilder(
             Context context, int titleRes, int iconRes, View contentView) {
         return createDefaultDialogBuilder(context, context.getString(titleRes), iconRes,
                 contentView);
     }
 
-    public static MaterialDialog.Builder createDefaultDialogBuilder(
+    @Deprecated
+    public static MaterialAlertDialogBuilder createDefaultDialogBuilder(
             Context context, int titleRes, int iconRes, int contentRes) {
         return createDefaultDialogBuilder(context, context.getString(titleRes), iconRes, context
                 .getString(contentRes));
     }
 
-    public static MaterialDialog.Builder createDefaultDialogBuilder(
+    @Deprecated
+    public static MaterialAlertDialogBuilder createDefaultDialogBuilder(
             Context context, int titleRes, int iconRes, String content) {
         return createDefaultDialogBuilder(context, context.getString(titleRes), iconRes, content);
     }
 
-    public static MaterialDialog.Builder createDefaultDialogBuilder(
+    @Deprecated
+    public static MaterialAlertDialogBuilder createDefaultDialogBuilder(
             Context context, String title, int iconRes, String content) {
         TextView textView = new TextView(context);
         textView.setText(content);
         return createDefaultDialogBuilder(context, title, iconRes, textView);
     }
 
-    public static MaterialDialog.Builder createDefaultDialogBuilder(
+    @Deprecated
+    public static MaterialAlertDialogBuilder createDefaultDialogBuilder(
             Context context, String title, int iconRes, View customView) {
-        View layout = LayoutInflater.from(context)
-                .inflate(R.layout.general_dialog_view, null, false);
 
-        TextView titleView = layout.findViewById(R.id.general_dialog_view_title);
-        ImageView imageView = layout.findViewById(R.id.general_dialog_view_icon);
-        FrameLayout contentView = layout.findViewById(R.id
-                .general_dialog_view_content);
-
-        titleView.setText(title);
-        imageView.setImageResource(iconRes);
-        contentView.addView(customView);
-
-        return new MaterialDialog.Builder(context)
-                .customView(layout, false);
+        return new MaterialAlertDialogBuilder(context).setView(null);
     }
-
-
 }
+
+

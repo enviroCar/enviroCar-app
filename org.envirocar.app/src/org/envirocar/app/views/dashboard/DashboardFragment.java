@@ -45,7 +45,6 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -55,6 +54,7 @@ import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.content.ContextCompat;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.play.core.appupdate.AppUpdateInfo;
@@ -109,7 +109,6 @@ import info.hoang8f.android.segmented.SegmentedGroup;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.functions.Consumer;
 import io.reactivex.observers.DisposableCompletableObserver;
 import io.reactivex.schedulers.Schedulers;
 
@@ -303,12 +302,13 @@ public class DashboardFragment extends BaseInjectorFragment {
             SigninActivity.startActivity(getContext());
         } else if (menuItem.getItemId() == R.id.dashboard_action_logout) {
             // show a logout dialog
-            new MaterialDialog.Builder(getActivity())
-                    .title(getString(R.string.menu_logout_envirocar_title))
-                    .positiveText(getString(R.string.menu_logout_envirocar_positive))
-                    .negativeText(getString(R.string.menu_logout_envirocar_negative))
-                    .content(getString(R.string.menu_logout_envirocar_content))
-                    .onPositive((dialog, which) -> userHandler.logOut().subscribe(onLogoutSubscriber()))
+            new MaterialAlertDialogBuilder(getActivity(), R.style.MaterialDialog)
+                    .setTitle(R.string.menu_logout_envirocar_title)
+                    .setMessage(R.string.menu_logout_envirocar_content)
+                    .setIcon(R.drawable.ic_logout_white_24dp)
+                    .setPositiveButton(R.string.menu_logout_envirocar_positive,
+                            (dialog, which) -> userHandler.logOut().subscribe(onLogoutSubscriber()))
+                    .setNegativeButton(R.string.menu_logout_envirocar_negative,null)
                     .show();
         }
     }

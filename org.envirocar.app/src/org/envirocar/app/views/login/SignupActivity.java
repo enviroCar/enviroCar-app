@@ -31,6 +31,7 @@ import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.util.Pair;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
@@ -38,8 +39,12 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.jakewharton.rxbinding3.widget.RxCompoundButton;
 import com.jakewharton.rxbinding3.widget.RxTextView;
 
@@ -226,16 +231,16 @@ public class SignupActivity extends BaseInjectorActivity {
                     // Dismiss the progress dialog.
                     dialog.dismiss();
 
-                    final MaterialDialog d = new MaterialDialog.Builder(SignupActivity.this)
-                            .title(R.string.register_success_dialog_title)
-                            .content(R.string.register_success_dialog_content)
-                            .cancelable(false)
-                            .positiveText(R.string.ok)
-                            .cancelListener(dialog1 -> {
+                    new MaterialAlertDialogBuilder(SignupActivity.this,R.style.MaterialDialog)
+                            .setTitle(R.string.register_success_dialog_title)
+                            .setMessage(R.string.register_success_dialog_content)
+                            .setIcon(R.drawable.ic_baseline_login_24)
+                            .setCancelable(false)
+                            .setOnCancelListener(dialog1 -> {
                                 LOG.info("canceled");
                                 finish();
                             })
-                            .onAny((a, b) -> {
+                            .setPositiveButton(R.string.ok,(a, b) -> {
                                 LOG.info("onPositive");
                                 finish();
                             })

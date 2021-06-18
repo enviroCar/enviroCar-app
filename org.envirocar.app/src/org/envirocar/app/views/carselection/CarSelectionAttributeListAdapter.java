@@ -1,7 +1,5 @@
 package org.envirocar.app.views.carselection;
 
-import android.Manifest;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,16 +8,14 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import org.envirocar.app.R;
-import org.envirocar.app.views.utils.DialogUtils;
-import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Vehicles;
 
 import java.util.List;
-import java.util.zip.Inflater;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -84,16 +80,15 @@ public class CarSelectionAttributeListAdapter extends RecyclerView.Adapter<CarSe
 
         holder.carDetailView.setOnClickListener(v -> {
 
-            DialogUtils.createDefaultDialogBuilder(context,
-                    R.string.create_car_dialog,
-                    R.drawable.ic_directions_car_black_24dp,
-                    holder.manufacturerName.getText() + " " + holder.vehicleName.getText() +
-                            " " + holder.fuelType.getText() + " " + holder.engineCapacity.getText() + " ")
-                    .positiveText(R.string.ok)
-                    .onPositive((dialog, which) -> {
+            new MaterialAlertDialogBuilder(context, R.style.MaterialDialog)
+                    .setTitle(R.string.create_car_dialog)
+                    .setMessage(String.format(holder.manufacturerName.getText() + " " + holder.vehicleName.getText() +
+                            " " + holder.fuelType.getText() + " " + holder.engineCapacity.getText() + " "))
+                    .setIcon(R.drawable.ic_directions_car_black_24dp)
+                    .setPositiveButton(R.string.ok,(dialog, which) -> {
                         mCallback.addAndRegisterCar(vehicle);
                     })
-                    .negativeText(R.string.cancel)
+                    .setNegativeButton(R.string.cancel,null)
                     .show();
         });
     }

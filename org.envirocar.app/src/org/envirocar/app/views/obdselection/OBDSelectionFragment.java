@@ -18,7 +18,6 @@
  */
 package org.envirocar.app.views.obdselection;
 
-import android.app.AlertDialog;
 import android.bluetooth.BluetoothDevice;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -33,7 +32,7 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 
-import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.R;
@@ -285,26 +284,12 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
         mNewDevicesListView.setOnItemClickListener((parent, view1, position, id) -> {
             final BluetoothDevice device = mNewDevicesArrayAdapter.getItem(position);
 
-            View contentView = LayoutInflater.from(getActivity()).inflate(R.layout
-                    .bluetooth_pairing_preference_device_pairing_dialog, null, false);
-
-            // Set toolbar style
-            Toolbar toolbar1 = contentView.findViewById(R.id
-                    .bluetooth_selection_preference_pairing_dialog_toolbar);
-            toolbar1.setTitle(R.string.bluetooth_pairing_preference_toolbar_title);
-            toolbar1.setNavigationIcon(R.drawable.ic_bluetooth_white_24dp);
-            toolbar1.setTitleTextColor(getActivity().getResources().getColor(R.color
-                    .white_cario));
-
-            // Set text view
-            TextView textview = contentView.findViewById(R.id
-                    .bluetooth_selection_preference_pairing_dialog_text);
-            textview.setText(String.format(getString(
-                    R.string.obd_selection_dialog_pairing_content_template), device.getName()));
-
             // Create the Dialog
-            new AlertDialog.Builder(getActivity())
-                    .setView(contentView)
+            new MaterialAlertDialogBuilder(getActivity(), R.style.MaterialDialog)
+                    .setTitle(R.string.bluetooth_pairing_preference_toolbar_title)
+                    .setMessage(String.format(getString(
+                            R.string.obd_selection_dialog_pairing_content_template), device.getName()))
+                    .setIcon(R.drawable.ic_bluetooth_white_24dp)
                     .setPositiveButton(R.string.obd_selection_dialog_pairing_title,
                             (dialog, which) -> {
                                 // If this button is clicked, pair with the given device
@@ -312,42 +297,22 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
                                 pairDevice(device, view1);
                             })
                     .setNegativeButton(R.string.cancel, null) // Nothing to do on cancel
-                    .create()
                     .show();
         });
     }
 
     private void showUnpairingDialig(BluetoothDevice device) {
-        View contentView = LayoutInflater.from(getActivity())
-                .inflate(R.layout.bluetooth_pairing_preference_device_pairing_dialog, null, false);
-
-        // Set toolbar style
-        Toolbar toolbar1 = contentView.findViewById(R.id
-                .bluetooth_selection_preference_pairing_dialog_toolbar);
-        toolbar1.setTitle(R.string.obd_selection_dialog_delete_pairing_title);
-        toolbar1.setNavigationIcon(R.drawable.ic_bluetooth_white_24dp);
-        toolbar1.setTitleTextColor(
-                getResources().getColor(R.color.white_cario));
-
-        // Set text view
-        TextView textview = contentView.findViewById(R.id
-                .bluetooth_selection_preference_pairing_dialog_text);
-        textview.setText(String.format(
-                getString(R.string.obd_selection_dialog_delete_pairing_content_template),
-                device.getName()));
-
         // Create the AlertDialog.
-        new MaterialDialog.Builder(getActivity())
-                .customView(contentView, false)
-                .positiveText(R.string.bluetooth_pairing_preference_dialog_remove_pairing)
-                .negativeText(R.string.menu_cancel)
-                .callback(new MaterialDialog.ButtonCallback() {
-                    @Override
-                    public void onPositive(MaterialDialog dialog) {
-                        LOGGER.debug("OnPositiveButton clicked to remove pairing.");
-                        unpairDevice(device);
-                    }
-                })
+        new MaterialAlertDialogBuilder(getActivity(), R.style.MaterialDialog)
+                .setTitle(R.string.obd_selection_dialog_delete_pairing_title)
+                .setMessage(String.format(getString(R.string.obd_selection_dialog_delete_pairing_content_template),device.getName()))
+                .setIcon(R.drawable.ic_bluetooth_white_24dp)
+                .setPositiveButton(R.string.bluetooth_pairing_preference_dialog_remove_pairing,
+                        (dialog, which) -> {
+                            LOGGER.debug("OnPositiveButton clicked to remove pairing.");
+                            unpairDevice(device);
+                        })
+                .setNegativeButton(R.string.menu_cancel,null) // Nothing to do on cancel
                 .show();
     }
 

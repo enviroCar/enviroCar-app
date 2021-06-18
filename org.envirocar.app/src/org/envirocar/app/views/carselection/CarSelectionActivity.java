@@ -21,15 +21,19 @@ package org.envirocar.app.views.carselection;
 import android.content.Context;
 import android.os.Bundle;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
+import android.view.LayoutInflater;
 
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
@@ -224,14 +228,24 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
                                 "" + car.getConstructionYear(),
                                 "" + car.getEngineDisplacement()));
 
-                        // If the car has been removed successfully...
-                        if (mCarManager.removeCar(car)) {
-                            showSnackbar(String.format(
-                                    getString(R.string.car_selection_car_deleted_tmp),
-                                    car.getManufacturer(), car.getModel()));
-                        }
-                        // then remove it from the list and show a snackbar.
-                        mCarListAdapter.removeCarItem(car);
+                        // Create a dialog to confirm the car deletion
+                        new MaterialAlertDialogBuilder(CarSelectionActivity.this, R.style.MaterialDialog)
+                                .setTitle(R.string.car_deselection_dialog_delete_pairing_title)
+                                .setMessage(String.format(getString(R.string.car_deselection_dialog_delete_pairing_content_template),
+                                        car.getManufacturer(), car.getModel()))
+                                .setIcon(R.drawable.ic_drive_eta_white_24dp)
+                                .setPositiveButton(R.string.car_deselection_dialog_delete_title, (dialog, which) -> {
+                                    // If the car has been removed successfully...
+                                    if (mCarManager.removeCar(car)) {
+                                        showSnackbar(String.format(
+                                                getString(R.string.car_selection_car_deleted_tmp),
+                                                car.getManufacturer(), car.getModel()));
+                                    }
+                                    // then remove it from the list and show a snackbar.
+                                    mCarListAdapter.removeCarItem(car);// Nothing to do on cancel
+                                })
+                                .setNegativeButton(R.string.cancel,null)
+                                .show();
                     }
                 });
         mCarListView.setAdapter(mCarListAdapter);

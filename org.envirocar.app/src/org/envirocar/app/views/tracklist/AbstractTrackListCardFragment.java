@@ -38,6 +38,7 @@ import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -49,7 +50,6 @@ import org.envirocar.app.handler.TrackUploadHandler;
 import org.envirocar.app.handler.preferences.UserPreferenceHandler;
 import org.envirocar.app.handler.agreement.AgreementManager;
 import org.envirocar.app.injection.BaseInjectorFragment;
-import org.envirocar.app.views.utils.DialogUtils;
 import org.envirocar.app.views.utils.ECAnimationUtils;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.exception.NotConnectedException;
@@ -214,19 +214,17 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
         if (shouldProvideRationale) {
             LOG.debug("Requesting Storage permission. Displaying permission rationale to provide additional context.");
 
-            DialogUtils.createDefaultDialogBuilder(getContext(),
-                    R.string.request_storage_permission_title,
-                    R.drawable.others_settings,
-                    R.string.permission_rationale_file)
-                    .positiveText(R.string.ok)
-                    .onPositive((dialog, which) -> {
+            new MaterialAlertDialogBuilder(getContext(), R.style.MaterialDialog)
+                    .setTitle(R.string.request_storage_permission_title)
+                    .setMessage(R.string.permission_rationale_file)
+                    .setIcon(R.drawable.others_settings)
+                    .setPositiveButton(R.string.ok,(dialog, which) -> {
                         // Request permission
                         ActivityCompat.requestPermissions(getActivity(),
                                 new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                                 REQUEST_STORAGE_PERMISSION_REQUEST_CODE);
                     })
                     .show();
-
         } else {
             LOG.info("Requesting permission");
             // Request permission. It's possible this can be auto answered if device policy
@@ -303,20 +301,21 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
                 R.id.fragment_tracklist_delete_track_dialog_trackname)).setText(track.getName());
 
         // Create a dialog that deletes on click on the positive button the track.
-        DialogUtils.createDefaultDialogBuilder(getActivity(),
-                R.string.trackviews_delete_track_dialog_headline,
-                R.drawable.ic_delete_white_24dp,
-                contentView)
-                .positiveText(R.string.ok)
-                .negativeText(R.string.cancel)
-                .onPositive((materialDialog, dialogAction) ->
-                        mBackgroundWorker.schedule(() -> {
-                            // On a positive button click, then delete the track.
-                            if (upToDateRef.isLocalTrack())
-                                deleteLocalTrack(track);
-                            else
-                                deleteRemoteTrack(track);
-                        }))
+        new MaterialAlertDialogBuilder(getActivity(), R.style.MaterialDialog)
+                .setView(contentView)
+                .setTitle(R.string.trackviews_delete_track_dialog_headline)
+                .setMessage(R.string.menu_logout_envirocar_content)
+                .setIcon(R.drawable.ic_delete_white_24dp)
+                .setPositiveButton(R.string.ok,
+                        (materialDialog, dialogAction) ->
+                                mBackgroundWorker.schedule(() -> {
+                                    // On a positive button click, then delete the track.
+                                    if (upToDateRef.isLocalTrack())
+                                        deleteLocalTrack(track);
+                                    else
+                                        deleteRemoteTrack(track);
+                                }))
+                .setNegativeButton(R.string.cancel,null)
                 .show();
     }
 
