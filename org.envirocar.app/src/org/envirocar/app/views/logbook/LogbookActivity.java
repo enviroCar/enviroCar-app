@@ -19,15 +19,16 @@
 package org.envirocar.app.views.logbook;
 
 import android.os.Bundle;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 import androidx.appcompat.widget.Toolbar;
+
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-
-import com.afollestad.materialdialogs.MaterialDialog;
 
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
@@ -131,12 +132,14 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long
                     id) {
                 final Fueling fueling = fuelings.get(position);
-                new MaterialDialog.Builder(LogbookActivity.this)
-                        .title(R.string.logbook_dialog_delete_fueling_header)
-                        .content(R.string.logbook_dialog_delete_fueling_content)
-                        .positiveText(R.string.menu_delete)
-                        .negativeText(R.string.cancel)
-                        .onPositive((materialDialog, dialogAction) -> deleteFueling(fueling))
+
+                new MaterialAlertDialogBuilder(LogbookActivity.this, R.style.MaterialDialog)
+                        .setTitle(R.string.logbook_dialog_delete_fueling_header)
+                        .setMessage(R.string.logbook_dialog_delete_fueling_content)
+                        .setIcon(R.drawable.ic_delete_fueling_24)
+                        .setPositiveButton(R.string.menu_delete,
+                                (dialog, which) -> deleteFueling(fueling))
+                        .setNegativeButton(R.string.cancel,null)
                         .show();
                 return false;
             }

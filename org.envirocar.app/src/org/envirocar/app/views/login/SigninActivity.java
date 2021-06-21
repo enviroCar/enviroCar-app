@@ -23,15 +23,19 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityOptionsCompat;
+import androidx.core.content.ContextCompat;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.envirocar.app.BaseApplicationComponent;
@@ -205,12 +209,14 @@ public class SigninActivity extends BaseInjectorActivity {
                                     passwordEditText.setError(getString(R.string.error_incorrect_password));
                                     break;
                                 case MAIL_NOT_CONFIREMED:
-                                    new MaterialDialog.Builder(SigninActivity.this)
-                                            .cancelable(true)
-                                            .positiveText(R.string.ok)
-                                            .title(R.string.login_mail_not_confirmed_dialog_title)
-                                            .content(R.string.login_mail_not_confirmed_dialog_content)
-                                            .build().show();
+                                    // show alert dialog
+                                    new MaterialAlertDialogBuilder(SigninActivity.this,R.style.MaterialDialog)
+                                            .setTitle(R.string.login_mail_not_confirmed_dialog_title)
+                                            .setMessage(R.string.login_mail_not_confirmed_dialog_content)
+                                            .setIcon(R.drawable.ic_baseline_email_24)
+                                            .setCancelable(true)
+                                            .setPositiveButton(R.string.ok,null)
+                                            .show();
                                     break;
                                 case UNABLE_TO_COMMUNICATE_WITH_SERVER:
                                     passwordEditText.setError(getString(R.string.error_host_not_found));
