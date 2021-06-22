@@ -30,6 +30,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.content.ContextCompat;
@@ -45,6 +46,7 @@ import org.envirocar.app.handler.DAOProvider;
 import org.envirocar.app.handler.agreement.AgreementManager;
 import org.envirocar.app.handler.preferences.UserPreferenceHandler;
 import org.envirocar.app.injection.BaseInjectorActivity;
+import org.envirocar.app.views.utils.DialogUtils;
 import org.envirocar.core.logging.Logger;
 
 import javax.inject.Inject;
@@ -179,14 +181,15 @@ public class SigninActivity extends BaseInjectorActivity {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(new DisposableCompletableObserver() {
-                    private MaterialDialog dialog;
+                    private AlertDialog dialog;
 
                     @Override
                     protected void onStart() {
-                        dialog = new MaterialDialog.Builder(SigninActivity.this)
-                                .title(R.string.activity_login_logging_in_dialog_title)
-                                .progress(true, 0)
-                                .cancelable(false)
+                        dialog = DialogUtils.createDefaultDialogBuilder(SigninActivity.this,
+                                R.string.activity_login_logging_in_dialog_title,
+                                R.drawable.ic_baseline_login_24,
+                                (String) null)
+                                .setCancelable(false)
                                 .show();
                     }
 
