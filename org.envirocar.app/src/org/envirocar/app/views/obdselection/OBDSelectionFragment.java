@@ -177,7 +177,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
         }
     }
 
-
+    private final int REQUEST_LOCATION_PERMISSION = 1;
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -186,7 +186,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
         EasyPermissions.onRequestPermissionsResult(requestCode,permissions,grantResults,this);
     }
 
-
+    @AfterPermissionGranted(REQUEST_LOCATION_PERMISSION)
     public void requestLocationPermissions() {
         String[] perms = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION};
         if (EasyPermissions.hasPermissions(getContext(), perms)){
@@ -194,7 +194,9 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
             requestGps();
         }
         else{
-
+            // Dialog requesting the user for location permission.
+            EasyPermissions.requestPermissions(this,getString(R.string.location_permission_to_discover_newdevices),
+                    REQUEST_LOCATION_PERMISSION, perms);
         }
 
     }
