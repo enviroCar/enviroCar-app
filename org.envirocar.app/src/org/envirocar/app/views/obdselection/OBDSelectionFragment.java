@@ -208,15 +208,28 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
             // if the GPS is also enabled, start discovery
             startBluetoothDiscovery();
         } else {
-
-
+            // Request to turn GPS on
+            buildAlertMessageNoGps();
         }
-
-
     }
 
     private void buildAlertMessageNoGps(){
+        final LocationManager manager = (LocationManager) this.getContext().
+                getSystemService(Context.LOCATION_SERVICE);
 
+        new MaterialAlertDialogBuilder(getActivity(),R.style.MaterialDialog)
+                .setTitle(R.string.GPS_turnon_title)
+                .setMessage(R.string.GPS_turnon_message)
+                .setIcon(R.drawable.ic_location_off_white_24dp)
+                .setPositiveButton(R.string.GPS_turnon_yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                        startActivity(intent);
+                    }
+                })
+                .setNegativeButton(getString(R.string.GPS_turnon_no), (dialog, id) -> dialog.cancel())
+                .show();
 
     }
 
