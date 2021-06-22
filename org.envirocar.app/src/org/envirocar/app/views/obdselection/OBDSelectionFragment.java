@@ -226,6 +226,10 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
                     public void onClick(DialogInterface dialog, int which) {
                         Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                         startActivity(intent);
+
+                        // Check if location permissions are granted  and Start discovery
+                        // only after the GPS is also turned on.
+                        onResume();
                     }
                 })
                 .setNegativeButton(getString(R.string.GPS_turnon_no), (dialog, id) -> dialog.cancel())
@@ -233,9 +237,11 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
 
     }
 
-
-
-
+    @Override
+    public void onResume() {
+        super.onResume();
+        startBluetoothDiscovery();
+    }
 
     /**
      * Initiates the discovery of other Bluetooth devices.
