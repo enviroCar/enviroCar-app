@@ -33,6 +33,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -43,6 +44,7 @@ import org.envirocar.app.R;
 import org.envirocar.app.handler.DAOProvider;
 import org.envirocar.app.handler.preferences.CarPreferenceHandler;
 import org.envirocar.app.injection.BaseInjectorFragment;
+import org.envirocar.app.views.utils.DialogUtils;
 import org.envirocar.app.views.utils.ECAnimationUtils;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Fueling;
@@ -412,16 +414,16 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(new DisposableObserver<Car>() {
-                    private MaterialDialog dialog;
+                    private AlertDialog dialog;
 
                     @Override
                     protected void onStart() {
                         LOG.info("uploadCarBeforeFueling() has started");
-                        dialog = new MaterialDialog.Builder(getContext())
-                                .progress(true, 0)
-                                .title(R.string.logbook_dialog_uploading_fueling_header)
-                                .content(R.string.logbook_dialog_uploading_fueling_car)
-                                .cancelable(false)
+                        dialog = DialogUtils.createDefaultDialogBuilder(getContext(),
+                                R.string.logbook_dialog_uploading_fueling_header,
+                                R.drawable.others_logbook_white_24dp,
+                                R.string.logbook_dialog_uploading_fueling_car)
+                                .setCancelable(false)
                                 .show();
                     }
 
@@ -471,16 +473,16 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(new DisposableObserver<Void>() {
-                    private MaterialDialog dialog;
+                    private AlertDialog dialog;
 
                     @Override
                     public void onStart() {
                         LOG.info("Started the creation of a fueling.");
-                        dialog = new MaterialDialog.Builder(getContext())
-                                .progress(true, 0)
-                                .title(R.string.logbook_dialog_uploading_fueling_header)
-                                .content(R.string.logbook_dialog_uploading_fueling_content)
-                                .cancelable(false)
+                        dialog = DialogUtils.createDefaultDialogBuilder(getContext(),
+                                R.string.logbook_dialog_uploading_fueling_header,
+                                R.drawable.others_logbook_white_24dp,
+                                R.string.logbook_dialog_uploading_fueling_content)
+                                .setCancelable(false)
                                 .show();
                     }
 
