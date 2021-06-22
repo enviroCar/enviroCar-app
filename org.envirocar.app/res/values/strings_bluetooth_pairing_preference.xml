@@ -30,10 +30,10 @@
     <string name="pref_bt_discovery_interval_title">Set Discovery Interval</string>
     <string name="pref_bt_discovery_interval_explanation">Select the interval (in minutes + seconds) at which the application re-initiates the discovery process.</string>
 
-    <string name="location_permission_to_discover_newdevices">Um eine verfügbare Geräte-App zu koppeln, ist eine Standortberechtigung erforderlich. Sie können weiterhin gekoppelte Geräte verwenden, ohne die Berechtigung zuzulassen.</string>
-    <string name="GPS_turnon_title">GPS aktivieren ?</string>
-    <string name="GPS_turnon_message">GPS ist in Ihrem Gerät deaktiviert. Möchten Sie es aktivieren?</string>
-    <string name="GPS_turnon_yes">Ja</string>
-    <string name="GPS_turnon_no">Nein</string>
+    <string name="location_permission_to_discover_newdevices">To pair an available devices app needs location permissions, You can keep using paired devices without allowing location permission.</string>
+    <string name="GPS_turnon_title">Enable GPS ?</string>
+    <string name="GPS_turnon_message">GPS is disabled in your device. Would you like to enable it?</string>
+    <string name="GPS_turnon_yes">Yes</string>
+    <string name="GPS_turnon_no">No</string>
 
 </resources>
