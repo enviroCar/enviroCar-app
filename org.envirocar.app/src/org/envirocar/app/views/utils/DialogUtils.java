@@ -23,7 +23,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
@@ -64,11 +67,24 @@ public class DialogUtils {
         return createDefaultDialogBuilder(context, title, iconRes, textView);
     }
 
-    @Deprecated
     public static MaterialAlertDialogBuilder createDefaultDialogBuilder(
             Context context, String title, int iconRes, View customView) {
 
-        return new MaterialAlertDialogBuilder(context).setView(null);
+        View layout = LayoutInflater.from(context)
+                .inflate(R.layout.general_dialog_progressbar_layout, null, false);
+
+        TextView titleView = layout.findViewById(R.id.general_dialog_view_title);
+        ImageView imageView = layout.findViewById(R.id.general_dialog_view_icon);
+        ProgressBar progressBar = layout.findViewById(R.id.progress_bar);
+        FrameLayout contentView = layout.findViewById(R.id
+                .general_dialog_view_content);
+
+        titleView.setText(title);
+        imageView.setImageResource(iconRes);
+        progressBar.setVisibility(View.VISIBLE);
+        contentView.addView(customView);
+
+        return new MaterialAlertDialogBuilder(context).setView(layout);
     }
 }
 
