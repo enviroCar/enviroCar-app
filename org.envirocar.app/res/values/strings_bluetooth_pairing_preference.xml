@@ -35,5 +35,6 @@
     <string name="GPS_turnon_message">GPS is disabled in your device. Would you like to enable it?</string>
     <string name="GPS_turnon_yes">Yes</string>
     <string name="GPS_turnon_no">No</string>
+    <string name="GPS_request_denied">GPS denied, New devices cannot be discovered</string>
 
 </resources>

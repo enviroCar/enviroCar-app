@@ -35,5 +35,6 @@
     <string name="GPS_turnon_message">GPS ist in Ihrem Gerät deaktiviert. Möchten Sie es aktivieren?</string>
     <string name="GPS_turnon_yes">Ja</string>
     <string name="GPS_turnon_no">Nein</string>
+    <string name="GPS_request_denied">GPS verweigert, neue Geräte können nicht erkannt werden</string>
 
 </resources>

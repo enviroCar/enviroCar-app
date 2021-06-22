@@ -64,6 +64,8 @@ import io.reactivex.schedulers.Schedulers;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
+import static android.location.LocationManager.GPS_PROVIDER;
+
 /**
  * TODO JavaDoc
  *
@@ -204,7 +206,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
     public void requestGps() {
         final LocationManager manager = (LocationManager) this.getContext().getSystemService(Context.LOCATION_SERVICE);
         // Check whether the GPS is turned or not
-        if (manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+        if (manager.isProviderEnabled(GPS_PROVIDER)) {
             // if the GPS is also enabled, start discovery
             startBluetoothDiscovery();
         } else {
@@ -221,26 +223,29 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
                 .setTitle(R.string.GPS_turnon_title)
                 .setMessage(R.string.GPS_turnon_message)
                 .setIcon(R.drawable.ic_location_off_white_24dp)
-                .setPositiveButton(R.string.GPS_turnon_yes, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                        startActivity(intent);
+                .setPositiveButton(R.string.GPS_turnon_yes, (dialog, which) -> {
+                    Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                    startActivity(intent);
 
-                        // Check if location permissions are granted  and Start discovery
-                        // only after the GPS is also turned on.
-                        onResume();
-                    }
+                    // Check if location permissions are granted  and Start discovery
+                    // only after the GPS is also turned on.
+                    onResume();
                 })
-                .setNegativeButton(getString(R.string.GPS_turnon_no), (dialog, id) -> dialog.cancel())
+                .setNegativeButton(getString(R.string.GPS_turnon_no), (dialog, id) -> {
+                    dialog.cancel();
+                    showSnackbar(getString(R.string.GPS_request_denied));
+                })
                 .show();
-
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        startBluetoothDiscovery();
+        final LocationManager manager = (LocationManager) this.getContext().getSystemService(Context.LOCATION_SERVICE);
+        // Check whether the GPS is turned or not
+        if (manager.isProviderEnabled(GPS_PROVIDER)) {
+            startBluetoothDiscovery();
+        }
     }
 
     /**
