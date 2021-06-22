@@ -18,8 +18,14 @@
  */
 package org.envirocar.app.views.obdselection;
 
+import android.Manifest;
 import android.bluetooth.BluetoothDevice;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,6 +35,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 
@@ -54,6 +61,8 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
+import pub.devrel.easypermissions.AfterPermissionGranted;
+import pub.devrel.easypermissions.EasyPermissions;
 
 /**
  * TODO JavaDoc
@@ -115,8 +124,9 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
         // Setup the paired devices.
         updatePairedDevicesList();
 
-        // Start the discovery of bluetooth devices.
-        updateContentView();
+        // Check the GPS and Location permissions
+        // before Starting the discovery of bluetooth devices.
+        requestLocationPermissions();
 
         //        // TODO: very ugly... Instead a dynamic LinearLayout should be used.
         //        setDynamicListHeight(mNewDevicesListView);
@@ -164,14 +174,58 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
             mPairedDevicesAdapter.clear();
             mContentView.setVisibility(View.VISIBLE);
             updatePairedDevicesList();
-            startBluetoothDiscovery();
         }
     }
+
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        EasyPermissions.onRequestPermissionsResult(requestCode,permissions,grantResults,this);
+    }
+
+
+    public void requestLocationPermissions() {
+        String[] perms = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION};
+        if (EasyPermissions.hasPermissions(getContext(), perms)){
+            // if location permissions are granted, Check GPS.
+            requestGps();
+        }
+        else{
+
+        }
+
+    }
+
+    public void requestGps() {
+        final LocationManager manager = (LocationManager) this.getContext().getSystemService(Context.LOCATION_SERVICE);
+        // Check whether the GPS is turned or not
+        if (manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            // if the GPS is also enabled, start discovery
+            startBluetoothDiscovery();
+        } else {
+
+
+        }
+
+
+    }
+
+    private void buildAlertMessageNoGps(){
+
+
+    }
+
+
+
+
 
     /**
      * Initiates the discovery of other Bluetooth devices.
      */
-    private void startBluetoothDiscovery() {
+    private void startBluetoothDiscovery(){
         // If bluetooth is not enabled, skip the discovery and show a toast.
         if (!mBluetoothHandler.isBluetoothEnabled()) {
             LOGGER.debug("startBluetoothDiscovery(): Bluetooth is disabled!");
