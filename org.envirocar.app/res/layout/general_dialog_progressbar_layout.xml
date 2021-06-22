@@ -51,10 +51,12 @@
         android:id="@+id/progress_bar"
         style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="-7dp"
-        android:layout_marginBottom="-7dp"
-        android:indeterminate="true" />
+        android:layout_height="25dp"
+        android:layout_marginTop="-15dp"
+        android:layout_marginBottom="-15dp"
+        android:indeterminate="true"
+        android:indeterminateTintMode="src_atop"
+        android:indeterminateTint="@color/white_cario"/>
 
     <FrameLayout
         android:id="@+id/general_dialog_view_content"
