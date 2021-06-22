@@ -31,6 +31,7 @@
     <string name="dashboard_connecting">Starte Aufzeichnung...</string>
     <string name="dashboard_connecting_find_template">Suche nach OBD \'%s\'.</string>
     <string name="dashboard_connecting_found_template">\'%s\' gefunden. Stelle Verbindung her.</string>
+    <string name="dashboard_connecting_not_found_template">Kann nicht finden \'%s\'. Bitte versuchen Sie es später noch einmal.</string>
 
     <string name="dashboard_recording_settings_header">Einstellungen</string>
 

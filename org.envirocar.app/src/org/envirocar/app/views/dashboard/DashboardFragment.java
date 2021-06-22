@@ -457,6 +457,21 @@ public class DashboardFragment extends BaseInjectorFragment {
                                 })
                                 .show();
 
+                        // If the device is not found to start the track, dismiss the Dialog in 15 sec
+                        new CountDownTimer(15000, 1000) {
+                            @Override
+                            public void onTick(long millisUntilFinished) {
+                            }
+                            @Override
+                            public void onFinish() {
+                                connectingDialog.dismiss();
+                                getActivity().stopService(obdRecordingIntent);
+                                Snackbar.make(getView(),
+                                        String.format(getString(R.string.dashboard_connecting_not_found_template),
+                                                device.getName()),Snackbar.LENGTH_LONG).show();
+                            }
+                        }.start();
+
                         ServiceUtils.startService(getActivity(), obdRecordingIntent);
                     }
                     break;
