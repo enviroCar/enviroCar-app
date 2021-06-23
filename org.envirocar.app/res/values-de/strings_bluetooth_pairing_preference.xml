@@ -36,6 +36,8 @@
     <string name="GPS_turnon_yes">Ja</string>
     <string name="GPS_turnon_no">Nein</string>
     <string name="GPS_request_denied">GPS verweigert, neue Geräte können nicht erkannt werden</string>
+    <string name="grant_permissions">Berechtigungen erteilen</string>
+    <string name="location_permission_granted">Standorterlaubnis erteilt</string>
     <string name="location_permission_denied">Standortberechtigungen nicht erteilt, neue Geräte können nicht erkannt werden</string>
 
 </resources>

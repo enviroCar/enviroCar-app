@@ -200,8 +200,13 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
         }
         else{
             // Dialog requesting the user for location permission.
-            EasyPermissions.requestPermissions(this,getString(R.string.location_permission_to_discover_newdevices),
-                    REQUEST_LOCATION_PERMISSION, perms);
+            EasyPermissions.requestPermissions(
+                    new PermissionRequest.Builder(this, REQUEST_LOCATION_PERMISSION, perms)
+                            .setRationale(R.string.location_permission_to_discover_newdevices)
+                            .setPositiveButtonText(R.string.grant_permissions)
+                            .setNegativeButtonText(R.string.cancel)
+                            .setTheme(R.style.MaterialDialog)
+                            .build());
         }
     }
 
@@ -209,6 +214,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
     public void onPermissionsGranted(int requestCode, @NonNull @NotNull List<String> perms) {
         // if location permissions are granted, Check GPS.
         requestGps();
+        showSnackbar(getString(R.string.location_permission_granted));
     }
 
     @Override
