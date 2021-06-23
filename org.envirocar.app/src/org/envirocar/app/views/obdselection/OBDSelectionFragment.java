@@ -161,7 +161,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
     @OnClick(R.id.activity_obd_selection_layout_rescan_bluetooth)
     protected void rediscover() {
         mBluetoothHandler.stopBluetoothDeviceDiscovery();
-        updateContentView();
+        requestLocationPermissions();
     }
     /**
      * Updates the content view.
