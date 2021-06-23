@@ -36,5 +36,6 @@
     <string name="GPS_turnon_yes">Yes</string>
     <string name="GPS_turnon_no">No</string>
     <string name="GPS_request_denied">GPS denied, New devices cannot be discovered</string>
+    <string name="location_permission_denied">Location permissions not granted, New devices cannot be discovered</string>
 
 </resources>

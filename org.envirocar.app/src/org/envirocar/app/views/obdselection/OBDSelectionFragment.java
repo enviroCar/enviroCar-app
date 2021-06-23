@@ -49,7 +49,9 @@ import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.core.events.bluetooth.BluetoothPairingChangedEvent;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.core.logging.Logger;
+import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -63,15 +65,17 @@ import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
+import pub.devrel.easypermissions.PermissionRequest;
 
 import static android.location.LocationManager.GPS_PROVIDER;
+
 
 /**
  * TODO JavaDoc
  *
  * @author dewall
  */
-public class OBDSelectionFragment extends BaseInjectorFragment {
+public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPermissions.PermissionCallbacks {
     private static final Logger LOGGER = Logger.getLogger(OBDSelectionFragment.class);
 
     @Override
@@ -188,7 +192,6 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
         EasyPermissions.onRequestPermissionsResult(requestCode,permissions,grantResults,this);
     }
 
-    @AfterPermissionGranted(REQUEST_LOCATION_PERMISSION)
     public void requestLocationPermissions() {
         String[] perms = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION};
         if (EasyPermissions.hasPermissions(getContext(), perms)){
@@ -200,7 +203,18 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
             EasyPermissions.requestPermissions(this,getString(R.string.location_permission_to_discover_newdevices),
                     REQUEST_LOCATION_PERMISSION, perms);
         }
+    }
 
+    @Override
+    public void onPermissionsGranted(int requestCode, @NonNull @NotNull List<String> perms) {
+        // if location permissions are granted, Check GPS.
+        requestGps();
+    }
+
+    @Override
+    public void onPermissionsDenied(int requestCode, @NonNull @NotNull List<String> perms) {
+        // if permissions are not granted, show toast.
+        showSnackbar(getString(R.string.location_permission_denied));
     }
 
     public void requestGps() {
@@ -241,9 +255,12 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
     @Override
     public void onResume() {
         super.onResume();
+
+        String[] perms = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION};
         final LocationManager manager = (LocationManager) this.getContext().getSystemService(Context.LOCATION_SERVICE);
+
         // Check whether the GPS is turned or not
-        if (manager.isProviderEnabled(GPS_PROVIDER)) {
+        if (EasyPermissions.hasPermissions(getContext(), perms) && manager.isProviderEnabled(GPS_PROVIDER)) {
             startBluetoothDiscovery();
         }
     }
