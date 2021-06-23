@@ -18,6 +18,7 @@
  */
 package org.envirocar.app.views.utils;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,8 +26,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-
-import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
@@ -67,7 +66,39 @@ public class DialogUtils {
         return createDefaultDialogBuilder(context, title, iconRes, textView);
     }
 
+    @Deprecated
     public static MaterialAlertDialogBuilder createDefaultDialogBuilder(
+            Context context, String title, int iconRes, View customView) {
+
+
+        return new MaterialAlertDialogBuilder(context).setView(null);
+    }
+
+    public static MaterialAlertDialogBuilder createProgressBarDialogBuilder(
+            Context context, int titleRes, int iconRes, View contentView) {
+        return createProgressBarDialogBuilder(context, context.getString(titleRes), iconRes,
+                contentView);
+    }
+
+    public static MaterialAlertDialogBuilder createProgressBarDialogBuilder(
+            Context context, int titleRes, int iconRes, int contentRes) {
+        return createProgressBarDialogBuilder(context, context.getString(titleRes), iconRes, context
+                .getString(contentRes));
+    }
+
+    public static MaterialAlertDialogBuilder createProgressBarDialogBuilder(
+            Context context, int titleRes, int iconRes, String content) {
+        return createProgressBarDialogBuilder(context, context.getString(titleRes), iconRes, content);
+    }
+
+    public static MaterialAlertDialogBuilder createProgressBarDialogBuilder(
+            Context context, String title, int iconRes, String content) {
+        TextView textView = new TextView(context);
+        textView.setText(content);
+        return createProgressBarDialogBuilder(context, title, iconRes, textView);
+    }
+
+    public static MaterialAlertDialogBuilder createProgressBarDialogBuilder(
             Context context, String title, int iconRes, View customView) {
 
         View layout = LayoutInflater.from(context)
@@ -76,8 +107,7 @@ public class DialogUtils {
         TextView titleView = layout.findViewById(R.id.general_dialog_view_title);
         ImageView imageView = layout.findViewById(R.id.general_dialog_view_icon);
         ProgressBar progressBar = layout.findViewById(R.id.progress_bar);
-        FrameLayout contentView = layout.findViewById(R.id
-                .general_dialog_view_content);
+        FrameLayout contentView = layout.findViewById(R.id.general_dialog_view_content);
 
         titleView.setText(title);
         imageView.setImageResource(iconRes);
@@ -86,6 +116,7 @@ public class DialogUtils {
 
         return new MaterialAlertDialogBuilder(context).setView(layout);
     }
+
 }
 
 

@@ -185,7 +185,7 @@ public class SigninActivity extends BaseInjectorActivity {
 
                     @Override
                     protected void onStart() {
-                        dialog = DialogUtils.createDefaultDialogBuilder(SigninActivity.this,
+                        dialog = DialogUtils.createProgressBarDialogBuilder(SigninActivity.this,
                                 R.string.activity_login_logging_in_dialog_title,
                                 R.drawable.ic_baseline_login_24,
                                 (String) null)

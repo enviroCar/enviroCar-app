@@ -419,7 +419,7 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
                     @Override
                     protected void onStart() {
                         LOG.info("uploadCarBeforeFueling() has started");
-                        dialog = DialogUtils.createDefaultDialogBuilder(getContext(),
+                        dialog = DialogUtils.createProgressBarDialogBuilder(getContext(),
                                 R.string.logbook_dialog_uploading_fueling_header,
                                 R.drawable.others_logbook_white_24dp,
                                 R.string.logbook_dialog_uploading_fueling_car)
@@ -478,7 +478,7 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
                     @Override
                     public void onStart() {
                         LOG.info("Started the creation of a fueling.");
-                        dialog = DialogUtils.createDefaultDialogBuilder(getContext(),
+                        dialog = DialogUtils.createProgressBarDialogBuilder(getContext(),
                                 R.string.logbook_dialog_uploading_fueling_header,
                                 R.drawable.others_logbook_white_24dp,
                                 R.string.logbook_dialog_uploading_fueling_content)

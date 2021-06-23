@@ -448,7 +448,7 @@ public class DashboardFragment extends BaseInjectorFragment {
 
                         Intent obdRecordingIntent = new Intent(getActivity(), RecordingService.class);
 
-                        this.connectingDialog = DialogUtils.createDefaultDialogBuilder(getContext(),
+                        this.connectingDialog = DialogUtils.createProgressBarDialogBuilder(getContext(),
                                 R.string.dashboard_connecting,
                                 R.drawable.ic_bluetooth_white_24dp,
                                 String.format(getString(R.string.dashboard_connecting_find_template), device.getName()))
