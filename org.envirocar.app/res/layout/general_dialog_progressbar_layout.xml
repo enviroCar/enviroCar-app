@@ -14,6 +14,7 @@
     with the enviroCar app. If not, see http://www.gnu.org/licenses/.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -47,16 +48,13 @@
 
     </LinearLayout>
 
-    <ProgressBar
+    <com.google.android.material.progressindicator.LinearProgressIndicator
         android:id="@+id/progress_bar"
-        style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
         android:layout_width="match_parent"
-        android:layout_height="25dp"
-        android:layout_marginTop="-15dp"
-        android:layout_marginBottom="-15dp"
+        android:layout_height="6dp"
         android:indeterminate="true"
-        android:indeterminateTintMode="src_atop"
-        android:indeterminateTint="@color/white_cario"/>
+        app:indicatorColor="@color/blue_light_cario"
+        app:trackThickness="6dp" />
 
     <FrameLayout
         android:id="@+id/general_dialog_view_content"
