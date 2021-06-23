@@ -27,6 +27,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.provider.Settings;
 import android.transition.AutoTransition;
 import android.transition.ChangeBounds;
@@ -48,6 +49,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
@@ -82,6 +84,7 @@ import org.envirocar.app.views.carselection.CarSelectionActivity;
 import org.envirocar.app.views.login.SigninActivity;
 import org.envirocar.app.views.obdselection.OBDSelectionActivity;
 import org.envirocar.app.views.recordingscreen.RecordingScreenActivity;
+import org.envirocar.app.views.utils.DialogUtils;
 import org.envirocar.app.views.utils.SizeSyncTextView;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.events.NewCarTypeSelectedEvent;
@@ -207,7 +210,7 @@ public class DashboardFragment extends BaseInjectorFragment {
     private boolean statisticsKnown = false;
 
     // some private variables
-    private MaterialDialog connectingDialog;
+    private AlertDialog connectingDialog;
     private List<SizeSyncTextView> indicatorSyncGroup;
     private AppUpdateManager appUpdateManager;
     private Task<AppUpdateInfo> appUpdateInfoTask;
@@ -444,15 +447,30 @@ public class DashboardFragment extends BaseInjectorFragment {
                         BluetoothDevice device = bluetoothHandler.getSelectedBluetoothDevice();
 
                         Intent obdRecordingIntent = new Intent(getActivity(), RecordingService.class);
-                        this.connectingDialog = new MaterialDialog.Builder(getActivity())
-                                .iconRes(R.drawable.ic_bluetooth_searching_black_24dp)
-                                .title(R.string.dashboard_connecting)
-                                .content(String.format(getString(R.string.dashboard_connecting_find_template), device.getName()))
-                                .progress(true, 0)
-                                .negativeText(R.string.cancel)
-                                .cancelable(false)
-                                .onNegative((dialog, which) -> getActivity().stopService(obdRecordingIntent))
+
+                        this.connectingDialog = DialogUtils.createProgressBarDialogBuilder(getContext(),
+                                R.string.dashboard_connecting,
+                                R.drawable.ic_bluetooth_white_24dp,
+                                String.format(getString(R.string.dashboard_connecting_find_template), device.getName()))
+                                .setNegativeButton(R.string.cancel,(dialog, which) -> {
+                                    ServiceUtils.stopService(getActivity(),obdRecordingIntent);
+                                })
                                 .show();
+
+                        // If the device is not found to start the track, dismiss the Dialog in 15 sec
+                        new CountDownTimer(15000, 1000) {
+                            @Override
+                            public void onTick(long millisUntilFinished) {
+                            }
+                            @Override
+                            public void onFinish() {
+                                connectingDialog.dismiss();
+                                ServiceUtils.stopService(getActivity(), obdRecordingIntent);
+                                Snackbar.make(getView(),
+                                        String.format(getString(R.string.dashboard_connecting_not_found_template),
+                                                device.getName()),Snackbar.LENGTH_LONG).show();
+                            }
+                        }.start();
 
                         ServiceUtils.startService(getActivity(), obdRecordingIntent);
                     }
