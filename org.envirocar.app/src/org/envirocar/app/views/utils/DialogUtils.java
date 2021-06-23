@@ -18,7 +18,6 @@
  */
 package org.envirocar.app.views.utils;
 
-import android.app.Dialog;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -104,10 +103,10 @@ public class DialogUtils {
         View layout = LayoutInflater.from(context)
                 .inflate(R.layout.general_dialog_progressbar_layout, null, false);
 
-        TextView titleView = layout.findViewById(R.id.general_dialog_view_title);
-        ImageView imageView = layout.findViewById(R.id.general_dialog_view_icon);
-        ProgressBar progressBar = layout.findViewById(R.id.progress_bar);
-        FrameLayout contentView = layout.findViewById(R.id.general_dialog_view_content);
+        TextView titleView = layout.findViewById(R.id.progressbar_dialog_view_title);
+        ImageView imageView = layout.findViewById(R.id.progressbar_dialog_view_icon);
+        ProgressBar progressBar = layout.findViewById(R.id.material_linear_progressbar);
+        FrameLayout contentView = layout.findViewById(R.id.progressbar_dialog_view_content);
 
         titleView.setText(title);
         imageView.setImageResource(iconRes);
