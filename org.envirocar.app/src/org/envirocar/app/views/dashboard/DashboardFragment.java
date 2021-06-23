@@ -453,7 +453,7 @@ public class DashboardFragment extends BaseInjectorFragment {
                                 R.drawable.ic_bluetooth_white_24dp,
                                 String.format(getString(R.string.dashboard_connecting_find_template), device.getName()))
                                 .setNegativeButton(R.string.cancel,(dialog, which) -> {
-                                    getActivity().stopService(obdRecordingIntent);
+                                    ServiceUtils.stopService(getActivity(),obdRecordingIntent);
                                 })
                                 .show();
 
@@ -465,7 +465,7 @@ public class DashboardFragment extends BaseInjectorFragment {
                             @Override
                             public void onFinish() {
                                 connectingDialog.dismiss();
-                                getActivity().stopService(obdRecordingIntent);
+                                ServiceUtils.stopService(getActivity(), obdRecordingIntent);
                                 Snackbar.make(getView(),
                                         String.format(getString(R.string.dashboard_connecting_not_found_template),
                                                 device.getName()),Snackbar.LENGTH_LONG).show();
