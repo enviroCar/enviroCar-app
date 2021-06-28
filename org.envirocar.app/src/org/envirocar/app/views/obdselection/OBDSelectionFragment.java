@@ -253,7 +253,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
 
                     // Check if location permissions are granted  and Start discovery
                     // only after the GPS is also turned on.
-                    onResume();
+                    checkGpsAfterDialog();
                 })
                 .setNegativeButton(getString(R.string.GPS_turnon_no), (dialog, id) -> {
                     dialog.cancel();
@@ -265,7 +265,10 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
     @Override
     public void onResume() {
         super.onResume();
+        checkGpsAfterDialog();
+    }
 
+    public void checkGpsAfterDialog(){
         String[] perms = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION};
         final LocationManager manager = (LocationManager) this.getContext().getSystemService(Context.LOCATION_SERVICE);
 
