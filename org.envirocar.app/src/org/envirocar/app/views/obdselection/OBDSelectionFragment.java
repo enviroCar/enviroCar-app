@@ -18,8 +18,14 @@
  */
 package org.envirocar.app.views.obdselection;
 
+import android.Manifest;
 import android.bluetooth.BluetoothDevice;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,6 +35,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 
@@ -42,7 +49,9 @@ import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.core.events.bluetooth.BluetoothPairingChangedEvent;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.core.logging.Logger;
+import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -54,13 +63,19 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
+import pub.devrel.easypermissions.AfterPermissionGranted;
+import pub.devrel.easypermissions.EasyPermissions;
+import pub.devrel.easypermissions.PermissionRequest;
+
+import static android.location.LocationManager.GPS_PROVIDER;
+
 
 /**
  * TODO JavaDoc
  *
  * @author dewall
  */
-public class OBDSelectionFragment extends BaseInjectorFragment {
+public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPermissions.PermissionCallbacks {
     private static final Logger LOGGER = Logger.getLogger(OBDSelectionFragment.class);
 
     @Override
@@ -115,7 +130,8 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
         // Setup the paired devices.
         updatePairedDevicesList();
 
-        // Start the discovery of bluetooth devices.
+        // Check the GPS and Location permissions
+        // before Starting the discovery of bluetooth devices.
         updateContentView();
 
         //        // TODO: very ugly... Instead a dynamic LinearLayout should be used.
@@ -123,6 +139,12 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
         //        setDynamicListHeight(mPairedDevicesListView);
 
         return contentView;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull @NotNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        requestLocationPermissions();
     }
 
     @Override
@@ -145,8 +167,9 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
     @OnClick(R.id.activity_obd_selection_layout_rescan_bluetooth)
     protected void rediscover() {
         mBluetoothHandler.stopBluetoothDeviceDiscovery();
-        updateContentView();
+        requestLocationPermissions();
     }
+
     /**
      * Updates the content view.
      */
@@ -164,6 +187,100 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
             mPairedDevicesAdapter.clear();
             mContentView.setVisibility(View.VISIBLE);
             updatePairedDevicesList();
+        }
+    }
+
+    private final int REQUEST_LOCATION_PERMISSION = 1;
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        EasyPermissions.onRequestPermissionsResult(requestCode,permissions,grantResults,this);
+    }
+
+    public void requestLocationPermissions() {
+        String[] perms = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION};
+        if (EasyPermissions.hasPermissions(getContext(), perms)){
+            // if location permissions are granted, Check GPS.
+            requestGps();
+        }
+        else{
+            // Dialog requesting the user for location permission.
+            EasyPermissions.requestPermissions(
+                    new PermissionRequest.Builder(this, REQUEST_LOCATION_PERMISSION, perms)
+                            .setRationale(R.string.location_permission_to_discover_newdevices)
+                            .setPositiveButtonText(R.string.grant_permissions)
+                            .setNegativeButtonText(R.string.cancel)
+                            .setTheme(R.style.MaterialDialog)
+                            .build());
+        }
+    }
+
+    @Override
+    public void onPermissionsGranted(int requestCode, @NonNull @NotNull List<String> perms) {
+        // if location permissions are granted, Check GPS.
+        if (requestCode == REQUEST_LOCATION_PERMISSION) {
+            requestGps();
+            showSnackbar(getString(R.string.location_permission_granted));
+        }
+    }
+
+    @Override
+    public void onPermissionsDenied(int requestCode, @NonNull @NotNull List<String> perms) {
+        // if permissions are not granted, show toast.
+        if (requestCode == REQUEST_LOCATION_PERMISSION) {
+            showSnackbar(getString(R.string.location_permission_denied));
+        }
+    }
+
+    public void requestGps() {
+        final LocationManager manager = (LocationManager) this.getContext().getSystemService(Context.LOCATION_SERVICE);
+        // Check whether the GPS is turned or not
+        if (manager.isProviderEnabled(GPS_PROVIDER)) {
+            // if the GPS is also enabled, start discovery
+            startBluetoothDiscovery();
+        } else {
+            // Request to turn GPS on
+            buildAlertMessageNoGps();
+        }
+    }
+
+    private void buildAlertMessageNoGps(){
+        final LocationManager manager = (LocationManager) this.getContext().
+                getSystemService(Context.LOCATION_SERVICE);
+
+        new MaterialAlertDialogBuilder(getActivity(),R.style.MaterialDialog)
+                .setTitle(R.string.GPS_turnon_title)
+                .setMessage(R.string.GPS_turnon_message)
+                .setIcon(R.drawable.ic_location_off_white_24dp)
+                .setPositiveButton(R.string.GPS_turnon_yes, (dialog, which) -> {
+                    Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                    startActivity(intent);
+
+                    // Check if location permissions are granted  and Start discovery
+                    // only after the GPS is also turned on.
+                    checkGpsAfterDialog();
+                })
+                .setNegativeButton(getString(R.string.GPS_turnon_no), (dialog, id) -> {
+                    dialog.cancel();
+                    showSnackbar(getString(R.string.GPS_request_denied));
+                })
+                .show();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        checkGpsAfterDialog();
+    }
+
+    public void checkGpsAfterDialog(){
+        String[] perms = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION};
+        final LocationManager manager = (LocationManager) this.getContext().getSystemService(Context.LOCATION_SERVICE);
+
+        // Check whether the GPS is turned or not
+        if (EasyPermissions.hasPermissions(getContext(), perms) && manager.isProviderEnabled(GPS_PROVIDER)) {
             startBluetoothDiscovery();
         }
     }
@@ -171,7 +288,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
     /**
      * Initiates the discovery of other Bluetooth devices.
      */
-    private void startBluetoothDiscovery() {
+    private void startBluetoothDiscovery(){
         // If bluetooth is not enabled, skip the discovery and show a toast.
         if (!mBluetoothHandler.isBluetoothEnabled()) {
             LOGGER.debug("startBluetoothDiscovery(): Bluetooth is disabled!");
@@ -429,8 +546,8 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
      * @param text the text to show in the snackbar.
      */
     private void showSnackbar(String text) {
-        if (getActivity() instanceof OBDSelectionFragment.ShowSnackbarListener)
-            ((OBDSelectionFragment.ShowSnackbarListener) getActivity()).showSnackbar(text);
+        if (getActivity() instanceof ShowSnackbarListener)
+            ((ShowSnackbarListener) getActivity()).showSnackbar(text);
         //        else if(mContentView != null && mContentView.getContext() != null)
         //            Snackbar.make(mContentView, text, Snackbar.LENGTH_LONG).show();
     }
