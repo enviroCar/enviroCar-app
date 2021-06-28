@@ -132,13 +132,19 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
 
         // Check the GPS and Location permissions
         // before Starting the discovery of bluetooth devices.
-        requestLocationPermissions();
+        updateContentView();
 
         //        // TODO: very ugly... Instead a dynamic LinearLayout should be used.
         //        setDynamicListHeight(mNewDevicesListView);
         //        setDynamicListHeight(mPairedDevicesListView);
 
         return contentView;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull @NotNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        requestLocationPermissions();
     }
 
     @Override
@@ -163,6 +169,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
         mBluetoothHandler.stopBluetoothDeviceDiscovery();
         requestLocationPermissions();
     }
+
     /**
      * Updates the content view.
      */
@@ -539,8 +546,8 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
      * @param text the text to show in the snackbar.
      */
     private void showSnackbar(String text) {
-        if (getActivity() instanceof OBDSelectionFragment.ShowSnackbarListener)
-            ((OBDSelectionFragment.ShowSnackbarListener) getActivity()).showSnackbar(text);
+        if (getActivity() instanceof ShowSnackbarListener)
+            ((ShowSnackbarListener) getActivity()).showSnackbar(text);
         //        else if(mContentView != null && mContentView.getContext() != null)
         //            Snackbar.make(mContentView, text, Snackbar.LENGTH_LONG).show();
     }
