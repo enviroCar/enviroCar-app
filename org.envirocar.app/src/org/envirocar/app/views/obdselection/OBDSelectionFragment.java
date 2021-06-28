@@ -213,14 +213,18 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
     @Override
     public void onPermissionsGranted(int requestCode, @NonNull @NotNull List<String> perms) {
         // if location permissions are granted, Check GPS.
-        requestGps();
-        showSnackbar(getString(R.string.location_permission_granted));
+        if (requestCode == REQUEST_LOCATION_PERMISSION) {
+            requestGps();
+            showSnackbar(getString(R.string.location_permission_granted));
+        }
     }
 
     @Override
     public void onPermissionsDenied(int requestCode, @NonNull @NotNull List<String> perms) {
         // if permissions are not granted, show toast.
-        showSnackbar(getString(R.string.location_permission_denied));
+        if (requestCode == REQUEST_LOCATION_PERMISSION) {
+            showSnackbar(getString(R.string.location_permission_denied));
+        }
     }
 
     public void requestGps() {
