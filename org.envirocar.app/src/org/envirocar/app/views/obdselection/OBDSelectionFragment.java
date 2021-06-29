@@ -326,10 +326,6 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
                     @Override
                     public void onComplete() {
                         LOGGER.info("Bluetooth discovery finished.");
-
-                        // Dismiss the progressbar.
-                        mProgressBar.setVisibility(View.GONE);
-
                         // If no devices found, set the corresponding textview to visibile.
                         if (mNewDevicesArrayAdapter.isEmpty()) {
                             mNewDevicesInfoTextView.setText(R.string
