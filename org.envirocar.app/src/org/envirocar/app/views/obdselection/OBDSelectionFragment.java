@@ -326,6 +326,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
                     @Override
                     public void onComplete() {
                         LOGGER.info("Bluetooth discovery finished.");
+
                         // If no devices found, set the corresponding textview to visibile.
                         if (mNewDevicesArrayAdapter.isEmpty()) {
                             mNewDevicesInfoTextView.setText(R.string
@@ -339,6 +340,22 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
                             mNewDevicesInfoTextView.setText(String.format(string,
                                     Integer.toString(mNewDevicesArrayAdapter.getCount())));
                         }
+
+                        // Set timer for 15sec
+                        new CountDownTimer(15000, 1000) {
+                            @Override
+                            public void onTick(long millisUntilFinished) {
+                            }
+                            @Override
+                            public void onFinish() {
+                                // If discovering of a device takes more than 15 sec ,then show user discovery is finished
+                                // if the needed device is not found , rediscover button can be used.
+                                if (mBluetoothHandler.isBluetoothEnabled()) {
+                                    mProgressBar.setVisibility(View.GONE);
+                                    showSnackbar("Discovery Finished!");
+                                }
+                            }
+                        }.start();
                     }
 
                     @Override
@@ -358,22 +375,6 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
                                 !mNewDevicesArrayAdapter.contains(device)) {
                             mNewDevicesArrayAdapter.add(device);
                         }
-
-                        // Set timer for 15sec ,
-                        new CountDownTimer(15000, 1000) {
-                            @Override
-                            public void onTick(long millisUntilFinished) {
-                            }
-                            @Override
-                            public void onFinish() {
-                                // If discovering of a device takes more than 15 sec ,then show user discovery is finished
-                                // if the needed device is not found , rediscover button can be used.
-                                if (mBluetoothHandler.isBluetoothEnabled()) {
-                                    mProgressBar.setVisibility(View.GONE);
-                                    showSnackbar("Discovery Finished!");
-                                }
-                            }
-                        }.start();
                     }
                 });
     }
