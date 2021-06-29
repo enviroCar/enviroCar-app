@@ -343,8 +343,6 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
                             mNewDevicesInfoTextView.setText(String.format(string,
                                     Integer.toString(mNewDevicesArrayAdapter.getCount())));
                         }
-
-                        showSnackbar("Discovery Finished!");
                     }
 
                     @Override
