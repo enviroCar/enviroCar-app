@@ -410,7 +410,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
                     .setPositiveButton(R.string.obd_selection_dialog_pairing_title,
                             (dialog, which) -> {
                                 // If this button is clicked, pair with the given device
-                                view1.setClickable(false);
+                                view1.setOnClickListener(null);
                                 pairDevice(device, view1);
                             })
                     .setNegativeButton(R.string.cancel, null) // Nothing to do on cancel
