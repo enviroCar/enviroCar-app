@@ -547,6 +547,8 @@ public class DashboardFragment extends BaseInjectorFragment {
                 this.carIndicator.setEnabled(false);
             } else {
                 // set warning indicator color
+                this.carSelectionTextPrimary.setText(String.format("No car type selected"));
+                this.carSelectionTextSecondary.setText(String.format("Click here to select one"));
                 this.carIndicator.setEnabled(true);
             }
             this.updateStartTrackButton();
