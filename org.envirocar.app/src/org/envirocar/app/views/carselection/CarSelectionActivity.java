@@ -153,6 +153,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
     // gets shown.
     @OnClick(R.id.activity_car_selection_new_car_fab)
     public void onClickNewCarButton() {
+        mFab.setVisibility(View.GONE);
         showAddCarFragment();
     }
 
