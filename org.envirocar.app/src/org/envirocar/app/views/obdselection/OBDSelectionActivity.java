@@ -111,6 +111,7 @@ public class OBDSelectionActivity extends BaseInjectorActivity implements
                 mSwitch.setChecked(mBluetoothHandler.isBluetoothEnabled());
             } else {
                 mBluetoothHandler.disableBluetooth(OBDSelectionActivity.this);
+                mSwitch.setChecked(false);
             }
         });
     }
