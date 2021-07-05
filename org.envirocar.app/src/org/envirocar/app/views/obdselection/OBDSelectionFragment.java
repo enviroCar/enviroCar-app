@@ -444,7 +444,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
                                 device.getName() + " (" + device.getAddress() + ")"));
                         mPairedDevicesAdapter.remove(device);
                         if (mPairedDevicesAdapter.getCount() == 0 ){
-                            mPairedDevicesTextView.setVisibility(View.INVISIBLE);
+                            mPairedDevicesTextView.setVisibility(View.GONE);
                         }
                     }
 
