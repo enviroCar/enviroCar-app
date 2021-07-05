@@ -24,4 +24,8 @@
         <item>Fahrzeug auswählen</item>
         <item>Fahrzeug löschen</item>
     </array>
+
+    <array name="car_list_option_item_Delete_car">
+        <item>Fahrzeug löschen</item>
+    </array>
 </resources>
