@@ -21,7 +21,6 @@ package org.envirocar.app.views.obdselection;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothDevice;
 import android.os.Bundle;
-import android.os.CountDownTimer;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -117,10 +116,8 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
         // Setup the paired devices.
         updatePairedDevicesList();
 
-        rediscover();
-
         // Start the discovery of bluetooth devices.
-        //updateContentView();
+        updateContentView();
 
         //        // TODO: very ugly... Instead a dynamic LinearLayout should be used.
         //        setDynamicListHeight(mNewDevicesListView);
@@ -148,12 +145,8 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
 
     @OnClick(R.id.activity_obd_selection_layout_rescan_bluetooth)
     protected void rediscover() {
-        if(mBluetoothHandler.isDiscovering()) {
-            mBluetoothHandler.stopBluetoothDeviceDiscovery();
-            updateContentView();
-        }
-        else
-            updateContentView();
+        mBluetoothHandler.stopBluetoothDeviceDiscovery();
+        updateContentView();
     }
     /**
      * Updates the content view.
@@ -191,9 +184,6 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
         // the current adapter.
         mNewDevicesArrayAdapter.clear();
 
-        if (mBluetoothHandler.isDiscovering())
-        mProgressBar.setVisibility(View.VISIBLE);
-
         mBTDiscoverySubscription = mBluetoothHandler.startBluetoothDiscoveryOnlyUnpaired()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -221,6 +211,8 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
                         LOGGER.info("Bluetooth discovery finished.");
 
                         // Dismiss the progressbar.
+                        mProgressBar.setVisibility(View.GONE);
+
                         // If no devices found, set the corresponding textview to visibile.
                         if (mNewDevicesArrayAdapter.isEmpty()) {
                             mNewDevicesInfoTextView.setText(R.string
@@ -234,6 +226,8 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
                             mNewDevicesInfoTextView.setText(String.format(string,
                                     Integer.toString(mNewDevicesArrayAdapter.getCount())));
                         }
+
+                        showSnackbar("Discovery Finished!");
                     }
 
                     @Override
@@ -252,37 +246,10 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
                         if (!mPairedDevicesAdapter.contains(device) &&
                                 !mNewDevicesArrayAdapter.contains(device)) {
                             mNewDevicesArrayAdapter.add(device);
-
                         }
-
-                        // Set timer for 15sec ,
-                        new CountDownTimer(15000, 1000) {
-                            @Override
-                            public void onTick(long millisUntilFinished) {
-                            }
-                            @Override
-                            public void onFinish() {
-                                // If discovering of a device takes more than 15 sec it is still discovered
-                                // and added to mNewDevicesArrayAdapter but displayed as discovery is finished
-                                // if the needed device is not found , redecover button is used.
-                                if (mBluetoothHandler.isBluetoothEnabled()) {
-                                    mProgressBar.setVisibility(View.GONE);
-                                    showSnackbar("Discovery Finished!");
-                                }
-                            }
-                        }.start();
-
-
                     }
                 });
-
-
-
-
-
-
     }
-
 
     private void setupListViews() {
         BluetoothDevice selectedBTDevice = mBluetoothHandler.getSelectedBluetoothDevice();

@@ -132,7 +132,7 @@ public class OBDDeviceListAdapter extends ArrayAdapter<BluetoothDevice> {
         // If there exists an already selected bluetooth device and the device of this entry
         // matches the selected device, then set it to checked.
         if (mSelectedBluetoothDevice != null) {
-            if (mSelectedBluetoothDevice.getAddress().equals(device.getAddress())) {
+            if (mSelectedBluetoothDevice.getName().equals(device.getName())) {
                 mSelectedRadioButton = holder.mRadioButton;
                 mSelectedRadioButton.setChecked(true);
                 mSelectedBluetoothDevice = device;
