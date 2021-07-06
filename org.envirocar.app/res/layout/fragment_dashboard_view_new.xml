@@ -664,7 +664,7 @@
                             android:layout_gravity="right|center_vertical"
                             android:layout_marginRight="8dp"
                             android:src="@drawable/ic_action_arrow_foward"
-                            app:tint="@color/cario_color_primary_dark" />
+                            android:tint="@color/cario_color_primary_dark" />
 
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
