@@ -24,6 +24,7 @@ import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
@@ -566,7 +567,14 @@ public class DashboardFragment extends BaseInjectorFragment {
     public void receiveBluetoothStateChanged(BluetoothStateChangedEvent event) {
         // post on decor view to ensure that it gets executed when view has been inflated.
         runAfterInflation(() -> {
-            this.bluetoothIndicator.setEnabled(!event.isBluetoothEnabled);
+            if (!event.isBluetoothEnabled){
+                this.bluetoothIndicator.setBackgroundTintList(ColorStateList.valueOf(getResources().
+                        getColor(R.color.cario_warning_red)));
+            }
+            else {
+                this.bluetoothIndicator.setBackgroundTintList(ColorStateList.valueOf(getResources().
+                        getColor(R.color.cario_color_primary_dark)));
+            }
             this.updateOBDState(event.selectedDevice);
             this.updateStartTrackButton();
         });
@@ -588,11 +596,13 @@ public class DashboardFragment extends BaseInjectorFragment {
                         "" + event.mCar.getEngineDisplacement(),
                         "" + getString(event.mCar.getFuelType().getStringResource())));
 
-                // set indicator color accordingly
-                this.carIndicator.setEnabled(false);
+                // set indicator color to blue
+                this.carIndicator.setBackgroundTintList(ColorStateList.valueOf(getResources().
+                        getColor(R.color.cario_color_primary)));
             } else {
-                // set warning indicator color
-                this.carIndicator.setEnabled(true);
+                // set warning indicator color to red
+                this.carIndicator.setBackgroundTintList(ColorStateList.valueOf(getResources().
+                        getColor(R.color.cario_warning_red)));
             }
             this.updateStartTrackButton();
         });
@@ -620,7 +630,13 @@ public class DashboardFragment extends BaseInjectorFragment {
     public void onGpsStateChangedEvent(final GpsStateChangedEvent event) {
         // post on decor view to ensure that it gets executed when view has been inflated.
         runAfterInflation(() -> {
-            this.gpsIndicator.setEnabled(!event.mIsGPSEnabled);
+            if (!event.mIsGPSEnabled)
+                this.gpsIndicator.setBackgroundTintList(ColorStateList.valueOf(getResources().
+                        getColor(R.color.cario_warning_red)));
+            else
+                this.gpsIndicator.setBackgroundTintList(ColorStateList.valueOf(getResources().
+                        getColor(R.color.cario_color_primary_dark)));
+
             this.updateStartTrackButton();
         });
     }
@@ -703,9 +719,11 @@ public class DashboardFragment extends BaseInjectorFragment {
             bluetoothSelectionTextSecondary.setText(device.getAddress());
 
             // set indicator color
-            this.obdIndicator.setEnabled(false);
+            this.obdIndicator.setBackgroundTintList(ColorStateList.valueOf(getResources().
+                    getColor(R.color.cario_color_primary_dark)));
         } else {
-            this.obdIndicator.setEnabled(true);
+            this.obdIndicator.setBackgroundTintList(ColorStateList.valueOf(getResources().
+                    getColor(R.color.cario_warning_red)));
         }
         this.updateStartTrackButton();
     }
