@@ -443,6 +443,9 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
                                 getString(R.string.obd_selection_device_unpaired_template),
                                 device.getName() + " (" + device.getAddress() + ")"));
                         mPairedDevicesAdapter.remove(device);
+                        if (mPairedDevicesAdapter.getCount() == 0 ){
+                            mPairedDevicesTextView.setVisibility(View.GONE);
+                        }
                     }
 
                     @Override
@@ -513,6 +516,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
                                 device.getName()));
                         mNewDevicesArrayAdapter.remove(device);
                         mPairedDevicesAdapter.add(device);
+                        mPairedDevicesTextView.setVisibility(View.VISIBLE);
 
                         // Post an event to all registered handlers.
                         mBus.post(new BluetoothPairingChangedEvent(device, true));
