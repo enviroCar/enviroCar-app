@@ -30,6 +30,7 @@ import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -104,6 +105,8 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
     protected ListView mNewDevicesListView;
     @BindView(R.id.activity_obd_selection_layout_search_devices_progressbar)
     protected ProgressBar mProgressBar;
+    @BindView(R.id.activity_obd_selection_layout_rescan_bluetooth)
+    protected ImageView mRescanImageView;
 
     @BindView(R.id.activity_obd_selection_layout_available_devices_info)
     protected TextView mNewDevicesInfoTextView;
@@ -314,8 +317,9 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
                     public void onStart() {
                         LOGGER.info("Blutooth discovery started.");
 
-                        // Show the progressbar
+                        // Show the progressbar and remove rescan option
                         mProgressBar.setVisibility(View.VISIBLE);
+                        mRescanImageView.setVisibility(View.GONE);
 
                         // Set info view to "searching...".
                         mNewDevicesInfoTextView.setText(R.string
@@ -352,6 +356,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
                                 // if the needed device is not found , rediscover button can be used.
                                 if (mBluetoothHandler.isBluetoothEnabled()) {
                                     mProgressBar.setVisibility(View.GONE);
+                                    mRescanImageView.setVisibility(View.VISIBLE);
                                     showSnackbar("Discovery Finished!");
                                 }
                             }
