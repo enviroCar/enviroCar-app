@@ -27,6 +27,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.provider.Settings;
 import android.transition.AutoTransition;
 import android.transition.ChangeBounds;
@@ -45,10 +46,10 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
@@ -56,6 +57,8 @@ import androidx.core.content.ContextCompat;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.play.core.appupdate.AppUpdateInfo;
@@ -83,6 +86,7 @@ import org.envirocar.app.views.carselection.CarSelectionActivity;
 import org.envirocar.app.views.login.SigninActivity;
 import org.envirocar.app.views.obdselection.OBDSelectionActivity;
 import org.envirocar.app.views.recordingscreen.RecordingScreenActivity;
+import org.envirocar.app.views.utils.DialogUtils;
 import org.envirocar.app.views.utils.SizeSyncTextView;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.events.NewCarTypeSelectedEvent;
@@ -110,7 +114,6 @@ import info.hoang8f.android.segmented.SegmentedGroup;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.functions.Consumer;
 import io.reactivex.observers.DisposableCompletableObserver;
 import io.reactivex.schedulers.Schedulers;
 
@@ -209,7 +212,7 @@ public class DashboardFragment extends BaseInjectorFragment {
     private boolean statisticsKnown = false;
 
     // some private variables
-    private MaterialDialog connectingDialog;
+    private AlertDialog connectingDialog;
     private List<SizeSyncTextView> indicatorSyncGroup;
     private AppUpdateManager appUpdateManager;
     private Task<AppUpdateInfo> appUpdateInfoTask;
@@ -304,12 +307,13 @@ public class DashboardFragment extends BaseInjectorFragment {
             SigninActivity.startActivity(getContext());
         } else if (menuItem.getItemId() == R.id.dashboard_action_logout) {
             // show a logout dialog
-            new MaterialDialog.Builder(getActivity())
-                    .title(getString(R.string.menu_logout_envirocar_title))
-                    .positiveText(getString(R.string.menu_logout_envirocar_positive))
-                    .negativeText(getString(R.string.menu_logout_envirocar_negative))
-                    .content(getString(R.string.menu_logout_envirocar_content))
-                    .onPositive((dialog, which) -> userHandler.logOut().subscribe(onLogoutSubscriber()))
+            new MaterialAlertDialogBuilder(getActivity(), R.style.MaterialDialog)
+                    .setTitle(R.string.menu_logout_envirocar_title)
+                    .setMessage(R.string.menu_logout_envirocar_content)
+                    .setIcon(R.drawable.ic_logout_white_24dp)
+                    .setPositiveButton(R.string.menu_logout_envirocar_positive,
+                            (dialog, which) -> userHandler.logOut().subscribe(onLogoutSubscriber()))
+                    .setNegativeButton(R.string.menu_logout_envirocar_negative,null)
                     .show();
         }
     }
@@ -445,15 +449,30 @@ public class DashboardFragment extends BaseInjectorFragment {
                         BluetoothDevice device = bluetoothHandler.getSelectedBluetoothDevice();
 
                         Intent obdRecordingIntent = new Intent(getActivity(), RecordingService.class);
-                        this.connectingDialog = new MaterialDialog.Builder(getActivity())
-                                .iconRes(R.drawable.ic_bluetooth_searching_black_24dp)
-                                .title(R.string.dashboard_connecting)
-                                .content(String.format(getString(R.string.dashboard_connecting_find_template), device.getName()))
-                                .progress(true, 0)
-                                .negativeText(R.string.cancel)
-                                .cancelable(false)
-                                .onNegative((dialog, which) -> getActivity().stopService(obdRecordingIntent))
+
+                        this.connectingDialog = DialogUtils.createProgressBarDialogBuilder(getContext(),
+                                R.string.dashboard_connecting,
+                                R.drawable.ic_bluetooth_white_24dp,
+                                String.format(getString(R.string.dashboard_connecting_find_template), device.getName()))
+                                .setNegativeButton(R.string.cancel,(dialog, which) -> {
+                                    ServiceUtils.stopService(getActivity(),obdRecordingIntent);
+                                })
                                 .show();
+
+                        // If the device is not found to start the track, dismiss the Dialog in 15 sec
+                        new CountDownTimer(15000, 1000) {
+                            @Override
+                            public void onTick(long millisUntilFinished) {
+                            }
+                            @Override
+                            public void onFinish() {
+                                connectingDialog.dismiss();
+                                ServiceUtils.stopService(getActivity(), obdRecordingIntent);
+                                Snackbar.make(getView(),
+                                        String.format(getString(R.string.dashboard_connecting_not_found_template),
+                                                device.getName()),Snackbar.LENGTH_LONG).show();
+                            }
+                        }.start();
 
                         ServiceUtils.startService(getActivity(), obdRecordingIntent);
                     }

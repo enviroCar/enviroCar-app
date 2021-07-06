@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -20,13 +20,20 @@ package org.envirocar.app.views.carselection;
 
 import android.content.Context;
 import android.os.Bundle;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
+import android.view.LayoutInflater;
+
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
@@ -35,11 +42,13 @@ import org.envirocar.app.handler.preferences.UserPreferenceHandler;
 import org.envirocar.app.views.utils.ECAnimationUtils;
 import org.envirocar.core.entity.Car;
 import org.envirocar.app.injection.BaseInjectorActivity;
+import org.envirocar.core.entity.CarImpl;
+import org.envirocar.core.entity.Vehicles;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.app.handler.DAOProvider;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -57,7 +66,7 @@ import io.reactivex.schedulers.Schedulers;
 /**
  * @author dewall
  */
-public class CarSelectionActivity extends BaseInjectorActivity implements CarSelectionUiListener {
+public class CarSelectionActivity extends BaseInjectorActivity implements CarSelectionUiListener, CarSelectionCreation {
     private static final Logger LOG = Logger.getLogger(CarSelectionActivity.class);
 
     private static final int DURATION_SHEET_ANIMATION = 350;
@@ -169,7 +178,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
             return false;
         }
         ECAnimationUtils.animateShowView(this, overlayView, R.anim.fade_in);
-        ECAnimationUtils.animateHideView(this,mFab, R.anim.fade_out);
+        ECAnimationUtils.animateHideView(this, mFab, R.anim.fade_out);
         this.addCarFragment = new CarSelectionAddCarFragment();
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.activity_car_selection_container, this.addCarFragment)
@@ -219,14 +228,24 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
                                 "" + car.getConstructionYear(),
                                 "" + car.getEngineDisplacement()));
 
-                        // If the car has been removed successfully...
-                        if (mCarManager.removeCar(car)) {
-                            showSnackbar(String.format(
-                                    getString(R.string.car_selection_car_deleted_tmp),
-                                    car.getManufacturer(), car.getModel()));
-                        }
-                        // then remove it from the list and show a snackbar.
-                        mCarListAdapter.removeCarItem(car);
+                        // Create a dialog to confirm the car deletion
+                        new MaterialAlertDialogBuilder(CarSelectionActivity.this, R.style.MaterialDialog)
+                                .setTitle(R.string.car_deselection_dialog_delete_pairing_title)
+                                .setMessage(String.format(getString(R.string.car_deselection_dialog_delete_pairing_content_template),
+                                        car.getManufacturer(), car.getModel()))
+                                .setIcon(R.drawable.ic_drive_eta_white_24dp)
+                                .setPositiveButton(R.string.car_deselection_dialog_delete_title, (dialog, which) -> {
+                                    // If the car has been removed successfully...
+                                    if (mCarManager.removeCar(car)) {
+                                        showSnackbar(String.format(
+                                                getString(R.string.car_selection_car_deleted_tmp),
+                                                car.getManufacturer(), car.getModel()));
+                                    }
+                                    // then remove it from the list and show a snackbar.
+                                    mCarListAdapter.removeCarItem(car);// Nothing to do on cancel
+                                })
+                                .setNegativeButton(R.string.cancel,null)
+                                .show();
                     }
                 });
         mCarListView.setAdapter(mCarListAdapter);
@@ -306,6 +325,66 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
         }
     }
 
+    @Override
+    public Car createCar(Vehicles vehicle) {
+        // Get the car values from Vehicles entitiy
+        String manufacturer = vehicle.getManufacturer();
+        String model = vehicle.getCommerical_name();
+        String yearString = vehicle.getAllotment_date();
+        int year = convertDateToInt(yearString);
+        int engine = 0;
+        if (!vehicle.getEngine_capacity().isEmpty())
+            engine = Integer.parseInt(vehicle.getEngine_capacity());
+        Car.FuelType fuelType = getFuel(vehicle.getPower_source_id());
+        if (fuelType != Car.FuelType.ELECTRIC) {
+            return new CarImpl(manufacturer, model, fuelType, year, engine);
+        } else {
+            return new CarImpl(manufacturer, model, fuelType, year);
+
+        }
+    }
+
+    @Override
+    public Car.FuelType getFuel(String id) {
+        String fuel = null;
+        if (id.equals("01"))
+            fuel = "gasoline";
+        else if (id.equals("02"))
+            fuel = "diesel";
+        else if (id.equals("04"))
+            fuel = "electric";
+        else if (id.equals("05") || id.equals("09") || id.equals("38"))
+            fuel = "gas";
+        else
+            fuel = "hybrid";
+
+        return Car.FuelType.resolveFuelType(fuel);
+    }
+
+    @Override
+    public void registerCar(Vehicles vehicle) {
+        Car car = createCar(vehicle);
+        mCarManager.registerCarAtServer(car);
+        onCarAdded(car);
+        closeAddCarCard();
+    }
+
+    public int convertDateToInt(String date) {
+        int convertedDate = 0;
+        for (int i = 6; i < date.length(); i++) {
+            convertedDate = convertedDate * 10 + (date.charAt(i) - 48);
+        }
+        return convertedDate;
+    }
+
+    public final ArrayAdapter<String> sortedAdapter(Context context, Set<String> set) {
+        String[] strings = set.toArray(new String[set.size()]);
+        Arrays.sort(strings);
+        return new ArrayAdapter<>(
+                context,
+                R.layout.activity_car_selection_newcar_fueltype_item,
+                strings);
+    }
 
     /**
      * Array adapter for the automatic completion of the AutoCompleteTextView. The intention of

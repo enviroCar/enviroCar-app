@@ -9,6 +9,9 @@ dependencies {
     implementation rootProject.ext.supportCardview
     implementation rootProject.ext.supportRecyclerview
     implementation rootProject.ext.supportConstraintLayout
+    implementation rootProject.ext.androidRoom
+    implementation rootProject.ext.androidRoomRxJava
+    annotationProcessor rootProject.ext.supportRoom
 
     implementation rootProject.ext.supportLifecycleExtension
     implementation rootProject.ext.supportLifecycleRuntime
@@ -41,8 +44,9 @@ dependencies {
     implementation rootProject.ext.fabProgressCircle
     implementation rootProject.ext.segmentedUIController
     implementation rootProject.ext.materialDialogs
-    implementation "com.andkulikov:transitionseverywhere:2.0.0"
-    implementation 'de.hdodenhof:circleimageview:3.0.1'
+    implementation "com.andkulikov:transitionseverywhere:2.1.0"
+    implementation 'de.hdodenhof:circleimageview:3.1.0'
+    implementation 'pub.devrel:easypermissions:3.0.0'
 
     // RxBindings
     implementation rootProject.ext.rxBindingCore
@@ -54,21 +58,23 @@ dependencies {
     }
 
     // Test
-    testImplementation 'junit:junit:4.12'
-    testImplementation 'org.mockito:mockito-core:1.9.5'
-    testImplementation('org.powermock:powermock-api-mockito:1.6.2') {
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.mockito:mockito-core:3.11.0'
+    testImplementation('org.powermock:powermock-api-mockito:1.7.4') {
         exclude module: 'hamcrest-core'
         exclude module: 'objenesis'
     }
-    testImplementation('org.powermock:powermock-module-junit4:1.6.2') {
+    testImplementation('org.powermock:powermock-module-junit4:2.0.9') {
         exclude module: 'hamcrest-core'
         exclude module: 'objenesis'
     }
-    androidTestImplementation 'junit:junit:4.12'
-    androidTestImplementation('androidx.test:runner:1.1.0-alpha4') {
+    androidTestImplementation 'junit:junit:4.13.2'
+    androidTestImplementation('androidx.test:runner:1.4.0-beta02') {
         exclude module: 'support-annotations'
     }
-    androidTestImplementation('androidx.test:rules:1.1.0-alpha4') {
+
+    androidTestImplementation'android.arch.core:core-testing:1.1.0'
+    androidTestImplementation('androidx.test:rules:1.4.0-beta02') {
         exclude module: 'support-annotations'
     }
 
