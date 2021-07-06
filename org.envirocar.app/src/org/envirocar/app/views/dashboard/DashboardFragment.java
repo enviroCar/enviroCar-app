@@ -610,7 +610,7 @@ public class DashboardFragment extends BaseInjectorFragment {
 
                 // set indicator color to blue
                 this.carIndicator.setBackgroundTintList(ColorStateList.valueOf(getResources().
-                        getColor(R.color.cario_color_primary)));
+                        getColor(R.color.cario_color_primary_dark)));
             } else {
                 // set warning indicator color to red
                 this.carIndicator.setBackgroundTintList(ColorStateList.valueOf(getResources().
