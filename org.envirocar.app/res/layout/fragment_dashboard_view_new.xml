@@ -164,7 +164,6 @@
                             android:layout_weight="1"
                             android:adjustViewBounds="true"
                             android:background="@drawable/btn_dashboard_circle"
-                            android:backgroundTint="@color/dashboard_indicator_selector"
                             android:src="@drawable/ic_bluetooth_black_24dp"
                             android:tint="@color/white_cario"
                             app:layout_constraintBottom_toTopOf="@id/fragment_dashboard_indicator_bluetooth_text"
@@ -212,7 +211,6 @@
                             android:layout_weight="1"
                             android:adjustViewBounds="true"
                             android:background="@drawable/btn_dashboard_circle"
-                            android:backgroundTint="@color/dashboard_indicator_selector"
                             android:scaleType="fitCenter"
                             android:src="@drawable/ic_obd"
                             android:tint="@color/white_cario"
@@ -261,7 +259,6 @@
                             android:layout_weight="1"
                             android:adjustViewBounds="true"
                             android:background="@drawable/btn_dashboard_circle"
-                            android:backgroundTint="@color/dashboard_indicator_selector"
                             android:scaleType="fitCenter"
                             android:src="@drawable/ic_gps"
                             android:tint="@color/white_cario"
@@ -310,7 +307,6 @@
                             android:layout_weight="1"
                             android:adjustViewBounds="true"
                             android:background="@drawable/btn_dashboard_circle"
-                            android:backgroundTint="@color/dashboard_indicator_selector"
                             android:scaleType="fitCenter"
                             android:src="@drawable/ic_drive_eta_black_24dp"
                             android:tint="@color/white_cario"
@@ -664,7 +660,7 @@
                             android:layout_gravity="right|center_vertical"
                             android:layout_marginRight="8dp"
                             android:src="@drawable/ic_action_arrow_foward"
-                            android:tint="@color/cario_color_primary_dark" />
+                            app:tint="@color/cario_color_primary_dark" />
 
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
