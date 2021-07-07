@@ -336,8 +336,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
                                 // If discovering of a device takes more than 15 sec ,then show user discovery is finished
                                 // if the needed device is not found , rediscover button can be used.
                                 if (mBluetoothHandler.isBluetoothEnabled()) {
-                                    mProgressBar.setVisibility(View.GONE);
-                                    mRescanImageView.setVisibility(View.VISIBLE);
+                                    mBluetoothHandler.stopBluetoothDeviceDiscovery();
                                     showSnackbar("Discovery Finished!");
                                 }
                             }
@@ -347,6 +346,9 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
                     @Override
                     public void onComplete() {
                         LOGGER.info("Bluetooth discovery finished.");
+
+                        mProgressBar.setVisibility(View.GONE);
+                        mRescanImageView.setVisibility(View.VISIBLE);
 
                         // If no devices found, set the corresponding textview to visibile.
                         if (mNewDevicesArrayAdapter.isEmpty()) {
@@ -361,6 +363,8 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
                             mNewDevicesInfoTextView.setText(String.format(string,
                                     Integer.toString(mNewDevicesArrayAdapter.getCount())));
                         }
+
+
                     }
 
                     @Override
