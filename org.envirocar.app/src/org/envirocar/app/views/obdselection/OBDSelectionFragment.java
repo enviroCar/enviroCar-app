@@ -337,7 +337,6 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
                                 // if the needed device is not found , rediscover button can be used.
                                 if (mBluetoothHandler.isBluetoothEnabled()) {
                                     mBluetoothHandler.stopBluetoothDeviceDiscovery();
-                                    showSnackbar("Discovery Finished!");
                                 }
                             }
                         }.start();
@@ -349,6 +348,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
 
                         mProgressBar.setVisibility(View.GONE);
                         mRescanImageView.setVisibility(View.VISIBLE);
+                        showSnackbar("Discovery Finished!");
 
                         // If no devices found, set the corresponding textview to visibile.
                         if (mNewDevicesArrayAdapter.isEmpty()) {
