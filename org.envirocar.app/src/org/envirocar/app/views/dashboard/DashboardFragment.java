@@ -53,7 +53,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
-import androidx.core.content.ContextCompat;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -515,8 +514,8 @@ public class DashboardFragment extends BaseInjectorFragment {
         getActivity().startActivity(intent);
     }
 
-    @OnClick(R.id.cardView2)
-    protected void goToMyTracks(){
+    @OnClick(R.id.user_statistics_card_view)
+    protected void onUserStatsClicked(){
         BottomNavigationView bottomView= getActivity().findViewById(R.id.navigation);
         bottomView.setSelectedItemId(R.id.navigation_my_tracks);
     }

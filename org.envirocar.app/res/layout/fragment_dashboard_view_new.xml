@@ -99,7 +99,7 @@
                     android:gravity="bottom"
                     android:orientation="vertical"
                     android:visibility="visible"
-                    app:layout_constraintBottom_toTopOf="@+id/cardView2"
+                    app:layout_constraintBottom_toTopOf="@+id/user_statistics_card_view"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/fragment_dashboard_banner">
@@ -345,7 +345,7 @@
                 </LinearLayout>
 
                 <androidx.cardview.widget.CardView
-                    android:id="@+id/cardView2"
+                    android:id="@+id/user_statistics_card_view"
                     android:layout_width="0dp"
                     android:layout_height="76dp"
                     app:cardCornerRadius="10dp"
@@ -503,7 +503,7 @@
                     app:cardElevation="10dp"
                     app:layout_constraintLeft_toRightOf="@id/guideline_settings_header_left"
                     app:layout_constraintRight_toLeftOf="@id/guideline_settings_header_right"
-                    app:layout_constraintTop_toBottomOf="@+id/cardView2">
+                    app:layout_constraintTop_toBottomOf="@+id/user_statistics_card_view">
 
                     <androidx.appcompat.widget.AppCompatTextView
                         android:layout_width="match_parent"
