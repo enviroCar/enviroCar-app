@@ -335,7 +335,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
                             public void onFinish() {
                                 // If discovering of a device takes more than 15 sec ,then show user discovery is finished
                                 // if the needed device is not found , rediscover button can be used.
-                                if (mBluetoothHandler.isBluetoothEnabled()) {
+                                if (mBluetoothHandler.isDiscovering()) {
                                     mBluetoothHandler.stopBluetoothDeviceDiscovery();
                                 }
                             }
