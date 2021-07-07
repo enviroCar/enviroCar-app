@@ -25,10 +25,12 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -103,6 +105,8 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
     protected ListView mNewDevicesListView;
     @BindView(R.id.activity_obd_selection_layout_search_devices_progressbar)
     protected ProgressBar mProgressBar;
+    @BindView(R.id.activity_obd_selection_layout_rescan_bluetooth)
+    protected ImageView mRescanImageView;
 
     @BindView(R.id.activity_obd_selection_layout_available_devices_info)
     protected TextView mNewDevicesInfoTextView;
@@ -313,21 +317,38 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
                     public void onStart() {
                         LOGGER.info("Blutooth discovery started.");
 
-                        // Show the progressbar
+                        // Show the progressbar and remove rescan option
                         mProgressBar.setVisibility(View.VISIBLE);
+                        mRescanImageView.setVisibility(View.GONE);
 
                         // Set info view to "searching...".
                         mNewDevicesInfoTextView.setText(R.string
                                 .bluetooth_pairing_preference_info_searching_devices);
                         showSnackbar(getString(R.string.obd_selection_discovery_started));
+
+                        // Set timer for 15sec
+                        new CountDownTimer(15000, 1000) {
+                            @Override
+                            public void onTick(long millisUntilFinished) {
+                            }
+                            @Override
+                            public void onFinish() {
+                                // If discovering of a device takes more than 15 sec ,then show user discovery is finished
+                                // if the needed device is not found , rediscover button can be used.
+                                if (mBluetoothHandler.isDiscovering()) {
+                                    mBluetoothHandler.stopBluetoothDeviceDiscovery();
+                                }
+                            }
+                        }.start();
                     }
 
                     @Override
                     public void onComplete() {
                         LOGGER.info("Bluetooth discovery finished.");
 
-                        // Dismiss the progressbar.
                         mProgressBar.setVisibility(View.GONE);
+                        mRescanImageView.setVisibility(View.VISIBLE);
+                        showSnackbar("Discovery Finished!");
 
                         // If no devices found, set the corresponding textview to visibile.
                         if (mNewDevicesArrayAdapter.isEmpty()) {
@@ -342,8 +363,6 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
                             mNewDevicesInfoTextView.setText(String.format(string,
                                     Integer.toString(mNewDevicesArrayAdapter.getCount())));
                         }
-
-                        showSnackbar("Discovery Finished!");
                     }
 
                     @Override
