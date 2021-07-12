@@ -184,7 +184,6 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
                 .replace(R.id.activity_car_selection_container, this.addCarFragment)
                 .commit();
 
-
         // this card was already visible. Therefore, return false.
         return true;
     }
@@ -319,73 +318,23 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
             mCarListAdapter.addCarItem(car);
             showSnackbar(String.format(getString(R.string.car_selection_successfully_added_tmp),
                     car.getManufacturer(), car.getModel()));
+
+            // Check the total Cars count after adding, if only 1 car then set it.
+            int count = mCarListAdapter.getCount();
+            if(count == 1) {
+                mCarManager.setCar(car);
+                showSnackbar(String.format(getString(R.string.car_selection_car_selected_after_add),
+                        car.getManufacturer(), car.getModel()));
+
+                //Update the listview
+                setupListView();
+            }
         } else {
             showSnackbar(String.format(getString(R.string.car_selection_already_in_list_tmp),
                     car.getManufacturer(), car.getModel()));
         }
     }
-
-    @Override
-    public Car createCar(Vehicles vehicle) {
-        // Get the car values from Vehicles entitiy
-        String manufacturer = vehicle.getManufacturer();
-        String model = vehicle.getCommerical_name();
-        String yearString = vehicle.getAllotment_date();
-        int year = convertDateToInt(yearString);
-        int engine = 0;
-        if (!vehicle.getEngine_capacity().isEmpty())
-            engine = Integer.parseInt(vehicle.getEngine_capacity());
-        Car.FuelType fuelType = getFuel(vehicle.getPower_source_id());
-        if (fuelType != Car.FuelType.ELECTRIC) {
-            return new CarImpl(manufacturer, model, fuelType, year, engine);
-        } else {
-            return new CarImpl(manufacturer, model, fuelType, year);
-
-        }
-    }
-
-    @Override
-    public Car.FuelType getFuel(String id) {
-        String fuel = null;
-        if (id.equals("01"))
-            fuel = "gasoline";
-        else if (id.equals("02"))
-            fuel = "diesel";
-        else if (id.equals("04"))
-            fuel = "electric";
-        else if (id.equals("05") || id.equals("09") || id.equals("38"))
-            fuel = "gas";
-        else
-            fuel = "hybrid";
-
-        return Car.FuelType.resolveFuelType(fuel);
-    }
-
-    @Override
-    public void registerCar(Vehicles vehicle) {
-        Car car = createCar(vehicle);
-        mCarManager.registerCarAtServer(car);
-        onCarAdded(car);
-        closeAddCarCard();
-    }
-
-    public int convertDateToInt(String date) {
-        int convertedDate = 0;
-        for (int i = 6; i < date.length(); i++) {
-            convertedDate = convertedDate * 10 + (date.charAt(i) - 48);
-        }
-        return convertedDate;
-    }
-
-    public final ArrayAdapter<String> sortedAdapter(Context context, Set<String> set) {
-        String[] strings = set.toArray(new String[set.size()]);
-        Arrays.sort(strings);
-        return new ArrayAdapter<>(
-                context,
-                R.layout.activity_car_selection_newcar_fueltype_item,
-                strings);
-    }
-
+  
     /**
      * Array adapter for the automatic completion of the AutoCompleteTextView. The intention of
      * this class is to limit the number of visibile suggestions to a bounded number.
@@ -402,7 +351,6 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
         public AutoCompleteArrayAdapter(Context context, int resource, String[] objects) {
             super(context, resource, objects);
         }
-
 
         @Override
         public int getCount() {
