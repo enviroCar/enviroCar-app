@@ -359,6 +359,11 @@ public class DashboardFragment extends BaseInjectorFragment {
         RecordingType selectedRT = button.getId() == R.id.fragment_dashboard_obd_mode_button ?
                 RecordingType.OBD_ADAPTER_BASED : RecordingType.ACTIVITY_RECOGNITION_BASED;
 
+        // if the GPS tracking is not enabled then set recording type to OBD.
+        if(!ApplicationSettings.isGPSBasedTrackingEnabled(getContext())){
+            selectedRT = RecordingType.OBD_ADAPTER_BASED;
+        }
+
         LOG.info("Mode selected " + button.getText());
 
         // adjust the ui
