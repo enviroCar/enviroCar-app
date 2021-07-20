@@ -71,7 +71,7 @@
 	    you can save the log file on a PC, e.g. through Bluetooth or USB. In such cases we appreciate sending
 	    in the reporting bundle manually. It is stored at the following location:</string>
     <string name="send_log_when_label">Approximate minutes past since issue:</string>
-    <string name="send_log_comments_label">(additional comments)</string>
+    <string name="send_log_comments_label">Additional comments</string>
     <string name="send_log_time_past_hint">(time past since issue)</string>
     <string name="troubleshootingParagraph" translatable="false">The enviroCar app was not able to establish the bluetooth connection to
 	    the OBD-II adapter. You could try to unplug and plug the adapter, then restart measurements.</string>
