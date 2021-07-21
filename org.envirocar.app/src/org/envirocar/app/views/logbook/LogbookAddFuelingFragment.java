@@ -476,10 +476,13 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
                         if (e instanceof NotConnectedException) {
                             showSnackbarInfo(R.string.logbook_error_communication);
                         } else if (e instanceof DataCreationFailureException) {
-                            showSnackbarInfo(R.string.logbook_error_resource_conflict);
+                            if (!isNetworkAvailable(requireActivity().getApplication())) {
+                                showSnackbarInfo(R.string.logbook_error_resource_conflict);
+                            }
                         } else if (e instanceof UnauthorizedException) {
                             showSnackbarInfo(R.string.logbook_error_unauthorized);
                         } else {
+                            if (isNetworkAvailable(requireActivity().getApplication()))
                             showSnackbarInfo(R.string.logbook_error_general);
                         }
                         dialog.dismiss();
