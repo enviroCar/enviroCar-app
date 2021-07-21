@@ -716,11 +716,9 @@ public class DashboardFragment extends BaseInjectorFragment {
             bluetoothSelectionTextSecondary.setText(device.getAddress());
 
             // set indicator color
-            this.obdIndicator.setBackgroundTintList(ColorStateList.valueOf(getResources().
-                    getColor(R.color.cario_color_primary_dark)));
+            this.obdIndicator.setActivated(false);
         } else {
-            this.obdIndicator.setBackgroundTintList(ColorStateList.valueOf(getResources().
-                    getColor(R.color.cario_warning_red)));
+            this.obdIndicator.setActivated(true);
         }
         this.updateStartTrackButton();
     }
