@@ -48,4 +48,6 @@
     <string name="logbook_background_no_fuelings_second">Es sind keine Tankeinträge\ndem eingeloggten Nutzer zugeordnet.</string>
     <string name="logbook_background_no_cars_first">KEINE AUTOS</string>
     <string name="logbook_background_no_cars_second">Um Zugriff auf diese Funktion zu bekommen,\nmüssen Sie zuerst mindestens ein Fahrzeug erstellen.</string>
+    <string name="logbook_background_no_internet_first">KEINE INTERNETVERBINDUNG</string>
+    <string name="logbook_background_no_internet_second">Sie sind offline. Um auf die Protokolle zugreifen zu können, benötigen Sie eine aktive Internetverbindung</string>
 </resources>
