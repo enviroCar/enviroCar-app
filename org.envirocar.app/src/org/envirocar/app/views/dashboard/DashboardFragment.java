@@ -579,14 +579,7 @@ public class DashboardFragment extends BaseInjectorFragment {
     public void receiveBluetoothStateChanged(BluetoothStateChangedEvent event) {
         // post on decor view to ensure that it gets executed when view has been inflated.
         runAfterInflation(() -> {
-            if (!event.isBluetoothEnabled){
-                this.bluetoothIndicator.setBackgroundTintList(ColorStateList.valueOf(getResources().
-                        getColor(R.color.cario_warning_red)));
-            }
-            else {
-                this.bluetoothIndicator.setBackgroundTintList(ColorStateList.valueOf(getResources().
-                        getColor(R.color.cario_color_primary_dark)));
-            }
+            this.bluetoothIndicator.setActivated(!event.isBluetoothEnabled);
             this.updateOBDState(event.selectedDevice);
             this.updateStartTrackButton();
         });
@@ -642,13 +635,7 @@ public class DashboardFragment extends BaseInjectorFragment {
     public void onGpsStateChangedEvent(final GpsStateChangedEvent event) {
         // post on decor view to ensure that it gets executed when view has been inflated.
         runAfterInflation(() -> {
-            if (!event.mIsGPSEnabled)
-                this.gpsIndicator.setBackgroundTintList(ColorStateList.valueOf(getResources().
-                        getColor(R.color.cario_warning_red)));
-            else
-                this.gpsIndicator.setBackgroundTintList(ColorStateList.valueOf(getResources().
-                        getColor(R.color.cario_color_primary_dark)));
-
+            this.gpsIndicator.setActivated(!event.mIsGPSEnabled);
             this.updateStartTrackButton();
         });
     }
