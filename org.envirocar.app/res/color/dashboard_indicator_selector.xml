@@ -20,6 +20,6 @@
 
 -->
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:color="@color/cario_color_primary_dark" android:state_enabled="false" />
-    <item android:color="@color/cario_warning_red" android:state_enabled="true" />
+    <item android:color="@color/cario_color_primary_dark" android:state_activated="false" />
+    <item android:color="@color/cario_warning_red" android:state_activated="true" />
 </selector>
