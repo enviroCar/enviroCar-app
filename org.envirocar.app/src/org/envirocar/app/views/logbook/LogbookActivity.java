@@ -243,7 +243,6 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
             noInternetConnection();
             showSnackbarInfo(R.string.error_not_connected_to_network);
         }
-
         subscription.add(daoProvider.getFuelingDAO().getFuelingsObservable()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
