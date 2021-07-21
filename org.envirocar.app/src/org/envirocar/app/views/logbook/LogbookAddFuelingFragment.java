@@ -18,7 +18,13 @@
  */
 package org.envirocar.app.views.logbook;
 
-import android.app.Activity;
+import android.app.Activity;import android.app.Application;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
+import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.InputFilter;
 import android.text.Spanned;
@@ -210,6 +216,11 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
         addFuelingTotalCostText.setError(null);
         addFuelingVolumeText.setError(null);
 
+        if (!isNetworkAvailable(requireActivity().getApplication())){
+            closeThisFragment();
+            showSnackbarInfo(R.string.error_not_connected_to_network);
+        }
+
         boolean formError = false;
         View focusView = null;
         if (addFuelingMilageText.getText() == null || addFuelingMilageText.getText().toString().equals("")) {
@@ -299,6 +310,20 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
             uploadCarBeforeFueling(car, fueling);
         } else {
             uploadFueling(fueling);
+        }
+    }
+
+    private Boolean isNetworkAvailable(Application application) {
+        ConnectivityManager connectivityManager = (ConnectivityManager)
+                application.getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            Network nw = connectivityManager.getActiveNetwork();
+            if (nw == null) return false;
+            NetworkCapabilities actNw = connectivityManager.getNetworkCapabilities(nw);
+            return true;
+        } else {
+            NetworkInfo nwInfo = connectivityManager.getActiveNetworkInfo();
+            return true;
         }
     }
 
