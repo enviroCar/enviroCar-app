@@ -601,13 +601,11 @@ public class DashboardFragment extends BaseInjectorFragment {
                         "" + event.mCar.getEngineDisplacement(),
                         "" + getString(event.mCar.getFuelType().getStringResource())));
 
-                // set indicator color to blue
-                this.carIndicator.setBackgroundTintList(ColorStateList.valueOf(getResources().
-                        getColor(R.color.cario_color_primary_dark)));
+                // set indicator color accordingly
+                this.carIndicator.setActivated(false);
             } else {
                 // set warning indicator color to red
-                this.carIndicator.setBackgroundTintList(ColorStateList.valueOf(getResources().
-                        getColor(R.color.cario_warning_red)));
+                this.carIndicator.setActivated(true);
             }
             this.updateStartTrackButton();
         });
