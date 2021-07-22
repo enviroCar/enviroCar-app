@@ -465,6 +465,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
                         if (mPairedDevicesAdapter.getCount() == 0 ){
                             mPairedDevicesTextView.setVisibility(View.GONE);
                         }
+                        updatePairedDevicesList();
                     }
 
                     @Override
