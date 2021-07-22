@@ -41,6 +41,8 @@ import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.preferences.CarPreferenceHandler;
 import org.envirocar.app.views.utils.ECAnimationUtils;
+import org.envirocar.core.ContextInternetAccessProvider;
+import org.envirocar.core.InternetAccessProvider;
 import org.envirocar.core.UserManager;
 import org.envirocar.core.entity.Fueling;
 import org.envirocar.core.exception.NotConnectedException;
@@ -164,20 +166,6 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
         }
     }
 
-    private Boolean isNetworkAvailable(Application application) {
-        ConnectivityManager connectivityManager = (ConnectivityManager)
-                application.getSystemService(Context.CONNECTIVITY_SERVICE);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            Network nw = connectivityManager.getActiveNetwork();
-            if (nw == null) return false;
-            NetworkCapabilities actNw = connectivityManager.getNetworkCapabilities(nw);
-            return true;
-        } else {
-            NetworkInfo nwInfo = connectivityManager.getActiveNetworkInfo();
-            return true;
-        }
-    }
-
     @Override
     protected void onDestroy() {
         LOG.info("onDestroy()");
@@ -237,44 +225,45 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
         LOG.info("downloadFuelings()");
 
         // If internet connection is ON , downloadFuel data else set background as no internet.
-        if (!isNetworkAvailable(getApplication())){
+        if (new ContextInternetAccessProvider(getApplicationContext()).isConnected()){
+            subscription.add(daoProvider.getFuelingDAO().getFuelingsObservable()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeWith(new DisposableObserver<List<Fueling>>() {
+                        @Override
+                        public void onComplete() {
+                            LOG.info("Download of fuelings completed");
+
+                            if (fuelings.isEmpty()) {
+                                showNoFuelingsInfo();
+                            } else {
+                                infoBackground.setVisibility(View.GONE);
+                            }
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+                            LOG.error(e.getMessage(), e);
+                        }
+
+                        @Override
+                        public void onNext(List<Fueling> result) {
+                            // Add all remote fuelings
+                            fuelings.addAll(result);
+
+                            // Sort the list of fuelings
+                            Collections.sort(fuelings);
+
+                            // Redraw everything
+                            fuelingListAdapter.notifyDataSetChanged();
+                        }
+                    }));
+        }else {
             headerView.setVisibility(View.GONE);
             newFuelingFab.setVisibility(View.GONE);
             noInternetConnection();
             showSnackbarInfo(R.string.error_not_connected_to_network);
         }
-        subscription.add(daoProvider.getFuelingDAO().getFuelingsObservable()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new DisposableObserver<List<Fueling>>() {
-                    @Override
-                    public void onComplete() {
-                        LOG.info("Download of fuelings completed");
-
-                        if (fuelings.isEmpty()) {
-                            showNoFuelingsInfo();
-                        } else {
-                            infoBackground.setVisibility(View.GONE);
-                        }
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        LOG.error(e.getMessage(), e);
-                    }
-
-                    @Override
-                    public void onNext(List<Fueling> result) {
-                        // Add all remote fuelings
-                        fuelings.addAll(result);
-
-                        // Sort the list of fuelings
-                        Collections.sort(fuelings);
-
-                        // Redraw everything
-                        fuelingListAdapter.notifyDataSetChanged();
-                    }
-                }));
     }
 
     /**
