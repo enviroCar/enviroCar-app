@@ -35,6 +35,7 @@
     <string name="logbook_error_general">Error while creating logbook entry. Please try again later and send a report.</string>
     <string name="logbook_error_communication">No connection to the server.</string>
     <string name="logbook_error_unauthorized">You are not authorized to do that. Please log in with the right account first.</string>
+    <string name="logbook_fuel_addition_successful">Fueling has been added successfully.</string>
     <string name="logbook_error_resource_conflict">Error while uploading: The fueling already exists.</string>
     <string name="logbook_error_form_blank_input">Cannot be blank</string>
     <string name="logbook_deletion_success_tmp">Fueling has been successfully deleted from the server.</string>

@@ -524,6 +524,7 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
 
                         ((LogbookUiListener) getActivity()).onFuelingUploaded(fueling);
                         ((LogbookUiListener) getActivity()).onHideAddFuelingCard();
+                        showSnackbarInfo(R.string.logbook_fuel_addition_successful);
                     }
 
                     @Override
