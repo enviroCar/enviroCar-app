@@ -376,14 +376,14 @@ public class DashboardFragment extends BaseInjectorFragment {
         Boolean setEnabled = false;
         switch (button.getId()) {
             case R.id.fragment_dashboard_gps_mode_button:
-                setEnabled = (!this.carIndicator.isEnabled()
-                        && !this.gpsIndicator.isEnabled());
+                setEnabled = (this.carIndicator.isActivated()
+                        && this.gpsIndicator.isActivated());
                 break;
             case R.id.fragment_dashboard_obd_mode_button:
-                setEnabled = (!this.bluetoothIndicator.isEnabled()
-                        && !this.gpsIndicator.isEnabled()
-                        && !this.obdIndicator.isEnabled()
-                        && !this.carIndicator.isEnabled());
+                setEnabled = (this.bluetoothIndicator.isActivated()
+                        && this.gpsIndicator.isActivated()
+                        && this.obdIndicator.isActivated()
+                        && this.carIndicator.isActivated());
                 break;
         }
         this.startTrackButtonText.setText(R.string.dashboard_start_track);
@@ -447,10 +447,10 @@ public class DashboardFragment extends BaseInjectorFragment {
         } else {
             switch (this.modeSegmentedGroup.getCheckedRadioButtonId()) {
                 case R.id.fragment_dashboard_obd_mode_button:
-                    if (!this.gpsIndicator.isEnabled()
-                            && !this.carIndicator.isEnabled()
-                            && !this.bluetoothIndicator.isEnabled()
-                            && !this.obdIndicator.isEnabled()) {
+                    if (this.gpsIndicator.isActivated()
+                            && this.carIndicator.isActivated()
+                            && this.bluetoothIndicator.isActivated()
+                            && this.obdIndicator.isActivated()) {
                         BluetoothDevice device = bluetoothHandler.getSelectedBluetoothDevice();
 
                         Intent obdRecordingIntent = new Intent(getActivity(), RecordingService.class);
@@ -737,14 +737,14 @@ public class DashboardFragment extends BaseInjectorFragment {
             case RECORDING_STOPPED:
                 switch (this.modeSegmentedGroup.getCheckedRadioButtonId()) {
                     case R.id.fragment_dashboard_gps_mode_button:
-                        setEnabled = (!this.carIndicator.isEnabled()
-                                && !this.gpsIndicator.isEnabled());
+                        setEnabled = (this.carIndicator.isActivated()
+                                && this.gpsIndicator.isActivated());
                         break;
                     case R.id.fragment_dashboard_obd_mode_button:
-                        setEnabled = (!this.bluetoothIndicator.isEnabled()
-                                && !this.gpsIndicator.isEnabled()
-                                && !this.obdIndicator.isEnabled()
-                                && !this.carIndicator.isEnabled());
+                        setEnabled = (this.bluetoothIndicator.isActivated()
+                                && this.gpsIndicator.isActivated()
+                                && this.obdIndicator.isActivated()
+                                && this.carIndicator.isActivated());
                         break;
                 }
                 this.startTrackButtonText.setText(R.string.dashboard_start_track);
