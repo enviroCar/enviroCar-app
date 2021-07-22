@@ -579,7 +579,7 @@ public class DashboardFragment extends BaseInjectorFragment {
     public void receiveBluetoothStateChanged(BluetoothStateChangedEvent event) {
         // post on decor view to ensure that it gets executed when view has been inflated.
         runAfterInflation(() -> {
-            this.bluetoothIndicator.setActivated(!event.isBluetoothEnabled);
+            this.bluetoothIndicator.setActivated(event.isBluetoothEnabled);
             this.updateOBDState(event.selectedDevice);
             this.updateStartTrackButton();
         });
@@ -602,10 +602,10 @@ public class DashboardFragment extends BaseInjectorFragment {
                         "" + getString(event.mCar.getFuelType().getStringResource())));
 
                 // set indicator color accordingly
-                this.carIndicator.setActivated(false);
+                this.carIndicator.setActivated(true);
             } else {
                 // set warning indicator color to red
-                this.carIndicator.setActivated(true);
+                this.carIndicator.setActivated(false);
             }
             this.updateStartTrackButton();
         });
@@ -633,7 +633,7 @@ public class DashboardFragment extends BaseInjectorFragment {
     public void onGpsStateChangedEvent(final GpsStateChangedEvent event) {
         // post on decor view to ensure that it gets executed when view has been inflated.
         runAfterInflation(() -> {
-            this.gpsIndicator.setActivated(!event.mIsGPSEnabled);
+            this.gpsIndicator.setActivated(event.mIsGPSEnabled);
             this.updateStartTrackButton();
         });
     }
@@ -716,9 +716,9 @@ public class DashboardFragment extends BaseInjectorFragment {
             bluetoothSelectionTextSecondary.setText(device.getAddress());
 
             // set indicator color
-            this.obdIndicator.setActivated(false);
-        } else {
             this.obdIndicator.setActivated(true);
+        } else {
+            this.obdIndicator.setActivated(false);
         }
         this.updateStartTrackButton();
     }
