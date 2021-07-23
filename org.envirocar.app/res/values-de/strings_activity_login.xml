@@ -27,7 +27,7 @@
     <string name="error_invalid_password">Zu kurzes Passwort</string>
     <string name="error_incorrect_password">Falsches Passwort</string>
     <string name="error_field_required">Benötigtes Feld</string>
-    <string name="error_not_connected_to_network">Keine Verbdindung zum Internet</string>
+    <string name="error_not_connected_to_network">Keine Verbindung zum Internet</string>
     <string name="register_progress_signing_in">Registerung&#8230;</string>
     <string name="error_passwords_not_matching">Die Passwörter stimmen nicht überein</string>
     <string name="error_invalid_username">Dieser Username ist zu kurz</string>
