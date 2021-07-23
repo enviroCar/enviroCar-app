@@ -24,6 +24,7 @@ import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
@@ -375,14 +376,14 @@ public class DashboardFragment extends BaseInjectorFragment {
         Boolean setEnabled = false;
         switch (button.getId()) {
             case R.id.fragment_dashboard_gps_mode_button:
-                setEnabled = (!this.carIndicator.isEnabled()
-                        && !this.gpsIndicator.isEnabled());
+                setEnabled = (this.carIndicator.isActivated()
+                        && this.gpsIndicator.isActivated());
                 break;
             case R.id.fragment_dashboard_obd_mode_button:
-                setEnabled = (!this.bluetoothIndicator.isEnabled()
-                        && !this.gpsIndicator.isEnabled()
-                        && !this.obdIndicator.isEnabled()
-                        && !this.carIndicator.isEnabled());
+                setEnabled = (this.bluetoothIndicator.isActivated()
+                        && this.gpsIndicator.isActivated()
+                        && this.obdIndicator.isActivated()
+                        && this.carIndicator.isActivated());
                 break;
         }
         this.startTrackButtonText.setText(R.string.dashboard_start_track);
@@ -446,10 +447,10 @@ public class DashboardFragment extends BaseInjectorFragment {
         } else {
             switch (this.modeSegmentedGroup.getCheckedRadioButtonId()) {
                 case R.id.fragment_dashboard_obd_mode_button:
-                    if (!this.gpsIndicator.isEnabled()
-                            && !this.carIndicator.isEnabled()
-                            && !this.bluetoothIndicator.isEnabled()
-                            && !this.obdIndicator.isEnabled()) {
+                    if (this.gpsIndicator.isActivated()
+                            && this.carIndicator.isActivated()
+                            && this.bluetoothIndicator.isActivated()
+                            && this.obdIndicator.isActivated()) {
                         BluetoothDevice device = bluetoothHandler.getSelectedBluetoothDevice();
 
                         Intent obdRecordingIntent = new Intent(getActivity(), RecordingService.class);
@@ -578,7 +579,7 @@ public class DashboardFragment extends BaseInjectorFragment {
     public void receiveBluetoothStateChanged(BluetoothStateChangedEvent event) {
         // post on decor view to ensure that it gets executed when view has been inflated.
         runAfterInflation(() -> {
-            this.bluetoothIndicator.setEnabled(!event.isBluetoothEnabled);
+            this.bluetoothIndicator.setActivated(event.isBluetoothEnabled);
             this.updateOBDState(event.selectedDevice);
             this.updateStartTrackButton();
         });
@@ -601,14 +602,14 @@ public class DashboardFragment extends BaseInjectorFragment {
                         "" + getString(event.mCar.getFuelType().getStringResource())));
 
                 // set indicator color accordingly
-                this.carIndicator.setEnabled(false);
+                this.carIndicator.setActivated(true);
             } else {
 
                 this.carSelectionTextPrimary.setText(String.format("%s",getResources().getString(R.string.dashboard_carselection_no_car_selected)));
                 this.carSelectionTextSecondary.setText(String.format("%s",getResources().getString(R.string.dashboard_carselection_no_car_selected_advise)));
 
-                // set warning indicator color
-                this.carIndicator.setEnabled(true);
+                // set warning indicator color to red
+                this.carIndicator.setActivated(false);
             }
 
             this.updateStartTrackButton();
@@ -637,7 +638,7 @@ public class DashboardFragment extends BaseInjectorFragment {
     public void onGpsStateChangedEvent(final GpsStateChangedEvent event) {
         // post on decor view to ensure that it gets executed when view has been inflated.
         runAfterInflation(() -> {
-            this.gpsIndicator.setEnabled(!event.mIsGPSEnabled);
+            this.gpsIndicator.setActivated(event.mIsGPSEnabled);
             this.updateStartTrackButton();
         });
     }
@@ -720,13 +721,13 @@ public class DashboardFragment extends BaseInjectorFragment {
             bluetoothSelectionTextSecondary.setText(device.getAddress());
 
             // set indicator color
-            this.obdIndicator.setEnabled(false);
+            this.obdIndicator.setActivated(true);
         } else {
 
             bluetoothSelectionTextPrimary.setText(getResources().getText(R.string.dashboard_obd_not_selected));
             bluetoothSelectionTextSecondary.setText(getResources().getText(R.string.dashboard_obd_not_selected_advise));
 
-            this.obdIndicator.setEnabled(true);
+            this.obdIndicator.setActivated(false);
         }
         this.updateStartTrackButton();
     }
@@ -745,14 +746,14 @@ public class DashboardFragment extends BaseInjectorFragment {
             case RECORDING_STOPPED:
                 switch (this.modeSegmentedGroup.getCheckedRadioButtonId()) {
                     case R.id.fragment_dashboard_gps_mode_button:
-                        setEnabled = (!this.carIndicator.isEnabled()
-                                && !this.gpsIndicator.isEnabled());
+                        setEnabled = (this.carIndicator.isActivated()
+                                && this.gpsIndicator.isActivated());
                         break;
                     case R.id.fragment_dashboard_obd_mode_button:
-                        setEnabled = (!this.bluetoothIndicator.isEnabled()
-                                && !this.gpsIndicator.isEnabled()
-                                && !this.obdIndicator.isEnabled()
-                                && !this.carIndicator.isEnabled());
+                        setEnabled = (this.bluetoothIndicator.isActivated()
+                                && this.gpsIndicator.isActivated()
+                                && this.obdIndicator.isActivated()
+                                && this.carIndicator.isActivated());
                         break;
                 }
                 this.startTrackButtonText.setText(R.string.dashboard_start_track);
