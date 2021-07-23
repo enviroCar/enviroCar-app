@@ -133,7 +133,7 @@ public class SignupActivity extends BaseInjectorActivity {
         ButterKnife.bind(this);
 
         error = getResources().getDrawable(R.drawable.ic_error_red_24dp);
-        error.setBounds(-50,0,0,error.getIntrinsicHeight());
+        error.setBounds(-75,0,0,error.getIntrinsicHeight());
 
         // make terms of use and privacy statement clickable
         this.makeClickableTextLinks();

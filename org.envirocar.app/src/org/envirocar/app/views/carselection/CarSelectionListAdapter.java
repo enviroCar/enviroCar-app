@@ -19,6 +19,7 @@
 package org.envirocar.app.views.carselection;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -139,9 +140,19 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
             mCallback.onSelectCar(mSelectedCar);
         });
 
+        // Items of array.car_list_option_items are displayed according to the state of radio button.
+        Resources res = getContext().getResources();
+        String[] state;
+        if (mSelectedCar.equals(car)) {
+            state = res.getStringArray(R.array.car_list_option_item_Delete_car);
+        }
+        else{
+            state = res.getStringArray(R.array.car_list_option_items);
+        }
+
         // Set the onClickListener for a single row.
         convertView.setOnClickListener(v -> new MaterialDialog.Builder(mContext)
-                .items(R.array.car_list_option_items)
+                .items(state)
                 .itemsCallback((materialDialog, view, i, charSequence) -> {
                     switch (i) {
                         case 0:

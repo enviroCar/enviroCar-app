@@ -24,4 +24,8 @@
         <item>Select Car</item>
         <item>Delete Car</item>
     </array>
+
+    <array name="car_list_option_item_Delete_car">
+        <item>Delete Car</item>
+    </array>
 </resources>
