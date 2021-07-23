@@ -308,7 +308,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
                     .setPositiveButton(R.string.obd_selection_dialog_pairing_title,
                             (dialog, which) -> {
                                 // If this button is clicked, pair with the given device
-                                view1.setClickable(false);
+                                view1.setOnClickListener(null);
                                 pairDevice(device, view1);
                             })
                     .setNegativeButton(R.string.cancel, null) // Nothing to do on cancel
@@ -430,7 +430,12 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
                         showSnackbar(getString(R.string.obd_selection_pairing_success_template,
                                 device.getName()));
                         mNewDevicesArrayAdapter.remove(device);
-                        mPairedDevicesAdapter.add(device);
+
+                        // Add device only if device is not present
+                        if (!mPairedDevicesAdapter.contains(device)) {
+                            mPairedDevicesAdapter.add(device);
+                            mPairedDevicesTextView.setVisibility(View.VISIBLE);
+                        }
 
                         // Post an event to all registered handlers.
                         mBus.post(new BluetoothPairingChangedEvent(device, true));
