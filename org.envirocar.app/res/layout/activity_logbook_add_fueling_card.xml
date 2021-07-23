@@ -402,7 +402,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Kommentar"
+                            android:text="@string/send_log_comments_label"
                             android:textSize="12sp"/>
 
                         <EditText

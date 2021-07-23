@@ -19,6 +19,13 @@
 package org.envirocar.app.views.logbook;
 
 import android.app.Activity;
+import android.app.Application;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
+import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.InputFilter;
 import android.text.Spanned;
@@ -45,7 +52,7 @@ import org.envirocar.app.handler.DAOProvider;
 import org.envirocar.app.handler.preferences.CarPreferenceHandler;
 import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.app.views.utils.DialogUtils;
-import org.envirocar.app.views.utils.ECAnimationUtils;
+import org.envirocar.app.views.utils.ECAnimationUtils;import org.envirocar.core.ContextInternetAccessProvider;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Fueling;
 import org.envirocar.core.entity.FuelingImpl;
@@ -71,6 +78,8 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
+
+import static com.mapbox.mapboxsdk.Mapbox.getApplicationContext;
 
 /**
  * TODO JavaDoc
@@ -209,6 +218,11 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
         addFuelingMilageText.setError(null);
         addFuelingTotalCostText.setError(null);
         addFuelingVolumeText.setError(null);
+
+        if (!new ContextInternetAccessProvider(getApplicationContext()).isConnected()){
+            closeThisFragment();
+            showSnackbarInfo(R.string.error_not_connected_to_network);
+        }
 
         boolean formError = false;
         View focusView = null;
@@ -451,10 +465,13 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
                         if (e instanceof NotConnectedException) {
                             showSnackbarInfo(R.string.logbook_error_communication);
                         } else if (e instanceof DataCreationFailureException) {
-                            showSnackbarInfo(R.string.logbook_error_resource_conflict);
+                            if (!new ContextInternetAccessProvider(getApplicationContext()).isConnected()) {
+                                showSnackbarInfo(R.string.logbook_error_resource_conflict);
+                            }
                         } else if (e instanceof UnauthorizedException) {
                             showSnackbarInfo(R.string.logbook_error_unauthorized);
                         } else {
+                            if (new ContextInternetAccessProvider(getApplicationContext()).isConnected())
                             showSnackbarInfo(R.string.logbook_error_general);
                         }
                         dialog.dismiss();
@@ -495,6 +512,7 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
 
                         ((LogbookUiListener) getActivity()).onFuelingUploaded(fueling);
                         ((LogbookUiListener) getActivity()).onHideAddFuelingCard();
+                        showSnackbarInfo(R.string.logbook_fuel_addition_successful);
                     }
 
                     @Override
