@@ -47,6 +47,7 @@
                 app:elevation="6dp"/>
 
             <LinearLayout
+                android:id="@+id/activity_car_selection_header"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical">
@@ -122,6 +123,21 @@
 
         </RelativeLayout>
     </LinearLayout>
+
+    <include
+        android:id="@+id/activity_logbook_not_logged_in"
+        layout="@layout/not_logged_in_info"
+        android:visibility="gone"/>
+
+    <include
+        android:id="@+id/activity_logbook_no_fuelings_info_view"
+        layout="@layout/activity_logbook_no_fuelings_info"
+        android:visibility="gone"/>
+
+    <include
+        android:id="@+id/layout_general_info_background"
+        layout="@layout/layout_general_info_background"
+        android:visibility="gone"/>
 
     <FrameLayout
         android:id="@+id/activity_car_selection_container"
