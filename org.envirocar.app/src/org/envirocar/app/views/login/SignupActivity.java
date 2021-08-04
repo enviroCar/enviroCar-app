@@ -45,7 +45,6 @@ import androidx.core.content.ContextCompat;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.snackbar.Snackbar;
 import com.jakewharton.rxbinding3.widget.RxCompoundButton;
 import com.jakewharton.rxbinding3.widget.RxTextView;
 
@@ -56,7 +55,6 @@ import org.envirocar.app.handler.agreement.AgreementManager;
 import org.envirocar.app.handler.preferences.UserPreferenceHandler;
 import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.app.views.utils.DialogUtils;
-import org.envirocar.core.ContextInternetAccessProvider;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.entity.UserImpl;
 import org.envirocar.core.exception.DataUpdateFailureException;
@@ -227,35 +225,30 @@ public class SignupActivity extends BaseInjectorActivity {
 
         registerSubscription = backgroundWorker.schedule(() -> {
             try {
-                if(new ContextInternetAccessProvider(getApplicationContext()).isConnected()) {
-                    User newUser = new UserImpl(username, password);
-                    newUser.setMail(email);
-                    daoProvider.getUserDAO().createUser(newUser);
+                User newUser = new UserImpl(username, password);
+                newUser.setMail(email);
+                daoProvider.getUserDAO().createUser(newUser);
 
-                    // Successfully created the getUserStatistic
-                    mainThreadWorker.schedule(() -> {
-                        // Dismiss the progress dialog.
-                        dialog.dismiss();
-
-                        new MaterialAlertDialogBuilder(SignupActivity.this, R.style.MaterialDialog)
-                                .setTitle(R.string.register_success_dialog_title)
-                                .setMessage(R.string.register_success_dialog_content)
-                                .setIcon(R.drawable.ic_baseline_login_24)
-                                .setCancelable(false)
-                                .setOnCancelListener(dialog1 -> {
-                                    LOG.info("canceled");
-                                    finish();
-                                })
-                                .setPositiveButton(R.string.ok, (a, b) -> {
-                                    LOG.info("onPositive");
-                                    finish();
-                                })
-                                .show();
-                    });
-                }else{
+                // Successfully created the getUserStatistic
+                mainThreadWorker.schedule(() -> {
+                    // Dismiss the progress dialog.
                     dialog.dismiss();
-                    showSnackbar(getString(R.string.error_not_connected_to_network));
-                }
+
+                    new MaterialAlertDialogBuilder(SignupActivity.this,R.style.MaterialDialog)
+                            .setTitle(R.string.register_success_dialog_title)
+                            .setMessage(R.string.register_success_dialog_content)
+                            .setIcon(R.drawable.ic_baseline_login_24)
+                            .setCancelable(false)
+                            .setOnCancelListener(dialog1 -> {
+                                LOG.info("canceled");
+                                finish();
+                            })
+                            .setPositiveButton(R.string.ok,(a, b) -> {
+                                LOG.info("onPositive");
+                                finish();
+                            })
+                            .show();
+                });
             } catch (ResourceConflictException e) {
                 LOG.warn(e.getMessage(), e);
 
@@ -468,9 +461,5 @@ public class SignupActivity extends BaseInjectorActivity {
         RxCompoundButton.checkedChanges(psCheckbox)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(b -> psCheckbox.setError(null), LOG::error);
-    }
-
-    private void showSnackbar(String info) {
-        Snackbar.make(findViewById(R.id.activity_signup_register_button), info, Snackbar.LENGTH_LONG).show();
     }
 }
