@@ -329,9 +329,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
             showSnackbar(String.format(getString(R.string.car_selection_already_in_list_tmp),
                     car.getManufacturer(), car.getModel()));
         }
-        finish();
-        overridePendingTransition(0, 0);
-        startActivity(getIntent());
+        setupListView();
     }
 
     @Override
