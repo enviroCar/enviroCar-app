@@ -217,8 +217,9 @@ public class SigninActivity extends BaseInjectorActivity {
                         dialog.dismiss();
                         if (e instanceof LoginException) {
                             switch (((LoginException) e).getType()) {
-                                case PASSWORD_INCORRECT:
-                                    passwordEditText.setError(getString(R.string.error_incorrect_password),error);
+                                case USERNAME_OR_PASSWORD_INCORRECT:
+                                    usernameEditText.setError("Username or password is incorrect",error);
+                                    passwordEditText.setError("Username or password is incorrect",error);
                                     break;
                                 case MAIL_NOT_CONFIREMED:
                                     // show alert dialog
@@ -288,6 +289,8 @@ public class SigninActivity extends BaseInjectorActivity {
         } else if (!Pattern.matches(PASSWORD_REGEX, password)) {
             passwordEditText.setError(getString(R.string.error_field_weak_password),error);
             isValidPassword = false;
+        }else{
+            passwordEditText.setError("error",error);
         }
         return isValidPassword;
     }
