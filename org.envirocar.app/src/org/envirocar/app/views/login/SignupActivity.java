@@ -395,6 +395,8 @@ public class SignupActivity extends BaseInjectorActivity {
             final String password2 = password2EditText.getText().toString().trim();
             if (!password2.equals("") && !password2.isEmpty() && password2 != null) {
                 checkPasswordMatch(password, password2);
+            }else{
+                password2EditText.setError(getString(R.string.error_field_required),error);
             }
         }
         return isValidPassword;
