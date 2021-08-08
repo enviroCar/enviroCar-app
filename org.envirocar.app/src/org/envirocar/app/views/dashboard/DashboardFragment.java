@@ -679,6 +679,12 @@ public class DashboardFragment extends BaseInjectorFragment {
             set.connect(bannerLayout.getId(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END, 0);
             set.connect(bannerLayout.getId(), ConstraintSet.TOP, toolbar.getId(), ConstraintSet.BOTTOM, 0);
             set.applyTo(this.mainLayout);
+
+            // Welcome message as user logged in successfully
+            Snackbar.make(getActivity().findViewById(R.id.navigation),
+                    String.format(getString(R.string.welcome_message), user.getUsername()),
+                    Snackbar.LENGTH_LONG).show();
+
         } else {
             // show progress bar
             updateStatisticsVisibility(this.statisticsKnown);
@@ -686,11 +692,6 @@ public class DashboardFragment extends BaseInjectorFragment {
             this.loggedInLayout.setVisibility(View.GONE);
             this.toolbar.getMenu().clear();
             this.toolbar.inflateMenu(R.menu.menu_dashboard_logged_out);
-
-            // Welcome message as user logged in successfully
-            Snackbar.make(getActivity().findViewById(R.id.navigation),
-                    String.format(getString(R.string.welcome_message), user.getUsername()),
-                    Snackbar.LENGTH_LONG).show();
 
             ConstraintSet set = new ConstraintSet();
             set.constrainPercentHeight(bannerLayout.getId(), 0.115f);
