@@ -196,10 +196,6 @@ public class SigninActivity extends BaseInjectorActivity {
                     @Override
                     public void onComplete() {
                         dialog.dismiss();
-                        Snackbar.make(logoImageView, String.format(getResources().getString(
-                                R.string.welcome_message), username), Snackbar.LENGTH_LONG)
-                                .show();
-                        finish();
                     }
 
                     @Override
