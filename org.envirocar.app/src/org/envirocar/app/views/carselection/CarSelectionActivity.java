@@ -260,7 +260,6 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
                                                 car.getManufacturer(), car.getModel()));
                                         if (!mCarManager.hasCars()) {
                                             showbackgroungimage();
-                                            mFab.setVisibility(View.GONE);
                                         }
                                     }
                                     // then remove it from the list and show a snackbar.
@@ -326,9 +325,9 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
     }
 
     public void showbackgroungimage(){
-        showInfoBackground(R.drawable.img_alert,R.string.car_selection_error_empty_input,
-                R.string.gasoline);
-        //mFab.setVisibility(View.GONE);
+        showInfoBackground(R.drawable.img_alert,
+                R.string.car_selection_no_car_no_car_first,
+                R.string.car_selection_no_car_no_car_second);
         headerView.setVisibility(View.GONE);
 
     }
@@ -355,6 +354,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
         LOG.info("onCarAdded(Car)");
 
         if (mCarManager.addCar(car)) {
+            //if(!mCarManager.hasCars())
             mCarListAdapter.addCarItem(car);
             showSnackbar(String.format(getString(R.string.car_selection_successfully_added_tmp),
                     car.getManufacturer(), car.getModel()));
