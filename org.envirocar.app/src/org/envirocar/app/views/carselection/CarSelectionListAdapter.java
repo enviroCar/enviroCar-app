@@ -156,6 +156,18 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
                 .itemsCallback((materialDialog, view, i, charSequence) -> {
                     switch (i) {
                         case 0:
+                            // Uncheck the the previously checked radio button and update the
+                            // references accordingly.
+                            if (car.equals(mSelectedCar)) {
+                                mSelectedCar = null;
+                                mSelectedButton.setChecked(false);
+                                mSelectedButton = null;
+                            }
+
+                            // Call the callback
+                            mCallback.onDeleteCar(car);
+                            break;
+                        case 1:
                             if(car.equals(mSelectedCar))
                                 return;
 
@@ -171,18 +183,6 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
 
                             // Call the callback in order to react accordingly.
                             mCallback.onSelectCar(car);
-                            break;
-                        case 1:
-                            // Uncheck the the previously checked radio button and update the
-                            // references accordingly.
-                            if (car.equals(mSelectedCar)) {
-                                mSelectedCar = null;
-                                mSelectedButton.setChecked(false);
-                                mSelectedButton = null;
-                            }
-
-                            // Call the callback
-                            mCallback.onDeleteCar(car);
                             break;
                         default:
                             LOG.warn("No action selected!");

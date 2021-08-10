@@ -21,8 +21,8 @@
 -->
 <resources>
     <array name="car_list_option_items">
-        <item>Select Car</item>
         <item>Delete Car</item>
+        <item>Select Car</item>
     </array>
 
     <array name="car_list_option_item_Delete_car">
