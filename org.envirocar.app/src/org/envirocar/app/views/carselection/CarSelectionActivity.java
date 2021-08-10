@@ -137,10 +137,9 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
         // If no cars present show background image.
         if (!mCarManager.hasCars()){
             showbackgroungimage();
-        }else {
-            setupListView();
         }
 
+        setupListView();
     }
 
     @Override
@@ -354,8 +353,11 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
         LOG.info("onCarAdded(Car)");
 
         if (mCarManager.addCar(car)) {
-            //if(!mCarManager.hasCars())
             mCarListAdapter.addCarItem(car);
+
+            headerView.setVisibility(View.VISIBLE);
+            ECAnimationUtils.animateHideView(this, infoBackground, R.anim.fade_out);
+
             showSnackbar(String.format(getString(R.string.car_selection_successfully_added_tmp),
                     car.getManufacturer(), car.getModel()));
         } else {
