@@ -143,7 +143,7 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
         // Items of array.car_list_option_items are displayed according to the state of radio button.
         Resources res = getContext().getResources();
         String[] state;
-        if (mSelectedCar.equals(car)) {
+        if (mSelectedCar != null && mSelectedCar.equals(car)) {
             state = res.getStringArray(R.array.car_list_option_item_Delete_car);
         }
         else{
