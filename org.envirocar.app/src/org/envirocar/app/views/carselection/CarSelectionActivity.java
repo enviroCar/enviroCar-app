@@ -216,9 +216,13 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
 
                     @Override
                     public void onSelectCar(Car car) {
+                        Car selectedCar = mCarManager.getCar();
                         mCarManager.setCar(car);
-                        showSnackbar(String.format(getString(R.string.car_selection_car_selected),
-                                car.getManufacturer(), car.getModel()));
+                        // Show Snackbar.
+                        if (!car.equals(selectedCar)) {
+                            showSnackbar(String.format(getString(R.string.car_selection_car_selected),
+                                    car.getManufacturer(), car.getModel()));
+                        }
                     }
 
                     @Override
