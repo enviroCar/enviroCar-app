@@ -28,4 +28,10 @@
     <string name="menu_logout_envirocar_positive">Ja</string>
     <string name="menu_logout_envirocar_negative">Nein</string>
     <string name="menu_logout_envirocar_content">Sie möchten sich abmelden?</string>
+
+    <string name="menu_Dark_Mode_envirocar_title">Thema ändern?</string>
+    <string name="menu_Dark_Mode_envirocar_positive">Yes</string>
+    <string name="menu_Dark_Mode_envirocar_negative">No</string>
+    <string name="menu_Dark_Mode_envirocar_content">Möchten Sie das Thema der App ändern?</string>
+
 </resources>

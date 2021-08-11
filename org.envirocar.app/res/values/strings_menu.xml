@@ -30,4 +30,9 @@
     <string name="menu_logout_envirocar_negative">No</string>
     <string name="menu_logout_envirocar_content">Do you want to logout?</string>
 
+    <string name="menu_Dark_Mode_envirocar_title">Change theme?</string>
+    <string name="menu_Dark_Mode_envirocar_positive">Yes</string>
+    <string name="menu_Dark_Mode_envirocar_negative">No</string>
+    <string name="menu_Dark_Mode_envirocar_content">Do you want to change the theme of the app?</string>
+
 </resources>

@@ -162,6 +162,19 @@ public class OthersFragment extends BaseInjectorFragment {
                 .show();
     }
 
+    @OnClick(R.id.othersDarkMode)
+    protected void onDarkModeClicked() {
+        // show dialog
+        new MaterialAlertDialogBuilder(getActivity(), R.style.MaterialDialog)
+                .setTitle(R.string.menu_Dark_Mode_envirocar_title)
+                .setMessage(R.string.menu_Dark_Mode_envirocar_content)
+                .setIcon(R.drawable.ic_baseline_brightness_4_24)
+                //set positive button to change the theme of the App.
+                .setPositiveButton(R.string.menu_logout_envirocar_positive, null)
+                .setNegativeButton(R.string.menu_logout_envirocar_negative,null)
+                .show();
+    }
+
     @OnClick(R.id.othersCloseEnviroCar)
     protected void onCloseEnviroCarClicked() {
         // show closing dialog
