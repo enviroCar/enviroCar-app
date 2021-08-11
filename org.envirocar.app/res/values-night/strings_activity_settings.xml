@@ -1,0 +1,92 @@
+<!--
+
+    Copyright (C) 2013 - 2019 the enviroCar community
+
+    This file is part of the enviroCar app.
+
+    The enviroCar app is free software: you can redistribute it and/or
+    modify it under the terms of the GNU General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    The enviroCar app is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+    Public License for more details.
+
+    You should have received a copy of the GNU General Public License along
+    with the enviroCar app. If not, see http://www.gnu.org/licenses/.
+
+-->
+<resources>
+    <string name="pref_obd_recording">OBD Mode</string>
+    <string name="pref_gps_recording">GPS Mode</string>
+
+    <!-- Settings Activity -->
+    <string name="pref_settings_general">General Settings</string>
+    <string name="pref_settings_general_summary">Display, Verbal Announcements, Automatic Upload ...</string>
+    <string name="pref_settings_autoconnect">Connection Settings</string>
+    <string name="pref_settings_autoconnect_summary">Settings for the automatic connection with the OBD-II adapter</string>
+    <string name="pref_settings_optional">Advanced Settings</string>
+    <string name="pref_settings_optional_summary">Optional settings and beta functionalities</string>
+    <string name="pref_settings_other">App Infos</string>
+    <string name="pref_settings_other_summary">Version, Licenses, etc.</string>
+
+    <!-- General Settings-->
+    <string name="pref_automatic_upload">Automatic Upload</string>
+    <string name="pref_automatic_upload_sub">Enables the automatic upload of recorded tracks after the recording has been finished. It is only tried to upload the track directly afterwards. If the upload fails (e.g. no internet connection), the track has to be uploaded manually.</string>
+    <string name="pref_display_always_activ">Keep the Screen On</string>
+    <string name="pref_display_always_activ_sub">When checked, this setting keeps the screen on while the application is running.</string>
+    <string name="pref_imperial_unit_summary">Use imperial units (miles) for displaying values.</string>
+    <string name="pref_obfuscate_track">Anonymize Start and Destination</string>
+    <string name="pref_obfuscate_track_summary">Only upload measurements which are taken 250 meter (820 feet) and one minute after start and before end of each track.</string>
+    <string name="pref_text_to_speech">Verbal Announcements</string>
+    <string name="pref_text_to_speech_summary">Enabling the verbal announcements of specific events, e.g. OBD-II connection established/lost, track finished.</string>
+
+    <!-- OBD-Settings -->
+    <string name="pref_obd_settings">OBD-II Adapter Settings</string>
+    <string name="pref_bluetooth_switch_isenabled">Bluetooth is On</string>
+    <string name="pref_bluetooth_switch_isdisabled">Bluetooth is Off</string>
+    <string name="pref_bluetooth_pairing">Bluetooth Pairing</string>
+    <string name="pref_bluetooth_pairing_summary">Manage the pairings to Bluetooth devices.</string>
+    <string name="pref_bluetooth_select_adapter_title">Select OBD-II adapter</string>
+    <string name="pref_bluetooth_auto_connect">Auto Connect</string>
+    <string name="pref_bluetooth_auto_connect_summary">In case of OBD track, it automatically connects to the OBD-II adapter and starts the recording of a track. This feature periodically checks whether the selected OBD-II adapter is within range. In case of GPS track, it uses activity recognition features and automatically starts the GPS based track once it detects that the user is IN_VEHICLE. Therefore, this setting requires additional battery power.</string>
+    <string name="pref_bluetooth_start_background">Background Service</string>
+    <string name="pref_bluetooth_start_background_summary">Automatically starts the background service whenever Bluetooth/GPS gets activated, depending on the track recording type selected.</string>
+    <string name="pref_bluetooth_discovery_interval">Discovery Interval</string>
+    <string name="pref_bluetooth_discovery_interval_summary">The search interval at which the device searches for the selected OBD-II device. Note: the higher the value, the more the battery gets drained.</string>
+
+    <!-- Auto-connect Settings -->
+    <string name="settings_autoconnect_title">Auto-connect Settings</string>
+    <string name="settings_autoconnect_subtitle">OBD Auto-connect, GPS Auto-connect etc.</string>
+
+    <!-- Optional Settings -->
+    <string name="sampling_rate_title">Sampling Rate</string>
+    <string name="sampling_rate_summary">The time delta between two measurements in seconds. The lower the value, the bigger the data volume. Only consider changing if you are aware of the consequences.</string>
+    <string name="enable_debug_logging">Enable Debug Logging</string>
+    <string name="enable_debug_logging_summary">Increase the log level (used in issue/problem reports)</string>
+    <string name="pref_track_cut_duration">Track Trim Duration</string>
+    <string name="pref_track_cut_duration_summary">GPS based tracks will be stopped automatically on detecting that the user is NOT DRIVING. However it has some latency in detecting. So we cut the track for that duration. Change this, if you know that latency.</string>
+
+    <string name="preference_track_trim_duration_title">Set Track Trim Duration</string>
+    <string name="preference_beta_diesel_consumption">Diesel Consumption Estimation</string>
+    <string name="preference_beta_diesel_consumption_sum">Enables the estimation of consumption values for diesel. NOTE: This feature is just a beta feature.</string>
+
+    <string name="preference_beta_enable_gps_based_track_recording">Enable GPS based track recording</string>
+    <string name="preference_beta_enable_gps_based_track_recording_sum">Activates an additional recording mode that enables the recording of plain GPS based tracks that does not require an OBD-II adapter.\n\nNOTE: This feature is just a beta feature.</string>
+
+    <!-- Other Settings -->
+    <string name="pref_licenses">Licenses</string>
+
+    <string name="pref_car_settings">Vehicle Settings</string>
+    <string name="pref_bluetooth_disabled">Please enable Bluetooth</string>
+    <string name="pref_optional_features">Optional Features</string>
+    <string name="pref_beta_features">Beta Features</string>
+    <string name="pref_version">Version</string>
+    <string name="pref_other">Other</string>
+    <string name="pref_settings_title">Settings</string>
+
+    <string name="pref_gps_mode_ar_title">Automatic Recording (GPS)</string>
+    <string name="pref_gps_mode_ar_summary">Activates automatic recording of GPS-based trips based on activity detection mechanisms.\n\nNote: This Android function does not work reliably on some smartphone models.</string>
+</resources>

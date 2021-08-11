@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+
+    Copyright (C) 2013 - 2019 the enviroCar community
+
+    This file is part of the enviroCar app.
+
+    The enviroCar app is free software: you can redistribute it and/or
+    modify it under the terms of the GNU General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    The enviroCar app is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+    Public License for more details.
+
+    You should have received a copy of the GNU General Public License along
+    with the enviroCar app. If not, see http://www.gnu.org/licenses/.
+
+-->
+<resources>
+    <string name="dashboard_mode_obd_and_gps">OBD Track</string>
+    <string name="dashboard_mode_gps_only">GPS Track</string>
+
+    <string name="dashboard_start_track">START TRACK</string>
+    <string name="dashboard_goto_track">Goto Track Recording Screen</string>
+    <string name="dashboard_track_is_starting">TRACK IS STARTING...</string>
+    <string name="dashboard_track_is_stopping">TRACK IS STOPPING...</string>
+
+    <string name="dashboard_connecting">Connecting...</string>
+    <string name="dashboard_connecting_find_template">Trying to find \'%s\'.</string>
+    <string name="dashboard_connecting_found_template">\'%s\' is in range. Trying to connect.</string>
+    <string name="dashboard_connecting_not_found_template">Unable to find \'%s\'. Please try again later.</string>
+
+    <string name="dashboard_recording_settings_header">Recording Settings</string>
+
+    <string name="dashboard_dialog_stop_track">Stop Track?</string>
+    <string name="dashboard_dialog_stop_track_content">Do you really want to stop the recording and finish the current track?</string>
+    <string name="dashboard_dialog_obd_not_found">OBD-II adapter not found</string>
+    <string name="dashboard_dialog_obd_not_found_content_template">\'%s\' not found. Please ensure that the OBD-II device is in range and correctly inserted into the OBD-II port of your car.</string>
+
+    <string name="dashboard_bluetooth_disabled">Bluetooth is disabled</string>
+    <string name="dashboard_bluetooth_disabled_snackbar">Bluetooth is disabled. Bluetooth has to be enabled before you can start a track.</string>
+    <string name="dashboard_bluetooth_disabled_advise">Please enable Bluetooth.</string>
+
+    <string name="dashboard_obd_not_selected">No OBD-II adapter selected</string>
+    <string name="dashboard_obd_not_selected_advise">Click here to select one</string>
+    <string name="dashboard_carselection_no_car_selected">No car type selected</string>
+    <string name="dashboard_carselection_no_car_selected_advise">Click here to select one</string>
+
+    <string name="permission_rationale_location">Location permission is needed for core functionality.</string>
+    <string name="permission_rationale_file">"Storage permission is needed for logging and sharing a track. If you don't want the both, please click on don't ask again in the next screen."</string>
+    <string name="request_storage_permission_title">Storage permission needed</string>
+    <string name="request_location_permission_title">Location permission needed</string>
+    <string name="permission_denied_explanation">Permission was denied, but is needed for core functionality.</string>
+    <string name="settings">Settings</string>
+
+    <string name="obd_automatic_enabled_error_title">Automatic OBD track recording is set.</string>
+    <string name="obd_automatic_enabled_error_content">Automatic OBD track recording settings will be turned off. Do you want to proceed?</string>
+    <string name="obd_automatic_enabled_error_positive">Yes</string>
+    <string name="obd_automatic_enabled_error_negative">No</string>
+
+    <string name="gps_automatic_enabled_error_title">Automatic GPS track recording is set.</string>
+    <string name="gps_automatic_enabled_error_content">Automatic GPS track recording settings will be turned off. Do you want to proceed?</string>
+    <string name="gps_automatic_enabled_error_positive">Yes</string>
+    <string name="gps_automatic_enabled_error_negative">No</string>
+
+    <string name="dashboard_total_tracks">Total Tracks</string>
+    <string name="dashboard_total_distance">Total Distance</string>
+    <string name="dashboard_total_duration">Total Duration</string>
+
+    <string name="dashboard_engine_not_running_dialog_title">Connection Failed</string>
+    <string name="dashboard_engine_not_running_dialog_content">Unable to connect to the engine. Please make sure that the engine is running.</string>
+</resources>

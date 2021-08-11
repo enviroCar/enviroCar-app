@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+
+    Copyright (C) 2013 - 2019 the enviroCar community
+
+    This file is part of the enviroCar app.
+
+    The enviroCar app is free software: you can redistribute it and/or
+    modify it under the terms of the GNU General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    The enviroCar app is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+    Public License for more details.
+
+    You should have received a copy of the GNU General Public License along
+    with the enviroCar app. If not, see http://www.gnu.org/licenses/.
+
+-->
+<resources>
+
+    <string name="menu_close_envirocar_title">Close enviroCar</string>
+    <string name="menu_close_envirocar_positive">Shutdown</string>
+    <string name="menu_close_envirocar_content">This completely closes the application including all running background services and track recordings.</string>
+
+    <string name="menu_logout_envirocar_title">Are you sure?</string>
+    <string name="menu_logout_envirocar_positive">Yes</string>
+    <string name="menu_logout_envirocar_negative">No</string>
+    <string name="menu_logout_envirocar_content">Do you want to logout?</string>
+
+    <string name="menu_Dark_Mode_envirocar_title">Change theme?</string>
+    <string name="menu_Dark_Mode_envirocar_positive">Yes</string>
+    <string name="menu_Dark_Mode_envirocar_negative">No</string>
+    <string name="menu_Dark_Mode_envirocar_content">Do you want to change the theme of the app?</string>
+
+</resources>

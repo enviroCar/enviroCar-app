@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+
+    Copyright (C) 2013 - 2019 the enviroCar community
+
+    This file is part of the enviroCar app.
+
+    The enviroCar app is free software: you can redistribute it and/or
+    modify it under the terms of the GNU General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    The enviroCar app is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+    Public License for more details.
+
+    You should have received a copy of the GNU General Public License along
+    with the enviroCar app. If not, see http://www.gnu.org/licenses/.
+
+-->
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- ################# -->
+    <!--  General Strings  -->
+    <!-- ################# -->
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="login">Login</string>
+    <string name="sign_in">Sign In</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="email">E-Mail</string>
+
+
+    <string name="login_register">Login/Register</string>
+    <string name="today">Today</string>
+    <string name="yesterday">Yesterday</string>
+    <string name="cancel">Cancel</string>
+
+    <string name="app_name" translatable="false">enviroCar</string>
+
+    <string name="track_statistics">Track Statistics</string>
+    <string name="track_statistics_distance">Distance</string>
+
+    <string name="fuel_type">Fuel Type</string>
+    <string name="car">Car</string>
+
+    <string name="menu_cancel">Cancel</string>
+    <string name="menu_delete">Delete</string>
+
+    <string name="track_finished">Track Finished: </string>
+    <string name="track_finishing_failed">Finishing the Track failed</string>
+    <string name="track_finished_no_measurements">The created track did not contain any measurements</string>
+    <string name="gasoline">Gasoline</string>
+    <string name="diesel">Diesel</string>
+
+    <string name="default_track_description">Track with Car %s.</string>
+
+    <string name="welcome_message">Welcome, %s</string>
+    <string name="goodbye_message">Goodbye, %s</string>
+
+    <string name="envirocar.org" translatable="false">http://www.envirocar.org</string>
+
+    <string name="imperial_unit">Use Imperial units</string>
+
+    <string name="action_send_log">Send</string>
+    <string name="send_log_0">This feature helps us to reproduce unexpected behavior or program crashes.
+	    When sending in the Log file of the enviroCar app you help to improve it.</string>
+    <string name="send_log_1">This feature uses the default \"Send To\" mechanism.
+	    If you invoke it with your Email client, you can easily send the report via email. If you do not have an Email client installed,
+	    you can save the log file on a PC, e.g. through Bluetooth or USB. In such cases we appreciate sending
+	    in the reporting bundle manually. It is stored at the following location:</string>
+    <string name="send_log_when_label">Approximate minutes past since issue:</string>
+    <string name="send_log_comments_label">Additional comments</string>
+    <string name="send_log_time_past_hint">(time past since issue)</string>
+    <string name="troubleshootingParagraph" translatable="false">The enviroCar app was not able to establish the bluetooth connection to
+	    the OBD-II adapter. You could try to unplug and plug the adapter, then restart measurements.</string>
+
+    <string name="general_error_please_report">General Track Error - Please report this issue</string>
+
+
+
+    <string name="ok" translatable="false">OK</string>
+
+    <string name="driving">Driving</string>
+    <string name="categories">Categories:</string>
+
+
+    <string name="gps_track_details">*This is a GPS based track. It cannot be uploaded to the open data.</string>
+    <string name="dashboard_signin_prompt">Sign in to upload your tracks</string>
+    <string name="problem_description">Describe your Problem</string>
+
+    <string name="submit">Submit</string>
+
+    <!-- Splashscreen -->
+    <string name="activity_splashscreen_subtitle" translatable="false">Start Today. \nJoin the Community.</string>
+
+    <!-- ################# -->
+    <!-- Sign In / Sign Up -->
+    <!-- ################# -->
+
+
+
+    <!-- ################# -->
+    <!-- Send Error Report -->
+    <!-- ################# -->
+    <string name="report_issue_header">Report an Issue</string>
+    <string name="report_issue_summary">Summary of what went wrong</string>
+    <string name="report_issue_time_since_crash">Estimated time</string>
+    <string name="report_issue_minutes">10:00</string>
+
+    <string name="report_issue_no_checkbox_selected_title">No Checkbox Selected</string>
+    <string name="report_issue_no_checkbox_selected_content">You have not selected any of the checkboxes. These help developers sort through issues quickly and resolve them. Please consider filling those that are relevant.</string>
+    <string name="report_issue_no_checkbox_send_anyway">Send Report Anyway</string>
+
+    <string name="report_issue_text">
+        Timestamps are automatically included in the logs. Sending us reports helps us reproduce unexpected behavior or crashes.
+        This makes enviroCar better and more stable. Click the send button below to email this report to us.</string>
+    <string name="report_issue_bottom_text">This feature uses the default \"Send To\" mechanism.
+	    If you invoke it with your Email client, you can easily send the report via email.</string>
+    <string name="report_issue_desc_text">A more detailed description</string>
+    <string name="report_issue_button">Send Report</string>
+    <string-array name="report_issue_subject_header">
+        <item>Force Crash</item>
+        <item>Sudden Lags</item>
+        <item>App was Unresponsive</item>
+        <item>Component does not work as expected</item>
+        <item>Request for a feature</item>
+    </string-array>
+    <string-array name="report_issue_subject_tags">
+        <item>[CRASH]</item>
+        <item>[LAG]</item>
+        <item>[UNRES]</item>
+        <item>[UNEXPECTED BEHAVIOR]</item>
+        <item>[FEATURE REQ]</item>
+    </string-array>
+
+    <!-- ################# -->
+    <!--  Preference Keys  -->
+    <!-- ################# -->
+    <string name="prefkey_enable_debug_logging" tools:ignore="MissingTranslation">pref_enable_debug_logging</string>
+    <string name="prefkey_track_trim_duration" tools:ignore="MissingTranslation">pref_track_cut_duration</string>
+    <string name="prefkey_enable_gps_based_track_recording" tools:ignore="MissingTranslation">pref_enable_gps_based_track_recording</string>
+    <string name="prefkey_enable_diesel_consumption" tools:ignore="MissingTranslation">pref_enable_diesel_consumption</string>
+    <string name="prefkey_search_interval" tools:ignore="MissingTranslation">pref_search_interval</string>
+    <string name="prefkey_automatic_recording" tools:ignore="MissingTranslation">pref_automatic_recording</string>
+    <string name="prefkey_samplingrate" tools:ignore="MissingTranslation">pref_samplingrate</string>
+    <string name="prefkey_privacy" tools:ignore="MissingTranslation">pref_privacy</string>
+    <string name="prefkey_imperial_unit" tools:ignore="MissingTranslation">pref_imperial_unit</string>
+    <string name="prefkey_text_to_speech" tools:ignore="MissingTranslation">pref_text_to_speech</string>
+    <string name="prefkey_display_always_active" tools:ignore="MissingTranslation">pref_display_always_active</string>
+    <string name="prefkey_automatic_upload" tools:ignore="MissingTranslation">pref_automatic_upload</string>
+    <string name="prefkey_gps_mode_ar" tools:ignore="MissingTranslation">prefkey_gps_mode_ar</string>
+
+    <!-- ################# -->
+    <!--   Notifications   -->
+    <!-- ################# -->
+    <string name="notification_autorecording_active_title">Automatic Recording is Active</string>
+    <string name="notification_autorecording_active_subtext">Trying to connect to %s.</string>
+
+    <string name="notification_autorecording_precondition_error_title">enviroCar Precondition Error</string>
+    <string name="notification_autorecording_no_obd_selected_subtext">No paired OBD-II adapter selected. Please go to the OBD Settings and select one.</string>
+    <string name="notification_autorecording_no_car_selected_subtext">No car selected. Please go to the Car selection and select one.</string>
+    <string name="notification_autorecording_gps_disabled_subtext">GPS is disabled. Please activate your GPS.</string>
+    <string name="notification_autorecording_bluetooth_disabled_subtext">Bluetooth is disabled. Please activate your Bluetooth.</string>
+
+    <string name="notification_autoupload_success_title">Track Upload Successful</string>
+    <string name="notification_autoupload_success_sub">%s has been successfully pushed as Open Data to the enviroCar platform.</string>
+    <string name="notification_autoupload_uploading_title">Uploading Track</string>
+    <string name="notification_autoupload_uploading_sub">%s gets pushed as Open Data to the enviroCar platform.</string>
+    <string name="notification_autoupload_error_title">Track Upload Error</string>
+    <string name="notification_autoupload_error_sub">Error while uploading to the enviroCar platform.</string>
+
+    <!-- ################# -->
+    <!--    Permissions    -->
+    <!-- ################# -->
+    <string name="permissions_request_dialog">The enviroCar App requires additional permissions for recording tracks, which you can confirm manually in the following. This includes the exact positioning of the smartphone, so that collected parameters of a journey can be spatially located, and the write permission to the external memory, so that logs can be generated and transmitted via the "Report issue" function.</string>
+
+    <!-- ###################### -->
+    <!--    Extended MapView    -->
+    <!-- ###################### -->
+    <string name="mapview_extended_select_phenomena">Attribut Selection</string>
+</resources>

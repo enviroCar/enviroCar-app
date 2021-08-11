@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+
+    Copyright (C) 2013 - 2020 the enviroCar community
+
+    This file is part of the enviroCar app.
+
+    The enviroCar app is free software: you can redistribute it and/or
+    modify it under the terms of the GNU General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    The enviroCar app is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+    Public License for more details.
+
+    You should have received a copy of the GNU General Public License along
+    with the enviroCar app. If not, see http://www.gnu.org/licenses/.
+
+-->
+<resources>
+    <color name="pressed_cario">#8CBF3F</color>
+    <color name="actionbar_title_font_cario">#FFFFFF</color>
+    <color name="blue_dark_cario">#0065A0</color>
+    <color name="blue_light_cario">#048ABF</color>
+    <color name="green_dark_cario">#8CBF3F</color>
+    <color name="green_light_cario">#B9D989</color>
+    <color name="white_cario">#F2F2F2</color>
+    <color name="white_cario_transparent">#88F2F2F2</color>
+    <color name="cario_color_primary">@color/blue_dark_cario</color>
+    <color name="cario_color_primary_dark">#FF01456C</color>
+    <color name="cario_color_tempomat_background">#ff546a72</color>
+    <color name="envirocar_color_divider_grey">#3f6f6f6f</color>
+
+    <color name="envirocar_color_add_card_background">#4757A0</color>
+
+    <color name="cario_warning_red">#B00020</color>
+    <color name="gray88">#e0e0e0</color>
+    <color name="black">#000000</color>
+    <color name="dark_charcoal">#ff323232</color>
+    <color name="spanish_gray">#939393</color>
+</resources>

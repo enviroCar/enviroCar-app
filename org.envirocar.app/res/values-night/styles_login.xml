@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+
+    Copyright (C) 2013 - 2019 the enviroCar community
+
+    This file is part of the enviroCar app.
+
+    The enviroCar app is free software: you can redistribute it and/or
+    modify it under the terms of the GNU General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    The enviroCar app is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+    Public License for more details.
+
+    You should have received a copy of the GNU General Public License along
+    with the enviroCar app. If not, see http://www.gnu.org/licenses/.
+
+-->
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <style name="envirocar.login.edittext" parent="">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:padding">4dp</item>
+        <item name="android:textSize">20dp</item>
+        <item name="android:textColor">@color/white_cario</item>
+        <item name="android:textColorHint">@color/white_cario_transparent</item>
+        <item name="android:ems">10</item>
+        <item name="android:background">@drawable/login_edittext_rounded_corner_shape</item>
+        <item name="android:drawablePadding">16dp</item>
+    </style>
+
+    <style name="envirocar.login.logo" parent="">
+        <item name="android:layout_width">200dp</item>
+        <item name="android:layout_height">100dp</item>
+        <item name="android:layout_alignParentStart" tools:targetApi="jelly_bean_mr1">true</item>
+        <item name="android:layout_alignParentEnd" tools:targetApi="jelly_bean_mr1">true</item>
+        <item name="android:layout_alignParentLeft">true</item>
+        <item name="android:layout_alignParentTop">true</item>
+        <item name="android:layout_alignParentRight">true</item>
+        <item name="android:layout_marginStart">55dp</item>
+        <item name="android:layout_marginLeft">55dp</item>
+        <item name="android:layout_marginTop">8dp</item>
+        <item name="android:layout_marginEnd" tools:targetApi="jelly_bean_mr1">55dp</item>
+        <item name="android:layout_marginRight">55dp</item>
+    </style>
+
+</resources>

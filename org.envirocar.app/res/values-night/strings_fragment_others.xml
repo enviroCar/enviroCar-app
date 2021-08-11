@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+
+    Copyright (C) 2013 - 2019 the enviroCar community
+
+    This file is part of the enviroCar app.
+
+    The enviroCar app is free software: you can redistribute it and/or
+    modify it under the terms of the GNU General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    The enviroCar app is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+    Public License for more details.
+
+    You should have received a copy of the GNU General Public License along
+    with the enviroCar app. If not, see http://www.gnu.org/licenses/.
+
+-->
+<resources>
+    <string name="others_logbook">Log Book</string>
+    <string name="others_settings">Settings</string>
+    <string name="others_help">Help</string>
+    <string name="others_report_issue">Report Issue</string>
+    <string name="others_rate_us">Rate Us</string>
+    <string name="others_logout">Logout</string>
+    <string name="others_dark_mode">Dark Mode</string>
+    <string name="others_close_envirocar">Close enviroCar</string>
+</resources>
