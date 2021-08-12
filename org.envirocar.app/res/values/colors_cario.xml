@@ -49,9 +49,10 @@
     <color name="accent">#03A9F4</color>
     <color name="primary_text">#ffffff</color>
     <color name="secondary_text">#727272</color>
-    <color name="icons">#FFFFFF</color>
-    <color name="divider">envirocar_color_divider_grey</color>
+    <color name="icons">#000000</color>
+    <color name="divider">@color/envirocar_color_divider_grey</color>
     <color name="summer_sky">#29B6F6</color>
     <color name="foreground">#555555</color>
+    <color name="background">@color/white_cario</color>
 
 </resources>
