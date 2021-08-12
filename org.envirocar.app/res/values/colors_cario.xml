@@ -47,8 +47,8 @@
     <color name="primary_dark">#1976D2</color>
     <color name="primary_light">#16754e</color>
     <color name="accent">#03A9F4</color>
-    <color name="primary_text">#ffffff</color>
-    <color name="secondary_text">#727272</color>
+    <color name="primary_text">@color/blue_dark_cario</color>
+    <color name="secondary_text">#ff323232</color>
     <color name="icons">#000000</color>
     <color name="divider">@color/envirocar_color_divider_grey</color>
     <color name="summer_sky">#29B6F6</color>
