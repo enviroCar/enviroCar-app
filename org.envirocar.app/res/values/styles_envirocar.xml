@@ -124,7 +124,7 @@
     <!-- Set the body -->
     <style name="BodyTextStyle" parent="MaterialAlertDialog.MaterialComponents.Body.Text">
         <item name="android:layout_marginTop">12dp</item>
-        <item name="android:textColor">@color/black</item>
+        <item name="android:textColor">@color/secondary_text</item>
         <item name="android:textSize">15sp</item>
     </style>
 
