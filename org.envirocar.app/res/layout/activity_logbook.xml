@@ -42,7 +42,7 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/white_cario">
+            android:background="@color/background">
 
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/activity_car_selection_layout_exptoolbar"
@@ -65,7 +65,7 @@
 
                     <TextView
                         style="@style/enviroCar.title"
-                        android:text="@string/logbook_my_fuelings_header"/>
+                        android:text="@string/logbook_my_fuelings_header" />
 
                     <FrameLayout
                         android:layout_width="1dp"
@@ -83,7 +83,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:choiceMode="singleChoice"
-                    android:divider="#00000000"/>
+                    android:divider="@color/divider"/>
 
                 <TextView
                     android:layout_width="match_parent"

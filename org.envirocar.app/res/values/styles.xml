@@ -52,7 +52,7 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textSize">14sp</item>
         <item name="android:padding">@dimen/spacing_large</item>
-        <item name="android:textColor">@color/blue_dark_cario</item>
+        <item name="android:textColor">@color/primary_text</item>
     </style>
 
     <style name="carDetailsSubtitle" parent="">
