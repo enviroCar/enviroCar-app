@@ -26,8 +26,6 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.content.ContextCompat;
-import android.view.LayoutInflater;
 
 import android.view.MenuItem;
 import android.view.View;
@@ -136,7 +134,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
 
         // If no cars present show background image.
         if (!mCarManager.hasCars()){
-            showbackgroungimage();
+            showBackgroundImage();
         }
 
         setupListView();
@@ -258,7 +256,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
                                                 getString(R.string.car_selection_car_deleted_tmp),
                                                 car.getManufacturer(), car.getModel()));
                                         if (!mCarManager.hasCars()) {
-                                            showbackgroungimage();
+                                            showBackgroundImage();
                                         }
                                     }
                                     // then remove it from the list and show a snackbar.
@@ -323,7 +321,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
         Snackbar.make(mFab, msg, Snackbar.LENGTH_LONG).show();
     }
 
-    public void showbackgroungimage(){
+    public void showBackgroundImage(){
         showInfoBackground(R.drawable.img_alert,
                 R.string.car_selection_no_car_no_car_first,
                 R.string.car_selection_no_car_no_car_second);
