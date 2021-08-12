@@ -52,11 +52,11 @@
 
         <TextView
             style="@style/enviroCar.Help.headline2"
-            android:text="@string/help_headline_2_1"/>
+            android:text="@string/help_headline_2_1" />
 
         <TextView
             style="@style/enviroCar.Help.content"
-            android:text="@string/help_content_2_1"/>
+            android:text="@string/help_content_2_1" />
 
         <LinearLayout
             android:layout_width="match_parent"
