@@ -21,7 +21,7 @@
 -->
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <style name="enviroCar.Toolbar" parent="Theme.MaterialComponents.Light.DarkActionBar">
+    <style name="enviroCar.Toolbar" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">50dp</item>
         <item name="android:background">@color/blue_dark_cario</item>

@@ -20,9 +20,11 @@
 
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:backgroundTint="@color/background"
     android:orientation="vertical"
     tools:context=".views.others.OthersFragment">
 
@@ -56,6 +58,7 @@
                 android:gravity="center"
                 android:id="@+id/othersLogBook"
                 android:padding="8dp"
+
                 android:orientation="horizontal">
 
                 <ImageView
@@ -63,7 +66,7 @@
                     android:layout_height="40dp"
                     android:padding="6dp"
                     android:src="@drawable/others_logbook"
-                    />
+                    app:tint="@color/icons" />
 
                 <TextView
                     android:layout_width="match_parent"
@@ -81,7 +84,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@color/envirocar_color_divider_grey"
+                android:background="@color/divider"
                 />
 
             <LinearLayout
@@ -97,7 +100,7 @@
                     android:layout_height="40dp"
                     android:padding="6dp"
                     android:src="@drawable/others_settings"
-                    android:tint="@android:color/black"
+                    app:tint="@color/icons"
                     />
 
                 <TextView
@@ -116,7 +119,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@color/envirocar_color_divider_grey"
+                android:background="@color/divider"
                 />
 
             <LinearLayout
@@ -131,6 +134,7 @@
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:padding="6dp"
+                    app:tint="@color/icons"
                     android:src="@drawable/others_help" />
 
                 <TextView
@@ -149,7 +153,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@color/envirocar_color_divider_grey"
+                android:background="@color/divider"
                 />
 
             <LinearLayout
@@ -164,7 +168,8 @@
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:padding="6dp"
-                    android:src="@drawable/others_bug" />
+                    android:src="@drawable/others_bug"
+                    app:tint="@color/icons"/>
 
                 <TextView
                     android:layout_width="match_parent"
@@ -182,7 +187,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@color/envirocar_color_divider_grey"
+                android:background="@color/divider"
                 />
 
             <LinearLayout
@@ -197,7 +202,8 @@
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:padding="6dp"
-                    android:src="@drawable/others_rateus" />
+                    android:src="@drawable/others_rateus"
+                    app:tint="@color/icons"/>
 
                 <TextView
                     android:layout_width="match_parent"
@@ -215,7 +221,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@color/envirocar_color_divider_grey"
+                android:background="@color/divider"
                 />
 
             <LinearLayout
@@ -230,7 +236,8 @@
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:padding="6dp"
-                    android:src="@drawable/others_logout" />
+                    android:src="@drawable/others_logout"
+                    app:tint="@color/icons"/>
 
                 <TextView
                     android:layout_width="match_parent"
@@ -249,7 +256,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:id="@+id/othersLogOutDivider"
-                android:background="@color/envirocar_color_divider_grey"
+                android:background="@color/divider"
                 />
 
             <LinearLayout
@@ -265,7 +272,7 @@
                     android:layout_height="40dp"
                     android:padding="6dp"
                     android:src="@drawable/others_close"
-                    android:tint="@android:color/holo_red_dark" />
+                    app:tint="@color/icons" />
 
                 <TextView
                     android:layout_width="match_parent"
@@ -284,7 +291,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@color/envirocar_color_divider_grey"
+                android:background="@color/divider"
                 />
 
         </LinearLayout>

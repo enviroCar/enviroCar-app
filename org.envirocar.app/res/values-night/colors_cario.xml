@@ -53,6 +53,7 @@
     <color name="divider">#B6B6B6</color>
     <color name="summer_sky">#29B6F6</color>
     <color name="foreground">#555555</color>
+    <color name="background">@color/black</color>
 
 
 
