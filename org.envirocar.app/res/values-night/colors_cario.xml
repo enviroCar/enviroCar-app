@@ -50,8 +50,10 @@
     <color name="primary_text">#ffffff</color>
     <color name="secondary_text">#727272</color>
     <color name="icons">#FFFFFF</color>
-    <color name="divider">envirocar_color_divider_grey</color>
+    <color name="divider">#B6B6B6</color>
     <color name="summer_sky">#29B6F6</color>
     <color name="foreground">#555555</color>
+
+
 
 </resources>
