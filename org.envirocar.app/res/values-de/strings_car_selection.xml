@@ -45,4 +45,7 @@
 
     <string name="car_selection_addcar_info">Bitte geben Sie die Details Ihres Fahrzeugs ein. Seien Sie dabei genau. Teile dieser Informationen sind insbesondere Wichtig zur Berechnung von geschätzten Werten wie z.B. Verbrauch.</string>
 
+    <string name="car_selection_no_car_no_car_first">Kein Auto hinzugefügt</string>
+    <string name="car_selection_no_car_no_car_second">Verwenden Sie das + Symbol, um ein neues Auto hinzuzufügen</string>
+
 </resources>

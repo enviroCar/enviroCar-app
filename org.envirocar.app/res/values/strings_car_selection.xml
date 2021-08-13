@@ -49,5 +49,8 @@
     <string name="car_selection_hsn_tsn_segmented">HSN/TSN</string>
     <string name="car_selection_attributes_segmented">Attributes</string>
     <string name="create_car_dialog">Create Car</string>
+    
+    <string name="car_selection_no_car_no_car_first">No Car Added</string>
+    <string name="car_selection_no_car_no_car_second">Use the + icon to add a new car</string>
 
 </resources>
