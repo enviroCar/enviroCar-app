@@ -26,12 +26,11 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.content.ContextCompat;
-import android.view.LayoutInflater;
 
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -95,6 +94,17 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
     @Inject
     protected UserPreferenceHandler mUserHandler;
 
+    @BindView(R.id.layout_general_info_background)
+    protected View infoBackground;
+    @BindView(R.id.layout_general_info_background_img)
+    protected ImageView infoBackgroundImg;
+    @BindView(R.id.layout_general_info_background_firstline)
+    protected TextView infoBackgroundFirst;
+    @BindView(R.id.layout_general_info_background_secondline)
+    protected TextView infoBackgroundSecond;
+    @BindView(R.id.activity_car_selection_header)
+    protected View headerView;
+
     private CarSelectionAddCarFragment addCarFragment;
     private CarSelectionListAdapter mCarListAdapter;
     private Disposable loadingCarsSubscription;
@@ -121,6 +131,11 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle("");
 //        getSupportActionBar().setTitle(R.string.car_selection_header);
+
+        // If no cars present show background image.
+        if (!mCarManager.hasCars()){
+            showBackgroundImage();
+        }
 
         setupListView();
     }
@@ -216,9 +231,13 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
 
                     @Override
                     public void onSelectCar(Car car) {
+                        Car selectedCar = mCarManager.getCar();
                         mCarManager.setCar(car);
-                        showSnackbar(String.format(getString(R.string.car_selection_car_selected),
-                                car.getManufacturer(), car.getModel()));
+                        // Show Snackbar.
+                        if (!car.equals(selectedCar)) {
+                            showSnackbar(String.format(getString(R.string.car_selection_car_selected),
+                                    car.getManufacturer(), car.getModel()));
+                        }
                     }
 
                     @Override
@@ -240,9 +259,13 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
                                         showSnackbar(String.format(
                                                 getString(R.string.car_selection_car_deleted_tmp),
                                                 car.getManufacturer(), car.getModel()));
+                                        if (!mCarManager.hasCars()) {
+                                            showBackgroundImage();
+                                        }
                                     }
                                     // then remove it from the list and show a snackbar.
                                     mCarListAdapter.removeCarItem(car);// Nothing to do on cancel
+
                                 })
                                 .setNegativeButton(R.string.cancel,null)
                                 .show();
@@ -302,6 +325,22 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
         Snackbar.make(mFab, msg, Snackbar.LENGTH_LONG).show();
     }
 
+    public void showBackgroundImage(){
+        showInfoBackground(R.drawable.img_alert,
+                R.string.car_selection_no_car_no_car_first,
+                R.string.car_selection_no_car_no_car_second);
+        headerView.setVisibility(View.GONE);
+
+    }
+
+    private void showInfoBackground(int imgResource, int firstLine, int secondLine) {
+        LOG.info("showInfoBackground()");
+        infoBackgroundImg.setImageResource(imgResource);
+        infoBackgroundFirst.setText(firstLine);
+        infoBackgroundSecond.setText(secondLine);
+        ECAnimationUtils.animateShowView(this, infoBackground, R.anim.fade_in);
+    }
+
     /**
      * Hides the AddCarFragment
      */
@@ -317,6 +356,10 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
 
         if (mCarManager.addCar(car)) {
             mCarListAdapter.addCarItem(car);
+
+            headerView.setVisibility(View.VISIBLE);
+            ECAnimationUtils.animateHideView(this, infoBackground, R.anim.fade_out);
+
             showSnackbar(String.format(getString(R.string.car_selection_successfully_added_tmp),
                     car.getManufacturer(), car.getModel()));
         } else {

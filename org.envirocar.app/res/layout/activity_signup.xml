@@ -120,6 +120,7 @@
             app:endIconMode="password_toggle"
             app:endIconDrawable="@drawable/custom_password_eye">
 
+
             <androidx.appcompat.widget.AppCompatEditText
                 android:id="@+id/activity_signup_password_1"
                 style="@style/envirocar.login.edittext"
