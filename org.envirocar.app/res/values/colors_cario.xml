@@ -54,5 +54,6 @@
     <color name="summer_sky">#29B6F6</color>
     <color name="foreground">#555555</color>
     <color name="background">@color/white_cario</color>
+    <color name="Tracklist_text_colour">@color/black</color>
 
 </resources>
