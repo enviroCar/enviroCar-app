@@ -185,16 +185,19 @@ public class SigninActivity extends BaseInjectorActivity {
 
                     @Override
                     protected void onStart() {
-                        dialog = DialogUtils.createProgressBarDialogBuilder(SigninActivity.this,
-                                R.string.activity_login_logging_in_dialog_title,
-                                R.drawable.ic_baseline_login_24,
-                                (String) null)
-                                .setCancelable(false)
-                                .show();
+                        if(checkNetworkConnection()) {
+                            dialog = DialogUtils.createProgressBarDialogBuilder(SigninActivity.this,
+                                    R.string.activity_login_logging_in_dialog_title,
+                                    R.drawable.ic_baseline_login_24,
+                                    (String) null)
+                                    .setCancelable(false)
+                                    .show();
+                        }
                     }
 
                     @Override
                     public void onComplete() {
+                        if(checkNetworkConnection())
                         dialog.dismiss();
                         Snackbar.make(logoImageView, String.format(getResources().getString(
                                 R.string.welcome_message), username), Snackbar.LENGTH_LONG)
@@ -204,6 +207,7 @@ public class SigninActivity extends BaseInjectorActivity {
 
                     @Override
                     public void onError(Throwable e) {
+                        if(checkNetworkConnection())
                         dialog.dismiss();
                         if (e instanceof LoginException) {
                             switch (((LoginException) e).getType()) {
@@ -227,8 +231,9 @@ public class SigninActivity extends BaseInjectorActivity {
                                     passwordEditText.setError(getString(R.string.logbook_invalid_input));
                                     break;
                             }
-                        } else if (checkNetworkConnection() != true) {
-                            Snackbar.make(findViewById(R.id.activity_signin_login_button), String.format(getString(R.string.error_not_connected_to_network)), Snackbar.LENGTH_SHORT).show();
+                        } else if (!checkNetworkConnection()) {
+                            Snackbar.make(findViewById(R.id.activity_signin_login_button),
+                                    getString(R.string.error_not_connected_to_network), Snackbar.LENGTH_SHORT).show();
                         }
                     }
                 });
