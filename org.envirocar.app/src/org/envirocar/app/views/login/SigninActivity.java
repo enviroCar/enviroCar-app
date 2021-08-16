@@ -208,8 +208,8 @@ public class SigninActivity extends BaseInjectorActivity {
                         if (e instanceof LoginException) {
                             switch (((LoginException) e).getType()) {
                                 case USERNAME_OR_PASSWORD_INCORRECT:
-                                    usernameEditText.setError("Username or password is incorrect");
-                                    passwordEditText.setError("Username or password is incorrect");
+                                    usernameEditText.setError(getString(R.string.error_invalid_credentials));
+                                    passwordEditText.setError(getString(R.string.error_invalid_credentials));
                                     break;
                                 case MAIL_NOT_CONFIREMED:
                                     // show alert dialog
