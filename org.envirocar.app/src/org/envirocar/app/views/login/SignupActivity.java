@@ -218,23 +218,25 @@ public class SignupActivity extends BaseInjectorActivity {
 
     private void register(String username, String email, String password) {
 
+        if(new ContextInternetAccessProvider(getApplicationContext()).isConnected()) {
+            dialog = new MaterialDialog.Builder(SignupActivity.this)
+                    .title(R.string.register_progress_signing_in)
+                    .progress(true, 0)
+                    .cancelable(false)
+                    .show();
+        }
+
         registerSubscription = backgroundWorker.schedule(() -> {
             try {
                 if(new ContextInternetAccessProvider(getApplicationContext()).isConnected()) {
 
-                    dialog = new MaterialDialog.Builder(SignupActivity.this)
-                            .title(R.string.register_progress_signing_in)
-                            .progress(true, 0)
-                            .cancelable(false)
-                            .show();
-
                     User newUser = new UserImpl(username, password);
                     newUser.setMail(email);
                     daoProvider.getUserDAO().createUser(newUser);
-
                     // Successfully created the getUserStatistic
                     mainThreadWorker.schedule(() -> {
                         // Dismiss the progress dialog.
+                        if(new ContextInternetAccessProvider(getApplicationContext()).isConnected())
                         dialog.dismiss();
 
                         new MaterialAlertDialogBuilder(SignupActivity.this, R.style.MaterialDialog)
@@ -253,6 +255,7 @@ public class SignupActivity extends BaseInjectorActivity {
                                 .show();
                     });
                 }else{
+                    if(new ContextInternetAccessProvider(getApplicationContext()).isConnected())
                     dialog.dismiss();
                     showSnackbar(getString(R.string.error_not_connected_to_network));
                 }
