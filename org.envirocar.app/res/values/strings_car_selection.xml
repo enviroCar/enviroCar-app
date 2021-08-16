@@ -27,6 +27,7 @@
 
     <string name="car_selection_car_selected" formatted="false">%s %s has been selected as my car.</string>
     <string name="car_selection_car_deleted_tmp" formatted="false">%s %s has been deleted.</string>
+    <string name="car_selection_car_selected_after_add" formatted="false">%s %s has been added and selected as my car.</string>
     <string name="car_selection_successfully_added_tmp" formatted="false">%s %s has been added to the list.</string>
     <string name="car_selection_already_in_list_tmp" formatted="false">%s %s is already in the list.</string>
 
@@ -49,5 +50,8 @@
     <string name="car_selection_hsn_tsn_segmented">HSN/TSN</string>
     <string name="car_selection_attributes_segmented">Attributes</string>
     <string name="create_car_dialog">Create Car</string>
+    
+    <string name="car_selection_no_car_no_car_first">No Car Added</string>
+    <string name="car_selection_no_car_no_car_second">Use the + icon to add a new car</string>
 
 </resources>

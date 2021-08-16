@@ -26,6 +26,7 @@
     <string name="error_invalid_email">Email ist nicht valide</string>
     <string name="error_invalid_password">Zu kurzes Passwort</string>
     <string name="error_incorrect_password">Falsches Passwort</string>
+    <string name="error_invalid_credentials">Benutzername oder Passwort ist falsch</string>
     <string name="error_field_required">Benötigtes Feld</string>
     <string name="error_not_connected_to_network">Keine Verbindung zum Internet</string>
     <string name="register_progress_signing_in">Registerung&#8230;</string>

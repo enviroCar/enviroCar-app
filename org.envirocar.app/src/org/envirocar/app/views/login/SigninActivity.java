@@ -116,6 +116,12 @@ public class SigninActivity extends BaseInjectorActivity {
         }
     }
 
+    @OnClick(R.id.signin_background)
+    protected void closeKeyboard(){
+        InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+    }
+
     @OnClick(R.id.activity_signin_register_button)
     protected void onSwitchToRegisterClicked() {
         ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
@@ -185,16 +191,19 @@ public class SigninActivity extends BaseInjectorActivity {
 
                     @Override
                     protected void onStart() {
-                        dialog = DialogUtils.createProgressBarDialogBuilder(SigninActivity.this,
-                                R.string.activity_login_logging_in_dialog_title,
-                                R.drawable.ic_baseline_login_24,
-                                (String) null)
-                                .setCancelable(false)
-                                .show();
+                        if(checkNetworkConnection()) {
+                            dialog = DialogUtils.createProgressBarDialogBuilder(SigninActivity.this,
+                                    R.string.activity_login_logging_in_dialog_title,
+                                    R.drawable.ic_baseline_login_24,
+                                    (String) null)
+                                    .setCancelable(false)
+                                    .show();
+                        }
                     }
 
                     @Override
                     public void onComplete() {
+                        if(checkNetworkConnection())
                         dialog.dismiss();
                         Snackbar.make(logoImageView, String.format(getResources().getString(
                                 R.string.welcome_message), username), Snackbar.LENGTH_LONG)
@@ -204,11 +213,13 @@ public class SigninActivity extends BaseInjectorActivity {
 
                     @Override
                     public void onError(Throwable e) {
+                        if(checkNetworkConnection())
                         dialog.dismiss();
                         if (e instanceof LoginException) {
                             switch (((LoginException) e).getType()) {
-                                case PASSWORD_INCORRECT:
-                                    passwordEditText.setError(getString(R.string.error_incorrect_password));
+                                case USERNAME_OR_PASSWORD_INCORRECT:
+                                    usernameEditText.setError(getString(R.string.error_invalid_credentials));
+                                    passwordEditText.setError(getString(R.string.error_invalid_credentials));
                                     break;
                                 case MAIL_NOT_CONFIREMED:
                                     // show alert dialog
@@ -227,8 +238,9 @@ public class SigninActivity extends BaseInjectorActivity {
                                     passwordEditText.setError(getString(R.string.logbook_invalid_input));
                                     break;
                             }
-                        } else if (checkNetworkConnection() != true) {
-                            Snackbar.make(findViewById(R.id.activity_signin_login_button), String.format(getString(R.string.error_not_connected_to_network)), Snackbar.LENGTH_SHORT).show();
+                        } else if (!checkNetworkConnection()) {
+                            Snackbar.make(findViewById(R.id.activity_signin_login_button),
+                                    getString(R.string.error_not_connected_to_network), Snackbar.LENGTH_SHORT).show();
                         }
                     }
                 });

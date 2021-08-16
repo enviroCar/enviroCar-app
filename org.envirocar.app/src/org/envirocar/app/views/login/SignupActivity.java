@@ -45,6 +45,7 @@ import androidx.core.content.ContextCompat;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.snackbar.Snackbar;
 import com.jakewharton.rxbinding3.widget.RxCompoundButton;
 import com.jakewharton.rxbinding3.widget.RxTextView;
 
@@ -55,6 +56,7 @@ import org.envirocar.app.handler.agreement.AgreementManager;
 import org.envirocar.app.handler.preferences.UserPreferenceHandler;
 import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.app.views.utils.DialogUtils;
+import org.envirocar.core.ContextInternetAccessProvider;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.entity.UserImpl;
 import org.envirocar.core.exception.DataUpdateFailureException;
@@ -82,7 +84,7 @@ import io.reactivex.schedulers.Schedulers;
 public class SignupActivity extends BaseInjectorActivity {
     private static final Logger LOG = Logger.getLogger(SignupActivity.class);
 
-    private static final String EMAIL_REGEX = "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
+    private static final String EMAIL_REGEX = "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})$";
     private static final String PASSWORD_REGEX = "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{6,}$";
     private static final String USERNAME_REGEX = "^[A-Za-z0-9_-]{6,}$";
     private static final int CHECK_FORM_DELAY = 750;
@@ -125,6 +127,7 @@ public class SignupActivity extends BaseInjectorActivity {
     private Disposable registerSubscription;
     private AlertDialog dialog;
 
+
     @Override
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
         baseApplicationComponent.inject(this);
@@ -153,6 +156,12 @@ public class SignupActivity extends BaseInjectorActivity {
         if (registerSubscription != null && !registerSubscription.isDisposed()) {
             registerSubscription.dispose();
         }
+    }
+
+    @OnClick(R.id.imageView)
+    protected void closeKeyboard(){
+        InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
     }
 
     @OnClick(R.id.activity_signup_login_button)
@@ -216,39 +225,49 @@ public class SignupActivity extends BaseInjectorActivity {
     }
 
     private void register(String username, String email, String password) {
-        dialog = DialogUtils.createProgressBarDialogBuilder(SignupActivity.this,
+
+        if(new ContextInternetAccessProvider(getApplicationContext()).isConnected()) {
+            dialog = DialogUtils.createProgressBarDialogBuilder(SignupActivity.this,
                 R.string.register_progress_signing_in,
                 R.drawable.ic_baseline_login_24,
                 (String) null)
                 .setCancelable(false)
                 .show();
+        }
 
         registerSubscription = backgroundWorker.schedule(() -> {
             try {
-                User newUser = new UserImpl(username, password);
-                newUser.setMail(email);
-                daoProvider.getUserDAO().createUser(newUser);
+                if(new ContextInternetAccessProvider(getApplicationContext()).isConnected()) {
 
-                // Successfully created the getUserStatistic
-                mainThreadWorker.schedule(() -> {
-                    // Dismiss the progress dialog.
+                    User newUser = new UserImpl(username, password);
+                    newUser.setMail(email);
+                    daoProvider.getUserDAO().createUser(newUser);
+                    // Successfully created the getUserStatistic
+                    mainThreadWorker.schedule(() -> {
+                        // Dismiss the progress dialog.
+                        if(new ContextInternetAccessProvider(getApplicationContext()).isConnected())
+                        dialog.dismiss();
+
+                        new MaterialAlertDialogBuilder(SignupActivity.this, R.style.MaterialDialog)
+                                .setTitle(R.string.register_success_dialog_title)
+                                .setMessage(R.string.register_success_dialog_content)
+                                .setIcon(R.drawable.ic_baseline_login_24)
+                                .setCancelable(false)
+                                .setOnCancelListener(dialog1 -> {
+                                    LOG.info("canceled");
+                                    finish();
+                                })
+                                .setPositiveButton(R.string.ok, (a, b) -> {
+                                    LOG.info("onPositive");
+                                    finish();
+                                })
+                                .show();
+                    });
+                }else{
+                    if(new ContextInternetAccessProvider(getApplicationContext()).isConnected())
                     dialog.dismiss();
-
-                    new MaterialAlertDialogBuilder(SignupActivity.this,R.style.MaterialDialog)
-                            .setTitle(R.string.register_success_dialog_title)
-                            .setMessage(R.string.register_success_dialog_content)
-                            .setIcon(R.drawable.ic_baseline_login_24)
-                            .setCancelable(false)
-                            .setOnCancelListener(dialog1 -> {
-                                LOG.info("canceled");
-                                finish();
-                            })
-                            .setPositiveButton(R.string.ok,(a, b) -> {
-                                LOG.info("onPositive");
-                                finish();
-                            })
-                            .show();
-                });
+                    showSnackbar(getString(R.string.error_not_connected_to_network));
+                }
             } catch (ResourceConflictException e) {
                 LOG.warn(e.getMessage(), e);
 
@@ -388,6 +407,8 @@ public class SignupActivity extends BaseInjectorActivity {
             final String password2 = password2EditText.getText().toString().trim();
             if (!password2.equals("") && !password2.isEmpty() && password2 != null) {
                 checkPasswordMatch(password, password2);
+            }else {
+                password2EditText.setError(getString(R.string.error_field_required), error);
             }
         }
         return isValidPassword;
@@ -423,6 +444,10 @@ public class SignupActivity extends BaseInjectorActivity {
             password2EditText.setError(null);
         }
         return isValidMatch;
+    }
+
+    private void showSnackbar(String info) {
+        Snackbar.make(findViewById(R.id.activity_signup_register_button), info, Snackbar.LENGTH_LONG).show();
     }
 
     private void observeFormInputs() {

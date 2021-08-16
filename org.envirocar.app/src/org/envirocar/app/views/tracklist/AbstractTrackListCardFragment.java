@@ -304,7 +304,6 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
         new MaterialAlertDialogBuilder(getActivity(), R.style.MaterialDialog)
                 .setView(contentView)
                 .setTitle(R.string.trackviews_delete_track_dialog_headline)
-                .setMessage(R.string.menu_logout_envirocar_content)
                 .setIcon(R.drawable.ic_delete_white_24dp)
                 .setPositiveButton(R.string.ok,
                         (materialDialog, dialogAction) ->
