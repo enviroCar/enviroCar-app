@@ -149,6 +149,9 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
         View view = inflater.inflate(R.layout.activity_logbook_add_fueling_card, container, false);
         ButterKnife.bind(this, view);
 
+        view.setOnClickListener(v -> hideKeyboard(view));
+        contentView.setOnClickListener(v -> hideKeyboard(contentView));
+
         addFuelingToolbar.setNavigationIcon(R.drawable.ic_close_white_24dp);
         addFuelingToolbar.inflateMenu(R.menu.menu_logbook_add_fueling);
 
@@ -160,6 +163,8 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
             hideKeyboard(getView());
             return true;
         });
+
+        addFuelingToolbar.setOnClickListener(v -> hideKeyboard(addFuelingToolbar));
 
         // initially we set the toolbar exp to gone
         addFuelingToolbar.setVisibility(View.GONE);

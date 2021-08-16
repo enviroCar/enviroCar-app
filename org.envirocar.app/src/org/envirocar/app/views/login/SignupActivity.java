@@ -153,6 +153,12 @@ public class SignupActivity extends BaseInjectorActivity {
         }
     }
 
+    @OnClick(R.id.imageView)
+    protected void closeKeyboard(){
+        InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+    }
+
     @OnClick(R.id.activity_signup_login_button)
     protected void onSwitchToRegister() {
         Intent intent = new Intent(this, SigninActivity.class);
