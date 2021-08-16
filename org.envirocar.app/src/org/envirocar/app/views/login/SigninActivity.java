@@ -20,6 +20,7 @@ package org.envirocar.app.views.login;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -91,6 +92,7 @@ public class SigninActivity extends BaseInjectorActivity {
     protected ImageView logoImageView;
 
     private Disposable loginSubscription;
+    private static Drawable error;
 
     @Override
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
@@ -105,6 +107,10 @@ public class SigninActivity extends BaseInjectorActivity {
 
         // inject the views
         ButterKnife.bind(this);
+
+        error = getResources().getDrawable(R.drawable.ic_error_red_24dp);
+        error.setBounds(-75,0,0,error.getIntrinsicHeight());
+
     }
 
     @Override
@@ -154,7 +160,7 @@ public class SigninActivity extends BaseInjectorActivity {
 
         // check for valid password
         if (password == null || password.isEmpty() || password.equals("")) {
-            this.passwordEditText.setError(getString(R.string.error_field_required));
+            this.passwordEditText.setError(getString(R.string.error_field_required),error);
             focusView = this.passwordEditText;
         }
 
@@ -219,7 +225,7 @@ public class SigninActivity extends BaseInjectorActivity {
                             switch (((LoginException) e).getType()) {
                                 case USERNAME_OR_PASSWORD_INCORRECT:
                                     usernameEditText.setError(getString(R.string.error_invalid_credentials));
-                                    passwordEditText.setError(getString(R.string.error_invalid_credentials));
+                                    passwordEditText.setError(getString(R.string.error_invalid_credentials),error);
                                     break;
                                 case MAIL_NOT_CONFIREMED:
                                     // show alert dialog
@@ -232,10 +238,10 @@ public class SigninActivity extends BaseInjectorActivity {
                                             .show();
                                     break;
                                 case UNABLE_TO_COMMUNICATE_WITH_SERVER:
-                                    passwordEditText.setError(getString(R.string.error_host_not_found));
+                                    passwordEditText.setError(getString(R.string.error_host_not_found),error);
                                     break;
                                 default:
-                                    passwordEditText.setError(getString(R.string.logbook_invalid_input));
+                                    passwordEditText.setError(getString(R.string.logbook_invalid_input),error);
                                     break;
                             }
                         } else if (!checkNetworkConnection()) {
