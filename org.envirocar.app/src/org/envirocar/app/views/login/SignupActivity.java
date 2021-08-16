@@ -367,7 +367,7 @@ public class SignupActivity extends BaseInjectorActivity {
         } else if (username.length() < 6) {
             usernameEditText.setError(getString(R.string.error_invalid_username));
             isValidUsername = false;
-        } else if (!Pattern.matches(USERNAME_REGEX,username)) {
+        } else if (!Pattern.matches(USERNAME_REGEX,username.trim())) {
             usernameEditText.setError(getString(R.string.error_username_contain_special));
             isValidUsername = false;
         }
@@ -379,10 +379,10 @@ public class SignupActivity extends BaseInjectorActivity {
      */
     private boolean checkEmailValidity(String email) {
         boolean isValidEmail = true;
-        if (TextUtils.isEmpty(email)) {
+        if (TextUtils.isEmpty(email.trim())) {
             emailEditText.setError(getString(R.string.error_field_required));
             isValidEmail = false;
-        } else if (!Pattern.matches(EMAIL_REGEX, email)) {
+        } else if (!Pattern.matches(EMAIL_REGEX, email.trim())) {
             emailEditText.setError(getString(R.string.error_invalid_email));
             isValidEmail = false;
         }
