@@ -55,6 +55,7 @@ import org.envirocar.app.handler.DAOProvider;
 import org.envirocar.app.handler.agreement.AgreementManager;
 import org.envirocar.app.handler.preferences.UserPreferenceHandler;
 import org.envirocar.app.injection.BaseInjectorActivity;
+import org.envirocar.app.views.utils.DialogUtils;
 import org.envirocar.core.ContextInternetAccessProvider;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.entity.UserImpl;
@@ -124,7 +125,8 @@ public class SignupActivity extends BaseInjectorActivity {
     private final Scheduler.Worker mainThreadWorker = AndroidSchedulers.mainThread().createWorker();
     private final Scheduler.Worker backgroundWorker = Schedulers.newThread().createWorker();
     private Disposable registerSubscription;
-    MaterialDialog dialog;
+    private AlertDialog dialog;
+
 
     @Override
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
@@ -225,11 +227,12 @@ public class SignupActivity extends BaseInjectorActivity {
     private void register(String username, String email, String password) {
 
         if(new ContextInternetAccessProvider(getApplicationContext()).isConnected()) {
-            dialog = new MaterialDialog.Builder(SignupActivity.this)
-                    .title(R.string.register_progress_signing_in)
-                    .progress(true, 0)
-                    .cancelable(false)
-                    .show();
+            dialog = DialogUtils.createProgressBarDialogBuilder(SignupActivity.this,
+                R.string.register_progress_signing_in,
+                R.drawable.ic_baseline_login_24,
+                (String) null)
+                .setCancelable(false)
+                .show();
         }
 
         registerSubscription = backgroundWorker.schedule(() -> {
