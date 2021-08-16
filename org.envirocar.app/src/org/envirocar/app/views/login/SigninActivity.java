@@ -207,8 +207,9 @@ public class SigninActivity extends BaseInjectorActivity {
                         dialog.dismiss();
                         if (e instanceof LoginException) {
                             switch (((LoginException) e).getType()) {
-                                case PASSWORD_INCORRECT:
-                                    passwordEditText.setError(getString(R.string.error_incorrect_password));
+                                case USERNAME_OR_PASSWORD_INCORRECT:
+                                    usernameEditText.setError(getString(R.string.error_invalid_credentials));
+                                    passwordEditText.setError(getString(R.string.error_invalid_credentials));
                                     break;
                                 case MAIL_NOT_CONFIREMED:
                                     // show alert dialog
