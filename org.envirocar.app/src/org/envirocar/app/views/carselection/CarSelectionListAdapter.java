@@ -206,6 +206,9 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
      */
     protected void addCarItem(Car car) {
         this.mCars.add(car);
+        if(this.getCount() == 1) {
+            this.mSelectedCar = car;
+        }
         notifyDataSetChanged();
     }
 
