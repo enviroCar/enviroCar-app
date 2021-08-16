@@ -118,7 +118,8 @@
             app:layout_constraintTop_toBottomOf="@+id/activity_signup_email_input_layout"
             app:layout_constraintWidth_max="500dp"
             app:endIconMode="password_toggle"
-            app:endIconDrawable="@drawable/custom_password_eye">
+            app:endIconDrawable="@drawable/custom_password_eye"
+            app:endIconTint="@color/white_cario">
 
 
             <androidx.appcompat.widget.AppCompatEditText
@@ -143,7 +144,8 @@
             app:layout_constraintTop_toBottomOf="@+id/activity_signup_password_1_layout"
             app:layout_constraintWidth_max="500dp"
             app:endIconMode="password_toggle"
-            app:endIconDrawable="@drawable/custom_password_eye">
+            app:endIconDrawable="@drawable/custom_password_eye"
+            app:endIconTint="@color/white_cario">
 
             <androidx.appcompat.widget.AppCompatEditText
                 android:id="@+id/activity_signup_password_2"
