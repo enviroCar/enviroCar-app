@@ -508,6 +508,9 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
                         }
                         if (text != null)
                             text.setText(device.getName());
+
+                        // If error occured then, enable the click for the device.
+                        rediscover();
                     }
 
                     @Override
