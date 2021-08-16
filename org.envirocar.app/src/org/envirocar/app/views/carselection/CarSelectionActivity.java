@@ -233,6 +233,8 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
                     public void onSelectCar(Car car) {
                         Car selectedCar = mCarManager.getCar();
                         mCarManager.setCar(car);
+                        mCarListAdapter.notifyDataSetChanged();
+
                         // Show Snackbar.
                         if (!car.equals(selectedCar)) {
                             showSnackbar(String.format(getString(R.string.car_selection_car_selected),
