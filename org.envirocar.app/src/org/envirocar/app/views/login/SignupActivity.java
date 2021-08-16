@@ -124,6 +124,7 @@ public class SignupActivity extends BaseInjectorActivity {
     private final Scheduler.Worker mainThreadWorker = AndroidSchedulers.mainThread().createWorker();
     private final Scheduler.Worker backgroundWorker = Schedulers.newThread().createWorker();
     private Disposable registerSubscription;
+    MaterialDialog dialog;
 
     @Override
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
@@ -216,15 +217,17 @@ public class SignupActivity extends BaseInjectorActivity {
     }
 
     private void register(String username, String email, String password) {
-        final MaterialDialog dialog = new MaterialDialog.Builder(SignupActivity.this)
-                .title(R.string.register_progress_signing_in)
-                .progress(true, 0)
-                .cancelable(false)
-                .show();
 
         registerSubscription = backgroundWorker.schedule(() -> {
             try {
                 if(new ContextInternetAccessProvider(getApplicationContext()).isConnected()) {
+
+                    dialog = new MaterialDialog.Builder(SignupActivity.this)
+                            .title(R.string.register_progress_signing_in)
+                            .progress(true, 0)
+                            .cancelable(false)
+                            .show();
+
                     User newUser = new UserImpl(username, password);
                     newUser.setMail(email);
                     daoProvider.getUserDAO().createUser(newUser);
