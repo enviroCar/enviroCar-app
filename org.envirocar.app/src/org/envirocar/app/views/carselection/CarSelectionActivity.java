@@ -364,6 +364,14 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
 
             showSnackbar(String.format(getString(R.string.car_selection_successfully_added_tmp),
                     car.getManufacturer(), car.getModel()));
+
+            // Check the total Cars count after adding, if only 1 car then set it.
+            int count = mCarListAdapter.getCount();
+            if(count == 1) {
+                mCarManager.setCar(car);
+                showSnackbar(String.format(getString(R.string.car_selection_car_selected_after_add),
+                        car.getManufacturer(), car.getModel()));
+            }
         } else {
             showSnackbar(String.format(getString(R.string.car_selection_already_in_list_tmp),
                     car.getManufacturer(), car.getModel()));

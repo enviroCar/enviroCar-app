@@ -28,6 +28,7 @@
 
     <string name="car_selection_car_selected" formatted="false">%s %s ausgewählt.</string>
     <string name="car_selection_car_deleted_tmp" formatted="false">%s %s gelöscht.</string>
+    <string name="car_selection_car_selected_after_add" formatted="false">%s %s wurde hinzugefügt und als mein Auto ausgewählt.</string>
     <string name="car_selection_successfully_added_tmp" formatted="false">%s %s wurde hinzugefügt.</string>
     <string name="car_selection_already_in_list_tmp" formatted="false">%s %s ist bereits in der Liste.</string>
 
