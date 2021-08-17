@@ -24,7 +24,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white_cario"
+    android:background="@color/background"
     android:orientation="vertical">
 
     <androidx.appcompat.widget.Toolbar
@@ -68,7 +68,7 @@
                 android:id="@+id/fragment_dashboard_main_layout"
                 android:layout_width="match_parent"
                 android:layout_height="620dp"
-                android:background="@color/white_cario"
+                android:background="@color/background"
                 android:orientation="vertical"
                 android:visibility="visible">
 
@@ -112,7 +112,7 @@
                         android:layout_weight="4"
                         android:padding="2dp"
                         android:src="@drawable/user_male"
-                        android:tint="@color/cario_color_primary_dark" />
+                        app:tint="@color/cario_color_primary_dark" />
 
                     <androidx.appcompat.widget.AppCompatTextView
                         android:id="@+id/fragment_dashboard_username"
@@ -378,7 +378,7 @@
                                 android:fontFamily="@font/roboto_medium"
                                 android:gravity="bottom|center_horizontal"
                                 android:text="3200"
-                                android:textColor="#000000"
+                                android:textColor="@color/secondary_text"
                                 android:textStyle="bold"
                                 app:autoSizeMaxTextSize="20sp"
                                 app:autoSizeMinTextSize="10sp"
@@ -419,7 +419,7 @@
                                 android:fontFamily="@font/roboto_medium"
                                 android:gravity="bottom|center_horizontal"
                                 android:text="3200"
-                                android:textColor="#000000"
+                                android:textColor="@color/secondary_text"
                                 android:textStyle="bold"
                                 app:autoSizeMaxTextSize="20sp"
                                 app:autoSizeMinTextSize="10sp"
@@ -459,7 +459,7 @@
                                 android:fontFamily="@font/roboto_medium"
                                 android:gravity="bottom|center_horizontal"
                                 android:text="3200"
-                                android:textColor="#000000"
+                                android:textColor="@color/secondary_text"
                                 android:textStyle="bold"
                                 app:autoSizeMaxTextSize="20sp"
                                 app:autoSizeMinTextSize="10sp"
@@ -565,7 +565,7 @@
                                 android:fontFamily="@font/roboto_medium"
                                 android:singleLine="true"
                                 android:text="@string/dashboard_obd_not_selected"
-                                android:textColor="#000000"
+                                android:textColor="@color/secondary_text"
                                 app:autoSizeMaxTextSize="20sp"
                                 app:autoSizeMinTextSize="10sp"
                                 app:autoSizeTextType="uniform" />
@@ -577,7 +577,6 @@
                                 android:fontFamily="@font/roboto"
                                 android:singleLine="true"
                                 android:text="@string/dashboard_obd_not_selected_advise"
-                                android:textColor="#000000"
                                 android:textSize="14sp"
                                 app:autoSizeMaxTextSize="15sp"
                                 app:autoSizeMinTextSize="7sp"
@@ -591,7 +590,7 @@
                             android:layout_gravity="right|center_vertical"
                             android:layout_marginRight="8dp"
                             android:src="@drawable/ic_action_arrow_foward"
-                            android:tint="@color/cario_color_primary_dark" />
+                            app:tint="@color/primary_text" />
 
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
@@ -621,7 +620,7 @@
                             android:background="@color/cario_color_primary_dark"
                             android:padding="8dp"
                             android:src="@drawable/ic_drive_eta_black_24dp"
-                            android:tint="@color/white_cario" />
+                            app:tint="@color/white_cario" />
 
                         <LinearLayout
                             android:layout_width="0dp"
@@ -638,7 +637,7 @@
                                 android:fontFamily="@font/roboto_medium"
                                 android:singleLine="true"
                                 android:text="@string/dashboard_carselection_no_car_selected"
-                                android:textColor="#000000"
+                                android:textColor="@color/secondary_text"
                                 app:autoSizeMaxTextSize="20sp"
                                 app:autoSizeMinTextSize="10sp"
                                 app:autoSizeTextType="uniform" />
@@ -650,7 +649,6 @@
                                 android:fontFamily="@font/roboto"
                                 android:singleLine="true"
                                 android:text="@string/dashboard_carselection_no_car_selected_advise"
-                                android:textColor="#000000"
                                 android:textSize="14sp"
                                 app:autoSizeMaxTextSize="15sp"
                                 app:autoSizeMinTextSize="7sp"
@@ -664,7 +662,7 @@
                             android:layout_gravity="right|center_vertical"
                             android:layout_marginRight="8dp"
                             android:src="@drawable/ic_action_arrow_foward"
-                            android:tint="@color/cario_color_primary_dark" />
+                            app:tint="@color/primary_text" />
 
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
