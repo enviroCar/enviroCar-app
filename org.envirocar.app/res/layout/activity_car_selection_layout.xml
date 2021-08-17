@@ -36,7 +36,7 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/white">
+            android:background="@color/background">
 
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/activity_car_selection_layout_exptoolbar"
@@ -54,6 +54,7 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="@color/background"
                     android:orientation="horizontal">
 
                     <TextView
@@ -85,7 +86,8 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_vertical"
                             android:layout_marginLeft="@dimen/spacing_large"
-                            android:text="Loading data..."/>
+                            android:text="Loading data..."
+                            android:textColor="@color/secondary_text"/>
 
                     </LinearLayout>
 
@@ -100,7 +102,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:choiceMode="singleChoice"
-                    android:divider="#00000000"
+                    android:divider="@color/divider"
                     android:padding="@dimen/spacing_medium"/>
 
                 <TextView
@@ -108,6 +110,7 @@
                     android:layout_height="match_parent"
                     android:layout_gravity="center"
                     android:gravity="center"
+                    android:textColor="@color/secondary_text"
                     android:text="@string/car_selection_no_car_selected"/>
 
             </LinearLayout>
