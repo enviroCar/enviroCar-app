@@ -43,7 +43,7 @@
 
     <!-- Material design colors -->
 
-    <color name="primary">#2196F3</color>
+    <color name="primary">@color/white_cario</color>
     <color name="primary_dark">#1976D2</color>
     <color name="primary_light">#16754e</color>
     <color name="accent">#03A9F4</color>
@@ -54,7 +54,7 @@
     <color name="summer_sky">#29B6F6</color>
     <color name="foreground">#555555</color>
     <color name="background">@color/black</color>
-    <color name="Tracklist_text_colour">#939393</color>
+    <color name="fadedblack">#939393</color>
 
 
 

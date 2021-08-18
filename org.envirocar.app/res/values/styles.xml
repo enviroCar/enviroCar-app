@@ -33,7 +33,7 @@
         <item name="summer_sky">@color/summer_sky</item>
         <item name="foreground">@color/foreground</item>
         <item name="backgroundValue">@color/background</item>
-        <item name="Tracklist_text_colour">@color/Tracklist_text_colour</item>
+        <item name="fadedblack">@color/fadedblack</item>
     </style>
 
     <style name="DarkTheme" parent="AppTheme">
@@ -48,7 +48,7 @@
         <item name="summer_sky">@color/summer_sky</item>
         <item name="foreground">@color/foreground</item>
         <item name="backgroundValue">@color/background</item>
-        <item name="Tracklist_text_colour">@color/Tracklist_text_colour</item>
+        <item name="fadedblack">@color/fadedblack</item>
     </style>
 
 

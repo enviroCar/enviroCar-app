@@ -565,7 +565,7 @@
                                 android:fontFamily="@font/roboto_medium"
                                 android:singleLine="true"
                                 android:text="@string/dashboard_obd_not_selected"
-                                android:textColor="?attr/secondary_text"
+                                android:textColor="?attr/primary"
                                 app:autoSizeMaxTextSize="20sp"
                                 app:autoSizeMinTextSize="10sp"
                                 app:autoSizeTextType="uniform" />
@@ -577,6 +577,7 @@
                                 android:fontFamily="@font/roboto"
                                 android:singleLine="true"
                                 android:text="@string/dashboard_obd_not_selected_advise"
+                                android:textColor="?attr/primary"
                                 android:textSize="14sp"
                                 app:autoSizeMaxTextSize="15sp"
                                 app:autoSizeMinTextSize="7sp"
@@ -637,7 +638,7 @@
                                 android:fontFamily="@font/roboto_medium"
                                 android:singleLine="true"
                                 android:text="@string/dashboard_carselection_no_car_selected"
-                                android:textColor="?attr/secondary_text"
+                                android:textColor="?attr/primary"
                                 app:autoSizeMaxTextSize="20sp"
                                 app:autoSizeMinTextSize="10sp"
                                 app:autoSizeTextType="uniform" />
@@ -649,6 +650,7 @@
                                 android:fontFamily="@font/roboto"
                                 android:singleLine="true"
                                 android:text="@string/dashboard_carselection_no_car_selected_advise"
+                                android:textColor="?attr/primary"
                                 android:textSize="14sp"
                                 app:autoSizeMaxTextSize="15sp"
                                 app:autoSizeMinTextSize="7sp"

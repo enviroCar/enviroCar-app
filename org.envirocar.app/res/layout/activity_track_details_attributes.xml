@@ -52,7 +52,7 @@
             android:layout_centerVertical="true"
             android:paddingLeft="48dp"
             android:text="@string/track_list_details_car"
-            app:tint="?attr/Tracklist_text_colour"/>
+            app:tint="?attr/fadedblack"/>
 
         <TextView
             android:id="@+id/activity_track_details_attr_car_value"
@@ -91,7 +91,7 @@
             android:layout_centerVertical="true"
             android:paddingLeft="48dp"
             android:text="@string/track_list_details_start"
-            app:tint="?attr/Tracklist_text_colour" />
+            app:tint="?attr/fadedblack" />
 
         <TextView
             android:id="@+id/activity_track_details_attr_begin_value"
@@ -127,7 +127,7 @@
             android:layout_centerVertical="true"
             android:paddingLeft="48dp"
             android:text="@string/track_list_details_end"
-            app:tint="?attr/Tracklist_text_colour"/>
+            app:tint="?attr/fadedblack"/>
 
         <TextView
             android:id="@+id/activity_track_details_attr_end_value"
@@ -167,7 +167,7 @@
             android:layout_centerVertical="true"
             android:paddingLeft="48dp"
             android:text="@string/track_list_details_consumption"
-            app:tint="?attr/Tracklist_text_colour" />
+            app:tint="?attr/fadedblack" />
 
         <TextView
             android:id="@+id/activity_track_details_attr_consumption_value"
@@ -208,7 +208,7 @@
             android:layout_centerVertical="true"
             android:paddingLeft="48dp"
             android:text="@string/track_list_details_emission"
-            app:tint="?attr/Tracklist_text_colour" />
+            app:tint="?attr/fadedblack" />
 
         <TextView
             android:id="@+id/activity_track_details_attr_emission_value"
@@ -248,7 +248,7 @@
             android:layout_centerVertical="true"
             android:paddingLeft="48dp"
             android:text="@string/track_list_details_speed"
-            app:tint="?attr/Tracklist_text_colour"/>
+            app:tint="?attr/fadedblack"/>
 
         <TextView
             android:id="@+id/activity_track_details_speed_value"
@@ -288,7 +288,7 @@
             android:layout_centerVertical="true"
             android:paddingLeft="48dp"
             android:text="@string/track_list_num_stops"
-            app:tint="?attr/Tracklist_text_colour" />
+            app:tint="?attr/fadedblack" />
 
         <TextView
             android:id="@+id/activity_track_details_stops_value"
@@ -328,7 +328,7 @@
             android:layout_centerVertical="true"
             android:paddingLeft="48dp"
             android:text="@string/track_list_total_stoptime"
-            app:tint="?attr/Tracklist_text_colour" />
+            app:tint="?attr/fadedblack" />
 
         <TextView
             android:id="@+id/activity_track_details_stoptime_value"
