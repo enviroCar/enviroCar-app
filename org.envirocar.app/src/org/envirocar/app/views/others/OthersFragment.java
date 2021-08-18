@@ -60,6 +60,7 @@ import org.envirocar.core.entity.User;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.utils.ServiceUtils;
 
+import java.lang.reflect.Array;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
@@ -88,10 +89,13 @@ public class OthersFragment extends BaseInjectorFragment {
     @BindView(R.id.othersLogOutDivider)
     protected View othersLogOutDivider;
 
+
+
     private Scheduler.Worker mMainThreadWorker = AndroidSchedulers.mainThread().createWorker();
     private final Scheduler.Worker mBackgroundWorker = Schedulers.newThread().createWorker();
 
     private int REQUEST_PERMISSIONS_REQUEST_CODE = 101;
+    String[] theme = {"Dark Theme", "Light Theme"};
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -122,7 +126,6 @@ public class OthersFragment extends BaseInjectorFragment {
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
         baseApplicationComponent.inject(this);
     }
-
 
     @OnClick(R.id.othersLogBook)
     protected void onLogBookClicked() {
@@ -176,19 +179,26 @@ public class OthersFragment extends BaseInjectorFragment {
                 .show();
     }
 
-
     @OnClick(R.id.othersDarkTheme)
     protected void onDarkThemeClicked(){
 
-        if (AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES) {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-        } else {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-        }
+        new MaterialAlertDialogBuilder(getActivity(), R.style.MaterialDialog)
+                .setTitle("Change theme")
+                .setIcon(R.drawable.ic_baseline_brightness_4_24)
+                .setItems(theme, (dialog, which) -> {
+                    switch(which){
+                        case 0:
+                            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                            break;
+                        case 1:
+                            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                            break;
+                    }
+                })
+                .show();
 
         FragmentTransaction ft = getFragmentManager().beginTransaction();
         ft.detach(OthersFragment.this).attach(OthersFragment.this).commit();
-
     }
 
     @OnClick(R.id.othersCloseEnviroCar)
