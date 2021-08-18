@@ -20,8 +20,11 @@ package org.envirocar.app.views.others;
 
 
 import android.Manifest;
+import android.annotation.SuppressLint;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -29,10 +32,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -79,6 +85,8 @@ public class OthersFragment extends BaseInjectorFragment {
     protected LinearLayout othersLogOut;
     @BindView(R.id.othersLogOutDivider)
     protected View othersLogOutDivider;
+
+
 
     private Scheduler.Worker mMainThreadWorker = AndroidSchedulers.mainThread().createWorker();
     private final Scheduler.Worker mBackgroundWorker = Schedulers.newThread().createWorker();
@@ -161,6 +169,13 @@ public class OthersFragment extends BaseInjectorFragment {
                 .setNegativeButton(R.string.menu_logout_envirocar_negative,null)
                 .show();
     }
+
+
+    @OnClick(R.id.othersDarkTheme)
+    protected void onDarkThemeClicked(){
+
+    }
+
 
     @OnClick(R.id.othersCloseEnviroCar)
     protected void onCloseEnviroCarClicked() {
