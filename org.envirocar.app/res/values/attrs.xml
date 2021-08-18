@@ -21,6 +21,19 @@
 -->
 <resources>
 
+    <attr name="primary" format="color"/>
+    <attr name="primary_dark" format="color"/>
+    <attr name="primary_light" format="color"/>
+    <attr name="accent" format="color"/>
+    <attr name="primary_text" format="color"/>
+    <attr name="secondary_text" format="color"/>
+    <attr name="icons" format="color"/>
+    <attr name="divider" format="color"/>
+    <attr name="summer_sky" format="color"/>
+    <attr name="foreground" format="color"/>
+    <attr name="background" format="color"/>
+    <attr name="Tracklist_text_colour" format="color"/>
+
     <declare-styleable name="CheckList">
         <attr name="itemText" format="string" localization="suggested" />
     </declare-styleable>
