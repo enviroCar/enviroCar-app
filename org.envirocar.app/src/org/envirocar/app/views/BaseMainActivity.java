@@ -27,6 +27,7 @@ import android.view.MenuItem;
 import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
@@ -146,6 +147,11 @@ public class BaseMainActivity extends BaseInjectorActivity {
     protected void onCreate(Bundle savedInstanceState) {
 //        LOGGER.info("BaseMainActivity : onCreate");
         super.onCreate(savedInstanceState);
+        if (AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES) {
+            setTheme(R.style.DarkTheme);
+        } else {
+            setTheme(R.style.LightTheme);
+        }
         setContentView(R.layout.activity_base_main_bottom_bar);
         ButterKnife.bind(this);
 

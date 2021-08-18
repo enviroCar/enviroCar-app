@@ -86,8 +86,6 @@ public class OthersFragment extends BaseInjectorFragment {
     @BindView(R.id.othersLogOutDivider)
     protected View othersLogOutDivider;
 
-
-
     private Scheduler.Worker mMainThreadWorker = AndroidSchedulers.mainThread().createWorker();
     private final Scheduler.Worker mBackgroundWorker = Schedulers.newThread().createWorker();
 
@@ -96,6 +94,12 @@ public class OthersFragment extends BaseInjectorFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        if (AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES) {
+            getActivity().setTheme(R.style.DarkTheme);
+        } else {
+            getActivity().setTheme(R.style.LightTheme);
+        }
+
         View view = inflater.inflate(R.layout.fragment_others, container, false);
 
         ButterKnife.bind(this, view);
