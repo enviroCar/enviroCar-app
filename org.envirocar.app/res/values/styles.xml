@@ -22,33 +22,33 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <style name="LightTheme" parent="AppTheme">
-        <item name="primary">#2196F3</item>
-        <item name="primary_dark">#1976D2</item>
-        <item name="primary_light">#16754e</item>
-        <item name="accent">#03A9F4</item>
-        <item name="primary_text">@color/blue_dark_cario</item>
-        <item name="secondary_text">#ff323232</item>
-        <item name="icons">#000000</item>
-        <item name="divider">@color/envirocar_color_divider_grey</item>
-        <item name="summer_sky">#29B6F6</item>
-        <item name="foreground">#555555</item>
-        <item name="background">@color/white_cario</item>
-        <item name="Tracklist_text_colour">@color/black</item>
+        <item name="primary">@color/primary</item>
+        <item name="primary_dark">@color/primary_dark</item>
+        <item name="primary_light">@color/primary_light</item>
+        <item name="accent">@color/accent</item>
+        <item name="primary_text">@color/primary_text</item>
+        <item name="secondary_text">@color/secondary_text</item>
+        <item name="icons">@color/icons</item>
+        <item name="dividerValue">@color/envirocar_color_divider_grey</item>
+        <item name="summer_sky">@color/summer_sky</item>
+        <item name="foreground">@color/foreground</item>
+        <item name="backgroundValue">@color/background</item>
+        <item name="Tracklist_text_colour">@color/Tracklist_text_colour</item>
     </style>
 
     <style name="DarkTheme" parent="AppTheme">
-        <item name="primary">#2196F3</item>
-        <item name="primary_dark">#1976D2</item>
-        <item name="primary_light">#16754e</item>
-        <item name="accent">#03A9F4</item>
-        <item name="primary_text">@color/blue_dark_cario</item>
-        <item name="secondary_text">#ff323232</item>
-        <item name="icons">#000000</item>
-        <item name="divider">@color/envirocar_color_divider_grey</item>
-        <item name="summer_sky">#29B6F6</item>
-        <item name="foreground">#555555</item>
-        <item name="background">@color/white_cario</item>
-        <item name="Tracklist_text_colour">@color/black</item>
+        <item name="primary">@color/primary</item>
+        <item name="primary_dark">@color/primary_dark</item>
+        <item name="primary_light">@color/primary_light</item>
+        <item name="accent">@color/accent</item>
+        <item name="primary_text">@color/primary_text</item>
+        <item name="secondary_text">@color/secondary_text</item>
+        <item name="icons">@color/icons</item>
+        <item name="dividerValue">@color/envirocar_color_divider_grey</item>
+        <item name="summer_sky">@color/summer_sky</item>
+        <item name="foreground">@color/foreground</item>
+        <item name="backgroundValue">@color/background</item>
+        <item name="Tracklist_text_colour">@color/Tracklist_text_colour</item>
     </style>
 
 

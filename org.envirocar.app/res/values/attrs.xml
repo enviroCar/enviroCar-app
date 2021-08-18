@@ -28,10 +28,10 @@
     <attr name="primary_text" format="color"/>
     <attr name="secondary_text" format="color"/>
     <attr name="icons" format="color"/>
-    <attr name="divider" format="color"/>
+    <attr name="dividerValue" format="color"/>
     <attr name="summer_sky" format="color"/>
     <attr name="foreground" format="color"/>
-    <attr name="background" format="color"/>
+    <attr name="backgroundValue" format="color"/>
     <attr name="Tracklist_text_colour" format="color"/>
 
     <declare-styleable name="CheckList">

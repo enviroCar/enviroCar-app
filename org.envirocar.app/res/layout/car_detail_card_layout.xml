@@ -13,13 +13,13 @@
         android:layout_marginRight="20dp"
         android:layout_marginBottom="10dp"
         android:animateLayoutChanges="false"
-        android:foregroundTint="?attr/background"
+        android:foregroundTint="?attr/backgroundValue"
         app:cardCornerRadius="5dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="?attr/background"
+            android:background="?attr/backgroundValue"
             android:paddingTop="5dp"
             android:paddingBottom="5dp">
 
@@ -95,7 +95,7 @@
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="?attr/background"
+                    android:background="?attr/backgroundValue"
                     android:minHeight="@dimen/spacing_xxlarge"
                     android:paddingLeft="@dimen/activity_horizontal_margin"
                     android:paddingRight="@dimen/activity_horizontal_margin">
@@ -134,7 +134,7 @@
                     android:id="@+id/car_layout_engine_view"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="?attr/background"
+                    android:background="?attr/backgroundValue"
                     android:minHeight="@dimen/spacing_xxlarge"
                     android:paddingLeft="@dimen/activity_horizontal_margin"
                     android:paddingRight="@dimen/activity_horizontal_margin">

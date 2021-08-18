@@ -7,7 +7,7 @@
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/background"
+        android:background="?attr/backgroundValue"
         app:cardBackgroundColor="@color/background"
         app:cardElevation="5dp">
 
@@ -24,7 +24,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/background"
+        android:background="?attr/backgroundValue"
         android:orientation="horizontal">
 
         <TextView

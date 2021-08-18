@@ -30,7 +30,7 @@
     <RelativeLayout
         android:id="@+id/activity_car_selection_top"
         android:layout_width="match_parent"
-        android:background="?attr/background"
+        android:background="?attr/backgroundValue"
         android:layout_height="290dp">
 
         <LinearLayout
@@ -83,7 +83,7 @@
         android:layout_marginTop="10dp"
         android:layout_marginRight="20dp"
         android:layout_marginBottom="10dp"
-        android:background="?attr/background"
+        android:background="?attr/backgroundValue"
         android:orientation="horizontal"
         android:weightSum="2"
         segmentedgroup:sc_border_width="2dp"
@@ -115,5 +115,5 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:background="?attr/background" />
+        android:background="?attr/backgroundValue" />
 </LinearLayout>

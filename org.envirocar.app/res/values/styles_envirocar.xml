@@ -33,7 +33,7 @@
         <item name="colorPrimary">@color/blue_dark_cario</item>
         <item name="colorPrimaryDark">@color/cario_color_primary_dark</item>
         <item name="colorAccent">@color/blue_light_cario</item>
-        <item name="background">@color/background_material_dark</item>
+        <item name="backgroundValue">@color/background_material_dark</item>
         <item name="android:navigationBarColor">@color/cario_color_primary_dark</item>
 
         <item name="android:windowContentTransitions" tools:targetApi="lollipop">true</item>
