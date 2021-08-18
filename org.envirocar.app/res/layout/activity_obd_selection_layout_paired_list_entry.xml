@@ -33,7 +33,7 @@
         android:layout_gravity="center|left"
         android:layout_margin="10dp"
         android:maxHeight="35dp"
-        app:tint="@color/icons"
+        app:tint="?attr/icons"
         android:src="@drawable/ic_laptop"/>
 
     <TextView
@@ -55,7 +55,7 @@
         android:background="?selectableItemBackgroundBorderless"
         style="?attr/borderlessButtonStyle"
         android:visibility="gone"
-        app:tint="@color/icons"
+        app:tint="?attr/icons"
         android:src="@drawable/ic_delete_black_24dp"/>
 
     <androidx.appcompat.widget.AppCompatRadioButton

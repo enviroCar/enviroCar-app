@@ -72,7 +72,7 @@
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/background"
+        android:background="?attr/background"
         android:id="@+id/activity_logbook_add_fueling_card_scrollview"
         >
 
@@ -117,7 +117,7 @@
                         android:layout_marginTop="@dimen/spacing_medium"
                         android:alpha="0.54"
                         android:src="@drawable/ic_drive_eta_black_24dp"
-                        app:tint="@color/icons"/>
+                        app:tint="?attr/icons"/>
 
                     <Spinner
                         android:id="@+id/activity_logbook_add_fueling_car_selection"
@@ -157,7 +157,7 @@
                         android:layout_margin="@dimen/spacing_medium"
                         android:alpha="0.54"
                         android:src="@drawable/ic_fuel_consumption"
-                        app:tint="@color/icons"/>
+                        app:tint="?attr/icons"/>
 
                     <TextView
                         android:layout_width="0dp"
@@ -301,7 +301,7 @@
                         android:layout_margin="@dimen/spacing_medium"
                         android:alpha="0.54"
                         android:src="@drawable/ic_info_black_24dp"
-                        app:tint="@color/icons"/>
+                        app:tint="?attr/icons"/>
 
                     <TextView
                         android:layout_width="0dp"
@@ -395,7 +395,7 @@
                         android:layout_margin="@dimen/spacing_medium"
                         android:alpha="0.54"
                         android:src="@drawable/ic_comment_black_24dp"
-                        app:tint="@color/icons"/>
+                        app:tint="?attr/icons"/>
 
                     <LinearLayout
                         android:layout_width="match_parent"

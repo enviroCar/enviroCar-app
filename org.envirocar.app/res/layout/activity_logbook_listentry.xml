@@ -45,7 +45,7 @@
             android:layout_marginTop="@dimen/spacing_small"
             android:alpha="0.54"
             android:src="@drawable/ic_fuel_consumption"
-            app:tint="@color/icons"/>
+            app:tint="?attr/icons"/>
 
         <LinearLayout
             android:layout_width="1dp"
@@ -129,7 +129,7 @@
                         android:layout_height="18dp"
                         android:alpha="0.54"
                         android:src="@drawable/ic_drive_eta_black_24dp"
-                        app:tint="@color/icons"/>
+                        app:tint="?attr/icons"/>
 
                     <TextView
                         android:id="@+id/activity_logbook_listentry_car"
@@ -154,7 +154,7 @@
                         android:layout_height="18dp"
                         android:alpha="0.54"
                         android:src="@drawable/ic_comment_black_24dp"
-                        app:tint="@color/icons"/>
+                        app:tint="?attr/icons"/>
 
                     <TextView
                         android:id="@+id/activity_logbook_listentry_comment"

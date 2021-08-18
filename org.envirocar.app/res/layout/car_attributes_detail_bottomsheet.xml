@@ -4,7 +4,7 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     app:behavior_hideable="false"
-    android:background="@color/background"
+    android:background="?attr/background"
     app:layout_behavior="android.support.design.widget.BottomSheetBehavior">
 
     <com.google.android.material.card.MaterialCardView
@@ -20,8 +20,8 @@
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/background"
-                app:cardBackgroundColor="@color/background"
+                android:background="?attr/background"
+                app:cardBackgroundColor="?attr/background"
                 app:cardElevation="5dp">
 
                 <ImageView
@@ -29,7 +29,7 @@
                     android:layout_width="30dp"
                     android:layout_height="50dp"
                     android:layout_marginLeft="10dp"
-                    app:tint="@color/icons"
+                    app:tint="?attr/icons"
                     android:src="@drawable/ic_close_black_24dp" />
 
                 <ImageView
@@ -38,7 +38,7 @@
                     android:layout_height="50dp"
                     android:layout_gravity="end"
                     android:layout_marginRight="10dp"
-                    app:tint="@color/icons"
+                    app:tint="?attr/icons"
                     android:src="@drawable/ic_check_black_24dp" />
 
             </com.google.android.material.card.MaterialCardView>
@@ -58,7 +58,7 @@
                     android:layout_centerVertical="true"
                     android:layout_marginEnd="16dp"
                     android:alpha="0.54"
-                    app:tint="@color/icons"
+                    app:tint="?attr/icons"
                     android:src="@drawable/ic_manufacturer" />
 
                 <TextView
@@ -68,7 +68,7 @@
                     android:layout_centerVertical="true"
                     android:paddingLeft="48dp"
                     android:text="Manufacturer"
-                    android:textColor="@color/secondary_text" />
+                    android:textColor="?attr/secondary_text" />
 
                 <TextView
                     android:id="@+id/activity_car_details_attr_manufacturer_value"
@@ -96,7 +96,7 @@
                     android:layout_centerVertical="true"
                     android:layout_marginRight="16dp"
                     android:alpha="0.54"
-                    app:tint="@color/icons"
+                    app:tint="?attr/icons"
                     android:src="@drawable/ic_drive_eta_black_24dp" />
 
                 <TextView
@@ -107,7 +107,7 @@
                     android:layout_centerVertical="true"
                     android:paddingLeft="48dp"
                     android:text="@string/track_list_details_car"
-                    android:textColor="@color/secondary_text" />
+                    android:textColor="?attr/secondary_text" />
 
                 <TextView
                     android:id="@+id/activity_car_details_attr_car_value"
@@ -140,7 +140,7 @@
                     android:layout_marginRight="16dp"
                     android:alpha="0.54"
                     android:src="@drawable/ic_engine"
-                    app:tint="@color/icons"/>
+                    app:tint="?attr/icons"/>
 
                 <TextView
                     android:id="@+id/activity_car_details_attr_engine_text"
@@ -150,7 +150,7 @@
                     android:layout_centerVertical="true"
                     android:paddingLeft="48dp"
                     android:text="Engine"
-                    android:textColor="@color/secondary_text" />
+                    android:textColor="?attr/secondary_text" />
 
                 <TextView
                     android:id="@+id/activity_car_details_attr_engine_value"
@@ -181,7 +181,7 @@
                     android:layout_marginRight="16dp"
                     android:alpha="0.54"
                     android:src="@drawable/ic_baseline_date_range_24"
-                    app:tint="@color/icons"/>
+                    app:tint="?attr/icons"/>
 
                 <TextView
                     android:layout_width="match_parent"
@@ -190,7 +190,7 @@
                     android:layout_centerVertical="true"
                     android:paddingLeft="48dp"
                     android:text="Construction Year"
-                    android:textColor="@color/secondary_text" />
+                    android:textColor="?attr/secondary_text" />
 
                 <TextView
                     android:id="@+id/activity_car_details_attr_year_value"
@@ -220,7 +220,7 @@
                     android:layout_centerVertical="true"
                     android:layout_marginRight="16dp"
                     android:alpha="0.54"
-                    app:tint="@color/icons"
+                    app:tint="?attr/icons"
                     android:src="@drawable/ic_fuel_consumption" />
 
                 <TextView
@@ -231,7 +231,7 @@
                     android:layout_centerVertical="true"
                     android:paddingLeft="48dp"
                     android:text="Fuel Type"
-                    android:textColor="@color/secondary_text" />
+                    android:textColor="?attr/secondary_text" />
 
                 <TextView
                     android:id="@+id/activity_car_details_attr_fuel_value"
@@ -263,7 +263,7 @@
                     android:layout_marginRight="16dp"
                     android:alpha="0.54"
                     android:src="@drawable/ic_baseline_power_24"
-                    app:tint="@color/icons"/>
+                    app:tint="?attr/icons"/>
 
                 <TextView
                     android:id="@+id/activity_car_details_attr_power_text"
@@ -273,7 +273,7 @@
                     android:layout_centerVertical="true"
                     android:paddingLeft="48dp"
                     android:text="Power"
-                    android:textColor="@color/secondary_text" />
+                    android:textColor="?attr/secondary_text" />
 
                 <TextView
                     android:id="@+id/activity_car_details_attr_power_value"

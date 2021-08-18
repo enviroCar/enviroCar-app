@@ -7,7 +7,7 @@
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/background"
+        android:background="?attr/background"
         app:cardBackgroundColor="@color/background"
         app:cardElevation="5dp">
 
@@ -17,14 +17,14 @@
             android:layout_height="50dp"
             android:layout_marginLeft="10dp"
             android:src="@drawable/ic_close_black_24dp"
-            app:tint="@color/icons"/>
+            app:tint="?attr/icons"/>
 
     </com.google.android.material.card.MaterialCardView>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/background"
+        android:background="?attr/background"
         android:orientation="horizontal">
 
         <TextView

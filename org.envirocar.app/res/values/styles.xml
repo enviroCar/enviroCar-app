@@ -21,7 +21,6 @@
 -->
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-
     <style name="LightTheme" parent="AppTheme">
         <item name="primary">#2196F3</item>
         <item name="primary_dark">#1976D2</item>

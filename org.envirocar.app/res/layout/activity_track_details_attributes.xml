@@ -42,7 +42,7 @@
             android:layout_marginRight="16dp"
             android:alpha="0.54"
             android:src="@drawable/ic_drive_eta_black_24dp"
-            app:tint="@color/icons"/>
+            app:tint="?attr/icons"/>
 
         <TextView
             android:id="@+id/activity_track_details_attr_car_text"
@@ -52,7 +52,7 @@
             android:layout_centerVertical="true"
             android:paddingLeft="48dp"
             android:text="@string/track_list_details_car"
-            app:tint="@color/Tracklist_text_colour"/>
+            app:tint="?attr/Tracklist_text_colour"/>
 
         <TextView
             android:id="@+id/activity_track_details_attr_car_value"
@@ -82,7 +82,7 @@
             android:layout_marginRight="16dp"
             android:alpha="0.54"
             android:src="@drawable/ic_timer_black_24dp"
-            app:tint="@color/icons"/>
+            app:tint="?attr/icons"/>
 
         <TextView
             android:layout_width="match_parent"
@@ -91,7 +91,7 @@
             android:layout_centerVertical="true"
             android:paddingLeft="48dp"
             android:text="@string/track_list_details_start"
-            app:tint="@color/Tracklist_text_colour" />
+            app:tint="?attr/Tracklist_text_colour" />
 
         <TextView
             android:id="@+id/activity_track_details_attr_begin_value"
@@ -118,7 +118,7 @@
             android:layout_marginRight="16dp"
             android:alpha="0.54"
             android:src="@drawable/ic_timelapse_black_24dp"
-            app:tint="@color/icons"/>
+            app:tint="?attr/icons"/>
 
         <TextView
             android:layout_width="match_parent"
@@ -127,7 +127,7 @@
             android:layout_centerVertical="true"
             android:paddingLeft="48dp"
             android:text="@string/track_list_details_end"
-            app:tint="@color/Tracklist_text_colour"/>
+            app:tint="?attr/Tracklist_text_colour"/>
 
         <TextView
             android:id="@+id/activity_track_details_attr_end_value"
@@ -157,7 +157,7 @@
             android:layout_marginRight="16dp"
             android:alpha="0.54"
             android:src="@drawable/ic_fuel_consumption"
-            app:tint="@color/icons"/>
+            app:tint="?attr/icons"/>
 
         <TextView
             android:id="@+id/activity_track_details_attr_consumption_text"
@@ -167,7 +167,7 @@
             android:layout_centerVertical="true"
             android:paddingLeft="48dp"
             android:text="@string/track_list_details_consumption"
-            app:tint="@color/Tracklist_text_colour" />
+            app:tint="?attr/Tracklist_text_colour" />
 
         <TextView
             android:id="@+id/activity_track_details_attr_consumption_value"
@@ -198,7 +198,7 @@
             android:layout_marginRight="16dp"
             android:alpha="0.54"
             android:src="@drawable/ic_co2_emission"
-            app:tint="@color/icons"/>
+            app:tint="?attr/icons"/>
 
         <TextView
             android:id="@+id/activity_track_details_attr_emission_text"
@@ -208,7 +208,7 @@
             android:layout_centerVertical="true"
             android:paddingLeft="48dp"
             android:text="@string/track_list_details_emission"
-            app:tint="@color/Tracklist_text_colour" />
+            app:tint="?attr/Tracklist_text_colour" />
 
         <TextView
             android:id="@+id/activity_track_details_attr_emission_value"
@@ -239,7 +239,7 @@
             android:layout_marginRight="16dp"
             android:alpha="0.54"
             android:src="@drawable/speed"
-            app:tint="@color/icons"/>
+            app:tint="?attr/icons"/>
 
         <TextView
             android:layout_width="match_parent"
@@ -248,7 +248,7 @@
             android:layout_centerVertical="true"
             android:paddingLeft="48dp"
             android:text="@string/track_list_details_speed"
-            app:tint="@color/Tracklist_text_colour"/>
+            app:tint="?attr/Tracklist_text_colour"/>
 
         <TextView
             android:id="@+id/activity_track_details_speed_value"
@@ -279,7 +279,7 @@
             android:layout_marginRight="16dp"
             android:alpha="0.54"
             android:src="@drawable/ic_stopcount"
-            app:tint="@color/icons"/>
+            app:tint="?attr/icons"/>
 
         <TextView
             android:layout_width="match_parent"
@@ -288,7 +288,7 @@
             android:layout_centerVertical="true"
             android:paddingLeft="48dp"
             android:text="@string/track_list_num_stops"
-            app:tint="@color/Tracklist_text_colour" />
+            app:tint="?attr/Tracklist_text_colour" />
 
         <TextView
             android:id="@+id/activity_track_details_stops_value"
@@ -319,7 +319,7 @@
             android:layout_marginRight="16dp"
             android:alpha="0.65"
             android:src="@drawable/ic_stoptime"
-            app:tint="@color/icons"/>
+            app:tint="?attr/icons"/>
 
         <TextView
             android:layout_width="match_parent"
@@ -328,7 +328,7 @@
             android:layout_centerVertical="true"
             android:paddingLeft="48dp"
             android:text="@string/track_list_total_stoptime"
-            app:tint="@color/Tracklist_text_colour" />
+            app:tint="?attr/Tracklist_text_colour" />
 
         <TextView
             android:id="@+id/activity_track_details_stoptime_value"

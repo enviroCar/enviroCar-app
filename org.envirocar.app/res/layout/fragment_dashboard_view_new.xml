@@ -24,7 +24,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background"
+    android:background="?attr/background"
     android:orientation="vertical">
 
     <androidx.appcompat.widget.Toolbar
@@ -68,7 +68,7 @@
                 android:id="@+id/fragment_dashboard_main_layout"
                 android:layout_width="match_parent"
                 android:layout_height="620dp"
-                android:background="@color/background"
+                android:background="?attr/background"
                 android:orientation="vertical"
                 android:visibility="visible">
 
@@ -166,12 +166,12 @@
                             android:background="@drawable/btn_dashboard_circle"
                             android:src="@drawable/ic_bluetooth_black_24dp"
                             android:backgroundTint="@color/dashboard_indicator_selector"
-                            android:tint="@color/white_cario"
                             app:layout_constraintBottom_toTopOf="@id/fragment_dashboard_indicator_bluetooth_text"
                             app:layout_constraintDimensionRatio="1:1"
                             app:layout_constraintLeft_toLeftOf="parent"
                             app:layout_constraintRight_toRightOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:tint="@color/white_cario" />
 
                         <org.envirocar.app.views.utils.SizeSyncTextView
                             android:id="@+id/fragment_dashboard_indicator_bluetooth_text"
@@ -184,7 +184,7 @@
                             android:gravity="bottom|center_horizontal"
                             android:maxLines="1"
                             android:text="Bluetooth"
-                            android:textColor="@color/secondary_text"
+                            android:textColor="?attr/secondary_text"
                             app:autoSizeMaxTextSize="15sp"
                             app:autoSizeMinTextSize="10sp"
                             app:autoSizeTextType="uniform"
@@ -233,7 +233,7 @@
                             android:gravity="bottom|center_horizontal"
                             android:maxLines="1"
                             android:text="OBD"
-                            android:textColor="@color/secondary_text"
+                            android:textColor="?attr/secondary_text"
                             app:autoSizeMaxTextSize="15sp"
                             app:autoSizeMinTextSize="7sp"
                             app:autoSizeTextType="uniform"
@@ -282,7 +282,7 @@
                             android:gravity="bottom|center_horizontal"
                             android:maxLines="1"
                             android:text="GPS"
-                            android:textColor="@color/secondary_text"
+                            android:textColor="?attr/secondary_text"
                             app:autoSizeMaxTextSize="15sp"
                             app:autoSizeMinTextSize="7sp"
                             app:autoSizeTextType="uniform"
@@ -332,7 +332,7 @@
                             android:gravity="bottom|center_horizontal"
                             android:maxLines="1"
                             android:text="@string/car"
-                            android:textColor="@color/secondary_text"
+                            android:textColor="?attr/secondary_text"
                             app:autoSizeMaxTextSize="15sp"
                             app:autoSizeMinTextSize="10sp"
                             app:autoSizeTextType="uniform"
@@ -378,7 +378,7 @@
                                 android:fontFamily="@font/roboto_medium"
                                 android:gravity="bottom|center_horizontal"
                                 android:text="3200"
-                                android:textColor="@color/secondary_text"
+                                android:textColor="?attr/secondary_text"
                                 android:textStyle="bold"
                                 app:autoSizeMaxTextSize="20sp"
                                 app:autoSizeMinTextSize="10sp"
@@ -419,7 +419,7 @@
                                 android:fontFamily="@font/roboto_medium"
                                 android:gravity="bottom|center_horizontal"
                                 android:text="3200"
-                                android:textColor="@color/secondary_text"
+                                android:textColor="?attr/secondary_text"
                                 android:textStyle="bold"
                                 app:autoSizeMaxTextSize="20sp"
                                 app:autoSizeMinTextSize="10sp"
@@ -459,7 +459,7 @@
                                 android:fontFamily="@font/roboto_medium"
                                 android:gravity="bottom|center_horizontal"
                                 android:text="3200"
-                                android:textColor="@color/secondary_text"
+                                android:textColor="?attr/secondary_text"
                                 android:textStyle="bold"
                                 app:autoSizeMaxTextSize="20sp"
                                 app:autoSizeMinTextSize="10sp"
@@ -565,7 +565,7 @@
                                 android:fontFamily="@font/roboto_medium"
                                 android:singleLine="true"
                                 android:text="@string/dashboard_obd_not_selected"
-                                android:textColor="@color/secondary_text"
+                                android:textColor="?attr/secondary_text"
                                 app:autoSizeMaxTextSize="20sp"
                                 app:autoSizeMinTextSize="10sp"
                                 app:autoSizeTextType="uniform" />
@@ -637,7 +637,7 @@
                                 android:fontFamily="@font/roboto_medium"
                                 android:singleLine="true"
                                 android:text="@string/dashboard_carselection_no_car_selected"
-                                android:textColor="@color/secondary_text"
+                                android:textColor="?attr/secondary_text"
                                 app:autoSizeMaxTextSize="20sp"
                                 app:autoSizeMinTextSize="10sp"
                                 app:autoSizeTextType="uniform" />
@@ -662,7 +662,7 @@
                             android:layout_gravity="right|center_vertical"
                             android:layout_marginRight="8dp"
                             android:src="@drawable/ic_action_arrow_foward"
-                            app:tint="@color/primary_text" />
+                            app:tint="?attr/primary_text" />
 
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>

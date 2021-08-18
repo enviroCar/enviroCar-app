@@ -13,13 +13,13 @@
         android:layout_marginRight="20dp"
         android:layout_marginBottom="10dp"
         android:animateLayoutChanges="false"
-        android:foregroundTint="@color/background"
+        android:foregroundTint="?attr/background"
         app:cardCornerRadius="5dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/background"
+            android:background="?attr/background"
             android:paddingTop="5dp"
             android:paddingBottom="5dp">
 
@@ -42,8 +42,8 @@
                 android:layout_marginTop="10dp"
                 android:backgroundTint="@color/background"
                 android:src="@drawable/ic_directions_car_black_24dp"
-                app:backgroundTint="@color/icons"
-                app:tint="@color/icons"
+                app:backgroundTint="?attr/icons"
+                app:tint="?attr/icons"
                 app:borderWidth="1dp"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -95,7 +95,7 @@
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@color/background"
+                    android:background="?attr/background"
                     android:minHeight="@dimen/spacing_xxlarge"
                     android:paddingLeft="@dimen/activity_horizontal_margin"
                     android:paddingRight="@dimen/activity_horizontal_margin">
@@ -108,7 +108,7 @@
                         android:layout_marginRight="16dp"
                         android:alpha="0.54"
                         android:src="@drawable/ic_directions_car_black_24dp"
-                        app:tint="@color/icons" />
+                        app:tint="?attr/icons" />
 
                     <TextView
                         android:layout_width="match_parent"
@@ -117,7 +117,7 @@
                         android:layout_centerVertical="true"
                         android:paddingLeft="48dp"
                         android:text="HSN/TSN"
-                        android:textColor="@color/secondary_text" />
+                        android:textColor="?attr/secondary_text" />
 
                     <TextView
                         android:id="@+id/car_layout_hsn_tsn"
@@ -134,7 +134,7 @@
                     android:id="@+id/car_layout_engine_view"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@color/background"
+                    android:background="?attr/background"
                     android:minHeight="@dimen/spacing_xxlarge"
                     android:paddingLeft="@dimen/activity_horizontal_margin"
                     android:paddingRight="@dimen/activity_horizontal_margin">
@@ -146,7 +146,7 @@
                         android:layout_centerVertical="true"
                         android:layout_marginRight="16dp"
                         android:alpha="0.54"
-                        app:tint="@color/icons"
+                        app:tint="?attr/icons"
                         android:src="@drawable/ic_engine" />
 
                     <TextView
@@ -156,7 +156,7 @@
                         android:layout_centerVertical="true"
                         android:paddingLeft="48dp"
                         android:text="Engine"
-                        android:textColor="@color/secondary_text" />
+                        android:textColor="?attr/secondary_text" />
 
                     <TextView
                         android:id="@+id/car_layout_engine_capacity"
@@ -184,7 +184,7 @@
                         android:layout_centerVertical="true"
                         android:layout_marginRight="16dp"
                         android:alpha="0.54"
-                        app:tint="@color/icons"
+                        app:tint="?attr/icons"
                         android:src="@drawable/ic_fuel_consumption" />
 
                     <TextView
@@ -195,7 +195,7 @@
                         android:layout_centerVertical="true"
                         android:paddingLeft="48dp"
                         android:text="Fuel Type"
-                        android:textColor="@color/secondary_text" />
+                        android:textColor="?attr/secondary_text" />
 
                     <TextView
                         android:id="@+id/car_layout_fuel_type"
@@ -227,7 +227,7 @@
                         android:layout_marginRight="16dp"
                         android:alpha="0.54"
                         android:src="@drawable/ic_baseline_power_24"
-                        app:tint="@color/icons"/>
+                        app:tint="?attr/icons"/>
 
                     <TextView
                         android:id="@+id/activity_car_details_attr_engine_text"
@@ -237,7 +237,7 @@
                         android:layout_centerVertical="true"
                         android:paddingLeft="48dp"
                         android:text="Power"
-                        android:textColor="@color/secondary_text" />
+                        android:textColor="?attr/secondary_text" />
 
                     <TextView
                         android:id="@+id/car_layout_power"
