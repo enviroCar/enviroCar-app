@@ -228,8 +228,8 @@ public class SignupActivity extends BaseInjectorActivity {
 
         registerSubscription = backgroundWorker.schedule(() -> {
             try {
-                User newUser = new UserImpl(username, password);
-                newUser.setMail(email);
+                User newUser = new UserImpl(username.trim(), password);
+                newUser.setMail(email.trim());
                 daoProvider.getUserDAO().createUser(newUser);
 
                 // Successfully created the getUserStatistic
@@ -268,7 +268,7 @@ public class SignupActivity extends BaseInjectorActivity {
                     }
                 });
 
-                // Dismuss the progress dialog.
+                // Dismiss the progress dialog.
                 dialog.dismiss();
             } catch (DataUpdateFailureException e) {
                 LOG.warn(e.getMessage(), e);
