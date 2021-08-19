@@ -284,7 +284,7 @@ public class SignupActivity extends BaseInjectorActivity {
                     }
                 });
 
-                // Dismuss the progress dialog.
+                // Dismiss the progress dialog.
                 dialog.dismiss();
             } catch (DataUpdateFailureException e) {
                 LOG.warn(e.getMessage(), e);
