@@ -239,8 +239,8 @@ public class SignupActivity extends BaseInjectorActivity {
             try {
                 if(new ContextInternetAccessProvider(getApplicationContext()).isConnected()) {
 
-                    User newUser = new UserImpl(username, password);
-                    newUser.setMail(email);
+                    User newUser = new UserImpl(username.trim(), password);
+                    newUser.setMail(email.trim());
                     daoProvider.getUserDAO().createUser(newUser);
                     // Successfully created the getUserStatistic
                     mainThreadWorker.schedule(() -> {
