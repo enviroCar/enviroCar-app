@@ -24,19 +24,14 @@ import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityOptionsCompat;
-import androidx.core.content.ContextCompat;
 
-import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -92,7 +87,8 @@ public class SigninActivity extends BaseInjectorActivity {
     protected ImageView logoImageView;
 
     private Disposable loginSubscription;
-    private static Drawable error;
+    private static Drawable errorPassword;
+    private static Drawable errorUsername;
 
     @Override
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
@@ -108,8 +104,11 @@ public class SigninActivity extends BaseInjectorActivity {
         // inject the views
         ButterKnife.bind(this);
 
-        error = getResources().getDrawable(R.drawable.ic_error_red_24dp);
-        error.setBounds(-75,0,0,error.getIntrinsicHeight());
+        errorPassword = getResources().getDrawable(R.drawable.ic_error_red_24dp);
+        errorPassword.setBounds(-70,0,0, errorPassword.getIntrinsicHeight());
+
+        errorUsername = getResources().getDrawable(R.drawable.ic_error_red_24dp);
+        errorUsername.setBounds(0, 0, errorUsername.getIntrinsicWidth(), errorUsername.getIntrinsicHeight());
 
     }
 
@@ -160,13 +159,13 @@ public class SigninActivity extends BaseInjectorActivity {
 
         // check for valid password
         if (password == null || password.isEmpty() || password.equals("")) {
-            this.passwordEditText.setError(getString(R.string.error_field_required),error);
+            this.passwordEditText.setError(getString(R.string.error_field_required), errorPassword);
             focusView = this.passwordEditText;
         }
 
         // check for valid username
         if (username == null || username.isEmpty() || username.equals("")) {
-            this.usernameEditText.setError(getString(R.string.error_field_required));
+            this.usernameEditText.setError(getString(R.string.error_field_required), errorUsername);
             focusView = this.usernameEditText;
         }
 
@@ -224,8 +223,8 @@ public class SigninActivity extends BaseInjectorActivity {
                         if (e instanceof LoginException) {
                             switch (((LoginException) e).getType()) {
                                 case USERNAME_OR_PASSWORD_INCORRECT:
-                                    usernameEditText.setError(getString(R.string.error_invalid_credentials));
-                                    passwordEditText.setError(getString(R.string.error_invalid_credentials),error);
+                                    usernameEditText.setError(getString(R.string.error_invalid_credentials), errorUsername);
+                                    passwordEditText.setError(getString(R.string.error_invalid_credentials), errorPassword);
                                     break;
                                 case MAIL_NOT_CONFIREMED:
                                     // show alert dialog
@@ -238,10 +237,10 @@ public class SigninActivity extends BaseInjectorActivity {
                                             .show();
                                     break;
                                 case UNABLE_TO_COMMUNICATE_WITH_SERVER:
-                                    passwordEditText.setError(getString(R.string.error_host_not_found),error);
+                                    passwordEditText.setError(getString(R.string.error_host_not_found), errorPassword);
                                     break;
                                 default:
-                                    passwordEditText.setError(getString(R.string.logbook_invalid_input),error);
+                                    passwordEditText.setError(getString(R.string.logbook_invalid_input), errorPassword);
                                     break;
                             }
                         } else if (!checkNetworkConnection()) {
