@@ -101,7 +101,7 @@ public class DieselConsumptionAlgorithm implements ConsumptionAlgorithm {
         /**
          * calculate volumetric fuel flow in l/h
          */
-        return massFuelFlow * FUEL_DENSITY;
+        return massFuelFlow / FUEL_DENSITY;
     }
 
     private double resolveMassAirFlow(Measurement measurement) throws FuelConsumptionException {
