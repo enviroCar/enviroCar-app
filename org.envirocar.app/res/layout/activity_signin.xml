@@ -79,7 +79,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@drawable/login_edittext_rounded_corner_shape"
-                android:drawableLeft="@drawable/ic_action_user"
+                android:drawableStart="@drawable/ic_action_user"
                 android:hint="@string/username"
                 android:imeOptions="actionNext"
                 android:singleLine="true" />
