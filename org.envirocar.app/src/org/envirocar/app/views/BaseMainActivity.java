@@ -26,6 +26,7 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.WindowManager;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -59,6 +60,10 @@ import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.utils.ServiceUtils;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.Stack;
+
 import javax.inject.Inject;
 
 import butterknife.BindView;
@@ -78,6 +83,9 @@ public class BaseMainActivity extends BaseInjectorActivity {
 
     private FragmentStatePagerAdapter fragmentStatePagerAdapter;
     private MenuItem prevMenuItem;
+
+    // Custom Callback Stack
+    Stack<Integer> callbackStack = new Stack<Integer>();
 
     // Injected variables
     @Inject
@@ -154,6 +162,16 @@ public class BaseMainActivity extends BaseInjectorActivity {
 
         fragmentStatePagerAdapter = new PageSlider(getSupportFragmentManager(), FragmentStatePagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
         viewPager.setAdapter(fragmentStatePagerAdapter);
+
+        // Custom Back Navigation for fragments in BaseMainActivity
+        OnBackPressedCallback callback = new OnBackPressedCallback(false) {
+            @Override
+            public void handleOnBackPressed() {
+                // Handle the back button event
+            }
+        };
+
+
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
