@@ -201,7 +201,7 @@ public class SendLogFileActivity extends BaseInjectorActivity {
      */
     protected void sendLogFile(File reportBundle) {
         Intent emailIntent = new Intent(android.content.Intent.ACTION_SENDTO);
-        emailIntent.setType("message/rfc822");
+        //emailIntent.setType("message/rfc822");
         emailIntent.setData(Uri.parse("mailto:"));
         emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL,
                 new String[]{REPORTING_EMAIL});
@@ -209,6 +209,8 @@ public class SendLogFileActivity extends BaseInjectorActivity {
                 createSubject() + " enviroCar Log Report");
         emailIntent.putExtra(android.content.Intent.EXTRA_TEXT,
                 createEmailContents());
+        emailIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        emailIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
         emailIntent.putExtra(android.content.Intent.EXTRA_STREAM,
                 Uri.fromFile(reportBundle));
         //emailIntent.setType("application/zip");
