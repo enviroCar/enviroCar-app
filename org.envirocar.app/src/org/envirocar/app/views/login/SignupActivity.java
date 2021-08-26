@@ -21,6 +21,7 @@ package org.envirocar.app.views.login;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.Selection;
 import android.text.Spannable;
@@ -277,12 +278,12 @@ public class SignupActivity extends BaseInjectorActivity {
     private void makeClickableTextLinks() {
         List<Pair<String, View.OnClickListener>> clickableStrings = Arrays.asList(
                 new Pair<>(getString(R.string.terms_and_conditions), v -> {
-                    LOG.info("Terms and Conditions clicked. Showing dialog");
-                    showTermsOfUseDialog();
+//                    LOG.info("Terms and Conditions clicked. Showing dialog");
+                    showTermsOfUseBrowser();
                 }),
                 new Pair<>(getString(R.string.privacy_statement), v -> {
-                    LOG.info("Privacy Policy clicked. Showing dialog");
-                    showPrivacyStatementDialog();
+//                    LOG.info("Privacy Policy clicked. Showing dialog");
+                    showPrivacyStatementBrowser();
                 })
         );
 
@@ -314,17 +315,23 @@ public class SignupActivity extends BaseInjectorActivity {
         }
     }
 
-    private void showTermsOfUseDialog() {
-        LOG.info("Show Terms of Use Dialog");
-        agreementManager.showLatestTermsOfUseDialogObservable(this)
-                .subscribe(tou -> LOG.info("Closed Dialog"));
-    }
+    private void showTermsOfUseBrowser() {
+        String TOUwebpage = "https://envirocar.org/TermsOfUse.html?lng=en"; //TOU-->TermsOfUse
+        Intent TOUintent = new Intent(Intent.ACTION_VIEW);
 
-    private void showPrivacyStatementDialog() {
-        LOG.info("Show Privacy Statement dialog");
-        agreementManager.showLatestPrivacyStatementDialogObservable(this)
-                .subscribe(ps -> LOG.info("Closed Dialog"));
-    }
+        //To handle ActivityNotFoundException ,there may be zero activities to handle the Intent.
+        if (TOUintent.resolveActivity(getPackageManager()) != null) {
+            TOUintent.setData(Uri.parse(TOUwebpage));
+            startActivity(TOUintent);}}
+
+
+    private void showPrivacyStatementBrowser() {
+        String condWebpage = "https://envirocar.org/conditions.html?lng=en"; //Cond-->Condition
+        Intent condintent = new Intent(Intent.ACTION_VIEW);
+        if (condintent.resolveActivity(getPackageManager()) != null){
+            condintent.setData(Uri.parse(condWebpage));
+            startActivity(condintent);}}
+
 
     /**
      * Checks for a valid username
