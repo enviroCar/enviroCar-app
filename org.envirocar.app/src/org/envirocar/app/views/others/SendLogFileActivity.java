@@ -26,6 +26,7 @@ import android.os.Bundle;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.FileProvider;
 
 import android.util.Pair;
 import android.view.MenuItem;
@@ -200,18 +201,25 @@ public class SendLogFileActivity extends BaseInjectorActivity {
      * @param reportBundle the file to attach
      */
     protected void sendLogFile(File reportBundle) {
-        Intent emailIntent = new Intent(android.content.Intent.ACTION_SENDTO);
-        emailIntent.setType("message/rfc822");
-        emailIntent.setData(Uri.parse("mailto:"));
+        // emailSelectorIntent is used to only select applications, that can send emails
+        Intent emailSelectorIntent = new Intent(android.content.Intent.ACTION_SENDTO);
+        emailSelectorIntent.setData(Uri.parse("mailto:"));
+
+        Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
         emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL,
                 new String[]{REPORTING_EMAIL});
         emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT,
                 createSubject() + " enviroCar Log Report");
         emailIntent.putExtra(android.content.Intent.EXTRA_TEXT,
                 createEmailContents());
-        emailIntent.putExtra(android.content.Intent.EXTRA_STREAM,
-                Uri.fromFile(reportBundle));
-        //emailIntent.setType("application/zip");
+        emailIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        emailIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        emailIntent.setSelector(emailSelectorIntent);
+
+        // creates content uri for the attachment
+        Uri attachmentUri = FileProvider.getUriForFile(this,
+                "org.envirocar.app.provider", reportBundle);
+        emailIntent.putExtra(android.content.Intent.EXTRA_STREAM, attachmentUri);
 
         startActivity(Intent.createChooser(emailIntent, "Send Log Report"));
         getFragmentManager().popBackStack();
