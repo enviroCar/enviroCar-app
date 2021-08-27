@@ -58,6 +58,7 @@ import org.envirocar.core.logging.Logger;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
@@ -316,23 +317,49 @@ public class SignupActivity extends BaseInjectorActivity {
     }
 
     private void showTermsOfUseBrowser() {
-        String TOUwebpage = "https://envirocar.org/TermsOfUse.html?lng=en"; //TOU-->TermsOfUse
-        Intent TOUintent = new Intent(Intent.ACTION_VIEW);
-        LOG.info("Redirected to the Terms and Conditions webpage");
-        //To handle ActivityNotFoundException ,there may be zero activities to handle the Intent.
-        if (TOUintent.resolveActivity(getPackageManager()) != null) {
-            TOUintent.setData(Uri.parse(TOUwebpage));
-            startActivity(TOUintent);}}
+        if (Locale.getDefault().getLanguage() == "en") {
+            String TOUwebpage = "https://envirocar.org/TermsOfUse.html?lng=en"; //TOU-->TermsOfUse
+            Intent TOUintent = new Intent(Intent.ACTION_VIEW);
 
+            LOG.info("Redirected to the Terms and Conditions webpage (english)");
+            //To handle ActivityNotFoundException ,there may be zero activities to handle the Intent.
+            if (TOUintent.resolveActivity(getPackageManager()) != null) {
+                TOUintent.setData(Uri.parse(TOUwebpage));
+                startActivity(TOUintent);
+            }
+        } else if (Locale.getDefault().getLanguage() == "de"){
+            String TOUwebpage = "https://envirocar.org/TermsOfUse.html?lng=de"; //TOU-->TermsOfUse
+            Intent TOUintent = new Intent(Intent.ACTION_VIEW);
 
+            LOG.info("Redirected to the Terms and Conditions webpage (english)");
+            //To handle ActivityNotFoundException ,there may be zero activities to handle the Intent.
+            if (TOUintent.resolveActivity(getPackageManager()) != null) {
+                TOUintent.setData(Uri.parse(TOUwebpage));
+                startActivity(TOUintent);
+            }
+        }
+
+    }
     private void showPrivacyStatementBrowser() {
-        String condWebpage = "https://envirocar.org/conditions.html?lng=en"; //Cond-->Condition
-        Intent condintent = new Intent(Intent.ACTION_VIEW);
-        LOG.info("Redirected to Privacy Policy webpage");
-        if (condintent.resolveActivity(getPackageManager()) != null){
-            condintent.setData(Uri.parse(condWebpage));
-            startActivity(condintent);}}
-
+        if (Locale.getDefault().getLanguage() == "en") {
+            String condWebpage = "https://envirocar.org/conditions.html?lng=en"; //Cond-->Condition
+            Intent condintent = new Intent(Intent.ACTION_VIEW);
+            LOG.info("Redirected to Privacy Policy webpage");
+            if (condintent.resolveActivity(getPackageManager()) != null) {
+                condintent.setData(Uri.parse(condWebpage));
+                startActivity(condintent);
+            }
+        }
+        else if(Locale.getDefault().getLanguage() == "de") {
+            String condWebpage = "https://envirocar.org/conditions.html?lng=de"; //Cond-->Condition
+            Intent condintent = new Intent(Intent.ACTION_VIEW);
+            LOG.info("Redirected to Privacy Policy webpage");
+            if (condintent.resolveActivity(getPackageManager()) != null) {
+                condintent.setData(Uri.parse(condWebpage));
+                startActivity(condintent);
+            }
+        }
+    }
 
     /**
      * Checks for a valid username
