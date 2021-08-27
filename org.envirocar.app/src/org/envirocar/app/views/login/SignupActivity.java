@@ -321,7 +321,7 @@ public class SignupActivity extends BaseInjectorActivity {
             String TOUwebpage = "https://envirocar.org/TermsOfUse.html?lng=en"; //TOU-->TermsOfUse
             Intent TOUintent = new Intent(Intent.ACTION_VIEW);
 
-            LOG.info("Redirected to the Terms and Conditions webpage (english)");
+            LOG.info("Redirected to the Terms and Conditions webpage (English)");
             //To handle ActivityNotFoundException ,there may be zero activities to handle the Intent.
             if (TOUintent.resolveActivity(getPackageManager()) != null) {
                 TOUintent.setData(Uri.parse(TOUwebpage));
@@ -331,7 +331,7 @@ public class SignupActivity extends BaseInjectorActivity {
             String TOUwebpage = "https://envirocar.org/TermsOfUse.html?lng=de"; //TOU-->TermsOfUse
             Intent TOUintent = new Intent(Intent.ACTION_VIEW);
 
-            LOG.info("Redirected to the Terms and Conditions webpage (english)");
+            LOG.info("Redirected to the Terms and Conditions webpage (German)");
             //To handle ActivityNotFoundException ,there may be zero activities to handle the Intent.
             if (TOUintent.resolveActivity(getPackageManager()) != null) {
                 TOUintent.setData(Uri.parse(TOUwebpage));
@@ -344,7 +344,7 @@ public class SignupActivity extends BaseInjectorActivity {
         if (Locale.getDefault().getLanguage() == "en") {
             String condWebpage = "https://envirocar.org/conditions.html?lng=en"; //Cond-->Condition
             Intent condintent = new Intent(Intent.ACTION_VIEW);
-            LOG.info("Redirected to Privacy Policy webpage");
+            LOG.info("Redirected to Privacy Policy webpage(English)");
             if (condintent.resolveActivity(getPackageManager()) != null) {
                 condintent.setData(Uri.parse(condWebpage));
                 startActivity(condintent);
@@ -353,7 +353,7 @@ public class SignupActivity extends BaseInjectorActivity {
         else if(Locale.getDefault().getLanguage() == "de") {
             String condWebpage = "https://envirocar.org/conditions.html?lng=de"; //Cond-->Condition
             Intent condintent = new Intent(Intent.ACTION_VIEW);
-            LOG.info("Redirected to Privacy Policy webpage");
+            LOG.info("Redirected to Privacy Policy webpage(German)");
             if (condintent.resolveActivity(getPackageManager()) != null) {
                 condintent.setData(Uri.parse(condWebpage));
                 startActivity(condintent);
