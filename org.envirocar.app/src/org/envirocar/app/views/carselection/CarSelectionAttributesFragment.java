@@ -1,6 +1,5 @@
 package org.envirocar.app.views.carselection;
 
-import android.app.Activity;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
@@ -8,7 +7,6 @@ import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AutoCompleteTextView;
 import android.widget.ListAdapter;
 import android.widget.TextView;
@@ -263,13 +261,7 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
             LOG.warn("Unable to find next field or to request focus to next field.");
         }
     }
-    private void closeKeyboard() {
-        View view = getActivity().getCurrentFocus();
-        if (view != null) {
-            InputMethodManager inputMethodManager = (InputMethodManager) getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
-            inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
-        }
-    }
+
     private void reactiveTexFieldCheck() {
         disposable.add(RxTextView.textChanges(manufactureEditText)
                 .skipInitialValue()
@@ -282,7 +274,6 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
                     for (int i = 0; i < adapter.getCount(); i++) {
                         if (adapter.getItem(i).toString().compareTo(manufacture) == 0) {
                             flag = 1;
-                            closeKeyboard();
                             break;
                         }
                     }
@@ -306,7 +297,6 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
                         for (int i = 0; i < adapter.getCount(); i++) {
                             if (adapter.getItem(i).toString().compareTo(model) == 0) {
                                 flag = 1;
-                                closeKeyboard();
                                 break;
                             }
                         }
@@ -333,7 +323,6 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
                         for (int i = 0; i < adapter.getCount(); i++) {
                             if (adapter.getItem(i).toString().compareTo(year) == 0) {
                                 flag = 1;
-                                closeKeyboard();
                                 break;
                             }
                         }
