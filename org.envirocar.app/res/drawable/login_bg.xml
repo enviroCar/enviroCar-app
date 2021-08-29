@@ -24,6 +24,6 @@
     <gradient
         android:angle="0"
         android:startColor="@color/blue_dark_cario"
-        android:endColor="@color/blue_light_cario"
+        android:endColor="#008040"
         android:type="linear"/>
 </shape>
