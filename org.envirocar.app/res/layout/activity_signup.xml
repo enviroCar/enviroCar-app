@@ -201,7 +201,7 @@
             android:layout_marginTop="24dp"
             android:layout_marginHorizontal="16dp"
             android:layout_centerHorizontal="true"
-            app:cardBackgroundColor="@color/cario_color_primary_dark"
+            app:cardBackgroundColor="#1aa3ff"
             app:cardCornerRadius="25dp"
             app:cardElevation="10dp"
             app:layout_constraintEnd_toEndOf="@id/activity_signup_guideline_right"
