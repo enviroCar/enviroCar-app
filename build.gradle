@@ -120,6 +120,8 @@ ext {
     mapbox = 'com.mapbox.mapboxsdk:mapbox-android-sdk:8.1.0'
     segmentedUIController = 'info.hoang8f:android-segmented:1.0.6'
     apacheCommons = 'org.apache.commons:commons-compress:1.18'
+    circleIndicator = 'me.relex:circleindicator:2.1.4'
+    showCaseView = 'com.github.mreram:showcaseview:1.0.5'
     openCSVReader = 'com.opencsv:opencsv:4.6'
 
     // Testing

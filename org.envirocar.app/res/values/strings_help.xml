@@ -54,5 +54,8 @@
 
     <string name="help_headline_6">5. Problems and feedback</string>
     <string name="help_content_6">We welcome your feedback (enviroCar@52north.org)! Your advice and suggestions help us to improve the software.\n\nIf you discover any problems, please send us an issue report. Click on <b>\"Others\"</b> in the bottom bar and select <b>\"Report Issue\"</b>. Fill out the form and click <b>\"SEND REPORT\"</b> to the enviroCar Team. Please be as detailed as possible.</string>
+    <string name="obd_help_content">The DLC is 16-pin connector is usually located under the instrument panel on the driver side. Trouble locating DLC? Refer to owner manual. (<a href="www.wikiobd.co.uk">www.wikiobd.co.uk</a>)</string>
+    <string name="obd_help_content2">Plug Bluetooth into Car\'s OBD Port. \n <b>\"Turn the ignition ON\"</b></string>
+    <string name="obd_help_content3">Select above shown option from Dashboard. \n\n Turn ON Bluetooth. \n\n Connect to Bluetooth devices with names similar to OBDII, VLink etc. \n\n  <b>All set start Recording track.</b></string>
 
 </resources>

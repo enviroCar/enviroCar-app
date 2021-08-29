@@ -20,7 +20,9 @@ package org.envirocar.app.views.dashboard;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.bluetooth.BluetoothDevice;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
@@ -53,8 +55,15 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentStatePagerAdapter;
+import androidx.viewpager.widget.PagerAdapter;
+import androidx.viewpager.widget.ViewPager;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.android.material.dialog.MaterialDialogs;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.play.core.appupdate.AppUpdateInfo;
@@ -81,7 +90,10 @@ import org.envirocar.app.recording.events.RecordingStateEvent;
 import org.envirocar.app.views.carselection.CarSelectionActivity;
 import org.envirocar.app.views.login.SigninActivity;
 import org.envirocar.app.views.obdselection.OBDSelectionActivity;
+import org.envirocar.app.views.others.OthersFragment;
 import org.envirocar.app.views.recordingscreen.RecordingScreenActivity;
+import org.envirocar.app.views.tracklist.TrackListPagerFragment;
+import org.envirocar.app.views.utils.DialogUtils;
 import org.envirocar.app.views.utils.SizeSyncTextView;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.events.NewCarTypeSelectedEvent;
@@ -112,6 +124,7 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.observers.DisposableCompletableObserver;
 import io.reactivex.schedulers.Schedulers;
+import smartdevelop.ir.eram.showcaseviewlib.GuideView;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -255,6 +268,11 @@ public class DashboardFragment extends BaseInjectorFragment {
                 .doOnNext(this::setRecordingMode)
                 .doOnError(LOG::error)
                 .blockingFirst();
+
+        boolean statusShown = getActivity().getSharedPreferences("Walkthrough", Context.MODE_PRIVATE).getBoolean("DashboardWalkthrough", false);
+
+        if (!statusShown)
+            spotlightShowCase(contentView, "OBD HELP", getString(R.string.dashboard_walkthrough_obd_help), 2, R.id.fragment_dashboard_obd_help);
 
         return contentView;
     }
@@ -626,6 +644,13 @@ public class DashboardFragment extends BaseInjectorFragment {
         });
     }
 
+    @OnClick(R.id.fragment_dashboard_obd_help)
+    void onOBDHelpClicked() {
+
+        DialogFragment dialog = new ObdHelpFragment();
+        dialog.show(getChildFragmentManager(), "dialog");
+    }
+
     private void updateUserLogin(User user) {
         if (user != null) {
             // show progress bar
@@ -791,6 +816,61 @@ public class DashboardFragment extends BaseInjectorFragment {
         for (SizeSyncTextView textView : indicatorSyncGroup) {
             textView.setOnTextSizeChangedListener(listener);
         }
+    }
+
+    private void spotlightShowCase(View contentView, String head, String content, int nextTarget, int id) {
+        new GuideView.Builder(getContext())
+                .setTitle(head)
+                .setContentText(content)
+                .setGravity(GuideView.Gravity.center)
+                .setTargetView(contentView.findViewById(id))
+                .setContentTextSize(12)
+                .setTitleTextSize(16)
+                .setDismissType(GuideView.DismissType.outside)
+                .setGuideListener(view -> {
+                    switch (nextTarget) {
+                        case 2:
+                            spotlightShowCase(contentView, "Track Details", getString(R.string.dashboard_walkthrough_user_track), 3, R.id.user_statistics);
+                            break;
+
+                        case 3:
+                            spotlightShowCase(contentView, "Buetooth", getString(R.string.dashboard_walkthrough_bluetooth), 4, R.id.fragment_dashboard_indicator_bluetooth_layout);
+                            break;
+
+                        case 4:
+                            spotlightShowCase(contentView, "OBD", getString(R.string.dashboard_walkthrough_obd), 5, R.id.fragment_dashboard_indicator_obd_layout);
+                            break;
+
+                        case 5:
+                            spotlightShowCase(contentView, "GPS", getString(R.string.dashboard_walkthrough_gps), 6, R.id.fragment_dashboard_indicator_gps_layout);
+                            break;
+
+                        case 6:
+                            spotlightShowCase(contentView, "Car", getString(R.string.dashboard_walkthrough_car), 7, R.id.fragment_dashboard_indicator_car_layout);
+                            break;
+
+                        case 7:
+                            spotlightShowCase(contentView, "OBD select", getString(R.string.dashboard_walkthrough_pairOBD), 8, R.id.fragment_dashboard_obdselection_layout);
+                            break;
+
+                        case 8:
+                            spotlightShowCase(contentView, "Car select", getString(R.string.dashboard_walkthrough_carType), 9, R.id.fragment_dashboard_carselection_layout);
+                            break;
+
+                        case 9:
+                            spotlightShowCase(contentView, "Track record", getString(R.string.dashboard_walkthrough_recordTrack), 10, R.id.fragment_dashboard_start_track_button);
+                            break;
+
+                        case 10:
+                            getActivity().getSharedPreferences("Walkthrough", Context.MODE_PRIVATE).edit().putBoolean("DashboardWalkthrough", true).commit();
+                            break;
+
+                    }
+                })
+                .build()
+                .show();
+
+
     }
 
     private void appUpdateCheck() {

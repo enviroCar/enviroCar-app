@@ -46,11 +46,26 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="5dp">
         <ImageView
-            android:layout_width="wrap_content"
+            android:id="@+id/fragment_dashboard_obd_help"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_gravity="left"
+            android:layout_marginStart="10dp"
+            android:tint="@color/white"
+            android:scaleType="fitCenter"
+            android:src="@drawable/others_help" />
+
+        <ImageView
+            android:layout_width="match_parent"
             android:layout_height="30dp"
             android:scaleType="fitCenter"
             android:src="@drawable/img_envirocar_logo_white" />
+        </RelativeLayout>
     </LinearLayout>
 
     <androidx.core.widget.NestedScrollView
@@ -245,6 +260,7 @@
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
                     <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/fragment_dashboard_indicator_gps_layout"
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="1"
@@ -294,6 +310,7 @@
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
                     <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/fragment_dashboard_indicator_car_layout"
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="1"
@@ -356,6 +373,7 @@
                     app:layout_constraintTop_toBottomOf="@+id/fragment_dashboard_banner">
 
                     <LinearLayout
+                        android:id="@+id/user_statistics"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_margin="7dp"

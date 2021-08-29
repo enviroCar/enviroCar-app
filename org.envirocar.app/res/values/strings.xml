@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
 
     Copyright (C) 2013 - 2019 the enviroCar community
 
@@ -79,7 +78,6 @@
     <string name="general_error_please_report">General Track Error - Please report this issue</string>
 
 
-
     <string name="ok" translatable="false">OK</string>
 
     <string name="driving">Driving</string>
@@ -98,7 +96,6 @@
     <!-- ################# -->
     <!-- Sign In / Sign Up -->
     <!-- ################# -->
-
 
 
     <!-- ################# -->
@@ -171,6 +168,12 @@
     <string name="notification_autoupload_error_title">Track Upload Error</string>
     <string name="notification_autoupload_error_sub">Error while uploading to the enviroCar platform.</string>
 
+    <string name="recording_screen_track_time">Displays track recording time </string>
+    <string name="recording_screen_track_speed">Displays average speed</string>
+    <string name="recording_screen_track_distance">Displays total distance covered</string>
+    <string name="recording_screen_track_finish">Finish recording track</string>
+    <string name="recording_screen_track_mode">Switch between tachometer and map mode </string>
+    <string name="recording_screen_track_gps">"Displays GPS status </string>
     <!-- ################# -->
     <!--    Permissions    -->
     <!-- ################# -->
