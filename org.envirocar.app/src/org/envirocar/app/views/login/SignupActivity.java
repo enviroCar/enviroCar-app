@@ -354,7 +354,7 @@ public class SignupActivity extends BaseInjectorActivity {
                 TOUintent.setData(Uri.parse(TOUwebpage));
                 startActivity(TOUintent);
             }
-        } else if (Locale.getDefault().getLanguage() == "de"){
+        } else{
             String TOUwebpage = "https://envirocar.org/TermsOfUse.html?lng=de"; //TOU-->TermsOfUse
             Intent TOUintent = new Intent(Intent.ACTION_VIEW);
 
@@ -377,7 +377,7 @@ public class SignupActivity extends BaseInjectorActivity {
                 startActivity(condintent);
             }
         }
-        else if(Locale.getDefault().getLanguage() == "de") {
+        else{
             String condWebpage = "https://envirocar.org/conditions.html?lng=de"; //Cond-->Condition
             Intent condintent = new Intent(Intent.ACTION_VIEW);
             LOG.info("Redirected to Privacy Policy webpage(German)");
