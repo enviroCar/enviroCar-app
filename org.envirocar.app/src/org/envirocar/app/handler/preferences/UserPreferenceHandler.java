@@ -174,7 +174,9 @@ public class UserPreferenceHandler extends AbstractCachable<User> implements Use
                 emitter.onError(new LoginException(e.getMessage(), LoginException.ErrorType.MAIL_NOT_CONFIREMED));
             } catch (UnauthorizedException e) {
                 LOG.warn(e.getMessage(), e);
-                emitter.onError(new LoginException(e.getMessage(), LoginException.ErrorType.PASSWORD_INCORRECT));
+                // UnauthorizedException can be either due to Incorrect password, Incorrect Username or both.
+                // Hence, set error to both password and username
+                emitter.onError(new LoginException(e.getMessage(), LoginException.ErrorType.USERNAME_OR_PASSWORD_INCORRECT));
             } catch (Exception e) {
                 LOG.warn(e.getMessage(), e);
                 emitter.onError(e);

@@ -52,15 +52,21 @@ public final class ServiceUtils {
     }
 
     public static final void stopService(Context context, Class<?> service) {
-        LOGGER.info("Trying to stop %s", service.getSimpleName());
+        Intent serviceIntentstop = new Intent(context, service);
+        stopService(context, serviceIntentstop);
+    }
+
+    public static final void stopService(Context context, Intent servicestop) {
+        String services = servicestop.getComponent().getClassName();
+        LOGGER.info("Trying to stop %s", services);
 
         // If the service is already running, then stopo the service.
-        if (ServiceUtils.isServiceRunning(context, service)) {
-            Intent stopIntent = new Intent(context, service);
-            context.stopService(stopIntent);
-            LOGGER.info("%s successfully stopped.", service.getSimpleName());
+        if (ServiceUtils.isServiceRunning(context, servicestop)) {
+            Intent stopIntent = new Intent(context, servicestop.getClass());
+            context.stopService(servicestop);
+            LOGGER.info("%s successfully stopped.", services);
         } else {
-            LOGGER.info("%s is not running. No stop required!", service.getSimpleName());
+            LOGGER.info("%s is not running. No stop required!", services);
         }
     }
 

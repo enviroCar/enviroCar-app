@@ -27,8 +27,10 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.FileProvider;
+import androidx.core.content.ContextCompat;
 
 import android.util.Pair;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,8 +40,9 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 
-import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
@@ -183,14 +186,15 @@ public class SendLogFileActivity extends BaseInjectorActivity {
      * @param reportBundle
      */
     public void createNoCheckboxDialog(File reportBundle) {
-        new MaterialDialog.Builder(this)
-                .title(R.string.report_issue_no_checkbox_selected_title)
-                .content(R.string.report_issue_no_checkbox_selected_content)
-                .positiveText(R.string.report_issue_no_checkbox_send_anyway)
-                .negativeText(R.string.cancel)
-                .cancelable(false)
-                .onPositive((materialDialog, dialogAction) -> sendLogFile(reportBundle))
-                .onNegative((materialDialog, dialogAction) -> LOG.info("Log report not send"))
+        new MaterialAlertDialogBuilder(this,R.style.MaterialDialog)
+                .setTitle(R.string.report_issue_no_checkbox_selected_title)
+                .setMessage(R.string.report_issue_no_checkbox_selected_content)
+                .setIcon(R.drawable.ic_baseline_check_circle_24)
+                .setCancelable(true)
+                .setPositiveButton(R.string.report_issue_no_checkbox_send_anyway,
+                        (materialDialog, dialogAction) -> sendLogFile(reportBundle))
+                .setNegativeButton(R.string.cancel,
+                        (materialDialog, dialogAction) -> LOG.info("Log report not send"))
                 .show();
     }
 

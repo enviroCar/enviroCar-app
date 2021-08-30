@@ -99,7 +99,7 @@
                     android:gravity="bottom"
                     android:orientation="vertical"
                     android:visibility="visible"
-                    app:layout_constraintBottom_toTopOf="@+id/cardView2"
+                    app:layout_constraintBottom_toTopOf="@+id/user_statistics_card_view"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/fragment_dashboard_banner">
@@ -164,8 +164,8 @@
                             android:layout_weight="1"
                             android:adjustViewBounds="true"
                             android:background="@drawable/btn_dashboard_circle"
-                            android:backgroundTint="@color/dashboard_indicator_selector"
                             android:src="@drawable/ic_bluetooth_black_24dp"
+                            android:backgroundTint="@color/dashboard_indicator_selector"
                             android:tint="@color/white_cario"
                             app:layout_constraintBottom_toTopOf="@id/fragment_dashboard_indicator_bluetooth_text"
                             app:layout_constraintDimensionRatio="1:1"
@@ -212,10 +212,10 @@
                             android:layout_weight="1"
                             android:adjustViewBounds="true"
                             android:background="@drawable/btn_dashboard_circle"
-                            android:backgroundTint="@color/dashboard_indicator_selector"
                             android:scaleType="fitCenter"
                             android:src="@drawable/ic_obd"
                             android:tint="@color/white_cario"
+                            android:backgroundTint="@color/dashboard_indicator_selector"
                             app:layout_constraintBottom_toTopOf="@id/fragment_dashboard_indicator_obd_text"
                             app:layout_constraintDimensionRatio="1:1"
                             app:layout_constraintLeft_toLeftOf="parent"
@@ -261,9 +261,9 @@
                             android:layout_weight="1"
                             android:adjustViewBounds="true"
                             android:background="@drawable/btn_dashboard_circle"
-                            android:backgroundTint="@color/dashboard_indicator_selector"
                             android:scaleType="fitCenter"
                             android:src="@drawable/ic_gps"
+                            android:backgroundTint="@color/dashboard_indicator_selector"
                             android:tint="@color/white_cario"
                             app:layout_constraintBottom_toTopOf="@id/fragment_dashboard_indicator_gps_text"
                             app:layout_constraintDimensionRatio="1:1"
@@ -310,9 +310,9 @@
                             android:layout_weight="1"
                             android:adjustViewBounds="true"
                             android:background="@drawable/btn_dashboard_circle"
-                            android:backgroundTint="@color/dashboard_indicator_selector"
                             android:scaleType="fitCenter"
                             android:src="@drawable/ic_drive_eta_black_24dp"
+                            android:backgroundTint="@color/dashboard_indicator_selector"
                             android:tint="@color/white_cario"
                             app:layout_constraintBottom_toTopOf="@id/fragment_dashboard_indicator_car_text"
                             app:layout_constraintDimensionRatio="1:1"
@@ -345,7 +345,7 @@
                 </LinearLayout>
 
                 <androidx.cardview.widget.CardView
-                    android:id="@+id/cardView2"
+                    android:id="@+id/user_statistics_card_view"
                     android:layout_width="0dp"
                     android:layout_height="76dp"
                     app:cardCornerRadius="10dp"
@@ -503,7 +503,7 @@
                     app:cardElevation="10dp"
                     app:layout_constraintLeft_toRightOf="@id/guideline_settings_header_left"
                     app:layout_constraintRight_toLeftOf="@id/guideline_settings_header_right"
-                    app:layout_constraintTop_toBottomOf="@+id/cardView2">
+                    app:layout_constraintTop_toBottomOf="@+id/user_statistics_card_view">
 
                     <androidx.appcompat.widget.AppCompatTextView
                         android:layout_width="match_parent"

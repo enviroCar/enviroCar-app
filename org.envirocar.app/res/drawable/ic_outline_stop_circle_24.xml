@@ -1,31 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-
     Copyright (C) 2013 - 2019 the enviroCar community
-
     This file is part of the enviroCar app.
-
     The enviroCar app is free software: you can redistribute it and/or
     modify it under the terms of the GNU General Public License as published
     by the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-
     The enviroCar app is distributed in the hope that it will be useful, but
     WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
     Public License for more details.
-
     You should have received a copy of the GNU General Public License along
     with the enviroCar app. If not, see http://www.gnu.org/licenses/.
-
 -->
-<resources>
-    <array name="car_list_option_items">
-        <item>Fahrzeug löschen</item>
-        <item>Fahrzeug auswählen</item>
-    </array>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="36dp"
+    android:height="36dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
 
-    <array name="car_list_option_item_Delete_car">
-        <item>Fahrzeug löschen</item>
-    </array>
-</resources>
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M8,8h8v8h-8z"/>
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M12,2C6.48,2 2,6.48 2,12s4.48,10 10,10s10,-4.48 10,-10S17.52,2 12,2zM12,20c-4.41,0 -8,-3.59 -8,-8c0,-4.41 3.59,-8 8,-8s8,3.59 8,8C20,16.41 16.41,20 12,20z"/>
+</vector>
+

@@ -27,10 +27,15 @@
 
     <string name="car_selection_car_selected" formatted="false">%s %s has been selected as my car.</string>
     <string name="car_selection_car_deleted_tmp" formatted="false">%s %s has been deleted.</string>
+    <string name="car_selection_car_selected_after_add" formatted="false">%s %s has been added and selected as my car.</string>
     <string name="car_selection_successfully_added_tmp" formatted="false">%s %s has been added to the list.</string>
     <string name="car_selection_already_in_list_tmp" formatted="false">%s %s is already in the list.</string>
 
     <!--<string name="car_selection_note">Please be as specific as possible with your details. This information is used for internal calculation of essential attributes. False information will ultimately lead to wrong calculated values.</string>-->
+
+    <string name="car_deselection_dialog_delete_pairing_title">Delete car?</string>
+    <string name="car_deselection_dialog_delete_title">Delete car</string>
+    <string name="car_deselection_dialog_delete_pairing_content_template" formatted="false">Do you want to delete %s %s?</string>
 
     <string name="car_selection_manufacturer">Manufacturer</string>
     <string name="car_selection_model">Model</string>
@@ -45,5 +50,8 @@
     <string name="car_selection_hsn_tsn_segmented">HSN/TSN</string>
     <string name="car_selection_attributes_segmented">Attributes</string>
     <string name="create_car_dialog">Create Car</string>
+    
+    <string name="car_selection_no_car_no_car_first">No Car Added</string>
+    <string name="car_selection_no_car_no_car_second">Use the + icon to add a new car</string>
 
 </resources>
