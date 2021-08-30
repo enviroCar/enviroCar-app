@@ -76,7 +76,7 @@
                     android:id="@+id/activity_obd_selection_layout_search_devices_progressbar"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="20dp"
+                    android:layout_marginRight="8dp"
                     android:maxHeight="20dp"
                     android:minHeight="10dp"
                     android:visibility="gone"/>
@@ -85,7 +85,7 @@
                     android:id="@+id/activity_obd_selection_layout_rescan_bluetooth"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="10dp"
+                    android:layout_marginRight="20dp"
                     android:src="@drawable/ic_refresh_black_24dp"
                     android:tint="@color/blue_light_cario"
                     android:maxHeight="20dp"

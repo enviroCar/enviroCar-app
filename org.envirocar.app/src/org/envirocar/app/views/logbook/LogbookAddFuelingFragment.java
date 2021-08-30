@@ -19,6 +19,13 @@
 package org.envirocar.app.views.logbook;
 
 import android.app.Activity;
+import android.app.Application;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
+import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.InputFilter;
 import android.text.Spanned;
@@ -33,6 +40,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -43,7 +51,8 @@ import org.envirocar.app.R;
 import org.envirocar.app.handler.DAOProvider;
 import org.envirocar.app.handler.preferences.CarPreferenceHandler;
 import org.envirocar.app.injection.BaseInjectorFragment;
-import org.envirocar.app.views.utils.ECAnimationUtils;
+import org.envirocar.app.views.utils.DialogUtils;
+import org.envirocar.app.views.utils.ECAnimationUtils;import org.envirocar.core.ContextInternetAccessProvider;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Fueling;
 import org.envirocar.core.entity.FuelingImpl;
@@ -69,6 +78,8 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
+
+import static com.mapbox.mapboxsdk.Mapbox.getApplicationContext;
 
 /**
  * TODO JavaDoc
@@ -138,6 +149,9 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
         View view = inflater.inflate(R.layout.activity_logbook_add_fueling_card, container, false);
         ButterKnife.bind(this, view);
 
+        view.setOnClickListener(v -> hideKeyboard(view));
+        contentView.setOnClickListener(v -> hideKeyboard(contentView));
+
         addFuelingToolbar.setNavigationIcon(R.drawable.ic_close_white_24dp);
         addFuelingToolbar.inflateMenu(R.menu.menu_logbook_add_fueling);
 
@@ -149,6 +163,8 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
             hideKeyboard(getView());
             return true;
         });
+
+        addFuelingToolbar.setOnClickListener(v -> hideKeyboard(addFuelingToolbar));
 
         // initially we set the toolbar exp to gone
         addFuelingToolbar.setVisibility(View.GONE);
@@ -208,95 +224,101 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
         addFuelingTotalCostText.setError(null);
         addFuelingVolumeText.setError(null);
 
-        boolean formError = false;
-        View focusView = null;
-        if (addFuelingMilageText.getText() == null || addFuelingMilageText.getText().toString().equals("")) {
-            addFuelingMilageText.setError(getString(R.string.logbook_error_form_blank_input));
-            focusView = addFuelingMilageText;
-            formError = true;
+        if (!new ContextInternetAccessProvider(getApplicationContext()).isConnected()){
+            closeThisFragment();
+            showSnackbarInfo(R.string.error_not_connected_to_network);
         }
-
-        if (addFuelingTotalCostText.getText() == null || addFuelingTotalCostText.getText().toString().equals("")) {
-            addFuelingTotalCostText.setError(getString(R.string.logbook_error_form_blank_input));
-            focusView = addFuelingTotalCostText;
-            formError = true;
-        }
-
-        if (addFuelingVolumeText.getText() == null || addFuelingVolumeText.getText()
-                .toString().equals("")) {
-            addFuelingVolumeText.setError(getString(R.string.logbook_error_form_blank_input));
-            focusView = addFuelingVolumeText;
-            formError = true;
-        }
-
-        if (formError) {
-            LOG.info("Error on input form.");
-            focusView.requestFocus();
-            return;
-        }
-
-        Car car = (Car) addFuelingCarSelection.getSelectedItem();
-
-        if (car == null) {
-            LOG.info("Cant create fueling entry, because the car is empty");
-            Snackbar.make(addFuelingToolbar,
-                    "You must have selected a car type for creating a fueling.",
-                    Snackbar.LENGTH_LONG).show();
-            return;
-        }
-
-        Double cost = null, milage = null, volume = null;
-        try {
-            cost = getEditTextDoubleValue(addFuelingTotalCostText.getText().toString());
-            milage = getEditTextDoubleValue(addFuelingMilageText.getText().toString());
-            volume = getEditTextDoubleValue(addFuelingVolumeText.getText().toString());
-        } catch (ParseException e) {
-            formError = true;
-            if (cost == null) {
-                LOG.error(String.format("Invalid input text -> [%s]", addFuelingTotalCostText.toString()), e);
-                addFuelingTotalCostText.setError(getString(R.string.logbook_invalid_input));
-                focusView = addFuelingTotalCostText;
-            } else if (milage == null) {
-                LOG.error(String.format("Invalid input text -> [%s]", addFuelingMilageText.toString()), e);
-                addFuelingMilageText.setError(getString(R.string.logbook_invalid_input));
+        else {
+            boolean formError = false;
+            View focusView = null;
+            if (addFuelingMilageText.getText() == null || addFuelingMilageText.getText().toString().equals("")) {
+                addFuelingMilageText.setError(getString(R.string.logbook_error_form_blank_input));
                 focusView = addFuelingMilageText;
-            } else {
-                LOG.error(String.format("Invalid input text -> [%s]", addFuelingVolumeText.toString()), e);
-                addFuelingVolumeText.setError(getString(R.string.logbook_invalid_input));
+                formError = true;
+            }
+
+            if (addFuelingTotalCostText.getText() == null || addFuelingTotalCostText.getText().toString().equals("")) {
+                addFuelingTotalCostText.setError(getString(R.string.logbook_error_form_blank_input));
+                focusView = addFuelingTotalCostText;
+                formError = true;
+            }
+
+            if (addFuelingVolumeText.getText() == null || addFuelingVolumeText.getText()
+                    .toString().equals("")) {
+                addFuelingVolumeText.setError(getString(R.string.logbook_error_form_blank_input));
                 focusView = addFuelingVolumeText;
+                formError = true;
             }
-        }
 
-        if (formError) {
-            LOG.info("Error on input form.");
-            focusView.requestFocus();
-            return;
-        }
-
-        boolean missedFuelStop = missedFuelingCheckbox.isChecked();
-        boolean partialFueling = partialFuelingCheckbox.isChecked();
-
-        Fueling fueling = new FuelingImpl();
-        fueling.setTime(System.currentTimeMillis());
-        fueling.setCar(car);
-        fueling.setCost(cost, Fueling.CostUnit.EURO);
-        fueling.setVolume(volume, Fueling.VolumeUnit.LITRES);
-        fueling.setMilage(milage, Fueling.MilageUnit.KILOMETRES);
-        fueling.setMissedFuelStop(missedFuelStop);
-        fueling.setPartialFueling(partialFueling);
-
-        if (commentText.getText() != null) {
-            String comment = commentText.getText().toString();
-            if (comment != null && !comment.isEmpty()) {
-                fueling.setComment(comment);
+            if (formError) {
+                LOG.info("Error on input form.");
+                focusView.requestFocus();
+                return;
             }
-        }
 
-        // upload the fueling
-        if (car.getId() == null || !car.getId().isEmpty()) {
-            uploadCarBeforeFueling(car, fueling);
-        } else {
-            uploadFueling(fueling);
+            Car car = (Car) addFuelingCarSelection.getSelectedItem();
+
+            if (car == null) {
+                LOG.info("Cant create fueling entry, because the car is empty");
+                Snackbar.make(addFuelingToolbar,
+                        "You must have selected a car type for creating a fueling.",
+                        Snackbar.LENGTH_LONG).show();
+                return;
+            }
+
+            Double cost = null, milage = null, volume = null;
+            try {
+                cost = getEditTextDoubleValue(addFuelingTotalCostText.getText().toString());
+                milage = getEditTextDoubleValue(addFuelingMilageText.getText().toString());
+                volume = getEditTextDoubleValue(addFuelingVolumeText.getText().toString());
+            } catch (ParseException e) {
+                formError = true;
+                if (cost == null) {
+                    LOG.error(String.format("Invalid input text -> [%s]", addFuelingTotalCostText.toString()), e);
+                    addFuelingTotalCostText.setError(getString(R.string.logbook_invalid_input));
+                    focusView = addFuelingTotalCostText;
+                } else if (milage == null) {
+                    LOG.error(String.format("Invalid input text -> [%s]", addFuelingMilageText.toString()), e);
+                    addFuelingMilageText.setError(getString(R.string.logbook_invalid_input));
+                    focusView = addFuelingMilageText;
+                } else {
+                    LOG.error(String.format("Invalid input text -> [%s]", addFuelingVolumeText.toString()), e);
+                    addFuelingVolumeText.setError(getString(R.string.logbook_invalid_input));
+                    focusView = addFuelingVolumeText;
+                }
+            }
+
+            if (formError) {
+                LOG.info("Error on input form.");
+                focusView.requestFocus();
+                return;
+            }
+
+            boolean missedFuelStop = missedFuelingCheckbox.isChecked();
+            boolean partialFueling = partialFuelingCheckbox.isChecked();
+
+            Fueling fueling = new FuelingImpl();
+            fueling.setTime(System.currentTimeMillis());
+            fueling.setCar(car);
+            fueling.setCost(cost, Fueling.CostUnit.EURO);
+            fueling.setVolume(volume, Fueling.VolumeUnit.LITRES);
+            fueling.setMilage(milage, Fueling.MilageUnit.KILOMETRES);
+            fueling.setMissedFuelStop(missedFuelStop);
+            fueling.setPartialFueling(partialFueling);
+
+            if (commentText.getText() != null) {
+                String comment = commentText.getText().toString();
+                if (comment != null && !comment.isEmpty()) {
+                    fueling.setComment(comment);
+                }
+            }
+
+            // upload the fueling
+            if (car.getId() == null || !car.getId().isEmpty()) {
+                uploadCarBeforeFueling(car, fueling);
+            } else {
+                uploadFueling(fueling);
+            }
         }
     }
 
@@ -412,16 +434,16 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(new DisposableObserver<Car>() {
-                    private MaterialDialog dialog;
+                    private AlertDialog dialog;
 
                     @Override
                     protected void onStart() {
                         LOG.info("uploadCarBeforeFueling() has started");
-                        dialog = new MaterialDialog.Builder(getContext())
-                                .progress(true, 0)
-                                .title(R.string.logbook_dialog_uploading_fueling_header)
-                                .content(R.string.logbook_dialog_uploading_fueling_car)
-                                .cancelable(false)
+                        dialog = DialogUtils.createProgressBarDialogBuilder(getContext(),
+                                R.string.logbook_dialog_uploading_fueling_header,
+                                R.drawable.others_logbook_white_24dp,
+                                R.string.logbook_dialog_uploading_fueling_car)
+                                .setCancelable(false)
                                 .show();
                     }
 
@@ -457,7 +479,6 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
                         }
                         dialog.dismiss();
                     }
-
                 }));
     }
 
@@ -471,16 +492,16 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(new DisposableObserver<Void>() {
-                    private MaterialDialog dialog;
+                    private AlertDialog dialog;
 
                     @Override
                     public void onStart() {
                         LOG.info("Started the creation of a fueling.");
-                        dialog = new MaterialDialog.Builder(getContext())
-                                .progress(true, 0)
-                                .title(R.string.logbook_dialog_uploading_fueling_header)
-                                .content(R.string.logbook_dialog_uploading_fueling_content)
-                                .cancelable(false)
+                        dialog = DialogUtils.createProgressBarDialogBuilder(getContext(),
+                                R.string.logbook_dialog_uploading_fueling_header,
+                                R.drawable.others_logbook_white_24dp,
+                                R.string.logbook_dialog_uploading_fueling_content)
+                                .setCancelable(false)
                                 .show();
                     }
 
@@ -493,6 +514,7 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
 
                         ((LogbookUiListener) getActivity()).onFuelingUploaded(fueling);
                         ((LogbookUiListener) getActivity()).onHideAddFuelingCard();
+                        showSnackbarInfo(R.string.logbook_fuel_addition_successful);
                     }
 
                     @Override

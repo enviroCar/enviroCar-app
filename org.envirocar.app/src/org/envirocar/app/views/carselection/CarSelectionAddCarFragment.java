@@ -51,6 +51,7 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import info.hoang8f.android.segmented.SegmentedGroup;
 import io.reactivex.Observable;
 import io.reactivex.Single;
@@ -94,6 +95,8 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
             hideKeyboard(v);
             closeThisFragment();
         });
+
+        view.setOnClickListener(v -> hideKeyboard(view));
 
         mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
