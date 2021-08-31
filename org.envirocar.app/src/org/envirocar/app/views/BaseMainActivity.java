@@ -26,6 +26,7 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.WindowManager;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.fragment.app.Fragment;
@@ -60,6 +61,8 @@ import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.utils.ServiceUtils;
 
+import java.util.Stack;
+
 import javax.inject.Inject;
 
 import butterknife.BindView;
@@ -79,6 +82,9 @@ public class BaseMainActivity extends BaseInjectorActivity {
 
     private FragmentStatePagerAdapter fragmentStatePagerAdapter;
     private MenuItem prevMenuItem;
+
+    // Custom Callback Stack
+    Stack<Integer> callbackStack = new Stack<Integer>();
 
     // Injected variables
     @Inject
@@ -160,6 +166,21 @@ public class BaseMainActivity extends BaseInjectorActivity {
 
         fragmentStatePagerAdapter = new PageSlider(getSupportFragmentManager(), FragmentStatePagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
         viewPager.setAdapter(fragmentStatePagerAdapter);
+
+        // Custom Back Navigation for fragments in BaseMainActivity
+        callbackStack.push(0);
+        OnBackPressedCallback callback = new OnBackPressedCallback(false) {
+            @Override
+            public void handleOnBackPressed() {
+                // Handle the back button event
+                callbackStack.pop();
+                viewPager.setCurrentItem(callbackStack.peek());
+                if(callbackStack.size() < 2)
+                    this.setEnabled(false);
+            }
+        };
+        this.getOnBackPressedDispatcher().addCallback(this, callback);
+
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -172,6 +193,11 @@ public class BaseMainActivity extends BaseInjectorActivity {
                     prevMenuItem.setChecked(false);
                 } else {
                     navigationBottomBar.getMenu().getItem(0).setChecked(false);
+                }
+                // add page to callbackStack
+                if (callbackStack.peek() != position) {
+                    callbackStack.push(position);
+                    callback.setEnabled(true);
                 }
                 navigationBottomBar.getMenu().getItem(position).setChecked(true);
                 prevMenuItem = navigationBottomBar.getMenu().getItem(position);

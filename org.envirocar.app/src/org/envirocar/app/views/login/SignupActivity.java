@@ -31,7 +31,6 @@ import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.util.Pair;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
@@ -40,10 +39,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.content.ContextCompat;
 
-import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 import com.jakewharton.rxbinding3.widget.RxCompoundButton;
@@ -88,7 +84,8 @@ public class SignupActivity extends BaseInjectorActivity {
     private static final String PASSWORD_REGEX = "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{6,}$";
     private static final String USERNAME_REGEX = "^[A-Za-z0-9_-]{6,}$";
     private static final int CHECK_FORM_DELAY = 750;
-    private static Drawable error;
+    private static Drawable errorPassword;
+    private static Drawable errorUsername;
 
     public static void startActivity(Context context) {
         Intent intent = new Intent(context, SignupActivity.class);
@@ -142,8 +139,11 @@ public class SignupActivity extends BaseInjectorActivity {
         // inject the views
         ButterKnife.bind(this);
 
-        error = getResources().getDrawable(R.drawable.ic_error_red_24dp);
-        error.setBounds(-50,0,0,error.getIntrinsicHeight());
+        errorPassword = getResources().getDrawable(R.drawable.ic_error_red_24dp);
+        errorPassword.setBounds(-70,0,0, errorPassword.getIntrinsicHeight());
+
+        errorUsername = getResources().getDrawable(R.drawable.ic_error_red_24dp);
+        errorUsername.setBounds(0, 0, errorUsername.getIntrinsicWidth(), errorUsername.getIntrinsicHeight());
 
         // make terms of use and privacy statement clickable
         this.makeClickableTextLinks();
@@ -276,10 +276,10 @@ public class SignupActivity extends BaseInjectorActivity {
                 mainThreadWorker.schedule(() -> {
                     if (e.getConflictType() == ResourceConflictException.ConflictType.USERNAME) {
                         usernameEditText.setError(getString(
-                                R.string.error_username_already_in_use));
+                                R.string.error_username_already_in_use),errorUsername);
                         usernameEditText.requestFocus();
                     } else if (e.getConflictType() == ResourceConflictException.ConflictType.MAIL) {
-                        emailEditText.setError(getString(R.string.error_email_already_in_use));
+                        emailEditText.setError(getString(R.string.error_email_already_in_use),errorUsername);
                         emailEditText.requestFocus();
                     }
                 });
@@ -291,7 +291,7 @@ public class SignupActivity extends BaseInjectorActivity {
 
                 // Show an error.
                 mainThreadWorker.schedule(() -> {
-                    usernameEditText.setError(getString(R.string.error_host_not_found));
+                    usernameEditText.setError(getString(R.string.error_host_not_found),errorUsername);
                     usernameEditText.requestFocus();
                 });
 
@@ -362,13 +362,13 @@ public class SignupActivity extends BaseInjectorActivity {
 
         boolean isValidUsername = true;
         if (username == null || username.isEmpty() || username.equals("")) {
-            usernameEditText.setError(getString(R.string.error_field_required));
+            usernameEditText.setError(getString(R.string.error_field_required),errorUsername);
             isValidUsername = false;
         } else if (username.length() < 6) {
-            usernameEditText.setError(getString(R.string.error_invalid_username));
+            usernameEditText.setError(getString(R.string.error_invalid_username),errorUsername);
             isValidUsername = false;
         } else if (!Pattern.matches(USERNAME_REGEX,username)) {
-            usernameEditText.setError(getString(R.string.error_username_contain_special));
+            usernameEditText.setError(getString(R.string.error_username_contain_special),errorUsername);
             isValidUsername = false;
         }
         return isValidUsername;
@@ -380,10 +380,10 @@ public class SignupActivity extends BaseInjectorActivity {
     private boolean checkEmailValidity(String email) {
         boolean isValidEmail = true;
         if (TextUtils.isEmpty(email)) {
-            emailEditText.setError(getString(R.string.error_field_required));
+            emailEditText.setError(getString(R.string.error_field_required),errorUsername);
             isValidEmail = false;
         } else if (!Pattern.matches(EMAIL_REGEX, email)) {
-            emailEditText.setError(getString(R.string.error_invalid_email));
+            emailEditText.setError(getString(R.string.error_invalid_email),errorUsername);
             isValidEmail = false;
         }
         return isValidEmail;
@@ -395,20 +395,20 @@ public class SignupActivity extends BaseInjectorActivity {
     private boolean checkPasswordValidity(String password) {
         boolean isValidPassword = true;
         if (password == null || password.isEmpty() || password.equals("")) {
-            password1EditText.setError(getString(R.string.error_field_required),error);
+            password1EditText.setError(getString(R.string.error_field_required), errorPassword);
             isValidPassword = false;
         } else if (password.length() < 6) {
-            password1EditText.setError(getString(R.string.error_invalid_password),error);
+            password1EditText.setError(getString(R.string.error_invalid_password), errorPassword);
             isValidPassword = false;
         } else if (!Pattern.matches(PASSWORD_REGEX, password)) {
-            password1EditText.setError(getString(R.string.error_field_weak_password),error);
+            password1EditText.setError(getString(R.string.error_field_weak_password), errorPassword);
             isValidPassword = false;
         } else {
             final String password2 = password2EditText.getText().toString().trim();
             if (!password2.equals("") && !password2.isEmpty() && password2 != null) {
                 checkPasswordMatch(password, password2);
             }else {
-                password2EditText.setError(getString(R.string.error_field_required), error);
+                password2EditText.setError(getString(R.string.error_field_required), errorPassword);
             }
         }
         return isValidPassword;
@@ -420,7 +420,7 @@ public class SignupActivity extends BaseInjectorActivity {
     private boolean checkConfirmPasswordValidity(String password2) {
         boolean isValidMatch = true;
         if (password2 == null || password2.isEmpty() || password2.equals("")) {
-            password2EditText.setError(getString(R.string.error_field_required),error);
+            password2EditText.setError(getString(R.string.error_field_required), errorPassword);
             isValidMatch = false;
         } else {
             final String password1 = password1EditText.getText().toString().trim();
@@ -437,8 +437,8 @@ public class SignupActivity extends BaseInjectorActivity {
     private boolean checkPasswordMatch(String password, String password2) {
         boolean isValidMatch = password.equals(password2);
         if (!isValidMatch) {
-            password1EditText.setError(getString(R.string.error_passwords_not_matching),error);
-            password2EditText.setError(getString(R.string.error_passwords_not_matching),error);
+            password1EditText.setError(getString(R.string.error_passwords_not_matching), errorPassword);
+            password2EditText.setError(getString(R.string.error_passwords_not_matching), errorPassword);
         } else {
             password1EditText.setError(null);
             password2EditText.setError(null);

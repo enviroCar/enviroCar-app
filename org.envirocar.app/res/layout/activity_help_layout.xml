@@ -284,6 +284,7 @@
 
         <TextView
             style="@style/enviroCar.Help.content"
+            android:autoLink="email"
             android:text="@string/help_content_6"/>
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>
