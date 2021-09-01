@@ -1,5 +1,6 @@
 package org.envirocar.app.views.carselection;
 
+import android.app.Activity;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
@@ -7,6 +8,7 @@ import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AutoCompleteTextView;
 import android.widget.ListAdapter;
 import android.widget.TextView;
@@ -260,6 +262,7 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
         } catch (Exception e) {
             LOG.warn("Unable to find next field or to request focus to next field.");
         }
+        hideKeyboard(textField);
     }
 
     private void reactiveTexFieldCheck() {
@@ -336,5 +339,10 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
                     } catch (Exception e) {
                     }
                 }));
+    }
+
+    public void hideKeyboard(View view) {
+        InputMethodManager inputMethodManager = (InputMethodManager) getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 }

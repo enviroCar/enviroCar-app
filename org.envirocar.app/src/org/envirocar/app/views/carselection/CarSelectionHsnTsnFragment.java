@@ -1,12 +1,14 @@
 package org.envirocar.app.views.carselection;
 
 
+import android.app.Activity;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AutoCompleteTextView;
 import android.widget.ListAdapter;
 import android.widget.TextView;
@@ -21,6 +23,7 @@ import org.envirocar.app.R;
 import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.core.entity.Manufacturers;
 import org.envirocar.core.entity.Vehicles;
+import org.envirocar.core.logging.Logger;
 import org.envirocar.storage.EnviroCarVehicleDB;
 
 import java.util.HashSet;
@@ -53,6 +56,8 @@ public class CarSelectionHsnTsnFragment extends BaseInjectorFragment {
     protected AutoCompleteTextView tsnEditText;
     protected BottomSheetFragment bottomSheetFragment;
 
+    private static final Logger LOG = Logger.getLogger(CarSelectionAttributesFragment.class);
+
     @Inject
     EnviroCarVehicleDB enviroCarVehicleDB;
     private Scheduler.Worker mainThreadWorker = AndroidSchedulers.mainThread().createWorker();
@@ -80,6 +85,7 @@ public class CarSelectionHsnTsnFragment extends BaseInjectorFragment {
         error = getResources().getDrawable(R.drawable.ic_error_red_24dp);
         error.setBounds(-50, 0, 0, error.getIntrinsicHeight());
         hsnEditText.setOnItemClickListener((parent, view1, position, id) -> requestNextTextFieldFocus(hsnEditText));
+        tsnEditText.setOnItemClickListener((parent, view1, position, id) -> requestNextTextFieldFocus(tsnEditText));
         return view;
     }
 
@@ -95,8 +101,9 @@ public class CarSelectionHsnTsnFragment extends BaseInjectorFragment {
             TextView nextField = (TextView) textView.focusSearch(View.FOCUS_DOWN);
             nextField.requestFocus();
         } catch (Exception e) {
-
+            LOG.warn("Unable to find next field or to request focus to next field.");
         }
+        hideKeyboard(textView);
     }
 
     @OnClick(R.id.fragment_search_vehicle)
@@ -267,5 +274,10 @@ public class CarSelectionHsnTsnFragment extends BaseInjectorFragment {
                     } catch (Exception e) {
                     }
                 }));
+    }
+
+    public void hideKeyboard(View view) {
+        InputMethodManager inputMethodManager = (InputMethodManager) getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 }
