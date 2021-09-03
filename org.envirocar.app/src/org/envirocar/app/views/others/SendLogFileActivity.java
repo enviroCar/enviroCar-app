@@ -19,6 +19,7 @@
 package org.envirocar.app.views.others;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
@@ -32,6 +33,7 @@ import androidx.core.content.ContextCompat;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
@@ -125,6 +127,7 @@ public class SendLogFileActivity extends BaseInjectorActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.send_log_layout_new);
+        hideKeyboardBackground(findViewById(R.id.relativeLayout));
         ButterKnife.bind(this);
 
         setSupportActionBar(toolbar);
@@ -177,7 +180,6 @@ public class SendLogFileActivity extends BaseInjectorActivity {
         super.onPause();
         hideKeyboard(getCurrentFocus());
     }
-
 
     /**
      * In case no checkbox has been ticked, a dialog is created urging the getUserStatistic to do so,
@@ -426,7 +428,23 @@ public class SendLogFileActivity extends BaseInjectorActivity {
             inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
     }
+    public void hideKeyboardBackground(View view) {
 
+        if (!(view instanceof EditText)) {
+            view.setOnTouchListener((v, event) -> {
+                hideKeyboard(view);
+                return false;
+            });
+        }
+
+        //If there is a layout container, then it iterates over the children process using recursion
+        if (view instanceof ViewGroup) {
+            for (int i = 0; i < ((ViewGroup) view).getChildCount(); i++) {
+                View innerView = ((ViewGroup) view).getChildAt(i);
+                hideKeyboardBackground(innerView);
+            }
+        }
+    }
     /**
      * used to make sure the list View is not cut off in the parent ScrollView
      *
