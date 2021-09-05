@@ -148,7 +148,7 @@
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:id="@+id/fragment_dashboard_indicator_bluetooth_layout"
-                        android:layout_width="0dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:gravity="center"
@@ -164,8 +164,8 @@
                             android:layout_weight="1"
                             android:adjustViewBounds="true"
                             android:background="@drawable/btn_dashboard_circle"
-                            android:src="@drawable/ic_bluetooth_black_24dp"
                             android:backgroundTint="@color/dashboard_indicator_selector"
+                            android:src="@drawable/ic_bluetooth_black_24dp"
                             android:tint="@color/white_cario"
                             app:layout_constraintBottom_toTopOf="@id/fragment_dashboard_indicator_bluetooth_text"
                             app:layout_constraintDimensionRatio="1:1"

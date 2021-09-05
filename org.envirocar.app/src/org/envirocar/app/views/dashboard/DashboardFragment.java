@@ -47,6 +47,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -216,7 +217,7 @@ public class DashboardFragment extends BaseInjectorFragment {
     private List<SizeSyncTextView> indicatorSyncGroup;
     private AppUpdateManager appUpdateManager;
     private Task<AppUpdateInfo> appUpdateInfoTask;
-
+    public static int count=0;
     @Override
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
         baseApplicationComponent.inject(this);
@@ -234,6 +235,7 @@ public class DashboardFragment extends BaseInjectorFragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+
         // Inflate view first
         View contentView = inflater.inflate(R.layout.fragment_dashboard_view_new, container, false);
 
@@ -248,8 +250,14 @@ public class DashboardFragment extends BaseInjectorFragment {
         appUpdateManager = AppUpdateManagerFactory.create(getContext());
         appUpdateInfoTask = appUpdateManager.getAppUpdateInfo();
 
-        //
+
         this.updateUserLogin(userHandler.getUser());
+
+        // userHandler.getUser()!=null --> to check if user is logged out, userHandler.getUser() will give null if user logged out
+        if(count==0 && (userHandler.getUser()!=null))
+        this.ShowMessageOnce(userHandler.getUser());
+        //count will let message show only once whenever app/activity is launched.
+        count++;
 
         // init the text size synchronization
         initTextSynchronization();
@@ -661,7 +669,14 @@ public class DashboardFragment extends BaseInjectorFragment {
             userDurationTextView.setText(formatTimeForDashboard(event.totalDuration));
         });
     }
+    //show message when the app/this activity  is launched
+private void ShowMessageOnce(User user){
 
+    Snackbar snackbar = Snackbar.make(getActivity().findViewById(R.id.navigation),
+            String.format(getString(R.string.welcome_message), user.getUsername()),
+            Snackbar.LENGTH_LONG);
+    snackbar.show();
+    }
     private void updateUserLogin(User user) {
         if (user != null) {
             // show progress bar
@@ -671,11 +686,6 @@ public class DashboardFragment extends BaseInjectorFragment {
             this.toolbar.getMenu().clear();
             this.toolbar.inflateMenu(R.menu.menu_dashboard_logged_in);
             this.textView.setText(user.getUsername());
-
-            // Welcome message as user logged in successfully
-            Snackbar.make(getActivity().findViewById(R.id.navigation),
-                    String.format(getString(R.string.welcome_message), user.getUsername()),
-                    Snackbar.LENGTH_LONG).show();
 
             ConstraintSet set = new ConstraintSet();
             set.constrainPercentHeight(bannerLayout.getId(), 0.25f);
@@ -699,7 +709,6 @@ public class DashboardFragment extends BaseInjectorFragment {
             set.applyTo(this.mainLayout);
         }
     }
-
     private void updateStatisticsVisibility(boolean statisticsKnown) {
         // update progress bar visibility
         int progressBarVisibility = statisticsKnown ? View.GONE : View.VISIBLE;

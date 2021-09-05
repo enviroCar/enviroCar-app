@@ -42,7 +42,9 @@ import org.envirocar.app.handler.DAOProvider;
 import org.envirocar.app.handler.agreement.AgreementManager;
 import org.envirocar.app.handler.preferences.UserPreferenceHandler;
 import org.envirocar.app.injection.BaseInjectorActivity;
+import org.envirocar.app.views.dashboard.DashboardFragment;
 import org.envirocar.app.views.utils.DialogUtils;
+import org.envirocar.core.entity.User;
 import org.envirocar.core.logging.Logger;
 
 import javax.inject.Inject;
@@ -203,19 +205,22 @@ public class SigninActivity extends BaseInjectorActivity {
                                     (String) null)
                                     .setCancelable(false)
                                     .show();
+
                         }
+
                     }
 
                     @Override
                     public void onComplete() {
                         if(checkNetworkConnection())
-                        dialog.dismiss();
+                            dialog.dismiss();
+
                     }
 
                     @Override
                     public void onError(Throwable e) {
                         if(checkNetworkConnection())
-                        dialog.dismiss();
+                            dialog.dismiss();
                         if (e instanceof LoginException) {
                             switch (((LoginException) e).getType()) {
                                 case USERNAME_OR_PASSWORD_INCORRECT:
@@ -246,7 +251,6 @@ public class SigninActivity extends BaseInjectorActivity {
                     }
                 });
     }
-
     private boolean checkNetworkConnection() {
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
