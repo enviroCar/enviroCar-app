@@ -47,6 +47,8 @@ import org.envirocar.app.views.utils.DialogUtils;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.logging.Logger;
 
+import android.os.Handler;
+
 import javax.inject.Inject;
 
 import butterknife.BindView;
@@ -215,8 +217,23 @@ public class SigninActivity extends BaseInjectorActivity {
                         if(checkNetworkConnection())
                             dialog.dismiss();
 
-                    }
+                        //welcome message after successful login
+                        Snackbar.make(logoImageView, String.format(getResources().getString(
+                                R.string.welcome_message), username), Snackbar.LENGTH_LONG).show();
+                        Handler handler = new Handler();
+                        Runnable x=new Runnable() {
+                            @Override
+                            //finish the activity
+                            public void run() {
+                                finish();
+                            }
+                        };
+                        //post delay after login, 1000ms --> 1sec
+                        // so for around 1 sec welcome message will be shown
+                        handler.postDelayed(x, 1000);
 
+
+                    }
                     @Override
                     public void onError(Throwable e) {
                         if(checkNetworkConnection())
@@ -251,6 +268,7 @@ public class SigninActivity extends BaseInjectorActivity {
                     }
                 });
     }
+
     private boolean checkNetworkConnection() {
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
