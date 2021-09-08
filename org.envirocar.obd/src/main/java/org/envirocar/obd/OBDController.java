@@ -28,6 +28,7 @@ import org.envirocar.obd.adapter.CarTrendAdapter;
 import org.envirocar.obd.adapter.ELM327Adapter;
 import org.envirocar.obd.adapter.OBDAdapter;
 import org.envirocar.obd.adapter.OBDLinkAdapter;
+import org.envirocar.obd.adapter.UniCarScanAdapter;
 import org.envirocar.obd.adapter.async.DriveDeckSportAdapter;
 import org.envirocar.obd.bluetooth.BluetoothSocketWrapper;
 import org.envirocar.obd.commands.PID;
@@ -123,6 +124,7 @@ public class OBDController {
      */
     private void setupAdapterCandidates() {
         adapterCandidates.clear();
+        adapterCandidates.offer(new UniCarScanAdapter());
         adapterCandidates.offer(new ELM327Adapter());
         adapterCandidates.offer(new OBDLinkAdapter());
         adapterCandidates.offer(new CarTrendAdapter());
