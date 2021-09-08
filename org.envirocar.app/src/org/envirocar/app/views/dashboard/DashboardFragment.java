@@ -216,6 +216,7 @@ public class DashboardFragment extends BaseInjectorFragment {
     private List<SizeSyncTextView> indicatorSyncGroup;
     private AppUpdateManager appUpdateManager;
     private Task<AppUpdateInfo> appUpdateInfoTask;
+    private Boolean welcomeMessageShown = false;
 
     @Override
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
@@ -673,9 +674,12 @@ public class DashboardFragment extends BaseInjectorFragment {
             this.textView.setText(user.getUsername());
 
             // Welcome message as user logged in successfully
-            Snackbar.make(getActivity().findViewById(R.id.navigation),
-                    String.format(getString(R.string.welcome_message), user.getUsername()),
-                    Snackbar.LENGTH_LONG).show();
+            if(!welcomeMessageShown){
+                Snackbar.make(getActivity().findViewById(R.id.navigation),
+                        String.format(getString(R.string.welcome_message), user.getUsername()),
+                        Snackbar.LENGTH_LONG).show();
+                welcomeMessageShown = true;
+            }
 
             ConstraintSet set = new ConstraintSet();
             set.constrainPercentHeight(bannerLayout.getId(), 0.25f);
