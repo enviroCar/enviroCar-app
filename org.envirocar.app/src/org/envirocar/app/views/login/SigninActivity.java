@@ -42,6 +42,8 @@ import org.envirocar.app.handler.DAOProvider;
 import org.envirocar.app.handler.agreement.AgreementManager;
 import org.envirocar.app.handler.preferences.UserPreferenceHandler;
 import org.envirocar.app.injection.BaseInjectorActivity;
+import org.envirocar.app.views.BaseMainActivity;
+import org.envirocar.app.views.obdselection.OBDSelectionActivity;
 import org.envirocar.app.views.utils.DialogUtils;
 import org.envirocar.core.logging.Logger;
 
@@ -210,6 +212,8 @@ public class SigninActivity extends BaseInjectorActivity {
                     public void onComplete() {
                         if(checkNetworkConnection())
                         dialog.dismiss();
+                        Intent intent = new Intent(getBaseContext(), BaseMainActivity.class);
+                        startActivity(intent);
                     }
 
                     @Override
