@@ -10,7 +10,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.3'
+        classpath 'com.android.tools.build:gradle:3.6.3'
         classpath "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.12.1"
         classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
     }
@@ -47,11 +47,11 @@ allprojects {
 ext {
     androidPlugin = 'com.android.tools.build:gradle:3.1.2'
     minSdkVersion = 21
-    compileSdkVersion = 28
-    targetSdkVersion = 28
-    buildToolsVersion = '28.0.3'
-    versionCode = 45
-    versionName = "1.1.5"
+    compileSdkVersion = 29
+    targetSdkVersion = 29
+    buildToolsVersion = '29.0.2'
+    versionCode = 49
+    versionName = "1.1.9"
 
     javaCompileVersion = JavaVersion.VERSION_1_8
 
@@ -63,6 +63,9 @@ ext {
     supportRecyclerview = 'androidx.recyclerview:recyclerview:1.0.0'
     supportConstraintLayout = 'androidx.constraintlayout:constraintlayout:1.1.3'
     androidxPreference = 'androidx.preference:preference:1.1.0'
+    androidRoom = 'androidx.room:room-runtime:2.2.5'
+    androidRoomRxJava = 'androidx.room:room-rxjava2:2.2.5'
+    supportRoom = 'androidx.room:room-compiler:2.2.5'
 
     def lifecycle_version = "2.0.0"
     supportLifecycleExtension = "androidx.lifecycle:lifecycle-extensions:$lifecycle_version"
@@ -105,6 +108,7 @@ ext {
     //guava = 'com.google.guava:guava:18.0'
     findBugs = 'com.google.code.findbugs:jsr305:3.0.2'
     playServicesLocation = 'com.google.android.gms:play-services-location:17.0.0'
+    playCore =  'com.google.android.play:core:1.8.0'
 
     //acra
     acra = 'ch.acra:acra-core:5.1.3'
@@ -116,6 +120,7 @@ ext {
     mapbox = 'com.mapbox.mapboxsdk:mapbox-android-sdk:8.1.0'
     segmentedUIController = 'info.hoang8f:android-segmented:1.0.6'
     apacheCommons = 'org.apache.commons:commons-compress:1.18'
+    openCSVReader = 'com.opencsv:opencsv:4.6'
 
     // Testing
     junit = 'junit:junit:4.12'

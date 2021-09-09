@@ -20,7 +20,6 @@ package org.envirocar.app.views.obdselection;
 
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
-import androidx.appcompat.widget.AppCompatRadioButton;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,10 +28,12 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.appcompat.widget.AppCompatRadioButton;
+
 import org.envirocar.app.R;
 
-import butterknife.ButterKnife;
 import butterknife.BindView;
+import butterknife.ButterKnife;
 
 /**
  * @author dewall
@@ -131,8 +132,8 @@ public class OBDDeviceListAdapter extends ArrayAdapter<BluetoothDevice> {
 
         // If there exists an already selected bluetooth device and the device of this entry
         // matches the selected device, then set it to checked.
-        if (mSelectedBluetoothDevice != null) {
-            if (mSelectedBluetoothDevice.getName().equals(device.getName())) {
+        if (mSelectedBluetoothDevice != null){
+            if (mSelectedBluetoothDevice.getAddress().equals(device.getAddress())) {
                 mSelectedRadioButton = holder.mRadioButton;
                 mSelectedRadioButton.setChecked(true);
                 mSelectedBluetoothDevice = device;

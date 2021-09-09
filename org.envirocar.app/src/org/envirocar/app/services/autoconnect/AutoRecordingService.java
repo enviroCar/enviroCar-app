@@ -71,6 +71,7 @@ public class AutoRecordingService extends ScopedBaseInjectorService implements A
     @Inject
     protected AutoRecordingStrategy.Factory factory;
     @Inject
+    @AutoRecordingScope
     protected PowerManager.WakeLock wakeLock;
     @Inject
     protected AutoRecordingNotification notification;

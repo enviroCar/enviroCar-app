@@ -151,7 +151,7 @@ public class OBDRecordingStrategy implements RecordingStrategy {
         disposables.add(
                 locationProvider.startLocating()
                         .subscribeOn(AndroidSchedulers.mainThread())
-                        .observeOn(Schedulers.io())
+                        .observeOn(Schedulers.newThread())
                         .doOnDispose(() -> LOG.info("Location Provider has been disposed!"))
                         .subscribe(() -> LOG.info("Completed"), LOG::error));
     }

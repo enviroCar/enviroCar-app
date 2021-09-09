@@ -57,9 +57,11 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -312,7 +314,7 @@ public class SendLogFileActivity extends BaseInjectorActivity {
     }
 
     private String createEstimatedTimeStamp() {
-        long now = System.currentTimeMillis();
+
         String text;
         try {
             text = whenField.getText().toString();
@@ -321,15 +323,24 @@ public class SendLogFileActivity extends BaseInjectorActivity {
             text = null;
         }
 
-        int delta;
-        if (text == null || text.isEmpty()) {
-            delta = 0;
-        } else {
-            delta = Integer.parseInt(text);
-        }
+        String[] hoursAndMinutes = text.split(":");
 
-        Date date = new Date(now - delta * 1000 * 60);
-        return SimpleDateFormat.getDateTimeInstance().format(date);
+        Calendar calendar = Calendar.getInstance();
+
+        if(hoursAndMinutes.length > 1){
+            try {
+                calendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(hoursAndMinutes[0]));
+            } catch (Exception e) {
+                LOG.info("Could not parse hour of day.");
+            }
+
+            try {
+                calendar.set(Calendar.MINUTE, Integer.parseInt(hoursAndMinutes[1]));
+            } catch (Exception e) {
+                LOG.info("Could not parse minute.");
+            }
+        }
+        return SimpleDateFormat.getDateTimeInstance().format(calendar.getTime());
     }
 
 

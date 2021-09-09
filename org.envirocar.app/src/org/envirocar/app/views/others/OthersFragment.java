@@ -20,6 +20,7 @@ package org.envirocar.app.views.others;
 
 
 import android.Manifest;
+import android.app.Service;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -50,6 +51,7 @@ import org.envirocar.app.views.settings.SettingsActivity;
 import org.envirocar.app.views.utils.DialogUtils;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.logging.Logger;
+import org.envirocar.core.utils.ServiceUtils;
 
 import java.util.concurrent.TimeUnit;
 
@@ -283,8 +285,8 @@ public class OthersFragment extends BaseInjectorFragment {
 
 
     private void shutdownEnviroCar() {
-        AutoRecordingService.stopService(getActivity());
-        RecordingService.stopService(getActivity());
+        ServiceUtils.stopService(getActivity(), AutoRecordingService.class);
+        ServiceUtils.stopService(getActivity(), RecordingService.class);
 
         mMainThreadWorker.schedule(() -> {
             android.os.Process.killProcess(android.os.Process.myUid());
