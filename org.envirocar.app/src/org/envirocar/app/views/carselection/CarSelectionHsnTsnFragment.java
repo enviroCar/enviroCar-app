@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatDelegate;
 
 import com.jakewharton.rxbinding3.widget.RxTextView;
 
@@ -77,6 +78,11 @@ public class CarSelectionHsnTsnFragment extends BaseInjectorFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
+        if (AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES) {
+            getActivity().setTheme(R.style.DarkTheme);
+        } else {
+            getActivity().setTheme(R.style.LightTheme);
+        }
         View view = inflater.inflate(R.layout.fragment_car_selection_hsn_tsn, container, false);
         ButterKnife.bind(this, view);
         fetchAllVehicles();

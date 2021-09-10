@@ -29,6 +29,8 @@ import android.os.Bundle;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
+
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 
 import android.view.View;
@@ -121,6 +123,11 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
         LOG.info("onCreate()");
         super.onCreate(savedInstanceState);
 
+        if (AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES) {
+            setTheme(R.style.DarkTheme);
+        } else {
+            setTheme(R.style.LightTheme);
+        }
         // First, set the content view.
         setContentView(R.layout.activity_logbook);
 

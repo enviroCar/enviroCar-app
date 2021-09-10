@@ -20,6 +20,8 @@ package org.envirocar.app.views.obdselection;
 
 import android.os.Bundle;
 import com.google.android.material.snackbar.Snackbar;
+
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.fragment.app.Fragment;
 import androidx.appcompat.widget.Toolbar;
 import android.view.MenuItem;
@@ -71,6 +73,12 @@ public class OBDSelectionActivity extends BaseInjectorActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES) {
+            setTheme(R.style.DarkTheme);
+        } else {
+            setTheme(R.style.LightTheme);
+        }
 
         // Set the content view of this activity.
         setContentView(R.layout.activity_obd_selection_layout);

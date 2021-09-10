@@ -20,19 +20,26 @@ package org.envirocar.app.views.others;
 
 
 import android.Manifest;
+import android.annotation.SuppressLint;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -48,10 +55,12 @@ import org.envirocar.app.recording.RecordingService;
 import org.envirocar.app.services.autoconnect.AutoRecordingService;
 import org.envirocar.app.views.logbook.LogbookActivity;
 import org.envirocar.app.views.settings.SettingsActivity;
+import org.envirocar.app.views.settings.custom.SamplingRatePreference;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.utils.ServiceUtils;
 
+import java.lang.reflect.Array;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
@@ -80,14 +89,23 @@ public class OthersFragment extends BaseInjectorFragment {
     @BindView(R.id.othersLogOutDivider)
     protected View othersLogOutDivider;
 
+
+
     private Scheduler.Worker mMainThreadWorker = AndroidSchedulers.mainThread().createWorker();
     private final Scheduler.Worker mBackgroundWorker = Schedulers.newThread().createWorker();
 
     private int REQUEST_PERMISSIONS_REQUEST_CODE = 101;
+    String[] theme = {"Dark Theme", "Light Theme"};
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        if (AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES) {
+            getActivity().setTheme(R.style.DarkTheme);
+        } else {
+            getActivity().setTheme(R.style.LightTheme);
+        }
+
         View view = inflater.inflate(R.layout.fragment_others, container, false);
 
         ButterKnife.bind(this, view);
@@ -108,7 +126,6 @@ public class OthersFragment extends BaseInjectorFragment {
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
         baseApplicationComponent.inject(this);
     }
-
 
     @OnClick(R.id.othersLogBook)
     protected void onLogBookClicked() {
@@ -160,6 +177,28 @@ public class OthersFragment extends BaseInjectorFragment {
                         (dialog, which) -> mUserManager.logOut().subscribe(logOut()))
                 .setNegativeButton(R.string.menu_logout_envirocar_negative,null)
                 .show();
+    }
+
+    @OnClick(R.id.othersDarkTheme)
+    protected void onDarkThemeClicked(){
+
+        new MaterialAlertDialogBuilder(getActivity(), R.style.MaterialDialog)
+                .setTitle("Change theme")
+                .setIcon(R.drawable.ic_baseline_brightness_4_24)
+                .setItems(theme, (dialog, which) -> {
+                    switch(which){
+                        case 0:
+                            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                            break;
+                        case 1:
+                            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                            break;
+                    }
+                })
+                .show();
+
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
+        ft.detach(OthersFragment.this).attach(OthersFragment.this).commit();
     }
 
     @OnClick(R.id.othersCloseEnviroCar)

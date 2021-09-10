@@ -37,7 +37,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:fontFamily="@font/roboto"
-        android:textColor="#000000"
+        android:textColor="@color/secondary_text"
         android:text="Some Issue"
         android:singleLine="false"
         android:breakStrategy="high_quality"

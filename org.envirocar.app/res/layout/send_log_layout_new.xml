@@ -67,7 +67,7 @@
                     android:text="@string/report_issue_time_since_crash"
                     android:layout_marginLeft="4dp"
                     android:layout_marginRight="16dp"
-                    android:textColor="@color/cario_color_primary_dark"
+                    android:textColor="@color/blue_dark_cario"
                     android:textSize="18sp" />
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -116,7 +116,7 @@
                 android:layout_marginTop="16dp"
                 android:textSize="18sp"
                 android:fontFamily="@font/roboto_medium"
-                android:textColor="@color/cario_color_primary_dark"
+                android:textColor="@color/blue_dark_cario"
                 android:text="@string/categories" />
 
             <ListView

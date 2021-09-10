@@ -34,7 +34,8 @@
         android:layout_centerVertical="true"
         android:layout_marginLeft="@dimen/spacing_medium"
         android:alpha="0.54"
-        android:src="@drawable/ic_drive_eta_black_24dp" />
+        android:src="@drawable/ic_drive_eta_black_24dp"
+        app:tint="?attr/icons"/>
 
     <RadioButton
         android:id="@+id/activity_car_selection_layout_carlist_entry_radio"
@@ -64,7 +65,7 @@
             android:fontFamily="@font/roboto_medium"
             android:singleLine="true"
             android:text="@string/dashboard_carselection_no_car_selected"
-            android:textColor="#000000"
+            android:textColor="?attr/secondary_text"
             app:autoSizeMaxTextSize="20sp"
             app:autoSizeMinTextSize="15sp"
             app:autoSizeTextType="uniform" />
@@ -76,7 +77,6 @@
             android:fontFamily="@font/roboto"
             android:singleLine="true"
             android:text="@string/dashboard_carselection_no_car_selected_advise"
-            android:textColor="#000000"
             app:autoSizeMaxTextSize="15sp"
             app:autoSizeMinTextSize="7sp"
             app:autoSizeTextType="uniform" />
