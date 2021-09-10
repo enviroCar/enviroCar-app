@@ -1,5 +1,4 @@
 apply plugin: 'com.android.application' //or apply plugin: 'java'
-apply plugin: "com.github.hierynomus.license"
 
 dependencies {
     // Android dependencies.
