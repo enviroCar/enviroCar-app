@@ -416,7 +416,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
 
         @Override
         public void onComplete() {
-            LOG.info("uploadTrack.onCompleted()");
+            LOG.info("Received uploadTrack.onComplete() event.");
             showSnackbar(String.format(getString(R.string.track_list_upload_track_success_template), track.getName()));
             dialog.dismiss();
         }
@@ -471,6 +471,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
 
         @Override
         public void onComplete() {
+            LOG.info("Received uploadAllTracks.onComplete() event.");
             if (isDisposed())
                 return;
 
