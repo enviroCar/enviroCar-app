@@ -213,6 +213,7 @@ public class DashboardFragment extends BaseInjectorFragment {
 
     // some private variables
     private AlertDialog connectingDialog;
+    private CountDownTimer deviceDiscoveryTimer;
     private List<SizeSyncTextView> indicatorSyncGroup;
     private AppUpdateManager appUpdateManager;
     private Task<AppUpdateInfo> appUpdateInfoTask;
@@ -314,7 +315,7 @@ public class DashboardFragment extends BaseInjectorFragment {
                     .setIcon(R.drawable.ic_logout_white_24dp)
                     .setPositiveButton(R.string.menu_logout_envirocar_positive,
                             (dialog, which) -> userHandler.logOut().subscribe(onLogoutSubscriber()))
-                    .setNegativeButton(R.string.menu_logout_envirocar_negative,null)
+                    .setNegativeButton(R.string.menu_logout_envirocar_negative, null)
                     .show();
         }
     }
@@ -362,7 +363,7 @@ public class DashboardFragment extends BaseInjectorFragment {
                 RecordingType.OBD_ADAPTER_BASED : RecordingType.ACTIVITY_RECOGNITION_BASED;
 
         // if the GPS tracking is not enabled then set recording type to OBD.
-        if(!ApplicationSettings.isGPSBasedTrackingEnabled(getContext())){
+        if (!ApplicationSettings.isGPSBasedTrackingEnabled(getContext())) {
             selectedRT = RecordingType.OBD_ADAPTER_BASED;
         }
 
@@ -460,23 +461,25 @@ public class DashboardFragment extends BaseInjectorFragment {
                                 R.string.dashboard_connecting,
                                 R.drawable.ic_bluetooth_white_24dp,
                                 String.format(getString(R.string.dashboard_connecting_find_template), device.getName()))
-                                .setNegativeButton(R.string.cancel,(dialog, which) -> {
-                                    ServiceUtils.stopService(getActivity(),obdRecordingIntent);
+                                .setNegativeButton(R.string.cancel, (dialog, which) -> {
+                                    ServiceUtils.stopService(getActivity(), obdRecordingIntent);
                                 })
                                 .show();
 
-                        // If the device is not found to start the track, dismiss the Dialog in 15 sec
-                        new CountDownTimer(15000, 1000) {
+                        // If the device is not found to start the track, dismiss the Dialog in 30 sec
+                        deviceDiscoveryTimer = new CountDownTimer(30000, 1000) {
                             @Override
                             public void onTick(long millisUntilFinished) {
                             }
+
                             @Override
                             public void onFinish() {
+                                LOG.warn("Device discovery timeout. Stop recording.");
                                 connectingDialog.dismiss();
                                 ServiceUtils.stopService(getActivity(), obdRecordingIntent);
                                 Snackbar.make(getView(),
                                         String.format(getString(R.string.dashboard_connecting_not_found_template),
-                                                device.getName()),Snackbar.LENGTH_LONG).show();
+                                                device.getName()), Snackbar.LENGTH_LONG).show();
                             }
                         }.start();
 
@@ -522,8 +525,8 @@ public class DashboardFragment extends BaseInjectorFragment {
     }
 
     @OnClick(R.id.user_statistics_card_view)
-    protected void onUserStatsClicked(){
-        BottomNavigationView bottomView= getActivity().findViewById(R.id.navigation);
+    protected void onUserStatsClicked() {
+        BottomNavigationView bottomView = getActivity().findViewById(R.id.navigation);
         bottomView.setSelectedItemId(R.id.navigation_my_tracks);
     }
 
@@ -556,6 +559,7 @@ public class DashboardFragment extends BaseInjectorFragment {
         LOG.info("Retrieved Engine not running event");
         if (connectingDialog != null) {
             connectingDialog.dismiss();
+            deviceDiscoveryTimer.cancel();
             connectingDialog = null;
         }
 
@@ -606,8 +610,8 @@ public class DashboardFragment extends BaseInjectorFragment {
                 this.carIndicator.setActivated(true);
             } else {
 
-                this.carSelectionTextPrimary.setText(String.format("%s",getResources().getString(R.string.dashboard_carselection_no_car_selected)));
-                this.carSelectionTextSecondary.setText(String.format("%s",getResources().getString(R.string.dashboard_carselection_no_car_selected_advise)));
+                this.carSelectionTextPrimary.setText(String.format("%s", getResources().getString(R.string.dashboard_carselection_no_car_selected)));
+                this.carSelectionTextSecondary.setText(String.format("%s", getResources().getString(R.string.dashboard_carselection_no_car_selected_advise)));
 
                 // set warning indicator color to red
                 this.carIndicator.setActivated(false);
@@ -674,7 +678,7 @@ public class DashboardFragment extends BaseInjectorFragment {
             this.textView.setText(user.getUsername());
 
             // Welcome message as user logged in successfully
-            if(!welcomeMessageShown){
+            if (!welcomeMessageShown) {
                 Snackbar.make(getActivity().findViewById(R.id.navigation),
                         String.format(getString(R.string.welcome_message), user.getUsername()),
                         Snackbar.LENGTH_LONG).show();
@@ -782,6 +786,7 @@ public class DashboardFragment extends BaseInjectorFragment {
                     case R.id.fragment_dashboard_obd_mode_button:
                         if (this.connectingDialog != null) {
                             this.connectingDialog.dismiss();
+                            deviceDiscoveryTimer.cancel();
                             this.connectingDialog = null;
                             RecordingScreenActivity.navigate(getContext());
                         }
@@ -791,6 +796,7 @@ public class DashboardFragment extends BaseInjectorFragment {
             case RECORDING_STOPPED:
                 if (this.connectingDialog != null) {
                     this.connectingDialog.dismiss();
+                    deviceDiscoveryTimer.cancel();
                     this.connectingDialog = null;
                 }
                 break;
