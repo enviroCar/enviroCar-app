@@ -1,18 +1,18 @@
 /**
- * Copyright (C) 2013 - 2019 the enviroCar community
- * <p>
+ * Copyright (C) 2013 - 2021 the enviroCar community
+ *
  * This file is part of the enviroCar app.
- * <p>
+ *
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * <p>
+ *
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- * <p>
+ *
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -42,6 +42,8 @@ import org.envirocar.app.handler.DAOProvider;
 import org.envirocar.app.handler.agreement.AgreementManager;
 import org.envirocar.app.handler.preferences.UserPreferenceHandler;
 import org.envirocar.app.injection.BaseInjectorActivity;
+import org.envirocar.app.views.BaseMainActivity;
+import org.envirocar.app.views.obdselection.OBDSelectionActivity;
 import org.envirocar.app.views.utils.DialogUtils;
 import org.envirocar.core.logging.Logger;
 
@@ -210,6 +212,8 @@ public class SigninActivity extends BaseInjectorActivity {
                     public void onComplete() {
                         if(checkNetworkConnection())
                         dialog.dismiss();
+                        Intent intent = new Intent(getBaseContext(), BaseMainActivity.class);
+                        startActivity(intent);
                     }
 
                     @Override

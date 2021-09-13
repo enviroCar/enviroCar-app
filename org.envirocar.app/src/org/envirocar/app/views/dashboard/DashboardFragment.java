@@ -1,18 +1,18 @@
 /**
- * Copyright (C) 2013 - 2019 the enviroCar community
- * <p>
+ * Copyright (C) 2013 - 2021 the enviroCar community
+ *
  * This file is part of the enviroCar app.
- * <p>
+ *
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * <p>
+ *
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- * <p>
+ *
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -216,6 +216,7 @@ public class DashboardFragment extends BaseInjectorFragment {
     private List<SizeSyncTextView> indicatorSyncGroup;
     private AppUpdateManager appUpdateManager;
     private Task<AppUpdateInfo> appUpdateInfoTask;
+    private Boolean welcomeMessageShown = false;
 
     @Override
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
@@ -673,9 +674,12 @@ public class DashboardFragment extends BaseInjectorFragment {
             this.textView.setText(user.getUsername());
 
             // Welcome message as user logged in successfully
-            Snackbar.make(getActivity().findViewById(R.id.navigation),
-                    String.format(getString(R.string.welcome_message), user.getUsername()),
-                    Snackbar.LENGTH_LONG).show();
+            if(!welcomeMessageShown){
+                Snackbar.make(getActivity().findViewById(R.id.navigation),
+                        String.format(getString(R.string.welcome_message), user.getUsername()),
+                        Snackbar.LENGTH_LONG).show();
+                welcomeMessageShown = true;
+            }
 
             ConstraintSet set = new ConstraintSet();
             set.constrainPercentHeight(bannerLayout.getId(), 0.25f);

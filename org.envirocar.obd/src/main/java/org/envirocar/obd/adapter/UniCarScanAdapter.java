@@ -16,33 +16,11 @@
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
-package org.envirocar.obd.commands.response.entity;
+package org.envirocar.obd.adapter;
 
-import org.envirocar.obd.commands.PID;
-import org.envirocar.obd.commands.response.DataResponse;
-
-/**
- * Created by matthes on 02.11.15.
- */
-public class LongTermFuelTrimResponse extends DataResponse {
-    private final double value;
-    private final int bank;
-
-    public LongTermFuelTrimResponse(double v, int bank) {
-        this.value = v;
-        this.bank = bank;
-    }
-
-    public Number getValue() {
-        return value;
-    }
-
-    public int getBank() {
-        return bank;
-    }
-
+public class UniCarScanAdapter extends OBDLinkAdapter{
     @Override
-    public PID getPid() {
-        return PID.LONG_TERM_FUEL_TRIM_BANK_1;
+    public boolean supportsDevice(String deviceName) {
+        return deviceName.contains("OBDII") || deviceName.contains("ELM327");
     }
 }
