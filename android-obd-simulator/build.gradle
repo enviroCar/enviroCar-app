@@ -32,3 +32,14 @@ android {
         release.setRoot('build-types/release')
     }
 }
+
+// custom licenseFormat-tasks to access the directories, which are not part of the standard maven directory pattern
+task licenseFormatSrc(type: com.hierynomus.gradle.license.tasks.LicenseFormat) {
+    source = fileTree(dir: "src").include("**/*.java", '**/*.xml', '**/*.html').exclude('**/MoreObjects.java', '**/Preconditions.java')
+}
+licenseFormat.dependsOn licenseFormatSrc
+
+task licenseFormatRes(type: com.hierynomus.gradle.license.tasks.LicenseFormat) {
+    source = fileTree(dir: "res").include("**/*.java", '**/*.xml', '**/*.html').exclude('**/MoreObjects.java', '**/Preconditions.java')
+}
+licenseFormat.dependsOn licenseFormatRes
