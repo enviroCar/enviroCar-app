@@ -82,7 +82,8 @@
 
     <string name="track_list_upload_all_tracks_title">Alle Fahrten Hochladen?</string>
     <string name="track_list_upload_all_tracks_content">Sie sind dabei alle ihre Fahrten auf den enviroCar Server als Open Data hochzuladen. Alle Fahrten werden damit ihrem Benutzerkonto zugewiesen und anaonymisiert für andere zugreifbar.\n\nMöchten Sie fortfahren?</string>
-    <string name="track_list_upload_all_tracks_complete_template">%d of %d Fahrten wurden erfolgreich hochgeladen. %d Fahrten hatten zu wenig Messungen.</string>
+    <string name="track_list_upload_all_tracks_complete_with_failure_template">%d von %d Fahrten wurden erfolgreich hochgeladen. %d Fahrten hatten zu wenig Messungen.</string>
+    <string name="track_list_upload_all_tracks_complete_template">%d Fahrten wurden erfolgreich hochgeladen.</string>
     <string name="track_list_uploading_please_wait">Bitte warten...</string>
 
     <string name="track_list_details_subtitle_template">Ihre Fahrt mit %s %s am %s.</string>

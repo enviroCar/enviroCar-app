@@ -82,7 +82,8 @@
 
     <string name="track_list_upload_all_tracks_title">Upload All Local Tracks?</string>
     <string name="track_list_upload_all_tracks_content">You are about to upload all tracks. This means that all tracks will be uploaded and assigned to your account.\n\nDo you want to continue?</string>
-    <string name="track_list_upload_all_tracks_complete_template">%d of %d tracks have been successfully uploaded. %d tracks had to less measurements to upload.</string>
+    <string name="track_list_upload_all_tracks_complete_with_failure_template">%d of %d tracks have been successfully uploaded. %d tracks had to less measurements to upload.</string>
+    <string name="track_list_upload_all_tracks_complete_template">%d tracks have been successfully uploaded.</string>
     <string name="track_list_uploading_please_wait">Please wait...</string>
 
     <string name="track_list_details_subtitle_template">Your Track with %s %s on %s.</string>

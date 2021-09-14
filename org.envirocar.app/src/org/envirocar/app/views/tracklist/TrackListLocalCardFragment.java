@@ -476,8 +476,12 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
                 return;
 
             if (numberOfFailures > 0) {
-                String snackbarText = String.format(getString(R.string.track_list_upload_all_tracks_complete_template),
+                String snackbarText = String.format(getString(R.string.track_list_upload_all_tracks_complete_with_failure_template),
                         numberOfSuccesses, numTracks, numberOfFailures);
+                showSnackbar(snackbarText);
+            } else {
+                String snackbarText = String.format(getString(R.string.track_list_upload_all_tracks_complete_template),
+                        numTracks);
                 showSnackbar(snackbarText);
             }
 
@@ -491,6 +495,12 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
 
             if (result.isSuccessful()) {
                 numberOfSuccesses++;
+                // Update the lists.
+                mRecyclerViewAdapter.removeItem(result.getTrack());
+                mRecyclerViewAdapter.notifyDataSetChanged();
+
+                if (onTrackUploadedListener != null)
+                    onTrackUploadedListener.onTrackUploaded(result.getTrack());
             } else {
                 numberOfFailures++;
             }
