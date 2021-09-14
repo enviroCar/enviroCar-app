@@ -18,6 +18,7 @@
  */
 package org.envirocar.app.views.tracklist;
 
+import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
@@ -26,8 +27,8 @@ import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 
-import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.envirocar.app.BaseApplication;
@@ -38,9 +39,7 @@ import org.envirocar.app.injection.modules.MainActivityModule;
 import org.envirocar.app.interactor.UploadAllTracks;
 import org.envirocar.app.interactor.UploadTrack;
 import org.envirocar.app.views.trackdetails.TrackDetailsActivity;
-import org.envirocar.app.views.utils.DialogUtils;
 import org.envirocar.app.views.utils.ECAnimationUtils;
-import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.exception.TrackUploadException;
 import org.envirocar.core.logging.Logger;
@@ -118,12 +117,12 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
 
     @OnClick(R.id.fragment_tracklist_fab)
     protected void onUploadTracksFABClicked() {
-        new MaterialDialog.Builder(getContext())
-                .title(R.string.track_list_upload_all_tracks_title)
-                .content(R.string.track_list_upload_all_tracks_content)
-                .positiveText(R.string.ok)
-                .negativeText(R.string.cancel)
-                .onPositive(this::onUploadAllLocalTracks)
+        new MaterialAlertDialogBuilder(getContext(), R.style.MaterialDialog)
+                .setTitle(R.string.track_list_upload_all_tracks_title)
+                .setMessage(R.string.track_list_upload_all_tracks_content)
+                .setIcon(R.drawable.ic_cloud_upload_white_24dp)
+                .setPositiveButton(R.string.ok, this::onUploadAllLocalTracks)
+                .setNegativeButton(R.string.cancel,null)
                 .show();
     }
 
@@ -316,7 +315,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
                 .subscribeWith(new UploadTrackDialogObserver(track));
     }
 
-    private void onUploadAllLocalTracks(MaterialDialog materialDialog, DialogAction dialogAction) {
+    private void onUploadAllLocalTracks(DialogInterface dialog, int which) {
         if (uploadTrackSubscription != null && !uploadTrackSubscription.isDisposed()) {
             uploadTrackSubscription.dispose();
             uploadTrackSubscription = null;
