@@ -18,6 +18,7 @@
  */
 package org.envirocar.app.handler;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.bluetooth.BluetoothAdapter;
@@ -477,9 +478,10 @@ public class BluetoothHandler {
         return false;
     }
 
-    public boolean isBluetoothActive() {
-        return mBluetoothAdapter != null && mBluetoothAdapter.getAddress() != null;
-    }
+
+//    public boolean isBluetoothActive() {
+//        return mBluetoothAdapter != null && mBluetoothAdapter.getAddress() != null;
+//    }
 
     public void enableBluetooth(Activity activity) {
         // If Bluetooth is not enabled, request that it will be enabled.

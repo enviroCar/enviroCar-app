@@ -13,6 +13,8 @@
     <uses-permission android:name="android:permission:ACCESS_BACKGROUND_LOCATION" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN"/>
     <uses-permission android:name="android.permission.KILL_BACKGROUND_PROCESSES" />
 
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />

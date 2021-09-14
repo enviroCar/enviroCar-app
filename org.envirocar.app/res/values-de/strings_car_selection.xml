@@ -26,15 +26,15 @@
     <string name="car_selection_enter_info">Geben Sie die Details ihres Fahrzeug ein</string>
     <string name="car_selection_header">Fahrzeug Auswahl</string>
 
-    <string name="car_selection_car_selected" formatted="false">%s %s ausgewählt.</string>
-    <string name="car_selection_car_deleted_tmp" formatted="false">%s %s gelöscht.</string>
-    <string name="car_selection_car_selected_after_add" formatted="false">%s %s wurde hinzugefügt und als mein Auto ausgewählt.</string>
-    <string name="car_selection_successfully_added_tmp" formatted="false">%s %s wurde hinzugefügt.</string>
-    <string name="car_selection_already_in_list_tmp" formatted="false">%s %s ist bereits in der Liste.</string>
+    <string name="car_selection_car_selected" formatted="true">%s %s ausgewählt.</string>
+    <string name="car_selection_car_deleted_tmp" formatted="true">%s %s gelöscht.</string>
+    <string name="car_selection_car_selected_after_add" formatted="true">%s %s wurde hinzugefügt und als mein Auto ausgewählt.</string>
+    <string name="car_selection_successfully_added_tmp" formatted="true">%s %s wurde hinzugefügt.</string>
+    <string name="car_selection_already_in_list_tmp" formatted="true">%s %s ist bereits in der Liste.</string>
 
     <string name="car_deselection_dialog_delete_pairing_title">Auto löschen?</string>
     <string name="car_deselection_dialog_delete_title">Auto löschen</string>
-    <string name="car_deselection_dialog_delete_pairing_content_template" formatted="false">Möchten Sie %s %s löschen?</string>
+    <string name="car_deselection_dialog_delete_pairing_content_template" formatted="true">Möchten Sie %s %s löschen?</string>
 
     <string name="car_selection_manufacturer">Hersteller</string>
     <string name="car_selection_model">Modell</string>
@@ -43,8 +43,11 @@
 
     <string name="car_selection_error_empty_input">Dieses Feld ist erforderlich.</string>
     <string name="car_selection_error_invalid_input">Ungültige Eingabe</string>
+    <string name="car_selection_error_select_from_list">Existiert nicht in der Liste</string>
 
     <string name="car_selection_addcar_info">Bitte geben Sie die Details Ihres Fahrzeugs ein. Seien Sie dabei genau. Teile dieser Informationen sind insbesondere Wichtig zur Berechnung von geschätzten Werten wie z.B. Verbrauch.</string>
+    <string name="car_selection_attributes_segmented">Attribute</string>
+    <string name="create_car_dialog">Erstelle Fahrzeug</string>
 
     <string name="car_selection_no_car_no_car_first">Kein Auto hinzugefügt</string>
     <string name="car_selection_no_car_no_car_second">Verwenden Sie das + Symbol, um ein neues Auto hinzuzufügen</string>
