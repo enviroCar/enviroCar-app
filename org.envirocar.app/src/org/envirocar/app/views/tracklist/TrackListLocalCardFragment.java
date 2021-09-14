@@ -281,7 +281,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
                                 ECAnimationUtils.animateShowView(getActivity(), mFAB,
                                         R.anim.translate_slide_in_bottom_fragment);
                             } else if (mTrackList.isEmpty()) {
-                                showNoLocalTracksInfo();
+                                showNoTracksInfo();
                             }
                         }
                     });
@@ -290,10 +290,13 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
         }
     }
 
-    private void showNoLocalTracksInfo() {
+    @Override
+    protected void showNoTracksInfo() {
         showText(R.drawable.img_tracks,
                 R.string.track_list_bg_no_local_tracks,
                 R.string.track_list_bg_no_local_tracks_sub);
+        ECAnimationUtils.animateHideView(getActivity(), mFAB,
+                R.anim.translate_slide_out_bottom);
     }
 
     /**
@@ -418,6 +421,9 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
             LOG.info("Received uploadTrack.onComplete() event.");
             showSnackbar(String.format(getString(R.string.track_list_upload_track_success_template), track.getName()));
             dialog.dismiss();
+            if (mTrackList.isEmpty()) {
+                showNoTracksInfo();
+            }
         }
     }
 
@@ -485,6 +491,9 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
             }
 
             dialog.dismiss();
+            if (mTrackList.isEmpty()) {
+                showNoTracksInfo();
+            }
         }
 
         @Override

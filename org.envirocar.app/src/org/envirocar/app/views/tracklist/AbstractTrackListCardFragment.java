@@ -165,6 +165,8 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
      */
     protected abstract void loadDataset();
 
+    protected abstract void showNoTracksInfo();
+
     protected void exportTrack(Track track) {
 
         try {
@@ -416,6 +418,10 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
                     showSnackbar(String.format(getString(R.string
                             .track_list_delete_track_success_template), track.getName()));
                     hideProgressView();
+
+                    if (mTrackList.isEmpty()) {
+                        showNoTracksInfo();
+                    }
                 } else {
                     showSnackbar(String.format(
                             getString(R.string.track_list_delete_track_error_template),

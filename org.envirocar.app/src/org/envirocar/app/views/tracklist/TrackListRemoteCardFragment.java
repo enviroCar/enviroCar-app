@@ -374,6 +374,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<T
                     sortTrackList();
                     mRecyclerViewAdapter.notifyDataSetChanged();
                 });
+        infoView.setVisibility(View.GONE);
     }
 
     private void updateView() {
@@ -385,9 +386,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<T
             ECAnimationUtils.animateHideView(getActivity(), mProgressView, R.anim.fade_out);
 
             if (mTrackList.isEmpty()) {
-                showText(R.drawable.img_tracks,
-                        R.string.track_list_bg_no_remote_tracks,
-                        R.string.track_list_bg_no_remote_tracks_sub);
+                showNoTracksInfo();
             }
         }
 
@@ -396,6 +395,13 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<T
             infoView.setVisibility(View.GONE);
             mRecyclerViewAdapter.notifyDataSetChanged();
         }
+    }
+
+    @Override
+    protected void showNoTracksInfo() {
+        showText(R.drawable.img_tracks,
+                R.string.track_list_bg_no_remote_tracks,
+                R.string.track_list_bg_no_remote_tracks_sub);
     }
 
     private void sortTrackList(){
