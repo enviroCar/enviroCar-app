@@ -70,6 +70,7 @@ public class EnviroCarDataService extends BaseInjectorService {
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
+        super.onBind(intent);
         return binder;
     }
 
