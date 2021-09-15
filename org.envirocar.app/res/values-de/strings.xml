@@ -51,11 +51,15 @@
     <string name="track_statistics_distance">Distanz</string>
 	
 	<string name="welcome_message">Willkommen, %s</string>
-    <string name="goodbye_message">Auf Wiederstehen, %s</string>
+    <string name="goodbye_message">Auf Wiedersehen, %s</string>
+
+    <string name="gps_track_details">*Dies ist eine auf GPS basierende Fahrt. Sie kann nicht als Open Data hochgeladen werden.</string>
+    <string name="dashboard_signin_prompt">Loggen Sie sich ein um Ihre Fahrt hochzuladen</string>
     <string name="problem_description">Beschreiben Sie Ihr Problem</string>
 
     <string name="envirocar.org">http://www.envirocar.org</string>
     <string name="categories">Kategorien:</string>
+    <string name="driving">Fahren</string>
     
     <string name="imperial_unit">Imperiale Maßeinheiten?</string>
 
