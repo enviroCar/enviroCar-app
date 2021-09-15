@@ -18,16 +18,8 @@
  */
 package org.envirocar.app.test.commands;
 
-import android.os.Environment;
-import android.util.Base64;
-
-import org.envirocar.core.logging.Logger;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({ Environment.class, Logger.class, Base64.class})
+//@RunWith(PowerMockRunner.class)
+//@PrepareForTest({ Environment.class, Logger.class, Base64.class})
 public class O2LambdaProbeTest {
 
 //	@Test
