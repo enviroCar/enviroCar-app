@@ -24,3 +24,9 @@ jobs:
       run: chmod +x gradlew
     - name: Build with Gradle
       run: ./gradlew org.envirocar.app:build
+      
+    - name: Upload APK
+      uses: actions/upload-artifact@v1
+      with:
+        name: envirocar-app
+        path: org.envirocar.app/build/outputs/apk/debug/org.envirocar.app-debug.apk
