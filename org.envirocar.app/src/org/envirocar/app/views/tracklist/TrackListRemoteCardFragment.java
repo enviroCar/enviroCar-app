@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - 2019 the enviroCar community
+ * Copyright (C) 2013 - 2021 the enviroCar community
  *
  * This file is part of the enviroCar app.
  *
@@ -91,6 +91,9 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<T
             mRecyclerView.setVisibility(View.GONE);
             mRecyclerViewAdapter.mTrackDataset.clear();
             mRecyclerViewAdapter.notifyDataSetChanged();
+        }
+        if(mTrackList.isEmpty()){
+            showNoTracksInfo();
         }
     }
 
@@ -374,6 +377,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<T
                     sortTrackList();
                     mRecyclerViewAdapter.notifyDataSetChanged();
                 });
+        infoView.setVisibility(View.GONE);
     }
 
     private void updateView() {
@@ -385,9 +389,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<T
             ECAnimationUtils.animateHideView(getActivity(), mProgressView, R.anim.fade_out);
 
             if (mTrackList.isEmpty()) {
-                showText(R.drawable.img_tracks,
-                        R.string.track_list_bg_no_remote_tracks,
-                        R.string.track_list_bg_no_remote_tracks_sub);
+                showNoTracksInfo();
             }
         }
 
@@ -396,6 +398,13 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<T
             infoView.setVisibility(View.GONE);
             mRecyclerViewAdapter.notifyDataSetChanged();
         }
+    }
+
+    @Override
+    protected void showNoTracksInfo() {
+        showText(R.drawable.img_tracks,
+                R.string.track_list_bg_no_remote_tracks,
+                R.string.track_list_bg_no_remote_tracks_sub);
     }
 
     private void sortTrackList(){
