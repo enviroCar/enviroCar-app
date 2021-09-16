@@ -400,7 +400,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<T
         }
     }
 
-//    @Override
+    @Override
     protected void showNoTracksInfo() {
         showText(R.drawable.img_tracks,
                 R.string.track_list_bg_no_remote_tracks,
