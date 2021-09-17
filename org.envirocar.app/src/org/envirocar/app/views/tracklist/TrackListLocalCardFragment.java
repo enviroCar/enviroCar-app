@@ -30,6 +30,7 @@ import androidx.annotation.Nullable;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
+import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.BaseApplication;
 import org.envirocar.app.BaseApplicationComponent;
@@ -41,6 +42,7 @@ import org.envirocar.app.interactor.UploadTrack;
 import org.envirocar.app.views.trackdetails.TrackDetailsActivity;
 import org.envirocar.app.views.utils.ECAnimationUtils;
 import org.envirocar.core.entity.Track;
+import org.envirocar.core.events.TrackFinishedEvent;
 import org.envirocar.core.exception.TrackUploadException;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.util.TrackMetadata;
@@ -194,6 +196,11 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
             tracksLoaded = true;
             new LoadLocalTracksTask().execute();
         }
+    }
+
+    @Subscribe
+    public void onTrackFinishedEvent(TrackFinishedEvent event){
+        tracksLoaded = false;
     }
 
     @Override

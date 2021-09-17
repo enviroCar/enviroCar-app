@@ -99,6 +99,9 @@ public class GPSRecordingStrategy implements LifecycleObserver, RecordingStrateg
     private long startingTime;
     private Disposable stopDrivingFuture;
 
+    private boolean isTrackFinished = false;
+    private Track track = null;
+
     /**
      * Constructor.
      */
@@ -143,6 +146,7 @@ public class GPSRecordingStrategy implements LifecycleObserver, RecordingStrateg
     @Override
     public void startRecording(Service service, RecordingListener listener) {
         this.listener = listener;
+        this.isTrackFinished = false;
 
 //        Intent activityTransitionIntent = new Intent(TRANSITIONS_RECEIVER_ACTION);
 //        this.activityTransitionIntent = PendingIntent.getBroadcast(service, 0, activityTransitionIntent, 0);
@@ -205,6 +209,7 @@ public class GPSRecordingStrategy implements LifecycleObserver, RecordingStrateg
         }
 
         stopGPSConnectionRecognizer();
+        notifyTrackFinished(track);
     }
 
 
@@ -298,7 +303,7 @@ public class GPSRecordingStrategy implements LifecycleObserver, RecordingStrateg
 
     private DisposableObserver<Track> recordingObserver() {
         return new DisposableObserver<Track>() {
-            private Track track;
+            //private Track track;
 
             @Override
             protected void onStart() {
@@ -319,9 +324,9 @@ public class GPSRecordingStrategy implements LifecycleObserver, RecordingStrateg
             }
 
             @Override
-            public void onNext(Track track) {
-                LOG.info(String.format("Started new Track with ID=%s", track.getTrackID()));
-                this.track = track;
+            public void onNext(Track t) {
+                LOG.info(String.format("Started new Track with ID=%s", t.getTrackID()));
+                track = t;
             }
 
             @Override
@@ -336,10 +341,18 @@ public class GPSRecordingStrategy implements LifecycleObserver, RecordingStrateg
             public void onComplete() {
                 LOG.info("Finished the recording of the track.");
                 listener.onRecordingStateChanged(RecordingState.RECORDING_STOPPED);
+                notifyTrackFinished(track);
                 stopGPSConnectionRecognizer();
                 track = null;
             }
         };
+    }
+
+    private void notifyTrackFinished(Track track) {
+        if (!isTrackFinished && track != null) {
+            this.listener.onTrackFinished(track);
+            this.isTrackFinished = true;
+        }
     }
 
     private void stopGPSConnectionRecognizer() {
