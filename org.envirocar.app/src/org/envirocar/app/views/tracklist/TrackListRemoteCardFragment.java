@@ -92,6 +92,9 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<T
             mRecyclerViewAdapter.mTrackDataset.clear();
             mRecyclerViewAdapter.notifyDataSetChanged();
         }
+        if(mTrackList.isEmpty()){
+            showNoTracksInfo();
+        }
     }
 
     @Override
