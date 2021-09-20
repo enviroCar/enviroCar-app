@@ -100,6 +100,7 @@ public class GPSRecordingStrategy implements LifecycleObserver, RecordingStrateg
     private Disposable stopDrivingFuture;
 
     private boolean isTrackFinished = false;
+    private boolean isTrackRecording = false;
     private Track track = null;
 
     /**
@@ -127,7 +128,9 @@ public class GPSRecordingStrategy implements LifecycleObserver, RecordingStrateg
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     protected void onDestroy() {
         LOG.info("Destroying GPSRecordingStrategy");
-        this.stopRecording();
+        if (this.isTrackRecording) {
+            this.stopRecording();
+        }
 
         if (disposables != null){
             disposables.clear();
@@ -138,7 +141,7 @@ public class GPSRecordingStrategy implements LifecycleObserver, RecordingStrateg
         } catch (Exception e){
         }
 
-        stopGPSConnectionRecognizer();
+//        stopGPSConnectionRecognizer();
 
         listener.onRecordingStateChanged(RecordingState.RECORDING_STOPPED);
     }
@@ -147,6 +150,7 @@ public class GPSRecordingStrategy implements LifecycleObserver, RecordingStrateg
     public void startRecording(Service service, RecordingListener listener) {
         this.listener = listener;
         this.isTrackFinished = false;
+        this.isTrackRecording = true;
 
 //        Intent activityTransitionIntent = new Intent(TRANSITIONS_RECEIVER_ACTION);
 //        this.activityTransitionIntent = PendingIntent.getBroadcast(service, 0, activityTransitionIntent, 0);
@@ -207,7 +211,7 @@ public class GPSRecordingStrategy implements LifecycleObserver, RecordingStrateg
                     .addOnFailureListener(LOG::error);
             activityTransitionIntent = null;
         }
-
+        this.isTrackRecording = false;
         stopGPSConnectionRecognizer();
         notifyTrackFinished(track);
     }
@@ -303,7 +307,6 @@ public class GPSRecordingStrategy implements LifecycleObserver, RecordingStrateg
 
     private DisposableObserver<Track> recordingObserver() {
         return new DisposableObserver<Track>() {
-            //private Track track;
 
             @Override
             protected void onStart() {
@@ -357,8 +360,11 @@ public class GPSRecordingStrategy implements LifecycleObserver, RecordingStrateg
 
     private void stopGPSConnectionRecognizer() {
         try {
-            eventBus.unregister(recognizer);
-            recognizer = null;
+            if(recognizer != null) {
+                eventBus.unregister(recognizer);
+                recognizer.shutDown();
+                recognizer = null;
+            }
         } catch (Exception ex) {
             LOG.error(ex.getMessage(), ex);
         }
@@ -376,7 +382,9 @@ public class GPSRecordingStrategy implements LifecycleObserver, RecordingStrateg
 
         private final Runnable gpsConnectionCloser = () -> {
             LOG.warn("CONNECTION CLOSED due to no GPS values");
-            stopRecording();
+            if(isTrackRecording) {
+                stopRecording();
+            }
         };
 
         @Subscribe
