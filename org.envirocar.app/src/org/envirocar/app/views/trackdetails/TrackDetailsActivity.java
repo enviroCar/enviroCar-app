@@ -214,6 +214,13 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
         });
 
         mMapViewContainer.setOnClickListener(v -> MapExpandedActivity.createInstance(TrackDetailsActivity.this, mTrackID));
+        
+        // Set Text based on the device's language
+        if(Locale.getDefault().getLanguage()== "de"){
+            descriptionTv.setText("* = Bei diesen Werten handelt es sich um geschätzte Werte, die sich deutlich von den realen Werten unterscheiden können. Wir können daher keine Gewährleistung für diese Angaben geben.");
+        }
+        else
+            descriptionTv.setText("* = These values are estimated values that can differ significantly from the real values. We therefore cannot give any guarantee for this information.");
     }
 
     private void updateStatusBarColor() {
