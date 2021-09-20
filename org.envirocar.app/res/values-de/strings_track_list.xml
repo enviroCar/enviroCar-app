@@ -56,8 +56,8 @@
     <string name="track_list_bg_no_remote_tracks_sub">Sie verfügen derzeitig über keine hochgeladenen Fahrten.</string>
     <string name="track_list_bg_not_logged_in">NICHT ANGEMELDET</string>
     <string name="track_list_bg_not_logged_in_sub">Um Zugriff auf Ihre hochgeladenen Fahrten zu erhalten,\nloggen Sie sich bitte zuerst ein.</string>
-    <string name="track_list_bg_no_connection">Keine Verbdinung zum Internet.</string>
-    <string name="track_list_bg_no_connection_sub">Sie haben derzeitig keine\nVerbinding ins Internet.</string>
+    <string name="track_list_bg_no_connection">Keine Verbindung zum Internet.</string>
+    <string name="track_list_bg_no_connection_sub">Sie haben derzeitig keine\nVerbindung ins Internet.</string>
     <string name="track_list_bg_unauthorized">NICHT AUTHORISERT</string>
     <string name="track_list_bg_unauthorized_sub">Sie sind nicht nicht authorisiert dies zu tun.</string>
     <string name="track_list_error_while_downloading">Fehler beim herunterladen einer Fahrt.</string>
