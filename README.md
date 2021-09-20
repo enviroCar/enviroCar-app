@@ -89,6 +89,9 @@ be used on another Android device and mock the actual car adapter.
 
 This app is in operational use in the [CITRAM - Citizen Science for Traffic Management](https://www.citram.de/) project. Check out the [enviroCar website](https://envirocar.org/) for more information about the enviroCar project.
 
+## How to Contribute
+For contributing to the enviroCar Android App, please, have a look at our [Contributor Guidelines](https://github.com/enviroCar/enviroCar-app/blob/master/CONTRIBUTING.md).
+
 
 ## Contributors
 
