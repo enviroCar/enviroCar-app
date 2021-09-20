@@ -89,4 +89,6 @@
 
     <string name="track_list_details_subtitle_template">Your Track with %s %s on %s.</string>
 
+    <string name="track_list_details_estimated_values" >* = These values are estimated values that can differ significantly from the real values. We cannot therefore give any guarantee for this information.</string>
+
 </resources>

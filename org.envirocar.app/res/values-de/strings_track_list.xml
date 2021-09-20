@@ -87,5 +87,6 @@
     <string name="track_list_uploading_please_wait">Bitte warten...</string>
 
     <string name="track_list_details_subtitle_template">Ihre Fahrt mit %s %s am %s.</string>
+    <string name="track_list_details_estimated_values" >* = Bei diesen Werten handelt es sich um geschätzte Werte, die sich deutlich von den realen Werten unterscheiden können. Wir können daher keine Gewährleistung für diese Angaben geben.</string>
 
 </resources>
