@@ -22,6 +22,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.squareup.otto.Subscribe;
@@ -42,8 +43,10 @@ import org.envirocar.core.logging.Logger;
 import java.util.Collections;
 import java.util.List;
 
+import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 
@@ -60,6 +63,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<T
     private boolean hasLoadedRemote = false;
     private boolean hasLoadedStored = false;
     private boolean isSorted = false;
+    private boolean connectionError = false;
 
     @Override
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
@@ -79,7 +83,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<T
         super.onResume();
 
         loadDataset();
-
+/*
         if (mUserManager.isLoggedIn()) {
             mRecyclerView.setVisibility(View.VISIBLE);
             infoView.setVisibility(View.GONE);
@@ -92,6 +96,8 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<T
             mRecyclerViewAdapter.mTrackDataset.clear();
             mRecyclerViewAdapter.notifyDataSetChanged();
         }
+ */
+        updateInfoBackground();
     }
 
     @Override
@@ -256,6 +262,8 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<T
                 }
             }
 
+            connectionError = false;
+
             subscriptions.add(mEnvirocarDB.getAllRemoteTracks()
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
@@ -273,6 +281,8 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<T
                         @Override
                         public void onComplete() {
                             sortTrackList();
+                            //updateDisconnectView();
+                            updateInfoBackground();
                         }
 
                         @Override
@@ -324,19 +334,27 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<T
 
                             if (e instanceof NotConnectedException) {
                                 showSnackbar(R.string.track_list_loading_remote_tracks_error);
-                                if (mTrackList.isEmpty()) {
+                                /*if (mTrackList.isEmpty()) {
                                     showText(R.drawable.img_disconnected,
                                             R.string.track_list_bg_no_connection,
                                             R.string.track_list_bg_no_connection_sub);
-                                }
+                                }*/
+                                connectionError = true;
+                                tracksLoaded = false;
+                                //updateDisconnectView();
+                                //updateInfoBackground();
                             } else if (e instanceof UnauthorizedException) {
                                 showSnackbar(R.string.track_list_bg_unauthorized);
+                                /*
                                 if (mTrackList.isEmpty()) {
                                     showText(R.drawable.img_logged_out,
                                             R.string.track_list_bg_unauthorized,
                                             R.string.track_list_bg_unauthorized_sub);
                                 }
+                                 */
+                                //updateInfoBackground();
                             }
+                            updateInfoBackground();
 
                             ECAnimationUtils.animateHideView(getActivity(), mProgressView,
                                     R.anim.fade_out);
@@ -366,6 +384,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<T
 
     @Override
     public void onTrackUploaded(Track track) {
+        /*
         mEnvirocarDB.getTrack(track.getTrackID())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -374,7 +393,30 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<T
                     sortTrackList();
                     mRecyclerViewAdapter.notifyDataSetChanged();
                 });
-        infoView.setVisibility(View.GONE);
+        //infoView.setVisibility(View.GONE);
+        updateInfoBackground();
+         */
+        subscriptions.add(mEnvirocarDB.getTrack(track.getTrackID())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new DisposableObserver<Track>() {
+                    @Override
+                    public void onNext(@NonNull Track track) {
+                        mTrackList.add(track);
+                    }
+
+                    @Override
+                    public void onError(@NonNull Throwable e) {
+                        LOG.error(e.getMessage(), e);
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        sortTrackList();
+                        mRecyclerViewAdapter.notifyDataSetChanged();
+                        updateInfoBackground();
+                    }
+                }));
     }
 
     private void updateView() {
@@ -384,15 +426,19 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<T
                 sortTrackList();
             }
             ECAnimationUtils.animateHideView(getActivity(), mProgressView, R.anim.fade_out);
-
+/*
             if (mTrackList.isEmpty()) {
                 showNoTracksInfo();
             }
+
+ */
         }
 
+        updateInfoBackground();
+
         if (!mTrackList.isEmpty()) {
-            mRecyclerView.setVisibility(View.VISIBLE);
-            infoView.setVisibility(View.GONE);
+            //mRecyclerView.setVisibility(View.VISIBLE);
+            //infoView.setVisibility(View.GONE);
             mRecyclerViewAdapter.notifyDataSetChanged();
         }
     }
@@ -412,5 +458,30 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<T
                 return -1;
             return 0;
         });
+    }
+
+    private void updateInfoBackground(){
+
+        if (!mUserManager.isLoggedIn()){
+            showText(R.drawable.img_logged_out,
+                    R.string.track_list_bg_not_logged_in,
+                    R.string.track_list_bg_not_logged_in_sub);
+            mProgressView.setVisibility(View.INVISIBLE);
+            mRecyclerView.setVisibility(View.GONE);
+            mRecyclerViewAdapter.mTrackDataset.clear();
+            mRecyclerViewAdapter.notifyDataSetChanged();
+        } else {
+            mRecyclerView.setVisibility(View.VISIBLE);
+
+            if(mTrackList.isEmpty() && connectionError && hasLoadedStored) {
+                showText(R.drawable.img_disconnected,
+                        R.string.track_list_bg_no_connection,
+                        R.string.track_list_bg_no_connection_sub);
+            } else if(hasLoadedStored && hasLoadedRemote && mTrackList.isEmpty()){
+                showNoTracksInfo();
+            } else {
+                infoView.setVisibility(View.GONE);
+            }
+        }
     }
 }
