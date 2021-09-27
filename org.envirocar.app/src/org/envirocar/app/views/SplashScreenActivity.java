@@ -51,7 +51,7 @@ import io.reactivex.schedulers.Schedulers;
 public class SplashScreenActivity extends BaseInjectorActivity {
     private static final Logger LOG = Logger.getLogger(SplashScreenActivity.class);
     private static final String HAS_BEEN_SEEN_KEY = "has_been_seen";
-    private static final int SPLASH_SCREEN_DURATION = 1500;
+    private static final int SPLASH_SCREEN_DURATION = 1000;
     @Inject
     EnviroCarVehicleDB enviroCarVehicleDB;
     private Disposable timerDisposable;
