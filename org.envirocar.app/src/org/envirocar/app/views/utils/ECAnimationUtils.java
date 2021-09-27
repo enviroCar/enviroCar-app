@@ -76,7 +76,6 @@ public class ECAnimationUtils {
     public static void animateHideView(Context context, final View view, int animResource, final Action action) {
         AndroidSchedulers.mainThread().createWorker().schedule(() -> {
             Animation animation = AnimationUtils.loadAnimation(context, animResource);
-            animation.setFillAfter(true);
 
             animation.setAnimationListener(new Animation.AnimationListener() {
                 @Override
