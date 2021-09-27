@@ -84,6 +84,9 @@
 
     <string name="submit">Absenden</string>
 
+    <!-- Splashscreen -->
+    <string name="activity_splashscreen_warning">ACHTUNG: \nBedienen Sie nicht die App während Sie fahren.</string>
+
     <!-- ################# -->
     <!-- Send Error Report -->
     <!-- ################# -->

@@ -51,7 +51,7 @@ import io.reactivex.schedulers.Schedulers;
 public class SplashScreenActivity extends BaseInjectorActivity {
     private static final Logger LOG = Logger.getLogger(SplashScreenActivity.class);
     private static final String HAS_BEEN_SEEN_KEY = "has_been_seen";
-    private static final int SPLASH_SCREEN_DURATION = 1000;
+    private static final int SPLASH_SCREEN_DURATION = 1500;
     @Inject
     EnviroCarVehicleDB enviroCarVehicleDB;
     private Disposable timerDisposable;
@@ -64,7 +64,7 @@ public class SplashScreenActivity extends BaseInjectorActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //fetch to db intilization to prepoulate database before the database object used in CarSelection to remove delay
+        //fetch to db initialization to prepopulate database before the database object used in CarSelection to remove delay
 
         Observable<List<Manufacturers>> dbInit = enviroCarVehicleDB.manufacturersDAO().getAllManufacturers();
         dbInit.subscribeOn(Schedulers.io())
