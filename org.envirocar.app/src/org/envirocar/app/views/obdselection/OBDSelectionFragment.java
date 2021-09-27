@@ -21,7 +21,6 @@ package org.envirocar.app.views.obdselection;
 import android.Manifest;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -39,7 +38,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.squareup.otto.Subscribe;
@@ -65,7 +63,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
-import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 import pub.devrel.easypermissions.PermissionRequest;
 
@@ -417,7 +414,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
         mPairedDevicesListView.setAdapter(mPairedDevicesAdapter);
 
 
-        mNewDevicesListView.setOnItemClickListener((parent, view1, position, id) -> {
+        mNewDevicesListView.setOnItemClickListener((parent, deviceView, position, id) -> {
             final BluetoothDevice device = mNewDevicesArrayAdapter.getItem(position);
 
             // Create the Dialog
@@ -429,12 +426,17 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
                     .setPositiveButton(R.string.obd_selection_dialog_pairing_title,
                             (dialog, which) -> {
                                 // If this button is clicked, pair with the given device
-                                view1.setClickable(false);
-                                pairDevice(device, view1);
+                                disableOnClick(deviceView);
+                                pairDevice(device, deviceView);
                             })
                     .setNegativeButton(R.string.cancel, null) // Nothing to do on cancel
                     .show();
         });
+    }
+
+    private void disableOnClick(View v) {
+        // Disable the click.
+        v.setOnClickListener(null);
     }
 
     private void showUnpairingDialig(BluetoothDevice device) {
@@ -526,6 +528,9 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
                         }
                         if (text != null)
                             text.setText(device.getName());
+
+                        // If error occured then, enable the click for the device.
+                        rediscover();
                     }
 
                     @Override
@@ -535,8 +540,12 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
                         showSnackbar(getString(R.string.obd_selection_pairing_success_template,
                                 device.getName()));
                         mNewDevicesArrayAdapter.remove(device);
-                        mPairedDevicesAdapter.add(device);
-                        mPairedDevicesTextView.setVisibility(View.VISIBLE);
+
+                        // Add device only if device is not present
+                        if (!mPairedDevicesAdapter.contains(device)) {
+                            mPairedDevicesAdapter.add(device);
+                            mPairedDevicesTextView.setVisibility(View.VISIBLE);
+                        }
 
                         // Post an event to all registered handlers.
                         mBus.post(new BluetoothPairingChangedEvent(device, true));
