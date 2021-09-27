@@ -278,7 +278,7 @@ public class TrackStatisticsActivity extends BaseInjectorActivity {
             Axis distAxis = new Axis();
             distAxis.setName(getString(R.string.track_statistics_distance));
             distAxis.setTextColor(getResources().getColor(R.color.blue_dark_cario));
-            distAxis.setMaxLabelChars(5);
+            distAxis.setMaxLabelChars(8);
             distAxis.setFormatter(new SimpleAxisValueFormatter()
                     .setAppendedText("km".toCharArray()));
             distAxis.setHasLines(true);
@@ -292,7 +292,7 @@ public class TrackStatisticsActivity extends BaseInjectorActivity {
             Axis yAxis = new Axis();
             yAxis.setName(getString(key.getStringResource()));
             yAxis.setTextColor(getResources().getColor(R.color.blue_dark_cario));
-            yAxis.setMaxLabelChars(3);
+            yAxis.setMaxLabelChars(5);
             yAxis.setHasLines(true);
             yAxis.setTextSize(10);
             yAxis.setFormatter(new SimpleAxisValueFormatter());
