@@ -18,6 +18,7 @@
  */
 package org.envirocar.storage;
 
+import android.annotation.SuppressLint;
 import android.database.Cursor;
 import org.envirocar.core.EnviroCarDB;
 import org.envirocar.core.entity.Measurement;
@@ -427,6 +428,7 @@ public class EnviroCarDBImpl implements EnviroCarDB {
         return track;
     }
 
+    @SuppressLint("Range")
     private Track fetchStartEndTimeSilent(final Track track) {
         Cursor startTime = trackRoomDatabase.getTrackDAONew().fetchStartTimeSilent(Long.parseLong(track.getTrackID().toString()));
 
