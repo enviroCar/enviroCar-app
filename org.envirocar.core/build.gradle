@@ -41,7 +41,7 @@ dependencies {
     // Third party
     implementation rootProject.ext.apacheCommons
     implementation rootProject.ext.materialDialogs
-    implementation rootProject.ext.openCSVReader
+    implementation rootProject.ext.openCSVReader exclude module: 'commons-logging'
 
     //Room
     implementation rootProject.ext.androidRoom
