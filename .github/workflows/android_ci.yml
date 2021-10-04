@@ -2,9 +2,9 @@ name: Android CI
 
 on:
   push:
-    branches: [ develop ]
+    branches: [ fix/lintErrorsProject ]
   pull_request:
-    branches: [ develop ]
+    branches: [ fix/lintErrorsProject ]
 
 jobs:
   build:
