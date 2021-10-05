@@ -2,9 +2,9 @@ name: Android CI
 
 on:
   push:
-    branches: [ fix/lintErrorsProject ]
+    branches: [ feature/actionWorkflowProject ]
   pull_request:
-    branches: [ fix/lintErrorsProject ]
+    branches: [ feature/actionWorkflowProject ]
 
 jobs:
   build:
@@ -23,7 +23,7 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
     - name: Build with Gradle
-      run: ./gradlew org.envirocar.app:build
+      run: ./gradlew build
       
     - name: Upload APK
       uses: actions/upload-artifact@v1
