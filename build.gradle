@@ -51,6 +51,7 @@ ext {
     buildToolsVersion = '30.0.2'
     versionCode = 49
     versionName = "1.1.9"
+    ndkVersion = "21.4.7075529"
 
     javaCompileVersion = JavaVersion.VERSION_1_8
 
