@@ -66,7 +66,7 @@
     <string name="track_list_menu_details">Detailansicht</string>
     <string name="track_list_menu_delete">Löschen</string>
     <string name="track_list_menu_upload">Als Open Data hochladen</string>
-    <string name="track_list_menu_export">Exportieren</string>
+    <string name="track_list_menu_share">Teilen</string>
 
     <string name="track_list_details_duration">Dauer</string>
     <string name="track_list_details_distance">Distanz</string>
