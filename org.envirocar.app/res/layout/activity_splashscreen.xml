@@ -51,6 +51,18 @@
         app:layout_constraintStart_toStartOf="@+id/guideline29"
         app:layout_constraintTop_toBottomOf="@+id/imageView2" />
 
+    <TextView
+        android:layout_width="252dp"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/roboto_medium"
+        android:lineSpacingExtra="4sp"
+        android:text="@string/activity_splashscreen_warning"
+        android:textColor="@color/white_cario"
+        android:textSize="15sp"
+        app:layout_constraintBottom_toTopOf="@+id/guideline28"
+        app:layout_constraintEnd_toStartOf="@+id/guideline30"
+        app:layout_constraintStart_toStartOf="@+id/guideline29" />
+
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline28"
         android:layout_width="wrap_content"

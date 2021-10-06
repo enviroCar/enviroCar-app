@@ -94,6 +94,7 @@
 
     <!-- Splashscreen -->
     <string name="activity_splashscreen_subtitle" translatable="false">Start Today. \nJoin the Community.</string>
+    <string name="activity_splashscreen_warning">CAUTION: \nDo not operate the app while you are driving.</string>
 
     <!-- ################# -->
     <!-- Sign In / Sign Up -->

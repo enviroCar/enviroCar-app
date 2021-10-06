@@ -340,7 +340,7 @@ public class DashboardFragment extends BaseInjectorFragment {
             @Override
             public void onComplete() {
                 // Show a snackbar that indicates the finished logout
-                Snackbar.make(getActivity().findViewById(R.id.navigation),
+                Snackbar.make(getActivity().findViewById(R.id.snackbar_placeholder),
                         String.format(getString(R.string.goodbye_message), userTemp.getUsername()),
                         Snackbar.LENGTH_LONG).show();
                 dialog.dismiss();
@@ -679,7 +679,7 @@ public class DashboardFragment extends BaseInjectorFragment {
 
             // Welcome message as user logged in successfully
             if (!welcomeMessageShown) {
-                Snackbar.make(getActivity().findViewById(R.id.navigation),
+                Snackbar.make(getActivity().findViewById(R.id.snackbar_placeholder),
                         String.format(getString(R.string.welcome_message), user.getUsername()),
                         Snackbar.LENGTH_LONG).show();
                 welcomeMessageShown = true;

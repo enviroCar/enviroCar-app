@@ -64,7 +64,7 @@ public class SplashScreenActivity extends BaseInjectorActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //fetch to db intilization to prepoulate database before the database object used in CarSelection to remove delay
+        //fetch to db initialization to prepopulate database before the database object used in CarSelection to remove delay
 
         Observable<List<Manufacturers>> dbInit = enviroCarVehicleDB.manufacturersDAO().getAllManufacturers();
         dbInit.subscribeOn(Schedulers.io())
