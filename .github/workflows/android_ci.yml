@@ -2,9 +2,9 @@ name: Android CI
 
 on:
   push:
-    branches: [ fix/lintErrorsProject ]
+    branches: [ develop ]
   pull_request:
-    branches: [ fix/lintErrorsProject ]
+    branches: [ develop ]
 
 jobs:
   build:
@@ -23,10 +23,16 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
     - name: Build with Gradle
-      run: ./gradlew org.envirocar.app:build
+      run: ./gradlew build
       
-    - name: Upload APK
+    - name: Upload EnviroCar-App APK
       uses: actions/upload-artifact@v1
       with:
         name: envirocar-app
         path: org.envirocar.app/build/outputs/apk/debug/org.envirocar.app-debug.apk
+        
+    - name: Upload EnviroCar-OBD-Simulator APK
+      uses: actions/upload-artifact@v1
+      with:
+        name: envirocar-obd-simulator
+        path: android-obd-simulator/build/outputs/apk/debug/android-obd-simulator-debug.apk

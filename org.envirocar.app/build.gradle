@@ -101,6 +101,7 @@ configurations.all {
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
+    ndkVersion rootProject.ext.ndkVersion
 
     buildTypes {
         release {
