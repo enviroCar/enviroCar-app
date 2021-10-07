@@ -335,7 +335,30 @@ public interface Measurement extends BaseEntity<Measurement> {
             public String toString() {
                 return "Short-Term Fuel Trim 1";
             }
+        },
+        MIN_ACCELERATION {
+            @Override
+            public int getStringResource() {
+                return R.string.property_key_min_acceleration;
+            }
+
+            @Override
+            public String toString() {
+                return "Minimum Acceleration";
+            }
+        },
+        MAX_ACCELERATION {
+            @Override
+            public int getStringResource() {
+                return R.string.property_key_max_acceleration;
+            }
+
+            @Override
+            public String toString() {
+                return "Maximum Acceleration";
+            }
         };
+
 
         @Override
         public int getUnitResource() {
