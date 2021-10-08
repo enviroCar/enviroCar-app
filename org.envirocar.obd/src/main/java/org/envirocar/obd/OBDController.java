@@ -124,8 +124,8 @@ public class OBDController {
      */
     private void setupAdapterCandidates() {
         adapterCandidates.clear();
-        adapterCandidates.offer(new UniCarScanAdapter());
         adapterCandidates.offer(new ELM327Adapter());
+        adapterCandidates.offer(new UniCarScanAdapter());
         adapterCandidates.offer(new OBDLinkAdapter());
         adapterCandidates.offer(new CarTrendAdapter());
         adapterCandidates.offer(new AposW3Adapter());
@@ -152,7 +152,7 @@ public class OBDController {
         }
 
         LOG.info("Using " + this.obdAdapter.getClass().getSimpleName() + " connector as the " +
-                "preferred adapter.");
+                "preferred adapter for device with name "+ this.deviceName +".");
         startInitialization(false);
     }
 

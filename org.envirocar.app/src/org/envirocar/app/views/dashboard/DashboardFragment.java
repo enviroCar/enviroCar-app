@@ -467,7 +467,7 @@ public class DashboardFragment extends BaseInjectorFragment {
                                 .show();
 
                         // If the device is not found to start the track, dismiss the Dialog in 30 sec
-                        deviceDiscoveryTimer = new CountDownTimer(30000, 1000) {
+                        deviceDiscoveryTimer = new CountDownTimer(60000, 1000) {
                             @Override
                             public void onTick(long millisUntilFinished) {
                             }
