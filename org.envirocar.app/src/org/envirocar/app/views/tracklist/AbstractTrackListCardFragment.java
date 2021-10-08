@@ -196,47 +196,6 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
         }
     }
 
-//    /**
-//     * Return the current state of the permissions needed.
-//     */
-//    private boolean checkStoragePermissions() {
-//        int permissionState = ActivityCompat.checkSelfPermission(getActivity(),
-//                Manifest.permission.WRITE_EXTERNAL_STORAGE);
-//        return permissionState == PackageManager.PERMISSION_GRANTED;
-//    }
-
-//    private void requestStoragePermissions() {
-//        boolean shouldProvideRationale =
-//                ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
-//                        Manifest.permission.WRITE_EXTERNAL_STORAGE);
-//
-//        // Provide an additional rationale to the getUserStatistic. This would happen if the getUserStatistic denied the
-//        // request previously, but didn't check the "Don't ask again" checkbox.
-//        if (shouldProvideRationale) {
-//            LOG.debug("Requesting Storage permission. Displaying permission rationale to provide additional context.");
-//
-//            new MaterialAlertDialogBuilder(getContext(), R.style.MaterialDialog)
-//                    .setTitle(R.string.request_storage_permission_title)
-//                    .setMessage(R.string.permission_rationale_file)
-//                    .setIcon(R.drawable.others_settings)
-//                    .setPositiveButton(R.string.ok,(dialog, which) -> {
-//                        // Request permission
-//                        ActivityCompat.requestPermissions(getActivity(),
-//                                new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-//                                REQUEST_STORAGE_PERMISSION_REQUEST_CODE);
-//                    })
-//                    .show();
-//        } else {
-//            LOG.info("Requesting permission");
-//            // Request permission. It's possible this can be auto answered if device policy
-//            // sets the permission in a given state or the getUserStatistic denied the permission
-//            // previously and checked "Never ask again".
-//            ActivityCompat.requestPermissions(getActivity(),
-//                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-//                    REQUEST_STORAGE_PERMISSION_REQUEST_CODE);
-//        }
-//    }
-
 
     /**
      * Callback received when a permissions request has been completed.
