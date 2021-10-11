@@ -27,10 +27,8 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.FileProvider;
-import androidx.core.content.ContextCompat;
 
 import android.util.Pair;
-import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,7 +38,6 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
@@ -61,7 +58,6 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -357,7 +353,7 @@ public class SendLogFileActivity extends BaseInjectorActivity {
 
 
     public File createVersionAndErrorDetailsFile() throws IOException {
-        File otherFile = Util.createFileOnInternalStorage(getCacheDir().getAbsolutePath(), OTHER_DETAILS_PREFIX + ".txt");
+        File otherFile = Util.createFileOnStorage(getCacheDir().getAbsolutePath(), OTHER_DETAILS_PREFIX + ".txt");
         StringBuilder text = new StringBuilder();
         text.append(createSubject());
         text.append("\n");
@@ -374,7 +370,7 @@ public class SendLogFileActivity extends BaseInjectorActivity {
      * @throws IOException
      */
     private File createReportBundle() throws IOException {
-        File targetFile = Util.createFileOnInternalStorage(getExternalCacheDir().getAbsolutePath(),
+        File targetFile = Util.createFileOnStorage(getExternalCacheDir().getAbsolutePath(),
                 PREFIX + format.format(new Date()) + EXTENSION);
 
         Util.zip(findAllLogFiles(), targetFile.toURI().getPath());
@@ -383,7 +379,7 @@ public class SendLogFileActivity extends BaseInjectorActivity {
     }
 
     private void removeOldReportBundles() throws IOException {
-        File baseFolder = Util.resolveInternalStorageBaseFolder(getCacheDir().getAbsolutePath());
+        File baseFolder = Util.resolveStorageBaseFolder(getCacheDir().getAbsolutePath());
 
         final String todayPrefix = PREFIX.concat(dayFormat.format(new Date()));
         File[] oldFiles = baseFolder.listFiles(new FileFilter() {

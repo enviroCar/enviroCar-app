@@ -67,7 +67,7 @@
     <string name="track_list_menu_details">Show Details</string>
     <string name="track_list_menu_delete">Delete Track</string>
     <string name="track_list_menu_upload">Upload as Open Data</string>
-    <string name="track_list_menu_export">Export Track</string>
+    <string name="track_list_menu_share">Share Track</string>
 
     <string name="track_list_details_duration">Duration</string>
     <string name="track_list_details_distance">Distance</string>

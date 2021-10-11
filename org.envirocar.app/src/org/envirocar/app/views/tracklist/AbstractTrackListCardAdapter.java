@@ -26,7 +26,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
-import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.jorgecastilloprz.FABProgressCircle;
@@ -41,9 +40,7 @@ import com.mapbox.mapboxsdk.maps.Style;
 import org.envirocar.app.R;
 import org.envirocar.app.views.trackdetails.TrackMapLayer;
 import org.envirocar.core.entity.Track;
-import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.core.trackprocessing.statistics.TrackStatisticsProvider;
 
 import java.text.DateFormat;
 import java.text.DecimalFormat;
@@ -183,8 +180,8 @@ public abstract class AbstractTrackListCardAdapter<E extends
                 case R.id.menu_tracklist_cardlayout_item_delete:
                     mTrackInteractionCallback.onDeleteTrackClicked(track);
                     break;
-                case R.id.menu_tracklist_cardlayout_item_export:
-                    mTrackInteractionCallback.onExportTrackClicked(track);
+                case R.id.menu_tracklist_cardlayout_item_share:
+                    mTrackInteractionCallback.onShareTrackClicked(track);
                     break;
                 case R.id.menu_tracklist_cardlayout_item_upload:
                     mTrackInteractionCallback.onUploadTrackClicked(track);
