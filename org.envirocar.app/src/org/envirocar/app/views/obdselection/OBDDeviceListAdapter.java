@@ -104,7 +104,7 @@ public class OBDDeviceListAdapter extends ArrayAdapter<BluetoothDevice> {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        // Get the item from the given poosition
+        // Get the item from the given position
         final BluetoothDevice device = getItem(position);
 
         ViewHolder holder;
