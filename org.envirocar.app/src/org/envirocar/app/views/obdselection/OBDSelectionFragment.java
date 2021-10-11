@@ -108,8 +108,8 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
     @BindView(R.id.activity_obd_selection_layout_rescan_bluetooth)
     protected ImageView mRescanImageView;
 
-    @BindView(R.id.activity_obd_selection_layout_available_devices_info)
-    protected TextView mNewDevicesInfoTextView;
+//    @BindView(R.id.activity_obd_selection_layout_available_devices_info)
+//    protected TextView mNewDevicesInfoTextView;
 
     // ArrayAdapter for the two different list views.
     private OBDDeviceListAdapter mNewDevicesArrayAdapter;
@@ -183,7 +183,6 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
             mContentView.setVisibility(View.GONE);
             mNewDevicesArrayAdapter.clear();
             mPairedDevicesAdapter.clear();
-            mNewDevicesInfoTextView.setText(R.string.obd_selection_bluetooth_disabled);
         } else {
             // Bluetooth is enabled. Show the content view, update the list, and start the
             // discovery of Bluetooth devices.
@@ -321,9 +320,6 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
                         mProgressBar.setVisibility(View.VISIBLE);
                         mRescanImageView.setVisibility(View.GONE);
 
-                        // Set info view to "searching...".
-                        mNewDevicesInfoTextView.setText(R.string
-                                .bluetooth_pairing_preference_info_searching_devices);
                         showSnackbar(getString(R.string.obd_selection_discovery_started));
 
                         // Set timer for 15sec
@@ -350,19 +346,6 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
                         mRescanImageView.setVisibility(View.VISIBLE);
                         showSnackbar("Discovery Finished!");
 
-                        // If no devices found, set the corresponding textview to visibile.
-                        if (mNewDevicesArrayAdapter.isEmpty()) {
-                            mNewDevicesInfoTextView.setText(R.string
-                                    .select_bluetooth_preference_info_no_device_found);
-                        } else if (mNewDevicesArrayAdapter.getCount() == 1) {
-                            mNewDevicesInfoTextView.setText(R.string
-                                    .bluetooth_pairing_preference_info_device_found);
-                        } else {
-                            String string = getString(R.string
-                                    .bluetooth_pairing_preference_info_devices_found);
-                            mNewDevicesInfoTextView.setText(String.format(string,
-                                    Integer.toString(mNewDevicesArrayAdapter.getCount())));
-                        }
                     }
 
                     @Override
