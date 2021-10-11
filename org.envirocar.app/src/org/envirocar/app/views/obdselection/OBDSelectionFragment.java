@@ -21,7 +21,6 @@ package org.envirocar.app.views.obdselection;
 import android.Manifest;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -39,7 +38,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.squareup.otto.Subscribe;
@@ -65,7 +63,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
-import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 import pub.devrel.easypermissions.PermissionRequest;
 
@@ -408,7 +405,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
                     @Override
                     public void onDeleteOBDDevice(BluetoothDevice device) {
                         LOGGER.info(String.format("onDeleteOBDDevice(%s)", device.getName()));
-                        showUnpairingDialig(device);
+                        showUnpairingDialog(device);
                     }
                 }, selectedBTDevice);
 
@@ -437,7 +434,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
         });
     }
 
-    private void showUnpairingDialig(BluetoothDevice device) {
+    private void showUnpairingDialog(BluetoothDevice device) {
         // Create the AlertDialog.
         new MaterialAlertDialogBuilder(getActivity(), R.style.MaterialDialog)
                 .setTitle(R.string.obd_selection_dialog_delete_pairing_title)
@@ -484,6 +481,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
         // Get the set of paired devices.
         Set<BluetoothDevice> pairedDevices = mBluetoothHandler.getPairedBluetoothDevices();
 
+        mPairedDevicesAdapter.clear();
         // For each device, add an entry to the list view.
         mPairedDevicesAdapter.addAll(pairedDevices);
         mPairedDevicesAdapter.setSelectedBluetoothDevice(mBluetoothHandler
