@@ -108,8 +108,10 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
     @BindView(R.id.activity_obd_selection_layout_rescan_bluetooth)
     protected ImageView mRescanImageView;
 
-//    @BindView(R.id.activity_obd_selection_layout_available_devices_info)
-//    protected TextView mNewDevicesInfoTextView;
+    @BindView(R.id.activity_obd_selection_layout_paired_devices_info)
+    protected TextView mPairedDevicesInfoTextView;
+    @BindView(R.id.activity_obd_selection_layout_available_devices_info)
+    protected TextView mNewDevicesInfoTextView;
 
     // ArrayAdapter for the two different list views.
     private OBDDeviceListAdapter mNewDevicesArrayAdapter;
@@ -345,6 +347,9 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
                         mProgressBar.setVisibility(View.GONE);
                         mRescanImageView.setVisibility(View.VISIBLE);
                         showSnackbar("Discovery Finished!");
+                        if(mNewDevicesArrayAdapter.isEmpty()){
+                            mNewDevicesInfoTextView.setVisibility(View.VISIBLE);
+                        }
 
                     }
 
@@ -363,6 +368,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
                         // add it to the list and add an entry to the array adapter.
                         if (!mPairedDevicesAdapter.contains(device) &&
                                 !mNewDevicesArrayAdapter.contains(device)) {
+                            mNewDevicesInfoTextView.setVisibility(View.GONE);
                             mNewDevicesArrayAdapter.add(device);
                         }
                     }
@@ -446,7 +452,8 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
                                 device.getName() + " (" + device.getAddress() + ")"));
                         mPairedDevicesAdapter.remove(device);
                         if (mPairedDevicesAdapter.getCount() == 0 ){
-                            mPairedDevicesTextView.setVisibility(View.GONE);
+                            mPairedDevicesInfoTextView.setVisibility(View.VISIBLE);
+                            //mPairedDevicesTextView.setVisibility(View.GONE);
                         }
                         updatePairedDevicesList();
                     }
@@ -474,7 +481,8 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
 
         // Make the paired devices textview visible if there are paired devices
         if (!pairedDevices.isEmpty()) {
-            mPairedDevicesTextView.setVisibility(View.VISIBLE);
+            mPairedDevicesInfoTextView.setVisibility(View.GONE);
+            //mPairedDevicesTextView.setVisibility(View.VISIBLE);
         }
     }
 
@@ -519,7 +527,8 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
                                 device.getName()));
                         mNewDevicesArrayAdapter.remove(device);
                         mPairedDevicesAdapter.add(device);
-                        mPairedDevicesTextView.setVisibility(View.VISIBLE);
+                        mPairedDevicesInfoTextView.setVisibility(View.GONE);
+                        //mPairedDevicesTextView.setVisibility(View.VISIBLE);
 
                         // Post an event to all registered handlers.
                         mBus.post(new BluetoothPairingChangedEvent(device, true));

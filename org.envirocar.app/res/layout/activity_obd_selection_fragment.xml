@@ -42,7 +42,6 @@
             android:text="@string/obd_selection_paired_devices"
             android:textColor="@color/blue_dark_cario"
             android:textSize="14sp"
-            android:visibility="gone"
             app:layout_constraintTop_toTopOf="parent"
             tools:layout_editor_absoluteX="16dp" />
 
@@ -54,6 +53,17 @@
             app:layout_constraintBottom_toTopOf="@+id/linearLayout"
             app:layout_constraintTop_toBottomOf="@+id/activity_obd_selection_layout_paired_devices_text"
             tools:layout_editor_absoluteX="16dp" />
+
+        <TextView
+            android:id="@+id/activity_obd_selection_layout_paired_devices_info"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:gravity="center"
+            android:text="@string/obd_selection_no_paired_devices"
+            app:layout_constraintBottom_toTopOf="@+id/linearLayout"
+            app:layout_constraintTop_toBottomOf="@+id/activity_obd_selection_layout_paired_devices_text"
+            tools:layout_editor_absoluteX="26dp" />
 
         <LinearLayout
             android:id="@+id/linearLayout"
@@ -101,6 +111,17 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/linearLayout"
             tools:layout_editor_absoluteX="16dp" />
+
+        <TextView
+            android:id="@+id/activity_obd_selection_layout_available_devices_info"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:gravity="center"
+            android:text="@string/obd_selection_no_available_devices"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/linearLayout"
+            tools:layout_editor_absoluteX="26dp" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
