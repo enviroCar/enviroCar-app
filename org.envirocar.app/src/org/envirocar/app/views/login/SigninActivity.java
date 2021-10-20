@@ -128,7 +128,7 @@ public class SigninActivity extends BaseInjectorActivity {
         View view = this.getCurrentFocus();
         if (view != null) {
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
     }
 
