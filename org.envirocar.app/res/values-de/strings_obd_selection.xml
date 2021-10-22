@@ -27,6 +27,7 @@
     <string name="obd_selection_bluetooth_disabled">Bluetooth ist deaktiviert.</string>
     <string name="obd_selection_bluetooth_disabled_snackbar">Bluetooth ist deaktiviert. Bitte aktivieren Sie Bluetooth, bevor Sie nach anderen Geräten suchen können.</string>
     <string name="obd_selection_discovery_started">Suche gestartet!</string>
+    <string name="obd_selection_discovery_finished">Suche beendet!</string>
     <string name="obd_selection_is_selected_template">%s ausgewählt.</string>
 
     <string name="obd_selection_no_paired_devices">Keine gekoppelten Bluetooth-Geräte.</string>
