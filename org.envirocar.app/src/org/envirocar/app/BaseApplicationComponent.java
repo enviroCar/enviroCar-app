@@ -35,6 +35,7 @@ import org.envirocar.app.recording.RecordingModule;
 import org.envirocar.app.services.TrackUploadService;
 import org.envirocar.app.services.autoconnect.AutoRecordingComponent;
 import org.envirocar.app.services.autoconnect.AutoRecordingModule;
+import org.envirocar.app.services.trackchunks.TrackChunkUploaderService;
 import org.envirocar.app.views.SplashScreenActivity;
 import org.envirocar.app.views.carselection.CarSelectionActivity;
 import org.envirocar.app.views.carselection.CarSelectionAddCarFragment;
@@ -125,6 +126,7 @@ public interface BaseApplicationComponent {
     void inject(TrackUploadService trackUploadService);
     void inject(EnviroCarDataService enviroCarDataService);
     void inject(EnviroCarVehicleDB enviroCarVehicleDB);
+    void inject(TrackChunkUploaderService trackChunkUploaderService);
 
     // interactors
     void inject(GetUserStatistic getUserStatistic);

@@ -77,7 +77,7 @@ public class TrackDatabaseSink {
         return upstream -> upstream.flatMap(measurement -> Observable.create((ObservableOnSubscribe<Track>) emitter -> {
             LOG.info("Storing new measurement into database");
 
-            // If not rack exists, then create one.
+            // If no track exists, then create one.
             if (track == null) {
                 try {
                     track = createNewTrack(measurement.getTime());
@@ -104,7 +104,7 @@ public class TrackDatabaseSink {
                     track.setLength(track.getLength() + distanceToLast);
                 }
 
-                // update track in databse
+                // update track in database
                 track.getMeasurements().add(measurement);
                 enviroCarDB.updateTrack(track);
                 eventBus.post(new RecordingNewMeasurementEvent(measurement));
