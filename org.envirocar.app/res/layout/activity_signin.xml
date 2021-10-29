@@ -64,7 +64,7 @@
             android:id="@+id/activity_signin_username_input_layout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="0dp"
-            android:layout_height="40dp"
+            android:layout_height="48dp"
             android:layout_marginTop="40dp"
             app:hintEnabled="false"
             app:layout_constraintEnd_toEndOf="@id/activity_signin_guideline_right"
@@ -89,22 +89,21 @@
             android:id="@+id/activity_signin_password_input_layout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="0dp"
-            android:layout_height="40dp"
-            android:layout_marginTop="40dp"
+            android:layout_height="48dp"
+            android:layout_marginTop="16dp"
             app:hintEnabled="false"
             app:layout_constraintEnd_toEndOf="@id/activity_signin_guideline_right"
             app:layout_constraintStart_toStartOf="@id/activity_signin_guideline_left"
             app:layout_constraintTop_toBottomOf="@+id/activity_signin_username_input_layout"
-            app:layout_constraintWidth_max="500dp">
+            app:layout_constraintWidth_max="500dp"
+            app:passwordToggleEnabled="true">
 
             <androidx.appcompat.widget.AppCompatEditText
                 android:id="@+id/activity_login_password_input"
                 style="@style/envirocar.login.edittext"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:drawableLeft="@drawable/ic_action_pass"
+                android:drawableStart="@drawable/ic_action_pass"
                 android:hint="@string/password"
-                android:imeOptions="actionDone"
                 android:inputType="textPassword" />
 
         </com.google.android.material.textfield.TextInputLayout>
@@ -114,12 +113,12 @@
             android:layout_width="0dp"
             android:layout_height="50dp"
             android:layout_centerHorizontal="true"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginTop="48dp"
+            android:layout_marginTop="20dp"
             app:cardBackgroundColor="@color/cario_color_primary_dark"
             app:cardCornerRadius="25dp"
             app:cardElevation="10dp"
-            app:layout_constraintEnd_toStartOf="@id/activity_signin_guideline_right"
+            app:layout_constraintEnd_toStartOf="@+id/activity_signin_guideline_right"
+            app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="@id/activity_signin_guideline_left"
             app:layout_constraintTop_toBottomOf="@+id/activity_signin_password_input_layout">
 
@@ -136,7 +135,7 @@
             android:id="@+id/linearLayout3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="12dp"
             android:gravity="center_horizontal"
             android:orientation="vertical"
             app:layout_constraintEnd_toEndOf="parent"
