@@ -73,6 +73,8 @@ public class BluetoothHandler {
     private DisposableObserver mDiscoverySubscription;
     private boolean mIsAutoconnecting;
 
+    BroadcastReceiver bluetoothPairingReceiver;
+
     // The bluetooth adapter
     private final BluetoothAdapter mBluetoothAdapter;
     protected final BroadcastReceiver mBluetoothStateChangedReceiver = new BroadcastReceiver() {
@@ -516,37 +518,39 @@ public class BluetoothHandler {
      */
     public void pairDevice(final BluetoothDevice device,
                            final BluetoothDevicePairingCallback callback) {
+        if (bluetoothPairingReceiver == null){
+            bluetoothPairingReceiver = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    String action = intent.getAction();
 
-        // Register a new BroadcastReceiver for BOND_STATE_CHANGED actions.
-        IntentFilter intent = new IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
-        context.registerReceiver(new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                String action = intent.getAction();
+                    // if the action is a change of the pairing state
+                    if (BluetoothDevice.ACTION_BOND_STATE_CHANGED.equals(action)) {
 
-                // if the action is a change of the pairing state
-                if (BluetoothDevice.ACTION_BOND_STATE_CHANGED.equals(action)) {
+                        // Get state and previous state.
+                        final int state = intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE,
+                                BluetoothDevice.ERROR);
+                        final int prevState = intent.getIntExtra(
+                                BluetoothDevice.EXTRA_PREVIOUS_BOND_STATE, BluetoothDevice.ERROR);
 
-                    // Get state and previous state.
-                    final int state = intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE,
-                            BluetoothDevice.ERROR);
-                    final int prevState = intent.getIntExtra(
-                            BluetoothDevice.EXTRA_PREVIOUS_BOND_STATE, BluetoothDevice.ERROR);
-
-                    if (state == BluetoothDevice.BOND_BONDED &&
-                            prevState == BluetoothDevice.BOND_BONDING) {
-                        // The device has been successfully paired, inform the callback about
-                        // the successful pairing.
-                        callback.onDevicePaired(device);
-                    } else if (state == BluetoothDevice.BOND_NONE && prevState == BluetoothDevice
-                            .BOND_BONDING) {
-                        // It was not able to successfully establishing a pairing to the given
-                        // device. Inform the callback
-                        callback.onPairingError(device);
+                        if (state == BluetoothDevice.BOND_BONDED &&
+                                prevState == BluetoothDevice.BOND_BONDING) {
+                            // The device has been successfully paired, inform the callback about
+                            // the successful pairing.
+                            callback.onDevicePaired(device);
+                        } else if (state == BluetoothDevice.BOND_NONE && prevState == BluetoothDevice
+                                .BOND_BONDING) {
+                            // It was not able to successfully establishing a pairing to the given
+                            // device. Inform the callback
+                            callback.onPairingError(device);
+                        }
                     }
                 }
-            }
-        }, intent);
+            };
+            // Register a new BroadcastReceiver for BOND_STATE_CHANGED actions.
+            IntentFilter intent = new IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
+            context.registerReceiver(bluetoothPairingReceiver, intent);
+        }
 
         // Using reflection to invoke "createBond" method in order to pair with a given device.
         // This method is public in API lvl 18.
