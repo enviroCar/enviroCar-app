@@ -108,6 +108,9 @@
             android:name=".services.TrackUploadService"
             android:enabled="true" />
         <service
+                android:name=".services.trackchunks.TrackchunkUploadService"
+                android:enabled="true" />
+        <service
             android:name=".aidl.EnviroCarDataService"
             android:enabled="true"
             android:exported="true">

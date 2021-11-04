@@ -21,6 +21,7 @@
 <resources>
     <string name="pref_obd_recording">OBD Mode</string>
     <string name="pref_gps_recording">GPS Mode</string>
+    <string name="pref_track_chunks">Track Chunk Upload</string>
 
     <!-- Settings Activity -->
     <string name="pref_settings_general">General Settings</string>
@@ -42,6 +43,11 @@
     <string name="pref_obfuscate_track_summary">Only upload measurements which are taken 250 meter (820 feet) and one minute after start and before end of each track.</string>
     <string name="pref_text_to_speech">Verbal Announcements</string>
     <string name="pref_text_to_speech_summary">Enabling the verbal announcements of specific events, e.g. OBD-II connection established/lost, track finished.</string>
+
+    <!-- Track chunks -->
+    <string name="pref_track_chunk_upload">Track Chunk Upload</string>
+    <string name="pref_track_chunk_upload_sub">Enables the automatic upload of tracks during the recording.</string>
+    <string name="pref_beta_enable_track_chunk_upload">Enable track chunk upload</string>
 
     <!-- OBD-Settings -->
     <string name="pref_obd_settings">OBD-II Adapter Settings</string>
