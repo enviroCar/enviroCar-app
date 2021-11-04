@@ -78,8 +78,6 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
     protected Toolbar mExpToolbar;
     @BindView(R.id.actvity_car_selection_layout_loading)
     protected View loadingView;
-    @BindView(R.id.overlay)
-    protected View overlayView;
 
     @BindView(R.id.activity_car_selection_new_car_fab)
     protected FloatingActionButton mFab;
@@ -192,7 +190,6 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
             LOG.info("addCarFragment is already visible.");
             return false;
         }
-        ECAnimationUtils.animateShowView(this, overlayView, R.anim.fade_in);
         ECAnimationUtils.animateHideView(this, mFab, R.anim.fade_out);
         this.addCarFragment = new CarSelectionAddCarFragment();
         getSupportFragmentManager().beginTransaction()
