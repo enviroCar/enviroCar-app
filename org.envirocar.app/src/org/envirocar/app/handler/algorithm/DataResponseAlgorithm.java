@@ -8,9 +8,9 @@ import java.util.List;
 
 public interface DataResponseAlgorithm {
 
-    public double calculate(List<PropertyKeyEvent> pke);
+    Double calculate(List<PropertyKeyEvent> pke);
 
-    public Measurement.PropertyKey getPropertyKey();
+    Measurement.PropertyKey getPropertyKey();
 
     static List<DataResponseAlgorithm> fromPropertyType(Measurement.PropertyKey pk) {
         switch (pk) {
