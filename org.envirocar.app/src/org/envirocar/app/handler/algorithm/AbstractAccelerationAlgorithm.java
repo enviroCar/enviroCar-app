@@ -20,6 +20,6 @@ public class AbstractAccelerationAlgorithm {
 
         double dV = (end.doubleValue() - start.doubleValue());
         double dT = (endTime -  startTime);
-        return (dV / CONV_FACTOR - dT / 1000);
+        return ((dV / CONV_FACTOR) / (dT / 1000));
     }
 }
