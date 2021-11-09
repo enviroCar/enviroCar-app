@@ -10,7 +10,7 @@ public interface DataResponseAlgorithm {
 
     Double calculate(List<PropertyKeyEvent> pke);
 
-    Measurement.PropertyKey getPropertyKey();
+    Measurement.PropertyKey getPropertyKey(Measurement.PropertyKey pk);
 
     static List<DataResponseAlgorithm> fromPropertyType(Measurement.PropertyKey pk) {
         switch (pk) {

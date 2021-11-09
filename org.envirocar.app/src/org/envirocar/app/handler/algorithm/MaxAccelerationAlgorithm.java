@@ -27,7 +27,12 @@ public class MaxAccelerationAlgorithm extends AbstractAccelerationAlgorithm impl
     }
 
     @Override
-    public Measurement.PropertyKey getPropertyKey() {
-        return Measurement.PropertyKey.MAX_ACCELERATION;
+    public Measurement.PropertyKey getPropertyKey(Measurement.PropertyKey pk) {
+        switch (pk) {
+            case GPS_SPEED:
+                return Measurement.PropertyKey.MAX_GPS_ACCELERATION;
+            default:
+                return Measurement.PropertyKey.MAX_ACCELERATION;
+        }
     }
 }
