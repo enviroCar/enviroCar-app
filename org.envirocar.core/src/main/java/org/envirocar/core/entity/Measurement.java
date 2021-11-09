@@ -357,6 +357,28 @@ public interface Measurement extends BaseEntity<Measurement> {
             public String toString() {
                 return "Maximum Acceleration";
             }
+        },
+        MIN_GPS_ACCELERATION {
+            @Override
+            public int getStringResource() {
+                return R.string.property_key_min_acceleration;
+            }
+
+            @Override
+            public String toString() {
+                return "Minimum GPS Acceleration";
+            }
+        },
+        MAX_GPS_ACCELERATION {
+            @Override
+            public int getStringResource() {
+                return R.string.property_key_max_acceleration;
+            }
+
+            @Override
+            public String toString() {
+                return "Maximum GPS Acceleration";
+            }
         };
 
 

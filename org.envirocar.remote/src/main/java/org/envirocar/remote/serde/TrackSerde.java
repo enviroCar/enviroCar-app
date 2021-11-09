@@ -78,7 +78,9 @@ import static org.envirocar.core.entity.Measurement.PropertyKey.LAMBDA_VOLTAGE_E
 import static org.envirocar.core.entity.Measurement.PropertyKey.LONG_TERM_TRIM_1;
 import static org.envirocar.core.entity.Measurement.PropertyKey.MAF;
 import static org.envirocar.core.entity.Measurement.PropertyKey.MAX_ACCELERATION;
+import static org.envirocar.core.entity.Measurement.PropertyKey.MAX_GPS_ACCELERATION;
 import static org.envirocar.core.entity.Measurement.PropertyKey.MIN_ACCELERATION;
+import static org.envirocar.core.entity.Measurement.PropertyKey.MIN_GPS_ACCELERATION;
 import static org.envirocar.core.entity.Measurement.PropertyKey.RPM;
 import static org.envirocar.core.entity.Measurement.PropertyKey.SHORT_TERM_TRIM_1;
 import static org.envirocar.core.entity.Measurement.PropertyKey.SPEED;
@@ -123,6 +125,8 @@ public class TrackSerde extends AbstractJsonSerde implements JsonSerializer<Trac
         supportedPhenomenons.add(FUEL_SYSTEM_STATUS_CODE);
         supportedPhenomenons.add(MIN_ACCELERATION);
         supportedPhenomenons.add(MAX_ACCELERATION);
+        supportedPhenomenons.add(MAX_GPS_ACCELERATION);
+        supportedPhenomenons.add(MIN_GPS_ACCELERATION);
     }
 
     @Override

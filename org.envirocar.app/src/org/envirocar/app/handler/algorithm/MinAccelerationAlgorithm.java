@@ -3,6 +3,7 @@ package org.envirocar.app.handler.algorithm;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.obd.events.PropertyKeyEvent;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class MinAccelerationAlgorithm extends AbstractAccelerationAlgorithm implements DataResponseAlgorithm{
@@ -27,7 +28,12 @@ public class MinAccelerationAlgorithm extends AbstractAccelerationAlgorithm impl
     }
 
     @Override
-    public Measurement.PropertyKey getPropertyKey() {
-        return Measurement.PropertyKey.MIN_ACCELERATION;
+    public Measurement.PropertyKey getPropertyKey(Measurement.PropertyKey pk) {
+        switch (pk) {
+            case GPS_SPEED:
+                return Measurement.PropertyKey.MIN_GPS_ACCELERATION;
+            default:
+                return Measurement.PropertyKey.MIN_ACCELERATION;
+        }
     }
 }
