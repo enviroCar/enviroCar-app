@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
 
-    Copyright (C) 2013 - 2019 the enviroCar community
+    Copyright (C) 2013 - 2021 the enviroCar community
 
     This file is part of the enviroCar app.
 
@@ -50,6 +50,18 @@
         android:textSize="15sp"
         app:layout_constraintStart_toStartOf="@+id/guideline29"
         app:layout_constraintTop_toBottomOf="@+id/imageView2" />
+
+    <TextView
+        android:layout_width="252dp"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/roboto_medium"
+        android:lineSpacingExtra="4sp"
+        android:text="@string/activity_splashscreen_warning"
+        android:textColor="@color/white_cario"
+        android:textSize="15sp"
+        app:layout_constraintBottom_toTopOf="@+id/guideline28"
+        app:layout_constraintEnd_toStartOf="@+id/guideline30"
+        app:layout_constraintStart_toStartOf="@+id/guideline29" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline28"

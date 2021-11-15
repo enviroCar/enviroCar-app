@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
 
-    Copyright (C) 2013 - 2019 the enviroCar community
+    Copyright (C) 2013 - 2021 the enviroCar community
 
     This file is part of the enviroCar app.
 
@@ -27,20 +27,25 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:paddingTop="15dp"
+        android:paddingStart="15dp"
         android:text="@string/trackviews_delete_track_dialog_content_1"/>
 
     <TextView
         android:id="@+id/fragment_tracklist_delete_track_dialog_trackname"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="@dimen/spacing_large"
+        android:paddingTop="@dimen/spacing_large"
+        android:paddingBottom="@dimen/spacing_large"
+        android:paddingStart="15dp"
         android:text="Track 27.01.2016 15:55:01"
-        android:gravity="center"
         android:textStyle="bold"
         android:textSize="@dimen/text_large"/>
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:paddingStart="15dp"
+        android:paddingEnd="15dp"
         android:text="@string/trackviews_delete_track_dialog_content_2"/>
 </LinearLayout>

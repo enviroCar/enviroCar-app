@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
 
-    Copyright (C) 2013 - 2019 the enviroCar community
+    Copyright (C) 2013 - 2021 the enviroCar community
 
     This file is part of the enviroCar app.
 
@@ -30,8 +30,8 @@
     <string name="property_key_engine_fuel_rate">Kraftstoffverbrauch</string>
     <string name="property_key_co2">CO\u2082</string>
     <string name="property_key_consumption">Geschätzter Verbrauch</string>
-    <string name="property_key_energy_consumption">Geschätzter Verbrauch</string>
-    <string name="property_key_energy_co2_emission">Geschätzte CO\u2082 Emission</string>
+    <string name="property_key_energy_consumption">Geschätzter Verbrauch (GPS-basiert)</string>
+    <string name="property_key_energy_co2_emission">Geschätzte CO\u2082 Emission (GPS-basiert)</string>
     <string name="property_key_throttle_position">Drosselklappenstellung</string>
     <string name="property_key_engine_load">Motorlast</string>
     <string name="property_key_gps_accuracy">GPS Genauigkeit</string>

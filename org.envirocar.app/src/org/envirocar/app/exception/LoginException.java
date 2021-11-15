@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - 2019 the enviroCar community
+ * Copyright (C) 2013 - 2021 the enviroCar community
  *
  * This file is part of the enviroCar app.
  *
@@ -26,7 +26,7 @@ public class LoginException extends Exception {
     public enum ErrorType {
         MAIL_NOT_CONFIREMED,
         UNABLE_TO_COMMUNICATE_WITH_SERVER,
-        PASSWORD_INCORRECT
+        USERNAME_OR_PASSWORD_INCORRECT
     }
 
     private final ErrorType type;

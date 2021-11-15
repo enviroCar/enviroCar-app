@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
 
-    Copyright (C) 2013 - 2019 the enviroCar community
+    Copyright (C) 2013 - 2021 the enviroCar community
 
     This file is part of the enviroCar app.
 
@@ -71,7 +71,7 @@
 	    you can save the log file on a PC, e.g. through Bluetooth or USB. In such cases we appreciate sending
 	    in the reporting bundle manually. It is stored at the following location:</string>
     <string name="send_log_when_label">Approximate minutes past since issue:</string>
-    <string name="send_log_comments_label">(additional comments)</string>
+    <string name="send_log_comments_label">Additional comments</string>
     <string name="send_log_time_past_hint">(time past since issue)</string>
     <string name="troubleshootingParagraph" translatable="false">The enviroCar app was not able to establish the bluetooth connection to
 	    the OBD-II adapter. You could try to unplug and plug the adapter, then restart measurements.</string>
@@ -94,6 +94,7 @@
 
     <!-- Splashscreen -->
     <string name="activity_splashscreen_subtitle" translatable="false">Start Today. \nJoin the Community.</string>
+    <string name="activity_splashscreen_warning">CAUTION: \nDo not operate the app while you are driving.</string>
 
     <!-- ################# -->
     <!-- Sign In / Sign Up -->

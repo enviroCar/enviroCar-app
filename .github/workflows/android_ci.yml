@@ -1,0 +1,38 @@
+name: Android CI
+
+on:
+  push:
+    branches:
+      - develop
+      - master
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: set up JDK 8
+      uses: actions/setup-java@v2
+      with:
+        java-version: '8'
+        distribution: 'adopt'
+        cache: gradle
+
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+    - name: Build with Gradle
+      run: ./gradlew build
+      
+    - name: Upload EnviroCar-App APK
+      uses: actions/upload-artifact@v1
+      with:
+        name: envirocar-app
+        path: org.envirocar.app/build/outputs/apk/debug/org.envirocar.app-debug.apk
+        
+    - name: Upload EnviroCar-OBD-Simulator APK
+      uses: actions/upload-artifact@v1
+      with:
+        name: envirocar-obd-simulator
+        path: android-obd-simulator/build/outputs/apk/debug/android-obd-simulator-debug.apk

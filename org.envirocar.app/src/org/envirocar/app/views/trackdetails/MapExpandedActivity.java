@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - 2019 the enviroCar community
+ * Copyright (C) 2013 - 2021 the enviroCar community
  *
  * This file is part of the enviroCar app.
  *
@@ -143,7 +143,7 @@ public class MapExpandedActivity extends BaseInjectorActivity {
 
         options = track.getSupportedProperties();
         for (Measurement.PropertyKey propertyKey : options) {
-            spinnerStrings.add(propertyKey.toString());
+            spinnerStrings.add(getString(propertyKey.getStringResource()));
         }
         spinnerStrings.add("None");
 

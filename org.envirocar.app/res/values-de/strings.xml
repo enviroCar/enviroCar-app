@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
 
-    Copyright (C) 2013 - 2020 the enviroCar community
+    Copyright (C) 2013 - 2021 the enviroCar community
 
     This file is part of the enviroCar app.
 
@@ -51,11 +51,15 @@
     <string name="track_statistics_distance">Distanz</string>
 	
 	<string name="welcome_message">Willkommen, %s</string>
-    <string name="goodbye_message">Auf Wiederstehen, %s</string>
+    <string name="goodbye_message">Auf Wiedersehen, %s</string>
+
+    <string name="gps_track_details">*Dies ist eine auf GPS basierende Fahrt. Sie kann nicht als Open Data hochgeladen werden.</string>
+    <string name="dashboard_signin_prompt">Loggen Sie sich ein um Ihre Fahrt hochzuladen</string>
     <string name="problem_description">Beschreiben Sie Ihr Problem</string>
 
     <string name="envirocar.org">http://www.envirocar.org</string>
     <string name="categories">Kategorien:</string>
+    <string name="driving">Fahren</string>
     
     <string name="imperial_unit">Imperiale Maßeinheiten?</string>
 
@@ -79,6 +83,9 @@
 	<string name="general_error_please_report">Programmfehler - Bitte melden Sie das Problem</string>
 
     <string name="submit">Absenden</string>
+
+    <!-- Splashscreen -->
+    <string name="activity_splashscreen_warning">ACHTUNG: \nBedienen Sie nicht die App während Sie fahren.</string>
 
     <!-- ################# -->
     <!-- Send Error Report -->

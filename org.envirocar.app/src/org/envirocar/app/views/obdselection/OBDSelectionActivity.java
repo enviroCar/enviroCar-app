@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - 2019 the enviroCar community
+ * Copyright (C) 2013 - 2021 the enviroCar community
  *
  * This file is part of the enviroCar app.
  *
@@ -103,14 +103,15 @@ public class OBDSelectionActivity extends BaseInjectorActivity implements
         mEnableBTText.setText(isBTEnabled ?
                 R.string.obd_selection_bluetooth_on :
                 R.string.obd_selection_bluetooth_off);
-        mSwitch.setChecked(mBluetoothHandler.isBluetoothEnabled());
 
         mSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
-                //                mSwitch.setChecked(false);
+                //  If Bluetooth is allowed then mSwitch checked
                 mBluetoothHandler.enableBluetooth(OBDSelectionActivity.this);
+                mSwitch.setChecked(true);
             } else {
                 mBluetoothHandler.disableBluetooth(OBDSelectionActivity.this);
+                mSwitch.setChecked(false);
             }
         });
     }

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - 2019 the enviroCar community
+ * Copyright (C) 2013 - 2021 the enviroCar community
  *
  * This file is part of the enviroCar app.
  *
@@ -76,7 +76,6 @@ public class ECAnimationUtils {
     public static void animateHideView(Context context, final View view, int animResource, final Action action) {
         AndroidSchedulers.mainThread().createWorker().schedule(() -> {
             Animation animation = AnimationUtils.loadAnimation(context, animResource);
-            animation.setFillAfter(true);
 
             animation.setAnimationListener(new Animation.AnimationListener() {
                 @Override

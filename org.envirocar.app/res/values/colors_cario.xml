@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
 
-    Copyright (C) 2013 - 2020 the enviroCar community
+    Copyright (C) 2013 - 2021 the enviroCar community
 
     This file is part of the enviroCar app.
 
@@ -36,4 +36,8 @@
     <color name="envirocar_color_add_card_background">#4757A0</color>
 
     <color name="cario_warning_red">#B00020</color>
+    <color name="gray88">#e0e0e0</color>
+    <color name="black">#000000</color>
+    <color name="dark_charcoal">#ff323232</color>
+    <color name="spanish_gray">#939393</color>
 </resources>

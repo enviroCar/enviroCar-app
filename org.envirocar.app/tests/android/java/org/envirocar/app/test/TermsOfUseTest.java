@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - 2019 the enviroCar community
+ * Copyright (C) 2013 - 2021 the enviroCar community
  *
  * This file is part of the enviroCar app.
  *
@@ -37,9 +37,9 @@ public class TermsOfUseTest extends ResourceLoadingTestCase {
 	public void testTermsOfUseInstanceParsing() throws JSONException, IOException {
 		JsonElement gson = new Gson().fromJson(readJsonAsset("/terms_of_use_instance_mockup.json"), JsonElement.class);
 		TermsOfUse tou = new TermsOfUseSerde().deserialize(gson, null, null);
-		
+
 		Assert.assertTrue("Unexpected issuedDate", tou.getIssuedDate().equals("2022-06-09"));
 		Assert.assertTrue("Unexpected contents", tou.getContents().equals("v50..."));
 	}
-	
+
 }

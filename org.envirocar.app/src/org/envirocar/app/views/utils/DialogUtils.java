@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - 2019 the enviroCar community
+ * Copyright (C) 2013 - 2021 the enviroCar community
  *
  * This file is part of the enviroCar app.
  *
@@ -23,9 +23,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import org.envirocar.app.R;
 
@@ -36,47 +37,85 @@ import org.envirocar.app.R;
  */
 public class DialogUtils {
 
-    public static MaterialDialog.Builder createDefaultDialogBuilder(
+    @Deprecated
+    public static MaterialAlertDialogBuilder createDefaultDialogBuilder(
             Context context, int titleRes, int iconRes, View contentView) {
         return createDefaultDialogBuilder(context, context.getString(titleRes), iconRes,
                 contentView);
     }
 
-    public static MaterialDialog.Builder createDefaultDialogBuilder(
+    @Deprecated
+    public static MaterialAlertDialogBuilder createDefaultDialogBuilder(
             Context context, int titleRes, int iconRes, int contentRes) {
         return createDefaultDialogBuilder(context, context.getString(titleRes), iconRes, context
                 .getString(contentRes));
     }
 
-    public static MaterialDialog.Builder createDefaultDialogBuilder(
+    @Deprecated
+    public static MaterialAlertDialogBuilder createDefaultDialogBuilder(
             Context context, int titleRes, int iconRes, String content) {
         return createDefaultDialogBuilder(context, context.getString(titleRes), iconRes, content);
     }
 
-    public static MaterialDialog.Builder createDefaultDialogBuilder(
+    @Deprecated
+    public static MaterialAlertDialogBuilder createDefaultDialogBuilder(
             Context context, String title, int iconRes, String content) {
         TextView textView = new TextView(context);
         textView.setText(content);
         return createDefaultDialogBuilder(context, title, iconRes, textView);
     }
 
-    public static MaterialDialog.Builder createDefaultDialogBuilder(
+    @Deprecated
+    public static MaterialAlertDialogBuilder createDefaultDialogBuilder(
             Context context, String title, int iconRes, View customView) {
-        View layout = LayoutInflater.from(context)
-                .inflate(R.layout.general_dialog_view, null, false);
 
-        TextView titleView = layout.findViewById(R.id.general_dialog_view_title);
-        ImageView imageView = layout.findViewById(R.id.general_dialog_view_icon);
-        FrameLayout contentView = layout.findViewById(R.id
-                .general_dialog_view_content);
+
+        return new MaterialAlertDialogBuilder(context).setView(null);
+    }
+
+    public static MaterialAlertDialogBuilder createProgressBarDialogBuilder(
+            Context context, int titleRes, int iconRes, View contentView) {
+        return createProgressBarDialogBuilder(context, context.getString(titleRes), iconRes,
+                contentView);
+    }
+
+    public static MaterialAlertDialogBuilder createProgressBarDialogBuilder(
+            Context context, int titleRes, int iconRes, int contentRes) {
+        return createProgressBarDialogBuilder(context, context.getString(titleRes), iconRes, context
+                .getString(contentRes));
+    }
+
+    public static MaterialAlertDialogBuilder createProgressBarDialogBuilder(
+            Context context, int titleRes, int iconRes, String content) {
+        return createProgressBarDialogBuilder(context, context.getString(titleRes), iconRes, content);
+    }
+
+    public static MaterialAlertDialogBuilder createProgressBarDialogBuilder(
+            Context context, String title, int iconRes, String content) {
+        TextView textView = new TextView(context);
+        textView.setText(content);
+        return createProgressBarDialogBuilder(context, title, iconRes, textView);
+    }
+
+    public static MaterialAlertDialogBuilder createProgressBarDialogBuilder(
+            Context context, String title, int iconRes, View customView) {
+
+        View layout = LayoutInflater.from(context)
+                .inflate(R.layout.general_dialog_progressbar_layout, null, false);
+
+        TextView titleView = layout.findViewById(R.id.progressbar_dialog_view_title);
+        ImageView imageView = layout.findViewById(R.id.progressbar_dialog_view_icon);
+        ProgressBar progressBar = layout.findViewById(R.id.material_linear_progressbar);
+        FrameLayout contentView = layout.findViewById(R.id.progressbar_dialog_view_content);
 
         titleView.setText(title);
         imageView.setImageResource(iconRes);
+        progressBar.setVisibility(View.VISIBLE);
         contentView.addView(customView);
 
-        return new MaterialDialog.Builder(context)
-                .customView(layout, false);
+        return new MaterialAlertDialogBuilder(context).setView(layout);
     }
 
-
 }
+
+

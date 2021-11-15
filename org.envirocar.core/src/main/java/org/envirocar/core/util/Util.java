@@ -1,18 +1,18 @@
 /**
- * Copyright (C) 2013 - 2019 the enviroCar community
- * <p>
+ * Copyright (C) 2013 - 2021 the enviroCar community
+ *
  * This file is part of the enviroCar app.
- * <p>
+ *
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * <p>
+ *
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- * <p>
+ *
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -22,7 +22,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
@@ -35,7 +34,6 @@ import org.apache.commons.compress.archivers.ArchiveStreamFactory;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.utils.IOUtils;
-import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.logging.Logger;
 
 import java.io.BufferedOutputStream;
@@ -65,27 +63,9 @@ public class Util {
     public static final String EXTERNAL_SUB_FOLDER = "enviroCar";
     private static ISO8601DateFormat jacksonFormat = new ISO8601DateFormat();
 
-    /**
-     * Create a file in the .enviroCar folder of the external storage.
-     *
-     * @param fileName the name of the new file
-     * @return the resulting file
-     * @throws IOException
-     */
-    public static File createFileOnExternalStorage(String fileName)
-            throws IOException {
-        File directory = resolveExternalStorageBaseFolder();
 
-        File f = new File(directory, fileName);
-        f.createNewFile();
-        if (!f.isFile()) {
-            throw new IOException(fileName + " is not a file!");
-        }
-        return f;
-    }
-
-    public static File createFileOnInternalStorage(String path, String filename) throws IOException{
-        File directory = resolveInternalStorageBaseFolder(path);
+    public static File createFileOnStorage(String path, String filename) throws IOException{
+        File directory = resolveStorageBaseFolder(path);
         File f = new File(directory, filename);
         f.createNewFile();
         if (!f.isFile()) {
@@ -98,23 +78,8 @@ public class Util {
         return ctx.getCacheDir();
     }
 
-    public static File resolveExternalStorageBaseFolder() throws IOException {
 
-        File directory = new File(Environment.getDataDirectory()
-                + File.separator + EXTERNAL_SUB_FOLDER);
-//        File directory = new File(context.getFilesDir() + File.separator + EXTERNAL_SUB_FOLDER);
-
-        if (!directory.exists()) {
-            directory.mkdir();
-        }
-        if (!directory.isDirectory()) {
-            throw new IOException(directory.getAbsolutePath() + " is not a directory!");
-        }
-
-        return directory;
-    }
-
-    public static File resolveInternalStorageBaseFolder(String path) throws IOException {
+    public static File resolveStorageBaseFolder(String path) throws IOException {
         File directory = new File(path + File.separator + EXTERNAL_SUB_FOLDER);
         if (!directory.exists()) {
             directory.mkdir();

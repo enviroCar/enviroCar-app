@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - 2019 the enviroCar community
+ * Copyright (C) 2013 - 2021 the enviroCar community
  *
  * This file is part of the enviroCar app.
  *
@@ -18,21 +18,31 @@
  */
 package org.envirocar.app.views.logbook;
 
+import android.app.Application;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
+import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Bundle;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 import androidx.appcompat.widget.Toolbar;
+
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.afollestad.materialdialogs.MaterialDialog;
-
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.preferences.CarPreferenceHandler;
 import org.envirocar.app.views.utils.ECAnimationUtils;
+import org.envirocar.core.ContextInternetAccessProvider;
+import org.envirocar.core.InternetAccessProvider;
 import org.envirocar.core.UserManager;
 import org.envirocar.core.entity.Fueling;
 import org.envirocar.core.exception.NotConnectedException;
@@ -131,12 +141,14 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long
                     id) {
                 final Fueling fueling = fuelings.get(position);
-                new MaterialDialog.Builder(LogbookActivity.this)
-                        .title(R.string.logbook_dialog_delete_fueling_header)
-                        .content(R.string.logbook_dialog_delete_fueling_content)
-                        .positiveText(R.string.menu_delete)
-                        .negativeText(R.string.cancel)
-                        .onPositive((materialDialog, dialogAction) -> deleteFueling(fueling))
+
+                new MaterialAlertDialogBuilder(LogbookActivity.this, R.style.MaterialDialog)
+                        .setTitle(R.string.logbook_dialog_delete_fueling_header)
+                        .setMessage(R.string.logbook_dialog_delete_fueling_content)
+                        .setIcon(R.drawable.ic_delete_fueling_24)
+                        .setPositiveButton(R.string.menu_delete,
+                                (dialog, which) -> deleteFueling(fueling))
+                        .setNegativeButton(R.string.cancel,null)
                         .show();
                 return false;
             }
@@ -211,38 +223,47 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
      */
     private void downloadFuelings() {
         LOG.info("downloadFuelings()");
-        subscription.add(daoProvider.getFuelingDAO().getFuelingsObservable()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new DisposableObserver<List<Fueling>>() {
-                    @Override
-                    public void onComplete() {
-                        LOG.info("Download of fuelings completed");
 
-                        if (fuelings.isEmpty()) {
-                            showNoFuelingsInfo();
-                        } else {
-                            infoBackground.setVisibility(View.GONE);
+        // If internet connection is ON , downloadFuel data else set background as no internet.
+        if (new ContextInternetAccessProvider(getApplicationContext()).isConnected()){
+            subscription.add(daoProvider.getFuelingDAO().getFuelingsObservable()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeWith(new DisposableObserver<List<Fueling>>() {
+                        @Override
+                        public void onComplete() {
+                            LOG.info("Download of fuelings completed");
+
+                            if (fuelings.isEmpty()) {
+                                showNoFuelingsInfo();
+                            } else {
+                                infoBackground.setVisibility(View.GONE);
+                            }
                         }
-                    }
 
-                    @Override
-                    public void onError(Throwable e) {
-                        LOG.error(e.getMessage(), e);
-                    }
+                        @Override
+                        public void onError(Throwable e) {
+                            LOG.error(e.getMessage(), e);
+                        }
 
-                    @Override
-                    public void onNext(List<Fueling> result) {
-                        // Add all remote fuelings
-                        fuelings.addAll(result);
+                        @Override
+                        public void onNext(List<Fueling> result) {
+                            // Add all remote fuelings
+                            fuelings.addAll(result);
 
-                        // Sort the list of fuelings
-                        Collections.sort(fuelings);
+                            // Sort the list of fuelings
+                            Collections.sort(fuelings);
 
-                        // Redraw everything
-                        fuelingListAdapter.notifyDataSetChanged();
-                    }
-                }));
+                            // Redraw everything
+                            fuelingListAdapter.notifyDataSetChanged();
+                        }
+                    }));
+        }else {
+            headerView.setVisibility(View.GONE);
+            newFuelingFab.setVisibility(View.GONE);
+            noInternetConnection();
+            showSnackbarInfo(R.string.error_not_connected_to_network);
+        }
     }
 
     /**
@@ -308,6 +329,12 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
                 R.string.logbook_background_no_fuelings_second);
     }
 
+    private void noInternetConnection(){
+        showInfoBackground(R.drawable.img_alert,
+                R.string.logbook_background_no_internet_first,
+                R.string.logbook_background_no_internet_second);
+    }
+
     private void showInfoBackground(int imgResource, int firstLine, int secondLine) {
         LOG.info("showInfoBackground()");
         infoBackgroundImg.setImageResource(imgResource);
@@ -328,10 +355,6 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
                 .replace(R.id.activity_logbook_container, this.addFuelingFragment)
                 .commit();
         LOG.info("AddFuelingCard should now be visible");
-
-
-
-
     }
 
     /**
@@ -345,6 +368,7 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
                 .commit();
         addFuelingFragment = null;
         ECAnimationUtils.animateShowView(LogbookActivity.this, newFuelingFab, R.anim.fade_in);
+        ECAnimationUtils.animateHideView(this, overlayView, R.anim.fade_out);
     }
 
     private void showSnackbarInfo(int resourceID) {

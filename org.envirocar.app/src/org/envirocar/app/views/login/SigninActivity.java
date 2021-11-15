@@ -1,18 +1,18 @@
 /**
- * Copyright (C) 2013 - 2019 the enviroCar community
- * <p>
+ * Copyright (C) 2013 - 2021 the enviroCar community
+ *
  * This file is part of the enviroCar app.
- * <p>
+ *
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * <p>
+ *
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- * <p>
+ *
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -20,6 +20,7 @@ package org.envirocar.app.views.login;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -28,10 +29,10 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityOptionsCompat;
 
-import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.envirocar.app.BaseApplicationComponent;
@@ -41,6 +42,9 @@ import org.envirocar.app.handler.DAOProvider;
 import org.envirocar.app.handler.agreement.AgreementManager;
 import org.envirocar.app.handler.preferences.UserPreferenceHandler;
 import org.envirocar.app.injection.BaseInjectorActivity;
+import org.envirocar.app.views.BaseMainActivity;
+import org.envirocar.app.views.obdselection.OBDSelectionActivity;
+import org.envirocar.app.views.utils.DialogUtils;
 import org.envirocar.core.logging.Logger;
 
 import javax.inject.Inject;
@@ -85,6 +89,8 @@ public class SigninActivity extends BaseInjectorActivity {
     protected ImageView logoImageView;
 
     private Disposable loginSubscription;
+    private static Drawable errorPassword;
+    private static Drawable errorUsername;
 
     @Override
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
@@ -99,6 +105,13 @@ public class SigninActivity extends BaseInjectorActivity {
 
         // inject the views
         ButterKnife.bind(this);
+
+        errorPassword = getResources().getDrawable(R.drawable.ic_error_red_24dp);
+        errorPassword.setBounds(-70,0,0, errorPassword.getIntrinsicHeight());
+
+        errorUsername = getResources().getDrawable(R.drawable.ic_error_red_24dp);
+        errorUsername.setBounds(0, 0, errorUsername.getIntrinsicWidth(), errorUsername.getIntrinsicHeight());
+
     }
 
     @Override
@@ -107,6 +120,15 @@ public class SigninActivity extends BaseInjectorActivity {
 
         if (loginSubscription != null && !loginSubscription.isDisposed()) {
             loginSubscription.dispose();
+        }
+    }
+
+    @OnClick(R.id.signin_background)
+    protected void closeKeyboard(){
+        View view = this.getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
     }
 
@@ -142,13 +164,13 @@ public class SigninActivity extends BaseInjectorActivity {
 
         // check for valid password
         if (password == null || password.isEmpty() || password.equals("")) {
-            this.passwordEditText.setError(getString(R.string.error_field_required));
+            this.passwordEditText.setError(getString(R.string.error_field_required), errorPassword);
             focusView = this.passwordEditText;
         }
 
         // check for valid username
         if (username == null || username.isEmpty() || username.equals("")) {
-            this.usernameEditText.setError(getString(R.string.error_field_required));
+            this.usernameEditText.setError(getString(R.string.error_field_required), errorUsername);
             focusView = this.usernameEditText;
         }
 
@@ -175,51 +197,58 @@ public class SigninActivity extends BaseInjectorActivity {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(new DisposableCompletableObserver() {
-                    private MaterialDialog dialog;
+                    private AlertDialog dialog;
 
                     @Override
                     protected void onStart() {
-                        dialog = new MaterialDialog.Builder(SigninActivity.this)
-                                .title(R.string.activity_login_logging_in_dialog_title)
-                                .progress(true, 0)
-                                .cancelable(false)
-                                .show();
+                        if(checkNetworkConnection()) {
+                            dialog = DialogUtils.createProgressBarDialogBuilder(SigninActivity.this,
+                                    R.string.activity_login_logging_in_dialog_title,
+                                    R.drawable.ic_baseline_login_24,
+                                    (String) null)
+                                    .setCancelable(false)
+                                    .show();
+                        }
                     }
 
                     @Override
                     public void onComplete() {
+                        if(checkNetworkConnection())
                         dialog.dismiss();
-                        Snackbar.make(logoImageView, String.format(getResources().getString(
-                                R.string.welcome_message), username), Snackbar.LENGTH_LONG)
-                                .show();
-                        finish();
+                        Intent intent = new Intent(getBaseContext(), BaseMainActivity.class);
+                        startActivity(intent);
                     }
 
                     @Override
                     public void onError(Throwable e) {
+                        if(checkNetworkConnection())
                         dialog.dismiss();
                         if (e instanceof LoginException) {
                             switch (((LoginException) e).getType()) {
-                                case PASSWORD_INCORRECT:
-                                    passwordEditText.setError(getString(R.string.error_incorrect_password));
+                                case USERNAME_OR_PASSWORD_INCORRECT:
+                                    usernameEditText.setError(getString(R.string.error_invalid_credentials), errorUsername);
+                                    passwordEditText.setError(getString(R.string.error_invalid_credentials), errorPassword);
                                     break;
                                 case MAIL_NOT_CONFIREMED:
-                                    new MaterialDialog.Builder(SigninActivity.this)
-                                            .cancelable(true)
-                                            .positiveText(R.string.ok)
-                                            .title(R.string.login_mail_not_confirmed_dialog_title)
-                                            .content(R.string.login_mail_not_confirmed_dialog_content)
-                                            .build().show();
+                                    // show alert dialog
+                                    new MaterialAlertDialogBuilder(SigninActivity.this,R.style.MaterialDialog)
+                                            .setTitle(R.string.login_mail_not_confirmed_dialog_title)
+                                            .setMessage(R.string.login_mail_not_confirmed_dialog_content)
+                                            .setIcon(R.drawable.ic_baseline_email_24)
+                                            .setCancelable(true)
+                                            .setPositiveButton(R.string.ok,null)
+                                            .show();
                                     break;
                                 case UNABLE_TO_COMMUNICATE_WITH_SERVER:
-                                    passwordEditText.setError(getString(R.string.error_host_not_found));
+                                    passwordEditText.setError(getString(R.string.error_host_not_found), errorPassword);
                                     break;
                                 default:
-                                    passwordEditText.setError(getString(R.string.logbook_invalid_input));
+                                    passwordEditText.setError(getString(R.string.logbook_invalid_input), errorPassword);
                                     break;
                             }
-                        } else if (checkNetworkConnection() != true) {
-                            Snackbar.make(findViewById(R.id.activity_signin_login_button), String.format(getString(R.string.error_not_connected_to_network)), Snackbar.LENGTH_SHORT).show();
+                        } else if (!checkNetworkConnection()) {
+                            Snackbar.make(findViewById(R.id.activity_signin_login_button),
+                                    getString(R.string.error_not_connected_to_network), Snackbar.LENGTH_SHORT).show();
                         }
                     }
                 });

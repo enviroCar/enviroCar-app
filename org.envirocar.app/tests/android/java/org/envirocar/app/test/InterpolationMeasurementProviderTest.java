@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - 2019 the enviroCar community
+ * Copyright (C) 2013 - 2021 the enviroCar community
  *
  * This file is part of the enviroCar app.
  *
@@ -16,9 +16,12 @@
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
-package org.envirocar.algorithm;
+package org.envirocar.app.test;
 
+import org.envirocar.algorithm.MeasurementProvider;
+import org.envirocar.app.handler.InterpolationMeasurementProvider;
 import org.envirocar.core.entity.Measurement;
+import org.envirocar.core.entity.MeasurementImpl;
 import org.envirocar.obd.events.PropertyKeyEvent;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
@@ -28,8 +31,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 
-import rx.observers.TestSubscriber;
-import rx.schedulers.Schedulers;
+import io.reactivex.observers.TestObserver;
+import io.reactivex.schedulers.Schedulers;
 
 public class InterpolationMeasurementProviderTest {
 
@@ -75,15 +78,14 @@ public class InterpolationMeasurementProviderTest {
         imp.newPosition(new MeasurementProvider.Position(1000, 52.0, 7.0));
         imp.newPosition(new MeasurementProvider.Position(3500, 52.5, 7.25)); //this should be the result
 
-        TestSubscriber<Measurement> ts = new TestSubscriber<Measurement>();
+        TestObserver<Measurement> ts = new TestObserver<Measurement>();
 
         imp.measurements(500)
-                .subscribeOn(Schedulers.immediate())
-                .observeOn(Schedulers.immediate())
-                .first()
+                .subscribeOn(Schedulers.trampoline())
+                .observeOn(Schedulers.trampoline())
                 .subscribe(ts);
 
-        List<Measurement> events = ts.getOnNextEvents();
+        List<Measurement> events = ts.values();
         Assert.assertThat(events.size(), CoreMatchers.is(1));
 
         Measurement first = events.get(0);

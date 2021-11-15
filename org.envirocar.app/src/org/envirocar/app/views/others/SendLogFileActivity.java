@@ -1,18 +1,18 @@
 /**
- * Copyright (C) 2013 - 2019 the enviroCar community
- * <p>
+ * Copyright (C) 2013 - 2021 the enviroCar community
+ *
  * This file is part of the enviroCar app.
- * <p>
+ *
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * <p>
+ *
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- * <p>
+ *
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -26,6 +26,7 @@ import android.os.Bundle;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.FileProvider;
 
 import android.util.Pair;
 import android.view.MenuItem;
@@ -38,7 +39,7 @@ import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
-import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
@@ -57,7 +58,6 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -182,14 +182,15 @@ public class SendLogFileActivity extends BaseInjectorActivity {
      * @param reportBundle
      */
     public void createNoCheckboxDialog(File reportBundle) {
-        new MaterialDialog.Builder(this)
-                .title(R.string.report_issue_no_checkbox_selected_title)
-                .content(R.string.report_issue_no_checkbox_selected_content)
-                .positiveText(R.string.report_issue_no_checkbox_send_anyway)
-                .negativeText(R.string.cancel)
-                .cancelable(false)
-                .onPositive((materialDialog, dialogAction) -> sendLogFile(reportBundle))
-                .onNegative((materialDialog, dialogAction) -> LOG.info("Log report not send"))
+        new MaterialAlertDialogBuilder(this,R.style.MaterialDialog)
+                .setTitle(R.string.report_issue_no_checkbox_selected_title)
+                .setMessage(R.string.report_issue_no_checkbox_selected_content)
+                .setIcon(R.drawable.ic_baseline_check_circle_24)
+                .setCancelable(true)
+                .setPositiveButton(R.string.report_issue_no_checkbox_send_anyway,
+                        (materialDialog, dialogAction) -> sendLogFile(reportBundle))
+                .setNegativeButton(R.string.cancel,
+                        (materialDialog, dialogAction) -> LOG.info("Log report not send"))
                 .show();
     }
 
@@ -200,18 +201,25 @@ public class SendLogFileActivity extends BaseInjectorActivity {
      * @param reportBundle the file to attach
      */
     protected void sendLogFile(File reportBundle) {
-        Intent emailIntent = new Intent(android.content.Intent.ACTION_SENDTO);
-        emailIntent.setType("message/rfc822");
-        emailIntent.setData(Uri.parse("mailto:"));
+        // emailSelectorIntent is used to only select applications, that can send emails
+        Intent emailSelectorIntent = new Intent(android.content.Intent.ACTION_SENDTO);
+        emailSelectorIntent.setData(Uri.parse("mailto:"));
+
+        Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
         emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL,
                 new String[]{REPORTING_EMAIL});
         emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT,
                 createSubject() + " enviroCar Log Report");
         emailIntent.putExtra(android.content.Intent.EXTRA_TEXT,
                 createEmailContents());
-        emailIntent.putExtra(android.content.Intent.EXTRA_STREAM,
-                Uri.fromFile(reportBundle));
-        //emailIntent.setType("application/zip");
+        emailIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        emailIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        emailIntent.setSelector(emailSelectorIntent);
+
+        // creates content uri for the attachment
+        Uri attachmentUri = FileProvider.getUriForFile(this,
+                "org.envirocar.app.provider", reportBundle);
+        emailIntent.putExtra(android.content.Intent.EXTRA_STREAM, attachmentUri);
 
         startActivity(Intent.createChooser(emailIntent, "Send Log Report"));
         getFragmentManager().popBackStack();
@@ -345,7 +353,7 @@ public class SendLogFileActivity extends BaseInjectorActivity {
 
 
     public File createVersionAndErrorDetailsFile() throws IOException {
-        File otherFile = Util.createFileOnInternalStorage(getCacheDir().getAbsolutePath(), OTHER_DETAILS_PREFIX + ".txt");
+        File otherFile = Util.createFileOnStorage(getCacheDir().getAbsolutePath(), OTHER_DETAILS_PREFIX + ".txt");
         StringBuilder text = new StringBuilder();
         text.append(createSubject());
         text.append("\n");
@@ -362,7 +370,7 @@ public class SendLogFileActivity extends BaseInjectorActivity {
      * @throws IOException
      */
     private File createReportBundle() throws IOException {
-        File targetFile = Util.createFileOnInternalStorage(getExternalCacheDir().getAbsolutePath(),
+        File targetFile = Util.createFileOnStorage(getExternalCacheDir().getAbsolutePath(),
                 PREFIX + format.format(new Date()) + EXTENSION);
 
         Util.zip(findAllLogFiles(), targetFile.toURI().getPath());
@@ -371,7 +379,7 @@ public class SendLogFileActivity extends BaseInjectorActivity {
     }
 
     private void removeOldReportBundles() throws IOException {
-        File baseFolder = Util.resolveInternalStorageBaseFolder(getCacheDir().getAbsolutePath());
+        File baseFolder = Util.resolveStorageBaseFolder(getCacheDir().getAbsolutePath());
 
         final String todayPrefix = PREFIX.concat(dayFormat.format(new Date()));
         File[] oldFiles = baseFolder.listFiles(new FileFilter() {

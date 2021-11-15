@@ -1,18 +1,18 @@
 /**
- * Copyright (C) 2013 - 2019 the enviroCar community
- * <p>
+ * Copyright (C) 2013 - 2021 the enviroCar community
+ *
  * This file is part of the enviroCar app.
- * <p>
+ *
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * <p>
+ *
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- * <p>
+ *
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -52,15 +52,21 @@ public final class ServiceUtils {
     }
 
     public static final void stopService(Context context, Class<?> service) {
-        LOGGER.info("Trying to stop %s", service.getSimpleName());
+        Intent serviceIntentstop = new Intent(context, service);
+        stopService(context, serviceIntentstop);
+    }
+
+    public static final void stopService(Context context, Intent servicestop) {
+        String services = servicestop.getComponent().getClassName();
+        LOGGER.info("Trying to stop %s", services);
 
         // If the service is already running, then stopo the service.
-        if (ServiceUtils.isServiceRunning(context, service)) {
-            Intent stopIntent = new Intent(context, service);
-            context.stopService(stopIntent);
-            LOGGER.info("%s successfully stopped.", service.getSimpleName());
+        if (ServiceUtils.isServiceRunning(context, servicestop)) {
+            Intent stopIntent = new Intent(context, servicestop.getClass());
+            context.stopService(servicestop);
+            LOGGER.info("%s successfully stopped.", services);
         } else {
-            LOGGER.info("%s is not running. No stop required!", service.getSimpleName());
+            LOGGER.info("%s is not running. No stop required!", services);
         }
     }
 

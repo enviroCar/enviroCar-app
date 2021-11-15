@@ -1,6 +1,6 @@
 <!--
 
-    Copyright (C) 2013 - 2020 the enviroCar community
+    Copyright (C) 2013 - 2021 the enviroCar community
 
     This file is part of the enviroCar app.
 
@@ -24,6 +24,7 @@
     <string name="error_invalid_email">This email address is invalid.</string>
     <string name="error_invalid_password">This password is too short.</string>
     <string name="error_incorrect_password">This password is incorrect.</string>
+    <string name="error_invalid_credentials">Username or password is incorrect</string>
     <string name="error_field_required">This field is required.</string>
     <string name="error_not_connected_to_network">Not connected to network</string>
     <string name="register_progress_signing_in">Registering&#8230;</string>

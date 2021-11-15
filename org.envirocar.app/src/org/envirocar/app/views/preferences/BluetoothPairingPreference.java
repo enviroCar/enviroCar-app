@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - 2019 the enviroCar community
+ * Copyright (C) 2013 - 2021 the enviroCar community
  *
  * This file is part of the enviroCar app.
  *
@@ -22,6 +22,7 @@ import android.app.AlertDialog;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.res.Resources;
 import android.preference.DialogPreference;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -34,6 +35,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.widget.Toolbar;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
@@ -156,35 +158,19 @@ public class BluetoothPairingPreference extends DialogPreference {
         mNewDevicesListView.setOnItemClickListener((parent, view1, position, id) -> {
             final BluetoothDevice device = mNewDevicesArrayAdapter.getItem(position);
 
-            View contentView = LayoutInflater.from(getContext()).inflate(R.layout
-                    .bluetooth_pairing_preference_device_pairing_dialog, null, false);
-
-            // Set toolbar style
-            Toolbar toolbar1 = contentView.findViewById(R.id
-                    .bluetooth_selection_preference_pairing_dialog_toolbar);
-            toolbar1.setTitle(R.string.bluetooth_pairing_preference_toolbar_title);
-            toolbar1.setNavigationIcon(R.drawable.ic_bluetooth_white_24dp);
-            toolbar1.setTitleTextColor(getContext().getResources().getColor(R.color
-                    .white_cario));
-
-            // Set text view
-            TextView textview = contentView.findViewById(R.id
-                    .bluetooth_selection_preference_pairing_dialog_text);
-            textview.setText(String.format("Do you want to pair with %s?", device.getName()));
 
             // Create the Dialog
-            new AlertDialog.Builder(getContext())
-                    .setView(contentView)
-                    .setPositiveButton("Pair Device", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            // If this button is clicked, pair with the given device
-                            view1.setClickable(false);
-                            pairDevice(device, view1);
-                        }
-                    })
-                    .setNegativeButton("Cancel", null) // Nothing to do on cancel
-                    .create()
+            new MaterialAlertDialogBuilder(getContext(), R.style.MaterialDialog)
+                    .setTitle(R.string.bluetooth_pairing_preference_toolbar_title)
+                    .setMessage(String.format(getContext().getString(R.string.obd_selection_dialog_pairing_content_template),device.getName()))
+                    .setIcon(R.drawable.ic_bluetooth_white_24dp)
+                    .setPositiveButton(R.string.obd_selection_dialog_pairing_title,
+                            (dialog, which) -> {
+                                // If this button is clicked, pair with the given device
+                                view1.setClickable(false);
+                                pairDevice(device, view1);
+                            })
+                    .setNegativeButton(R.string.cancel, null) // Nothing to do on cancel
                     .show();
         });
 
@@ -192,37 +178,17 @@ public class BluetoothPairingPreference extends DialogPreference {
         mPairedDevicesListView.setOnItemClickListener((parent, view1, position, id) -> {
             final BluetoothDevice device = mPairedDevicesAdapter.getItem(position);
 
-            View contentView = LayoutInflater.from(getContext()).inflate(R.layout
-                    .bluetooth_pairing_preference_device_pairing_dialog, null, false);
-
-            // Set toolbar style
-            Toolbar toolbar1 = contentView.findViewById(R.id
-                    .bluetooth_selection_preference_pairing_dialog_toolbar);
-            toolbar1.setTitle("Bluetooth Device");
-            toolbar1.setNavigationIcon(R.drawable.ic_bluetooth_white_24dp);
-            toolbar1.setTitleTextColor(getContext().getResources().getColor(R.color
-                    .white_cario));
-
-            // Set text view
-            TextView textview = contentView.findViewById(R.id
-                    .bluetooth_selection_preference_pairing_dialog_text);
-            textview.setText(String.format("Do you want to remove the pairing with %s?", device
-                    .getName()));
-
             // Create the AlertDialog.
-            new AlertDialog.Builder(getContext())
-                    .setView(contentView)
+            new MaterialAlertDialogBuilder(getContext(), R.style.MaterialDialog)
+                    .setTitle(R.string.obd_selection_dialog_delete_pairing_title)
+                    .setMessage(String.format(getContext().getString(R.string.obd_selection_dialog_delete_pairing_content_template),device.getName()))
+                    .setIcon(R.drawable.ic_bluetooth_white_24dp)
                     .setPositiveButton(R.string.bluetooth_pairing_preference_dialog_remove_pairing,
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    LOGGER.debug("OnPositiveButton clicked for remove pairing.");
-                                    unpairDevice(device);
-                                }
+                            (dialog, which) -> {
+                                LOGGER.debug("OnPositiveButton clicked to remove pairing.");
+                                unpairDevice(device);
                             })
-                    .setNegativeButton(R.string.menu_cancel, null) // Nothing to do on
-                    // cancel.
-                    .create()
+                    .setNegativeButton(R.string.menu_cancel,null) // Nothing to do on cancel
                     .show();
         });
 

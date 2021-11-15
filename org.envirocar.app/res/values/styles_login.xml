@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
 
-    Copyright (C) 2013 - 2019 the enviroCar community
+    Copyright (C) 2013 - 2021 the enviroCar community
 
     This file is part of the enviroCar app.
 
@@ -28,6 +28,7 @@
         <item name="android:textSize">20dp</item>
         <item name="android:textColor">@color/white_cario</item>
         <item name="android:textColorHint">@color/white_cario_transparent</item>
+        <item name="android:textCursorDrawable">@null</item>
         <item name="android:ems">10</item>
         <item name="android:background">@drawable/login_edittext_rounded_corner_shape</item>
         <item name="android:drawablePadding">16dp</item>

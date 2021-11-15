@@ -1,23 +1,24 @@
 /**
- * Copyright (C) 2013 - 2019 the enviroCar community
- * <p>
+ * Copyright (C) 2013 - 2021 the enviroCar community
+ *
  * This file is part of the enviroCar app.
- * <p>
+ *
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * <p>
+ *
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- * <p>
+ *
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
 package org.envirocar.app.views.tracklist;
 
+import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
@@ -26,9 +27,10 @@ import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 
-import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
+import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.BaseApplication;
 import org.envirocar.app.BaseApplicationComponent;
@@ -38,10 +40,9 @@ import org.envirocar.app.injection.modules.MainActivityModule;
 import org.envirocar.app.interactor.UploadAllTracks;
 import org.envirocar.app.interactor.UploadTrack;
 import org.envirocar.app.views.trackdetails.TrackDetailsActivity;
-import org.envirocar.app.views.utils.DialogUtils;
 import org.envirocar.app.views.utils.ECAnimationUtils;
-import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
+import org.envirocar.core.events.TrackFinishedEvent;
 import org.envirocar.core.exception.TrackUploadException;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.util.TrackMetadata;
@@ -118,12 +119,12 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
 
     @OnClick(R.id.fragment_tracklist_fab)
     protected void onUploadTracksFABClicked() {
-        new MaterialDialog.Builder(getContext())
-                .title(R.string.track_list_upload_all_tracks_title)
-                .content(R.string.track_list_upload_all_tracks_content)
-                .positiveText(R.string.ok)
-                .negativeText(R.string.cancel)
-                .onPositive(this::onUploadAllLocalTracks)
+        new MaterialAlertDialogBuilder(getContext(), R.style.MaterialDialog)
+                .setTitle(R.string.track_list_upload_all_tracks_title)
+                .setMessage(R.string.track_list_upload_all_tracks_content)
+                .setIcon(R.drawable.ic_cloud_upload_white_24dp)
+                .setPositiveButton(R.string.ok, this::onUploadAllLocalTracks)
+                .setNegativeButton(R.string.cancel,null)
                 .show();
     }
 
@@ -161,7 +162,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
             }
 
             @Override
-            public void onExportTrackClicked(Track track) {
+            public void onShareTrackClicked(Track track) {
                 LOG.info(String.format("onExportTrackClicked(%s)", track.getTrackID()));
                 if (mUserManager.getUser() != null) {
                     track.updateMetadata(new TrackMetadata(Util.getVersionString(getActivity()),
@@ -171,7 +172,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
                             null));
 
                 }
-                exportTrack(track);
+                shareTrack(track);
             }
 
             @Override
@@ -195,6 +196,11 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
             tracksLoaded = true;
             new LoadLocalTracksTask().execute();
         }
+    }
+
+    @Subscribe
+    public void onTrackFinishedEvent(TrackFinishedEvent event){
+        tracksLoaded = false;
     }
 
     @Override
@@ -282,7 +288,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
                                 ECAnimationUtils.animateShowView(getActivity(), mFAB,
                                         R.anim.translate_slide_in_bottom_fragment);
                             } else if (mTrackList.isEmpty()) {
-                                showNoLocalTracksInfo();
+                                showNoTracksInfo();
                             }
                         }
                     });
@@ -291,10 +297,13 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
         }
     }
 
-    private void showNoLocalTracksInfo() {
+    @Override
+    protected void showNoTracksInfo() {
         showText(R.drawable.img_tracks,
                 R.string.track_list_bg_no_local_tracks,
                 R.string.track_list_bg_no_local_tracks_sub);
+        ECAnimationUtils.animateHideView(getActivity(), mFAB,
+                R.anim.translate_slide_out_bottom);
     }
 
     /**
@@ -316,7 +325,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
                 .subscribeWith(new UploadTrackDialogObserver(track));
     }
 
-    private void onUploadAllLocalTracks(MaterialDialog materialDialog, DialogAction dialogAction) {
+    private void onUploadAllLocalTracks(DialogInterface dialog, int which) {
         if (uploadTrackSubscription != null && !uploadTrackSubscription.isDisposed()) {
             uploadTrackSubscription.dispose();
             uploadTrackSubscription = null;
@@ -416,9 +425,12 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
 
         @Override
         public void onComplete() {
-            LOG.info("uploadTrack.onCompleted()");
+            LOG.info("Received uploadTrack.onComplete() event.");
             showSnackbar(String.format(getString(R.string.track_list_upload_track_success_template), track.getName()));
             dialog.dismiss();
+            if (mTrackList.isEmpty()) {
+                showNoTracksInfo();
+            }
         }
     }
 
@@ -471,16 +483,24 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
 
         @Override
         public void onComplete() {
+            LOG.info("Received uploadAllTracks.onComplete() event.");
             if (isDisposed())
                 return;
 
             if (numberOfFailures > 0) {
-                String snackbarText = String.format(getString(R.string.track_list_upload_all_tracks_complete_template),
+                String snackbarText = String.format(getString(R.string.track_list_upload_all_tracks_complete_with_failure_template),
                         numberOfSuccesses, numTracks, numberOfFailures);
+                showSnackbar(snackbarText);
+            } else {
+                String snackbarText = String.format(getString(R.string.track_list_upload_all_tracks_complete_template),
+                        numTracks);
                 showSnackbar(snackbarText);
             }
 
             dialog.dismiss();
+            if (mTrackList.isEmpty()) {
+                showNoTracksInfo();
+            }
         }
 
         @Override
@@ -490,6 +510,12 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
 
             if (result.isSuccessful()) {
                 numberOfSuccesses++;
+                // Update the lists.
+                mRecyclerViewAdapter.removeItem(result.getTrack());
+                mRecyclerViewAdapter.notifyDataSetChanged();
+
+                if (onTrackUploadedListener != null)
+                    onTrackUploadedListener.onTrackUploaded(result.getTrack());
             } else {
                 numberOfFailures++;
             }

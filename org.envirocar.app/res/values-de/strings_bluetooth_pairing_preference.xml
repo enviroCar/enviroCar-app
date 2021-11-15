@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
 
-    Copyright (C) 2013 - 2019 the enviroCar community
+    Copyright (C) 2013 - 2021 the enviroCar community
 
     This file is part of the enviroCar app.
 
@@ -20,14 +20,24 @@
 
 -->
 <resources>
-    <string name="bluetooth_pairing_preference_toolbar_title">Bluetooth Pairing</string>
+    <string name="bluetooth_pairing_preference_toolbar_title">Bluetooth Kopplung</string>
     <string name="select_bluetooth_preference_info_no_device_found">Kein Bluetoothgerät gefunden.</string>
     <string name="bluetooth_pairing_preference_info_searching_devices">Suche nach anderen Bluetoothgeräten...</string>
     <string name="bluetooth_pairing_preference_info_devices_found">%s Bluetooth devices found.</string>
     <string name="bluetooth_pairing_preference_info_device_found">1 Bluetooth device found.</string>
-    <string name="bluetooth_pairing_preference_dialog_remove_pairing">Delete</string>
+    <string name="bluetooth_pairing_preference_dialog_remove_pairing">Löschen</string>
 
     <string name="pref_bt_discovery_interval_title">Set Discovery Interval</string>
     <string name="pref_bt_discovery_interval_explanation">Select the interval (in minutes + seconds) at which the application re-initiates the discovery process.</string>
+
+    <string name="location_permission_to_discover_newdevices">Um ein verfügbares Gerät zu koppeln, benötigt die App eine Standortberechtigung. Sie können weiterhin gekoppelte Geräte verwenden, ohne die Berechtigung zuzulassen.</string>
+    <string name="GPS_turnon_title">GPS aktivieren ?</string>
+    <string name="GPS_turnon_message">GPS ist in Ihrem Gerät deaktiviert. Möchten Sie es aktivieren?</string>
+    <string name="GPS_turnon_yes">Ja</string>
+    <string name="GPS_turnon_no">Nein</string>
+    <string name="GPS_request_denied">GPS verweigert, neue Geräte können nicht erkannt werden</string>
+    <string name="grant_permissions">Berechtigungen erteilen</string>
+    <string name="location_permission_granted">Standorterlaubnis erteilt</string>
+    <string name="location_permission_denied">Standortberechtigungen nicht erteilt, neue Geräte können nicht erkannt werden</string>
 
 </resources>

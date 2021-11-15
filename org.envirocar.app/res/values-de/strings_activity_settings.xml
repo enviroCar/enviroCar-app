@@ -1,6 +1,6 @@
 <!--
 
-    Copyright (C) 2013 - 2020 the enviroCar community
+    Copyright (C) 2013 - 2021 the enviroCar community
 
     This file is part of the enviroCar app.
 
@@ -63,7 +63,7 @@
 
     <!-- Optional Settings -->
     <string name="sampling_rate_title">Messinterval (in Sekunden)</string>
-    <string name="sampling_rate_summary">Das Zeit-Delta zwischen zwei Messungen in Sekunden. Je niedriger der Wert, desto größer ist die Datenmenge. Ändern Sie diesen Wert nur dann, wenn Sie auch auch der Konsequenzen bewusst sind.</string>
+    <string name="sampling_rate_summary">Das Zeit-Delta zwischen zwei Messungen in Sekunden. Je niedriger der Wert, desto größer ist die Datenmenge. Ändern Sie diesen Wert nur dann, wenn Sie sich auch der Konsequenzen bewusst sind.</string>
     <string name="enable_debug_logging">Debug-Protokollierung aktivieren</string>
     <string name="enable_debug_logging_summary">Erhöhung der Protokollierungsstufe (in der Ausgabe/Problembericht verwendet).</string>
     <string name="pref_track_cut_duration">GPS-Trimmdauer</string>
@@ -71,7 +71,7 @@
 
     <string name="preference_track_trim_duration_title">Einstellen der Trimmdauer einer GPS-Fahrt</string>
     <string name="preference_beta_diesel_consumption">Verbrauchsschätzung für Diesel</string>
-    <string name="preference_beta_diesel_consumption_sum">Aktiviert die Verbrauchsschätzung für Dieselfahrzeuge.\nBEACHTE: Diese Funktion befindet sich im Beta Stadium und es handelt sich um Schätzungen. Es gibt keinerlei Gewährleistung für die Richtigkeit der berechneten Daten.</string>
+    <string name="preference_beta_diesel_consumption_sum">Aktiviert die Verbrauchsschätzung für Dieselfahrzeuge.\nBEACHTE: Diese Funktion befindet sich im Beta-Stadium und es handelt sich um Schätzungen. Es gibt keinerlei Gewährleistung für die Richtigkeit der berechneten Daten.</string>
 
     <string name="preference_beta_enable_gps_based_track_recording">GPS-basierte Aufzeichnung aktivieren</string>
     <string name="preference_beta_enable_gps_based_track_recording_sum">Aktiviert einen zusätzlichen Aufzeichnungsmodus für rein GPS-basierte Fahrten (ohne OBD Adapter).\n\nHINWEIS: Dieses Feature ist nur eine Beta-Funktion.</string>

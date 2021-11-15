@@ -5,8 +5,9 @@ dependencies {
 }
 
 android {
-    compileSdkVersion 28
-    buildToolsVersion "28.0.3"
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+    ndkVersion rootProject.ext.ndkVersion
 
     sourceSets {
         main {
@@ -31,4 +32,20 @@ android {
         debug.setRoot('build-types/debug')
         release.setRoot('build-types/release')
     }
+
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+    }
 }
+
+// custom licenseFormat-tasks to access the directories, which are not part of the standard maven directory pattern
+task licenseFormatSrc(type: com.hierynomus.gradle.license.tasks.LicenseFormat) {
+    source = fileTree(dir: "src").include("**/*.java", '**/*.xml', '**/*.html').exclude('**/MoreObjects.java', '**/Preconditions.java')
+}
+licenseFormat.dependsOn licenseFormatSrc
+
+task licenseFormatRes(type: com.hierynomus.gradle.license.tasks.LicenseFormat) {
+    source = fileTree(dir: "res").include("**/*.java", '**/*.xml', '**/*.html').exclude('**/MoreObjects.java', '**/Preconditions.java')
+}
+licenseFormat.dependsOn licenseFormatRes

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - 2019 the enviroCar community
+ * Copyright (C) 2013 - 2021 the enviroCar community
  *
  * This file is part of the enviroCar app.
  *
@@ -20,7 +20,6 @@ package org.envirocar.app.views.others;
 
 
 import android.Manifest;
-import android.app.Service;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -36,6 +35,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.envirocar.app.BaseApplicationComponent;
@@ -48,7 +48,6 @@ import org.envirocar.app.recording.RecordingService;
 import org.envirocar.app.services.autoconnect.AutoRecordingService;
 import org.envirocar.app.views.logbook.LogbookActivity;
 import org.envirocar.app.views.settings.SettingsActivity;
-import org.envirocar.app.views.utils.DialogUtils;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.utils.ServiceUtils;
@@ -152,31 +151,28 @@ public class OthersFragment extends BaseInjectorFragment {
 
     @OnClick(R.id.othersLogOut)
     protected void onLogOutClicked() {
-
-        new MaterialDialog.Builder(getActivity())
-                .title(getString(R.string.menu_logout_envirocar_title))
-                .positiveText(getString(R.string.menu_logout_envirocar_positive))
-                .negativeText(getString(R.string.menu_logout_envirocar_negative))
-                .content(getString(R.string.menu_logout_envirocar_content))
-                .onPositive((dialog, which) -> mUserManager.logOut().subscribe(logOut()))
+        // show dialog
+        new MaterialAlertDialogBuilder(getActivity(), R.style.MaterialDialog)
+                .setTitle(R.string.menu_logout_envirocar_title)
+                .setMessage(R.string.menu_logout_envirocar_content)
+                .setIcon(R.drawable.ic_logout_white_24dp)
+                .setPositiveButton(R.string.menu_logout_envirocar_positive,
+                        (dialog, which) -> mUserManager.logOut().subscribe(logOut()))
+                .setNegativeButton(R.string.menu_logout_envirocar_negative,null)
                 .show();
     }
 
     @OnClick(R.id.othersCloseEnviroCar)
     protected void onCloseEnviroCarClicked() {
-        new MaterialDialog.Builder(getActivity())
-                .title(getString(R.string.menu_close_envirocar_title))
-                .positiveText(getString(R.string.menu_close_envirocar_positive))
-                .negativeText(getString(R.string.cancel))
-                .content(getString(R.string.menu_close_envirocar_content))
-                .callback(new MaterialDialog.ButtonCallback() {
-                    @Override
-                    public void onPositive(MaterialDialog dialog) {
-                        shutdownEnviroCar();
-                    }
-                })
+        // show closing dialog
+        new MaterialAlertDialogBuilder(getActivity(), R.style.MaterialDialog)
+                .setTitle(R.string.menu_close_envirocar_title)
+                .setMessage(R.string.menu_close_envirocar_content)
+                .setIcon(R.drawable.ic_others_close_24)
+                .setPositiveButton(R.string.menu_close_envirocar_positive,
+                        (dialog, which) -> shutdownEnviroCar())
+                .setNegativeButton(R.string.menu_logout_envirocar_negative,null)
                 .show();
-
     }
 
     /**
@@ -198,20 +194,17 @@ public class OthersFragment extends BaseInjectorFragment {
         if (shouldProvideRationale) {
             LOGGER.debug("Requesting File Permission. Displaying permission rationale to provide additional context.");
 
-            DialogUtils.createDefaultDialogBuilder(getContext(),
-                    R.string.request_storage_permission_title,
-                    R.drawable.others_settings,
-                    R.string.permission_rationale_file)
-                    .positiveText(R.string.ok)
-                    .onPositive((dialog, which) -> {
+            new MaterialAlertDialogBuilder(getContext(), R.style.MaterialDialog)
+                    .setTitle(R.string.request_storage_permission_title)
+                    .setMessage(R.string.permission_rationale_file)
+                    .setIcon(R.drawable.others_settings)
+                    .setPositiveButton(R.string.ok,(dialog, which) -> {
                         // Request permission
                         ActivityCompat.requestPermissions(getActivity(),
                                 new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                                 REQUEST_PERMISSIONS_REQUEST_CODE);
                     })
                     .show();
-
-
         } else {
             LOGGER.debug("Requesting permission");
             // Request permission. It's possible this can be auto answered if device policy

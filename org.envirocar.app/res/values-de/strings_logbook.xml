@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
 
-    Copyright (C) 2013 - 2020 the enviroCar community
+    Copyright (C) 2013 - 2021 the enviroCar community
 
     This file is part of the enviroCar app.
 
@@ -35,8 +35,9 @@
     <string name="logbook_error_general">Fehler beim Erstellen eines Logbucheintrags. Versuchen Sie es später nochmal und senden Sie bestenfalls einen Fehlerreport.</string>
     <string name="logbook_error_communication">Keine Verbindung zum Server.</string>
     <string name="logbook_error_unauthorized">Sie sind dafür nicht authentifiziert. Bitte loggen Sie sich mit dem jeweiligen Account ein.</string>
+    <string name="logbook_fuel_addition_successful">Betankung wurde erfolgreich hinzugefügt.</string>
     <string name="logbook_error_resource_conflict">Fehler beim hochladen: Der Eintrag existiert bereits.</string>
-    <string name="logbook_error_form_blank_input">Dieses Feld darf nicht leer sein</string>
+    <string name="logbook_error_form_blank_input">Dies ist ein Pflichtfeld.</string>
     <string name="logbook_deletion_success_tmp">Eintrag wurde erfolgreich vom Server gelöscht</string>
     <string name="logbook_dialog_delete_fueling_header">Löschen des Tankeintrags?</string>
     <string name="logbook_dialog_delete_fueling_content">Möchten Sie wirklich den Logbucheintrag löschen?"</string>
@@ -48,4 +49,6 @@
     <string name="logbook_background_no_fuelings_second">Es sind keine Tankeinträge\ndem eingeloggten Nutzer zugeordnet.</string>
     <string name="logbook_background_no_cars_first">KEINE AUTOS</string>
     <string name="logbook_background_no_cars_second">Um Zugriff auf diese Funktion zu bekommen,\nmüssen Sie zuerst mindestens ein Fahrzeug erstellen.</string>
+    <string name="logbook_background_no_internet_first">KEINE INTERNETVERBINDUNG</string>
+    <string name="logbook_background_no_internet_second">Sie sind offline. Um auf die Protokolle zugreifen zu können, benötigen Sie eine aktive Internetverbindung</string>
 </resources>

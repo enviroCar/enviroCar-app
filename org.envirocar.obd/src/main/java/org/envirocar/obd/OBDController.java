@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - 2019 the enviroCar community
+ * Copyright (C) 2013 - 2021 the enviroCar community
  *
  * This file is part of the enviroCar app.
  *
@@ -28,6 +28,7 @@ import org.envirocar.obd.adapter.CarTrendAdapter;
 import org.envirocar.obd.adapter.ELM327Adapter;
 import org.envirocar.obd.adapter.OBDAdapter;
 import org.envirocar.obd.adapter.OBDLinkAdapter;
+import org.envirocar.obd.adapter.UniCarScanAdapter;
 import org.envirocar.obd.adapter.async.DriveDeckSportAdapter;
 import org.envirocar.obd.bluetooth.BluetoothSocketWrapper;
 import org.envirocar.obd.commands.PID;
@@ -124,6 +125,7 @@ public class OBDController {
     private void setupAdapterCandidates() {
         adapterCandidates.clear();
         adapterCandidates.offer(new ELM327Adapter());
+        adapterCandidates.offer(new UniCarScanAdapter());
         adapterCandidates.offer(new OBDLinkAdapter());
         adapterCandidates.offer(new CarTrendAdapter());
         adapterCandidates.offer(new AposW3Adapter());
@@ -150,7 +152,7 @@ public class OBDController {
         }
 
         LOG.info("Using " + this.obdAdapter.getClass().getSimpleName() + " connector as the " +
-                "preferred adapter.");
+                "preferred adapter for device with name "+ this.deviceName +".");
         startInitialization(false);
     }
 

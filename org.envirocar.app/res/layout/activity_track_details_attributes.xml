@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+<!--
 
     Copyright (C) 2013 - 2019 the enviroCar community
 
@@ -342,7 +343,6 @@
         android:layout_height="match_parent"
         android:paddingLeft="64dp"
         android:paddingRight="@dimen/activity_horizontal_margin"
-        android:text="* = Bei diesen Werten handelt es sich um geschätzte Werte, die sich deutlich von den realen Werten unterscheiden können. Wir können daher keine Gewährleistung für diese Angaben geben."
-        android:textSize="10sp" />
+        android:text="@string/track_list_details_estimated_values" android:textSize="10sp"/>
 
 </LinearLayout>

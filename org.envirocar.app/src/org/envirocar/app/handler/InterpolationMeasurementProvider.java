@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - 2019 the enviroCar community
+ * Copyright (C) 2013 - 2021 the enviroCar community
  *
  * This file is part of the enviroCar app.
  *
@@ -203,8 +203,8 @@ public class InterpolationMeasurementProvider extends AbstractMeasurementProvide
      * @param endTimestamp    the timestamp of the lend
      * @return the interpolated value
      */
-    protected Double interpolateTwo(Number start, Number end, long targetTimestamp,
-                                    long startTimestamp, long endTimestamp) {
+    public Double interpolateTwo(Number start, Number end, long targetTimestamp,
+                                 long startTimestamp, long endTimestamp) {
         if (start == null && end == null) {
             return null;
         }

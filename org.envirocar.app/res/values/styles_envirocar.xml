@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
 
-    Copyright (C) 2013 - 2019 the enviroCar community
+    Copyright (C) 2013 - 2021 the enviroCar community
 
     This file is part of the enviroCar app.
 
@@ -81,7 +81,60 @@
         <item name="theme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
     </style>
 
-    <style name="DialogStyle" parent="Theme.AppCompat.Light.Dialog">
-        <item name="colorAccent">@color/blue_dark_cario</item>
+    <style name="DialogStyle" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
+        <item name="materialAlertDialogTitlePanelStyle">@style/TitlePaneStyle</item>
+        <item name="materialAlertDialogTitleTextStyle">@style/TitleTextStyledialog</item>
+        <item name="buttonBarPositiveButtonStyle">@style/PositiveButtonStyle</item>
+        <item name="buttonBarNegativeButtonStyle">@style/NegativeButtonStyle</item>
     </style>
+
+    <style name="TitleTextStyledialog" parent="MaterialAlertDialog.MaterialComponents.Title.Text">
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:layout_marginLeft">50dp</item>
+    </style>
+
+    <style name="MaterialDialog" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
+        <item name="materialAlertDialogTitlePanelStyle">@style/TitlePaneStyle</item>
+        <item name="materialAlertDialogTitleTextStyle">@style/TitleTextStyle</item>
+        <item name="materialAlertDialogTitleIconStyle">@style/TitleIconStyle</item>
+        <item name="materialAlertDialogBodyTextStyle">@style/BodyTextStyle</item>
+        <item name="buttonBarPositiveButtonStyle">@style/PositiveButtonStyle</item>
+        <item name="buttonBarNegativeButtonStyle">@style/NegativeButtonStyle</item>
+    </style>
+
+    <!-- Set the title bar -->
+    <style name="TitlePaneStyle" parent="MaterialAlertDialog.MaterialComponents.Title.Panel">
+        <item name="android:background">@color/blue_dark_cario</item>
+        <item name="android:padding">16dp</item>
+    </style>
+
+    <style name="TitleIconStyle" parent="MaterialAlertDialog.MaterialComponents.Title.Icon">
+        <item name="android:tint">#FFFFFF</item>
+    </style>
+
+    <style name="TitleTextStyle" parent="MaterialAlertDialog.MaterialComponents.Title.Text">
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:layout_marginLeft">10dp</item>
+    </style>
+
+    <!-- Set the body -->
+    <style name="BodyTextStyle" parent="MaterialAlertDialog.MaterialComponents.Body.Text">
+        <item name="android:layout_marginTop">12dp</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="android:textSize">15sp</item>
+    </style>
+
+    <!-- Set the buttons -->
+    <style name="PositiveButtonStyle" parent="@style/Widget.MaterialComponents.Button.TextButton.Dialog">
+        <item name="android:textColor">@color/blue_light_cario</item>
+    </style>
+
+    <style name="NegativeButtonStyle" parent="@style/Widget.MaterialComponents.Button.TextButton.Dialog">
+        <item name="android:textColor">@color/blue_light_cario</item>
+    </style>
+
 </resources>

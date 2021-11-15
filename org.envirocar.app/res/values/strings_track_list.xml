@@ -1,6 +1,7 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+<!--
 
-    Copyright (C) 2013 - 2019 the enviroCar community
+    Copyright (C) 2013 - 2021 the enviroCar community
 
     This file is part of the enviroCar app.
 
@@ -66,7 +67,7 @@
     <string name="track_list_menu_details">Show Details</string>
     <string name="track_list_menu_delete">Delete Track</string>
     <string name="track_list_menu_upload">Upload as Open Data</string>
-    <string name="track_list_menu_export">Export Track</string>
+    <string name="track_list_menu_share">Share Track</string>
 
     <string name="track_list_details_duration">Duration</string>
     <string name="track_list_details_distance">Distance</string>
@@ -82,9 +83,12 @@
 
     <string name="track_list_upload_all_tracks_title">Upload All Local Tracks?</string>
     <string name="track_list_upload_all_tracks_content">You are about to upload all tracks. This means that all tracks will be uploaded and assigned to your account.\n\nDo you want to continue?</string>
-    <string name="track_list_upload_all_tracks_complete_template">%d of %d tracks have been successfully uploaded. %d tracks had to less measurements to upload.</string>
+    <string name="track_list_upload_all_tracks_complete_with_failure_template">%d of %d tracks have been successfully uploaded. %d tracks had to less measurements to upload.</string>
+    <string name="track_list_upload_all_tracks_complete_template">%d tracks have been successfully uploaded.</string>
     <string name="track_list_uploading_please_wait">Please wait...</string>
 
     <string name="track_list_details_subtitle_template">Your Track with %s %s on %s.</string>
+
+    <string name="track_list_details_estimated_values" >* = These values are estimated values that can differ significantly from the real values. We cannot therefore give any guarantee for this information.</string>
 
 </resources>

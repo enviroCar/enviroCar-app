@@ -1,6 +1,6 @@
 <!--
 
-    Copyright (C) 2013 - 2019 the enviroCar community
+    Copyright (C) 2013 - 2021 the enviroCar community
 
     This file is part of the enviroCar app.
 
@@ -26,11 +26,13 @@
     <string name="error_invalid_email">Email ist nicht valide</string>
     <string name="error_invalid_password">Zu kurzes Passwort</string>
     <string name="error_incorrect_password">Falsches Passwort</string>
+    <string name="error_invalid_credentials">Benutzername oder Passwort ist falsch</string>
     <string name="error_field_required">Benötigtes Feld</string>
-    <string name="error_not_connected_to_network">Keine Verbdindung zum Internet</string>
+    <string name="error_not_connected_to_network">Keine Verbindung zum Internet</string>
     <string name="register_progress_signing_in">Registerung&#8230;</string>
     <string name="error_passwords_not_matching">Die Passwörter stimmen nicht überein</string>
     <string name="error_invalid_username">Dieser Username ist zu kurz</string>
+    <string name="error_username_contain_special">Spezialsymbole sind nicht erlaubt außer Unterstrich</string>
     <string name="error_field_weak_password">Das Passwort muss mindestens einen Großbuchstaben, einen Kleinbuchstaben und eine Ziffer enthalten.</string>
 
     <string name="error_username_already_in_use">Dieser Username ist bereits vergeben.</string>

@@ -1,6 +1,7 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+<!--
 
-    Copyright (C) 2013 - 2019 the enviroCar community
+    Copyright (C) 2013 - 2021 the enviroCar community
 
     This file is part of the enviroCar app.
 
@@ -117,7 +118,10 @@
             app:layout_constraintStart_toStartOf="@id/activity_signup_guideline_left"
             app:layout_constraintTop_toBottomOf="@+id/activity_signup_email_input_layout"
             app:layout_constraintWidth_max="500dp"
-            app:passwordToggleEnabled="true">
+            app:endIconMode="password_toggle"
+            app:endIconDrawable="@drawable/custom_password_eye"
+            app:endIconTint="@color/white_cario">
+
 
             <androidx.appcompat.widget.AppCompatEditText
                 android:id="@+id/activity_signup_password_1"
@@ -140,7 +144,9 @@
             app:layout_constraintStart_toStartOf="@id/activity_signup_guideline_left"
             app:layout_constraintTop_toBottomOf="@+id/activity_signup_password_1_layout"
             app:layout_constraintWidth_max="500dp"
-            app:passwordToggleEnabled="true">
+            app:endIconMode="password_toggle"
+            app:endIconDrawable="@drawable/custom_password_eye"
+            app:endIconTint="@color/white_cario">
 
             <androidx.appcompat.widget.AppCompatEditText
                 android:id="@+id/activity_signup_password_2"

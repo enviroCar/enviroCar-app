@@ -1,6 +1,7 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+<!--
 
-    Copyright (C) 2013 - 2019 the enviroCar community
+    Copyright (C) 2013 - 2021 the enviroCar community
 
     This file is part of the enviroCar app.
 
@@ -31,6 +32,7 @@
         android:layout_height="match_parent">
 
         <ImageView
+            android:id="@+id/signin_background"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:alpha="0.2"
@@ -78,7 +80,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@drawable/login_edittext_rounded_corner_shape"
-                android:drawableLeft="@drawable/ic_action_user"
+                android:drawableStart="@drawable/ic_action_user"
                 android:hint="@string/username"
                 android:imeOptions="actionNext"
                 android:singleLine="true" />
@@ -95,14 +97,17 @@
             app:layout_constraintEnd_toEndOf="@id/activity_signin_guideline_right"
             app:layout_constraintStart_toStartOf="@id/activity_signin_guideline_left"
             app:layout_constraintTop_toBottomOf="@+id/activity_signin_username_input_layout"
-            app:layout_constraintWidth_max="500dp">
+            app:layout_constraintWidth_max="500dp"
+            app:endIconMode="password_toggle"
+            app:endIconDrawable="@drawable/custom_password_eye"
+            app:endIconTint="@color/white_cario">
 
             <androidx.appcompat.widget.AppCompatEditText
                 android:id="@+id/activity_login_password_input"
                 style="@style/envirocar.login.edittext"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:drawableLeft="@drawable/ic_action_pass"
+                android:drawableStart="@drawable/ic_action_pass"
                 android:hint="@string/password"
                 android:imeOptions="actionDone"
                 android:inputType="textPassword" />

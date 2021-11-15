@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
 
-    Copyright (C) 2013 - 2019 the enviroCar community
+    Copyright (C) 2013 - 2021 the enviroCar community
 
     This file is part of the enviroCar app.
 
@@ -28,7 +28,7 @@
         android:id="@+id/preference_timepicker_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
+        android:layout_margin="125dp"
         android:visibility="gone" />
 
     <LinearLayout
@@ -39,7 +39,7 @@
 
         <NumberPicker
             android:id="@+id/preference_timepicker_minutes_picker"
-            android:layout_width="70dip"
+            android:layout_width="125dip"
             android:layout_height="wrap_content"
             android:focusable="true"
             android:focusableInTouchMode="true" />
@@ -48,11 +48,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:layout_marginLeft="10dp"
             android:text="m " />
 
         <NumberPicker
             android:id="@+id/preference_timepicker_seconds_picker"
-            android:layout_width="70dip"
+            android:layout_width="100dip"
             android:layout_height="wrap_content"
             android:layout_marginLeft="5dip"
             android:focusable="true"
@@ -62,6 +63,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:layout_marginLeft="5dp"
             android:text="s" />
 
     </LinearLayout>

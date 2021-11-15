@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
 
-    Copyright (C) 2013 - 2019 the enviroCar community
+    Copyright (C) 2013 - 2021 the enviroCar community
 
     This file is part of the enviroCar app.
 
@@ -20,6 +20,6 @@
 
 -->
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:color="@color/cario_color_primary_dark" android:state_enabled="false" />
-    <item android:color="@color/cario_warning_red" android:state_enabled="true" />
+    <item android:color="@color/cario_color_primary_dark" android:state_activated="true" />
+    <item android:color="@color/cario_warning_red" android:state_activated="false" />
 </selector>

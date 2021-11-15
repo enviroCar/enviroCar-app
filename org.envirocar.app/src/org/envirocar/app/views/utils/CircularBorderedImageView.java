@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - 2019 the enviroCar community
+ * Copyright (C) 2013 - 2021 the enviroCar community
  *
  * This file is part of the enviroCar app.
  *
@@ -37,7 +37,7 @@ import org.envirocar.app.R;
 /**
  * @author dewall
  */
-public class CircularBorderedImageView extends ImageView {
+public class CircularBorderedImageView extends androidx.appcompat.widget.AppCompatImageView {
 
     private Rect mBorderRect;
     private Rect mDrawableRect;

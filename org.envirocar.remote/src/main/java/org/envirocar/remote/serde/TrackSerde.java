@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - 2019 the enviroCar community
+ * Copyright (C) 2013 - 2021 the enviroCar community
  *
  * This file is part of the enviroCar app.
  *
@@ -280,8 +280,8 @@ public class TrackSerde extends AbstractJsonSerde implements JsonSerializer<Trac
         return result;
     }
 
-    public static FileWithMetadata exportTrack(Track track) throws IOException {
-        File result = new File(Util.resolveExternalStorageBaseFolder(), "enviroCar-track-" +
+    public static FileWithMetadata createTrackFile(Track track, String path) throws IOException {
+        File result = new File(Util.resolveStorageBaseFolder(path), "enviroCar-track-" +
                 track.getTrackID() + ".json");
 
         FileOutputStream out = new FileOutputStream(result);

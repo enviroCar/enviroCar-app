@@ -1,18 +1,18 @@
 /**
- * Copyright (C) 2013 - 2019 the enviroCar community
- * <p>
+ * Copyright (C) 2013 - 2021 the enviroCar community
+ *
  * This file is part of the enviroCar app.
- * <p>
+ *
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * <p>
+ *
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- * <p>
+ *
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -38,8 +38,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 
-import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.snackbar.Snackbar;
 import com.jakewharton.rxbinding3.widget.RxCompoundButton;
 import com.jakewharton.rxbinding3.widget.RxTextView;
 
@@ -49,6 +51,8 @@ import org.envirocar.app.handler.DAOProvider;
 import org.envirocar.app.handler.agreement.AgreementManager;
 import org.envirocar.app.handler.preferences.UserPreferenceHandler;
 import org.envirocar.app.injection.BaseInjectorActivity;
+import org.envirocar.app.views.utils.DialogUtils;
+import org.envirocar.core.ContextInternetAccessProvider;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.entity.UserImpl;
 import org.envirocar.core.exception.DataUpdateFailureException;
@@ -76,11 +80,12 @@ import io.reactivex.schedulers.Schedulers;
 public class SignupActivity extends BaseInjectorActivity {
     private static final Logger LOG = Logger.getLogger(SignupActivity.class);
 
-    private static final String EMAIL_REGEX = "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
+    private static final String EMAIL_REGEX = "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})$";
     private static final String PASSWORD_REGEX = "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{6,}$";
-    private static final String USERNAME_REGEX = "^[a-z0-9_-]{6,}$";
+    private static final String USERNAME_REGEX = "^[A-Za-z0-9_-]{6,}$";
     private static final int CHECK_FORM_DELAY = 750;
-    private static Drawable error;
+    private static Drawable errorPassword;
+    private static Drawable errorUsername;
 
     public static void startActivity(Context context) {
         Intent intent = new Intent(context, SignupActivity.class);
@@ -117,6 +122,8 @@ public class SignupActivity extends BaseInjectorActivity {
     private final Scheduler.Worker mainThreadWorker = AndroidSchedulers.mainThread().createWorker();
     private final Scheduler.Worker backgroundWorker = Schedulers.newThread().createWorker();
     private Disposable registerSubscription;
+    private AlertDialog dialog;
+
 
     @Override
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
@@ -132,8 +139,11 @@ public class SignupActivity extends BaseInjectorActivity {
         // inject the views
         ButterKnife.bind(this);
 
-        error = getResources().getDrawable(R.drawable.ic_error_red_24dp);
-        error.setBounds(-50,0,0,error.getIntrinsicHeight());
+        errorPassword = getResources().getDrawable(R.drawable.ic_error_red_24dp);
+        errorPassword.setBounds(-70,0,0, errorPassword.getIntrinsicHeight());
+
+        errorUsername = getResources().getDrawable(R.drawable.ic_error_red_24dp);
+        errorUsername.setBounds(0, 0, errorUsername.getIntrinsicWidth(), errorUsername.getIntrinsicHeight());
 
         // make terms of use and privacy statement clickable
         this.makeClickableTextLinks();
@@ -145,6 +155,15 @@ public class SignupActivity extends BaseInjectorActivity {
         super.onDestroy();
         if (registerSubscription != null && !registerSubscription.isDisposed()) {
             registerSubscription.dispose();
+        }
+    }
+
+    @OnClick(R.id.imageView)
+    protected void closeKeyboard(){
+        View view = this.getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
     }
 
@@ -209,38 +228,49 @@ public class SignupActivity extends BaseInjectorActivity {
     }
 
     private void register(String username, String email, String password) {
-        final MaterialDialog dialog = new MaterialDialog.Builder(SignupActivity.this)
-                .title(R.string.register_progress_signing_in)
-                .progress(true, 0)
-                .cancelable(false)
+
+        if(new ContextInternetAccessProvider(getApplicationContext()).isConnected()) {
+            dialog = DialogUtils.createProgressBarDialogBuilder(SignupActivity.this,
+                R.string.register_progress_signing_in,
+                R.drawable.ic_baseline_login_24,
+                (String) null)
+                .setCancelable(false)
                 .show();
+        }
 
         registerSubscription = backgroundWorker.schedule(() -> {
             try {
-                User newUser = new UserImpl(username, password);
-                newUser.setMail(email);
-                daoProvider.getUserDAO().createUser(newUser);
+                if(new ContextInternetAccessProvider(getApplicationContext()).isConnected()) {
 
-                // Successfully created the getUserStatistic
-                mainThreadWorker.schedule(() -> {
-                    // Dismiss the progress dialog.
+                    User newUser = new UserImpl(username, password);
+                    newUser.setMail(email);
+                    daoProvider.getUserDAO().createUser(newUser);
+                    // Successfully created the getUserStatistic
+                    mainThreadWorker.schedule(() -> {
+                        // Dismiss the progress dialog.
+                        if(new ContextInternetAccessProvider(getApplicationContext()).isConnected())
+                        dialog.dismiss();
+
+                        new MaterialAlertDialogBuilder(SignupActivity.this, R.style.MaterialDialog)
+                                .setTitle(R.string.register_success_dialog_title)
+                                .setMessage(R.string.register_success_dialog_content)
+                                .setIcon(R.drawable.ic_baseline_login_24)
+                                .setCancelable(false)
+                                .setOnCancelListener(dialog1 -> {
+                                    LOG.info("canceled");
+                                    finish();
+                                })
+                                .setPositiveButton(R.string.ok, (a, b) -> {
+                                    LOG.info("onPositive");
+                                    finish();
+                                })
+                                .show();
+                    });
+                }else{
+                    if(new ContextInternetAccessProvider(getApplicationContext()).isConnected())
                     dialog.dismiss();
-
-                    final MaterialDialog d = new MaterialDialog.Builder(SignupActivity.this)
-                            .title(R.string.register_success_dialog_title)
-                            .content(R.string.register_success_dialog_content)
-                            .cancelable(false)
-                            .positiveText(R.string.ok)
-                            .cancelListener(dialog1 -> {
-                                LOG.info("canceled");
-                                finish();
-                            })
-                            .onAny((a, b) -> {
-                                LOG.info("onPositive");
-                                finish();
-                            })
-                            .show();
-                });
+                    showSnackbar(getString(R.string.error_not_connected_to_network));
+                }
             } catch (ResourceConflictException e) {
                 LOG.warn(e.getMessage(), e);
 
@@ -249,10 +279,10 @@ public class SignupActivity extends BaseInjectorActivity {
                 mainThreadWorker.schedule(() -> {
                     if (e.getConflictType() == ResourceConflictException.ConflictType.USERNAME) {
                         usernameEditText.setError(getString(
-                                R.string.error_username_already_in_use));
+                                R.string.error_username_already_in_use),errorUsername);
                         usernameEditText.requestFocus();
                     } else if (e.getConflictType() == ResourceConflictException.ConflictType.MAIL) {
-                        emailEditText.setError(getString(R.string.error_email_already_in_use));
+                        emailEditText.setError(getString(R.string.error_email_already_in_use),errorUsername);
                         emailEditText.requestFocus();
                     }
                 });
@@ -264,7 +294,7 @@ public class SignupActivity extends BaseInjectorActivity {
 
                 // Show an error.
                 mainThreadWorker.schedule(() -> {
-                    usernameEditText.setError(getString(R.string.error_host_not_found));
+                    usernameEditText.setError(getString(R.string.error_host_not_found),errorUsername);
                     usernameEditText.requestFocus();
                 });
 
@@ -335,13 +365,13 @@ public class SignupActivity extends BaseInjectorActivity {
 
         boolean isValidUsername = true;
         if (username == null || username.isEmpty() || username.equals("")) {
-            usernameEditText.setError(getString(R.string.error_field_required));
+            usernameEditText.setError(getString(R.string.error_field_required),errorUsername);
             isValidUsername = false;
         } else if (username.length() < 6) {
-            usernameEditText.setError(getString(R.string.error_invalid_username));
+            usernameEditText.setError(getString(R.string.error_invalid_username),errorUsername);
             isValidUsername = false;
         } else if (!Pattern.matches(USERNAME_REGEX,username)) {
-            usernameEditText.setError(getString(R.string.error_username_contain_special));
+            usernameEditText.setError(getString(R.string.error_username_contain_special),errorUsername);
             isValidUsername = false;
         }
         return isValidUsername;
@@ -353,10 +383,10 @@ public class SignupActivity extends BaseInjectorActivity {
     private boolean checkEmailValidity(String email) {
         boolean isValidEmail = true;
         if (TextUtils.isEmpty(email)) {
-            emailEditText.setError(getString(R.string.error_field_required));
+            emailEditText.setError(getString(R.string.error_field_required),errorUsername);
             isValidEmail = false;
         } else if (!Pattern.matches(EMAIL_REGEX, email)) {
-            emailEditText.setError(getString(R.string.error_invalid_email));
+            emailEditText.setError(getString(R.string.error_invalid_email),errorUsername);
             isValidEmail = false;
         }
         return isValidEmail;
@@ -368,18 +398,20 @@ public class SignupActivity extends BaseInjectorActivity {
     private boolean checkPasswordValidity(String password) {
         boolean isValidPassword = true;
         if (password == null || password.isEmpty() || password.equals("")) {
-            password1EditText.setError(getString(R.string.error_field_required),error);
+            password1EditText.setError(getString(R.string.error_field_required), errorPassword);
             isValidPassword = false;
         } else if (password.length() < 6) {
-            password1EditText.setError(getString(R.string.error_invalid_password),error);
+            password1EditText.setError(getString(R.string.error_invalid_password), errorPassword);
             isValidPassword = false;
         } else if (!Pattern.matches(PASSWORD_REGEX, password)) {
-            password1EditText.setError(getString(R.string.error_field_weak_password),error);
+            password1EditText.setError(getString(R.string.error_field_weak_password), errorPassword);
             isValidPassword = false;
         } else {
             final String password2 = password2EditText.getText().toString().trim();
             if (!password2.equals("") && !password2.isEmpty() && password2 != null) {
                 checkPasswordMatch(password, password2);
+            }else {
+                password2EditText.setError(getString(R.string.error_field_required), errorPassword);
             }
         }
         return isValidPassword;
@@ -391,7 +423,7 @@ public class SignupActivity extends BaseInjectorActivity {
     private boolean checkConfirmPasswordValidity(String password2) {
         boolean isValidMatch = true;
         if (password2 == null || password2.isEmpty() || password2.equals("")) {
-            password2EditText.setError(getString(R.string.error_field_required),error);
+            password2EditText.setError(getString(R.string.error_field_required), errorPassword);
             isValidMatch = false;
         } else {
             final String password1 = password1EditText.getText().toString().trim();
@@ -408,13 +440,17 @@ public class SignupActivity extends BaseInjectorActivity {
     private boolean checkPasswordMatch(String password, String password2) {
         boolean isValidMatch = password.equals(password2);
         if (!isValidMatch) {
-            password1EditText.setError(getString(R.string.error_passwords_not_matching),error);
-            password2EditText.setError(getString(R.string.error_passwords_not_matching),error);
+            password1EditText.setError(getString(R.string.error_passwords_not_matching), errorPassword);
+            password2EditText.setError(getString(R.string.error_passwords_not_matching), errorPassword);
         } else {
             password1EditText.setError(null);
             password2EditText.setError(null);
         }
         return isValidMatch;
+    }
+
+    private void showSnackbar(String info) {
+        Snackbar.make(findViewById(R.id.activity_signup_register_button), info, Snackbar.LENGTH_LONG).show();
     }
 
     private void observeFormInputs() {

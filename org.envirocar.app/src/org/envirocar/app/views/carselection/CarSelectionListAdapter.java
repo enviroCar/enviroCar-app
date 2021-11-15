@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - 2019 the enviroCar community
+ * Copyright (C) 2013 - 2021 the enviroCar community
  *
  * This file is part of the enviroCar app.
  *
@@ -19,6 +19,7 @@
 package org.envirocar.app.views.carselection;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -139,12 +140,34 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
             mCallback.onSelectCar(mSelectedCar);
         });
 
+        // Items of array.car_list_option_items are displayed according to the state of radio button.
+        Resources res = getContext().getResources();
+        String[] state;
+        if (mSelectedCar != null && mSelectedCar.equals(car)) {
+            state = res.getStringArray(R.array.car_list_option_item_Delete_car);
+        }
+        else{
+            state = res.getStringArray(R.array.car_list_option_items);
+        }
+
         // Set the onClickListener for a single row.
         convertView.setOnClickListener(v -> new MaterialDialog.Builder(mContext)
-                .items(R.array.car_list_option_items)
+                .items(state)
                 .itemsCallback((materialDialog, view, i, charSequence) -> {
                     switch (i) {
                         case 0:
+                            // Uncheck the the previously checked radio button and update the
+                            // references accordingly.
+                            if (car.equals(mSelectedCar)) {
+                                mSelectedCar = null;
+                                mSelectedButton.setChecked(false);
+                                mSelectedButton = null;
+                            }
+
+                            // Call the callback
+                            mCallback.onDeleteCar(car);
+                            break;
+                        case 1:
                             if(car.equals(mSelectedCar))
                                 return;
 
@@ -160,18 +183,6 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
 
                             // Call the callback in order to react accordingly.
                             mCallback.onSelectCar(car);
-                            break;
-                        case 1:
-                            // Uncheck the the previously checked radio button and update the
-                            // references accordingly.
-                            if (car.equals(mSelectedCar)) {
-                                mSelectedCar = null;
-                                mSelectedButton.setChecked(false);
-                                mSelectedButton = null;
-                            }
-
-                            // Call the callback
-                            mCallback.onDeleteCar(car);
                             break;
                         default:
                             LOG.warn("No action selected!");
@@ -195,6 +206,9 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
      */
     protected void addCarItem(Car car) {
         this.mCars.add(car);
+        if(this.getCount() == 1) {
+            this.mSelectedCar = car;
+        }
         notifyDataSetChanged();
     }
 

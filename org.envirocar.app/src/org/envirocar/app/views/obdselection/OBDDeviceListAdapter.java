@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - 2019 the enviroCar community
+ * Copyright (C) 2013 - 2021 the enviroCar community
  *
  * This file is part of the enviroCar app.
  *
@@ -104,7 +104,7 @@ public class OBDDeviceListAdapter extends ArrayAdapter<BluetoothDevice> {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        // Get the item from the given poosition
+        // Get the item from the given position
         final BluetoothDevice device = getItem(position);
 
         ViewHolder holder;
@@ -132,7 +132,7 @@ public class OBDDeviceListAdapter extends ArrayAdapter<BluetoothDevice> {
         // If there exists an already selected bluetooth device and the device of this entry
         // matches the selected device, then set it to checked.
         if (mSelectedBluetoothDevice != null) {
-            if (mSelectedBluetoothDevice.getName().equals(device.getName())) {
+            if (mSelectedBluetoothDevice.getAddress().equals(device.getAddress())) {
                 mSelectedRadioButton = holder.mRadioButton;
                 mSelectedRadioButton.setChecked(true);
                 mSelectedBluetoothDevice = device;

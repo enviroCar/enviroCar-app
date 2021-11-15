@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - 2019 the enviroCar community
+ * Copyright (C) 2013 - 2021 the enviroCar community
  *
  * This file is part of the enviroCar app.
  *
@@ -22,29 +22,70 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 
+import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
+import org.envirocar.app.injection.BaseInjectorActivity;
+import org.envirocar.app.views.carselection.CarSelectionAddCarFragment;
+import org.envirocar.core.entity.Manufacturers;
 import org.envirocar.core.logging.Logger;
+import org.envirocar.storage.EnviroCarVehicleDB;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
+
+import javax.inject.Inject;
 
 import butterknife.ButterKnife;
 import io.reactivex.Completable;
+import io.reactivex.Observable;
+import io.reactivex.Single;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.observers.DisposableObserver;
+import io.reactivex.observers.DisposableSingleObserver;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * @author dewall
  */
-public class SplashScreenActivity extends Activity {
+public class SplashScreenActivity extends BaseInjectorActivity {
     private static final Logger LOG = Logger.getLogger(SplashScreenActivity.class);
     private static final String HAS_BEEN_SEEN_KEY = "has_been_seen";
     private static final int SPLASH_SCREEN_DURATION = 1500;
-
+    @Inject
+    EnviroCarVehicleDB enviroCarVehicleDB;
     private Disposable timerDisposable;
 
+    @Override
+    protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
+        baseApplicationComponent.inject(this);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //fetch to db initialization to prepopulate database before the database object used in CarSelection to remove delay
+
+        Observable<List<Manufacturers>> dbInit = enviroCarVehicleDB.manufacturersDAO().getAllManufacturers();
+        dbInit.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new DisposableObserver<List<Manufacturers>>() {
+                    @Override
+                    public void onNext(List<Manufacturers> manufacturersList1) {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+
         if (savedInstanceState != null && savedInstanceState.getBoolean(HAS_BEEN_SEEN_KEY, false)) {
             startMainActivity();
             return;

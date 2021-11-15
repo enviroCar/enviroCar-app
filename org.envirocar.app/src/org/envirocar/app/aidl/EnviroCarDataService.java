@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - 2019 the enviroCar community
+ * Copyright (C) 2013 - 2021 the enviroCar community
  *
  * This file is part of the enviroCar app.
  *
@@ -70,6 +70,7 @@ public class EnviroCarDataService extends BaseInjectorService {
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
+        super.onBind(intent);
         return binder;
     }
 
