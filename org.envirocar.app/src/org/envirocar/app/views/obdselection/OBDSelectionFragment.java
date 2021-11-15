@@ -157,7 +157,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
         if (mBTDiscoverySubscription != null && !mBTDiscoverySubscription.isDisposed()) {
             mBTDiscoverySubscription.dispose();
         }
-
+        mNewDevicesListView.setOnItemClickListener(null);
         super.onDestroy();
     }
 
