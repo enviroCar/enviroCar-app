@@ -409,7 +409,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
                     case TRACK_ALREADY_UPLOADED:
                         showSnackbar(R.string.track_list_upload_error_already_uploaded);
                         break;
-                    //  Don't know why its not working :/
+                    //  I couldn't find any reasons why its not working
 //                    case NO_NETWORK_CONNECTION:
 //                        showSnackbar(R.string.track_list_upload_error_no_network_connection);
 //                        break;
