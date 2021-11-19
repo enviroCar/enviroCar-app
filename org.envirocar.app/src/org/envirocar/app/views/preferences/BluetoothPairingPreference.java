@@ -22,16 +22,13 @@ import android.app.AlertDialog;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.res.Resources;
 import android.preference.DialogPreference;
 import android.util.AttributeSet;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.widget.Toolbar;
 
@@ -42,6 +39,7 @@ import com.squareup.otto.Subscribe;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.BaseApplication;
+import org.envirocar.app.views.obdselection.OBDSelectionFragment;
 import org.envirocar.app.views.preferences.bluetooth.BluetoothDeviceListAdapter;
 import org.envirocar.core.events.bluetooth.BluetoothPairingChangedEvent;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
@@ -63,6 +61,14 @@ import io.reactivex.schedulers.Schedulers;
  */
 public class BluetoothPairingPreference extends DialogPreference {
     private static final Logger LOGGER = Logger.getLogger(BluetoothPairingPreference.class);
+
+
+    /**
+     *
+     */
+    public interface ShowSnackbarListener {
+        void showSnackbar(String text);
+    }
 
     // Views for the already paired devices.
     @BindView(R.id.bluetooth_pairing_preference_paired_devices_text)
@@ -257,11 +263,11 @@ public class BluetoothPairingPreference extends DialogPreference {
      * Initiates the discovery of other Bluetooth devices.
      */
     private void startBluetoothDiscovery() {
-        // If bluetooth is not enabled, skip the discovery and show a toast.
+        // If bluetooth is not enabled, skip the discovery and show a snackbar.
         if (!mBluetoothHandler.isBluetoothEnabled()) {
             LOGGER.debug("startBluetoothDiscovery(): Bluetooth is disabled!");
-            Toast.makeText(getContext(), "Bluetooth is disabled. Please enable Bluetooth before " +
-                    "discovering for other devices.", Toast.LENGTH_LONG).show();
+            showSnackbar("Bluetooth is disabled. Please enable Bluetooth before " +
+                    "discovering for other devices.");
             return;
         }
 
@@ -284,9 +290,7 @@ public class BluetoothPairingPreference extends DialogPreference {
                         // Set info view to "searching...".
                         mNewDevicesInfoTextView.setText(R.string
                                 .bluetooth_pairing_preference_info_searching_devices);
-
-                        Toast.makeText(getContext(), "Discovery Started!", Toast
-                                .LENGTH_LONG).show();
+                        showSnackbar("Discovery Started!");
                     }
 
                     @Override
@@ -309,9 +313,7 @@ public class BluetoothPairingPreference extends DialogPreference {
                             mNewDevicesInfoTextView.setText(String.format(string, "" +
                                     mNewDevicesArrayAdapter.getCount()));
                         }
-
-                        Toast.makeText(getContext(), "Discovery Finished!", Toast
-                                .LENGTH_LONG).show();
+                        showSnackbar("Discovery Finished!");
                     }
 
                     @Override
@@ -351,8 +353,7 @@ public class BluetoothPairingPreference extends DialogPreference {
 
                     @Override
                     public void onPairingStarted(BluetoothDevice device) {
-                        Toast.makeText(getContext(), "Pairing Started",
-                                Toast.LENGTH_LONG).show();
+                        showSnackbar("Pairing Started");
                         if (text != null) {
                             text.setText(device.getName() + " (Pairing started...)");
                         }
@@ -360,8 +361,7 @@ public class BluetoothPairingPreference extends DialogPreference {
 
                     @Override
                     public void onPairingError(BluetoothDevice device) {
-                        Toast.makeText(getContext(), "Pairing Error",
-                                Toast.LENGTH_LONG).show();
+                        showSnackbar("Pairing Error");
                         if (text != null)
                             text.setText(device.getName());
                     }
@@ -370,7 +370,7 @@ public class BluetoothPairingPreference extends DialogPreference {
                     public void onDevicePaired(BluetoothDevice device) {
                         // Device is paired. Add it to the array adapter for paired devices and
                         // remove it from the adapter for new devices.
-                        Toast.makeText(getContext(), "Paired", Toast.LENGTH_LONG).show();
+                        showSnackbar("Paired");
                         mNewDevicesArrayAdapter.remove(device);
                         mPairedDevicesAdapter.add(device);
 
@@ -417,6 +417,10 @@ public class BluetoothPairingPreference extends DialogPreference {
         super.onPrepareDialogBuilder(builder);
         // Remove default preference title.
         builder.setTitle(null);
+    }
+    private void showSnackbar(String text) {
+        if (this instanceof OBDSelectionFragment.ShowSnackbarListener)
+            ((OBDSelectionFragment.ShowSnackbarListener) this).showSnackbar(text);
     }
 
 }
