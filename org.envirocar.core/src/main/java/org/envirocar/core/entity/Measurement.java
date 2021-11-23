@@ -361,7 +361,7 @@ public interface Measurement extends BaseEntity<Measurement> {
         MIN_GPS_ACCELERATION {
             @Override
             public int getStringResource() {
-                return R.string.property_key_min_acceleration;
+                return R.string.property_key_min_gps_acceleration;
             }
 
             @Override
@@ -372,7 +372,7 @@ public interface Measurement extends BaseEntity<Measurement> {
         MAX_GPS_ACCELERATION {
             @Override
             public int getStringResource() {
-                return R.string.property_key_max_acceleration;
+                return R.string.property_key_max_gps_acceleration;
             }
 
             @Override
