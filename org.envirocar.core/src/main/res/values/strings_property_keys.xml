@@ -51,5 +51,7 @@
     <string name="property_key_short_term_trim_1">Short-Term Fuel Trim 1</string>
     <string name="property_key_min_acceleration">Minimum Acceleration</string>
     <string name="property_key_max_acceleration">Maximum Acceleration</string>
+    <string name="property_key_min_gps_acceleration">Minimum GPS Acceleration</string>
+    <string name="property_key_max_gps_acceleration">Maximum GPS Acceleration</string>
 
 </resources>
