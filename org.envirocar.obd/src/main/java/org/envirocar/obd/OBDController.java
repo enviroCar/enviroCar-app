@@ -39,8 +39,6 @@ import org.envirocar.obd.events.RPMUpdateEvent;
 import org.envirocar.obd.events.SpeedUpdateEvent;
 import org.envirocar.obd.exception.AllAdaptersFailedException;
 import org.envirocar.obd.exception.EngineNotRunningException;
-import org.reactivestreams.Subscriber;
-import org.reactivestreams.Subscription;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -49,7 +47,6 @@ import java.util.ArrayDeque;
 import java.util.Queue;
 import java.util.concurrent.TimeUnit;
 
-import io.reactivex.Observer;
 import io.reactivex.Scheduler;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.DisposableObserver;
@@ -308,6 +305,8 @@ public class OBDController {
 
             @Override
             public void onNext(DataResponse dataResponse) {
+                LOG.debug(String.format("Received data response: {%s=%s}", dataResponse.getPid(),
+                        dataResponse.getValue()));
                 pushToEventBus(dataResponse);
             }
         };

@@ -160,7 +160,10 @@ public class InterpolationMeasurementProvider extends AbstractMeasurementProvide
         List<DataResponseAlgorithm> algorithms = DataResponseAlgorithm.fromPropertyType(pk);
         if(algorithms != null){
             for(DataResponseAlgorithm a : algorithms) {
-                m.setProperty(a.getPropertyKey(pk), a.calculate(dataResponses));
+                Double value = a.calculate(dataResponses);
+                m.setProperty(a.getPropertyKey(pk), value);
+                LOG.debug(String.format("Calculated %s from %s %s values: %s",
+                        a.getPropertyKey(pk).name(), dataResponses.size(), pk.name(), value));
             }
         }
     }
