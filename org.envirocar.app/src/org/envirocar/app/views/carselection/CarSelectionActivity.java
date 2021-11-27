@@ -19,6 +19,7 @@
 package org.envirocar.app.views.carselection;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -32,6 +33,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.RadioButton;
 import android.widget.TextView;
 
 import org.envirocar.app.BaseApplicationComponent;
@@ -106,7 +108,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
     private CarSelectionAddCarFragment addCarFragment;
     private CarSelectionListAdapter mCarListAdapter;
     private Disposable loadingCarsSubscription;
-
+    private Boolean carDeleted=true;
 
     @Override
     protected void injectDependencies(BaseApplicationComponent appComponent) {
@@ -253,6 +255,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
                                         car.getManufacturer(), car.getModel()))
                                 .setIcon(R.drawable.ic_drive_eta_white_24dp)
                                 .setPositiveButton(R.string.car_deselection_dialog_delete_title, (dialog, which) -> {
+//                                    check( car, mSelectedCar,  mSelectedButton);
                                     // If the car has been removed successfully...
                                     if (mCarManager.removeCar(car)) {
                                         showSnackbar(String.format(
@@ -264,11 +267,10 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
                                     }
                                     // then remove it from the list and show a snackbar.
                                     mCarListAdapter.removeCarItem(car);// Nothing to do on cancel
-
                                 })
-                                .setNegativeButton(R.string.cancel,null)
+                                .setNegativeButton(R.string.cancel, null)
                                 .show();
-                    }
+                                            }
                 });
         mCarListView.setAdapter(mCarListAdapter);
 
@@ -331,7 +333,22 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
         headerView.setVisibility(View.GONE);
 
     }
-
+    public boolean check(Car car, Car mSelectedCar, RadioButton mSelectedButton) {
+        // If the car has been removed successfully...
+        if (mCarManager.removeCar(car)) {
+            showSnackbar(String.format(
+                    getString(R.string.car_selection_car_deleted_tmp),
+                    car.getManufacturer(), car.getModel()));
+            if (!mCarManager.hasCars()) {
+                showBackgroundImage();
+            }
+            if(mSelectedButton!=null) {
+                mSelectedButton.setChecked(false);
+            }
+            return true;
+        }
+        return false;
+    }
     private void showInfoBackground(int imgResource, int firstLine, int secondLine) {
         LOG.info("showInfoBackground()");
         infoBackgroundImg.setImageResource(imgResource);

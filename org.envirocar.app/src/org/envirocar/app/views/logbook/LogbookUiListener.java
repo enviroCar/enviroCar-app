@@ -28,5 +28,9 @@ import org.envirocar.core.entity.Fueling;
 interface LogbookUiListener {
     void onHideAddFuelingCard();
 
+    void onHideEditFuelingCard();
+
     void onFuelingUploaded(Fueling fueling);
+
+    void onFuelingUpdated(Fueling fueling, int position);
 }

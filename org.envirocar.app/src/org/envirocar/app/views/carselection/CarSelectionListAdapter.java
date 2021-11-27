@@ -159,6 +159,7 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
                             // Uncheck the the previously checked radio button and update the
                             // references accordingly.
                             if (car.equals(mSelectedCar)) {
+//                                mCallback.onDeleteCar(car);
                                 mSelectedCar = null;
                                 mSelectedButton.setChecked(false);
                                 mSelectedButton = null;
@@ -218,9 +219,15 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
      * @param car the car to remove from the list.
      */
     protected void removeCarItem(Car car) {
+
         if (mCars.contains(car)) {
             mCars.remove(car);
             notifyDataSetChanged();
+        }
+        if(this.getCount() == 1) {
+            car = this.mCars.get(0);
+            this.mSelectedCar = car;
+            mCallback.onSelectCar(car);
         }
     }
 

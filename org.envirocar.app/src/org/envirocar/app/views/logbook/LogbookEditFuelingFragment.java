@@ -19,18 +19,12 @@
 package org.envirocar.app.views.logbook;
 
 import android.app.Activity;
-import android.app.Application;
-import android.content.Context;
-import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.Network;
-import android.net.NetworkCapabilities;
-import android.net.NetworkInfo;
-import android.os.Build;
+
 import android.os.Bundle;
 import android.text.InputFilter;
 import android.text.Spanned;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
@@ -54,6 +48,7 @@ import org.envirocar.app.handler.preferences.CarPreferenceHandler;
 import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.app.views.utils.DialogUtils;
 import org.envirocar.app.views.utils.ECAnimationUtils;import org.envirocar.core.ContextInternetAccessProvider;
+import org.envirocar.core.UserManager;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Fueling;
 import org.envirocar.core.entity.FuelingImpl;
@@ -87,8 +82,8 @@ import static com.mapbox.mapboxsdk.Mapbox.getApplicationContext;
  *
  * @author dewall
  */
-public class LogbookAddFuelingFragment extends BaseInjectorFragment {
-    private static final Logger LOG = Logger.getLogger(LogbookAddFuelingFragment.class);
+public class LogbookEditFuelingFragment extends BaseInjectorFragment {
+    private static final Logger LOG = Logger.getLogger(LogbookEditFuelingFragment.class);
     private static final DecimalFormat DECIMAL_FORMATTER_2 = new DecimalFormat("#.##");
     private static final DecimalFormat DECIMAL_FORMATTER_3 = new DecimalFormat("#.###");
 
@@ -147,32 +142,11 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
         super.onCreateView(inflater, container, savedInstanceState);
 
         // Inflate the view and inject the annotated view.
-        View view = inflater.inflate(R.layout.activity_logbook_add_fueling_card, container, false);
+        View view = inflater.inflate(R.layout.activity_logbook_edit_fueling_card, container, false);
         ButterKnife.bind(this, view);
 
         view.setOnClickListener(v -> hideKeyboard(view));
         contentView.setOnClickListener(v -> hideKeyboard(contentView));
-
-        addFuelingToolbar.setNavigationIcon(R.drawable.ic_close_white_24dp);
-        addFuelingToolbar.inflateMenu(R.menu.menu_logbook_add_fueling);
-
-        addFuelingToolbar.setNavigationOnClickListener(v ->{
-                    closeThisFragment();
-//                    hideKeyboard(v);
-                });
-
-        addFuelingToolbar.setOnMenuItemClickListener(item -> {
-            onClickAddFueling();
-            hideKeyboard(getView());
-            return true;
-        });
-
-        addFuelingToolbar.setOnClickListener(v -> hideKeyboard(addFuelingToolbar));
-
-        // initially we set the toolbar exp to gone
-        addFuelingToolbar.setVisibility(View.GONE);
-        addFuelingToolbarExp.setVisibility(View.GONE);
-        contentScrollview.setVisibility(View.GONE);
 
         initTextViews();
 
@@ -198,6 +172,63 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
             ECAnimationUtils.animateShowView(getContext(), infoBackground, R.anim.fade_in);
         }
 
+        // To get Data to edit
+        Bundle bundle = this.getArguments();
+        if (bundle != null) {
+            int position = bundle.getInt("pos");
+            String date = getArguments().getString("date");
+            String totalPrice = bundle.getString("totalPrice");
+            String pricePerLiter = bundle.getString("pricePerLiter");
+            String kmAndLiter = bundle.getString("kmAndLiter");
+            String fueledVolume = bundle.getString("fueledVolume");
+            String carText = bundle.getString("carText");
+            String comment = bundle.getString("comment");
+            boolean isPartial = bundle.getBoolean("isPartial");
+            boolean missedPrevious = bundle.getBoolean("missedPrevious");
+
+            // Setting all the Data
+            addFuelingMilageText.setText(kmAndLiter);
+            addFuelingVolumeText.setText(fueledVolume);
+            addFuelingPricePerLitreText.setText( pricePerLiter);
+            addFuelingTotalCostText.setText(totalPrice);
+            commentText.setText(comment);
+            if(isPartial){
+                partialFuelingCheckbox.setChecked(true);
+            }
+            if(missedPrevious){
+                missedFuelingCheckbox.setChecked(true);
+            }
+
+        }
+
+        addFuelingToolbar.setNavigationIcon(R.drawable.ic_close_white_24dp);
+        addFuelingToolbar.inflateMenu(R.menu.menu_logbook_add_fueling);
+
+        addFuelingToolbar.setNavigationOnClickListener(v ->{
+            closeThisFragment();
+//                    hideKeyboard(v);
+        });
+
+        addFuelingToolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+            Bundle bundle = getArguments();
+            int position = bundle.getInt("pos");
+
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                LogbookEditFuelingFragment.this.onClickAddFueling(position);
+                LogbookEditFuelingFragment.this.hideKeyboard(LogbookEditFuelingFragment.this.getView());
+                return true;
+            }
+        });
+
+        addFuelingToolbar.setOnClickListener(v -> hideKeyboard(addFuelingToolbar));
+
+        // initially we set the toolbar exp to gone
+        addFuelingToolbar.setVisibility(View.GONE);
+        addFuelingToolbarExp.setVisibility(View.GONE);
+        contentScrollview.setVisibility(View.GONE);
+
+
         return view;
     }
 
@@ -221,7 +252,7 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
                 R.anim.translate_slide_in_bottom_fragment);
     }
 
-    private void onClickAddFueling() {
+    private void onClickAddFueling(int position) {
         // Reset the errors.
         addFuelingMilageText.setError(null);
         addFuelingTotalCostText.setError(null);
@@ -229,9 +260,6 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
 
         if (!new ContextInternetAccessProvider(getApplicationContext()).isConnected()){
             closeThisFragment();
-//            if(getView()!=null) {
-//                hideKeyboard(getView());
-//            }
             showSnackbarInfo(R.string.error_not_connected_to_network);
         }
         else {
@@ -321,9 +349,9 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
 
             // upload the fueling
             if (car.getId() == null || !car.getId().isEmpty()) {
-                uploadCarBeforeFueling(car, fueling);
+                uploadCarBeforeFueling(car, fueling, position);
             } else {
-                uploadFueling(fueling);
+                editFueling(fueling, position);
             }
         }
     }
@@ -341,6 +369,7 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
                 }
             }
         });
+
         addFuelingVolumeText.setFilters(new InputFilter[]{
                 new DigitsInputFilter(addFuelingVolumeText, 3, 2)});
         addFuelingVolumeText.setOnFocusChangeListener((v, hasFocus) -> {
@@ -433,7 +462,7 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
         });
     }
 
-    private void uploadCarBeforeFueling(final Car car, final Fueling fueling) {
+    private void uploadCarBeforeFueling(final Car car, final Fueling fueling, int position) {
         subscriptions.add(daoProvider.getSensorDAO()
                 .createCarObservable(car)
                 .subscribeOn(Schedulers.io())
@@ -467,7 +496,7 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
                         dialog.dismiss();
 
                         // car upload was sucessful. Now upload the fueling.
-                        uploadFueling(fueling);
+                        editFueling(fueling, position);
                     }
 
                     @Override
@@ -492,34 +521,34 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
      *
      * @param fueling the fueling to upload.
      */
-    private void uploadFueling(Fueling fueling) {
-        subscriptions.add(daoProvider.getFuelingDAO().createFuelingObservable(fueling)
+    private void editFueling(Fueling fueling, int position) {
+        subscriptions.add(daoProvider.getFuelingDAO()
+                .createFuelingObservable(fueling)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(new DisposableObserver<Void>() {
                     private AlertDialog dialog;
 
-                    @Override
-                    public void onStart() {
-                        LOG.info("Started the creation of a fueling.");
-                        dialog = DialogUtils.createProgressBarDialogBuilder(getContext(),
-                                R.string.logbook_dialog_uploading_fueling_header,
-                                R.drawable.others_logbook_white_24dp,
-                                R.string.logbook_dialog_uploading_fueling_content)
-                                .setCancelable(false)
-                                .show();
-                    }
+//                    @Override
+//                    public void onStart() {
+//                        LOG.info("Started the creation of a fueling.");
+//                        dialog = DialogUtils.createProgressBarDialogBuilder(getContext(),
+//                                R.string.logbook_dialog_uploading_fueling_header,
+//                                R.drawable.others_logbook_white_24dp,
+//                                R.string.logbook_dialog_uploading_fueling_content)
+//                                .setCancelable(false)
+//                                .show();
+//                    }
 
                     @Override
                     public void onComplete() {
                         LOG.info(String.format("Successfully uploaded fueling -> [%s]", fueling
                                 .getRemoteID()));
 
-                        dialog.dismiss();
+//                        dialog.dismiss();
 
-                        ((LogbookUiListener) getActivity()).onFuelingUploaded(fueling);
-                        Intent intent = new Intent(getActivity(), LogbookActivity.class);
-                        startActivity(intent);
+                        ((LogbookUiListener) getActivity()).onFuelingUpdated(fueling, position);
+                        closeThisFragment();
                         showSnackbarInfo(R.string.logbook_fuel_addition_successful);
                     }
 
@@ -660,7 +689,7 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
         ECAnimationUtils.animateHideView(getContext(), R.anim
                 .translate_slide_out_top_fragment, addFuelingToolbar, addFuelingToolbarExp);
         ECAnimationUtils.animateHideView(getContext(), contentScrollview, R.anim
-                .translate_slide_out_bottom, () -> ((LogbookUiListener) getActivity()).onHideAddFuelingCard());
+                .translate_slide_out_bottom, () -> ((LogbookUiListener) getActivity()).onHideEditFuelingCard());
     }
 
     public void hideKeyboard(View view) {

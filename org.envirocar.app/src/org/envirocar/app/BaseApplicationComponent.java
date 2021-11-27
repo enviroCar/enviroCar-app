@@ -43,6 +43,7 @@ import org.envirocar.app.views.carselection.CarSelectionHsnTsnFragment;
 import org.envirocar.app.views.dashboard.DashboardFragment;
 import org.envirocar.app.views.logbook.LogbookActivity;
 import org.envirocar.app.views.logbook.LogbookAddFuelingFragment;
+import org.envirocar.app.views.logbook.LogbookEditFuelingFragment;
 import org.envirocar.app.views.login.SigninActivity;
 import org.envirocar.app.views.login.SignupActivity;
 import org.envirocar.app.views.obdselection.OBDSelectionActivity;
@@ -116,6 +117,7 @@ public interface BaseApplicationComponent {
     void inject(TrackListRemoteCardFragment fragment);
     void inject(CarSelectionAddCarFragment carSelectionAddCarFragment);
     void inject(LogbookAddFuelingFragment logbookAddFuelingFragment);
+    void inject(LogbookEditFuelingFragment logbookEditFuelingFragment);
     void inject(OBDSelectionFragment obdSelectionFragment);
     void inject(OthersFragment othersFragment);
     void inject(CarSelectionHsnTsnFragment hsnTsnFragment);
