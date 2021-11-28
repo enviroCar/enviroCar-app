@@ -26,7 +26,7 @@
     android:orientation="vertical">
 
     <androidx.appcompat.widget.Toolbar
-        android:id="@+id/logbook_layout_addfueling_toolbar"
+        android:id="@+id/logbook_layout_edit_fueling_toolbar"
         style="@style/ToolBarStyle"
         android:layout_width="match_parent"
         android:layout_height="?actionBarSize"
@@ -38,7 +38,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="@string/logbook_add_fueling"
+            android:text="@string/logbook_edit_fueling"
             android:textColor="@color/white_cario"
             android:textSize="18sp"
             android:textStyle="bold"/>
@@ -48,7 +48,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="?actionBarSize"
-        android:id="@+id/activity_log_book_add_fueling_toolbar_exp"
+        android:id="@+id/activity_log_book_edit_fueling_toolbar_exp"
         android:background="@color/blue_dark_cario"
         android:elevation="@dimen/spacing_medium">
 
@@ -73,7 +73,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/white"
-        android:id="@+id/activity_logbook_add_fueling_card_scrollview"
+        android:id="@+id/activity_logbook_edit_fueling_card_scrollview"
         >
 
         <RelativeLayout
@@ -85,7 +85,7 @@
             android:orientation="vertical">
 
             <LinearLayout
-                android:id="@+id/activity_logbook_add_fueling_card_content"
+                android:id="@+id/activity_logbook_edit_fueling_card_content"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginBottom="@dimen/spacing_large"
@@ -117,7 +117,7 @@
                         android:src="@drawable/ic_drive_eta_black_24dp"/>
 
                     <Spinner
-                        android:id="@+id/activity_logbook_add_fueling_car_selection"
+                        android:id="@+id/activity_logbook_edit_fueling_car_selection"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
@@ -166,7 +166,7 @@
                         android:textSize="12sp"/>
 
                     <EditText
-                        android:id="@+id/logbook_add_fueling_milagetext"
+                        android:id="@+id/logbook_edit_fueling_milage_text"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="@dimen/spacing_large"
@@ -200,7 +200,7 @@
                         android:textSize="12sp"/>
 
                     <EditText
-                        android:id="@+id/logbook_add_fueling_volumetext"
+                        android:id="@+id/logbook_edit_fueling_volume_text"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="@dimen/spacing_large"
@@ -234,7 +234,7 @@
                         android:textSize="12sp"/>
 
                     <EditText
-                        android:id="@+id/logbook_add_fueling_priceperlitretext"
+                        android:id="@+id/logbook_edit_fueling_priceperlitre_text"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="@dimen/spacing_large"
@@ -268,7 +268,7 @@
                         android:textSize="12sp"/>
 
                     <EditText
-                        android:id="@+id/logbook_add_fueling_totalpricetext"
+                        android:id="@+id/logbook_edit_fueling_totalprice_text"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="@dimen/spacing_large"
@@ -316,7 +316,7 @@
                         android:layout_weight="2">
 
                         <CheckBox
-                            android:id="@+id/logbook_add_fueling_partialfueling_checkbox"
+                            android:id="@+id/logbook_edit_fueling_partialfueling_checkbox"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_centerHorizontal="true"
@@ -359,7 +359,7 @@
                         android:layout_weight="2">
 
                         <CheckBox
-                            android:id="@+id/logbook_add_fueling_missedfueling_checkbox"
+                            android:id="@+id/logbook_edit_fueling_missedfueling_checkbox"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_centerHorizontal="true"
@@ -406,7 +406,7 @@
                             android:textSize="12sp"/>
 
                         <EditText
-                            android:id="@+id/logbook_add_fueling_comment"
+                            android:id="@+id/logbook_edit_fueling_comment"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:inputType="text"

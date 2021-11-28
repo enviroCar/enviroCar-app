@@ -30,7 +30,6 @@ import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
@@ -96,12 +95,6 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
     @BindView(R.id.layout_general_info_background_secondline)
     protected TextView infoBackgroundSecond;
 
-
-//    @BindView(R.id.activity_logbook_not_logged_in)
-//    protected View notLoggedInView;
-//    @BindView(R.id.activity_logbook_no_fuelings_info_view)
-//    protected View noFuelingsView;
-
     protected LogbookListAdapter fuelingListAdapter;
     protected final List<Fueling> fuelings = new ArrayList<>();
 
@@ -138,12 +131,10 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
                                                @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 final Fueling fueling = fuelings.get(position);
-                int pos  = position;
                 // to pass all the data
-                 final DecimalFormat DECIMAL_FORMATTER = new DecimalFormat("#.##");
+                final DecimalFormat DECIMAL_FORMATTER = new DecimalFormat("#.##");
 
                 String date = DateUtils.getDateString(getApplicationContext(), fueling.getTime());
-                                                   Toast.makeText(getApplicationContext(), date, Toast.LENGTH_SHORT).show();
                 String totalPrice = String.format("%s €", DECIMAL_FORMATTER.format(fueling.getCost()));
                 String pricePerLiter = String.format("%s l/€", DECIMAL_FORMATTER.format(fueling.getCost() / fueling.getVolume()));
                 String kmAndLiter = String.format("%s km", fueling.getMilage());
@@ -154,25 +145,17 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
                         car.getModel(),
                         car.getConstructionYear(),
                         car.getEngineDisplacement());
-//                Toast.makeText(getApplicationContext(),carText, Toast.LENGTH_LONG).show();
                 String comment = fueling.getComment();
-                boolean isComment;
                 boolean isPartial =false;
                 boolean missedPrevious =false;
-//                if (comment == null || comment.isEmpty()) {
-//                    isComment = false;
-//                } else {
-//                    isComment = true;
-//                }
-
                 if (fueling.isMissedFuelStop()) {
                     missedPrevious = true;
                 }
                 if (fueling.isPartialFueling()) {
                     isPartial = true;
                 }
-                LogbookActivity.this.showEditFuelingCard(position, date, totalPrice, pricePerLiter, kmAndLiter, fueledVolume, carText, comment, isPartial, missedPrevious);
-                }
+                    LogbookActivity.this.showEditFuelingCard(position, date, totalPrice, pricePerLiter, kmAndLiter, fueledVolume, carText, comment, isPartial, missedPrevious);
+            }
         });
         fuelingList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
@@ -185,7 +168,7 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
                         .setMessage(R.string.logbook_dialog_delete_fueling_content)
                         .setIcon(R.drawable.ic_delete_fueling_24)
                         .setPositiveButton(R.string.menu_delete,
-                                (dialog, which) -> deleteFueling(fueling))
+                                (dialog, which) -> deleteFueling(fueling,false))
                         .setNegativeButton(R.string.cancel,null)
                         .show();
                 return true;
@@ -220,6 +203,11 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
         if(addFuelingFragment != null && addFuelingFragment.isVisible()){
             addFuelingFragment.closeThisFragment();
             LOG.info("AddFuelingCard was visible. Closing this card...");
+            return;
+        }
+        if(editFuelingFragment != null && editFuelingFragment.isVisible()){
+            editFuelingFragment.closeThisFragment();
+            LOG.info("EditFuelingCard was visible. Closing this card...");
             return;
         }
         super.onBackPressed();
@@ -263,9 +251,10 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
     public void onFuelingUpdated(Fueling fueling,int position ){
         LOG.info("onFuelingUpdated()");
         if (!this.fuelings.contains(fueling)) {
-            final Fueling fueling1 = fuelings.get(position);
-            deleteFueling(fueling1);
-        fuelings.set(position, fueling);
+            final Fueling tempFueling = fuelings.get(position);
+
+            deleteFueling(tempFueling,true);
+            fuelings.set(position, fueling);
             Collections.sort(fuelings);
             fuelingListAdapter.notifyDataSetChanged();
 
@@ -330,7 +319,7 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
      *
      * @param fueling the fueling to delete.
      */
-    private void deleteFueling(final Fueling fueling) {
+    private void deleteFueling(final Fueling fueling, boolean isEdit) {
         subscription.add(daoProvider.getFuelingDAO()
                 .deleteFuelingObservable(fueling)
                 .subscribeOn(Schedulers.io())
@@ -349,8 +338,10 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
                         }
                         fuelingListAdapter.notifyDataSetChanged();
 
-                        // Show a notification about the success.
-                        showSnackbarInfo(R.string.logbook_deletion_success_tmp);
+                        // Show a notification about the success when its not have been deleted while editing.
+                        if(! isEdit) {
+                            showSnackbarInfo(R.string.logbook_deletion_success_tmp);
+                        }
                     }
 
                     @Override
@@ -435,7 +426,7 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.activity_logbook_container, fragment)
                 .commit();
-        LOG.info("AddFuelingCard should now be visible");
+        LOG.info("EditFueling should now be visible");
     }
 
     /**

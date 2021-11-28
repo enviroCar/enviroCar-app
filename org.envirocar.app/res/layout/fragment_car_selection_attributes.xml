@@ -101,7 +101,7 @@
                     android:singleLine="true"
                     android:textColor="@color/black"
                     android:textSize="16dp" />
-
+<!--                &ndash;&gt; TSN & Construction year editText in CarSelection Fragmentcontains non-numerical keyboard-->
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.card.MaterialCardView

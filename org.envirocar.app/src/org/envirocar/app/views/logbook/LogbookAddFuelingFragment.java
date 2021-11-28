@@ -21,7 +21,6 @@ package org.envirocar.app.views.logbook;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
-import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
@@ -156,10 +155,8 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
         addFuelingToolbar.setNavigationIcon(R.drawable.ic_close_white_24dp);
         addFuelingToolbar.inflateMenu(R.menu.menu_logbook_add_fueling);
 
-        addFuelingToolbar.setNavigationOnClickListener(v ->{
-                    closeThisFragment();
-//                    hideKeyboard(v);
-                });
+        addFuelingToolbar.setNavigationOnClickListener(v ->
+                closeThisFragment());
 
         addFuelingToolbar.setOnMenuItemClickListener(item -> {
             onClickAddFueling();
@@ -229,9 +226,6 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
 
         if (!new ContextInternetAccessProvider(getApplicationContext()).isConnected()){
             closeThisFragment();
-//            if(getView()!=null) {
-//                hideKeyboard(getView());
-//            }
             showSnackbarInfo(R.string.error_not_connected_to_network);
         }
         else {
@@ -341,6 +335,7 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
                 }
             }
         });
+
         addFuelingVolumeText.setFilters(new InputFilter[]{
                 new DigitsInputFilter(addFuelingVolumeText, 3, 2)});
         addFuelingVolumeText.setOnFocusChangeListener((v, hasFocus) -> {
@@ -518,8 +513,7 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
                         dialog.dismiss();
 
                         ((LogbookUiListener) getActivity()).onFuelingUploaded(fueling);
-                        Intent intent = new Intent(getActivity(), LogbookActivity.class);
-                        startActivity(intent);
+                        ((LogbookUiListener) getActivity()).onHideAddFuelingCard();
                         showSnackbarInfo(R.string.logbook_fuel_addition_successful);
                     }
 
