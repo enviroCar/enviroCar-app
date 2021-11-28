@@ -388,8 +388,15 @@ public class DashboardFragment extends BaseInjectorFragment {
                         && this.carIndicator.isActivated());
                 break;
         }
-        this.startTrackButtonText.setText(R.string.dashboard_start_track);
-        this.startTrackButton.setEnabled(setEnabled);
+        if(RecordingService.isRunning()) {
+            this.startTrackButtonText.setText(R.string.dashboard_goto_track);
+            this.startTrackButton.setEnabled(true);
+        }
+        else
+        {
+            this.startTrackButtonText.setText(R.string.dashboard_start_track);
+            this.startTrackButton.setEnabled(setEnabled);
+        }
     }
 
     private void setRecordingMode(RecordingType selectedRT) {
