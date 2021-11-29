@@ -181,5 +181,4 @@
     <!--    Extended MapView    -->
     <!-- ###################### -->
     <string name="mapview_extended_select_phenomena">Attribut Selection</string>
-    <string name="logbook_edit_fueling">Edit Fueling</string>
 </resources>

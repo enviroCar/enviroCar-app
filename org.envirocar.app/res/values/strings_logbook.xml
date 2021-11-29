@@ -44,6 +44,7 @@
     <string name="logbook_dialog_uploading_fueling_header">Uploading</string>
     <string name="logbook_dialog_uploading_fueling_car">Registering car type before uploading fueling.</string>
     <string name="logbook_dialog_uploading_fueling_content">Uploading the fueling.</string>
+    <string name="logbook_edit_fueling">Edit Fueling</string>
     <string name="logbook_dialog_editing_fueling_header">Editing</string>
     <string name="logbook_dialog_editing_fueling_content">Editing the fueling.</string>
     <string name="logbook_fuel_edited_successfully">Fueling has been edited successfully.</string>
