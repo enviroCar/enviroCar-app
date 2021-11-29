@@ -305,8 +305,6 @@ public class OBDController {
 
             @Override
             public void onNext(DataResponse dataResponse) {
-                LOG.debug(String.format("Received data response: {%s=%s}", dataResponse.getPid(),
-                        dataResponse.getValue()));
                 pushToEventBus(dataResponse);
             }
         };
