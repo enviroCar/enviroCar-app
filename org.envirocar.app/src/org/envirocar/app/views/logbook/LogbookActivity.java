@@ -19,11 +19,13 @@
 package org.envirocar.app.views.logbook;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.FragmentManager;
 
 import android.view.View;
 import android.widget.AdapterView;
@@ -99,7 +101,7 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
     protected final List<Fueling> fuelings = new ArrayList<>();
 
     private LogbookAddFuelingFragment addFuelingFragment;
-    private LogbookEditFuelingFragment editFuelingFragment;
+    private LogbookEditFuelingFragment editFuelingFragment = new LogbookEditFuelingFragment();
     private final CompositeDisposable subscription = new CompositeDisposable();
 
     @Override
@@ -171,6 +173,7 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
                                 (dialog, which) -> deleteFueling(fueling,false))
                         .setNegativeButton(R.string.cancel,null)
                         .show();
+                // return true so that it itemLongClick and itemClick doesn't collide
                 return true;
             }
         });
@@ -444,11 +447,15 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
     }
     private void hideEditFuelingCard() {
         LOG.info("hideEditFuelingCard()");
-        getSupportFragmentManager()
-                .beginTransaction()
-                .remove(editFuelingFragment)
-                .commit();
-        editFuelingFragment = null;
+
+        // editFuelingFragment giving null, couldn't find a reason :/
+//        getSupportFragmentManager()
+//                .beginTransaction()
+//                .remove(editFuelingFragment)
+//                .commit();
+//        editFuelingFragment = null;
+        Intent intent = new Intent(this, LogbookActivity.class);
+        startActivity(intent);
         ECAnimationUtils.animateShowView(LogbookActivity.this, newFuelingFab, R.anim.fade_in);
         ECAnimationUtils.animateHideView(this, overlayView, R.anim.fade_out);
     }

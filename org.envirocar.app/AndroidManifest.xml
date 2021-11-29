@@ -76,8 +76,7 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".views.BaseMainActivity"
-            android:screenOrientation="portrait"
-            android:launchMode="singleTop"/>
+            android:screenOrientation="portrait" />
         <activity
             android:name=".views.settings.SettingsActivity"
             android:screenOrientation="portrait" />

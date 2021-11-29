@@ -683,8 +683,13 @@ public class LogbookEditFuelingFragment extends BaseInjectorFragment {
 
 
     public void closeThisFragment() {
-        Intent intent = new Intent(getActivity(), LogbookActivity.class);
-        startActivity(intent);
+        // ^^
+        ECAnimationUtils.animateHideView(getContext(),
+                ((LogbookActivity) getActivity()).overlayView, R.anim.fade_out);
+        ECAnimationUtils.animateHideView(getContext(), R.anim
+                .translate_slide_out_top_fragment, editFuelingToolbar, editFuelingToolbarExp);
+        ECAnimationUtils.animateHideView(getContext(), contentScrollview, R.anim
+                .translate_slide_out_bottom, () -> ((LogbookUiListener) getActivity()).onHideEditFuelingCard());
     }
 
     public void hideKeyboard(View view) {
