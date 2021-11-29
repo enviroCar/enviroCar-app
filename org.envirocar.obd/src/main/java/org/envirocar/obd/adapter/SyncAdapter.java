@@ -204,6 +204,9 @@ public abstract class SyncAdapter implements OBDAdapter {
 
                     if (response != null) {
                         LOGGER.debug("isDisposed? " + subscriber.isDisposed());
+                        LOGGER.debug(String.format("Received data response: {%s=%s}",
+                                response.getPid(),
+                                response.getValue()));
                         subscriber.onNext(response);
                     }
                 } catch (IOException e) {
