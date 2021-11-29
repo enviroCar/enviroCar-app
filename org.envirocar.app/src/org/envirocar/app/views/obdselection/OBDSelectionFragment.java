@@ -204,7 +204,15 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
     }
 
     public void requestLocationPermissions() {
-        String[] perms = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION};
+        String[] perms;
+        if (android.os.Build.VERSION.SDK_INT >= 31) {
+            perms = new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.BLUETOOTH_SCAN};
+        }
+        else{
+            perms = new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION};
+        }
+
         if (EasyPermissions.hasPermissions(getContext(), perms)){
             // if location permissions are granted, Check GPS.
             requestGps();
@@ -282,7 +290,14 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
     }
 
     public void checkGpsAfterDialog(){
-        String[] perms = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION};
+        String[] perms;
+        if (android.os.Build.VERSION.SDK_INT >= 31) {
+            perms = new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.BLUETOOTH_SCAN};
+        }
+        else{
+            perms = new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION};
+        }
         final LocationManager manager = (LocationManager) this.getContext().getSystemService(Context.LOCATION_SERVICE);
 
         // Check whether the GPS is turned or not
