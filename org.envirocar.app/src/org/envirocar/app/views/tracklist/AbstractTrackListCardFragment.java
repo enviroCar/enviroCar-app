@@ -55,6 +55,7 @@ import org.envirocar.core.entity.Track;
 import org.envirocar.core.exception.NotConnectedException;
 import org.envirocar.core.exception.UnauthorizedException;
 import org.envirocar.core.logging.Logger;
+import org.envirocar.core.util.FileWithMetadata;
 import org.envirocar.remote.serde.TrackSerde;
 import org.envirocar.core.EnviroCarDB;
 
@@ -167,74 +168,31 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
 
     protected abstract void showNoTracksInfo();
 
-    protected void exportTrack(Track track) {
+    protected void shareTrack(Track track) {
 
         try {
-            if (checkStoragePermissions()) {
-                // Create an sharing intent.
-                Intent sharingIntent = new Intent(Intent.ACTION_SEND);
-                sharingIntent.setType("application/json");
-                //  Uri shareBody = Uri.fromFile(TrackSerde.exportTrack(track).getFile());
-                Uri shareBody = FileProvider.getUriForFile(
-                        getActivity(),
-                        getActivity().getApplicationContext()
-                                .getPackageName() + ".provider", TrackSerde.exportTrack(track).getFile());
-                sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT,
-                        "EnviroCar Track " + track.getName());
-                sharingIntent.putExtra(android.content.Intent.EXTRA_STREAM, shareBody);
-                sharingIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                // Wrap the intent with a chooser.
-                startActivity(Intent.createChooser(sharingIntent, "Share via"));
-            } else {
-                requestStoragePermissions();
-            }
+            // Create export file
+            FileWithMetadata trackFile = TrackSerde.createTrackFile(track,
+                    String.valueOf(getContext().getExternalCacheDir()));
+
+            // Create an sharing intent.
+            Intent sharingIntent = new Intent(Intent.ACTION_SEND);
+            sharingIntent.setType("application/json");
+            //  Uri shareBody = Uri.fromFile(TrackSerde.exportTrack(track).getFile());
+            Uri shareBody = FileProvider.getUriForFile(getContext(),
+                    "org.envirocar.app.provider", trackFile.getFile());
+            sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT,
+                    "EnviroCar Track " + track.getName());
+            sharingIntent.putExtra(android.content.Intent.EXTRA_STREAM, shareBody);
+            sharingIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            // Wrap the intent with a chooser.
+            startActivity(Intent.createChooser(sharingIntent, "Share via"));
 
         } catch (IOException e) {
             LOG.warn(e.getMessage(), e);
             Snackbar.make(getView(),
                     R.string.general_error_please_report,
                     Snackbar.LENGTH_LONG).show();
-        }
-    }
-
-    /**
-     * Return the current state of the permissions needed.
-     */
-    private boolean checkStoragePermissions() {
-        int permissionState = ActivityCompat.checkSelfPermission(getActivity(),
-                Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        return permissionState == PackageManager.PERMISSION_GRANTED;
-    }
-
-    private void requestStoragePermissions() {
-        boolean shouldProvideRationale =
-                ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE);
-
-        // Provide an additional rationale to the getUserStatistic. This would happen if the getUserStatistic denied the
-        // request previously, but didn't check the "Don't ask again" checkbox.
-        if (shouldProvideRationale) {
-            LOG.debug("Requesting Storage permission. Displaying permission rationale to provide additional context.");
-
-            new MaterialAlertDialogBuilder(getContext(), R.style.MaterialDialog)
-                    .setTitle(R.string.request_storage_permission_title)
-                    .setMessage(R.string.permission_rationale_file)
-                    .setIcon(R.drawable.others_settings)
-                    .setPositiveButton(R.string.ok,(dialog, which) -> {
-                        // Request permission
-                        ActivityCompat.requestPermissions(getActivity(),
-                                new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                                REQUEST_STORAGE_PERMISSION_REQUEST_CODE);
-                    })
-                    .show();
-        } else {
-            LOG.info("Requesting permission");
-            // Request permission. It's possible this can be auto answered if device policy
-            // sets the permission in a given state or the getUserStatistic denied the permission
-            // previously and checked "Never ask again".
-            ActivityCompat.requestPermissions(getActivity(),
-                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                    REQUEST_STORAGE_PERMISSION_REQUEST_CODE);
         }
     }
 

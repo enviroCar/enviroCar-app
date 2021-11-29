@@ -196,8 +196,6 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
 
     public void closeThisFragment() {
 
-        ECAnimationUtils.animateHideView(getContext(),
-                ((CarSelectionActivity) getActivity()).overlayView, R.anim.fade_out);
         ECAnimationUtils.animateHideView(getContext(), R.anim
                 .translate_slide_out_top_fragment, toolbar, toolbarExp);
         ECAnimationUtils.animateHideView(getContext(), mViewPager, R.anim

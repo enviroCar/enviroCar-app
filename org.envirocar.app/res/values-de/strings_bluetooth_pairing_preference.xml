@@ -20,12 +20,12 @@
 
 -->
 <resources>
-    <string name="bluetooth_pairing_preference_toolbar_title">Bluetooth Pairing</string>
+    <string name="bluetooth_pairing_preference_toolbar_title">Bluetooth Kopplung</string>
     <string name="select_bluetooth_preference_info_no_device_found">Kein Bluetoothgerät gefunden.</string>
     <string name="bluetooth_pairing_preference_info_searching_devices">Suche nach anderen Bluetoothgeräten...</string>
     <string name="bluetooth_pairing_preference_info_devices_found">%s Bluetooth devices found.</string>
     <string name="bluetooth_pairing_preference_info_device_found">1 Bluetooth device found.</string>
-    <string name="bluetooth_pairing_preference_dialog_remove_pairing">Delete</string>
+    <string name="bluetooth_pairing_preference_dialog_remove_pairing">Löschen</string>
 
     <string name="pref_bt_discovery_interval_title">Set Discovery Interval</string>
     <string name="pref_bt_discovery_interval_explanation">Select the interval (in minutes + seconds) at which the application re-initiates the discovery process.</string>

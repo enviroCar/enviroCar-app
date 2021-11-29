@@ -30,6 +30,6 @@
         android:id="@+id/menu_tracklist_cardlayout_item_upload"
         android:title="@string/track_list_menu_upload" />
     <item
-        android:id="@+id/menu_tracklist_cardlayout_item_export"
-        android:title="@string/track_list_menu_export" />
+        android:id="@+id/menu_tracklist_cardlayout_item_share"
+        android:title="@string/track_list_menu_share" />
 </menu>

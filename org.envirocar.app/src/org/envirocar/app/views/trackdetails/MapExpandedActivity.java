@@ -143,7 +143,7 @@ public class MapExpandedActivity extends BaseInjectorActivity {
 
         options = track.getSupportedProperties();
         for (Measurement.PropertyKey propertyKey : options) {
-            spinnerStrings.add(propertyKey.toString());
+            spinnerStrings.add(getString(propertyKey.getStringResource()));
         }
         spinnerStrings.add("None");
 

@@ -368,6 +368,7 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
                 .commit();
         addFuelingFragment = null;
         ECAnimationUtils.animateShowView(LogbookActivity.this, newFuelingFab, R.anim.fade_in);
+        ECAnimationUtils.animateHideView(this, overlayView, R.anim.fade_out);
     }
 
     private void showSnackbarInfo(int resourceID) {

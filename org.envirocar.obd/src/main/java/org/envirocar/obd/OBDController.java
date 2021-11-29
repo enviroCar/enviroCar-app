@@ -149,7 +149,7 @@ public class OBDController {
         }
 
         LOG.info("Using " + this.obdAdapter.getClass().getSimpleName() + " connector as the " +
-                "preferred adapter.");
+                "preferred adapter for device with name "+ this.deviceName +".");
         startInitialization(false);
     }
 

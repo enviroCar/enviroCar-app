@@ -43,10 +43,8 @@ import org.envirocar.core.logging.Logger;
 import java.util.Collections;
 import java.util.List;
 
-import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 
@@ -142,9 +140,9 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<T
                     }
 
                     @Override
-                    public void onExportTrackClicked(Track track) {
+                    public void onShareTrackClicked(Track track) {
                         LOG.info(String.format("onExportTrackClicked(%s)", track.getTrackID()));
-                        exportTrack(track);
+                        shareTrack(track);
                     }
 
                     @Override

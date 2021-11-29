@@ -46,7 +46,7 @@ interface OnTrackInteractionCallback {
     /**
      * @param track the track to export.
      */
-    void onExportTrackClicked(Track track);
+    void onShareTrackClicked(Track track);
 
     /**
      * @param track the track to download.

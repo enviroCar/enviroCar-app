@@ -71,7 +71,7 @@ public class LocalFileHandler implements Handler {
 
 	public LocalFileHandler(String path) throws IOException {
 		this.logger = java.util.logging.Logger.getLogger("org.envirocar.app");
-		effectiveFile = Util.createFileOnInternalStorage(path, LOCAL_LOG_FILE);
+		effectiveFile = Util.createFileOnStorage(path, LOCAL_LOG_FILE);
 		String finalPath = ensureFileIsAvailable();
 		this.logger.setLevel(Level.ALL);
 		this.logger.addHandler(createHandler(finalPath));

@@ -113,14 +113,6 @@
 
             </LinearLayout>
 
-            <!-- Overlay that dims the screen -->
-            <FrameLayout
-                android:id="@+id/overlay"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="#3f3f3f3f"
-                android:visibility="gone"/>
-
         </RelativeLayout>
     </LinearLayout>
 

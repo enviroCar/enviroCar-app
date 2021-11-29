@@ -162,7 +162,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
             }
 
             @Override
-            public void onExportTrackClicked(Track track) {
+            public void onShareTrackClicked(Track track) {
                 LOG.info(String.format("onExportTrackClicked(%s)", track.getTrackID()));
                 if (mUserManager.getUser() != null) {
                     track.updateMetadata(new TrackMetadata(Util.getVersionString(getActivity()),
@@ -172,7 +172,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
                             null));
 
                 }
-                exportTrack(track);
+                shareTrack(track);
             }
 
             @Override
