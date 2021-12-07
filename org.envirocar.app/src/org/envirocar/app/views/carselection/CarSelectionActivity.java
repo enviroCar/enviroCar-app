@@ -32,6 +32,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.RadioButton;
 import android.widget.TextView;
 
 import org.envirocar.app.BaseApplicationComponent;
@@ -240,7 +241,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
                     }
 
                     @Override
-                    public void onDeleteCar(Car car) {
+                    public void onDeleteCar(Car car, RadioButton mSelectedButton) {
                         LOG.info(String.format("onDeleteCar(%s %s %s %s)",
                                 car.getManufacturer(), car.getModel(),
                                 "" + car.getConstructionYear(),
@@ -262,9 +263,11 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
                                             showBackgroundImage();
                                         }
                                     }
+                                    if(mSelectedButton != null) {
+                                        mSelectedButton.setChecked(false);
+                                    }
                                     // then remove it from the list and show a snackbar.
                                     mCarListAdapter.removeCarItem(car);// Nothing to do on cancel
-
                                 })
                                 .setNegativeButton(R.string.cancel,null)
                                 .show();

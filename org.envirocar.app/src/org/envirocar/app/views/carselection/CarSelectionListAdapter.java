@@ -62,7 +62,7 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
          *
          * @param car the selected car.
          */
-        void onDeleteCar(Car car);
+        void onDeleteCar(Car car, RadioButton mSelectedButton);
     }
 
     /**
@@ -159,13 +159,17 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
                             // Uncheck the the previously checked radio button and update the
                             // references accordingly.
                             if (car.equals(mSelectedCar)) {
+                                // Call the callback
                                 mSelectedCar = null;
-                                mSelectedButton.setChecked(false);
-                                mSelectedButton = null;
+                                mCallback.onDeleteCar(car, mSelectedButton);
+
                             }
 
-                            // Call the callback
-                            mCallback.onDeleteCar(car);
+                            else{
+                                mCallback.onDeleteCar(car,mSelectedButton);
+                            }
+
+
                             break;
                         case 1:
                             if(car.equals(mSelectedCar))
