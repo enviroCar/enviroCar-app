@@ -58,11 +58,19 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
         void onSelectCar(Car car);
 
         /**
+         * Called whenever a car should be deselected.
+         *
+         * @param car the selected car.
+         */
+        void onDeselectCar(Car car);
+
+        /**
          * Called whenever a car should be deleted.
          *
          * @param car the selected car.
          */
         void onDeleteCar(Car car);
+
     }
 
     /**
@@ -144,7 +152,7 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
         Resources res = getContext().getResources();
         String[] state;
         if (mSelectedCar != null && mSelectedCar.equals(car)) {
-            state = res.getStringArray(R.array.car_list_option_item_Delete_car);
+            state = res.getStringArray(R.array.selected_car_list_option_items);
         }
         else{
             state = res.getStringArray(R.array.car_list_option_items);
@@ -168,8 +176,15 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
                             mCallback.onDeleteCar(car);
                             break;
                         case 1:
+                            // deselect the car if its selected
                             if(car.equals(mSelectedCar))
+                            {
+                                mSelectedCar = null;
+                                mSelectedButton.setChecked(false);
+                                mSelectedButton= null;
+                                mCallback.onDeselectCar(car);
                                 return;
+                            }
 
                             // Uncheck the currently checked car.
                             if (mSelectedButton != null) {
