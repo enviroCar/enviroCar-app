@@ -26,6 +26,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -341,7 +342,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
      */
     private class UploadTrackDialogObserver extends DisposableObserver<Track> {
         private View contentView;
-        private MaterialDialog dialog;
+        private AlertDialog dialog;
         private Track track;
 
         /**
@@ -363,12 +364,11 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
         protected void onStart() {
             super.onStart();
             // Create the dialog to show.
-            this.dialog = new MaterialDialog.Builder(getContext())
-                    .title(R.string.track_list_upload_track_uploading)
-                    .customView(contentView, false)
-                    .cancelable(false)
-                    .negativeText(R.string.cancel)
-                    .onNegative((materialDialog, dialogAction) -> {
+            this.dialog = new MaterialAlertDialogBuilder(requireActivity(), R.style.MaterialDialog)
+                                .setTitle(R.string.track_list_upload_track_uploading)
+                    .setIcon(R.drawable.ic_cloud_upload_white_24dp)
+                    .setView(contentView)
+                    .setNegativeButton(R.string.cancel,(materialDialog, dialogAction) -> {
                         dispose();
                     })
                     .show();
@@ -446,7 +446,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
         private ProgressBar progressBar;
         private TextView percentageText;
         private TextView progressText;
-        private MaterialDialog dialog;
+        private AlertDialog dialog;
         private View contentView;
 
         /**
@@ -473,11 +473,13 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
                 return;
 
             updateProgressView(0);
-            dialog = new MaterialDialog.Builder(getContext())
-                    .title(R.string.track_list_upload_track_uploading)
-                    .customView(contentView, false)
-                    .negativeText(R.string.cancel)
-                    .onNegative((dialog, dialogAction) -> dispose())
+            dialog =  new MaterialAlertDialogBuilder(requireActivity(), R.style.MaterialDialog)
+                    .setTitle(R.string.track_list_upload_track_uploading)
+                    .setIcon(R.drawable.ic_cloud_upload_white_24dp)
+                    .setView(contentView)
+                    .setNegativeButton(R.string.cancel,(materialDialog, dialogAction) -> {
+                        dispose();
+                    })
                     .show();
         }
 
