@@ -254,26 +254,23 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
                                 .setMessage(String.format(getString(R.string.car_deselection_dialog_delete_pairing_content_template),
                                         car.getManufacturer(), car.getModel()))
                                 .setIcon(R.drawable.ic_drive_eta_white_24dp)
-                                .setPositiveButton(R.string.car_deselection_dialog_delete_title, new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        // If the car has been removed successfully...
-                                        if (mCarManager.removeCar(car)) {
-                                            showSnackbar(String.format(
-                                                    getString(R.string.car_selection_car_deleted_tmp),
-                                                    car.getManufacturer(), car.getModel()));
-                                            if (!mCarManager.hasCars()) {
-                                                showBackgroundImage();
-                                            }
+                                .setPositiveButton(R.string.car_deselection_dialog_delete_title, (dialog, which) -> {
+                                    // If the car has been removed successfully...
+                                    if (mCarManager.removeCar(car)) {
+                                        showSnackbar(String.format(
+                                                getString(R.string.car_selection_car_deleted_tmp),
+                                                car.getManufacturer(), car.getModel()));
+                                        if (!mCarManager.hasCars()) {
+                                            showBackgroundImage();
                                         }
-                                        if (mSelectedButton != null) {
-                                            mSelectedButton.setChecked(false);
-                                            // making the mSelectedButton null so there are no references of old deleted car
-                                            makeSelectedButtonNull(mSelectedButton);
-                                        }
-                                        // then remove it from the list and show a snackbar.
-                                        mCarListAdapter.removeCarItem(car);// Nothing to do on cancel
                                     }
+                                    if (mSelectedButton != null) {
+                                        mSelectedButton.setChecked(false);
+                                        // making the mSelectedButton null so there are no references of old deleted car
+                                        makeSelectedButtonNull(mSelectedButton);
+                                    }
+                                    // then remove it from the list and show a snackbar.
+                                    mCarListAdapter.removeCarItem(car);// Nothing to do on cancel
                                 })
                                 .setNegativeButton(R.string.cancel,null)
                                 .show();
