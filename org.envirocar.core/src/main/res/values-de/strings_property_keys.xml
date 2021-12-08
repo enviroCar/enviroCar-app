@@ -49,5 +49,9 @@
     <string name="property_key_fuel_system_status_code">Fuel System Status Code</string>
     <string name="property_key_long_term_trim_1">Long-Term Fuel Trim 1</string>
     <string name="property_key_short_term_trim_1">Short-Term Fuel Trim 1</string>
+    <string name="property_key_min_acceleration">Minimale Beschleunigung</string>
+    <string name="property_key_max_acceleration">Maximale Beschleunigung</string>
+    <string name="property_key_min_gps_acceleration">Minimale GPS Beschleunigung</string>
+    <string name="property_key_max_gps_acceleration">Maximale GPS Beschleunigung</string>
 
 </resources>
