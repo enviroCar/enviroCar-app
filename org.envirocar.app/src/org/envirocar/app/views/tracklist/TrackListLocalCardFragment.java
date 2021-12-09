@@ -18,10 +18,7 @@
  */
 package org.envirocar.app.views.tracklist;
 
-import android.content.Context;
 import android.content.DialogInterface;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
@@ -32,7 +29,6 @@ import androidx.annotation.Nullable;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.snackbar.Snackbar;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.BaseApplication;
@@ -44,6 +40,7 @@ import org.envirocar.app.interactor.UploadAllTracks;
 import org.envirocar.app.interactor.UploadTrack;
 import org.envirocar.app.views.trackdetails.TrackDetailsActivity;
 import org.envirocar.app.views.utils.ECAnimationUtils;
+import org.envirocar.core.ContextInternetAccessProvider;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.events.TrackFinishedEvent;
 import org.envirocar.core.exception.TrackUploadException;
@@ -84,6 +81,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
 
     private Disposable loadTracksSubscription;
     private Disposable uploadTrackSubscription;
+    private final ContextInternetAccessProvider contextInternetAccessProvider = new ContextInternetAccessProvider(getContext());
 
     @Override
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
@@ -122,6 +120,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
 
     @OnClick(R.id.fragment_tracklist_fab)
     protected void onUploadTracksFABClicked() {
+
         new MaterialAlertDialogBuilder(getContext(), R.style.MaterialDialog)
                 .setTitle(R.string.track_list_upload_all_tracks_title)
                 .setMessage(R.string.track_list_upload_all_tracks_content)
@@ -160,6 +159,12 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
             @Override
             public void onUploadTrackClicked(Track track) {
                 LOG.info(String.format("onUploadTrackClicked(%s)", track.getTrackID()));
+                // check if device is connected to internet before uploading the track
+                if (!contextInternetAccessProvider.isConnected() && getView() != null) {
+                    LOG.info("There is no internet connected, no tracks got uploaded");
+                    showSnackbar(R.string.track_list_upload_error_no_network_connection);
+                    return;
+                }
                 // Upload the track
                 onUploadSingleTrack(track);
             }
@@ -263,9 +268,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
                                     R.string.track_list_bg_error,
                                     R.string.track_list_bg_error_sub);
 
-                            Snackbar.make(getView(),
-                                    R.string.track_list_loading_tracks_error_snackbar,
-                                    Snackbar.LENGTH_LONG).show();
+                            showSnackbar(R.string.track_list_loading_tracks_error_snackbar);
                         }
 
                         @Override
@@ -329,12 +332,17 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
     }
 
     private void onUploadAllLocalTracks(DialogInterface dialog, int which) {
+        // check if device is connected to internet before uploading the track
+        if (!contextInternetAccessProvider.isConnected() && getView() != null) {
+            LOG.info("There is no internet connected, no tracks got uploaded");
+            showSnackbar(R.string.track_list_upload_error_no_network_connection);
+            return;
+        }
         if (uploadTrackSubscription != null && !uploadTrackSubscription.isDisposed()) {
             uploadTrackSubscription.dispose();
             uploadTrackSubscription = null;
         }
-
-
+        
         int localTracksCount = mEnvirocarDB.getAllLocalTracksCount().blockingFirst();
         uploadTrackSubscription = uploadAllTracks.execute(getActivity())
                 .subscribeWith(new UploadTracksDialogObserver(localTracksCount));
@@ -366,18 +374,17 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
         @Override
         protected void onStart() {
             super.onStart();
-            // Create the dialog to show.
-            this.dialog = new MaterialDialog.Builder(getContext())
-                    .title(R.string.track_list_upload_track_uploading)
-                    .customView(contentView, false)
-                    .cancelable(false)
-                    .negativeText(R.string.cancel)
-                    .onNegative((materialDialog, dialogAction) -> {
-                        dispose();
-                    })
-                    .show();
+                // Create the dialog to show.
+                this.dialog = new MaterialDialog.Builder(getContext())
+                        .title(R.string.track_list_upload_track_uploading)
+                        .customView(contentView, false)
+                        .cancelable(false)
+                        .negativeText(R.string.cancel)
+                        .onNegative((materialDialog, dialogAction) -> {
+                            dispose();
+                        })
+                        .show();
         }
-
         @Override
         public void onNext(Track track) {
             // Update the lists.
@@ -391,13 +398,6 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
         @Override
         public void onError(Throwable e) {
             LOG.warn(e.getMessage(), e);
-            if (!isNetworkAvailable() && getView()!=null) {
-                Snackbar.make(getView(),
-                        R.string.track_list_upload_error_no_network_connection,
-                        Snackbar.LENGTH_LONG)
-                        .show();
-            }
-            else
             if (e instanceof TrackUploadException) {
                 switch (((TrackUploadException) e).getReason()) {
                     case NOT_ENOUGH_MEASUREMENTS:
@@ -409,10 +409,9 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
                     case TRACK_ALREADY_UPLOADED:
                         showSnackbar(R.string.track_list_upload_error_already_uploaded);
                         break;
-                    //  I couldn't find any reasons why its not working
-//                    case NO_NETWORK_CONNECTION:
-//                        showSnackbar(R.string.track_list_upload_error_no_network_connection);
-//                        break;
+                    case NO_NETWORK_CONNECTION:
+                        showSnackbar(R.string.track_list_upload_error_no_network_connection);
+                        break;
                     case NOT_LOGGED_IN:
                         showSnackbar(R.string.track_list_upload_error_not_logged_in);
                         break;
@@ -542,17 +541,8 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
         public void onError(Throwable e) {
             if (isDisposed())
                 return;
-            if (!isNetworkAvailable() && getView()!=null) {
-                Snackbar.make(getView(),
-                        R.string.track_list_upload_error_no_network_connection,
-                        Snackbar.LENGTH_LONG)
-                        .show();
-            }
-            else {
-                Snackbar.make(getView(),
-                        R.string.track_list_local_track_general_error,
-                        Snackbar.LENGTH_LONG)
-                        .show();            }
+
+            showSnackbar(R.string.track_list_local_track_general_error);
             dialog.dismiss();
         }
 
@@ -563,11 +553,5 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
             percentageText.setText((progress / numTracks) * 100 + "%");
             progressText.setText(progress + " / " + numTracks);
         }
-    }
-    private boolean isNetworkAvailable() {
-        ConnectivityManager connectivityManager
-                = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 }

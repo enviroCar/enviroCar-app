@@ -148,7 +148,7 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
 
         // init state
         this.bluetoothImage.setSelected(false);
-        this.gpsImage.setEnabled(true);
+        this.gpsImage.setEnabled(false);
 
         // set keep screen on setting
         boolean keepScreenOn = ApplicationSettings.getDisplayStaysActiveObservable(this).blockingFirst();
