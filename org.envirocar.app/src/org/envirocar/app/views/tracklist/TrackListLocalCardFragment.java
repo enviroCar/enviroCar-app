@@ -41,6 +41,7 @@ import org.envirocar.app.injection.modules.MainActivityModule;
 import org.envirocar.app.interactor.UploadAllTracks;
 import org.envirocar.app.interactor.UploadTrack;
 import org.envirocar.app.views.trackdetails.TrackDetailsActivity;
+import org.envirocar.app.views.utils.DialogUtils;
 import org.envirocar.app.views.utils.ECAnimationUtils;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.events.TrackFinishedEvent;
@@ -364,11 +365,11 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
         protected void onStart() {
             super.onStart();
             // Create the dialog to show.
-            this.dialog = new MaterialAlertDialogBuilder(requireActivity(), R.style.MaterialDialog)
-                                .setTitle(R.string.track_list_upload_track_uploading)
-                    .setIcon(R.drawable.ic_cloud_upload_white_24dp)
-                    .setView(contentView)
-                    .setNegativeButton(R.string.cancel,(materialDialog, dialogAction) -> {
+            this.dialog = DialogUtils.createProgressBarDialogBuilder(getContext(),
+                    R.string.track_list_upload_track_uploading,
+                    R.drawable.ic_cloud_upload_white_24dp,
+                    getString(R.string.track_list_upload_track_content)+"\n" +track.getName())
+                    .setNegativeButton(R.string.cancel,(dialog, which) -> {
                         dispose();
                     })
                     .show();
