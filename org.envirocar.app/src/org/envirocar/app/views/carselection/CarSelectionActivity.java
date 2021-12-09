@@ -266,18 +266,12 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
                                     }
                                     if (mSelectedButton != null) {
                                         mSelectedButton.setChecked(false);
-                                        // making the mSelectedButton null so there are no references of old deleted car
-                                        makeSelectedButtonNull(mSelectedButton);
                                     }
                                     // then remove it from the list and show a snackbar.
                                     mCarListAdapter.removeCarItem(car);// Nothing to do on cancel
                                 })
                                 .setNegativeButton(R.string.cancel,null)
                                 .show();
-                    }
-                    public void makeSelectedButtonNull(RadioButton mSelectedButton)
-                    {
-                        mSelectedButton = null;
                     }
                 });
         mCarListView.setAdapter(mCarListAdapter);
