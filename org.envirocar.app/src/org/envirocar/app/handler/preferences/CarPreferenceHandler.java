@@ -265,7 +265,35 @@ public class CarPreferenceHandler implements LifecycleObserver {
         flushCarListState();
         return true;
     }
+    /**
+     *
+     * @param car the car to deselect from the shared preferences.
+     * @return true if the car has been successfully deselected.
+     */
+    public boolean deselectCar(Car car) {
+        LOG.info(String.format("deselectCar(%s %s)", car.getManufacturer(), car.getModel()));
 
+        // If the car type equals the selected car, then set it to null and fire an event on the
+        // event bus.
+        if (mSelectedCar != null && mSelectedCar.equals(car)) {
+            LOG.info(String.format("%s %s equals the selected car type.",
+                    car.getManufacturer(), car.getModel()));
+
+            // Set the selected car to null and flush the car state.
+            mSelectedCar = null;
+            flushSelectedCarState();
+            mBus.post(new NewCarTypeSelectedEvent(null));
+        }
+
+
+        // Return false when the car is not contained in the set.
+        if (!mDeserialzedCars.contains(car))
+            return false;
+
+        // Finally flush the state to shared preferences
+        flushCarListState();
+        return true;
+    }
     /**
      * Returns true if there already are some cars created.
      *

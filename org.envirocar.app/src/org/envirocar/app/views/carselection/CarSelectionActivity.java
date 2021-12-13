@@ -240,6 +240,17 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
                     }
 
                     @Override
+                    public void onDeselectCar(Car car){
+                        Car selectedCar = mCarManager.getCar();
+                        mCarManager.deselectCar(car);
+                        mCarListAdapter.notifyDataSetChanged();
+
+                        // Show Snackbar.
+                        showSnackbar(String.format(getString(R.string.car_selection_car_deselected),
+                                car.getManufacturer(), car.getModel()));
+                    }
+
+                    @Override
                     public void onDeleteCar(Car car) {
                         LOG.info(String.format("onDeleteCar(%s %s %s %s)",
                                 car.getManufacturer(), car.getModel(),

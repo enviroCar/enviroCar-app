@@ -27,6 +27,7 @@
     <string name="car_selection_header">Fahrzeug Auswahl</string>
 
     <string name="car_selection_car_selected" formatted="true">%s %s ausgewählt.</string>
+    <string name="car_selection_car_deselected" formatted="true">%s %s wurde nicht ausgewählt.</string>
     <string name="car_selection_car_deleted_tmp" formatted="true">%s %s gelöscht.</string>
     <string name="car_selection_car_selected_after_add" formatted="true">%s %s wurde hinzugefügt und als mein Auto ausgewählt.</string>
     <string name="car_selection_successfully_added_tmp" formatted="true">%s %s wurde hinzugefügt.</string>
