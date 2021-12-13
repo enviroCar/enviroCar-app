@@ -41,6 +41,7 @@ import org.envirocar.app.interactor.UploadAllTracks;
 import org.envirocar.app.interactor.UploadTrack;
 import org.envirocar.app.views.trackdetails.TrackDetailsActivity;
 import org.envirocar.app.views.utils.ECAnimationUtils;
+import org.envirocar.core.ContextInternetAccessProvider;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.events.TrackFinishedEvent;
 import org.envirocar.core.exception.TrackUploadException;
@@ -81,6 +82,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
 
     private Disposable loadTracksSubscription;
     private Disposable uploadTrackSubscription;
+    private final ContextInternetAccessProvider contextInternetAccessProvider = new ContextInternetAccessProvider(getContext());
 
     @Override
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
@@ -157,6 +159,13 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
             @Override
             public void onUploadTrackClicked(Track track) {
                 LOG.info(String.format("onUploadTrackClicked(%s)", track.getTrackID()));
+
+                // check if device is connected to internet before uploading the track
+                if (!contextInternetAccessProvider.isConnected() && getView() != null) {
+                    LOG.info("There is no internet connected, no tracks got uploaded");
+                    showSnackbar(R.string.track_list_upload_error_no_network_connection);
+                    return;
+                }
                 // Upload the track
                 onUploadSingleTrack(track);
             }
@@ -260,9 +269,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
                                     R.string.track_list_bg_error,
                                     R.string.track_list_bg_error_sub);
 
-                            Snackbar.make(getView(),
-                                    R.string.track_list_loading_tracks_error_snackbar,
-                                    Snackbar.LENGTH_LONG).show();
+                            showSnackbar(R.string.track_list_loading_tracks_error_snackbar);
                         }
 
                         @Override
@@ -326,6 +333,12 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
     }
 
     private void onUploadAllLocalTracks(DialogInterface dialog, int which) {
+        // check if device is connected to internet before uploading the track
+        if (!contextInternetAccessProvider.isConnected() && getView() != null) {
+            LOG.info("There is no internet connected, no tracks got uploaded");
+            showSnackbar(R.string.track_list_upload_error_no_network_connection);
+            return;
+        }
         if (uploadTrackSubscription != null && !uploadTrackSubscription.isDisposed()) {
             uploadTrackSubscription.dispose();
             uploadTrackSubscription = null;
@@ -531,7 +544,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
             if (isDisposed())
                 return;
 
-            showSnackbar("An error occurred during the upload process.");
+            showSnackbar(R.string.track_list_local_track_general_error);
             dialog.dismiss();
         }
 

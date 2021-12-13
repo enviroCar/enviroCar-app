@@ -31,7 +31,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.Toast;
 
 import com.mapbox.android.core.location.LocationEngineRequest;
 import com.mapbox.android.core.permissions.PermissionsListener;
@@ -61,6 +60,7 @@ import org.envirocar.app.injection.modules.MainActivityModule;
 import org.envirocar.app.R;
 import org.envirocar.app.events.TrackPathOverlayEvent;
 import org.envirocar.app.injection.BaseInjectorFragment;
+import org.envirocar.app.views.obdselection.OBDSelectionFragment;
 import org.envirocar.app.views.trackdetails.MapLayer;
 import org.envirocar.core.logging.Logger;
 
@@ -330,7 +330,7 @@ public class TrackMapFragment extends BaseInjectorFragment implements Permission
 
     @Override
     public void onExplanationNeeded(List<String> permissionsToExplain) {
-        Toast.makeText(getContext(), "We need access to your location.", Toast.LENGTH_SHORT).show();
+        showSnackbar("We need access to your location.");
     }
 
     @Override
@@ -343,7 +343,7 @@ public class TrackMapFragment extends BaseInjectorFragment implements Permission
                 }
             });
         } else {
-            Toast.makeText(getContext(), "Location access not granted", Toast.LENGTH_LONG).show();
+            showSnackbar("Location access not granted");
         }
     }
 
@@ -397,4 +397,13 @@ public class TrackMapFragment extends BaseInjectorFragment implements Permission
         mMapView.onLowMemory();
     }
 
+    /**
+     * Shows a snackbar with a given text.
+     *
+     * @param text the text to show in the snackbar.
+     */
+    private void showSnackbar(String text) {
+        if (getActivity() instanceof OBDSelectionFragment.ShowSnackbarListener)
+            ((OBDSelectionFragment.ShowSnackbarListener) getActivity()).showSnackbar(text);
+    }
 }

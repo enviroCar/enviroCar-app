@@ -22,7 +22,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
-import android.widget.Toast;
 
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
@@ -33,6 +32,7 @@ import com.squareup.otto.Produce;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.handler.DAOProvider;
+import org.envirocar.app.views.obdselection.OBDSelectionFragment;
 import org.envirocar.core.ContextInternetAccessProvider;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Track;
@@ -67,6 +67,7 @@ import io.reactivex.Observable;
  */
 @Singleton
 public class CarPreferenceHandler implements LifecycleObserver {
+
     private static final Logger LOG = Logger.getLogger(CarPreferenceHandler.class);
     private static final String PREFERENCE_TAG_DOWNLOADED = "cars_downloaded";
 
@@ -340,7 +341,7 @@ public class CarPreferenceHandler implements LifecycleObserver {
 
         } catch (Exception e) {
             //TODO i18n
-            Toast.makeText(mContext, "Not all values were defined.", Toast.LENGTH_SHORT).show();
+            showSnackbar("Not all values were defined");
             return;
         }
 
@@ -479,4 +480,13 @@ public class CarPreferenceHandler implements LifecycleObserver {
         return new NewCarTypeSelectedEvent(getCar());
     }
 
+    /**
+     * Shows a snackbar with a given text.
+     *
+     * @param text the text to show in the snackbar.
+     */
+    private void showSnackbar(String text) {
+        if (this instanceof OBDSelectionFragment.ShowSnackbarListener)
+            ((OBDSelectionFragment.ShowSnackbarListener) this).showSnackbar(text);
+    }
 }

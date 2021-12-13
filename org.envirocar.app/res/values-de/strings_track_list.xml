@@ -32,6 +32,7 @@
     <string name="track_list_upload_track_uploading">Fahrt wird hochgeladen</string>
     <string name="track_list_upload_track_no_measurements">Die Fahrt enthält nicht genug Messungen, um diese anonymisiert hochzuladen.</string>
     <string name="track_list_upload_track_general_error">Fehler während des Hochladens. Versuchen Sie es später erneut.</string>
+    <string name="track_list_local_track_general_error">Während des Uploadvorgangs ist ein Fehler aufgetreten.</string>
     <string name="track_list_upload_track_content">Die folgende Fahrt wird als Open Data auf den enviroCar Server hochgeladen: </string>
     <string name="track_list_upload_track_success_template">Die Fahrt \'%s\' wurde erfolgreich hochgeladen.</string>
 
