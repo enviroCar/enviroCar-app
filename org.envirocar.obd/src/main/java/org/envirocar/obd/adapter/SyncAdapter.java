@@ -282,17 +282,17 @@ public abstract class SyncAdapter implements OBDAdapter {
             int posOfSpeed = -1;
             PIDCommand speedCmd = null;
             for (PID p : PID.values()) {
-                addIfSupported(p);
 
                 if (p == PID.SPEED) {
+                    addIfSupported(p);
                     posOfSpeed = requestCommands.size() - 1;
                     speedCmd = requestCommands.get(posOfSpeed);
                 }
             }
 
             // add speed another time for improved frequency
-            if (posOfSpeed > 0 && speedCmd != null) {
-                targetPos = ((requestCommands.size() / 2) + posOfSpeed + 1) % requestCommands.size();
+            if (posOfSpeed >= 0 && speedCmd != null) {
+                int targetPos = ((requestCommands.size() / 2) + posOfSpeed + 1) % requestCommands.size();
                 requestCommands.add(targetPos, speedCmd);
             }
 
