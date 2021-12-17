@@ -1,0 +1,21 @@
+FROM mingc/android-build-box:1.24.0
+
+RUN mkdir /app
+WORKDIR /app
+
+# rm the NDK because it breaks the build
+RUN rm -rf /opt/android-sdk/ndk/current
+RUN rm -rf /opt/android-sdk/ndk/23.1.7779620
+
+COPY ./gradle /app/gradle
+COPY ./gradlew /app
+COPY ./gradle.properties /app
+COPY ./settings.gradle /app
+COPY ./build.gradle /app
+
+# add a step that downloads the latest gradle wrapper before the actual build
+RUN ./gradlew help
+
+COPY . /app
+
+RUN ./gradlew build
