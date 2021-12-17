@@ -90,4 +90,9 @@
     <string name="pref_gps_mode_ar_title">Automatische GPS Aufzeichnung</string>
     <string name="pref_gps_mode_ar_summary">Aktiviert die automatische Aufzeichnung von GPS-basierten Fahrten basierend auf Mechanismen der Aktivitätserkennung.\n\nHinweis: Diese Androidfunktion läuft bei einigen Smartphonemodellen nicht zuverlässig.</string>
 
+    <!-- Campaign Settings-->
+    <string name="pref_measurement_campaign">Messkampagne</string>
+    <string name="pref_dvfo_campaign">DVFO Kampagne</string>
+    <string name="pref_dvfo_campaign_sub">Aktiviert das Messprofil für die DVFO Kampagne.</string>
+
 </resources>

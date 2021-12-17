@@ -89,4 +89,9 @@
 
     <string name="pref_gps_mode_ar_title">Automatic Recording (GPS)</string>
     <string name="pref_gps_mode_ar_summary">Activates automatic recording of GPS-based trips based on activity detection mechanisms.\n\nNote: This Android function does not work reliably on some smartphone models.</string>
+
+    <!-- Campaign Settings-->
+    <string name="pref_measurement_campaign">Measurement Campaign</string>
+    <string name="pref_dvfo_campaign">DVFO Campaign</string>
+    <string name="pref_dvfo_campaign_sub">Enables the measurement profile for the DVFO campaign.</string>
 </resources>

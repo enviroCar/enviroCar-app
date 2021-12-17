@@ -117,4 +117,14 @@
             app:iconSpaceReserved="false" />
     </PreferenceCategory>
 
+    <PreferenceCategory
+        android:title="@string/pref_measurement_campaign"
+        app:iconSpaceReserved="false">
+        <CheckBoxPreference
+            android:key="@string/prefkey_dvfo_campaign"
+            android:summary="@string/pref_dvfo_campaign_sub"
+            android:title="@string/pref_dvfo_campaign"
+            app:iconSpaceReserved="false" />
+    </PreferenceCategory>
+
 </PreferenceScreen>
