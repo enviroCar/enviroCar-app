@@ -74,7 +74,7 @@ public class BluetoothPairingPreference extends DialogPreference {
     @BindView(R.id.bluetooth_pairing_preference_available_devices_list)
     public ListView mNewDevicesListView;
 
-    // No device found.
+    // No device fou            showSnackbar("Bluetooth is disabled. Please enable Bluetooth before " +nd.
     @BindView(R.id.bluetooth_pairing_preference_available_devices_info)
     public TextView mNewDevicesInfoTextView;
     @BindView(R.id.bluetooth_pairing_preference_search_devices_progressbar)
@@ -258,8 +258,7 @@ public class BluetoothPairingPreference extends DialogPreference {
         // If bluetooth is not enabled, skip the discovery and show a snackbar.
         if (!mBluetoothHandler.isBluetoothEnabled()) {
             LOGGER.debug("startBluetoothDiscovery(): Bluetooth is disabled!");
-            showSnackbar("Bluetooth is disabled. Please enable Bluetooth before " +
-                    "discovering for other devices.");
+            showSnackbar(getContext().getString(R.string.obd_selection_bluetooth_disabled_snackbar));
             return;
         }
 
@@ -274,7 +273,7 @@ public class BluetoothPairingPreference extends DialogPreference {
                 .subscribeWith(new DisposableObserver<BluetoothDevice>() {
                     @Override
                     public void onStart() {
-                        LOGGER.info("Blutooth discovery started.");
+                        LOGGER.info(getContext().getString(R.string.obd_selection_discovery_started));
 
                         // Show the progressbar
                         mProgressBar.setVisibility(View.VISIBLE);
@@ -283,12 +282,12 @@ public class BluetoothPairingPreference extends DialogPreference {
                         mNewDevicesInfoTextView.setText(R.string
                                 .bluetooth_pairing_preference_info_searching_devices);
 
-                        showSnackbar("Discovery Started!");
+                        showSnackbar(getContext().getString(R.string.obd_selection_discovery_started));
                     }
 
                     @Override
                     public void onComplete() {
-                        LOGGER.info("Bluetooth discovery finished.");
+                        LOGGER.info(getContext().getString(R.string.obd_selection_discovery_finished));
 
                         // Dismiss the progressbar.
                         mProgressBar.setVisibility(View.GONE);
@@ -307,7 +306,7 @@ public class BluetoothPairingPreference extends DialogPreference {
                                     mNewDevicesArrayAdapter.getCount()));
                         }
 
-                        showSnackbar("Discovery Finished!");
+                        showSnackbar(getContext().getString(R.string.obd_selection_discovery_finished));
                     }
 
                     @Override
@@ -347,7 +346,7 @@ public class BluetoothPairingPreference extends DialogPreference {
 
                     @Override
                     public void onPairingStarted(BluetoothDevice device) {
-                        showSnackbar("Pairing Started");
+                        showSnackbar(getContext().getString(R.string.obd_selection_pairing_started));
                         if (text != null) {
                             text.setText(device.getName() + " (Pairing started...)");
                         }
@@ -355,7 +354,7 @@ public class BluetoothPairingPreference extends DialogPreference {
 
                     @Override
                     public void onPairingError(BluetoothDevice device) {
-                        showSnackbar("Pairing Error");
+                        showSnackbar(getContext().getString(R.string.obd_selection_pairing_error));
                         if (text != null)
                             text.setText(device.getName());
                     }
@@ -364,7 +363,7 @@ public class BluetoothPairingPreference extends DialogPreference {
                     public void onDevicePaired(BluetoothDevice device) {
                         // Device is paired. Add it to the array adapter for paired devices and
                         // remove it from the adapter for new devices.
-                        showSnackbar("Paired");
+                        showSnackbar(getContext().getString(R.string.obd_selection_paired_successfully));
                         mNewDevicesArrayAdapter.remove(device);
                         mPairedDevicesAdapter.add(device);
 

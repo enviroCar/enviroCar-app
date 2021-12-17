@@ -46,4 +46,5 @@
     <string name="obd_selection_pairing_started">Pairing Started</string>
     <string name="obd_selection_pairing_error">An error occurred during the pairing process.</string>
     <string name="obd_selection_pairing_success_template">%s has been successfully paired.</string>
+    <string name="obd_selection_paired_successfully">Paired successfully</string>
 </resources>

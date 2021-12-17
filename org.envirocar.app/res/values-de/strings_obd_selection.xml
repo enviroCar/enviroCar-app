@@ -46,5 +46,6 @@
     <string name="obd_selection_pairing_started">Kopplung gestartet</string>
     <string name="obd_selection_pairing_error">Ein Fehler trat bei dem Kopplungsprozess ein. Versuchen Sie es ggf. erneut.</string>
     <string name="obd_selection_pairing_success_template">%s wurde erfolgreich gekoppelt.</string>
+    <string name="obd_selection_paired_successfully">erfolgreich gekoppelt.</string>
 
 </resources>
