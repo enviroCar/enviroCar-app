@@ -42,6 +42,7 @@ import androidx.appcompat.app.AlertDialog;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.textfield.TextInputLayout;
 import com.jakewharton.rxbinding3.widget.RxCompoundButton;
 import com.jakewharton.rxbinding3.widget.RxTextView;
 
@@ -104,20 +105,32 @@ public class SignupActivity extends BaseInjectorActivity {
     // Injected Views
     @BindView(R.id.activity_signup_username_input)
     protected EditText usernameEditText;
+    @BindView(R.id.activity_signup_username_input_layout)
+    protected TextInputLayout usernameEditTextLayout;
     @BindView(R.id.activity_signup_email_input)
     protected EditText emailEditText;
+    @BindView(R.id.activity_signup_email_input_layout)
+    protected TextInputLayout emailEditTextLayout;
     @BindView(R.id.activity_signup_password_1)
     protected EditText password1EditText;
+    @BindView(R.id.activity_signup_password_1_layout)
+    protected TextInputLayout password1EditTextLayout;
     @BindView(R.id.activity_signup_password_2)
     protected EditText password2EditText;
+    @BindView(R.id.activity_signup_password_2_layout)
+    protected TextInputLayout password2EditTextLayout;
     @BindView(R.id.activity_signup_tou_checkbox)
     protected CheckBox touCheckbox;
     @BindView(R.id.activity_signup_tou_text)
     protected TextView touText;
+    @BindView(R.id.activity_signup_tou_text_layout)
+    protected TextInputLayout touTextLayout;
     @BindView(R.id.activity_signup_ps_checkbox)
     protected CheckBox psCheckbox;
     @BindView(R.id.activity_signup_ps_text)
     protected TextView psText;
+    @BindView(R.id.activity_signup_ps_text_layout)
+    protected TextInputLayout psTextLayout;
 
     private final Scheduler.Worker mainThreadWorker = AndroidSchedulers.mainThread().createWorker();
     private final Scheduler.Worker backgroundWorker = Schedulers.newThread().createWorker();
@@ -190,11 +203,13 @@ public class SignupActivity extends BaseInjectorActivity {
         // check if tou and privacy statement have been accepted.
         View focusView = null;
         if (!touCheckbox.isChecked()) {
-            touCheckbox.setError("some error");
+            touTextLayout.setError(getString(
+                    R.string.error_field_required));
             focusView = touCheckbox;
         }
         if (!psCheckbox.isChecked()) {
-            psCheckbox.setError("some error");
+            psTextLayout.setError(getString(
+                    R.string.error_field_required));
             focusView = psCheckbox;
         }
 
@@ -278,11 +293,11 @@ public class SignupActivity extends BaseInjectorActivity {
                 final ResourceConflictException.ConflictType reason = e.getConflictType();
                 mainThreadWorker.schedule(() -> {
                     if (e.getConflictType() == ResourceConflictException.ConflictType.USERNAME) {
-                        usernameEditText.setError(getString(
-                                R.string.error_username_already_in_use),errorUsername);
+                        usernameEditTextLayout.setError(getString(
+                                R.string.error_username_already_in_use));
                         usernameEditText.requestFocus();
                     } else if (e.getConflictType() == ResourceConflictException.ConflictType.MAIL) {
-                        emailEditText.setError(getString(R.string.error_email_already_in_use),errorUsername);
+                        emailEditTextLayout.setError(getString(R.string.error_email_already_in_use));
                         emailEditText.requestFocus();
                     }
                 });
@@ -294,7 +309,7 @@ public class SignupActivity extends BaseInjectorActivity {
 
                 // Show an error.
                 mainThreadWorker.schedule(() -> {
-                    usernameEditText.setError(getString(R.string.error_host_not_found),errorUsername);
+                    usernameEditTextLayout.setError(getString(R.string.error_host_not_found));
                     usernameEditText.requestFocus();
                 });
 
@@ -361,17 +376,17 @@ public class SignupActivity extends BaseInjectorActivity {
      */
     private boolean checkUsernameValidity(String username) {
         // reset error text
-        usernameEditText.setError(null);
+        usernameEditTextLayout.setError(null);
 
         boolean isValidUsername = true;
         if (username == null || username.isEmpty() || username.equals("")) {
-            usernameEditText.setError(getString(R.string.error_field_required),errorUsername);
+            usernameEditTextLayout.setError(getString(R.string.error_field_required));
             isValidUsername = false;
         } else if (username.length() < 6) {
-            usernameEditText.setError(getString(R.string.error_invalid_username),errorUsername);
+            usernameEditTextLayout.setError(getString(R.string.error_invalid_username));
             isValidUsername = false;
         } else if (!Pattern.matches(USERNAME_REGEX,username)) {
-            usernameEditText.setError(getString(R.string.error_username_contain_special),errorUsername);
+            usernameEditTextLayout.setError(getString(R.string.error_username_contain_special));
             isValidUsername = false;
         }
         return isValidUsername;
@@ -383,10 +398,10 @@ public class SignupActivity extends BaseInjectorActivity {
     private boolean checkEmailValidity(String email) {
         boolean isValidEmail = true;
         if (TextUtils.isEmpty(email)) {
-            emailEditText.setError(getString(R.string.error_field_required),errorUsername);
+            emailEditTextLayout.setError(getString(R.string.error_field_required));
             isValidEmail = false;
         } else if (!Pattern.matches(EMAIL_REGEX, email)) {
-            emailEditText.setError(getString(R.string.error_invalid_email),errorUsername);
+            emailEditTextLayout.setError(getString(R.string.error_invalid_email));
             isValidEmail = false;
         }
         return isValidEmail;
@@ -398,20 +413,20 @@ public class SignupActivity extends BaseInjectorActivity {
     private boolean checkPasswordValidity(String password) {
         boolean isValidPassword = true;
         if (password == null || password.isEmpty() || password.equals("")) {
-            password1EditText.setError(getString(R.string.error_field_required), errorPassword);
+            password1EditTextLayout.setError(getString(R.string.error_field_required));
             isValidPassword = false;
         } else if (password.length() < 6) {
-            password1EditText.setError(getString(R.string.error_invalid_password), errorPassword);
+            password1EditTextLayout.setError(getString(R.string.error_invalid_password));
             isValidPassword = false;
         } else if (!Pattern.matches(PASSWORD_REGEX, password)) {
-            password1EditText.setError(getString(R.string.error_field_weak_password), errorPassword);
+            password1EditTextLayout.setError(getString(R.string.error_field_weak_password));
             isValidPassword = false;
         } else {
             final String password2 = password2EditText.getText().toString().trim();
             if (!password2.equals("") && !password2.isEmpty() && password2 != null) {
                 checkPasswordMatch(password, password2);
             }else {
-                password2EditText.setError(getString(R.string.error_field_required), errorPassword);
+                password2EditTextLayout.setError(getString(R.string.error_field_required));
             }
         }
         return isValidPassword;
@@ -423,7 +438,7 @@ public class SignupActivity extends BaseInjectorActivity {
     private boolean checkConfirmPasswordValidity(String password2) {
         boolean isValidMatch = true;
         if (password2 == null || password2.isEmpty() || password2.equals("")) {
-            password2EditText.setError(getString(R.string.error_field_required), errorPassword);
+            password2EditTextLayout.setError(getString(R.string.error_field_required));
             isValidMatch = false;
         } else {
             final String password1 = password1EditText.getText().toString().trim();
@@ -440,11 +455,11 @@ public class SignupActivity extends BaseInjectorActivity {
     private boolean checkPasswordMatch(String password, String password2) {
         boolean isValidMatch = password.equals(password2);
         if (!isValidMatch) {
-            password1EditText.setError(getString(R.string.error_passwords_not_matching), errorPassword);
-            password2EditText.setError(getString(R.string.error_passwords_not_matching), errorPassword);
+            password1EditTextLayout.setError(getString(R.string.error_passwords_not_matching));
+            password2EditTextLayout.setError(getString(R.string.error_passwords_not_matching));
         } else {
-            password1EditText.setError(null);
-            password2EditText.setError(null);
+            password1EditTextLayout.setError(null);
+            password2EditTextLayout.setError(null);
         }
         return isValidMatch;
     }
@@ -484,10 +499,10 @@ public class SignupActivity extends BaseInjectorActivity {
 
         RxCompoundButton.checkedChanges(touCheckbox)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(b -> touCheckbox.setError(null), LOG::error);
+                .subscribe(b -> touTextLayout.setError(null), LOG::error);
 
         RxCompoundButton.checkedChanges(psCheckbox)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(b -> psCheckbox.setError(null), LOG::error);
+                .subscribe(b -> psTextLayout.setError(null), LOG::error);
     }
 }

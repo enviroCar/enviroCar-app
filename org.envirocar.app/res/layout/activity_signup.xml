@@ -63,13 +63,14 @@
             android:id="@+id/activity_signup_username_input_layout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="0dp"
-            android:layout_height="40dp"
+            android:layout_height="wrap_content"
             android:layout_marginTop="40dp"
             app:hintEnabled="false"
             app:layout_constraintEnd_toEndOf="@id/activity_signup_guideline_right"
             app:layout_constraintStart_toStartOf="@id/activity_signup_guideline_left"
             app:layout_constraintTop_toBottomOf="@+id/textView6"
-            app:layout_constraintWidth_max="500dp">
+            app:layout_constraintWidth_max="500dp"
+            app:endIconMode="custom">
 
             <androidx.appcompat.widget.AppCompatEditText
                 android:id="@+id/activity_signup_username_input"
@@ -78,7 +79,7 @@
                 android:layout_height="match_parent"
                 android:layout_below="@+id/activity_login_logo"
                 android:layout_centerHorizontal="true"
-                android:drawableLeft="@drawable/ic_action_user"
+                android:drawableStart="@drawable/ic_action_user"
                 android:hint="@string/username"
                 android:inputType="textPersonName" />
 
@@ -88,20 +89,21 @@
             android:id="@+id/activity_signup_email_input_layout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="0dp"
-            android:layout_height="40dp"
+            android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             app:hintEnabled="false"
             app:layout_constraintEnd_toEndOf="@id/activity_signup_guideline_right"
             app:layout_constraintStart_toStartOf="@id/activity_signup_guideline_left"
             app:layout_constraintTop_toBottomOf="@+id/activity_signup_username_input_layout"
-            app:layout_constraintWidth_max="500dp">
+            app:layout_constraintWidth_max="500dp"
+            app:endIconMode="custom">
 
             <androidx.appcompat.widget.AppCompatEditText
                 android:id="@+id/activity_signup_email_input"
                 style="@style/envirocar.login.edittext"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:drawableLeft="@drawable/ic_action_mail"
+                android:drawableStart="@drawable/ic_action_mail"
                 android:hint="@string/email"
                 android:inputType="textPersonName" />
 
@@ -111,7 +113,7 @@
             android:id="@+id/activity_signup_password_1_layout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="0dp"
-            android:layout_height="40dp"
+            android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             app:hintEnabled="false"
             app:layout_constraintEnd_toEndOf="@id/activity_signup_guideline_right"
@@ -120,7 +122,8 @@
             app:layout_constraintWidth_max="500dp"
             app:endIconMode="password_toggle"
             app:endIconDrawable="@drawable/custom_password_eye"
-            app:endIconTint="@color/white_cario">
+            app:endIconTint="@color/white_cario"
+            app:errorIconDrawable="@null">
 
 
             <androidx.appcompat.widget.AppCompatEditText
@@ -137,7 +140,7 @@
             android:id="@+id/activity_signup_password_2_layout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="0dp"
-            android:layout_height="40dp"
+            android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             app:hintEnabled="false"
             app:layout_constraintEnd_toEndOf="@id/activity_signup_guideline_right"
@@ -166,18 +169,26 @@
             android:buttonTint="@color/white_cario"
             app:layout_constraintStart_toStartOf="@id/activity_signup_guideline_left"
             app:layout_constraintTop_toBottomOf="@+id/activity_signup_password_2_layout" />
-
-        <TextView
-            android:id="@+id/activity_signup_tou_text"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/activity_signup_tou_text_layout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/signup_acknowledge_tou_text"
-            android:textColor="@color/white_cario"
-            android:textColorLink="@color/blue_light_cario"
             app:layout_constraintBottom_toTopOf="@id/activity_signup_tou_checkbox"
             app:layout_constraintEnd_toEndOf="@id/activity_signup_guideline_right"
             app:layout_constraintStart_toEndOf="@id/activity_signup_tou_checkbox"
-            app:layout_constraintTop_toBottomOf="@+id/activity_signup_tou_checkbox" />
+            app:layout_constraintTop_toBottomOf="@+id/activity_signup_tou_checkbox"
+            app:layout_constraintWidth_max="500dp" >
+            <TextView
+                android:id="@+id/activity_signup_tou_text"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="@string/signup_acknowledge_tou_text"
+                android:textColor="@color/white_cario"
+                android:textColorLink="@color/blue_light_cario" />
+
+    </com.google.android.material.textfield.TextInputLayout>
 
         <CheckBox
             android:id="@+id/activity_signup_ps_checkbox"
@@ -186,19 +197,27 @@
             android:layout_marginTop="20dp"
             android:buttonTint="@color/white_cario"
             app:layout_constraintStart_toStartOf="@id/activity_signup_guideline_left"
-            app:layout_constraintTop_toBottomOf="@+id/activity_signup_tou_text" />
+            app:layout_constraintTop_toBottomOf="@+id/activity_signup_tou_text_layout" />
 
-        <TextView
-            android:id="@+id/activity_signup_ps_text"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/activity_signup_ps_text_layout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/signup_acknowledge_ps_text"
-            android:textColor="@color/white_cario"
-            android:textColorLink="@color/blue_light_cario"
             app:layout_constraintBottom_toTopOf="@+id/activity_signup_ps_checkbox"
             app:layout_constraintEnd_toEndOf="@id/activity_signup_guideline_right"
             app:layout_constraintStart_toEndOf="@id/activity_signup_ps_checkbox"
-            app:layout_constraintTop_toBottomOf="@+id/activity_signup_ps_checkbox" />
+            app:layout_constraintTop_toBottomOf="@+id/activity_signup_ps_checkbox"
+            app:layout_constraintWidth_max="500dp">
+        <TextView
+            android:id="@+id/activity_signup_ps_text"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="@string/signup_acknowledge_ps_text"
+            android:textColor="@color/white_cario"
+            android:textColorLink="@color/blue_light_cario" />
+
+        </com.google.android.material.textfield.TextInputLayout>
 
         <androidx.cardview.widget.CardView
             android:id="@+id/activity_signup_register_button"
@@ -212,7 +231,7 @@
             app:cardElevation="10dp"
             app:layout_constraintEnd_toEndOf="@id/activity_signup_guideline_right"
             app:layout_constraintStart_toStartOf="@id/activity_signup_guideline_left"
-            app:layout_constraintTop_toBottomOf="@+id/activity_signup_ps_text">
+            app:layout_constraintTop_toBottomOf="@+id/activity_signup_ps_text_layout">
 
             <TextView
                 android:layout_width="wrap_content"
