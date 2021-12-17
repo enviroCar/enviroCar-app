@@ -20,7 +20,6 @@ package org.envirocar.app.views.login;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -92,10 +91,7 @@ public class SigninActivity extends BaseInjectorActivity {
     protected TextInputLayout passwordEditTextLayout;
     @BindView(R.id.activity_login_logo)
     protected ImageView logoImageView;
-
     private Disposable loginSubscription;
-    private static Drawable errorPassword;
-    private static Drawable errorUsername;
 
     @Override
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
@@ -110,13 +106,6 @@ public class SigninActivity extends BaseInjectorActivity {
 
         // inject the views
         ButterKnife.bind(this);
-
-        errorPassword = getResources().getDrawable(R.drawable.ic_error_red_24dp);
-        errorPassword.setBounds(-70,0,0, errorPassword.getIntrinsicHeight());
-
-        errorUsername = getResources().getDrawable(R.drawable.ic_error_red_24dp);
-        errorUsername.setBounds(0, 0, errorUsername.getIntrinsicWidth(), errorUsername.getIntrinsicHeight());
-
     }
 
     @Override

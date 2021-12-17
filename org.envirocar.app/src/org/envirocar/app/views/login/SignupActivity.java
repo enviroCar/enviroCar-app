@@ -20,7 +20,6 @@ package org.envirocar.app.views.login;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.Selection;
 import android.text.Spannable;
@@ -85,8 +84,7 @@ public class SignupActivity extends BaseInjectorActivity {
     private static final String PASSWORD_REGEX = "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{6,}$";
     private static final String USERNAME_REGEX = "^[A-Za-z0-9_-]{6,}$";
     private static final int CHECK_FORM_DELAY = 750;
-    private static Drawable errorPassword;
-    private static Drawable errorUsername;
+
 
     public static void startActivity(Context context) {
         Intent intent = new Intent(context, SignupActivity.class);
@@ -151,12 +149,6 @@ public class SignupActivity extends BaseInjectorActivity {
 
         // inject the views
         ButterKnife.bind(this);
-
-        errorPassword = getResources().getDrawable(R.drawable.ic_error_red_24dp);
-        errorPassword.setBounds(-70,0,0, errorPassword.getIntrinsicHeight());
-
-        errorUsername = getResources().getDrawable(R.drawable.ic_error_red_24dp);
-        errorUsername.setBounds(0, 0, errorUsername.getIntrinsicWidth(), errorUsername.getIntrinsicHeight());
 
         // make terms of use and privacy statement clickable
         this.makeClickableTextLinks();

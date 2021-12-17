@@ -90,7 +90,6 @@ public class CarSelectionHsnTsnFragment extends BaseInjectorFragment {
     private CompositeDisposable disposable = new CompositeDisposable();
     private static final int ERROR_DEBOUNCE_TIME = 750;
     List<Manufacturers> manufacturersList;
-    private Drawable error;
 
     CarSelectionHsnTsnFragment(List<Manufacturers> manufacturersList) {
         this.manufacturersList = manufacturersList;
@@ -105,8 +104,6 @@ public class CarSelectionHsnTsnFragment extends BaseInjectorFragment {
         fetchAllVehicles();
         reactiveTexFieldCheck();
         focusChangeListener();
-        error = getResources().getDrawable(R.drawable.ic_error_red_24dp);
-        error.setBounds(-50, 0, 0, error.getIntrinsicHeight());
         hsnEditText.setOnItemClickListener((parent, view1, position, id) -> requestNextTextFieldFocus(hsnEditText));
         tsnEditText.setOnItemClickListener((parent, view1, position, id) -> requestNextTextFieldFocus(tsnEditText));
         return view;

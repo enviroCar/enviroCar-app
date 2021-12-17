@@ -92,7 +92,6 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
     private CompositeDisposable disposable = new CompositeDisposable();
     private static final int ERROR_DEBOUNCE_TIME = 750;
     private List<Manufacturers> manufacturersList;
-    private static Drawable error;
 
     CarSelectionAttributesFragment(List<Manufacturers> manufacturersList) {
         this.manufacturersList = manufacturersList;
@@ -108,8 +107,6 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
         fetchManufactureres();
         initFocusChangedListener();
         reactiveTexFieldCheck();
-        error = getResources().getDrawable(R.drawable.ic_error_red_24dp);
-        error.setBounds(-50, 0, 0, error.getIntrinsicHeight());
         manufactureEditText.setOnItemClickListener((parent, view1, position, id) -> requestNextTextFieldFocus(manufactureEditText));
         modelEditText.setOnItemClickListener((parent, view12, position, id) -> requestNextTextFieldFocus(modelEditText));
         yearEditText.setOnItemClickListener((parent, view13, position, id) -> requestNextTextFieldFocus(yearEditText));
