@@ -19,3 +19,10 @@ RUN ./gradlew help
 COPY . /app
 
 RUN ./gradlew build
+
+# build the image with:
+# docker build -t envirocar-app-build:latest -f Dockerfile.build .
+#
+# to copy the final APK from the image to the host path /tmp/envirocar:
+# docker run --rm -v /tmp/envirocar:/mnt/out envirocar-app-build:latest cp /app/org.envirocar.app/build/outputs/apk/debug/org.envirocar.app-debug.apk /mnt/out
+
