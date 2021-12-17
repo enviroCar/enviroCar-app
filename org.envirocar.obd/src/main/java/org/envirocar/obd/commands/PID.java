@@ -39,7 +39,7 @@ public enum PID implements PIDEnumInstance {
         }
     },
     LONG_TERM_FUEL_TRIM_BANK_1 {
-//        @Override
+        @Override
         public String getHexadecimalRepresentation() {
             return "07";
         }

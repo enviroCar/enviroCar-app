@@ -21,6 +21,8 @@ package org.envirocar.obd.adapter;
 import android.util.Base64;
 
 import org.envirocar.core.logging.Logger;
+import org.envirocar.obd.commands.CampagneCommandProfile;
+import org.envirocar.obd.commands.CycleCommandProfile;
 import org.envirocar.obd.commands.PID;
 import org.envirocar.obd.commands.PIDSupported;
 import org.envirocar.obd.commands.PIDUtil;
@@ -80,6 +82,7 @@ public abstract class SyncAdapter implements OBDAdapter {
                     new PIDSupported("40"),
                     new PIDSupported("80")));
 
+    private CycleCommandProfile commandProfile = new CampagneCommandProfile();
 
     @Override
     public Observable<Boolean> initialize(InputStream is, OutputStream os) {
@@ -279,21 +282,8 @@ public abstract class SyncAdapter implements OBDAdapter {
         if (requestCommands == null) {
             requestCommands = new ArrayList<>();
 
-            int posOfSpeed = -1;
-            PIDCommand speedCmd = null;
-            for (PID p : PID.values()) {
-
-                if (p == PID.SPEED) {
-                    addIfSupported(p);
-                    posOfSpeed = requestCommands.size() - 1;
-                    speedCmd = requestCommands.get(posOfSpeed);
-                }
-            }
-
-            // add speed another time for improved frequency
-            if (posOfSpeed >= 0 && speedCmd != null) {
-                int targetPos = ((requestCommands.size() / 2) + posOfSpeed + 1) % requestCommands.size();
-                requestCommands.add(targetPos, speedCmd);
+            for (PID p : commandProfile.provideCommands()) {
+                addIfSupported(p);
             }
 
         }
