@@ -74,7 +74,7 @@ public class BluetoothPairingPreference extends DialogPreference {
     @BindView(R.id.bluetooth_pairing_preference_available_devices_list)
     public ListView mNewDevicesListView;
 
-    // No device fou            showSnackbar("Bluetooth is disabled. Please enable Bluetooth before " +nd.
+    // No device found.
     @BindView(R.id.bluetooth_pairing_preference_available_devices_info)
     public TextView mNewDevicesInfoTextView;
     @BindView(R.id.bluetooth_pairing_preference_search_devices_progressbar)

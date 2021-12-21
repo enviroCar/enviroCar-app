@@ -52,4 +52,7 @@
     <string name="car_selection_no_car_no_car_first">Kein Auto hinzugefügt</string>
     <string name="car_selection_no_car_no_car_second">Verwenden Sie das + Symbol, um ein neues Auto hinzuzufügen</string>
 
+    <string name="car_selection_not_all_values_defined">Es wurden nicht alle Werte definiert</string>
+
+
 </resources>

@@ -31,6 +31,7 @@ import com.squareup.otto.Bus;
 import com.squareup.otto.Produce;
 import com.squareup.otto.Subscribe;
 
+import org.envirocar.app.R;
 import org.envirocar.app.handler.DAOProvider;
 import org.envirocar.app.views.obdselection.OBDSelectionFragment;
 import org.envirocar.core.ContextInternetAccessProvider;
@@ -341,7 +342,7 @@ public class CarPreferenceHandler implements LifecycleObserver {
 
         } catch (Exception e) {
             //TODO i18n
-            showSnackbar("Not all values were defined");
+            showSnackbar(mContext.getString(R.string.car_selection_not_all_values_defined));
             return;
         }
 
