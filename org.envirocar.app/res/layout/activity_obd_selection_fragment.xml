@@ -79,7 +79,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/obd_selection_avaiable_devices"
+                android:text="@string/obd_selection_available_devices"
                 android:textColor="@color/blue_dark_cario"
                 android:textSize="14sp" />
 
