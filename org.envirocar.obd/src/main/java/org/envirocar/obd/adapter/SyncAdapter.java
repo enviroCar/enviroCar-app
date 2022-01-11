@@ -82,7 +82,11 @@ public abstract class SyncAdapter implements OBDAdapter {
                     new PIDSupported("40"),
                     new PIDSupported("80")));
 
-    private CycleCommandProfile commandProfile = new CampagneCommandProfile();
+    private CycleCommandProfile commandProfile;
+
+    public SyncAdapter (CycleCommandProfile cmp) {
+        this.commandProfile = cmp;
+    }
 
     @Override
     public Observable<Boolean> initialize(InputStream is, OutputStream os) {

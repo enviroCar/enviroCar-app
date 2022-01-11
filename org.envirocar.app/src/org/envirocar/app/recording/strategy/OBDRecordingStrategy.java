@@ -52,6 +52,8 @@ import org.envirocar.obd.ConnectionListener;
 import org.envirocar.obd.OBDController;
 import org.envirocar.obd.OBDSchedulers;
 import org.envirocar.obd.bluetooth.BluetoothSocketWrapper;
+import org.envirocar.obd.commands.CampagneCommandProfile;
+import org.envirocar.obd.commands.CycleCommandProfile;
 import org.envirocar.obd.events.SpeedUpdateEvent;
 import org.envirocar.obd.exception.AllAdaptersFailedException;
 
@@ -97,6 +99,7 @@ public class OBDRecordingStrategy implements RecordingStrategy {
     private boolean isRecording = false;
     private boolean isTrackFinished = false;
     private Track track = null;
+    private CycleCommandProfile cycleCommandProfile;
 
     /**
      * Constructor.
@@ -121,6 +124,7 @@ public class OBDRecordingStrategy implements RecordingStrategy {
         this.consumptionAlgorithm = ConsumptionAlgorithm.fromFuelType(car.getFuelType());
         this.mafAlgorithm = new CalculatedMAFWithStaticVolumetricEfficiency(car);
         this.energyConsumptionAlgorithm = new LoadBasedEnergyConsumptionAlgorithm(car.getFuelType());
+        this.cycleCommandProfile = new CycleCommandProfile.Default();
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
@@ -154,6 +158,11 @@ public class OBDRecordingStrategy implements RecordingStrategy {
                         .observeOn(Schedulers.newThread())
                         .doOnDispose(() -> LOG.info("Location Provider has been disposed!"))
                         .subscribe(() -> LOG.info("Completed"), LOG::error));
+
+        // subscribe for preference changes
+        disposables.add(ApplicationSettings.getDvfoCampaignObservable(context)
+                .doOnNext(campagneEnabled -> this.cycleCommandProfile = getCycleCommandProfile(campagneEnabled))
+                .subscribe());
     }
 
     @Override
@@ -233,8 +242,7 @@ public class OBDRecordingStrategy implements RecordingStrategy {
             LOG.info(String.format("OBDConnectionService.onDeviceConntected(%s)", socket.getRemoteDeviceName()));
 
             try {
-
-                OBDController controller = new OBDController(socket, new ConnectionListener() {
+                OBDController controller = new OBDController(socket, this.cycleCommandProfile, new ConnectionListener() {
                     int reconnectCount = 0;
 
                     @Override
@@ -369,6 +377,10 @@ public class OBDRecordingStrategy implements RecordingStrategy {
             recognizer = null;
         } catch (Exception ex) {
         }
+    }
+
+    private CycleCommandProfile getCycleCommandProfile(boolean campagneEnabled) {
+        return campagneEnabled ? new CampagneCommandProfile() : new CycleCommandProfile.Default();
     }
 
     private final class OBDConnectionRecognizer {
