@@ -31,6 +31,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.Toast;
 
 import com.mapbox.android.core.location.LocationEngineRequest;
 import com.mapbox.android.core.permissions.PermissionsListener;
@@ -330,7 +331,7 @@ public class TrackMapFragment extends BaseInjectorFragment implements Permission
 
     @Override
     public void onExplanationNeeded(List<String> permissionsToExplain) {
-        showSnackbar("We need access to your location.");
+        Toast.makeText(getContext(), getContext().getString(R.string.notification_location_access), Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -343,7 +344,7 @@ public class TrackMapFragment extends BaseInjectorFragment implements Permission
                 }
             });
         } else {
-            showSnackbar("Location access not granted");
+            Toast.makeText(getContext(), getContext().getString(R.string.notification_location_access_not_granted), Toast.LENGTH_LONG).show();
         }
     }
 
@@ -395,15 +396,5 @@ public class TrackMapFragment extends BaseInjectorFragment implements Permission
     public void onLowMemory() {
         super.onLowMemory();
         mMapView.onLowMemory();
-    }
-
-    /**
-     * Shows a snackbar with a given text.
-     *
-     * @param text the text to show in the snackbar.
-     */
-    private void showSnackbar(String text) {
-        if (getActivity() instanceof OBDSelectionFragment.ShowSnackbarListener)
-            ((OBDSelectionFragment.ShowSnackbarListener) getActivity()).showSnackbar(text);
     }
 }

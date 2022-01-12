@@ -22,13 +22,16 @@ import android.app.AlertDialog;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.res.Resources;
 import android.preference.DialogPreference;
 import android.util.AttributeSet;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.widget.Toolbar;
 
@@ -39,7 +42,6 @@ import com.squareup.otto.Subscribe;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.BaseApplication;
-import org.envirocar.app.views.obdselection.OBDSelectionFragment;
 import org.envirocar.app.views.preferences.bluetooth.BluetoothDeviceListAdapter;
 import org.envirocar.core.events.bluetooth.BluetoothPairingChangedEvent;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
@@ -223,7 +225,7 @@ public class BluetoothPairingPreference extends DialogPreference {
             mContentView.setVisibility(View.GONE);
             mNewDevicesArrayAdapter.clear();
             mPairedDevicesAdapter.clear();
-            mNewDevicesInfoTextView.setText("Bluetooth is disabled.");
+            mNewDevicesInfoTextView.setText(getContext().getString(R.string.obd_selection_bluetooth_disabled));
         } else {
             // Bluetooth is enabled. Show the content view, update the list, and start the
             // discovery of Bluetooth devices.
@@ -255,10 +257,10 @@ public class BluetoothPairingPreference extends DialogPreference {
      * Initiates the discovery of other Bluetooth devices.
      */
     private void startBluetoothDiscovery() {
-        // If bluetooth is not enabled, skip the discovery and show a snackbar.
+        // If bluetooth is not enabled, skip the discovery and show a toast.
         if (!mBluetoothHandler.isBluetoothEnabled()) {
             LOGGER.debug("startBluetoothDiscovery(): Bluetooth is disabled!");
-            showSnackbar(getContext().getString(R.string.obd_selection_bluetooth_disabled_snackbar));
+            Toast.makeText(getContext(), getContext().getString(R.string.obd_selection_bluetooth_disabled_snackbar), Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -282,7 +284,8 @@ public class BluetoothPairingPreference extends DialogPreference {
                         mNewDevicesInfoTextView.setText(R.string
                                 .bluetooth_pairing_preference_info_searching_devices);
 
-                        showSnackbar(getContext().getString(R.string.obd_selection_discovery_started));
+                        Toast.makeText(getContext(), getContext().getString(R.string.obd_selection_discovery_started)
+                                , Toast.LENGTH_LONG).show();
                     }
 
                     @Override
@@ -306,12 +309,13 @@ public class BluetoothPairingPreference extends DialogPreference {
                                     mNewDevicesArrayAdapter.getCount()));
                         }
 
-                        showSnackbar(getContext().getString(R.string.obd_selection_discovery_finished));
+                        Toast.makeText(getContext(), getContext().getString(R.string.obd_selection_discovery_finished), Toast
+                                .LENGTH_LONG).show();
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        LOGGER.error("Error while discovering bluetooth devices", e);
+                        LOGGER.error(getContext().getString(R.string.obd_selection_discovery_general_error), e);
                     }
 
                     @Override
@@ -346,7 +350,8 @@ public class BluetoothPairingPreference extends DialogPreference {
 
                     @Override
                     public void onPairingStarted(BluetoothDevice device) {
-                        showSnackbar(getContext().getString(R.string.obd_selection_pairing_started));
+                        Toast.makeText(getContext(), getContext().getString(R.string.obd_selection_pairing_started),
+                                Toast.LENGTH_LONG).show();
                         if (text != null) {
                             text.setText(device.getName() + " (Pairing started...)");
                         }
@@ -354,7 +359,8 @@ public class BluetoothPairingPreference extends DialogPreference {
 
                     @Override
                     public void onPairingError(BluetoothDevice device) {
-                        showSnackbar(getContext().getString(R.string.obd_selection_pairing_error));
+                        Toast.makeText(getContext(), getContext().getString(R.string.obd_selection_pairing_error),
+                                Toast.LENGTH_LONG).show();
                         if (text != null)
                             text.setText(device.getName());
                     }
@@ -363,7 +369,7 @@ public class BluetoothPairingPreference extends DialogPreference {
                     public void onDevicePaired(BluetoothDevice device) {
                         // Device is paired. Add it to the array adapter for paired devices and
                         // remove it from the adapter for new devices.
-                        showSnackbar(getContext().getString(R.string.obd_selection_paired_successfully));
+                        Toast.makeText(getContext(), getContext().getString(R.string.obd_selection_paired_successfully), Toast.LENGTH_LONG).show();
                         mNewDevicesArrayAdapter.remove(device);
                         mPairedDevicesAdapter.add(device);
 
@@ -410,16 +416,6 @@ public class BluetoothPairingPreference extends DialogPreference {
         super.onPrepareDialogBuilder(builder);
         // Remove default preference title.
         builder.setTitle(null);
-    }
-
-    /**
-     * Shows a snackbar with a given text.
-     *
-     * @param text the text to show in the snackbar.
-     */
-    private void showSnackbar(String text) {
-        if (this instanceof OBDSelectionFragment.ShowSnackbarListener)
-            ((OBDSelectionFragment.ShowSnackbarListener) this).showSnackbar(text);
     }
 
 }
