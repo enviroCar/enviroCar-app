@@ -28,6 +28,7 @@ import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.algorithm.MeasurementProvider;
+import org.envirocar.app.R;
 import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.preferences.CarPreferenceHandler;
@@ -160,8 +161,8 @@ public class OBDRecordingStrategy implements RecordingStrategy {
                         .subscribe(() -> LOG.info("Completed"), LOG::error));
 
         // subscribe for preference changes
-        disposables.add(ApplicationSettings.getDvfoCampaignObservable(context)
-                .doOnNext(campagneEnabled -> this.cycleCommandProfile = getCycleCommandProfile(campagneEnabled))
+        disposables.add(ApplicationSettings.getCampaignProfileObservable(context)
+                .doOnNext(campaign -> this.cycleCommandProfile = getCycleCommandProfile(campaign))
                 .subscribe());
     }
 
@@ -379,8 +380,11 @@ public class OBDRecordingStrategy implements RecordingStrategy {
         }
     }
 
-    private CycleCommandProfile getCycleCommandProfile(boolean campagneEnabled) {
-        return campagneEnabled ? new CampagneCommandProfile() : new CycleCommandProfile.Default();
+    private CycleCommandProfile getCycleCommandProfile(String campaign) {
+        if(campaign.equals(this.context.getString(R.string.item_campaign_profile_dvfo)))
+            return new CampagneCommandProfile();
+        else
+            return new CycleCommandProfile.Default();
     }
 
     private final class OBDConnectionRecognizer {

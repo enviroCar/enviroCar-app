@@ -94,4 +94,10 @@
     <string name="pref_measurement_campaign">Measurement Campaign</string>
     <string name="pref_dvfo_campaign">DVFO Campaign</string>
     <string name="pref_dvfo_campaign_sub">Enables the measurement profile for the DVFO campaign.</string>
+
+    <string-array name="pref_campaign_profile_entries">
+        <item>Default</item>
+        <item>DVFO Campaign</item>
+    </string-array>
+
 </resources>

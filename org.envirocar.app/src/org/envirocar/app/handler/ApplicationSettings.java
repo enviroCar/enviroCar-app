@@ -52,7 +52,7 @@ public class ApplicationSettings {
     public static final int DEFAULT_TRACK_TRIM_DURATION = 110;
     public static final boolean DEFAULT_DEBUG_LOGGING = false;
     public static final int DEFAULT_SAMPLING_RATE = 5;
-    public static final boolean DEFAULT_DVFO_CAMPAIGN = false;
+    public static final String DEFAULT_CAMPAIGN_PROFILE = "DEFAULT_COMANND_PROFILE";
 
 //    // General Settings
 //    public static final String PREF_AUTOMATIC_UPLOAD_OF_TRACKS = "pref_automatic_upload_tracks";
@@ -247,9 +247,9 @@ public class ApplicationSettings {
         return PreferenceManager.getDefaultSharedPreferences(context);
     }
 
-    public static Observable<Boolean> getDvfoCampaignObservable(Context context){
+    public static Observable<String> getCampaignProfileObservable(Context context){
         return getRxSharedPreferences(context)
-                .getBoolean(s(context, R.string.prefkey_dvfo_campaign), DEFAULT_DVFO_CAMPAIGN)
+                .getString(s(context, R.string.prefkey_campaign_profile), DEFAULT_CAMPAIGN_PROFILE)
                 .asObservable();
     }
 

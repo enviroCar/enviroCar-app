@@ -120,11 +120,20 @@
     <PreferenceCategory
         android:title="@string/pref_measurement_campaign"
         app:iconSpaceReserved="false">
-        <CheckBoxPreference
-            android:key="@string/prefkey_dvfo_campaign"
+        <DropDownPreference
+            app:key="@string/prefkey_campaign_profile"
             android:summary="@string/pref_dvfo_campaign_sub"
-            android:title="@string/pref_dvfo_campaign"
-            app:iconSpaceReserved="false" />
+            app:title="@string/pref_dvfo_campaign"
+            app:useSimpleSummaryProvider="true"
+            app:entries="@array/pref_campaign_profile_entries"
+            app:entryValues="@array/pref_campaign_profile_entry_values"
+            app:iconSpaceReserved="false"/>
+<!--        <CheckBoxPreference-->
+<!--            android:key="@string/prefkey_dvfo_campaign"-->
+<!--            android:summary="@string/pref_dvfo_campaign_sub"-->
+<!--            android:title="@string/pref_dvfo_campaign"-->
+<!--            app:iconSpaceReserved="false" />-->
+
     </PreferenceCategory>
 
 </PreferenceScreen>

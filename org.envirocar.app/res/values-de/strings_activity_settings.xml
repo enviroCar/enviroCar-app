@@ -95,4 +95,10 @@
     <string name="pref_dvfo_campaign">DVFO Kampagne</string>
     <string name="pref_dvfo_campaign_sub">Aktiviert das Messprofil für die DVFO Kampagne.</string>
 
+
+    <string-array name="pref_campaign_profile_entries">
+        <item>Standard</item>
+        <item>DVFO Kampagne</item>
+    </string-array>
+
 </resources>
