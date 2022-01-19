@@ -92,8 +92,8 @@
 
     <!-- Campaign Settings-->
     <string name="pref_measurement_campaign">Measurement Campaign</string>
-    <string name="pref_dvfo_campaign">DVFO Campaign</string>
-    <string name="pref_dvfo_campaign_sub">Enables the measurement profile for the DVFO campaign.</string>
+    <string name="pref_dvfo_campaign">Selected measurement profile</string>
+    <string name="pref_dvfo_campaign_sub">Select a measurement profile that controls which PIDs will be recorded during your ride.</string>
 
     <string-array name="pref_campaign_profile_entries">
         <item>Default</item>
