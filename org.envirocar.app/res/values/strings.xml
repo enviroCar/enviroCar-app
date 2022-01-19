@@ -181,4 +181,10 @@
     <!--    Extended MapView    -->
     <!-- ###################### -->
     <string name="mapview_extended_select_phenomena">Attribut Selection</string>
+    
+    <!-- ###################### -->
+    <!--   Public Mapbox key    -->
+    <!-- ###################### -->
+    <string name="mapbox_access_token" tools:ignore="MissingTranslation">public_access_token</string>
+
 </resources>

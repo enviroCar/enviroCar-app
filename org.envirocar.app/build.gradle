@@ -51,9 +51,9 @@ dependencies {
     implementation rootProject.ext.rxBindingCore
     implementation rootProject.ext.rxBindingAppCompat
 
-    // MapBox SDK
-    implementation(rootProject.ext.mapbox) {
-        transitive = true
+    //MapBox SDK
+    implementation (rootProject.ext.mapbox){
+        exclude group: 'group_name', module: 'module_name'
     }
 
     // Test
