@@ -381,10 +381,11 @@ public class OBDRecordingStrategy implements RecordingStrategy {
     }
 
     private CycleCommandProfile getCycleCommandProfile(String campaign) {
-        if(campaign.equals(this.context.getString(R.string.item_campaign_profile_dvfo)))
+        if (campaign.equals(this.context.getString(R.string.item_campaign_profile_dvfo))) {
             return new CampagneCommandProfile();
-        else
+        } else {
             return new CycleCommandProfile.Default();
+        }
     }
 
     private final class OBDConnectionRecognizer {
@@ -400,16 +401,18 @@ public class OBDRecordingStrategy implements RecordingStrategy {
         private Disposable mGPSCheckerSubscription;
 
         private final Runnable gpsConnectionCloser = () -> {
-            if (!isRunning)
+            if (!isRunning) {
                 return;
+            }
 
             LOG.warn("CONNECTION CLOSED due to no GPS values");
             stopRecording();
         };
 
         private final Runnable obdConnectionCloser = () -> {
-            if (!isRunning)
+            if (!isRunning) {
                 return;
+            }
 
             LOG.warn("CONNECTION CLOSED due to no OBD values");
             stopRecording();
@@ -450,10 +453,12 @@ public class OBDRecordingStrategy implements RecordingStrategy {
         public void shutDown() {
             LOG.info("shutDown() OBDConnectionRecognizer");
             this.isRunning = false;
-            if (mOBDCheckerSubscription != null)
+            if (mOBDCheckerSubscription != null) {
                 mOBDCheckerSubscription.dispose();
-            if (mGPSCheckerSubscription != null)
+            }
+            if (mGPSCheckerSubscription != null) {
                 mGPSCheckerSubscription.dispose();
+            }
         }
     }
 }
