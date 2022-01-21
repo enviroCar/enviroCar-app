@@ -32,6 +32,7 @@ import org.envirocar.core.entity.User;
 import org.envirocar.core.entity.UserImpl;
 import org.envirocar.core.events.NewUserSettingsEvent;
 import org.envirocar.core.exception.MailNotConfirmedException;
+import org.envirocar.core.exception.NotConnectedException;
 import org.envirocar.core.exception.UnauthorizedException;
 import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.logging.Logger;
@@ -177,6 +178,15 @@ public class UserPreferenceHandler extends AbstractCachable<User> implements Use
                 // UnauthorizedException can be either due to Incorrect password, Incorrect Username or both.
                 // Hence, set error to both password and username
                 emitter.onError(new LoginException(e.getMessage(), LoginException.ErrorType.USERNAME_OR_PASSWORD_INCORRECT));
+            } catch (NotConnectedException e) {
+                LOG.warn(e.getMessage(), e);
+                // UnauthorizedException can be either due to Incorrect password, Incorrect Username or both.
+                // Hence, set error to both password and username
+                if (e.getMessage().contains("Legal reasons response")) {
+                    emitter.onError(new LoginException(e.getMessage(), LoginException.ErrorType.TERMS_NOT_ACCEPTED));
+                } else {
+                    emitter.onError(e);    
+                }
             } catch (Exception e) {
                 LOG.warn(e.getMessage(), e);
                 emitter.onError(e);

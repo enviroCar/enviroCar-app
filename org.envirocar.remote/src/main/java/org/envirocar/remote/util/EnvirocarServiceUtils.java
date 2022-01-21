@@ -129,7 +129,17 @@ public class EnvirocarServiceUtils {
 
     public static final void assertStatusCode(int httpStatusCode, String error, String body) throws
             UnauthorizedException, NotConnectedException, ResourceConflictException {
+        assertStatusCode(httpStatusCode, error, body, null);
+    }
+
+    public static final void assertStatusCode(int httpStatusCode, String error, String body, String requestUrl) throws
+            UnauthorizedException, NotConnectedException, ResourceConflictException {
         LOG.info("Assert Status code " + httpStatusCode + " " + error);
+
+        if (requestUrl != null) {
+            LOG.info("Requested URL: " + requestUrl);
+        }
+
         if (httpStatusCode >= HTTP_MULTIPLE_CHOICES) {
             LOG.info(body);
             if (httpStatusCode == HTTP_UNAUTHORIZED || httpStatusCode == HTTP_FORBIDDEN) {
