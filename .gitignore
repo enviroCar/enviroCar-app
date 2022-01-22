@@ -6,3 +6,5 @@ build/
 *.iml
 local.properties
 */release/
+gradle-release.properties
+lcs-keystore

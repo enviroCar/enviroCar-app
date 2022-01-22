@@ -1,5 +1,7 @@
 FROM mingc/android-build-box:1.24.0
 
+ARG ORG_GRADLE_PROJECT_MAPBOX_DOWNLOADS_TOKEN
+
 RUN mkdir /app
 WORKDIR /app
 
@@ -18,7 +20,7 @@ COPY ./build.gradle /app
 
 COPY . /app
 
-ARG ORG_GRADLE_PROJECT_MAPBOX_DOWNLOADS_TOKEN
+
 RUN ./gradlew build
 
 # build the image with:
