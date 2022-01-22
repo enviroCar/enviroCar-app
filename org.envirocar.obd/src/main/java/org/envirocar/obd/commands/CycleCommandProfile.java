@@ -16,17 +16,20 @@
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
-package org.envirocar.obd.adapter;
+package org.envirocar.obd.commands;
 
-import org.envirocar.obd.commands.CycleCommandProfile;
+import java.util.Arrays;
+import java.util.List;
 
-public class UniCarScanAdapter extends OBDLinkAdapter{
-    public UniCarScanAdapter(CycleCommandProfile cmp) {
-        super(cmp);
+public interface CycleCommandProfile {
+
+    default List<PID> provideCommands() {
+        return Arrays.asList(PID.values());
+    };
+
+
+    public static class Default implements CycleCommandProfile {
+
     }
 
-    @Override
-    public boolean supportsDevice(String deviceName) {
-        return deviceName.contains("UniCarScan");
-    }
 }

@@ -18,6 +18,7 @@
  */
 package org.envirocar.obd.adapter;
 
+import org.envirocar.obd.commands.CycleCommandProfile;
 import org.envirocar.obd.commands.request.BasicCommand;
 import org.envirocar.obd.commands.request.elm.ConfigurationCommand;
 import org.envirocar.obd.commands.request.elm.DelayedConfigurationCommand;
@@ -31,6 +32,10 @@ import java.util.Queue;
  * Created by matthes on 03.11.15.
  */
 public class AposW3Adapter extends ELM327Adapter {
+
+    public AposW3Adapter(CycleCommandProfile cmp) {
+        super(cmp);
+    }
 
     @Override
     protected Queue<BasicCommand> createInitCommands() {

@@ -152,6 +152,8 @@
     <string name="prefkey_display_always_active" tools:ignore="MissingTranslation">pref_display_always_active</string>
     <string name="prefkey_automatic_upload" tools:ignore="MissingTranslation">pref_automatic_upload</string>
     <string name="prefkey_gps_mode_ar" tools:ignore="MissingTranslation">prefkey_gps_mode_ar</string>
+    <string name="prefkey_campaign_profile" tools:ignore="MissingTranslation">prefkey_campaign_profile</string>
+
 
     <!-- ################# -->
     <!--   Notifications   -->
@@ -181,6 +183,17 @@
     <!--    Extended MapView    -->
     <!-- ###################### -->
     <string name="mapview_extended_select_phenomena">Attribut Selection</string>
+
+    <!-- ################# -->
+    <!-- Campaign Profiles -->
+    <!-- ################# -->
+    <string name="item_campaign_profile_default" tools:ignore="MissingTranslation">DEFAULT_COMMAND_PROFILE</string>
+    <string name="item_campaign_profile_dvfo" tools:ignore="MissingTranslation">DVFO_COMMAND_PROFILE</string>
+
+    <string-array name="pref_campaign_profile_entry_values">
+        <item>@string/item_campaign_profile_default</item>
+        <item>@string/item_campaign_profile_dvfo</item>
+    </string-array>
     
     <!-- ###################### -->
     <!--   Public Mapbox key    -->
