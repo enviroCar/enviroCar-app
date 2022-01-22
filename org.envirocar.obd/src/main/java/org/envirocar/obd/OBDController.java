@@ -31,6 +31,7 @@ import org.envirocar.obd.adapter.OBDLinkAdapter;
 import org.envirocar.obd.adapter.UniCarScanAdapter;
 import org.envirocar.obd.adapter.async.DriveDeckSportAdapter;
 import org.envirocar.obd.bluetooth.BluetoothSocketWrapper;
+import org.envirocar.obd.commands.CycleCommandProfile;
 import org.envirocar.obd.commands.PID;
 import org.envirocar.obd.commands.PIDUtil;
 import org.envirocar.obd.commands.response.DataResponse;
@@ -39,8 +40,6 @@ import org.envirocar.obd.events.RPMUpdateEvent;
 import org.envirocar.obd.events.SpeedUpdateEvent;
 import org.envirocar.obd.exception.AllAdaptersFailedException;
 import org.envirocar.obd.exception.EngineNotRunningException;
-import org.reactivestreams.Subscriber;
-import org.reactivestreams.Subscription;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -49,7 +48,6 @@ import java.util.ArrayDeque;
 import java.util.Queue;
 import java.util.concurrent.TimeUnit;
 
-import io.reactivex.Observer;
 import io.reactivex.Scheduler;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.DisposableObserver;
@@ -80,6 +78,7 @@ public class OBDController {
     private boolean userRequestedStop = false;
     private Bus eventBus;
     private Scheduler.Worker eventBusWorker;
+    private CycleCommandProfile commandProfile;
 
     /**
      * Default Constructor.
@@ -93,7 +92,16 @@ public class OBDController {
         this(bluetoothSocketWrapper.getInputStream(),
                 bluetoothSocketWrapper.getOutputStream(),
                 bluetoothSocketWrapper.getRemoteDeviceName(),
+                new CycleCommandProfile.Default(),
                 cl, bus);
+    }
+
+    public OBDController(BluetoothSocketWrapper bluetoothSocketWrapper, CycleCommandProfile cmp,
+                         ConnectionListener cl, Bus bus) throws IOException {
+        this(bluetoothSocketWrapper.getInputStream(),
+                bluetoothSocketWrapper.getOutputStream(),
+                bluetoothSocketWrapper.getRemoteDeviceName(),
+                cmp, cl, bus);
     }
 
     /**
@@ -103,12 +111,13 @@ public class OBDController {
      * @param out the outputStream of the connection
      * @param cl  the connection listener which receives connection state changes
      */
-    public OBDController(InputStream in, OutputStream out,
-                         String deviceName, ConnectionListener cl, Bus bus) {
+    public OBDController(InputStream in, OutputStream out, String deviceName,
+                         CycleCommandProfile cmp, ConnectionListener cl, Bus bus) {
         this.inputStream = Preconditions.checkNotNull(in);
         this.outputStream = Preconditions.checkNotNull(out);
         this.connectionListener = Preconditions.checkNotNull(cl);
         this.deviceName = Preconditions.checkNotNull(deviceName);
+        this.commandProfile = cmp;
 
         setupAdapterCandidates();
         startPreferredAdapter();
@@ -124,11 +133,11 @@ public class OBDController {
      */
     private void setupAdapterCandidates() {
         adapterCandidates.clear();
-        adapterCandidates.offer(new ELM327Adapter());
-        adapterCandidates.offer(new UniCarScanAdapter());
-        adapterCandidates.offer(new OBDLinkAdapter());
-        adapterCandidates.offer(new CarTrendAdapter());
-        adapterCandidates.offer(new AposW3Adapter());
+        adapterCandidates.offer(new ELM327Adapter(this.commandProfile));
+        adapterCandidates.offer(new UniCarScanAdapter(this.commandProfile));
+        adapterCandidates.offer(new OBDLinkAdapter(this.commandProfile));
+        adapterCandidates.offer(new CarTrendAdapter(this.commandProfile));
+        adapterCandidates.offer(new AposW3Adapter(this.commandProfile));
         adapterCandidates.offer(new DriveDeckSportAdapter());
     }
 

@@ -42,7 +42,7 @@
             android:id="@+id/fragment_settings_main_general_settings"
             style="@style/enviroCar.Settings.General.ListLayout">
 
-            <ImageView
+            <androidx.appcompat.widget.AppCompatImageView
                 android:layout_width="28dp"
                 android:layout_height="28dp"
                 android:layout_alignParentLeft="true"

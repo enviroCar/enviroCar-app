@@ -82,7 +82,7 @@ public class BaseRemoteDAO<Cache, Service> {
         // assert the responsecode if it was not an success.
         if (!response.isSuccessful()) {
             ResponseBody body = response.errorBody();
-            EnvirocarServiceUtils.assertStatusCode(response.code(), response.message(), body.string());
+            EnvirocarServiceUtils.assertStatusCode(response.code(), response.message(), body.string(), call.request().url().toString());
         }
 
         return response;

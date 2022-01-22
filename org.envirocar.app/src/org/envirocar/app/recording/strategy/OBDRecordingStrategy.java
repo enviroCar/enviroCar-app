@@ -28,6 +28,7 @@ import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.algorithm.MeasurementProvider;
+import org.envirocar.app.R;
 import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.preferences.CarPreferenceHandler;
@@ -52,6 +53,8 @@ import org.envirocar.obd.ConnectionListener;
 import org.envirocar.obd.OBDController;
 import org.envirocar.obd.OBDSchedulers;
 import org.envirocar.obd.bluetooth.BluetoothSocketWrapper;
+import org.envirocar.obd.commands.CampagneCommandProfile;
+import org.envirocar.obd.commands.CycleCommandProfile;
 import org.envirocar.obd.events.SpeedUpdateEvent;
 import org.envirocar.obd.exception.AllAdaptersFailedException;
 
@@ -97,6 +100,7 @@ public class OBDRecordingStrategy implements RecordingStrategy {
     private boolean isRecording = false;
     private boolean isTrackFinished = false;
     private Track track = null;
+    private CycleCommandProfile cycleCommandProfile;
 
     /**
      * Constructor.
@@ -121,6 +125,7 @@ public class OBDRecordingStrategy implements RecordingStrategy {
         this.consumptionAlgorithm = ConsumptionAlgorithm.fromFuelType(car.getFuelType());
         this.mafAlgorithm = new CalculatedMAFWithStaticVolumetricEfficiency(car);
         this.energyConsumptionAlgorithm = new LoadBasedEnergyConsumptionAlgorithm(car.getFuelType());
+        this.cycleCommandProfile = new CycleCommandProfile.Default();
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
@@ -154,6 +159,11 @@ public class OBDRecordingStrategy implements RecordingStrategy {
                         .observeOn(Schedulers.newThread())
                         .doOnDispose(() -> LOG.info("Location Provider has been disposed!"))
                         .subscribe(() -> LOG.info("Completed"), LOG::error));
+
+        // subscribe for preference changes
+        disposables.add(ApplicationSettings.getCampaignProfileObservable(context)
+                .doOnNext(campaign -> this.cycleCommandProfile = getCycleCommandProfile(campaign))
+                .subscribe());
     }
 
     @Override
@@ -233,8 +243,7 @@ public class OBDRecordingStrategy implements RecordingStrategy {
             LOG.info(String.format("OBDConnectionService.onDeviceConntected(%s)", socket.getRemoteDeviceName()));
 
             try {
-
-                OBDController controller = new OBDController(socket, new ConnectionListener() {
+                OBDController controller = new OBDController(socket, this.cycleCommandProfile, new ConnectionListener() {
                     int reconnectCount = 0;
 
                     @Override
@@ -371,6 +380,14 @@ public class OBDRecordingStrategy implements RecordingStrategy {
         }
     }
 
+    private CycleCommandProfile getCycleCommandProfile(String campaign) {
+        if (campaign.equals(this.context.getString(R.string.item_campaign_profile_dvfo))) {
+            return new CampagneCommandProfile();
+        } else {
+            return new CycleCommandProfile.Default();
+        }
+    }
+
     private final class OBDConnectionRecognizer {
         private static final long OBD_INTERVAL = 1000 * 10; // 10 seconds;
         private static final long GPS_INTERVAL = 1000 * 60 * 2; // 2 minutes;
@@ -384,16 +401,18 @@ public class OBDRecordingStrategy implements RecordingStrategy {
         private Disposable mGPSCheckerSubscription;
 
         private final Runnable gpsConnectionCloser = () -> {
-            if (!isRunning)
+            if (!isRunning) {
                 return;
+            }
 
             LOG.warn("CONNECTION CLOSED due to no GPS values");
             stopRecording();
         };
 
         private final Runnable obdConnectionCloser = () -> {
-            if (!isRunning)
+            if (!isRunning) {
                 return;
+            }
 
             LOG.warn("CONNECTION CLOSED due to no OBD values");
             stopRecording();
@@ -434,10 +453,12 @@ public class OBDRecordingStrategy implements RecordingStrategy {
         public void shutDown() {
             LOG.info("shutDown() OBDConnectionRecognizer");
             this.isRunning = false;
-            if (mOBDCheckerSubscription != null)
+            if (mOBDCheckerSubscription != null) {
                 mOBDCheckerSubscription.dispose();
-            if (mGPSCheckerSubscription != null)
+            }
+            if (mGPSCheckerSubscription != null) {
                 mGPSCheckerSubscription.dispose();
+            }
         }
     }
 }

@@ -2,7 +2,6 @@ buildscript {
     repositories {
         mavenLocal()
         mavenCentral()
-        jcenter()
         maven { url "https://jitpack.io" }
         maven { url "https://plugins.gradle.org/m2/" }
         google()
@@ -10,15 +9,14 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.6.3'
-        classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
+        classpath 'com.android.tools.build:gradle:7.0.3'
     }
 
 }
 
 plugins {
-    id "com.github.dcendents.android-maven" version "2.1"
-    id "com.github.hierynomus.license" version "0.15.0"
+    id 'maven-publish'
+    id "com.github.hierynomus.license" version "0.16.1"
 }
 
 allprojects {
@@ -38,19 +36,31 @@ allprojects {
         mavenLocal()
         maven { url "https://jitpack.io" }
         mavenCentral()
-        jcenter()
         google()
+        maven {
+            url 'https://api.mapbox.com/downloads/v2/releases/maven'
+            authentication {
+                basic(BasicAuthentication)
+            }
+            credentials {
+                // Do not change the username below.
+                // This should always be `mapbox` (not your username).
+                username = "mapbox"
+                // Use the secret token you stored in gradle.properties as the password
+                password = project.properties['MAPBOX_DOWNLOADS_TOKEN'] ?: ""
+            }
+        }
     }
 }
 
 ext {
     androidPlugin = 'com.android.tools.build:gradle:3.1.2'
     minSdkVersion = 21
-    compileSdkVersion = 30
-    targetSdkVersion = 30
+    compileSdkVersion = 31
+    targetSdkVersion = 31
     buildToolsVersion = '30.0.2'
-    versionCode = 50
-    versionName = "2.0.0"
+    versionCode = 51
+    versionName = "2.1.0"
     ndkVersion = "21.4.7075529"
 
     javaCompileVersion = JavaVersion.VERSION_1_8

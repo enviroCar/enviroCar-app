@@ -23,6 +23,7 @@ import android.location.Location;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.algorithm.AbstractMeasurementProvider;
+import org.envirocar.app.handler.algorithm.DataResponseAlgorithm;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.MeasurementImpl;
 import org.envirocar.core.events.gps.GpsDOP;
@@ -156,7 +157,15 @@ public class InterpolationMeasurementProvider extends AbstractMeasurementProvide
                 m.setProperty(pk, interpolate(dataResponses, m.getTime()));
                 break;
         }
-
+        List<DataResponseAlgorithm> algorithms = DataResponseAlgorithm.fromPropertyType(pk);
+        if(algorithms != null){
+            for(DataResponseAlgorithm a : algorithms) {
+                Double value = a.calculate(dataResponses);
+                m.setProperty(a.getPropertyKey(pk), value);
+                LOG.debug(String.format("Calculated %s from %s %s values: %s",
+                        a.getPropertyKey(pk).name(), dataResponses.size(), pk.name(), value));
+            }
+        }
     }
 
     private Double first(List<PropertyKeyEvent> dataResponses) {

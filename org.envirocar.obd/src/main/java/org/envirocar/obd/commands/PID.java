@@ -20,12 +20,12 @@ package org.envirocar.obd.commands;
 
 public enum PID implements PIDEnumInstance {
 
-//    FUEL_SYSTEM_STATUS {
-//        @Override
-//        public String getHexadecimalRepresentation() {
-//            return "03";
-//        }
-//    },
+    FUEL_SYSTEM_STATUS {
+        @Override
+        public String getHexadecimalRepresentation() {
+            return "03";
+        }
+    },
     CALCULATED_ENGINE_LOAD {
         @Override
         public String getHexadecimalRepresentation() {

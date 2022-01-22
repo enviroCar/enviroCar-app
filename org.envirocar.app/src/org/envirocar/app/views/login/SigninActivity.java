@@ -242,6 +242,9 @@ public class SigninActivity extends BaseInjectorActivity {
                                 case UNABLE_TO_COMMUNICATE_WITH_SERVER:
                                     passwordEditText.setError(getString(R.string.error_host_not_found), errorPassword);
                                     break;
+                                case TERMS_NOT_ACCEPTED:
+                                    passwordEditText.setError(getString(R.string.error_terms_not_acceppted), errorPassword);
+                                    break;
                                 default:
                                     passwordEditText.setError(getString(R.string.logbook_invalid_input), errorPassword);
                                     break;
