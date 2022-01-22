@@ -34,8 +34,8 @@ COPY . /app
 RUN ./gradlew assembleRelease
 
 # build the image with:
-# docker build --build-arg ORG_GRADLE_PROJECT_RELEASE_STORE_FILE=/app/lcs-keystore --build-arg ORG_GRADLE_PROJECT_RELEASE_STORE_PASSWORD=<pw> --build-arg ORG_GRADLE_PROJECT_RELEASE_KEY_ALIAS=<alias> --build-arg ORG_GRADLE_PROJECT_RELEASE_KEY_PASSWORD=<pw> --build-arg ORG_GRADLE_PROJECT_MAPBOX_DOWNLOADS_TOKEN=<mapbox-api-token> -t envirocar-app-build:latest -f Dockerfile.build .
+# docker build --build-arg ORG_GRADLE_PROJECT_RELEASE_STORE_FILE=/app/lcs-keystore --build-arg ORG_GRADLE_PROJECT_RELEASE_STORE_PASSWORD=<pw> --build-arg ORG_GRADLE_PROJECT_RELEASE_KEY_ALIAS=<alias> --build-arg ORG_GRADLE_PROJECT_RELEASE_KEY_PASSWORD=<pw> --build-arg ORG_GRADLE_PROJECT_MAPBOX_DOWNLOADS_TOKEN=<mapbox-api-token> -t envirocar-app-release:latest -f Dockerfile.release .
 #
 # to copy the final APK from the image to the host path /tmp/envirocar:
-# docker run --rm -v /tmp/envirocar:/mnt/out envirocar-app-build:latest cp /app/org.envirocar.app/build/outputs/apk/debug/org.envirocar.app-debug.apk /mnt/out
+# docker run --rm -v /tmp/envirocar:/mnt/out envirocar-app-release:latest cp /app/org.envirocar.app/build/outputs/apk/release/org.envirocar.app-release.apk /mnt/out
 
