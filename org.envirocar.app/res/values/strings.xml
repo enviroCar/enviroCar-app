@@ -194,5 +194,10 @@
         <item>@string/item_campaign_profile_default</item>
         <item>@string/item_campaign_profile_dvfo</item>
     </string-array>
+    
+    <!-- ###################### -->
+    <!--   Public Mapbox key    -->
+    <!-- ###################### -->
+    <string name="mapbox_access_token" tools:ignore="MissingTranslation">public_access_token</string>
 
 </resources>

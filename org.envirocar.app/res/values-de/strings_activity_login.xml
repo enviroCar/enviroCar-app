@@ -37,8 +37,8 @@
 
     <string name="error_username_already_in_use">Dieser Username ist bereits vergeben.</string>
     <string name="error_email_already_in_use">Diese Adresse ist bereits in Benutzung.</string>
-
     <string name="error_host_not_found">Keine Verbindung zum Server möglich.</string>
+    <string name="error_terms_not_acceppted">Sie müssen die neueste Version der Allgemeinen Nutzungsbedingungen akzeptieren.</string>
 
     <string name="activity_login_logout_progress_dialog_title">Logge aus...</string>
     <string name="activity_login_logout_progress_dialog_content">Lösche alle lokal gespeicherten Kopien von hochgeladenen Fahrten.</string>
