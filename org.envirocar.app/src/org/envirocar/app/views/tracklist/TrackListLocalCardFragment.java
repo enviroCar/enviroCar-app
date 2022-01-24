@@ -82,7 +82,6 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
 
     private Disposable loadTracksSubscription;
     private Disposable uploadTrackSubscription;
-    private final ContextInternetAccessProvider contextInternetAccessProvider = new ContextInternetAccessProvider(getContext());
 
     @Override
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
@@ -161,7 +160,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
                 LOG.info(String.format("onUploadTrackClicked(%s)", track.getTrackID()));
 
                 // check if device is connected to internet before uploading the track
-                if (!contextInternetAccessProvider.isConnected() && getView() != null) {
+                if (!new ContextInternetAccessProvider(getContext()).isConnected() && getView() != null) {
                     LOG.info("There is no internet connected, no tracks got uploaded");
                     showSnackbar(R.string.track_list_upload_error_no_network_connection);
                     return;
@@ -334,7 +333,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
 
     private void onUploadAllLocalTracks(DialogInterface dialog, int which) {
         // check if device is connected to internet before uploading the track
-        if (!contextInternetAccessProvider.isConnected() && getView() != null) {
+        if (!new ContextInternetAccessProvider(getContext()).isConnected() && getView() != null) {
             LOG.info("There is no internet connected, no tracks got uploaded");
             showSnackbar(R.string.track_list_upload_error_no_network_connection);
             return;
