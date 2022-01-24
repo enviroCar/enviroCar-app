@@ -61,6 +61,7 @@ import org.envirocar.app.injection.modules.MainActivityModule;
 import org.envirocar.app.R;
 import org.envirocar.app.events.TrackPathOverlayEvent;
 import org.envirocar.app.injection.BaseInjectorFragment;
+import org.envirocar.app.views.obdselection.OBDSelectionFragment;
 import org.envirocar.app.views.trackdetails.MapLayer;
 import org.envirocar.core.logging.Logger;
 
@@ -330,7 +331,7 @@ public class TrackMapFragment extends BaseInjectorFragment implements Permission
 
     @Override
     public void onExplanationNeeded(List<String> permissionsToExplain) {
-        Toast.makeText(getContext(), "We need access to your location.", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getContext(), getContext().getString(R.string.notification_location_access), Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -343,7 +344,7 @@ public class TrackMapFragment extends BaseInjectorFragment implements Permission
                 }
             });
         } else {
-            Toast.makeText(getContext(), "Location access not granted", Toast.LENGTH_LONG).show();
+            Toast.makeText(getContext(), getContext().getString(R.string.notification_location_access_not_granted), Toast.LENGTH_LONG).show();
         }
     }
 
@@ -396,5 +397,4 @@ public class TrackMapFragment extends BaseInjectorFragment implements Permission
         super.onLowMemory();
         mMapView.onLowMemory();
     }
-
 }

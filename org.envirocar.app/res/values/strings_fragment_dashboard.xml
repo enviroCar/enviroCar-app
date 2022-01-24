@@ -24,7 +24,7 @@
     <string name="dashboard_mode_gps_only">GPS Track</string>
 
     <string name="dashboard_start_track">START TRACK</string>
-    <string name="dashboard_goto_track">Goto Track Recording Screen</string>
+    <string name="dashboard_goto_track">Go to Track Recording Screen</string>
     <string name="dashboard_track_is_starting">TRACK IS STARTING...</string>
     <string name="dashboard_track_is_stopping">TRACK IS STOPPING...</string>
 
