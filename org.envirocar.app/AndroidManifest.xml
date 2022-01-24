@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="org.envirocar.app"
     android:installLocation="internalOnly"
-    android:versionCode="51"
+    android:versionCode="52"
     android:versionName="2.1.0"
     >
 
