@@ -28,7 +28,6 @@ import org.envirocar.app.handler.agreement.AgreementManager;
 import org.envirocar.app.handler.preferences.CarPreferenceHandler;
 import org.envirocar.app.handler.preferences.UserPreferenceHandler;
 import org.envirocar.core.EnviroCarDB;
-import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.exception.TrackUploadException;
@@ -169,6 +168,52 @@ public class TrackUploadHandler {
                 .flatMap(tracks1 -> Observable.fromIterable(tracks1))
                 .flatMap(track -> uploadTrack(track)
                         .lift(new OptionalOrErrorMappingOperator()));
+    }
+
+    public DisposableObserver<Track> uploadTrackChunkStart(Track track) {
+        return Observable.just(track)
+                // assets the car of the track and, in case it is not uploaded, it uploads the
+                // car and sets the remoteId
+                .compose(validateCarOfTrack())
+                // Update the track metadata.
+                .compose(updateTrackMetadata())
+                // Upload the track
+                .flatMap(obfTrack -> mDAOProvider.getTrackDAO().createTrackObservable(obfTrack))
+                // Update the database entry
+                .flatMap(uploadedTrack -> mEnviroCarDB.updateTrackObservable(uploadedTrack))
+                // Only forward the results to the real subscriber.
+                .subscribeWith(new DisposableObserver<Track>() {
+                    @Override
+                    public void onNext(Track track) {
+                        LOG.info("OnNext " + track.getTrackID());
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        LOG.error(e);
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        LOG.info("onComplete " + track.getTrackID());
+                    }
+                })
+                //.lift(new UploadExceptionMappingOperator())
+                ;
+    }
+
+    public Observable<Track> uploadTrackChunk(Track track) {
+        return Observable.just(track)
+                // assets the car of the track and, in case it is not uploaded, it uploads the
+                // car and sets the remoteId
+                .compose(validateCarOfTrack())
+                // Update the track metadata.
+                .compose(updateTrackMetadata())
+                // Upload the track
+                .flatMap(obfTrack -> mDAOProvider.getTrackDAO().createTrackObservable(obfTrack))
+                // Update the database entry
+                .flatMap(uploadedTrack -> mEnviroCarDB.updateTrackObservable(uploadedTrack))
+                .lift(new UploadExceptionMappingOperator());
     }
 
     private Observable<Track> uploadTrack(Track track) {

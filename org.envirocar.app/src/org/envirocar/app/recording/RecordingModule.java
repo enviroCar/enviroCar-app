@@ -27,7 +27,9 @@ import org.envirocar.algorithm.MeasurementProvider;
 import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.InterpolationMeasurementProvider;
+import org.envirocar.app.handler.TrackUploadHandler;
 import org.envirocar.app.handler.preferences.CarPreferenceHandler;
+import org.envirocar.app.interactor.UploadTrack;
 import org.envirocar.app.recording.notification.SpeechOutput;
 import org.envirocar.app.recording.provider.LocationProvider;
 import org.envirocar.app.recording.provider.RecordingDetailsProvider;
@@ -44,6 +46,7 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
+import org.envirocar.remote.dao.RemoteTrackDAO;
 
 @Module
 public class RecordingModule {
@@ -81,8 +84,8 @@ public class RecordingModule {
 
     @Provides
     @RecordingScope
-    public TrackchunkUploadService provideTrackchunkUploadService(@InjectApplicationScope Context context, EnviroCarDB enviroCarDB) {
-        return new TrackchunkUploadService(context, enviroCarDB);
+    public TrackchunkUploadService provideTrackchunkUploadService(@InjectApplicationScope Context context, EnviroCarDB enviroCarDB, Bus eventBus, TrackUploadHandler trackUploadHandler) {
+        return new TrackchunkUploadService(context, enviroCarDB, eventBus, trackUploadHandler);
     }
 
 //    @Provides
