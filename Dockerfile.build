@@ -21,7 +21,7 @@ COPY ./build.gradle /app
 COPY . /app
 
 
-RUN ./gradlew build
+RUN ./gradlew --no-daemon build
 
 # build the image with:
 # docker build --build-arg ORG_GRADLE_PROJECT_MAPBOX_DOWNLOADS_TOKEN=<mapbox-api-token> -t envirocar-app-build:latest -f Dockerfile.build .
