@@ -225,7 +225,7 @@
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin">
 
-        <ImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/activity_track_details_speed_image"
             android:layout_width="24dp"
             android:layout_height="24dp"
@@ -265,7 +265,7 @@
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin">
 
-        <ImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/activity_track_details_stops_image"
             android:layout_width="24dp"
             android:layout_height="24dp"
@@ -305,7 +305,7 @@
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin">
 
-        <ImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/activity_track_details_stoptime_image"
             android:layout_width="24dp"
             android:layout_height="24dp"

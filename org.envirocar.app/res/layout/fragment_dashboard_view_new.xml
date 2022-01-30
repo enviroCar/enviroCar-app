@@ -103,7 +103,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/fragment_dashboard_banner">
 
-                    <ImageView
+                    <androidx.appcompat.widget.AppCompatImageView
                         android:id="@+id/imageView3"
                         android:layout_width="wrap_content"
                         android:layout_height="0dp"
@@ -153,7 +153,7 @@
                         android:gravity="center"
                         android:orientation="vertical">
 
-                        <ImageView
+                        <androidx.appcompat.widget.AppCompatImageView
                             android:id="@+id/fragment_dashboard_indicator_bluetooth"
                             android:layout_width="0dp"
                             android:layout_height="0dp"
@@ -201,7 +201,7 @@
                         android:layout_weight="1"
                         android:orientation="vertical">
 
-                        <ImageView
+                        <androidx.appcompat.widget.AppCompatImageView
                             android:id="@+id/fragment_dashboard_indicator_obd"
                             android:layout_width="0dp"
                             android:layout_height="0dp"
@@ -250,7 +250,7 @@
                         android:gravity="center"
                         android:orientation="vertical">
 
-                        <ImageView
+                        <androidx.appcompat.widget.AppCompatImageView
                             android:id="@+id/fragment_dashboard_indicator_gps"
                             android:layout_width="0dp"
                             android:layout_height="0dp"
@@ -299,7 +299,7 @@
                         android:gravity="center"
                         android:orientation="vertical">
 
-                        <ImageView
+                        <androidx.appcompat.widget.AppCompatImageView
                             android:id="@+id/fragment_dashboard_indicator_car"
                             android:layout_width="0dp"
                             android:layout_height="0dp"
@@ -540,7 +540,7 @@
                         android:layout_gravity="center_vertical"
                         android:orientation="horizontal">
 
-                        <ImageView
+                        <androidx.appcompat.widget.AppCompatImageView
                             android:layout_width="40dp"
                             android:layout_height="match_parent"
                             android:layout_gravity="center"
@@ -584,7 +584,7 @@
 
                         </LinearLayout>
 
-                        <ImageView
+                        <androidx.appcompat.widget.AppCompatImageView
                             android:layout_width="32sp"
                             android:layout_height="32sp"
                             android:layout_gravity="right|center_vertical"
@@ -613,7 +613,7 @@
                         android:layout_gravity="center_vertical"
                         android:orientation="horizontal">
 
-                        <ImageView
+                        <androidx.appcompat.widget.AppCompatImageView
                             android:layout_width="40dp"
                             android:layout_height="match_parent"
                             android:layout_gravity="center"
@@ -657,7 +657,7 @@
 
                         </LinearLayout>
 
-                        <ImageView
+                        <androidx.appcompat.widget.AppCompatImageView
                             android:layout_width="32sp"
                             android:layout_height="32sp"
                             android:layout_gravity="right|center_vertical"

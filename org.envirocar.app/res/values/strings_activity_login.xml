@@ -36,6 +36,7 @@
     <string name="error_username_already_in_use">This username is already in use.</string>
     <string name="error_email_already_in_use">This email is already in use.</string>
     <string name="error_host_not_found">Unable to communicate with the server.</string>
+    <string name="error_terms_not_acceppted">You must accept the latest Terms of Use version.</string>
 
     <string name="activity_login_logout_progress_dialog_title">Signing out...</string>
     <string name="activity_login_logout_progress_dialog_content">Deleting all local data and copies of uploaded tracks.</string>

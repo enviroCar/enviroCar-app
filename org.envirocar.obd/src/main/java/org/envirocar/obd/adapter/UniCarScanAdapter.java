@@ -18,7 +18,13 @@
  */
 package org.envirocar.obd.adapter;
 
+import org.envirocar.obd.commands.CycleCommandProfile;
+
 public class UniCarScanAdapter extends OBDLinkAdapter{
+    public UniCarScanAdapter(CycleCommandProfile cmp) {
+        super(cmp);
+    }
+
     @Override
     public boolean supportsDevice(String deviceName) {
         return deviceName.contains("UniCarScan");

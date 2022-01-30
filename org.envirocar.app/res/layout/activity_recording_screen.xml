@@ -76,7 +76,7 @@
                     android:gravity="center"
                     android:orientation="vertical">
 
-                    <ImageView
+                    <androidx.appcompat.widget.AppCompatImageView
                         android:id="@+id/activity_recscreen_trackdetails_gps"
                         android:layout_width="25dp"
                         android:layout_height="25dp"
@@ -102,7 +102,7 @@
                     android:gravity="center"
                     android:orientation="vertical">
 
-                    <ImageView
+                    <androidx.appcompat.widget.AppCompatImageView
                         android:id="@+id/activity_recscreen_trackdetails_bluetooth"
                         android:layout_width="25dp"
                         android:layout_height="25dp"
@@ -259,7 +259,7 @@
                 android:gravity="center"
                 android:orientation="horizontal">
 
-                <ImageView
+                <androidx.appcompat.widget.AppCompatImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:padding="8dp"
