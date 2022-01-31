@@ -30,19 +30,16 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
-import org.envirocar.app.R;
+import org.envirocar.app.databinding.FragmentCarListBinding;
 import org.envirocar.core.entity.Vehicles;
 
 import java.util.List;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
 
 public class CarListFragment extends BottomSheetDialogFragment {
 
-    @BindView(R.id.fragment_car_list_view)
-    RecyclerView recyclerView;
+    private FragmentCarListBinding carListBinding;
+
    List<Vehicles> vehiclesList;
 
 
@@ -51,8 +48,9 @@ public class CarListFragment extends BottomSheetDialogFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        View view = inflater.inflate(R.layout.fragment_car_list, container, false);
-        ButterKnife.bind(this, view);
+        carListBinding = FragmentCarListBinding.inflate(inflater,container,false);
+        View view = carListBinding.getRoot();
+
         CarSelectionAttributeListAdapter carListAdapter = new CarSelectionAttributeListAdapter(getContext(), vehiclesList,
                 new OnCarInteractionCallback() {
 
@@ -67,8 +65,9 @@ public class CarListFragment extends BottomSheetDialogFragment {
                     }
                 });
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
-        recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setAdapter(carListAdapter);
+        carListBinding.fragmentCarListView.setLayoutManager(layoutManager);
+        carListBinding.fragmentCarListView.setAdapter(carListAdapter);
+
         return view;
     }
 
@@ -79,10 +78,10 @@ public class CarListFragment extends BottomSheetDialogFragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        carListBinding =null;
     }
 
-    @OnClick(R.id.fragment_car_list_layout_cancel)
-    void cancelSheet() {
-        dismiss();
+    void cancelSheet(){
+        carListBinding.fragmentCarListLayoutCancel.setOnClickListener(v -> dismiss());
     }
 }

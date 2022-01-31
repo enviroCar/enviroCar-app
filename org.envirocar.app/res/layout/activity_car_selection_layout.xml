@@ -31,7 +31,9 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <include layout="@layout/envirocar_toolbar"></include>
+        <include
+            android:id="@+id/inc_envirocar_toolbar"
+            layout="@layout/envirocar_toolbar" />
 
         <RelativeLayout
             android:layout_width="match_parent"

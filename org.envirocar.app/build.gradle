@@ -111,6 +111,9 @@ android {
             keyPassword project.properties['RELEASE_KEY_PASSWORD'] ?: ""
         }
     }
+    buildFeatures {
+        viewBinding true
+    }
 
     buildTypes {
         release {

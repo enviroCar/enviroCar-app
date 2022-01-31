@@ -19,25 +19,19 @@
 package org.envirocar.app.views.carselection;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
-
-import androidx.appcompat.widget.Toolbar;
 
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.RadioButton;
-import android.widget.TextView;
 
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
+import org.envirocar.app.databinding.ActivityCarSelectionLayoutBinding;
 import org.envirocar.app.handler.preferences.CarPreferenceHandler;
 import org.envirocar.app.handler.preferences.UserPreferenceHandler;
 import org.envirocar.app.views.utils.ECAnimationUtils;
@@ -55,9 +49,6 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-import butterknife.ButterKnife;
-import butterknife.BindView;
-import butterknife.OnClick;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -68,24 +59,11 @@ import io.reactivex.schedulers.Schedulers;
  * @author dewall
  */
 public class CarSelectionActivity extends BaseInjectorActivity implements CarSelectionUiListener, CarSelectionCreation {
+    private ActivityCarSelectionLayoutBinding carSelectionLayoutBinding;
     private static final Logger LOG = Logger.getLogger(CarSelectionActivity.class);
 
     private static final int DURATION_SHEET_ANIMATION = 350;
 
-    @BindView(R.id.activity_car_selection_layout_content)
-    protected View mContentView;
-    @BindView(R.id.envirocar_toolbar)
-    protected Toolbar mToolbar;
-    @BindView(R.id.activity_car_selection_layout_exptoolbar)
-    protected Toolbar mExpToolbar;
-    @BindView(R.id.actvity_car_selection_layout_loading)
-    protected View loadingView;
-
-    @BindView(R.id.activity_car_selection_new_car_fab)
-    protected FloatingActionButton mFab;
-
-    @BindView(R.id.activity_car_selection_layout_carlist)
-    protected ListView mCarListView;
 
     @Inject
     protected DAOProvider mDAOProvider;
@@ -93,17 +71,6 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
     protected CarPreferenceHandler mCarManager;
     @Inject
     protected UserPreferenceHandler mUserHandler;
-
-    @BindView(R.id.layout_general_info_background)
-    protected View infoBackground;
-    @BindView(R.id.layout_general_info_background_img)
-    protected ImageView infoBackgroundImg;
-    @BindView(R.id.layout_general_info_background_firstline)
-    protected TextView infoBackgroundFirst;
-    @BindView(R.id.layout_general_info_background_secondline)
-    protected TextView infoBackgroundSecond;
-    @BindView(R.id.activity_car_selection_header)
-    protected View headerView;
 
     private CarSelectionAddCarFragment addCarFragment;
     private CarSelectionListAdapter mCarListAdapter;
@@ -119,18 +86,17 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Set the content view of this activity.
-        setContentView(R.layout.activity_car_selection_layout);
+        carSelectionLayoutBinding = ActivityCarSelectionLayoutBinding.inflate(getLayoutInflater());
+        View view = carSelectionLayoutBinding.getRoot();
 
-        // Inject all annotated views.
-        ButterKnife.bind(this);
+        // Set the content view of this activity.
+        setContentView(view);
 
         // Set the toolbar as default actionbar.
-        setSupportActionBar(mToolbar);
+        setSupportActionBar(carSelectionLayoutBinding.incEnvirocarToolbar.envirocarToolbar);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle("");
-//        getSupportActionBar().setTitle(R.string.car_selection_header);
 
         // If no cars present show background image.
         if (!mCarManager.hasCars()){
@@ -166,9 +132,8 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
 
     // Set the onClick listener for the FloatingActionButton. When triggered, the sheet view
     // gets shown.
-    @OnClick(R.id.activity_car_selection_new_car_fab)
     public void onClickNewCarButton() {
-        showAddCarFragment();
+        carSelectionLayoutBinding.activityCarSelectionNewCarFab.setOnClickListener(v -> showAddCarFragment());
     }
 
     @Override
@@ -192,7 +157,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
             LOG.info("addCarFragment is already visible.");
             return false;
         }
-        ECAnimationUtils.animateHideView(this, mFab, R.anim.fade_out);
+        ECAnimationUtils.animateHideView(this, carSelectionLayoutBinding.activityCarSelectionNewCarFab, R.anim.fade_out);
         this.addCarFragment = new CarSelectionAddCarFragment();
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.activity_car_selection_container, this.addCarFragment)
@@ -215,7 +180,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
                     .remove(addCarFragment)
                     .commit();
             addCarFragment = null;
-            ECAnimationUtils.animateShowView(this, mFab, R.anim.fade_in);
+            ECAnimationUtils.animateShowView(this, carSelectionLayoutBinding.activityCarSelectionNewCarFab, R.anim.fade_in);
             return true;
         }
         return false;
@@ -274,7 +239,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
                                 .show();
                     }
                 });
-        mCarListView.setAdapter(mCarListAdapter);
+        carSelectionLayoutBinding.activityCarSelectionLayoutCarlist.setAdapter(mCarListAdapter);
 
         loadingCarsSubscription = mCarManager.getAllDeserializedCars()
                 .flatMap(cars -> {
@@ -292,19 +257,19 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
                     @Override
                     public void onStart() {
                         LOG.info("onStart()");
-                        loadingView.setVisibility(View.VISIBLE);
+                       carSelectionLayoutBinding.actvityCarSelectionLayoutLoading.setVisibility(View.VISIBLE);
                     }
 
                     @Override
                     public void onComplete() {
                         LOG.info("onCompleted() loading of all cars");
-                        loadingView.setVisibility(View.INVISIBLE);
+                        carSelectionLayoutBinding.actvityCarSelectionLayoutLoading.setVisibility(View.INVISIBLE);
                     }
 
                     @Override
                     public void onError(Throwable e) {
                         LOG.error(e.getMessage(), e);
-                        loadingView.setVisibility(View.INVISIBLE);
+                        carSelectionLayoutBinding.actvityCarSelectionLayoutLoading.setVisibility(View.INVISIBLE);
                     }
 
                     @Override
@@ -326,23 +291,23 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
      * @param msg the message that is gonna shown by the snackbar.
      */
     private void showSnackbar(String msg) {
-        Snackbar.make(mFab, msg, Snackbar.LENGTH_LONG).show();
+        Snackbar.make(carSelectionLayoutBinding.activityCarSelectionNewCarFab, msg, Snackbar.LENGTH_LONG).show();
     }
 
     public void showBackgroundImage(){
         showInfoBackground(R.drawable.img_alert,
                 R.string.car_selection_no_car_no_car_first,
                 R.string.car_selection_no_car_no_car_second);
-        headerView.setVisibility(View.GONE);
+        carSelectionLayoutBinding.activityCarSelectionHeader.setVisibility(View.GONE);
 
     }
 
     private void showInfoBackground(int imgResource, int firstLine, int secondLine) {
         LOG.info("showInfoBackground()");
-        infoBackgroundImg.setImageResource(imgResource);
-        infoBackgroundFirst.setText(firstLine);
-        infoBackgroundSecond.setText(secondLine);
-        ECAnimationUtils.animateShowView(this, infoBackground, R.anim.fade_in);
+        carSelectionLayoutBinding.layoutGeneralInfoBackground.layoutGeneralInfoBackgroundImg.setImageResource(imgResource);
+        carSelectionLayoutBinding.layoutGeneralInfoBackground.layoutGeneralInfoBackgroundFirstline.setText(firstLine);
+        carSelectionLayoutBinding.layoutGeneralInfoBackground.layoutGeneralInfoBackgroundSecondline.setText(secondLine);
+        ECAnimationUtils.animateShowView(this, carSelectionLayoutBinding.layoutGeneralInfoBackground.layoutGeneralInfoBackgroundRl, R.anim.fade_in);
     }
 
     /**
@@ -361,8 +326,8 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
         if (mCarManager.addCar(car)) {
             mCarListAdapter.addCarItem(car);
 
-            headerView.setVisibility(View.VISIBLE);
-            ECAnimationUtils.animateHideView(this, infoBackground, R.anim.fade_out);
+            carSelectionLayoutBinding.activityCarSelectionHeader.setVisibility(View.VISIBLE);
+            ECAnimationUtils.animateHideView(this, carSelectionLayoutBinding.layoutGeneralInfoBackground.layoutGeneralInfoBackgroundRl, R.anim.fade_out);
 
             showSnackbar(String.format(getString(R.string.car_selection_successfully_added_tmp),
                     car.getManufacturer(), car.getModel()));
