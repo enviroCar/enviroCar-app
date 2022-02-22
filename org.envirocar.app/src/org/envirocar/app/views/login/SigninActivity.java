@@ -69,7 +69,7 @@ import io.reactivex.schedulers.Schedulers;
  * @author dewall
  */
 public class SigninActivity extends BaseInjectorActivity {
-    private static final Logger LOG = Logger.getLogger(SigninActivity.class);
+    private static final java.util.logging.Logger LOG = Logger.getLogger(SigninActivity.class);
 
     public static void startActivity(Context context) {
         Intent intent = new Intent(context, SigninActivity.class);
@@ -248,73 +248,8 @@ public class SigninActivity extends BaseInjectorActivity {
                                     passwordEditText.setError(getString(R.string.error_host_not_found), errorPassword);
                                     break;
                                 case TERMS_NOT_ACCEPTED:
-                                    User candidateUser = new UserImpl(username, password);
-                                    // temp login so we can use the agreementManager
-                                    userHandler.setUser(candidateUser);
-                                    DisposableObserver disposable = Observable.just(candidateUser)
-                                        // Verify whether the TermsOfUSe have been accepted.
-                                        // When the TermsOfUse have not been accepted, create an
-                                        // Dialog to accept and continue when the getUserStatistic has accepted.
-                                        .compose(AgreementManager.TermsOfUseValidator.create(agreementManager, SigninActivity.this))
-                                        .subscribeOn(Schedulers.io())
-                                        .observeOn(AndroidSchedulers.mainThread())
-                                        // Continue when the TermsOfUse has been accepted, otherwise
-                                        // throw an error
-                                        .subscribeWith(new DisposableObserver<User>() {
-                                            @Override
-                                            public void onNext(User u) {
-                                                LOG.info("User accepted latest ToU");
-                                                userHandler.logIn(username, password)
-                                                    .subscribeOn(Schedulers.io())
-                                                    .observeOn(AndroidSchedulers.mainThread())
-                                                    .subscribeWith(new DisposableCompletableObserver() {
-                                                        private AlertDialog dialog;
-
-                                                        @Override
-                                                        protected void onStart() {
-                                                            if(checkNetworkConnection()) {
-                                                                dialog = DialogUtils.createProgressBarDialogBuilder(SigninActivity.this,
-                                                                        R.string.activity_login_logging_in_dialog_title,
-                                                                        R.drawable.ic_baseline_login_24,
-                                                                        (String) null)
-                                                                        .setCancelable(false)
-                                                                        .show();
-                                                            }
-                                                        }
-
-                                                        @Override
-                                                        public void onComplete() {
-                                                            if(checkNetworkConnection())
-                                                            dialog.dismiss();
-                                                            Intent intent = new Intent(getBaseContext(), BaseMainActivity.class);
-                                                            startActivity(intent);
-                                                        }
-
-                                                        @Override
-                                                        public void onError(Throwable e) {
-                                                            LOG.error(e);
-                                                            LOG.warn("Unexpected error in ToU mechanism.");
-                                                        }
-                                                    });
-                                            }
-
-                                            @Override
-                                            public void onError(Throwable e) {
-                                                LOG.error(e);
-                                                LOG.info("User did not accept latest ToU");
-                                                passwordEditText.setError(getString(R.string.error_terms_not_acceppted), errorPassword);
-                                                userHandler.logOut();
-                                            }
-
-                                            @Override
-                                            public void onComplete() {
-                                                LOG.info("ToU acceptance workflow complete.");
-                                                if (userHandler.isLoggedIn()) {
-                                                    Intent intent = new Intent(getBaseContext(), BaseMainActivity.class);
-                                                    startActivity(intent);
-                                                }
-                                            }
-                                        });
+                                    LOG.info("User has not accepted the latest terms of use");
+                                    initializeTermsOfUseAcceptanceWorkflow(username, password);
                                     break;
                                 default:
                                     passwordEditText.setError(getString(R.string.logbook_invalid_input), errorPassword);
@@ -326,6 +261,76 @@ public class SigninActivity extends BaseInjectorActivity {
                         }
                     }
                 });
+    }
+
+    private void initializeTermsOfUseAcceptanceWorkflow(String username, String password) {
+        User candidateUser = new UserImpl(username, password);
+        // temp login so we can use the agreementManager
+        userHandler.setUser(candidateUser);
+        DisposableObserver disposable = Observable.just(candidateUser)
+            // Verify whether the TermsOfUSe have been accepted.
+            // When the TermsOfUse have not been accepted, create an
+            // Dialog to accept and continue when the getUserStatistic has accepted.
+            .compose(AgreementManager.TermsOfUseValidator.create(agreementManager, SigninActivity.this))
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            // Continue when the TermsOfUse has been accepted, otherwise
+            // throw an error
+            .subscribeWith(new DisposableObserver<User>() {
+                @Override
+                public void onNext(User u) {
+                    LOG.info("User accepted latest ToU");
+                    userHandler.logIn(username, password)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeWith(new DisposableCompletableObserver() {
+                            private AlertDialog dialog;
+
+                            @Override
+                            protected void onStart() {
+                                if(checkNetworkConnection()) {
+                                    dialog = DialogUtils.createProgressBarDialogBuilder(SigninActivity.this,
+                                            R.string.activity_login_logging_in_dialog_title,
+                                            R.drawable.ic_baseline_login_24,
+                                            (String) null)
+                                            .setCancelable(false)
+                                            .show();
+                                }
+                            }
+
+                            @Override
+                            public void onComplete() {
+                                if(checkNetworkConnection())
+                                dialog.dismiss();
+                                Intent intent = new Intent(getBaseContext(), BaseMainActivity.class);
+                                startActivity(intent);
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+                                LOG.error(e);
+                                LOG.warn("Unexpected error in ToU mechanism.");
+                            }
+                        });
+                }
+
+                @Override
+                public void onError(Throwable e) {
+                    LOG.error(e);
+                    LOG.info("User did not accept latest ToU");
+                    passwordEditText.setError(getString(R.string.error_terms_not_acceppted), errorPassword);
+                    userHandler.logOut();
+                }
+
+                @Override
+                public void onComplete() {
+                    LOG.info("ToU acceptance workflow complete.");
+                    if (userHandler.isLoggedIn()) {
+                        Intent intent = new Intent(getBaseContext(), BaseMainActivity.class);
+                        startActivity(intent);
+                    }
+                }
+            });
     }
 
     private boolean checkNetworkConnection() {

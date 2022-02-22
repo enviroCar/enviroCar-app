@@ -228,12 +228,12 @@ public class AgreementManager {
         return user;
     }
 
-    private AbstractReactiveAcceptDialog.Params getTermsOfUseParams(User user){
+    private AbstractReactiveAcceptDialog.Params getPrivacyStatementParams(User user){
         return new AbstractReactiveAcceptDialog.Params(
                 user, R.string.privacy_statement_title, R.string.ok, true);
     }
 
-    private AbstractReactiveAcceptDialog.Params getPrivacyStatementParams(User user){
+    private AbstractReactiveAcceptDialog.Params getTermsOfUseParams(User user){
         return new AbstractReactiveAcceptDialog.Params(
                 user, R.string.terms_of_use_title, R.string.ok, true);
     }
