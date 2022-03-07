@@ -20,6 +20,8 @@ package org.envirocar.remote.service;
 
 
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import org.envirocar.core.entity.Track;
 
 import java.util.List;
@@ -27,12 +29,7 @@ import java.util.List;
 import io.reactivex.Observable;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
-import retrofit2.http.Body;
-import retrofit2.http.DELETE;
-import retrofit2.http.GET;
-import retrofit2.http.POST;
-import retrofit2.http.Path;
-import retrofit2.http.Query;
+import retrofit2.http.*;
 
 /**
  * @author dewall
@@ -84,6 +81,10 @@ public interface TrackService {
     @DELETE("users/{getUserStatistic}/tracks/{track}")
     Call<ResponseBody> deleteTrack(@Path("getUserStatistic") String user, @Path("track") String track);
 
+    @PUT("users/{getUserStatistic}/tracks/{track}")
+    Call<ResponseBody> updateTrack(@Path("getUserStatistic") String user,
+                                @Path("track") String track,
+                                @Body JsonElement trackFeatures);
 
 }
 

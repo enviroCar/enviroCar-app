@@ -130,6 +130,7 @@ public class TrackSerde extends AbstractJsonSerde implements JsonSerializer<Trac
         trackProperties.addProperty(Track.KEY_TRACK_DESC,
                 src.getDescription());
         trackProperties.addProperty(Track.KEY_TRACK_SENSOR, src.getCar().getId());
+        trackProperties.addProperty(Track.KEY_TRACK_STATUS, src.getTrackStatus().name());
 
         try {
             if (src.getMetadata() != null) {
@@ -168,6 +169,8 @@ public class TrackSerde extends AbstractJsonSerde implements JsonSerializer<Trac
         result.addProperty(Track.KEY_TRACK_TYPE, "FeatureCollection");
         result.add(Track.KEY_TRACK_PROPERTIES, trackProperties);
         result.add(Track.KEY_TRACK_FEATURES, trackFeatures);
+
+        LOG.info(result.toString());
 
         return result;
     }

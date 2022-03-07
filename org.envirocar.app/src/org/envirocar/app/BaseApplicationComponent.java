@@ -124,7 +124,7 @@ public interface BaseApplicationComponent {
     void inject(TrackUploadService trackUploadService);
     void inject(EnviroCarDataService enviroCarDataService);
     void inject(EnviroCarVehicleDB enviroCarVehicleDB);
-    void inject(TrackchunkUploadService trackchunkUploaderService);
+    void inject(TrackchunkUploadService trackchunkUploadService);
 
     // interactors
     void inject(GetUserStatistic getUserStatistic);

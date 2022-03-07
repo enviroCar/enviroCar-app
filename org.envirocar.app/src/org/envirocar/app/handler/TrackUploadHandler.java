@@ -23,14 +23,14 @@ import android.content.Context;
 
 import com.google.common.base.Preconditions;
 
+import com.google.gson.JsonArray;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.agreement.AgreementManager;
 import org.envirocar.app.handler.preferences.CarPreferenceHandler;
 import org.envirocar.app.handler.preferences.UserPreferenceHandler;
 import org.envirocar.core.EnviroCarDB;
 import org.envirocar.core.entity.Track;
-import org.envirocar.core.exception.NoMeasurementsException;
-import org.envirocar.core.exception.TrackUploadException;
+import org.envirocar.core.exception.*;
 import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.utils.TrackUtils;
@@ -170,50 +170,64 @@ public class TrackUploadHandler {
                         .lift(new OptionalOrErrorMappingOperator()));
     }
 
-    public DisposableObserver<Track> uploadTrackChunkStart(Track track) {
-        return Observable.just(track)
-                // assets the car of the track and, in case it is not uploaded, it uploads the
-                // car and sets the remoteId
-                .compose(validateCarOfTrack())
-                // Update the track metadata.
-                .compose(updateTrackMetadata())
-                // Upload the track
-                .flatMap(obfTrack -> mDAOProvider.getTrackDAO().createTrackObservable(obfTrack))
-                // Update the database entry
-                .flatMap(uploadedTrack -> mEnviroCarDB.updateTrackObservable(uploadedTrack))
+    public Track uploadTrackChunkStart(Track track) {
+        track.setTrackStatus(Track.TrackStatus.ONGOING);
+        try {
+            LOG.info("Trying to create track." + track);
+            return trackDAOHandler.createRemoteTrack(track);
+        } catch (UnauthorizedException e) {
+            LOG.error("Unauthorized.");
+        } catch (NotConnectedException e) {
+            LOG.error("Not connected.");
+        } catch (ResourceConflictException e) {
+            LOG.error("Resource conflict.");
+        } catch (DataCreationFailureException e) {
+            LOG.error("Data Creation Exception.");
+        }
+        return null;
+
+//        return Observable.just(track)
+//                // assets the car of the track and, in case it is not uploaded, it uploads the
+//                // car and sets the remoteId
+//                .compose(validateCarOfTrack())
+//                // Update the track metadata.
+//                .compose(updateTrackMetadata())
+//                // Upload the track
+//                .flatMap(obfTrack -> mDAOProvider.getTrackDAO().createTrackObservable(obfTrack))
+//                // Update the database entry
+//                .flatMap(uploadedTrack -> mEnviroCarDB.updateTrackObservable(uploadedTrack))
                 // Only forward the results to the real subscriber.
-                .subscribeWith(new DisposableObserver<Track>() {
-                    @Override
-                    public void onNext(Track track) {
-                        LOG.info("OnNext " + track.getTrackID());
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        LOG.error(e);
-                    }
-
-                    @Override
-                    public void onComplete() {
-                        LOG.info("onComplete " + track.getTrackID());
-                    }
-                })
+//                .subscribeWith(new DisposableObserver<Track>() {
+//                    @Override
+//                    public void onNext(Track track) {
+//                        LOG.info("OnNext " + track.getTrackID());
+//                        LOG.info("OnNext " + track.getRemoteID());
+//                    }
+//
+//                    @Override
+//                    public void onError(Throwable e) {
+//                        LOG.error(e);
+//                    }
+//
+//                    @Override
+//                    public void onComplete() {
+//                        LOG.info("onComplete " + track.getTrackID());
+//                    }
+//                })
                 //.lift(new UploadExceptionMappingOperator())
-                ;
+                //;
     }
 
-    public Observable<Track> uploadTrackChunk(Track track) {
-        return Observable.just(track)
-                // assets the car of the track and, in case it is not uploaded, it uploads the
-                // car and sets the remoteId
-                .compose(validateCarOfTrack())
-                // Update the track metadata.
-                .compose(updateTrackMetadata())
-                // Upload the track
-                .flatMap(obfTrack -> mDAOProvider.getTrackDAO().createTrackObservable(obfTrack))
-                // Update the database entry
-                .flatMap(uploadedTrack -> mEnviroCarDB.updateTrackObservable(uploadedTrack))
-                .lift(new UploadExceptionMappingOperator());
+    public void uploadTrackChunk(String remoteID, JsonArray trackFeatures) {
+        try {
+            LOG.info("Trying to update track.");
+            trackDAOHandler.updateRemoteTrack(remoteID, trackFeatures);
+            LOG.info("Track updated.");
+        } catch (UnauthorizedException e) {
+            LOG.error("Unauthorized.");
+        } catch (NotConnectedException e) {
+            LOG.error("Not connected.");
+        }
     }
 
     private Observable<Track> uploadTrack(Track track) {

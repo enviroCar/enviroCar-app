@@ -30,6 +30,7 @@ import org.envirocar.app.handler.agreement.AgreementManager;
 import org.envirocar.app.handler.preferences.CarPreferenceHandler;
 import org.envirocar.app.handler.preferences.UserPreferenceHandler;
 import org.envirocar.app.recording.RecordingService;
+import org.envirocar.app.services.trackchunks.TrackchunkUploadService;
 import org.envirocar.core.utils.rx.Optional;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Track;
@@ -169,6 +170,14 @@ public class TrackRecordingHandler {
             try {
                 ServiceUtils.stopService(mContext, RecordingService.class);
                 LOGGER.info("Recording services stopped");
+                emitter.onComplete();
+            } catch (Exception e) {
+                emitter.onError(e);
+            }
+            LOGGER.info("Stopping the TrackchunkUpload service.");
+            try {
+                ServiceUtils.stopService(mContext, TrackchunkUploadService.class);
+                LOGGER.info("TrackchunkUpload service stopped");
                 emitter.onComplete();
             } catch (Exception e) {
                 emitter.onError(e);

@@ -18,6 +18,7 @@
  */
 package org.envirocar.core.dao;
 
+import com.google.gson.JsonArray;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.exception.DataCreationFailureException;
 import org.envirocar.core.exception.DataRetrievalFailureException;
@@ -68,5 +69,8 @@ public interface TrackDAO {
     Observable<Track> createTrackObservable(Track track);
 
     void deleteTrack(Track track) throws DataUpdateFailureException, NotConnectedException,
+            UnauthorizedException;
+
+    void updateTrack(String remoteID,JsonArray trackFeatures) throws DataUpdateFailureException, NotConnectedException,
             UnauthorizedException;
 }

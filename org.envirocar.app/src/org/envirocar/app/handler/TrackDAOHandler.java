@@ -20,12 +20,9 @@ package org.envirocar.app.handler;
 
 import android.content.Context;
 
+import com.google.gson.JsonArray;
 import org.envirocar.core.entity.Track;
-import org.envirocar.core.exception.DataRetrievalFailureException;
-import org.envirocar.core.exception.DataUpdateFailureException;
-import org.envirocar.core.exception.NotConnectedException;
-import org.envirocar.core.exception.TrackSerializationException;
-import org.envirocar.core.exception.UnauthorizedException;
+import org.envirocar.core.exception.*;
 import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.util.TrackMetadata;
@@ -129,6 +126,36 @@ public class TrackDAOHandler {
         // Successfully deleted the remote track.
         LOGGER.info("deleteRemoteTrack(): Successfully deleted the remote track.");
         return true;
+    }
+
+    /**
+     * Invokes an update of a remote track.
+     *
+     * @param remoteID The remote id of the track
+     * @param trackFeatures The new features
+     *
+     * @return
+     * @throws UnauthorizedException
+     * @throws NotConnectedException
+     */
+    public boolean updateRemoteTrack(String remoteID, JsonArray trackFeatures) throws UnauthorizedException,
+            NotConnectedException {
+        LOGGER.info(String.format("updateRemoteTrack(id = %s)", remoteID));
+
+        // Update the track.
+        try {
+            daoProvider.getTrackDAO().updateTrack(remoteID, trackFeatures);
+        } catch (DataUpdateFailureException e) {
+            LOGGER.error(String.format("Could not update track with id = %s", remoteID), e);
+        }
+        // Successfully updated the remote track.
+        LOGGER.info("updateRemoteTrack(): Successfully updated the remote track.");
+        return true;
+    }
+
+    public Track createRemoteTrack(Track track) throws ResourceConflictException, NotConnectedException, DataCreationFailureException, UnauthorizedException {
+        // Create the remote track.
+       return daoProvider.getTrackDAO().createTrack(track);
     }
 
     public boolean deleteAllRemoteTracksLocally() {
