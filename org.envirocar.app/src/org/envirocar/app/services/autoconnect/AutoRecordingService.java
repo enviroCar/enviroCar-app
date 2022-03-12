@@ -18,15 +18,22 @@
  */
 package org.envirocar.app.services.autoconnect;
 
+import static androidx.core.app.NotificationCompat.PRIORITY_MIN;
+
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Build;
 import android.os.IBinder;
 import android.os.PowerManager;
 
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.BaseApplication;
+import org.envirocar.app.R;
 import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.app.injection.ScopedBaseInjectorService;
 import org.envirocar.app.notifications.NotificationHandler;
@@ -44,6 +51,8 @@ import javax.inject.Inject;
 import io.reactivex.disposables.CompositeDisposable;
 
 import static org.envirocar.app.notifications.NotificationHandler.context;
+
+import androidx.core.app.NotificationCompat;
 
 /**
  * @author dewall
@@ -133,6 +142,8 @@ public class AutoRecordingService extends ScopedBaseInjectorService implements A
                         })
                         .doOnError(LOG::error)
                         .subscribe());
+
+        startServiceOreoCondition();
     }
 
     @Override
@@ -257,6 +268,22 @@ public class AutoRecordingService extends ScopedBaseInjectorService implements A
         if (!ServiceUtils.isServiceRunning(getApplicationContext(), RecordingService.class)) {
             // Start the GPS Only Connection Service
             ServiceUtils.startService(this, RecordingService.class);
+        }
+    }
+    private void startServiceOreoCondition(){
+        if (Build.VERSION.SDK_INT >= 26) {
+
+            final String CHANNEL_ID = "org.envirocar.app.services.autoconnect.autoRecording.notification";
+            final String CHANNEL_NAME = "Auto Recording Notification Service";
+
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID,
+                    CHANNEL_NAME, NotificationManager.IMPORTANCE_NONE);
+            ((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE)).createNotificationChannel(channel);
+
+            Notification notification = new NotificationCompat.Builder(context, CHANNEL_ID)
+                    .setCategory(Notification.CATEGORY_SERVICE).setSmallIcon(R.drawable.img_envirocar_logo).setPriority(PRIORITY_MIN).build();
+
+            startForeground(101, notification);
         }
     }
 }
