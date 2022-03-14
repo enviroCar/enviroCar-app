@@ -18,8 +18,11 @@
  */
 package org.envirocar.app.views.obdselection;
 
+import android.Manifest;
 import android.os.Bundle;
 import com.google.android.material.snackbar.Snackbar;
+
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.appcompat.widget.Toolbar;
 import android.view.MenuItem;
@@ -34,20 +37,24 @@ import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.core.logging.Logger;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.List;
 
 import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import pub.devrel.easypermissions.EasyPermissions;
+import pub.devrel.easypermissions.PermissionRequest;
 
 /**
  * @dewall
  */
 public class OBDSelectionActivity extends BaseInjectorActivity implements
-        OBDSelectionFragment.ShowSnackbarListener {
+        OBDSelectionFragment.ShowSnackbarListener,EasyPermissions.PermissionCallbacks {
     private static final Logger LOGGER = Logger.getLogger(OBDSelectionActivity.class);
 
     @Inject
@@ -88,14 +95,18 @@ public class OBDSelectionActivity extends BaseInjectorActivity implements
         if (mOBDSelectionFragment == null)
             mOBDSelectionFragment = new OBDSelectionFragment();
 
+
+        checkAndRequestPermissions();
+        // Setup the bluetooth toolbar
+        setupBluetoothSwitch();
+    }
+
+    private void navigateToOBDSelection(){
         // And set the fragment in the layout container.
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.activity_obd_selection_layout_container, mOBDSelectionFragment)
                 .commit();
-
-        // Setup the bluetooth toolbar
-        setupBluetoothSwitch();
     }
 
     private void setupBluetoothSwitch() {
@@ -163,4 +174,62 @@ public class OBDSelectionActivity extends BaseInjectorActivity implements
         }
     }
 
+    private final int BLUETOOTH_PERMISSIONS = 1;
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        EasyPermissions.onRequestPermissionsResult(requestCode,permissions,grantResults,this);
+    }
+
+    public void checkAndRequestPermissions() {
+        String[] perms;
+        if (android.os.Build.VERSION.SDK_INT >= 31) {
+            perms = new String[]{
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.BLUETOOTH_CONNECT,
+                    Manifest.permission.BLUETOOTH_SCAN
+            };
+        }
+        else{
+            perms = new String[]{
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+            };
+        }
+
+        if (EasyPermissions.hasPermissions(this, perms)){
+            // if all permissions are granted, start bluetooth discovery.
+            navigateToOBDSelection();
+        }
+        else{
+            // Dialog requesting the user for location permission.
+            EasyPermissions.requestPermissions(
+                    new PermissionRequest.Builder(this, BLUETOOTH_PERMISSIONS, perms)
+                            .setRationale(R.string.location_permission_to_discover_newdevices)
+                            .setPositiveButtonText(R.string.grant_permissions)
+                            .setNegativeButtonText(R.string.cancel)
+                            .setTheme(R.style.MaterialDialog)
+                            .build());
+        }
+    }
+
+    @Override
+    public void onPermissionsGranted(int requestCode, @NonNull @NotNull List<String> perms) {
+        // if location permissions are granted, start Bluetooth discovery.
+        if (requestCode == BLUETOOTH_PERMISSIONS) {
+            navigateToOBDSelection();
+            showSnackbar(getString(R.string.location_permission_granted));
+        }
+    }
+
+    @Override
+    public void onPermissionsDenied(int requestCode, @NonNull @NotNull List<String> perms) {
+        // if permissions are not granted, show toast.
+        if (requestCode == BLUETOOTH_PERMISSIONS) {
+            showSnackbar(getString(R.string.location_permission_denied));
+        }
+    }
 }

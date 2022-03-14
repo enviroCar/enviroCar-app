@@ -18,7 +18,6 @@
  */
 package org.envirocar.app.views.obdselection;
 
-import android.Manifest;
 import android.bluetooth.BluetoothDevice;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -47,7 +46,6 @@ import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.core.logging.Logger;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -59,16 +57,13 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
-import pub.devrel.easypermissions.EasyPermissions;
-import pub.devrel.easypermissions.PermissionRequest;
-
 
 /**
  * TODO JavaDoc
  *
  * @author dewall
  */
-public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPermissions.PermissionCallbacks {
+public class OBDSelectionFragment extends BaseInjectorFragment {
     private static final Logger LOGGER = Logger.getLogger(OBDSelectionFragment.class);
 
     @Override
@@ -136,14 +131,13 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
         //        // TODO: very ugly... Instead a dynamic LinearLayout should be used.
         //        setDynamicListHeight(mNewDevicesListView);
         //        setDynamicListHeight(mPairedDevicesListView);
-
         return contentView;
     }
 
     @Override
     public void onViewCreated(@NonNull @NotNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        checkAndRequestPermissions();
+        startBluetoothDiscovery();
     }
 
     @Override
@@ -166,7 +160,6 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
     @OnClick(R.id.activity_obd_selection_layout_rescan_bluetooth)
     protected void rediscover() {
         mBluetoothHandler.stopBluetoothDeviceDiscovery();
-        checkAndRequestPermissions();
     }
 
     /**
@@ -185,65 +178,6 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
             mPairedDevicesAdapter.clear();
             mContentView.setVisibility(View.VISIBLE);
             updatePairedDevicesList();
-        }
-    }
-
-    private final int BLUETOOTH_PERMISSIONS = 1;
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        EasyPermissions.onRequestPermissionsResult(requestCode,permissions,grantResults,this);
-    }
-
-    public void checkAndRequestPermissions() {
-        String[] perms;
-        if (android.os.Build.VERSION.SDK_INT >= 31) {
-            perms = new String[]{
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION,
-                    Manifest.permission.BLUETOOTH_CONNECT,
-                    Manifest.permission.BLUETOOTH_SCAN
-            };
-        }
-        else{
-            perms = new String[]{
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-            };
-        }
-
-        if (EasyPermissions.hasPermissions(getContext(), perms)){
-            // if all permissions are granted, start bluetooth discovery.
-            startBluetoothDiscovery();
-        }
-        else{
-            // Dialog requesting the user for location permission.
-            EasyPermissions.requestPermissions(
-                    new PermissionRequest.Builder(this, BLUETOOTH_PERMISSIONS, perms)
-                            .setRationale(R.string.location_permission_to_discover_newdevices)
-                            .setPositiveButtonText(R.string.grant_permissions)
-                            .setNegativeButtonText(R.string.cancel)
-                            .setTheme(R.style.MaterialDialog)
-                            .build());
-        }
-    }
-
-    @Override
-    public void onPermissionsGranted(int requestCode, @NonNull @NotNull List<String> perms) {
-        // if location permissions are granted, start Bluetooth discovery.
-        if (requestCode == BLUETOOTH_PERMISSIONS) {
-            startBluetoothDiscovery();
-            showSnackbar(getString(R.string.location_permission_granted));
-        }
-    }
-
-    @Override
-    public void onPermissionsDenied(int requestCode, @NonNull @NotNull List<String> perms) {
-        // if permissions are not granted, show toast.
-        if (requestCode == BLUETOOTH_PERMISSIONS) {
-            showSnackbar(getString(R.string.location_permission_denied));
         }
     }
 
