@@ -95,7 +95,6 @@ public class OBDSelectionActivity extends BaseInjectorActivity implements
         if (mOBDSelectionFragment == null)
             mOBDSelectionFragment = new OBDSelectionFragment();
 
-
         checkAndRequestPermissions();
         // Setup the bluetooth toolbar
         setupBluetoothSwitch();
@@ -201,7 +200,7 @@ public class OBDSelectionActivity extends BaseInjectorActivity implements
         }
 
         if (EasyPermissions.hasPermissions(this, perms)){
-            // if all permissions are granted, start bluetooth discovery.
+            // if all permissions are granted, navigate to OBDSelectionFragment.
             navigateToOBDSelection();
         }
         else{
@@ -218,7 +217,7 @@ public class OBDSelectionActivity extends BaseInjectorActivity implements
 
     @Override
     public void onPermissionsGranted(int requestCode, @NonNull @NotNull List<String> perms) {
-        // if location permissions are granted, start Bluetooth discovery.
+        // if location permissions are granted, navigate to OBDSelectionFragment.
         if (requestCode == BLUETOOTH_PERMISSIONS) {
             navigateToOBDSelection();
             showSnackbar(getString(R.string.location_permission_granted));
