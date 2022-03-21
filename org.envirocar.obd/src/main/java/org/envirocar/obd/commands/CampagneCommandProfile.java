@@ -33,6 +33,7 @@ public class CampagneCommandProfile implements CycleCommandProfile {
         result.add(PID.RPM);
         result.add(PID.INTAKE_AIR_TEMP);
         result.add(PID.MAF);
+        result.add(PID.CALCULATED_ENGINE_LOAD);
     }
 
     public List<PID> provideCommands() {
