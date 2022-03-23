@@ -29,9 +29,12 @@ import android.view.WindowManager;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.viewpager.widget.ViewPager;
+import androidx.viewpager2.adapter.FragmentStateAdapter;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.snackbar.Snackbar;
@@ -79,7 +82,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
 
     private static final String TROUBLESHOOTING_TAG = "TROUBLESHOOTING";
 
-    private FragmentStatePagerAdapter fragmentStatePagerAdapter;
+    private PageSlider fragmentStatePagerAdapter;
     private MenuItem prevMenuItem;
 
     // Custom Callback Stack
@@ -116,7 +119,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
     protected BottomNavigationView navigationBottomBar;
 
     @BindView(R.id.fragmentContainer)
-    protected ViewPager viewPager;
+    protected ViewPager2 viewPager;
 
     private CompositeDisposable subscriptions = new CompositeDisposable();
     private BroadcastReceiver errorInformationReceiver;
@@ -158,7 +161,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
         navigationBottomBar.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         navigationBottomBar.setSelectedItemId(R.id.navigation_dashboard);
 
-        fragmentStatePagerAdapter = new PageSlider(getSupportFragmentManager(), FragmentStatePagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
+        fragmentStatePagerAdapter = new PageSlider(this);
         viewPager.setAdapter(fragmentStatePagerAdapter);
 
         // Custom Back Navigation for fragments in BaseMainActivity
@@ -175,14 +178,10 @@ public class BaseMainActivity extends BaseInjectorActivity {
         };
         this.getOnBackPressedDispatcher().addCallback(this, callback);
 
-        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
-            }
-
+        viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {
+                super.onPageSelected(position);
                 if (prevMenuItem != null) {
                     prevMenuItem.setChecked(false);
                 } else {
@@ -195,14 +194,9 @@ public class BaseMainActivity extends BaseInjectorActivity {
                 }
                 navigationBottomBar.getMenu().getItem(position).setChecked(true);
                 prevMenuItem = navigationBottomBar.getMenu().getItem(position);
-                fragmentStatePagerAdapter.notifyDataSetChanged();
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-
             }
         });
+
         // Subscribe for preference subscriptions. In this case, subscribe for changes to the
         // active screen settings.
         // TODO
@@ -355,12 +349,13 @@ public class BaseMainActivity extends BaseInjectorActivity {
         Snackbar.make(navigationBottomBar, info, Snackbar.LENGTH_LONG).show();
     }
 
-    private class PageSlider extends FragmentStatePagerAdapter {
+
+    private class PageSlider extends FragmentStateAdapter {
 
         private Fragment[] fragments;
 
-        public PageSlider(@NonNull FragmentManager fm, int behavior) {
-            super(fm, behavior);
+        public PageSlider(@NonNull FragmentActivity fragmentActivity) {
+            super(fragmentActivity);
             fragments = new Fragment[]{
                     dashboardFragment,
                     trackListPagerFragment,
@@ -370,12 +365,12 @@ public class BaseMainActivity extends BaseInjectorActivity {
 
         @NonNull
         @Override
-        public Fragment getItem(int position) {
+        public Fragment createFragment(int position) {
             return fragments[position];
         }
 
         @Override
-        public int getCount() {
+        public int getItemCount() {
             return 3;
         }
     }
