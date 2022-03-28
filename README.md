@@ -51,7 +51,7 @@ Once you have created an account, you will need to configure credentials
 3. Make sure you copy your token and save it somehwere as you will not be able to see the token again. 
 
 ### Configure your secret token
-1. This is a secret token, and we will use it in ``gradle.properties`` file. You should not expose the token in public, that's why add ``gradle.properties`` in ``.gitignore`` .
+1. This is a secret token, and we will use it in ``gradle.properties`` file. You should not expose the token in public, that's why add ``gradle.properties`` in ``.gitignore`` . It's also possible to store the sercret token in your local user's _gradle.properties_ file, usually stored at _«USER_HOME»/.gradle/gradle.properties_. 
 2. Now open the ``gradle.properties`` file and add this line ``MAPBOX_DOWNLOADS_TOKEN = <your-secret-token> ``. The secret token has to be pasted without any quote marks. 
 ``MAPBOX_DOWNLOADS_TOKEN=sk.dutaksgjdvlsayVDSADUTLASDs@!ahsvdaslud*JVAS@%DLUTSVgdJLA&&>Hdval.sujdvadvasuydgalisy``(this is just a random string, not a real token)
 3. That't it. You are good to go!
