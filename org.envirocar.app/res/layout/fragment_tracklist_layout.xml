@@ -72,10 +72,15 @@
 
     </info.hoang8f.android.segmented.SegmentedGroup>
 
-    <androidx.viewpager.widget.ViewPager
-        android:id="@+id/fragment_tracklist_layout_viewpager"
+    <org.envirocar.app.views.utils.NestedScrollableHost
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"/>
+        android:layout_weight="1">
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/fragment_tracklist_layout_viewpager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+    </org.envirocar.app.views.utils.NestedScrollableHost>
+
 
 </LinearLayout>

@@ -23,11 +23,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.viewpager.widget.ViewPager;
+import androidx.viewpager2.adapter.FragmentStateAdapter;
+import androidx.viewpager2.widget.ViewPager2;
 
 import org.envirocar.app.BaseApplication;
 import org.envirocar.app.BaseApplicationComponent;
@@ -49,7 +52,7 @@ public class TrackListPagerFragment extends BaseInjectorFragment {
     @BindView(R.id.trackListSegmentedGroup)
     protected SegmentedGroup trackListSegmentedGroup;
     @BindView(R.id.fragment_tracklist_layout_viewpager)
-    protected ViewPager mViewPager;
+    protected ViewPager2 mViewPager;
 
     private TrackListPagerAdapter trackListPageAdapter;
 
@@ -68,18 +71,15 @@ public class TrackListPagerFragment extends BaseInjectorFragment {
         View content = inflater.inflate(R.layout.fragment_tracklist_layout, container, false);
         ButterKnife.bind(this, content);
 
-        trackListPageAdapter = new TrackListPagerAdapter(getChildFragmentManager());
+        trackListPageAdapter = new TrackListPagerAdapter(this);
         mViewPager.setAdapter(trackListPageAdapter);
         mViewPager.setSaveFromParentEnabled(false);
 
-        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
-            }
+        mViewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
 
             @Override
             public void onPageSelected(int position) {
+                super.onPageSelected(position);
                 if (position == 0) {
                     trackListSegmentedGroup.check(R.id.localSegmentedButton);
                 } else {
@@ -87,11 +87,8 @@ public class TrackListPagerFragment extends BaseInjectorFragment {
                 }
             }
 
-            @Override
-            public void onPageScrollStateChanged(int state) {
-
-            }
         });
+
         trackListSegmentedGroup.check(R.id.localSegmentedButton);
 
         trackListSegmentedGroup.setOnCheckedChangeListener((radioGroup, i) -> {
@@ -126,7 +123,7 @@ public class TrackListPagerFragment extends BaseInjectorFragment {
     /**
      * @author dewall
      */
-    class TrackListPagerAdapter extends FragmentStatePagerAdapter {
+    class TrackListPagerAdapter extends FragmentStateAdapter {
         private static final int NUM_PAGES = 2;
 
         private TrackListLocalCardFragment localCardFragment;
@@ -137,7 +134,7 @@ public class TrackListPagerFragment extends BaseInjectorFragment {
          *
          * @param fm the fragment manager of the application's current scope.
          */
-        public TrackListPagerAdapter(FragmentManager fm) {
+        public TrackListPagerAdapter(@NonNull Fragment fm) {
             super(fm);
 
             remoteCardFragment = new TrackListRemoteCardFragment();
@@ -145,8 +142,9 @@ public class TrackListPagerFragment extends BaseInjectorFragment {
             localCardFragment.setOnTrackUploadedListener(remoteCardFragment);
         }
 
+        @NonNull
         @Override
-        public Fragment getItem(int position) {
+        public Fragment createFragment(int position) {
             if (position == 0) {
                 return localCardFragment;
             } else {
@@ -155,9 +153,8 @@ public class TrackListPagerFragment extends BaseInjectorFragment {
         }
 
         @Override
-        public int getCount() {
+        public int getItemCount() {
             return NUM_PAGES;
         }
-
     }
 }
