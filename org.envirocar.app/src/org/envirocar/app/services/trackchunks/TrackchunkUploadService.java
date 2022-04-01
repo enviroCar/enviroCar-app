@@ -21,6 +21,7 @@ import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
+import org.envirocar.app.events.TrackchunkEndUploadedEvent;
 import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.app.handler.TrackDAOHandler;
 import org.envirocar.app.handler.TrackUploadHandler;
@@ -269,6 +270,7 @@ public class TrackchunkUploadService extends BaseInjectorService {
             trackUploadHandler.uploadTrackChunkEnd(currentTrack);
             LOG.info("Delete local track.");
             enviroCarDB.deleteTrack(currentTrack);
+            this.eventBus.post(new TrackchunkEndUploadedEvent());
         },5000, TimeUnit.MILLISECONDS);
         }catch (Exception e){
             LOG.error("Could not finish track.", e);
