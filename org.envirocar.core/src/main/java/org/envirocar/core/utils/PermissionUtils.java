@@ -34,10 +34,12 @@ import io.reactivex.functions.Function;
 public class PermissionUtils {
 
     public static final int LOCATION_PERMISSION_REQUEST_CODE = 89;
-
+    
     public static boolean hasLocationPermission(Context Context) {
         return ActivityCompat.checkSelfPermission(Context, Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED;
+                == PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(Context, Manifest.permission.ACCESS_COARSE_LOCATION)
+                        == PackageManager.PERMISSION_GRANTED;
     }
 
     public static Completable requestLocationPermissionIfRequired(Activity activity) {

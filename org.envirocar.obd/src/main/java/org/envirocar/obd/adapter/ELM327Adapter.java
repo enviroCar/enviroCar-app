@@ -21,6 +21,7 @@ package org.envirocar.obd.adapter;
 import android.util.Base64;
 
 import org.envirocar.core.logging.Logger;
+import org.envirocar.obd.commands.CycleCommandProfile;
 import org.envirocar.obd.commands.request.BasicCommand;
 import org.envirocar.obd.commands.request.PIDCommand;
 import org.envirocar.obd.commands.request.elm.ConfigurationCommand;
@@ -46,6 +47,10 @@ public class ELM327Adapter extends SyncAdapter {
     private Queue<BasicCommand> initCommands;
     protected int succesfulCount;
     protected boolean certifiedConnection;
+
+    public ELM327Adapter(CycleCommandProfile cmp) {
+        super(cmp);
+    }
 
 
     @Override

@@ -21,6 +21,7 @@ package org.envirocar.obd.adapter;
 import android.util.Base64;
 
 import org.envirocar.core.logging.Logger;
+import org.envirocar.obd.commands.CycleCommandProfile;
 import org.envirocar.obd.commands.request.BasicCommand;
 import org.envirocar.obd.commands.request.elm.ConfigurationCommand;
 import org.envirocar.obd.commands.request.elm.Timeout;
@@ -34,6 +35,10 @@ import java.util.Queue;
  */
 public class OBDLinkAdapter extends ELM327Adapter{
     private static final Logger LOG = Logger.getLogger(OBDLinkAdapter.class);
+
+    public OBDLinkAdapter(CycleCommandProfile cmp) {
+        super(cmp);
+    }
 
     @Override
     protected Queue<BasicCommand> createInitCommands() {

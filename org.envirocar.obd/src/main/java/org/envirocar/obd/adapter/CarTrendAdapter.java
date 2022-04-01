@@ -21,6 +21,7 @@ package org.envirocar.obd.adapter;
 import android.util.Base64;
 
 import org.envirocar.core.logging.Logger;
+import org.envirocar.obd.commands.CycleCommandProfile;
 import org.envirocar.obd.commands.request.BasicCommand;
 import org.envirocar.obd.commands.request.PIDCommand;
 import org.envirocar.obd.exception.AdapterFailedException;
@@ -49,6 +50,10 @@ public class CarTrendAdapter extends SyncAdapter {
     private int ringSize;
     private int initialCount;
     private ByteArrayOutputStream initialPhaseResponseLog = new ByteArrayOutputStream();
+
+    public CarTrendAdapter(CycleCommandProfile cmp) {
+        super(cmp);
+    }
 
     @Override
     protected BasicCommand pollNextInitializationCommand() {

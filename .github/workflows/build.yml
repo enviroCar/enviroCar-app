@@ -10,17 +10,19 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    env:
+      ORG_GRADLE_PROJECT_MAPBOX_DOWNLOADS_TOKEN: ${{ secrets.MAPBOX_DOWNLOADS_TOKEN }}
 
     steps:
     - uses: actions/checkout@v2
-    - name: set up JDK 8
+    - name: set up JDK 11
       uses: actions/setup-java@v2
       with:
-        java-version: '8'
+        java-version: '11'
         distribution: 'adopt'
         cache: gradle
 
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
     - name: Build with Gradle
-      run: ./gradlew build
+      run: ./gradlew assembleDebug

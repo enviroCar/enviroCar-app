@@ -16,39 +16,20 @@
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
-package org.envirocar.app.exception;
+package org.envirocar.obd.commands;
 
-/**
- * @author dewall
- */
-public class LoginException extends Exception {
+import java.util.Arrays;
+import java.util.List;
 
-    public enum ErrorType {
-        MAIL_NOT_CONFIREMED,
-        UNABLE_TO_COMMUNICATE_WITH_SERVER,
-        USERNAME_OR_PASSWORD_INCORRECT,
-        TERMS_NOT_ACCEPTED
+public interface CycleCommandProfile {
+
+    default List<PID> provideCommands() {
+        return Arrays.asList(PID.values());
+    };
+
+
+    public static class Default implements CycleCommandProfile {
+
     }
 
-    private final ErrorType type;
-
-    /**
-     * Constructor
-     *
-     * @param message
-     * @param type
-     */
-    public LoginException(String message, ErrorType type) {
-        super(message);
-        this.type = type;
-    }
-
-    /**
-     * Returns the errotypes
-     *
-     * @return the type
-     */
-    public ErrorType getType() {
-        return type;
-    }
 }

@@ -18,6 +18,7 @@
  */
 package org.envirocar.app.recording.provider;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.location.GpsStatus;
 import android.location.Location;
@@ -190,13 +191,13 @@ public class LocationProvider {
 
     }
 
+    @SuppressLint("MissingPermission")
     @SuppressWarnings({"ResourceType"})
     public Completable startLocating() {
         LOGGER.info("startLocating()");
         return Completable.create(emitter -> {
             if (!PermissionUtils.hasLocationPermission(mContext))
                 emitter.onError(new PermissionException("User has not activated Location permission"));
-
             mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, mLocationListener);
 
             try {
