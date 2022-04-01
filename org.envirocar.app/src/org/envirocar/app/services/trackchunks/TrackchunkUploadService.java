@@ -11,6 +11,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
+import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.Scheduler;
 import io.reactivex.Single;
@@ -20,6 +21,8 @@ import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
+import org.envirocar.app.handler.ApplicationSettings;
+import org.envirocar.app.handler.TrackDAOHandler;
 import org.envirocar.app.handler.TrackUploadHandler;
 import org.envirocar.app.injection.BaseInjectorService;
 import org.envirocar.app.injection.ScopedBaseInjectorService;
@@ -74,37 +77,26 @@ public class TrackchunkUploadService extends BaseInjectorService {
 
     private MeasurementSerde measurementSerde;
 
-    public TrackchunkUploadService(Context context, EnviroCarDB enviroCarDB, Bus eventBus, TrackUploadHandler trackUploadHandler) {
+    private TrackDAOHandler trackDAOHandler;
+
+    private boolean isEnabled = false;
+
+    public TrackchunkUploadService(Context context, EnviroCarDB enviroCarDB, Bus eventBus, TrackUploadHandler trackUploadHandler, TrackDAOHandler trackDAOHandler) {
+        isEnabled = ApplicationSettings.isTrackchunkUploadEnabled(context);
         this.enviroCarDB = enviroCarDB;
         this.eventBus = eventBus;
         this.trackUploadHandler = trackUploadHandler;
+        this.trackDAOHandler = trackDAOHandler;
         measurementSerde = new MeasurementSerde();
         measurements = new ArrayList<>();
-        try {
-            this.eventBus.register(this);
-        } catch (IllegalArgumentException e){
-            LOG.error("TrackchunkUploadService was already registered.", e);
+        if(isEnabled){
+            try {
+                this.eventBus.register(this);
+            } catch (IllegalArgumentException e){
+                LOG.error("TrackchunkUploadService was already registered.", e);
+            }
         }
-        LOG.info("TrackchunkUploadService initialized." + this);
-        // enviroCarDB.getActiveTrackObservable(true).doOnComplete(() -> {
-        //LOG.info("Track measurements: ");
-        //});
-//        mMainThreadWorker.schedulePeriodically(() -> {
-//            enviroCarDB.getAllLocalTracks(true).observeOn(Schedulers.io())
-//                    .subscribeOn(AndroidSchedulers.mainThread())
-//                    .subscribeWith(getTracksObserver());
-//        }, 1000,1000, TimeUnit.MILLISECONDS);
-//        final Observer<Track> trackObserver = enviroCarDB.getActiveTrackObservable(false).observeOn(Schedulers.io())
-//                .subscribeOn(AndroidSchedulers.mainThread())
-//                .subscribeWith(getActiveTrackObserver());
-//        mMainThreadWorker.schedule(() -> {
-//            final Observer<Track> trackObserver = enviroCarDB.getActiveTrackObservable(false).observeOn(Schedulers.io())
-//                    .subscribeOn(AndroidSchedulers.mainThread())
-//                    .subscribeWith(getActiveTrackObserver());
-//        }, 5000, TimeUnit.MILLISECONDS);
-//        mMainThreadWorker.schedule(() -> {
-//
-//        },15000, TimeUnit.MILLISECONDS);
+        LOG.info("TrackchunkUploadService initialized. Enabled: " + isEnabled);
     }
 
     private Observer<Track> getActiveTrackObserver() {
@@ -123,12 +115,12 @@ public class TrackchunkUploadService extends BaseInjectorService {
                 TrackchunkUploadService.this.setCar(track.getCar());
 
                 if(!executed) {
+                    executed = true;
                     try {
                         currentTrack = trackUploadHandler.uploadTrackChunkStart(track);
                     } catch (Exception e) {
                         LOG.error(e);
                     }
-                    executed = true;
                 }
                 LOG.info("onNext: Track remote id: " + currentTrack.getRemoteID());
                 LOG.info("onNext: Track measurements: " + measurements);
@@ -151,39 +143,16 @@ public class TrackchunkUploadService extends BaseInjectorService {
         LOG.info("received car: " + car);
     }
 
-    private Observer<List<Track>> getTracksObserver() {
-        return new Observer<List<Track>>() {
-
-            @Override
-            public void onSubscribe(Disposable d) {
-                LOG.info("onSubscribe");
-            }
-
-
-            @Override
-            public void onNext(List<Track> tracks) {
-                LOG.info("onNext: " + tracks.size());
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                LOG.info("onError: " + e.getMessage());
-            }
-
-            @Override
-            public void onComplete() {
-                LOG.info( "onComplete");
-            }
-        };
-    }
-
     @Subscribe
     public void onReceiveNewMeasurementEvent(RecordingNewMeasurementEvent event) {
-        //if(!executed) {
+        if(!isEnabled){
+            return;
+        }
+        if(!executed) {
             final Observer<Track> trackObserver = enviroCarDB.getActiveTrackObservable(false).observeOn(Schedulers.io())
                     .subscribeOn(Schedulers.io())
                     .subscribeWith(getActiveTrackObserver());
-        //}
+        }
         measurements.add(event.mMeasurement);
         LOG.info("received new measurement" + this);
         if(measurements.size() > MEASUREMENT_THRESHOLD) {
@@ -194,13 +163,6 @@ public class TrackchunkUploadService extends BaseInjectorService {
             LOG.info("trackFeatures" + trackFeatures);
             trackUploadHandler.uploadTrackChunk(currentTrack.getRemoteID(), trackFeatures);
         }
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        LOG.info("onDestroy");
-        mMainThreadWorker.dispose();
     }
 
     @Override
@@ -292,7 +254,24 @@ public class TrackchunkUploadService extends BaseInjectorService {
 
     @Subscribe
     public void onReceiveTrackFinishedEvent(final TrackFinishedEvent event) {
+        if(!isEnabled){
+            return;
+        }
         LOG.info(String.format("onReceiveTrackFinishedEvent(): event=%s", event.toString()));
-
+        executed = false;
+        try {
+            this.eventBus.unregister(this);
+        } catch (IllegalArgumentException e){
+            LOG.error("TrackchunkUploadService not unregistered.", e);
+        }
+        try {
+        mMainThreadWorker.schedule(() -> {
+            trackUploadHandler.uploadTrackChunkEnd(currentTrack);
+            LOG.info("Delete local track.");
+            enviroCarDB.deleteTrack(currentTrack);
+        },5000, TimeUnit.MILLISECONDS);
+        }catch (Exception e){
+            LOG.error("Could not finish track.", e);
+        }
     }
 }

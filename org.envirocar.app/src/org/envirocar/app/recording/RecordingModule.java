@@ -24,10 +24,7 @@ import android.os.PowerManager;
 import com.squareup.otto.Bus;
 
 import org.envirocar.algorithm.MeasurementProvider;
-import org.envirocar.app.handler.ApplicationSettings;
-import org.envirocar.app.handler.BluetoothHandler;
-import org.envirocar.app.handler.InterpolationMeasurementProvider;
-import org.envirocar.app.handler.TrackUploadHandler;
+import org.envirocar.app.handler.*;
 import org.envirocar.app.handler.preferences.CarPreferenceHandler;
 import org.envirocar.app.interactor.UploadTrack;
 import org.envirocar.app.recording.notification.SpeechOutput;
@@ -84,8 +81,8 @@ public class RecordingModule {
 
     @Provides
     @RecordingScope
-    public TrackchunkUploadService provideTrackchunkUploadService(@InjectApplicationScope Context context, EnviroCarDB enviroCarDB, Bus eventBus, TrackUploadHandler trackUploadHandler) {
-        return new TrackchunkUploadService(context, enviroCarDB, eventBus, trackUploadHandler);
+    public TrackchunkUploadService provideTrackchunkUploadService(@InjectApplicationScope Context context, EnviroCarDB enviroCarDB, Bus eventBus, TrackUploadHandler trackUploadHandler, TrackDAOHandler trackDAOHandler) {
+        return new TrackchunkUploadService(context, enviroCarDB, eventBus, trackUploadHandler, trackDAOHandler);
     }
 
 //    @Provides

@@ -27,6 +27,7 @@ import org.envirocar.core.exception.NotConnectedException;
 import org.envirocar.core.exception.ResourceConflictException;
 import org.envirocar.core.exception.UnauthorizedException;
 
+import java.io.IOException;
 import java.util.List;
 
 import io.reactivex.Observable;
@@ -73,4 +74,6 @@ public interface TrackDAO {
 
     void updateTrack(String remoteID,JsonArray trackFeatures) throws DataUpdateFailureException, NotConnectedException,
             UnauthorizedException;
+
+    void finishTrack(Track track) throws UnauthorizedException, IOException, NotConnectedException;
 }

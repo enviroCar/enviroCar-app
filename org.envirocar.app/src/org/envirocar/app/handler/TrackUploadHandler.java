@@ -185,37 +185,6 @@ public class TrackUploadHandler {
             LOG.error("Data Creation Exception.");
         }
         return null;
-
-//        return Observable.just(track)
-//                // assets the car of the track and, in case it is not uploaded, it uploads the
-//                // car and sets the remoteId
-//                .compose(validateCarOfTrack())
-//                // Update the track metadata.
-//                .compose(updateTrackMetadata())
-//                // Upload the track
-//                .flatMap(obfTrack -> mDAOProvider.getTrackDAO().createTrackObservable(obfTrack))
-//                // Update the database entry
-//                .flatMap(uploadedTrack -> mEnviroCarDB.updateTrackObservable(uploadedTrack))
-                // Only forward the results to the real subscriber.
-//                .subscribeWith(new DisposableObserver<Track>() {
-//                    @Override
-//                    public void onNext(Track track) {
-//                        LOG.info("OnNext " + track.getTrackID());
-//                        LOG.info("OnNext " + track.getRemoteID());
-//                    }
-//
-//                    @Override
-//                    public void onError(Throwable e) {
-//                        LOG.error(e);
-//                    }
-//
-//                    @Override
-//                    public void onComplete() {
-//                        LOG.info("onComplete " + track.getTrackID());
-//                    }
-//                })
-                //.lift(new UploadExceptionMappingOperator())
-                //;
     }
 
     public void uploadTrackChunk(String remoteID, JsonArray trackFeatures) {
@@ -223,6 +192,18 @@ public class TrackUploadHandler {
             LOG.info("Trying to update track.");
             trackDAOHandler.updateRemoteTrack(remoteID, trackFeatures);
             LOG.info("Track updated.");
+        } catch (UnauthorizedException e) {
+            LOG.error("Unauthorized.");
+        } catch (NotConnectedException e) {
+            LOG.error("Not connected.");
+        }
+    }
+
+    public void uploadTrackChunkEnd(Track mTrack) {
+        try {
+            LOG.info("Trying to finished track.");
+            trackDAOHandler.finishRemoteTrack(mTrack);
+            LOG.info("Track finished.");
         } catch (UnauthorizedException e) {
             LOG.error("Unauthorized.");
         } catch (NotConnectedException e) {

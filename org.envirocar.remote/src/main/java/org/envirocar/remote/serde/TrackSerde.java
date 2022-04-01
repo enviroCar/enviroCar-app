@@ -151,8 +151,7 @@ public class TrackSerde extends AbstractJsonSerde implements JsonSerializer<Trac
         JsonArray trackFeatures = new JsonArray();
         List<Measurement> measurements = src.getMeasurements();
         if (measurements == null || measurements.isEmpty()) {
-            LOG.severe("Track did not contain any non obfuscated measurements.");
-            return null;
+            LOG.info("Track did not contain any non obfuscated measurements.");
         }
 
         try {

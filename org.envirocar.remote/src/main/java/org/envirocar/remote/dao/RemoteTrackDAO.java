@@ -21,7 +21,6 @@ package org.envirocar.remote.dao;
 import com.google.common.base.Preconditions;
 
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.envirocar.core.UserManager;
 import org.envirocar.core.dao.TrackDAO;
@@ -33,6 +32,7 @@ import org.envirocar.remote.service.TrackService;
 import org.envirocar.remote.util.EnvirocarServiceUtils;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -399,6 +399,44 @@ public class RemoteTrackDAO extends BaseRemoteDAO<TrackDAO, TrackService> implem
             throw e;
         }
 
+    }
+
+    @Override
+    public void finishTrack(Track track) throws UnauthorizedException, NotConnectedException {
+        LOG.info("finishTrack()");
+
+        // check whether the getUserStatistic is logged in
+        if (!userManager.isLoggedIn()) {
+            throw new UnauthorizedException("The getUserStatistic is not logged in");
+        }
+
+        track.setTrackStatus(Track.TrackStatus.FINISHED);
+
+        //remove measurements
+        track.setMeasurements(new ArrayList<>());
+
+        // Initiate the remoteService and its call
+        final TrackService trackService = EnviroCarService.getTrackService();
+        Call<ResponseBody> finishTrackCall =
+                trackService.finishTrack(userManager.getUser().getUsername(), track.getRemoteID(), track);
+
+        try {
+            Response<ResponseBody> response = finishTrackCall.execute();
+
+            if (!response.isSuccessful()) {
+                LOG.severe("Error while finishing track: " + response.message());
+                LOG.severe(response.errorBody().string());
+                EnvirocarServiceUtils.assertStatusCode(response.code(),
+                        response.message(), response.errorBody().string());
+            }
+        }catch (IOException e) {
+            throw new NotConnectedException(e);
+        } catch (ResourceConflictException e) {
+            throw new NotConnectedException(e);
+        } catch (Exception e) {
+            LOG.warn("WARNING!!!");
+            throw e;
+        }
     }
 
 }

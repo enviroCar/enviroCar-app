@@ -174,14 +174,6 @@ public class TrackRecordingHandler {
             } catch (Exception e) {
                 emitter.onError(e);
             }
-            LOGGER.info("Stopping the TrackchunkUpload service.");
-            try {
-                ServiceUtils.stopService(mContext, TrackchunkUploadService.class);
-                LOGGER.info("TrackchunkUpload service stopped");
-                emitter.onComplete();
-            } catch (Exception e) {
-                emitter.onError(e);
-            }
         });
     }
 

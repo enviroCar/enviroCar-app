@@ -86,5 +86,7 @@ public interface TrackService {
                                 @Path("track") String track,
                                 @Body JsonElement trackFeatures);
 
+    @PUT("users/{getUserStatistic}/tracks/{trackID}")
+    Call<ResponseBody> finishTrack(@Path("getUserStatistic") String user, @Path("trackID") String trackID, @Body Track track);
 }
 

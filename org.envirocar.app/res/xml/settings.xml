@@ -111,7 +111,7 @@
             app:iconSpaceReserved="false">
         <CheckBoxPreference
                 android:defaultValue="false"
-                android:key="@string/pref_track_chunk_upload"
+                android:key="@string/prefkey_track_chunk_upload"
                 android:summary="@string/pref_track_chunk_upload_sub"
                 android:title="@string/pref_beta_enable_track_chunk_upload"
                 app:iconSpaceReserved="false" />

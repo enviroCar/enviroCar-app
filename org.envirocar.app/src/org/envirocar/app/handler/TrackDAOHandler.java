@@ -29,6 +29,7 @@ import org.envirocar.core.util.TrackMetadata;
 import org.envirocar.core.util.Util;
 import org.envirocar.core.EnviroCarDB;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.inject.Inject;
@@ -156,6 +157,15 @@ public class TrackDAOHandler {
     public Track createRemoteTrack(Track track) throws ResourceConflictException, NotConnectedException, DataCreationFailureException, UnauthorizedException {
         // Create the remote track.
        return daoProvider.getTrackDAO().createTrack(track);
+    }
+
+    public void finishRemoteTrack(Track track) throws NotConnectedException, UnauthorizedException {
+        // Create the remote track.
+        try {
+            daoProvider.getTrackDAO().finishTrack(track);
+        } catch (IOException e) {
+            LOGGER.error("Could not finish track with id: " + track.getRemoteID(), e);
+        }
     }
 
     public boolean deleteAllRemoteTracksLocally() {

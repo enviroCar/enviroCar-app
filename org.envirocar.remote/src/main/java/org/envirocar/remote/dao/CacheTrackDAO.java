@@ -26,6 +26,7 @@ import org.envirocar.core.entity.Track;
 import org.envirocar.core.exception.DataUpdateFailureException;
 import org.envirocar.core.exception.NotConnectedException;
 
+import java.io.IOException;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -117,6 +118,11 @@ public class CacheTrackDAO extends AbstractCacheDAO implements TrackDAO {
 
     @Override
     public void updateTrack(String remoteID, JsonArray trackFeatures) throws DataUpdateFailureException, NotConnectedException, UnauthorizedException {
+        throw new NotConnectedException("Not implemented for Cache DAO");
+    }
+
+    @Override
+    public void finishTrack(Track track) throws UnauthorizedException, IOException, NotConnectedException {
         throw new NotConnectedException("Not implemented for Cache DAO");
     }
 }
