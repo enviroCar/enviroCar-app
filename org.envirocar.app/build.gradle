@@ -12,6 +12,8 @@ dependencies {
     implementation rootProject.ext.androidRoomRxJava
     annotationProcessor rootProject.ext.supportRoom
 
+    implementation 'com.github.javiersantos:AppUpdater:2.7'
+
     implementation rootProject.ext.supportLifecycleExtension
     implementation rootProject.ext.supportLifecycleRuntime
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'

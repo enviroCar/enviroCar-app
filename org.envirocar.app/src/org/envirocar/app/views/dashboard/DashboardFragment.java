@@ -36,6 +36,7 @@ import android.transition.Slide;
 import android.transition.TransitionManager;
 import android.transition.TransitionSet;
 import android.util.TypedValue;
+import android.view.Display;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -47,6 +48,10 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.TextView;
+
+import com.github.javiersantos.appupdater.AppUpdater;
+import com.github.javiersantos.appupdater.enums.Display;
+import com.github.javiersantos.appupdater.enums.UpdateFrom;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -250,6 +255,8 @@ public class DashboardFragment extends BaseInjectorFragment {
         appUpdateManager = AppUpdateManagerFactory.create(getContext());
         appUpdateInfoTask = appUpdateManager.getAppUpdateInfo();
 
+        setUpUpdatePrompt();
+
         //
         this.updateUserLogin(userHandler.getUser());
 
@@ -263,6 +270,20 @@ public class DashboardFragment extends BaseInjectorFragment {
                 .blockingFirst();
 
         return contentView;
+    }
+
+    public void setUpUpdatePrompt() {
+        AppUpdater appUpdater = new AppUpdater(this);
+
+        new AppUpdater(this)
+                .setUpdateFrom(UpdateFrom.GOOGLE_PLAY)
+                .setDisplay(Display.DIALOG)
+                .setTitleOnUpdateAvailable("Update available")//Title of the Dialog Prompt
+                .setContentOnUpdateAvailable("Check out the latest version available of Amahi Android App!")//Description of the Dialog Prompt
+                .setButtonUpdate("Update")//Updates the App
+                .setButtonDoNotShowAgain("Don't show again");//Never shows the prompt again until next release
+
+        appUpdater.start();
     }
 
     @Override
