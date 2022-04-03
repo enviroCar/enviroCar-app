@@ -330,7 +330,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
     }
 
     public void showBackgroundImage(){
-        showInfoBackground(R.drawable.img_alert,
+        showInfoBackground(R.drawable.ic_alert,
                 R.string.car_selection_no_car_no_car_first,
                 R.string.car_selection_no_car_no_car_second);
         headerView.setVisibility(View.GONE);
