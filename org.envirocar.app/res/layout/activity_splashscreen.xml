@@ -59,6 +59,8 @@
         android:text="@string/activity_splashscreen_warning"
         android:textColor="@color/white_cario"
         android:textSize="15sp"
+        android:drawableLeft="@drawable/ic_caution"
+        android:drawablePadding="20dp"
         app:layout_constraintBottom_toTopOf="@+id/guideline28"
         app:layout_constraintEnd_toStartOf="@+id/guideline30"
         app:layout_constraintStart_toStartOf="@+id/guideline29" />
