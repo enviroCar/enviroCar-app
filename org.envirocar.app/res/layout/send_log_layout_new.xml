@@ -43,9 +43,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="12dp"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="0dp"
                 android:layout_marginRight="12dp"
-                android:layout_marginBottom="12dp"
+                android:layout_marginBottom="0dp"
                 android:fontFamily="@font/roboto_light1"
                 android:lineSpacingExtra="1.5dp"
                 android:text="@string/report_issue_text" />
@@ -55,7 +55,7 @@
                 android:layout_height="match_parent"
                 android:orientation="horizontal"
                 android:layout_marginHorizontal="16dp"
-                android:layout_marginVertical="8dp">
+                android:layout_marginVertical="2dp">
 
                 <TextView
                     android:id="@+id/report_issue_time_since_crash_txtview"
@@ -95,7 +95,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="16dp"
-                android:layout_marginVertical="8dp"
+                android:layout_marginVertical="2dp"
                 android:hint="@string/problem_description">
 
                 <androidx.appcompat.widget.AppCompatEditText
@@ -113,7 +113,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="20dp"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="6dp"
                 android:textSize="18sp"
                 android:fontFamily="@font/roboto_medium"
                 android:textColor="@color/cario_color_primary_dark"
@@ -130,7 +130,7 @@
                 android:id="@+id/report_issue_submit"
                 android:layout_width="250dp"
                 android:layout_height="50dp"
-                android:layout_marginVertical="26dp"
+                android:layout_marginVertical="0dp"
                 android:layout_marginHorizontal="16dp"
                 android:layout_centerHorizontal="true"
                 android:layout_gravity="center"
