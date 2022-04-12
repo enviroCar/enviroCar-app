@@ -177,8 +177,10 @@ public class EnviroCarDBImpl implements EnviroCarDB {
 
     @Override
     public void deleteTrack(Track.TrackId trackId) {
-        trackRoomDatabase.getTrackDAONew().deleteTrack(Long.parseLong(trackId.toString()));
-        deleteMeasurementsOfTrack(trackId);
+        if(trackId != null){
+            trackRoomDatabase.getTrackDAONew().deleteTrack(Long.parseLong(trackId.toString()));
+            deleteMeasurementsOfTrack(trackId);
+        }
     }
 
     @Override
