@@ -34,6 +34,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.google.android.material.textfield.TextInputLayout;
 import com.jakewharton.rxbinding3.widget.RxTextView;
 
 import org.envirocar.app.BaseApplicationComponent;
@@ -70,8 +71,12 @@ public class CarSelectionHsnTsnFragment extends BaseInjectorFragment {
 
     @BindView(R.id.fragment_hsntsn_hsn_input)
     protected AutoCompleteTextView hsnEditText;
+    @BindView(R.id.fragment_hsntsn_hsn_input_layout)
+    protected TextInputLayout hsnEditTextLayout;
     @BindView(R.id.fragment_hsntsn_tsn_input)
     protected AutoCompleteTextView tsnEditText;
+    @BindView(R.id.fragment_hsntsn_tsn_input_layout)
+    protected TextInputLayout tsnEditTextLayout;
     protected BottomSheetFragment bottomSheetFragment;
 
     private static final Logger LOG = Logger.getLogger(CarSelectionAttributesFragment.class);
@@ -85,7 +90,6 @@ public class CarSelectionHsnTsnFragment extends BaseInjectorFragment {
     private CompositeDisposable disposable = new CompositeDisposable();
     private static final int ERROR_DEBOUNCE_TIME = 750;
     List<Manufacturers> manufacturersList;
-    private Drawable error;
 
     CarSelectionHsnTsnFragment(List<Manufacturers> manufacturersList) {
         this.manufacturersList = manufacturersList;
@@ -100,8 +104,6 @@ public class CarSelectionHsnTsnFragment extends BaseInjectorFragment {
         fetchAllVehicles();
         reactiveTexFieldCheck();
         focusChangeListener();
-        error = getResources().getDrawable(R.drawable.ic_error_red_24dp);
-        error.setBounds(-50, 0, 0, error.getIntrinsicHeight());
         hsnEditText.setOnItemClickListener((parent, view1, position, id) -> requestNextTextFieldFocus(hsnEditText));
         tsnEditText.setOnItemClickListener((parent, view1, position, id) -> requestNextTextFieldFocus(tsnEditText));
         return view;
@@ -130,11 +132,11 @@ public class CarSelectionHsnTsnFragment extends BaseInjectorFragment {
         String tsn = tsnEditText.getText().toString().trim();
         View focusView = null;
         if (hsn.isEmpty()) {
-            hsnEditText.setError(getString(R.string.car_selection_error_empty_input), error);
+            hsnEditTextLayout.setError(getString(R.string.car_selection_error_empty_input));
             focusView = hsnEditText;
         }
         if (tsn.isEmpty()) {
-            tsnEditText.setError(getString(R.string.car_selection_error_empty_input), error);
+            tsnEditTextLayout.setError(getString(R.string.car_selection_error_empty_input));
             focusView = tsnEditText;
         }
 
@@ -145,7 +147,7 @@ public class CarSelectionHsnTsnFragment extends BaseInjectorFragment {
         }
 
         // also stop searching if already error becuase of values not in list
-        if (hsnEditText.getError() != null || tsnEditText.getError() != null)
+        if (hsnEditTextLayout.getError() != null || tsnEditText.getError() != null)
             return;
         String hsn = hsnWithManufactureName.substring(0, 4);
 
@@ -204,7 +206,7 @@ public class CarSelectionHsnTsnFragment extends BaseInjectorFragment {
 
             } else {
                 // if focus on hsneditText reset error in tsnEditText
-                tsnEditText.setError(null);
+                tsnEditTextLayout.setError(null);
             }
         });
     }
@@ -260,10 +262,10 @@ public class CarSelectionHsnTsnFragment extends BaseInjectorFragment {
                         }
                     }
                     if (flag == 0) {
-                        hsnEditText.setError(getString(R.string.car_selection_error_select_from_list), error);
+                        hsnEditTextLayout.setError(getString(R.string.car_selection_error_select_from_list));
                         hsnEditText.requestFocus();
                     } else {
-                        hsnEditText.setError(null);
+                        hsnEditTextLayout.setError(null);
                     }
                 }));
 
@@ -284,10 +286,10 @@ public class CarSelectionHsnTsnFragment extends BaseInjectorFragment {
                         }
 
                         if (flag == 0) {
-                            tsnEditText.setError(getString(R.string.car_selection_error_select_from_list), error);
+                            tsnEditTextLayout.setError(getString(R.string.car_selection_error_select_from_list));
                             tsnEditText.requestFocus();
                         } else {
-                            tsnEditText.setError(null);
+                            tsnEditTextLayout.setError(null);
                         }
                     } catch (Exception e) {
                     }

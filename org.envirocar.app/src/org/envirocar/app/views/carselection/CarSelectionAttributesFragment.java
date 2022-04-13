@@ -34,6 +34,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.google.android.material.textfield.TextInputLayout;
 import com.jakewharton.rxbinding3.widget.RxTextView;
 
 import org.envirocar.app.BaseApplicationComponent;
@@ -70,10 +71,16 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
 
     @BindView(R.id.fragment_attributes_manufacturer_input)
     protected AutoCompleteTextView manufactureEditText;
+    @BindView(R.id.fragment_attributes_manufacturer_input_layout)
+    protected TextInputLayout manufactureEditTextLayout;
     @BindView(R.id.fragment_attributes_model_input)
     protected AutoCompleteTextView modelEditText;
+    @BindView(R.id.fragment_attributes_model_input_layout)
+    protected TextInputLayout modelEditTextLayout;
     @BindView(R.id.fragment_attributes_year_input)
     protected AutoCompleteTextView yearEditText;
+    @BindView(R.id.fragment_attributes_year_input_layout)
+    protected TextInputLayout yearEditTextLayout;
 
     @Inject
     EnviroCarVehicleDB enviroCarVehicleDB;
@@ -85,7 +92,6 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
     private CompositeDisposable disposable = new CompositeDisposable();
     private static final int ERROR_DEBOUNCE_TIME = 750;
     private List<Manufacturers> manufacturersList;
-    private static Drawable error;
 
     CarSelectionAttributesFragment(List<Manufacturers> manufacturersList) {
         this.manufacturersList = manufacturersList;
@@ -101,8 +107,6 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
         fetchManufactureres();
         initFocusChangedListener();
         reactiveTexFieldCheck();
-        error = getResources().getDrawable(R.drawable.ic_error_red_24dp);
-        error.setBounds(-50, 0, 0, error.getIntrinsicHeight());
         manufactureEditText.setOnItemClickListener((parent, view1, position, id) -> requestNextTextFieldFocus(manufactureEditText));
         modelEditText.setOnItemClickListener((parent, view12, position, id) -> requestNextTextFieldFocus(modelEditText));
         yearEditText.setOnItemClickListener((parent, view13, position, id) -> requestNextTextFieldFocus(yearEditText));
@@ -122,20 +126,20 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
 
     @OnTextChanged(value = R.id.fragment_attributes_manufacturer_input, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
     protected void onManufacturerChanged() {
-        manufactureEditText.setError(null);
+        manufactureEditTextLayout.setError(null);
         modelEditText.setText("");
         yearEditText.setText("");
     }
 
     @OnTextChanged(value = R.id.fragment_attributes_model_input, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
     protected void onModelChanged() {
-        modelEditText.setError(null);
+        modelEditTextLayout.setError(null);
         yearEditText.setText("");
     }
 
     @OnTextChanged(value = R.id.fragment_attributes_year_input, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
     protected void onYearChanged() {
-        yearEditText.setError(null);
+        yearEditTextLayout.setError(null);
     }
 
     @OnClick(R.id.fragment_car_search_button)
@@ -145,17 +149,17 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
         String year = yearEditText.getText().toString().trim();
         View focusView = null;
         if (manufacturer.isEmpty()) {
-            manufactureEditText.setError(getString(R.string.car_selection_error_empty_input), error);
+            manufactureEditTextLayout.setError(getString(R.string.car_selection_error_empty_input));
             focusView = manufactureEditText;
         }
 
         if (model.isEmpty()) {
-            modelEditText.setError(getString(R.string.car_selection_error_select_from_list), error);
+            modelEditTextLayout.setError(getString(R.string.car_selection_error_select_from_list));
             focusView = modelEditText;
         }
 
         if (year.isEmpty()) {
-            yearEditText.setError(getString(R.string.car_selection_error_select_from_list), error);
+            yearEditTextLayout.setError(getString(R.string.car_selection_error_select_from_list));
             focusView = yearEditText;
         }
 
@@ -299,10 +303,10 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
                         }
                     }
                     if (flag == 0) {
-                        manufactureEditText.setError(getString(R.string.car_selection_error_select_from_list), error);
+                        manufactureEditTextLayout.setError(getString(R.string.car_selection_error_select_from_list));
                         manufactureEditText.requestFocus();
                     } else {
-                        manufactureEditText.setError(null);
+                        manufactureEditTextLayout.setError(null);
                     }
                 }));
 
@@ -323,10 +327,10 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
                         }
 
                         if (flag == 0) {
-                            modelEditText.setError(getString(R.string.car_selection_error_select_from_list), error);
+                            modelEditTextLayout.setError(getString(R.string.car_selection_error_select_from_list));
                             modelEditText.requestFocus();
                         } else {
-                            modelEditText.setError(null);
+                            modelEditTextLayout.setError(null);
                         }
                     } catch (Exception e) {
                     }
@@ -349,10 +353,10 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
                         }
 
                         if (flag == 0) {
-                            yearEditText.setError(getString(R.string.car_selection_error_select_from_list), error);
+                            yearEditTextLayout.setError(getString(R.string.car_selection_error_select_from_list));
                             yearEditText.requestFocus();
                         } else {
-                            yearEditText.setError(null);
+                            yearEditTextLayout.setError(null);
                         }
                     } catch (Exception e) {
                     }

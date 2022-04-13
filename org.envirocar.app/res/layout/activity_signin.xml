@@ -66,13 +66,14 @@
             android:id="@+id/activity_signin_username_input_layout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="0dp"
-            android:layout_height="40dp"
+            android:layout_height="wrap_content"
             android:layout_marginTop="40dp"
             app:hintEnabled="false"
             app:layout_constraintEnd_toEndOf="@id/activity_signin_guideline_right"
             app:layout_constraintStart_toStartOf="@id/activity_signin_guideline_left"
             app:layout_constraintTop_toBottomOf="@+id/textView6"
-            app:layout_constraintWidth_max="500dp">
+            app:layout_constraintWidth_max="500dp"
+            app:endIconMode="custom">
 
             <androidx.appcompat.widget.AppCompatEditText
                 android:id="@+id/activity_signin_username_input"
@@ -91,7 +92,7 @@
             android:id="@+id/activity_signin_password_input_layout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="0dp"
-            android:layout_height="40dp"
+            android:layout_height="wrap_content"
             android:layout_marginTop="40dp"
             app:hintEnabled="false"
             app:layout_constraintEnd_toEndOf="@id/activity_signin_guideline_right"
@@ -99,6 +100,7 @@
             app:layout_constraintTop_toBottomOf="@+id/activity_signin_username_input_layout"
             app:layout_constraintWidth_max="500dp"
             app:endIconMode="password_toggle"
+            app:errorIconDrawable="@null"
             app:endIconDrawable="@drawable/custom_password_eye"
             app:endIconTint="@color/white_cario">
 
