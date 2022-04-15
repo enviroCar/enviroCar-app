@@ -41,11 +41,11 @@ public class ACRACustomSender implements ReportSender {
     public void send(Context context, CrashReportData report) {
         try {
             Log.e("acra", "Receiving an app crash: " + report.toJSON());
-        }catch (Exception e){
+            logger.severe(report.toJSON());   
+    	    logger.severe("[END OF ACRA REPORT]");
+        } catch (Exception e){
             e.printStackTrace();
         }
-    	logger.severe(report.toString());
-    	logger.severe("[END OF ACRA REPORT]");
     }
     
 }
