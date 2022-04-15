@@ -328,8 +328,7 @@ public class TrackUploadService extends BaseInjectorService {
         stackBuilder.addParentStack(BaseMainActivity.class);
         stackBuilder.addNextIntent(intent);
 
-        PendingIntent resultIntent = stackBuilder.getPendingIntent(0, PendingIntent
-                .FLAG_UPDATE_CURRENT);
+        PendingIntent resultIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context
                 .NOTIFICATION_SERVICE);
