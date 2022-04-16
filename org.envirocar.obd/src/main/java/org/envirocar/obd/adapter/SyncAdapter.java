@@ -103,7 +103,9 @@ public abstract class SyncAdapter implements OBDAdapter {
                 commandExecutor.setLogEverything(true);
 
                 while (!subscriber.isDisposed()) {
-                    if (analyzedSuccessfully) {
+                    BasicCommand cc = pollNextInitializationCommand();
+
+                    if (analyzedSuccessfully && cc == null) {
                         /**
                          * a successful data connection has been established:
                          * retrieve the supported PIDs
@@ -129,8 +131,7 @@ public abstract class SyncAdapter implements OBDAdapter {
                         subscriber.onNext(true);
                         subscriber.onComplete();
                     } else {
-                        BasicCommand cc = pollNextInitializationCommand();
-
+                        
                         if (cc == null) {
                             subscriber.onError(new AdapterFailedException(
                                     "All init commands sent, but could not verify connection"));
