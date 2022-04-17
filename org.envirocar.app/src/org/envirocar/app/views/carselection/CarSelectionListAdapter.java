@@ -24,6 +24,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.TextView;
@@ -140,6 +141,11 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
             mCallback.onSelectCar(mSelectedCar);
         });
 
+        // set the onClickListener of the delete button.
+        holder.mDeleteButton.setOnClickListener( v -> {
+            mCallback.onDeleteCar(car,mSelectedButton);
+        });
+
         // Items of array.car_list_option_items are displayed according to the state of radio button.
         Resources res = getContext().getResources();
         String[] state;
@@ -150,37 +156,37 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
             state = res.getStringArray(R.array.car_list_option_items);
         }
 
-        // Set the onClickListener for a single row.
-        convertView.setOnClickListener(v -> new MaterialDialog.Builder(mContext)
-                .items(state)
-                .itemsCallback((materialDialog, view, i, charSequence) -> {
-                    switch (i) {
-                        case 0:
-                            // Call the callback
-                            mCallback.onDeleteCar(car, mSelectedButton);
-                            break;
-                        case 1:
-                            if(car.equals(mSelectedCar))
-                                return;
-
-                            // Uncheck the currently checked car.
-                            if (mSelectedButton != null) {
-                                mSelectedButton.setChecked(false);
-                            }
-
-                            // Set the new car as selected car type.
-                            mSelectedCar = car;
-                            mSelectedButton = tmpHolder.mRadioButton;
-                            mSelectedButton.setChecked(true);
-
-                            // Call the callback in order to react accordingly.
-                            mCallback.onSelectCar(car);
-                            break;
-                        default:
-                            LOG.warn("No action selected!");
-                    }
-                })
-                .show());
+//        // Set the onClickListener for a single row.
+//        convertView.setOnClickListener(v -> new MaterialDialog.Builder(mContext)
+//                .items(state)
+//                .itemsCallback((materialDialog, view, i, charSequence) -> {
+//                    switch (i) {
+//                        case 0:
+//                            // Call the callback
+//                            mCallback.onDeleteCar(car, mSelectedButton);
+//                            break;
+//                        case 1:
+//                            if(car.equals(mSelectedCar))
+//                                return;
+//
+//                            // Uncheck the currently checked car.
+//                            if (mSelectedButton != null) {
+//                                mSelectedButton.setChecked(false);
+//                            }
+//
+//                            // Set the new car as selected car type.
+//                            mSelectedCar = car;
+//                            mSelectedButton = tmpHolder.mRadioButton;
+//                            mSelectedButton.setChecked(true);
+//
+//                            // Call the callback in order to react accordingly.
+//                            mCallback.onSelectCar(car);
+//                            break;
+//                        default:
+//                            LOG.warn("No action selected!");
+//                    }
+//                })
+//                .show());
 
         // Return the created view.
         return convertView;
@@ -231,6 +237,8 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
         protected TextView secondLine;
         @BindView(R.id.activity_car_selection_layout_carlist_entry_radio)
         protected RadioButton mRadioButton;
+        @BindView(R.id.activity_car_selection_layout_carlist_delete_icon)
+        protected ImageButton mDeleteButton;
 
         /**
          * Constructor.
