@@ -199,5 +199,6 @@
     <!--   Public Mapbox key    -->
     <!-- ###################### -->
     <string name="mapbox_access_token" tools:ignore="MissingTranslation">public_access_token</string>
+    <string name="others_share">Share</string>
 
 </resources>
