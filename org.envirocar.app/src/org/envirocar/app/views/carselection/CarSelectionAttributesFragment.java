@@ -28,7 +28,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AutoCompleteTextView;
+import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ListAdapter;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -44,6 +47,7 @@ import org.envirocar.core.entity.Vehicles;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.storage.EnviroCarVehicleDB;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -74,6 +78,13 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
     protected AutoCompleteTextView modelEditText;
     @BindView(R.id.fragment_attributes_year_input)
     protected AutoCompleteTextView yearEditText;
+    @BindView(R.id.fragment_attributes_fueltype_input)
+    protected AutoCompleteTextView fuelTypeSelection;
+    @BindView(R.id.fragment_attributes_displacement_input)
+    protected EditText displacementEditText;
+
+    @BindView(R.id.fragment_car_search_button_text)
+    protected TextView searchButton;
 
     @Inject
     EnviroCarVehicleDB enviroCarVehicleDB;
@@ -100,12 +111,19 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
         ButterKnife.bind(this, view);
         fetchManufactureres();
         initFocusChangedListener();
-        reactiveTexFieldCheck();
+        initManufacturerTextChangeListener();
         error = getResources().getDrawable(R.drawable.ic_error_red_24dp);
         error.setBounds(-50, 0, 0, error.getIntrinsicHeight());
         manufactureEditText.setOnItemClickListener((parent, view1, position, id) -> requestNextTextFieldFocus(manufactureEditText));
         modelEditText.setOnItemClickListener((parent, view12, position, id) -> requestNextTextFieldFocus(modelEditText));
         yearEditText.setOnItemClickListener((parent, view13, position, id) -> requestNextTextFieldFocus(yearEditText));
+
+        List<String> fuelTypes = Arrays.asList(getContext().getString(R.string.gasoline), getContext().getString(R.string.diesel),
+                getContext().getString(R.string.pref_other));
+
+        fuelTypeSelection.setAdapter(((CarSelectionActivity) getActivity()).sortedAdapter(getContext(), new HashSet<String>(fuelTypes)));
+        fuelTypeSelection.setText(fuelTypes.get(0));
+
         return view;
     }
 
@@ -186,12 +204,12 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
     }
 
     private void fetchManufactureres() {
-        if (manufacturersList != null)
+        if (manufacturersList != null) {
             for (Manufacturers manufacturers : manufacturersList) {
                 mManufacturerNames.add(manufacturers.getName());
             }
+        }
         updateManufacturerView();
-
     }
 
     private void fetchVehicles(String manufacturersName) {
@@ -238,6 +256,7 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
             manufactureEditText.setAdapter(((CarSelectionActivity) getActivity()).sortedAdapter(getContext(), mManufacturerNames));
         } else {
             manufactureEditText.setAdapter(null);
+            searchButton.setText("Add new car");
         }
     }
 
@@ -246,6 +265,7 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
             modelEditText.setAdapter(((CarSelectionActivity) getActivity()).sortedAdapter(getContext(), mCarToModelMap.get(manufacturer)));
         } else {
             modelEditText.setAdapter(null);
+            searchButton.setText("Add new car");
         }
     }
 
@@ -254,6 +274,7 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
             yearEditText.setAdapter(((CarSelectionActivity) getActivity()).sortedAdapter(getContext(), mManufactureModelToYear.get(manufactureModel)));
         } else {
             yearEditText.setAdapter(null);
+            searchButton.setText("Add new car");
         }
     }
 
@@ -283,27 +304,29 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
         hideKeyboard(textField);
     }
 
-    private void reactiveTexFieldCheck() {
+    private void initManufacturerTextChangeListener() {
         disposable.add(RxTextView.textChanges(manufactureEditText)
                 .skipInitialValue()
                 .debounce(ERROR_DEBOUNCE_TIME, TimeUnit.MILLISECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
                 .map(t -> t.toString())
                 .subscribe(manufacture -> {
-                    ListAdapter adapter = manufactureEditText.getAdapter();
-                    int flag = 0;
-                    for (int i = 0; i < adapter.getCount(); i++) {
-                        if (adapter.getItem(i).toString().compareTo(manufacture) == 0) {
-                            flag = 1;
-                            break;
-                        }
-                    }
-                    if (flag == 0) {
-                        manufactureEditText.setError(getString(R.string.car_selection_error_select_from_list), error);
-                        manufactureEditText.requestFocus();
-                    } else {
-                        manufactureEditText.setError(null);
-                    }
+                    // ListAdapter adapter = manufactureEditText.getAdapter();
+                    // int flag = 0;
+                    // for (int i = 0; i < adapter.getCount(); i++) {
+                    //     if (adapter.getItem(i).toString().compareTo(manufacture) == 0) {
+                    //         flag = 1;
+                    //         break;
+                    //     }
+                    // }
+                    // if (flag == 0) {
+                    //     manufactureEditText.setError(getString(R.string.car_selection_error_select_from_list), error);
+                    //     manufactureEditText.requestFocus();
+                    // } else {
+                    //     manufactureEditText.setError(null);
+                    // }
+                    updateSearchButtonState();
+                    manufactureEditText.setError(null);
                 }));
 
         disposable.add(RxTextView.textChanges(modelEditText)
@@ -313,21 +336,23 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
                 .map(t -> t.toString())
                 .subscribe(model -> {
                     try {
-                        ListAdapter adapter = modelEditText.getAdapter();
-                        int flag = 0;
-                        for (int i = 0; i < adapter.getCount(); i++) {
-                            if (adapter.getItem(i).toString().compareTo(model) == 0) {
-                                flag = 1;
-                                break;
-                            }
-                        }
+                        // ListAdapter adapter = modelEditText.getAdapter();
+                        // int flag = 0;
+                        // for (int i = 0; i < adapter.getCount(); i++) {
+                        //     if (adapter.getItem(i).toString().compareTo(model) == 0) {
+                        //         flag = 1;
+                        //         break;
+                        //     }
+                        // }
 
-                        if (flag == 0) {
-                            modelEditText.setError(getString(R.string.car_selection_error_select_from_list), error);
-                            modelEditText.requestFocus();
-                        } else {
-                            modelEditText.setError(null);
-                        }
+                        // if (flag == 0) {
+                        //     modelEditText.setError(getString(R.string.car_selection_error_select_from_list), error);
+                        //     modelEditText.requestFocus();
+                        // } else {
+                        //     modelEditText.setError(null);
+                        // }
+                        updateSearchButtonState();
+                        modelEditText.setError(null);
                     } catch (Exception e) {
                     }
                 }));
@@ -339,24 +364,66 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
                 .map(t -> t.toString())
                 .subscribe(year -> {
                     try {
-                        ListAdapter adapter = yearEditText.getAdapter();
-                        int flag = 0;
-                        for (int i = 0; i < adapter.getCount(); i++) {
-                            if (adapter.getItem(i).toString().compareTo(year) == 0) {
-                                flag = 1;
-                                break;
-                            }
-                        }
+                        // ListAdapter adapter = yearEditText.getAdapter();
+                        // int flag = 0;
+                        // for (int i = 0; i < adapter.getCount(); i++) {
+                        //     if (adapter.getItem(i).toString().compareTo(year) == 0) {
+                        //         flag = 1;
+                        //         break;
+                        //     }
+                        // }
 
-                        if (flag == 0) {
-                            yearEditText.setError(getString(R.string.car_selection_error_select_from_list), error);
-                            yearEditText.requestFocus();
-                        } else {
-                            yearEditText.setError(null);
-                        }
+                        // if (flag == 0) {
+                        //     yearEditText.setError(getString(R.string.car_selection_error_select_from_list), error);
+                        //     yearEditText.requestFocus();
+                        // } else {
+                        //     yearEditText.setError(null);
+                        // }
+                        updateSearchButtonState();
+                        yearEditText.setError(null);
                     } catch (Exception e) {
                     }
                 }));
+    }
+
+    private void updateSearchButtonState() {
+        if (hasStoredVehicle()) {
+            searchButton.setText(R.string.car_selection_search);
+        } else {
+            searchButton.setText(R.string.car_selection_add_new_car);
+        }
+    }
+
+    private boolean hasStoredVehicle() {
+        String manufacturer = manufactureEditText.getText().toString().trim();
+        String model = modelEditText.getText().toString().trim();
+        String year = yearEditText.getText().toString().trim();
+
+        // check manufacturer
+        boolean found = checkAdapterContainsText(manufactureEditText.getAdapter(), manufacturer);
+        if (!found) {
+            return false;
+        }
+
+        // check model
+        found = checkAdapterContainsText(modelEditText.getAdapter(), model);
+        if (!found) {
+            return false;
+        }
+
+        // check year
+        found = checkAdapterContainsText(yearEditText.getAdapter(), year);
+
+        return found;
+    }
+
+    private boolean checkAdapterContainsText(ListAdapter adapter, String text) {
+        for (int i = 0; i < adapter.getCount(); i++) {
+            if (adapter.getItem(i).toString().equals(text)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public void hideKeyboard(View view) {
