@@ -83,6 +83,9 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
     @BindView(R.id.fragment_attributes_displacement_input)
     protected EditText displacementEditText;
 
+    @BindView(R.id.fragment_attributes_utility_input)
+    protected AutoCompleteTextView utilityTypeSelection;
+
     @BindView(R.id.fragment_car_search_button_text)
     protected TextView searchButton;
 
@@ -109,7 +112,7 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
 
         View view = inflater.inflate(R.layout.fragment_car_selection_attributes, container, false);
         ButterKnife.bind(this, view);
-        fetchManufactureres();
+        fetchManufactures();
         initFocusChangedListener();
         initManufacturerTextChangeListener();
         error = getResources().getDrawable(R.drawable.ic_error_red_24dp);
@@ -121,8 +124,21 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
         List<String> fuelTypes = Arrays.asList(getContext().getString(R.string.gasoline), getContext().getString(R.string.diesel),
                 getContext().getString(R.string.pref_other));
 
-        fuelTypeSelection.setAdapter(((CarSelectionActivity) getActivity()).sortedAdapter(getContext(), new HashSet<String>(fuelTypes)));
-        fuelTypeSelection.setText(fuelTypes.get(0));
+        ArrayAdapter<String> fuelTypesAdapter = new ArrayAdapter<>(
+            getContext(),
+            R.layout.activity_car_selection_newcar_fueltype_item,
+            fuelTypes);
+        fuelTypeSelection.setAdapter(fuelTypesAdapter);
+        fuelTypeSelection.setText(fuelTypesAdapter.getItem(0).toString(), false);
+
+        String[] utilityTypes = new String[]{getContext().getString(R.string.car_selection_not_specified), getContext().getString(R.string.menu_logout_envirocar_negative), getContext().getString(R.string.menu_logout_envirocar_positive)};
+
+        ArrayAdapter<String> utilityTypesAdapter = new ArrayAdapter<>(
+            getContext(),
+            R.layout.activity_car_selection_newcar_fueltype_item,
+            utilityTypes);
+        utilityTypeSelection.setAdapter(utilityTypesAdapter);
+        utilityTypeSelection.setText(utilityTypesAdapter.getItem(0).toString(), false);
 
         return view;
     }
@@ -203,7 +219,7 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
                 });
     }
 
-    private void fetchManufactureres() {
+    private void fetchManufactures() {
         if (manufacturersList != null) {
             for (Manufacturers manufacturers : manufacturersList) {
                 mManufacturerNames.add(manufacturers.getName());
