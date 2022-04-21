@@ -31,12 +31,12 @@
     <RelativeLayout
         android:id="@+id/activity_car_selection_top"
         android:layout_width="match_parent"
-        android:layout_height="290dp">
+        android:layout_height="200dp">
 
         <LinearLayout
             android:id="@+id/activity_car_selection_newcar_toolbar_exp"
             android:layout_width="match_parent"
-            android:layout_height="260dp"
+            android:layout_height="wrap_content"
             android:background="@drawable/bottom_right_corner"
             android:orientation="vertical"
             android:visibility="visible">
@@ -45,7 +45,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/spacing_large"
-                android:layout_marginTop="60dp"
+                android:layout_marginTop="30dp"
                 android:text="Car Selection"
                 android:textColor="@color/white"
                 android:textSize="26dp"
@@ -56,6 +56,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/spacing_large"
                 android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
                 android:text="@string/car_selection_addcar_info"
                 android:textColor="@color/gray88"
                 android:textSize="13sp"
@@ -92,21 +93,21 @@
         segmentedgroup:sc_tint_color="@color/cario_color_primary">
 
         <RadioButton
-            android:id="@+id/HsnTsnSegmentedButton"
-            style="@style/RadioButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:checked="true"
-            android:text="@string/car_selection_hsn_tsn_segmented" />
-
-        <RadioButton
             android:id="@+id/attributesSegmentedButton"
             style="@style/RadioButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:checked="true"
             android:text="@string/car_selection_attributes_segmented" />
+        
+        <RadioButton
+            android:id="@+id/HsnTsnSegmentedButton"
+            style="@style/RadioButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/car_selection_hsn_tsn_segmented" />
 
     </info.hoang8f.android.segmented.SegmentedGroup>
 
