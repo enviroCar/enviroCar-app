@@ -59,7 +59,7 @@ ext {
     compileSdkVersion = 31
     targetSdkVersion = 31
     buildToolsVersion = '30.0.2'
-    versionCode = 52
+    versionCode = 53
     versionName = "2.1.0"
     ndkVersion = "21.4.7075529"
 
