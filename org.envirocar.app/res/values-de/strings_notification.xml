@@ -64,4 +64,7 @@
     <string name="banner_gps_error_content">Bitte stelle GPS an</string>
     <string name="banner_car_error_title">Auto ist nicht selektiert!</string>
     <string name="banner_car_error_content">Bitte wähle ein Fahrzeug aus, um fortzufahren.</string>
+
+    <string name="notification_location_access">Wir benötigen Zugriff auf Ihren Standort.</string>
+    <string name="notification_location_access_not_granted">Standortzugriff nicht gewährt</string>
 </resources>

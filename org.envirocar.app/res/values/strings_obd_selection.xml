@@ -28,6 +28,7 @@
     <string name="obd_selection_bluetooth_disabled_snackbar">Bluetooth is disabled. Please enable Bluetooth before you can discover other devices.</string>
     <string name="obd_selection_discovery_started">Bluetooth discovery started.</string>
     <string name="obd_selection_discovery_finished">Bluetooth discovery finished.</string>
+    <string name="obd_selection_discovery_general_error">Error while discovering bluetooth devices</string>
     <string name="obd_selection_is_selected_template">%s selected.</string>
 
     <string name="obd_selection_no_paired_devices">No paired Bluetooth devices</string>
@@ -46,4 +47,5 @@
     <string name="obd_selection_pairing_started">Pairing Started</string>
     <string name="obd_selection_pairing_error">An error occurred during the pairing process.</string>
     <string name="obd_selection_pairing_success_template">%s has been successfully paired.</string>
+    <string name="obd_selection_paired_successfully">Paired successfully</string>
 </resources>
