@@ -46,7 +46,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/spacing_large"
                 android:layout_marginTop="30dp"
-                android:text="Car Selection"
+                android:text="@string/car_selection_newcar_title"
                 android:textColor="@color/white"
                 android:textSize="26dp"
                 android:textStyle="bold" />

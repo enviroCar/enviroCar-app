@@ -19,6 +19,8 @@
 package org.envirocar.obd.adapter;
 
 import org.envirocar.obd.commands.CycleCommandProfile;
+import org.envirocar.obd.exception.AdapterFailedException;
+import org.envirocar.obd.commands.request.BasicCommand;
 
 public class UniCarScanAdapter extends OBDLinkAdapter{
     public UniCarScanAdapter(CycleCommandProfile cmp) {
@@ -28,5 +30,12 @@ public class UniCarScanAdapter extends OBDLinkAdapter{
     @Override
     public boolean supportsDevice(String deviceName) {
         return deviceName.contains("UniCarScan");
+    }
+
+    @Override
+    protected boolean analyzeMetadataResponse(byte[] response, BasicCommand sentCommand) throws AdapterFailedException {
+        super.analyzeMetadataResponse(response, sentCommand);
+
+        return succesfulCount >= 6;
     }
 }

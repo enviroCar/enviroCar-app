@@ -122,7 +122,7 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
         yearEditText.setOnItemClickListener((parent, view13, position, id) -> requestNextTextFieldFocus(yearEditText));
 
         List<String> fuelTypes = Arrays.asList(getContext().getString(R.string.gasoline), getContext().getString(R.string.diesel),
-                getContext().getString(R.string.pref_other));
+                getContext().getString(R.string.electric), getContext().getString(R.string.gas), getContext().getString(R.string.hybrid));
 
         ArrayAdapter<String> fuelTypesAdapter = new ArrayAdapter<>(
             getContext(),
@@ -200,10 +200,14 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
         }
 
         // also stop searching if already error becuase of values not in list
-        if (manufactureEditText.getError() != null || modelEditText.getError() != null || yearEditText.getError() != null)
+        if (manufactureEditText.getError() != null || modelEditText.getError() != null || yearEditText.getError() != null) {
             return;
-        Single<List<Vehicles>> vehicle = enviroCarVehicleDB.vehicleDAO().getVehicleAttributeType(manufacturer, model, year);
-        vehicle.subscribeOn(Schedulers.io())
+        }
+
+        if (hasStoredVehicle()) {
+            // launch the selection fragment
+            Single<List<Vehicles>> vehicle = enviroCarVehicleDB.vehicleDAO().getVehicleAttributeType(manufacturer, model, year);
+                vehicle.subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .subscribeWith(new DisposableSingleObserver<List<Vehicles>>() {
                     @Override
@@ -217,6 +221,71 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
                         Log.i("fetchError", "" + e.getMessage());
                     }
                 });
+        } else {
+            // create new car without selection
+            Vehicles vehicle = createVehicleFromFields();
+            if (vehicle != null) {
+                ((CarSelectionActivity) getActivity()).registerCar(vehicle);
+            }
+        }
+        
+    }
+
+
+    private Vehicles createVehicleFromFields() {
+        String manufacturer = manufactureEditText.getText().toString().trim();
+        String model = modelEditText.getText().toString().trim();
+        String year = yearEditText.getText().toString().trim();
+        String fuelType = fuelTypeSelection.getText().toString().trim();
+        String displacement = displacementEditText.getText().toString().trim();
+        String utilityType = utilityTypeSelection.getText().toString().trim();
+
+        View focusView = null;
+        if (fuelType.isEmpty()) {
+            fuelTypeSelection.setError(getString(R.string.car_selection_error_empty_input), error);
+            focusView = fuelTypeSelection;
+        }
+
+        if (displacement.isEmpty()) {
+            displacementEditText.setError(getString(R.string.car_selection_error_select_from_list), error);
+            focusView = displacementEditText;
+        }
+
+        if (utilityType.equals(getContext().getString(R.string.car_selection_not_specified))) {
+            // utility not selected
+            utilityType = null;
+        }
+
+
+        // focus on error and return null
+        if (focusView != null) {
+            focusView.requestFocus();
+            return null;
+        }
+
+        Vehicles vehicle = new Vehicles();
+        vehicle.setManufacturer(manufacturer);
+        vehicle.setCommerical_name(model);
+        vehicle.setAllotment_date("01.01." + year);
+        
+        vehicle.setEngine_capacity(displacement);
+        vehicle.setPower_source_id(getFuelTypeId(fuelType));
+
+        return vehicle;
+    }
+
+    private String getFuelTypeId(String id) {
+        String fuel = null;
+        if (id.equalsIgnoreCase(getContext().getString(R.string.gasoline)))
+            fuel = "01";
+        else if (id.equalsIgnoreCase(getContext().getString(R.string.diesel)))
+            fuel = "02";
+        else if (id.equalsIgnoreCase(getContext().getString(R.string.electric)))
+            fuel = "04";
+        else if (id.equalsIgnoreCase(getContext().getString(R.string.gas)))
+            fuel = "05";
+
+        return fuel;
     }
 
     private void fetchManufactures() {
@@ -434,6 +503,9 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
     }
 
     private boolean checkAdapterContainsText(ListAdapter adapter, String text) {
+        if (adapter == null) {
+            return false;
+        }
         for (int i = 0; i < adapter.getCount(); i++) {
             if (adapter.getItem(i).toString().equals(text)) {
                 return true;

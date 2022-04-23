@@ -53,6 +53,9 @@
     <string name="track_finished_no_measurements">The created track did not contain any measurements</string>
     <string name="gasoline">Gasoline</string>
     <string name="diesel">Diesel</string>
+    <string name="gas">Natural Gas</string>
+    <string name="hybrid">Hybrid</string>
+    <string name="electric">Electric</string>
 
     <string name="default_track_description">Track with Car %s.</string>
 

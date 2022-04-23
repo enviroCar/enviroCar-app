@@ -46,6 +46,9 @@
 
     <string name="gasoline">Benzin</string>
     <string name="diesel">Diesel</string>
+    <string name="gas">Gas</string>
+    <string name="hybrid">Hybrid</string>
+    <string name="electric">Elektrisch</string>
 
     <string name="track_statistics">Statistiken</string>
     <string name="track_statistics_distance">Distanz</string>

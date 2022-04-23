@@ -66,6 +66,6 @@
     <string name="car_selection_utility_car">Utility Car?</string>
     <string name="car_selection_not_specified">Not specified</string>
     
-    
+    <string name="car_selection_newcar_title">Car Selection</string>
     
 </resources>
