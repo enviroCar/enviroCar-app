@@ -24,7 +24,7 @@
     <!-- fuel type values -->
     <string name="fuel_type_gasoline">Gasoline</string>
     <string name="fuel_type_diesel">Diesel</string>
-    <string name="fuel_type_gas">Gas</string>
+    <string name="fuel_type_gas">Natural Gas</string>
     <string name="fuel_type_hybrid">Hybrid</string>
     <string name="fuel_type_electric">Electric</string>
 </resources>

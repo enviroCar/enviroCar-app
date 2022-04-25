@@ -39,6 +39,8 @@ public interface Car extends BaseEntity<Car>, Serializable {
     String KEY_CAR_CONSTRUCTIONYEAR = "constructionYear";
     String KEY_CAR_MANUFACTURER = "manufacturer";
     String KEY_CAR_ENGINEDISPLACEMENT = "engineDisplacement";
+    String KEY_CAR_WEIGHT = "weight";
+    String KEY_CAR_UTILITYCAR = "utilityCar";
 
     String TEMPORARY_SENSOR_ID = "%TMP_ID%";
 
@@ -164,5 +166,15 @@ public interface Car extends BaseEntity<Car>, Serializable {
     void setFuelType(FuelType fuelType);
 
     void setFuelType(String fuelType);
+
+    boolean hasWeight();
+
+    int getWeight();
+
+    void setWeight(int weight);
+
+    boolean isUtilityCar();
+
+    void setUtilityCar(boolean utilityCar);
 
 }

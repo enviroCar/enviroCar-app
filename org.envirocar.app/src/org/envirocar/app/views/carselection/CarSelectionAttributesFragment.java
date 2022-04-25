@@ -82,7 +82,8 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
     protected AutoCompleteTextView fuelTypeSelection;
     @BindView(R.id.fragment_attributes_displacement_input)
     protected EditText displacementEditText;
-
+    @BindView(R.id.fragment_attributes_weight_input)
+    protected EditText weightEditText;
     @BindView(R.id.fragment_attributes_utility_input)
     protected AutoCompleteTextView utilityTypeSelection;
 
@@ -121,8 +122,8 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
         modelEditText.setOnItemClickListener((parent, view12, position, id) -> requestNextTextFieldFocus(modelEditText));
         yearEditText.setOnItemClickListener((parent, view13, position, id) -> requestNextTextFieldFocus(yearEditText));
 
-        List<String> fuelTypes = Arrays.asList(getContext().getString(R.string.gasoline), getContext().getString(R.string.diesel),
-                getContext().getString(R.string.electric), getContext().getString(R.string.gas), getContext().getString(R.string.hybrid));
+        List<String> fuelTypes = Arrays.asList(getContext().getString(R.string.fuel_type_gasoline), getContext().getString(R.string.fuel_type_diesel),
+                getContext().getString(R.string.fuel_type_electric), getContext().getString(R.string.fuel_type_gas), getContext().getString(R.string.fuel_type_hybrid));
 
         ArrayAdapter<String> fuelTypesAdapter = new ArrayAdapter<>(
             getContext(),
@@ -239,6 +240,7 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
         String fuelType = fuelTypeSelection.getText().toString().trim();
         String displacement = displacementEditText.getText().toString().trim();
         String utilityType = utilityTypeSelection.getText().toString().trim();
+        String weight = weightEditText.getText().toString().trim();
 
         View focusView = null;
         if (fuelType.isEmpty()) {
@@ -254,6 +256,14 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
         if (utilityType.equals(getContext().getString(R.string.car_selection_not_specified))) {
             // utility not selected
             utilityType = null;
+        } else if (utilityType.equals(getContext().getString(R.string.menu_logout_envirocar_positive))) {
+            utilityType = Boolean.toString(true);
+        } else if (utilityType.equals(getContext().getString(R.string.menu_logout_envirocar_negative))) {
+            utilityType = Boolean.toString(false);
+        }
+
+        if (weight.length() == 0) {
+            weight = null;
         }
 
 
@@ -271,18 +281,21 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
         vehicle.setEngine_capacity(displacement);
         vehicle.setPower_source_id(getFuelTypeId(fuelType));
 
+        vehicle.setWeight(weight);
+        vehicle.setUtility_vehicle(utilityType);
+
         return vehicle;
     }
 
     private String getFuelTypeId(String id) {
         String fuel = null;
-        if (id.equalsIgnoreCase(getContext().getString(R.string.gasoline)))
+        if (id.equalsIgnoreCase(getContext().getString(R.string.fuel_type_gasoline)))
             fuel = "01";
-        else if (id.equalsIgnoreCase(getContext().getString(R.string.diesel)))
+        else if (id.equalsIgnoreCase(getContext().getString(R.string.fuel_type_diesel)))
             fuel = "02";
-        else if (id.equalsIgnoreCase(getContext().getString(R.string.electric)))
+        else if (id.equalsIgnoreCase(getContext().getString(R.string.fuel_type_electric)))
             fuel = "04";
-        else if (id.equalsIgnoreCase(getContext().getString(R.string.gas)))
+        else if (id.equalsIgnoreCase(getContext().getString(R.string.fuel_type_gas)))
             fuel = "05";
 
         return fuel;
@@ -485,24 +498,24 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
         String year = yearEditText.getText().toString().trim();
 
         // check manufacturer
-        boolean found = checkAdapterContainsText(manufactureEditText.getAdapter(), manufacturer);
+        boolean found = checkAdapterContainsEntry(manufactureEditText.getAdapter(), manufacturer);
         if (!found) {
             return false;
         }
 
         // check model
-        found = checkAdapterContainsText(modelEditText.getAdapter(), model);
+        found = checkAdapterContainsEntry(modelEditText.getAdapter(), model);
         if (!found) {
             return false;
         }
 
         // check year
-        found = checkAdapterContainsText(yearEditText.getAdapter(), year);
+        found = checkAdapterContainsEntry(yearEditText.getAdapter(), year);
 
         return found;
     }
 
-    private boolean checkAdapterContainsText(ListAdapter adapter, String text) {
+    private boolean checkAdapterContainsEntry(ListAdapter adapter, String text) {
         if (adapter == null) {
             return false;
         }

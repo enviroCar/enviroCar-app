@@ -36,6 +36,8 @@ public class CarImpl implements Car {
     protected FuelType fuelType;
     protected int constructionYear;
     protected int engineDisplacement;
+    protected int weight;
+    protected boolean utilityCar;
 
     @Deprecated
     public static double ccmToLiter(int ccm) {
@@ -181,8 +183,34 @@ public class CarImpl implements Car {
     }
 
     @Override
+    public boolean hasWeight() {
+        return this.weight != 0;
+    }
+
+    @Override
+    public int getWeight() {
+        return this.weight;
+    }
+
+    @Override
+    public void setWeight(int weight) {
+        this.weight = weight;
+    }
+
+    @Override
+    public boolean isUtilityCar() {
+        return this.utilityCar;
+    }
+
+    @Override
+    public void setUtilityCar(boolean utilityCar) {
+        this.utilityCar = utilityCar;
+    }
+
+
+    @Override
     public String toString() {
-        return String.format("%s %s %d (%s / %dcc)", manufacturer, model, constructionYear, fuelType, engineDisplacement);
+        return String.format("%s %s %d (%s / %dcc; %dkg; utilityCar? %s)", manufacturer, model, constructionYear, fuelType, engineDisplacement, weight, Boolean.toString(utilityCar));
     }
 
     @Override
@@ -195,12 +223,14 @@ public class CarImpl implements Car {
                 Objects.equals(id, car.id) &&
                 Objects.equals(model, car.model) &&
                 Objects.equals(manufacturer, car.manufacturer) &&
+                weight == car.weight &&
+                utilityCar == car.utilityCar &&
                 fuelType == car.fuelType;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, model, manufacturer, fuelType, constructionYear, engineDisplacement);
+        return Objects.hash(id, model, manufacturer, fuelType, constructionYear, engineDisplacement, weight, utilityCar);
     }
 
     @Override
@@ -212,6 +242,8 @@ public class CarImpl implements Car {
         res.fuelType = fuelType;
         res.constructionYear = constructionYear;
         res.engineDisplacement = engineDisplacement;
+        res.weight = weight;
+        res.utilityCar = utilityCar;
         return res;
     }
 }

@@ -78,6 +78,10 @@ public class Vehicles {
     @ColumnInfo(name = "maximum_mass")
     String maximum_mass;
 
+    String weight;
+
+    String utility_vehicle;
+
     public String getManufacturer_id() {
         return manufacturer_id;
     }
@@ -100,6 +104,22 @@ public class Vehicles {
 
     public void setTrade(String trade) {
         this.trade = trade;
+    }
+
+    public String getWeight() {
+        return weight;
+    }
+
+    public void setWeight(String weight) {
+        this.weight = weight;
+    }
+
+    public String getUtility_vehicle() {
+        return utility_vehicle;
+    }
+
+    public void setUtility_vehicle(String utility_vehicle) {
+        this.utility_vehicle = utility_vehicle;
     }
 
     public String getCommerical_name() {

@@ -44,12 +44,6 @@
     <string name="menu_delete">Löschen</string>
 	<string name="default_track_description">Fahrt mit Fahrzeug %s.</string>
 
-    <string name="gasoline">Benzin</string>
-    <string name="diesel">Diesel</string>
-    <string name="gas">Gas</string>
-    <string name="hybrid">Hybrid</string>
-    <string name="electric">Elektrisch</string>
-
     <string name="track_statistics">Statistiken</string>
     <string name="track_statistics_distance">Distanz</string>
 	

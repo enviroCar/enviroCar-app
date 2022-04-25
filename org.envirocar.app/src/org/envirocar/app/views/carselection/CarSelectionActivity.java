@@ -393,16 +393,23 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
         String model = vehicle.getCommerical_name();
         String yearString = vehicle.getAllotment_date();
         int year = convertDateToInt(yearString);
+        int weight = Integer.parseInt(vehicle.getWeight());
+        boolean utilityCar = Boolean.parseBoolean(vehicle.getUtility_vehicle());
         int engine = 0;
         if (!vehicle.getEngine_capacity().isEmpty())
             engine = Integer.parseInt(vehicle.getEngine_capacity());
         Car.FuelType fuelType = getFuel(vehicle.getPower_source_id());
+        Car result;
         if (fuelType != Car.FuelType.ELECTRIC) {
-            return new CarImpl(manufacturer, model, fuelType, year, engine);
+            result = new CarImpl(manufacturer, model, fuelType, year, engine);
         } else {
-            return new CarImpl(manufacturer, model, fuelType, year);
-
+            result = new CarImpl(manufacturer, model, fuelType, year);
         }
+
+        result.setWeight(weight);
+        result.setUtilityCar(utilityCar);
+        
+        return result;
     }
 
     @Override
