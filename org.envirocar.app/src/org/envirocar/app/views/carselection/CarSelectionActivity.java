@@ -299,6 +299,11 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
                     public void onComplete() {
                         LOG.info("onCompleted() loading of all cars");
                         loadingView.setVisibility(View.INVISIBLE);
+                        mCarListAdapter.notifyDataSetChanged();
+                        if (mCarListAdapter.getCount() > 0) {
+                            headerView.setVisibility(View.VISIBLE);
+                            ECAnimationUtils.animateHideView(CarSelectionActivity.this, infoBackground, R.anim.fade_out);
+                        }
                     }
 
                     @Override
@@ -309,12 +314,13 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
 
                     @Override
                     public void onNext(List<Car> cars) {
-                        LOG.info("onNext() " + cars.size());
+                        LOG.info("onNext(List<Car> cars) " + cars.size());
                         for (Car car : cars) {
-                            if (!usedCars.contains(car))
-                                usedCars.add(car);
+                            if (!usedCars.contains(car)) {
+                                LOG.info("Adding car: " + car);
+                                mCarListAdapter.addCarItem(car);
+                            }
                         }
-                        mCarListAdapter.notifyDataSetInvalidated();
                     }
 
                 });
