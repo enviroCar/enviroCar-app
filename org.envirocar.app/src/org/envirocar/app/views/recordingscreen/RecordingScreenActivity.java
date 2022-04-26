@@ -22,7 +22,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -31,8 +30,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -40,10 +37,7 @@ import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
-import org.envirocar.app.events.AvrgSpeedUpdateEvent;
-import org.envirocar.app.events.DistanceValueUpdateEvent;
-import org.envirocar.app.events.DrivingDetectedEvent;
-import org.envirocar.app.events.StartingTimeEvent;
+import org.envirocar.app.events.*;
 import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.app.handler.TrackRecordingHandler;
 import org.envirocar.app.injection.BaseInjectorActivity;
@@ -75,7 +69,6 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
 
     private static final String PREF_SELECTED_VIEW = "pref_selected_view";
     private static final DecimalFormat DECIMAL_FORMATTER = new DecimalFormat("###.#");
-
     /**
      * Starts the activity.
      *
@@ -114,6 +107,8 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
     protected LinearLayout tempomatContainer;
     @BindView(R.id.activity_recscreen_stopbutton)
     protected LinearLayout stopTrackRecordingButton;
+    @BindView(R.id.activity_recscreen_track_upload_status)
+    protected LinearLayout trackUploadStatus;
 
     // state variables
     private RecordingType recordingType;
@@ -300,6 +295,16 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
             runOnUiThread(() -> this.finish());
         }
     }
+
+//    @Subscribe
+//    public void onTrackchunkUploadedFailedEvent(TrackchunkUploadEvent event){
+//        LOG.info("Received event: %s", event.toString());
+//        if (event.getStatus() == TrackchunkUploadEvent.FAILED){
+//            this.trackUploadStatus.setVisibility(View.INVISIBLE);
+//        } else if (event.getStatus() == TrackchunkUploadEvent.SUCCESSFUL){
+//            this.trackUploadStatus.setVisibility(View.VISIBLE);
+//        }
+//    }
 
     /**
      * @return

@@ -200,5 +200,6 @@
     <!--   Public Mapbox key    -->
     <!-- ###################### -->
     <string name="mapbox_access_token" tools:ignore="MissingTranslation">public_access_token</string>
+    <string name="track_upload_active">Track wird hochgeladen</string>
 
 </resources>

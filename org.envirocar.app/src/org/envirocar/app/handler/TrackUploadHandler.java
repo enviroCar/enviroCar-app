@@ -170,45 +170,24 @@ public class TrackUploadHandler {
                         .lift(new OptionalOrErrorMappingOperator()));
     }
 
-    public Track uploadTrackChunkStart(Track track) {
+    public Track uploadTrackChunkStart(Track track) throws ResourceConflictException, NotConnectedException, DataCreationFailureException, UnauthorizedException {
         track.setTrackStatus(Track.TrackStatus.ONGOING);
-        try {
-            LOG.info("Trying to create track." + track);
-            return trackDAOHandler.createRemoteTrack(track);
-        } catch (UnauthorizedException e) {
-            LOG.error("Unauthorized.");
-        } catch (NotConnectedException e) {
-            LOG.error("Not connected.");
-        } catch (ResourceConflictException e) {
-            LOG.error("Resource conflict.");
-        } catch (DataCreationFailureException e) {
-            LOG.error("Data Creation Exception.");
-        }
-        return null;
+        LOG.info("Trying to create track." + track);
+        mCarManager
+                .assertTemporaryCar(track.getCar());
+        return trackDAOHandler.createRemoteTrack(track);
     }
 
-    public void uploadTrackChunk(String remoteID, JsonArray trackFeatures) {
-        try {
-            LOG.info("Trying to update track.");
-            trackDAOHandler.updateRemoteTrack(remoteID, trackFeatures);
-            LOG.info("Track updated.");
-        } catch (UnauthorizedException e) {
-            LOG.error("Unauthorized.");
-        } catch (NotConnectedException e) {
-            LOG.error("Not connected.");
-        }
+    public void uploadTrackChunk(String remoteID, JsonArray trackFeatures) throws NotConnectedException, UnauthorizedException {
+        LOG.info("Trying to update track.");
+        trackDAOHandler.updateRemoteTrack(remoteID, trackFeatures);
+        LOG.info("Track updated.");
     }
 
-    public void uploadTrackChunkEnd(Track mTrack) {
-        try {
-            LOG.info("Trying to finished track.");
-            trackDAOHandler.finishRemoteTrack(mTrack);
-            LOG.info("Track finished.");
-        } catch (UnauthorizedException e) {
-            LOG.error("Unauthorized.");
-        } catch (NotConnectedException e) {
-            LOG.error("Not connected.");
-        }
+    public void uploadTrackChunkEnd(Track mTrack) throws NotConnectedException, UnauthorizedException {
+        LOG.info("Trying to finished track.");
+        trackDAOHandler.finishRemoteTrack(mTrack);
+        LOG.info("Track finished.");
     }
 
     private Observable<Track> uploadTrack(Track track) {
