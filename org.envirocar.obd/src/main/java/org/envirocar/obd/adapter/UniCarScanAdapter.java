@@ -19,10 +19,38 @@
 package org.envirocar.obd.adapter;
 
 import org.envirocar.obd.commands.CycleCommandProfile;
+import org.envirocar.obd.commands.request.BasicCommand;
+import org.envirocar.obd.commands.request.elm.ConfigurationCommand;
+import org.envirocar.obd.exception.AdapterFailedException;
+import java.util.ArrayDeque;
+import java.util.Queue;
 
-public class UniCarScanAdapter extends OBDLinkAdapter{
+public class UniCarScanAdapter extends OBDLinkAdapter {
+
     public UniCarScanAdapter(CycleCommandProfile cmp) {
         super(cmp);
+    }
+
+    protected Queue<BasicCommand> createInitCommands() {
+        Queue<BasicCommand> result = new ArrayDeque<>();
+        result.add(ConfigurationCommand.instance(ConfigurationCommand.Instance.RESET));
+        result.add(ConfigurationCommand.instance(ConfigurationCommand.Instance.ECHO_OFF));
+        result.add(ConfigurationCommand.instance(ConfigurationCommand.Instance.LINE_FEED_OFF));
+        return result;
+    }
+
+    @Override
+    protected boolean analyzeMetadataResponse(byte[] response, BasicCommand sentCommand) throws AdapterFailedException {
+        super.analyzeMetadataResponse(response, sentCommand);
+        
+        // sleep a little more, the timing might be off (!?)
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            throw new AdapterFailedException("UniCarScan", new java.util.concurrent.RejectedExecutionException(e));
+        }
+
+        return succesfulCount >= 3;
     }
 
     @Override
