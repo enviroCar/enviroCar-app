@@ -215,7 +215,7 @@ public enum ServiceStateForNotification implements ServiceStateContentForNotific
     protected PendingIntent getPendingIntent(String broadcastAction, Context context) {
         Intent intent = new Intent(broadcastAction);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 2, intent,
-                PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
         return pendingIntent;
     }
 }
