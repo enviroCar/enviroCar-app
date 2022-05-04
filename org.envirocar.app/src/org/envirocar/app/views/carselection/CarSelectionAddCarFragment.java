@@ -38,6 +38,7 @@ import androidx.viewpager.widget.ViewPager;
 
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
+import org.envirocar.app.databinding.ActivityCarSelectionNewcarFragmentBinding;
 import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.app.views.utils.ECAnimationUtils;
 import org.envirocar.core.entity.Manufacturers;
@@ -49,10 +50,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
-import info.hoang8f.android.segmented.SegmentedGroup;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -63,17 +60,7 @@ import io.reactivex.schedulers.Schedulers;
 public class CarSelectionAddCarFragment extends BaseInjectorFragment {
     private static final Logger LOG = Logger.getLogger(CarSelectionAddCarFragment.class);
 
-
-    @BindView(R.id.envirocar_toolbar)
-    protected Toolbar toolbar;
-    @BindView(R.id.activity_car_selection_newcar_toolbar_exp)
-    protected View toolbarExp;
-    @BindView(R.id.activity_car_selection_top)
-    protected View topView;
-    @BindView(R.id.carSelectionSegmentedGroup)
-    protected SegmentedGroup segmentedGroup;
-    @BindView(R.id.activity_car_selection_newcar_content_view)
-    protected ViewPager mViewPager;
+    private ActivityCarSelectionNewcarFragmentBinding binding;
 
     @Inject
     EnviroCarVehicleDB enviroCarVehicleDB;
@@ -87,18 +74,18 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
             savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
 
-        View view = inflater.inflate(R.layout.activity_car_selection_newcar_fragment, container, false);
-        ButterKnife.bind(this, view);
+        binding = ActivityCarSelectionNewcarFragmentBinding.inflate(inflater,container,false);
+        View view = binding.getRoot();
 
-        toolbar.setNavigationIcon(R.drawable.ic_close_white_24dp);
-        toolbar.setNavigationOnClickListener(v -> {
+        binding.envirocarToolbarLayout.envirocarToolbar.setNavigationIcon(R.drawable.ic_close_white_24dp);
+        binding.envirocarToolbarLayout.envirocarToolbar.setNavigationOnClickListener(v -> {
             hideKeyboard(v);
             closeThisFragment();
         });
 
         view.setOnClickListener(v -> hideKeyboard(view));
 
-        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+        binding.activityCarSelectionNewcarContentView.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
 
@@ -107,9 +94,9 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
             @Override
             public void onPageSelected(int position) {
                 if (position == 0) {
-                    segmentedGroup.check(R.id.HsnTsnSegmentedButton);
+                    binding.carSelectionSegmentedGroup.check(R.id.HsnTsnSegmentedButton);
                 } else {
-                    segmentedGroup.check(R.id.attributesSegmentedButton);
+                    binding.carSelectionSegmentedGroup.check(R.id.attributesSegmentedButton);
                 }
             }
 
@@ -119,15 +106,15 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
             }
         });
 
-        segmentedGroup.check(R.id.HsnTsnSegmentedButton);
+        binding.carSelectionSegmentedGroup.check(R.id.HsnTsnSegmentedButton);
 
-        segmentedGroup.setOnCheckedChangeListener((radioGroup, i) -> {
+        binding.carSelectionSegmentedGroup.setOnCheckedChangeListener((radioGroup, i) -> {
             switch (i) {
                 case R.id.HsnTsnSegmentedButton:
-                    mViewPager.setCurrentItem(0);
+                    binding.activityCarSelectionNewcarContentView.setCurrentItem(0);
                     break;
                 case R.id.attributesSegmentedButton:
-                    mViewPager.setCurrentItem(1);
+                    binding.activityCarSelectionNewcarContentView.setCurrentItem(1);
                     break;
                 default:
                     break;
@@ -148,12 +135,18 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
     public void onResume() {
         LOG.info("onResume()");
         super.onResume();
-        ECAnimationUtils.animateShowView(getContext(), toolbar,
+        ECAnimationUtils.animateShowView(getContext(), binding.envirocarToolbarLayout.envirocarToolbar,
                 R.anim.translate_slide_in_top_fragment);
-        ECAnimationUtils.animateShowView(getContext(), toolbarExp,
+        ECAnimationUtils.animateShowView(getContext(), binding.activityCarSelectionNewcarToolbarExp,
                 R.anim.translate_slide_in_top_fragment);
-        ECAnimationUtils.animateShowView(getContext(), mViewPager,
+        ECAnimationUtils.animateShowView(getContext(), binding.activityCarSelectionNewcarContentView,
                 R.anim.translate_slide_in_bottom_fragment);
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
     }
 
     @Override
@@ -177,7 +170,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
                     public void onNext(List<Manufacturers> manufacturersList1) {
                         manufacturersList = manufacturersList1;
                         pagerAdapter = new CarSelectionPagerAdapter(getChildFragmentManager());
-                        mViewPager.setAdapter(pagerAdapter);
+                        binding.activityCarSelectionNewcarContentView.setAdapter(pagerAdapter);
                     }
 
                     @Override
@@ -197,10 +190,10 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
     public void closeThisFragment() {
 
         ECAnimationUtils.animateHideView(getContext(), R.anim
-                .translate_slide_out_top_fragment, toolbar, toolbarExp);
-        ECAnimationUtils.animateHideView(getContext(), mViewPager, R.anim
+                .translate_slide_out_top_fragment, binding.envirocarToolbarLayout.envirocarToolbar, binding.activityCarSelectionNewcarToolbarExp);
+        ECAnimationUtils.animateHideView(getContext(), binding.activityCarSelectionNewcarContentView, R.anim
                 .translate_slide_out_bottom, () -> ((CarSelectionUiListener) getActivity()).onHideAddCarFragment());
-        ECAnimationUtils.animateHideView(getContext(), topView, R.anim.translate_slide_out_right);
+        ECAnimationUtils.animateHideView(getContext(), binding.activityCarSelectionTop, R.anim.translate_slide_out_right);
     }
 
     public void hideKeyboard(View view) {
