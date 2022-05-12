@@ -47,6 +47,7 @@ import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.core.logging.Logger;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.IllegalStateException;
 import java.util.List;
 import java.util.Set;
 
@@ -129,10 +130,6 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
         // Setup the listviews, its adapters, and its onClick listener.
         setupListViews();
 
-        // Check the GPS and Location permissions
-        // before Starting the discovery of bluetooth devices.
-        updateContentView();
-
         //        // TODO: very ugly... Instead a dynamic LinearLayout should be used.
         //        setDynamicListHeight(mNewDevicesListView);
         //        setDynamicListHeight(mPairedDevicesListView);
@@ -159,7 +156,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
     public void onBluetoothStateChangedEvent(BluetoothStateChangedEvent event) {
         getActivity().getWindow().getDecorView().post(() -> {
             LOGGER.debug("onBluetoothStateChangedEvent(): " + event.toString());
-            updateContentView();
+            checkAndRequestPermissions();
         });
     }
 
@@ -199,10 +196,9 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
 
     public void checkAndRequestPermissions() {
         String[] perms;
+        LOGGER.info("Android SDK version: " + android.os.Build.VERSION.SDK_INT);
         if (android.os.Build.VERSION.SDK_INT >= 31) {
             perms = new String[]{
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION,
                     Manifest.permission.BLUETOOTH_CONNECT,
                     Manifest.permission.BLUETOOTH_SCAN
             };
@@ -216,10 +212,16 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
 
         if (EasyPermissions.hasPermissions(getContext(), perms)){
             // if all permissions are granted, start bluetooth discovery.
+            LOGGER.info("Bluetooth permissions given, starting discovery");
             startBluetoothDiscovery();
+
+            // Check the GPS and Location permissions
+            // before Starting the discovery of bluetooth devices.
+            updateContentView();
         }
         else{
             // Dialog requesting the user for location permission.
+            LOGGER.info("Bluetooth permissions not given, requesting");
             EasyPermissions.requestPermissions(
                     new PermissionRequest.Builder(this, BLUETOOTH_PERMISSIONS, perms)
                             .setRationale(R.string.location_permission_to_discover_newdevices)
@@ -235,6 +237,11 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
         // if location permissions are granted, start Bluetooth discovery.
         if (requestCode == BLUETOOTH_PERMISSIONS) {
             startBluetoothDiscovery();
+            
+            // Check the GPS and Location permissions
+            // before Starting the discovery of bluetooth devices.
+            updateContentView();
+            
             showSnackbar(getString(R.string.location_permission_granted));
         }
     }
@@ -490,12 +497,16 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
                         pairingIsRunning = false;
                         // Device is paired. Add it to the array adapter for paired devices and
                         // remove it from the adapter for new devices.
-                        showSnackbar(String.format(
-                                getString(R.string.obd_selection_pairing_success_template),
-                                device.getName()));
-                        // TODO Issue: Unstable bluetooth connect workflow #844
-                        //  --> under the in the issue explained circumstances the getString()-methode
-                        //  fails at this point because the fragment has no context
+                        try {
+                            showSnackbar(String.format(
+                                    getString(R.string.obd_selection_pairing_success_template),
+                                    device.getName()));
+                            // TODO Issue: Unstable bluetooth connect workflow #844
+                            //  --> under the in the issue explained circumstances the getString()-methode
+                            //  fails at this point because the fragment has no context
+                        } catch (IllegalStateException e) {
+                            LOGGER.warn(e.getMessage(), e);
+                        }
 
                         mNewDevicesArrayAdapter.remove(device);
                         mPairedDevicesAdapter.add(device);

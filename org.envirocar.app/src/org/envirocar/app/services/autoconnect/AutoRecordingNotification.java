@@ -86,7 +86,7 @@ public class AutoRecordingNotification implements LifecycleObserver, EnviroCarNo
 
     protected synchronized void setAutoRecordingState(RecordingType recordingType, AutoRecordingStrategy.AutoRecordingState state) {
         Intent intent = new Intent(recordingService, BaseMainActivity.class);
-        PendingIntent pIntent = PendingIntent.getActivity(recordingService, (int) System.currentTimeMillis(), intent, 0);
+        PendingIntent pIntent = PendingIntent.getActivity(recordingService, (int) System.currentTimeMillis(), intent, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
 
         String contentText = recordingService.getString(state.getSubTextRes());
         BluetoothDevice device = bluetoothHandler.getSelectedBluetoothDevice();
