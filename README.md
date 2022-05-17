@@ -40,6 +40,24 @@ This software uses the gradle build system and is optimized to work within Andro
 The setup of the source code should be straightforward. Just follow the Android Studio guidelines
 for existing projects.
 
+### Setting up the mapbox SDK
+The enviroCar App project uses the ``Mapbox Maven repository``. **Mapbox is a mapping and location cloud platform for developers.**
+To build the project you need the mapbox account, you can create an account for free from [here](https://account.mapbox.com/auth/signup/). 
+Once you have created an account, you will need to configure credentials 
+
+### Configure credentials
+1. From your account's [tokens page](https://account.mapbox.com/access-tokens/), click the **Create a token** button.
+2. Give your token a name and do check that you have checked ``Downloads:Read`` scope.
+3. Make sure you copy your token and save it somehwere as you will not be able to see the token again. 
+
+### Configure your secret token
+1. This is a secret token, and we will use it in ``gradle.properties`` file. You should not expose the token in public, that's why add ``gradle.properties`` in ``.gitignore`` . It's also possible to store the sercret token in your local user's _gradle.properties_ file, usually stored at _«USER_HOME»/.gradle/gradle.properties_. 
+2. Now open the ``gradle.properties`` file and add this line ``MAPBOX_DOWNLOADS_TOKEN = <your-secret-token> ``. The secret token has to be pasted without any quote marks. 
+``MAPBOX_DOWNLOADS_TOKEN=sk.dutaksgjdvlsayVDSADUTLASDs@!ahsvdaslud*JVAS@%DLUTSVgdJLA&&>Hdval.sujdvadvasuydgalisy``(this is just a random string, not a real token)
+3. That't it. You are good to go!
+
+If you are still facing any problem, checkout the [Mapbox guide](https://docs.mapbox.com/android/maps/guides/install/) or feel free to [create an issue](https://github.com/enviroCar/enviroCar-app/issues/new)
+
 ## License
 
 The enviroCar App is licensed under the [GNU General Public License, Version 3](https://github.com/enviroCar/enviroCar-app/blob/master/LICENSE).

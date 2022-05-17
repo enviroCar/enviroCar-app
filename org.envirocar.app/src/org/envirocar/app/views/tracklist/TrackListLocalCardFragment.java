@@ -39,8 +39,10 @@ import org.envirocar.app.injection.components.MainActivityComponent;
 import org.envirocar.app.injection.modules.MainActivityModule;
 import org.envirocar.app.interactor.UploadAllTracks;
 import org.envirocar.app.interactor.UploadTrack;
+import org.envirocar.app.exception.NotLoggedInException;
 import org.envirocar.app.views.trackdetails.TrackDetailsActivity;
 import org.envirocar.app.views.utils.ECAnimationUtils;
+import org.envirocar.core.ContextInternetAccessProvider;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.events.TrackFinishedEvent;
 import org.envirocar.core.exception.TrackUploadException;
@@ -157,6 +159,13 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
             @Override
             public void onUploadTrackClicked(Track track) {
                 LOG.info(String.format("onUploadTrackClicked(%s)", track.getTrackID()));
+
+                // check if device is connected to internet before uploading the track
+                if (!new ContextInternetAccessProvider(getContext()).isConnected() && getView() != null) {
+                    LOG.info("There is no internet connected, no tracks got uploaded");
+                    showSnackbar(R.string.track_list_upload_error_no_network_connection);
+                    return;
+                }
                 // Upload the track
                 onUploadSingleTrack(track);
             }
@@ -260,9 +269,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
                                     R.string.track_list_bg_error,
                                     R.string.track_list_bg_error_sub);
 
-                            Snackbar.make(getView(),
-                                    R.string.track_list_loading_tracks_error_snackbar,
-                                    Snackbar.LENGTH_LONG).show();
+                            showSnackbar(R.string.track_list_loading_tracks_error_snackbar);
                         }
 
                         @Override
@@ -326,6 +333,12 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
     }
 
     private void onUploadAllLocalTracks(DialogInterface dialog, int which) {
+        // check if device is connected to internet before uploading the track
+        if (!new ContextInternetAccessProvider(getContext()).isConnected() && getView() != null) {
+            LOG.info("There is no internet connected, no tracks got uploaded");
+            showSnackbar(R.string.track_list_upload_error_no_network_connection);
+            return;
+        }
         if (uploadTrackSubscription != null && !uploadTrackSubscription.isDisposed()) {
             uploadTrackSubscription.dispose();
             uploadTrackSubscription = null;
@@ -417,6 +430,8 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
                         showSnackbar(R.string.track_list_upload_track_general_error);
                         break;
                 }
+            } else if (e instanceof NotLoggedInException) {
+                showSnackbar(R.string.track_list_upload_error_unauthorized);
             } else {
                 showSnackbar(R.string.track_list_upload_track_general_error);
             }
@@ -528,10 +543,45 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
 
         @Override
         public void onError(Throwable e) {
-            if (isDisposed())
+            if (isDisposed()) {
                 return;
+            }
 
-            showSnackbar("An error occurred during the upload process.");
+            if (e instanceof TrackUploadException) {
+                switch (((TrackUploadException) e).getReason()) {
+                    case NOT_ENOUGH_MEASUREMENTS:
+                        showSnackbar(R.string.track_list_upload_error_no_measurements);
+                        break;
+                    case TRACK_WITH_NO_VALID_CAR:
+                        showSnackbar(R.string.track_list_upload_error_no_valid_car);
+                        break;
+                    case TRACK_ALREADY_UPLOADED:
+                        showSnackbar(R.string.track_list_upload_error_already_uploaded);
+                        break;
+                    case NO_NETWORK_CONNECTION:
+                        showSnackbar(R.string.track_list_upload_error_no_network_connection);
+                        break;
+                    case NOT_LOGGED_IN:
+                        showSnackbar(R.string.track_list_upload_error_not_logged_in);
+                        break;
+                    case NO_CAR_ASSIGNED:
+                        showSnackbar(R.string.track_list_upload_error_no_valid_car);
+                        break;
+                    case GPS_TRACKS_NOT_ALLOWED:
+                        showSnackbar(R.string.track_list_upload_error_gps_track);
+                        break;
+                    case UNAUTHORIZED:
+                        showSnackbar(R.string.track_list_upload_error_unauthorized);
+                        break;
+                    case UNKNOWN:
+                        showSnackbar(R.string.track_list_upload_track_general_error);
+                        break;
+                }
+            } else if (e instanceof NotLoggedInException) {
+                showSnackbar(R.string.track_list_upload_error_unauthorized);
+            } else {
+                showSnackbar(R.string.track_list_upload_track_general_error);
+            }
             dialog.dismiss();
         }
 

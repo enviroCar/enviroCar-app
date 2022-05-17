@@ -55,4 +55,5 @@
     <string name="car_selection_no_car_no_car_first">No Car Added</string>
     <string name="car_selection_no_car_no_car_second">Use the + icon to add a new car</string>
 
+    <string name="car_selection_not_all_values_defined">Not all values were defined</string>
 </resources>
