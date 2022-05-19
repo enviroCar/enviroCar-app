@@ -455,10 +455,11 @@ public class SimulatorService {
 		String rawData = null;
 		if (s.equals("AT Z")) {
 			//ObdReset
+            rawData = "ATZ\nELM327v2.1\n";
 		}
 		else if (s.equals("AT E0")) {
 			//echo off
-			rawData = "ELM327v1.OKATE0";
+			rawData = "ATE0\nOK\n";
 		}
 		else if (s.equals("AT L0")) {
 			//Line feed off
@@ -468,11 +469,27 @@ public class SimulatorService {
 			//select protocol
 			rawData = "OK";
 		}
+        else if (s.startsWith("ATH1")) {
+			//headers off
+			rawData = "OK";
+		}
+        else if (s.startsWith("ATH0")) {
+			//headers off
+			rawData = "OK";
+		}
+        else if (s.startsWith("ATDPN")) {
+			//headers off
+			rawData = "A0";
+		}
+        else if (s.startsWith("AT DPN")) {
+			//headers off
+			rawData = "A0";
+		}
 		else if (s.startsWith("AT ST")) {
 			//timeout
 			rawData = "OK";
         } else if (s.startsWith("01 00")) {
-            rawData = "4100" + "000B0000"; // B0001
+            rawData = "4100983B8019"; // B0001
         } else if (s.startsWith("01 0D")) {
             //Speed
             rawData = "410D" + (23 + random.nextInt(45));
@@ -508,11 +525,7 @@ public class SimulatorService {
             String val = integerToByteString(80 + random.nextInt(140));
             rawData = "4104" + val.substring(val.length() - 2, val.length());
         } else {
-            String[] result = s.split(" ");
-            rawData = "";
-            for (String string : result) {
-                rawData += string;
-            }
+            rawData = "NODATA";
         }
 		
 		if (rawData !=null) {
