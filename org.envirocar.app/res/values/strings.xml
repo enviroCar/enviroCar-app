@@ -51,8 +51,6 @@
     <string name="track_finished">Track Finished: </string>
     <string name="track_finishing_failed">Finishing the Track failed</string>
     <string name="track_finished_no_measurements">The created track did not contain any measurements</string>
-    <string name="gasoline">Gasoline</string>
-    <string name="diesel">Diesel</string>
 
     <string name="default_track_description">Track with Car %s.</string>
 

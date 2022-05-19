@@ -56,4 +56,20 @@
     <string name="car_selection_no_car_no_car_second">Use the + icon to add a new car</string>
 
     <string name="car_selection_not_all_values_defined">Not all values were defined</string>
+
+    <string name="car_selection_search">Search</string>
+    <string name="car_selection_add_new_car">Add New Car</string>
+
+    <string name="car_selection_optional_parameters">Optional Parameters:</string>
+
+    <string name="car_selection_weight">Weight (kg)</string>
+    
+    <string name="car_selection_car_type">Car Type</string>
+    <string name="car_selection_private_vehicle">Passenger Car</string>
+    <string name="car_selection_utility_car">Utility Car</string>
+    <string name="car_selection_taxi">Taxi</string>
+    <string name="car_selection_not_specified">Not specified</string>
+    
+    <string name="car_selection_newcar_title">Car Selection</string>
+    
 </resources>
