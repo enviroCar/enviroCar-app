@@ -63,7 +63,11 @@
     <string name="car_selection_optional_parameters">Optional Parameters:</string>
 
     <string name="car_selection_weight">Weight (kg)</string>
-    <string name="car_selection_utility_car">Utility Car?</string>
+    
+    <string name="car_selection_car_type">Car Type</string>
+    <string name="car_selection_private_vehicle">Passenger Car</string>
+    <string name="car_selection_utility_car">Utility Car</string>
+    <string name="car_selection_taxi">Taxi</string>
     <string name="car_selection_not_specified">Not specified</string>
     
     <string name="car_selection_newcar_title">Car Selection</string>

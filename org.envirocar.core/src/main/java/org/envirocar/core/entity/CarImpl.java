@@ -37,7 +37,7 @@ public class CarImpl implements Car {
     protected int constructionYear;
     protected int engineDisplacement;
     protected int weight;
-    protected boolean utilityCar;
+    protected String vehicleType;
 
     @Deprecated
     public static double ccmToLiter(int ccm) {
@@ -198,19 +198,19 @@ public class CarImpl implements Car {
     }
 
     @Override
-    public boolean isUtilityCar() {
-        return this.utilityCar;
+    public String getVehicleType() {
+        return this.vehicleType;
     }
 
     @Override
-    public void setUtilityCar(boolean utilityCar) {
-        this.utilityCar = utilityCar;
+    public void setVehicleType(String vehicleType) {
+        this.vehicleType = vehicleType;
     }
 
 
     @Override
     public String toString() {
-        return String.format("%s %s %d (%s / %dcc; %dkg; utilityCar? %s)", manufacturer, model, constructionYear, fuelType, engineDisplacement, weight, Boolean.toString(utilityCar));
+        return String.format("%s %s %d (%s / %dcc; %dkg; type: %s)", manufacturer, model, constructionYear, fuelType, engineDisplacement, weight, vehicleType);
     }
 
     @Override
@@ -224,13 +224,13 @@ public class CarImpl implements Car {
                 Objects.equals(model, car.model) &&
                 Objects.equals(manufacturer, car.manufacturer) &&
                 weight == car.weight &&
-                utilityCar == car.utilityCar &&
+                Objects.equals(vehicleType, car.vehicleType) &&
                 fuelType == car.fuelType;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, model, manufacturer, fuelType, constructionYear, engineDisplacement, weight, utilityCar);
+        return Objects.hash(id, model, manufacturer, fuelType, constructionYear, engineDisplacement, weight, vehicleType);
     }
 
     @Override
@@ -243,7 +243,7 @@ public class CarImpl implements Car {
         res.constructionYear = constructionYear;
         res.engineDisplacement = engineDisplacement;
         res.weight = weight;
-        res.utilityCar = utilityCar;
+        res.vehicleType = vehicleType;
         return res;
     }
 }

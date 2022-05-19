@@ -19,6 +19,7 @@
 package org.envirocar.app.views.carselection;
 
 import android.app.Activity;
+import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
@@ -50,6 +51,7 @@ import org.envirocar.storage.EnviroCarVehicleDB;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -132,7 +134,7 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
         fuelTypeSelection.setAdapter(fuelTypesAdapter);
         fuelTypeSelection.setText(fuelTypesAdapter.getItem(0).toString(), false);
 
-        String[] utilityTypes = new String[]{getContext().getString(R.string.car_selection_not_specified), getContext().getString(R.string.menu_logout_envirocar_negative), getContext().getString(R.string.menu_logout_envirocar_positive)};
+        String[] utilityTypes = new String[]{getContext().getString(R.string.car_selection_private_vehicle), getContext().getString(R.string.car_selection_utility_car), getContext().getString(R.string.car_selection_taxi)};
 
         ArrayAdapter<String> utilityTypesAdapter = new ArrayAdapter<>(
             getContext(),
@@ -239,7 +241,7 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
         String year = yearEditText.getText().toString().trim();
         String fuelType = fuelTypeSelection.getText().toString().trim();
         String displacement = displacementEditText.getText().toString().trim();
-        String utilityType = utilityTypeSelection.getText().toString().trim();
+        String vehicleType = utilityTypeSelection.getText().toString().trim();
         String weight = weightEditText.getText().toString().trim();
 
         View focusView = null;
@@ -253,13 +255,12 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
             focusView = displacementEditText;
         }
 
-        if (utilityType.equals(getContext().getString(R.string.car_selection_not_specified))) {
-            // utility not selected
-            utilityType = null;
-        } else if (utilityType.equals(getContext().getString(R.string.menu_logout_envirocar_positive))) {
-            utilityType = Boolean.toString(true);
-        } else if (utilityType.equals(getContext().getString(R.string.menu_logout_envirocar_negative))) {
-            utilityType = Boolean.toString(false);
+        if (vehicleType.equals(getContext().getString(R.string.car_selection_private_vehicle))) {
+            vehicleType = getEnglishString(R.string.car_selection_private_vehicle);
+        } else if (vehicleType.equals(getContext().getString(R.string.car_selection_utility_car))) {
+            vehicleType = getEnglishString(R.string.car_selection_utility_car);
+        } else if (vehicleType.equals(getContext().getString(R.string.car_selection_taxi))) {
+            vehicleType = getEnglishString(R.string.car_selection_taxi);
         }
 
         if (weight.length() == 0) {
@@ -282,7 +283,7 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
         vehicle.setPower_source_id(getFuelTypeId(fuelType));
 
         vehicle.setWeight(weight);
-        vehicle.setUtility_vehicle(utilityType);
+        vehicle.setVehicleType(vehicleType);
 
         return vehicle;
     }
@@ -299,6 +300,20 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
             fuel = "05";
 
         return fuel;
+    }
+
+    @NonNull
+    protected String getEnglishString(int res) {
+        Configuration configuration = getEnglishConfiguration();
+    
+        return getContext().createConfigurationContext(configuration).getResources().getString(res);
+    }
+    
+    @NonNull
+    private Configuration getEnglishConfiguration() {
+        Configuration configuration = new Configuration(getContext().getResources().getConfiguration());
+        configuration.setLocale(new Locale("en"));
+        return configuration;
     }
 
     private void fetchManufactures() {

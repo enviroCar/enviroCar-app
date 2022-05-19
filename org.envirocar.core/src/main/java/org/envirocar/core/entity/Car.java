@@ -173,8 +173,8 @@ public interface Car extends BaseEntity<Car>, Serializable {
 
     void setWeight(int weight);
 
-    boolean isUtilityCar();
+    String getVehicleType();
 
-    void setUtilityCar(boolean utilityCar);
+    void setVehicleType(String vehicleType);
 
 }

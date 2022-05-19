@@ -394,7 +394,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
         String yearString = vehicle.getAllotment_date();
         int year = convertDateToInt(yearString);
         int weight = Integer.parseInt(vehicle.getWeight());
-        boolean utilityCar = Boolean.parseBoolean(vehicle.getUtility_vehicle());
+        String vehicleType = vehicle.getVehicleType();
         int engine = 0;
         if (!vehicle.getEngine_capacity().isEmpty())
             engine = Integer.parseInt(vehicle.getEngine_capacity());
@@ -407,7 +407,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
         }
 
         result.setWeight(weight);
-        result.setUtilityCar(utilityCar);
+        result.setVehicleType(vehicleType);
         
         return result;
     }

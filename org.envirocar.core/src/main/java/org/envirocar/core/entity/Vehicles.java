@@ -80,7 +80,7 @@ public class Vehicles {
 
     String weight;
 
-    String utility_vehicle;
+    String vehicleType;
 
     public String getManufacturer_id() {
         return manufacturer_id;
@@ -114,12 +114,12 @@ public class Vehicles {
         this.weight = weight;
     }
 
-    public String getUtility_vehicle() {
-        return utility_vehicle;
+    public String getVehicleType() {
+        return vehicleType;
     }
 
-    public void setUtility_vehicle(String utility_vehicle) {
-        this.utility_vehicle = utility_vehicle;
+    public void setVehicleType(String type) {
+        this.vehicleType = type;
     }
 
     public String getCommerical_name() {

@@ -204,7 +204,7 @@
                 app:layout_constraintStart_toStartOf="@id/activity_car_guideline_left"
                 app:layout_constraintTop_toBottomOf="@+id/fragment_attributes_weight_input_layout"
                 app:layout_constraintWidth_max="500dp"
-                android:hint="@string/car_selection_utility_car"
+                android:hint="@string/car_selection_car_type"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
