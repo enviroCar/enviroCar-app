@@ -21,7 +21,12 @@ package org.envirocar.obd.adapter;
 import org.envirocar.obd.commands.CycleCommandProfile;
 import org.envirocar.obd.commands.request.BasicCommand;
 import org.envirocar.obd.commands.request.elm.ConfigurationCommand;
+import org.envirocar.obd.commands.request.elm.DelayedConfigurationCommand;
+import org.envirocar.obd.commands.request.elm.Timeout;
+import org.envirocar.obd.commands.PID;
+import org.envirocar.obd.commands.PIDUtil;
 import org.envirocar.obd.exception.AdapterFailedException;
+
 import java.util.ArrayDeque;
 import java.util.Queue;
 
@@ -33,9 +38,17 @@ public class UniCarScanAdapter extends OBDLinkAdapter {
 
     protected Queue<BasicCommand> createInitCommands() {
         Queue<BasicCommand> result = new ArrayDeque<>();
-        result.add(ConfigurationCommand.instance(ConfigurationCommand.Instance.RESET));
-        result.add(ConfigurationCommand.instance(ConfigurationCommand.Instance.ECHO_OFF));
-        result.add(ConfigurationCommand.instance(ConfigurationCommand.Instance.LINE_FEED_OFF));
+        result.add(new DelayedConfigurationCommand("ATD", ConfigurationCommand.Instance.DEFAULTS, true, 100));
+        result.add(new DelayedConfigurationCommand("ATZ", ConfigurationCommand.Instance.RESET, true, 100));
+        result.add(new DelayedConfigurationCommand("AT@1", ConfigurationCommand.Instance.DEVICE_DESCRIPTION, true, 100));
+        result.add(new DelayedConfigurationCommand("AT@2", ConfigurationCommand.Instance.DEVICE_IDENTIFIER, true, 100));
+        result.add(new DelayedConfigurationCommand("ATI", ConfigurationCommand.Instance.IDENTIFY, true, 100));
+        result.add(ConfigurationCommand.instance(ConfigurationCommand.Instance.SELECT_AUTO_PROTOCOL));
+        result.add(new DelayedConfigurationCommand("ATE0", ConfigurationCommand.Instance.ECHO_OFF, true, 100));
+        result.add(new DelayedConfigurationCommand("ATL0", ConfigurationCommand.Instance.LINE_FEED_OFF, true, 100));
+        result.add(new DelayedConfigurationCommand("ATH1", ConfigurationCommand.Instance.HEADERS_ON, true, 100));
+        result.add(new DelayedConfigurationCommand("ATDPN", ConfigurationCommand.Instance.DESCRIBE_PROTOCOL_NUMBER, true, 100));
+
         return result;
     }
 
@@ -43,14 +56,13 @@ public class UniCarScanAdapter extends OBDLinkAdapter {
     protected boolean analyzeMetadataResponse(byte[] response, BasicCommand sentCommand) throws AdapterFailedException {
         super.analyzeMetadataResponse(response, sentCommand);
         
-        // sleep a little more, the timing might be off (!?)
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            throw new AdapterFailedException("UniCarScan", new java.util.concurrent.RejectedExecutionException(e));
-        }
-
-        return succesfulCount >= 3;
+        // try {
+        //     Thread.sleep(5000);
+        // } catch (InterruptedException e) {
+        //     throw new AdapterFailedException("UniCarScan", new java.util.concurrent.RejectedExecutionException(e));
+        // }
+        
+        return succesfulCount >= 4;
     }
 
     @Override
