@@ -616,10 +616,14 @@ public class DashboardFragment extends BaseInjectorFragment {
             if (event.mCar != null) {
                 this.carSelectionTextPrimary.setText(String.format("%s %s",
                         event.mCar.getManufacturer(), event.mCar.getModel()));
-                this.carSelectionTextSecondary.setText(String.format("%s, %s cm³, %s",
+                String secText = String.format("%s, %s cm³, %s",
                         "" + event.mCar.getConstructionYear(),
                         "" + event.mCar.getEngineDisplacement(),
-                        "" + getString(event.mCar.getFuelType().getStringResource())));
+                        "" + getString(event.mCar.getFuelType().getStringResource()));
+                if (event.mCar.getVehicleType() != null) {
+                    secText += ", " + getString(event.mCar.getVehicleType().getStringResource());
+                }
+                this.carSelectionTextSecondary.setText(secText);
 
                 // set indicator color accordingly
                 this.carIndicator.setActivated(true);

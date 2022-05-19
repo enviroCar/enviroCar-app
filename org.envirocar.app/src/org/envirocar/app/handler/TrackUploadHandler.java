@@ -257,6 +257,7 @@ public class TrackUploadHandler {
 
                 @Override
                 public void onError(Throwable e) {
+                    LOG.warn(e.getMessage(), e);
                     Throwable result = e;
                     if (e instanceof TrackUploadException) {
                         // do nothing
@@ -291,6 +292,7 @@ public class TrackUploadHandler {
 
                 @Override
                 public void onError(Throwable e) {
+                    LOG.warn(e.getMessage(), e);
                     if (e instanceof TrackUploadException) {
                         TrackUploadException ex = (TrackUploadException) e;
                         LOG.error(String.format("Track not uploaded. Reason -> [%s]", ex.getReason()));

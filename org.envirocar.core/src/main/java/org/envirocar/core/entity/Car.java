@@ -40,7 +40,7 @@ public interface Car extends BaseEntity<Car>, Serializable {
     String KEY_CAR_MANUFACTURER = "manufacturer";
     String KEY_CAR_ENGINEDISPLACEMENT = "engineDisplacement";
     String KEY_CAR_WEIGHT = "weight";
-    String KEY_CAR_UTILITYCAR = "utilityCar";
+    String KEY_CAR_VEHICLETYPE = "vehicleType";
 
     String TEMPORARY_SENSOR_ID = "%TMP_ID%";
 
@@ -138,6 +138,64 @@ public interface Car extends BaseEntity<Car>, Serializable {
         }
     }
 
+    String VEHICLETYPE_PASSENGER = "Passenger Car";
+    String VEHICLETYPE_UTILITY = "Utility Car";
+    String VEHICLETYPE_TAXI = "Taxi";
+    
+    interface VehicleTypeStrings {
+        int getStringResource();
+    }
+
+    enum VehicleType implements VehicleTypeStrings {
+        PASSENGER {
+            @Override
+            public int getStringResource() {
+                return R.string.car_selection_private_vehicle;
+            }
+
+            public String toString() {
+                return VEHICLETYPE_PASSENGER;
+            }
+        },
+        UTILITY {
+            @Override
+            public int getStringResource() {
+                return R.string.car_selection_utility_car;
+            }
+
+            public String toString() {
+                return VEHICLETYPE_UTILITY;
+            }
+            
+        },
+        TAXI {
+            @Override
+            public int getStringResource() {
+                return R.string.car_selection_taxi;
+            }
+
+            public String toString() {
+                return VEHICLETYPE_TAXI;
+            }   
+        };
+
+        public static VehicleType resolveVehicleType(String vehicleType) {
+            if (vehicleType == null) {
+                return null;
+            }
+            
+            if (vehicleType.equals(PASSENGER.toString())) {
+                return PASSENGER;
+            } else if (vehicleType.equals(UTILITY.toString())) {
+                return UTILITY;
+            } else if (vehicleType.equals(TAXI.toString())) {
+                return TAXI;
+            }
+            
+            return null;
+        }
+    }
+
 
     String getId();
 
@@ -173,8 +231,10 @@ public interface Car extends BaseEntity<Car>, Serializable {
 
     void setWeight(int weight);
 
-    String getVehicleType();
+    VehicleType getVehicleType();
 
     void setVehicleType(String vehicleType);
+
+    void setVehicleType(VehicleType vehicleType);
 
 }

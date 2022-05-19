@@ -37,7 +37,7 @@ public class CarImpl implements Car {
     protected int constructionYear;
     protected int engineDisplacement;
     protected int weight;
-    protected String vehicleType;
+    protected VehicleType vehicleType;
 
     @Deprecated
     public static double ccmToLiter(int ccm) {
@@ -198,12 +198,17 @@ public class CarImpl implements Car {
     }
 
     @Override
-    public String getVehicleType() {
+    public VehicleType getVehicleType() {
         return this.vehicleType;
     }
 
     @Override
     public void setVehicleType(String vehicleType) {
+        this.vehicleType = VehicleType.resolveVehicleType(vehicleType);
+    }
+
+    @Override
+    public void setVehicleType(VehicleType vehicleType) {
         this.vehicleType = vehicleType;
     }
 
