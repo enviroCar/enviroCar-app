@@ -135,6 +135,7 @@ public abstract class SyncAdapter implements OBDAdapter {
                         if (cc == null) {
                             subscriber.onError(new AdapterFailedException(
                                     "All init commands sent, but could not verify connection"));
+                            return;
                         }
 
                         LOGGER.info("Sending Init Command: " + cc.toString());
