@@ -38,32 +38,19 @@ public class UniCarScanAdapter extends OBDLinkAdapter {
 
     protected Queue<BasicCommand> createInitCommands() {
         Queue<BasicCommand> result = new ArrayDeque<>();
-        result.add(new DelayedConfigurationCommand("ATD", ConfigurationCommand.Instance.DEFAULTS, true, 100));
-        result.add(new DelayedConfigurationCommand("ATZ", ConfigurationCommand.Instance.RESET, true, 100));
+        result.add(new ConfigurationCommand("AT Z", ConfigurationCommand.Instance.RESET, true));
         result.add(new DelayedConfigurationCommand("AT@1", ConfigurationCommand.Instance.DEVICE_DESCRIPTION, true, 100));
         result.add(new DelayedConfigurationCommand("AT@2", ConfigurationCommand.Instance.DEVICE_IDENTIFIER, true, 100));
         result.add(new DelayedConfigurationCommand("ATI", ConfigurationCommand.Instance.IDENTIFY, true, 100));
+        result.add(ConfigurationCommand.instance(ConfigurationCommand.Instance.ECHO_OFF));
+        result.add(ConfigurationCommand.instance(ConfigurationCommand.Instance.ECHO_OFF));
+        result.add(ConfigurationCommand.instance(ConfigurationCommand.Instance.MEMORY_OFF));
+        result.add(ConfigurationCommand.instance(ConfigurationCommand.Instance.LINE_FEED_OFF));
+        result.add(new Timeout(62));
         result.add(ConfigurationCommand.instance(ConfigurationCommand.Instance.SELECT_AUTO_PROTOCOL));
-        result.add(new DelayedConfigurationCommand("ATE0", ConfigurationCommand.Instance.ECHO_OFF, true, 100));
-        result.add(new DelayedConfigurationCommand("ATL0", ConfigurationCommand.Instance.LINE_FEED_OFF, true, 100));
-        result.add(new DelayedConfigurationCommand("ATH1", ConfigurationCommand.Instance.HEADERS_ON, true, 100));
-        result.add(new DelayedConfigurationCommand("ATDPN", ConfigurationCommand.Instance.DESCRIBE_PROTOCOL_NUMBER, true, 100));
-
         return result;
     }
 
-    @Override
-    protected boolean analyzeMetadataResponse(byte[] response, BasicCommand sentCommand) throws AdapterFailedException {
-        super.analyzeMetadataResponse(response, sentCommand);
-        
-        // try {
-        //     Thread.sleep(5000);
-        // } catch (InterruptedException e) {
-        //     throw new AdapterFailedException("UniCarScan", new java.util.concurrent.RejectedExecutionException(e));
-        // }
-        
-        return succesfulCount >= 4;
-    }
 
     @Override
     public boolean supportsDevice(String deviceName) {
