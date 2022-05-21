@@ -49,6 +49,8 @@ public class AposW3Adapter extends ELM327Adapter {
         result.add(new DelayedConfigurationCommand("AT E0", ConfigurationCommand.Instance.ECHO_OFF, false, 250));
         result.add(new DelayedConfigurationCommand("AT E0", ConfigurationCommand.Instance.ECHO_OFF, false, 250));
         result.add(ConfigurationCommand.instance(ConfigurationCommand.Instance.LINE_FEED_OFF));
+        result.add(ConfigurationCommand.instance(ConfigurationCommand.Instance.DEVICE_DESCRIPTION));
+        result.add(ConfigurationCommand.instance(ConfigurationCommand.Instance.DEVICE_IDENTIFIER));
         result.add(new Timeout(62));
         result.add(ConfigurationCommand.instance(ConfigurationCommand.Instance.SELECT_AUTO_PROTOCOL));
         return result;
