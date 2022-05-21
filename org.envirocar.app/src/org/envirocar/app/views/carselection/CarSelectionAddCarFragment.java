@@ -107,9 +107,9 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
             @Override
             public void onPageSelected(int position) {
                 if (position == 0) {
-                    segmentedGroup.check(R.id.HsnTsnSegmentedButton);
-                } else {
                     segmentedGroup.check(R.id.attributesSegmentedButton);
+                } else {
+                    segmentedGroup.check(R.id.HsnTsnSegmentedButton);
                 }
             }
 
@@ -119,14 +119,14 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
             }
         });
 
-        segmentedGroup.check(R.id.HsnTsnSegmentedButton);
+        segmentedGroup.check(R.id.attributesSegmentedButton);
 
         segmentedGroup.setOnCheckedChangeListener((radioGroup, i) -> {
             switch (i) {
-                case R.id.HsnTsnSegmentedButton:
+                case R.id.attributesSegmentedButton:
                     mViewPager.setCurrentItem(0);
                     break;
-                case R.id.attributesSegmentedButton:
+                case R.id.HsnTsnSegmentedButton:
                     mViewPager.setCurrentItem(1);
                     break;
                 default:
@@ -224,9 +224,9 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
         @Override
         public Fragment getItem(int position) {
             if (position == 0) {
-                return hsnTsnFragment;
-            } else {
                 return attributesFragment;
+            } else {
+                return hsnTsnFragment;
             }
         }
 

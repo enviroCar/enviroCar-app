@@ -26,4 +26,9 @@
     <string name="fuel_type_gas">Gas</string>
     <string name="fuel_type_hybrid">Hybrid</string>
     <string name="fuel_type_electric">Elektro</string>
+
+    <!-- vehicle type values-->
+    <string name="car_selection_private_vehicle">PKW</string>
+    <string name="car_selection_utility_car">Nutzfahrzeug</string>
+    <string name="car_selection_taxi">Taxi</string>
 </resources>
