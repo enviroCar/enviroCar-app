@@ -33,6 +33,7 @@ import org.envirocar.core.entity.Track;
 import org.envirocar.core.exception.*;
 import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.logging.Logger;
+import org.envirocar.core.util.TrackMetadata;
 import org.envirocar.core.utils.TrackUtils;
 import org.envirocar.core.utils.rx.OptionalOrError;
 
@@ -172,6 +173,12 @@ public class TrackUploadHandler {
 
     public Track uploadTrackChunkStart(Track track) throws ResourceConflictException, NotConnectedException, DataCreationFailureException, UnauthorizedException {
         track.setTrackStatus(Track.TrackStatus.ONGOING);
+        
+        // metadata
+        String profile = ApplicationSettings.getCampaignProfile(mContext);
+        TrackMetadata meta = trackDAOHandler.updateTrackMetadataObservable(track, mUserManager.getUser().getTermsOfUseVersion(), profile).blockingFirst();
+        track.setMetadata(meta);
+
         LOG.info("Trying to create track." + track);
         mCarManager
                 .assertTemporaryCar(track.getCar());
@@ -258,10 +265,16 @@ public class TrackUploadHandler {
     }
 
     private ObservableTransformer<Track, Track> updateTrackMetadata() {
+        String profile = ApplicationSettings.getCampaignProfile(mContext);
         return trackObservable -> trackObservable.flatMap(
                 track -> trackDAOHandler
-                        .updateTrackMetadataObservable(track, mUserManager.getUser().getTermsOfUseVersion())
-                        .map(trackMetadata -> track));
+                        .updateTrackMetadataObservable(track, mUserManager.getUser().getTermsOfUseVersion(), profile)
+                        .map(trackMetadata -> {
+                            // add the metadata to the current track object as well, because this is used in
+                            // current upload process
+                            track.setMetadata(trackMetadata);
+                            return track;
+                        }));
     }
 
     private class UploadExceptionMappingOperator implements ObservableOperator<Track, Track> {

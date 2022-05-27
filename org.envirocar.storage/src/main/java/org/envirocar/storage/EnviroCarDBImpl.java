@@ -245,8 +245,10 @@ public class EnviroCarDBImpl implements EnviroCarDB {
 
     public void updateTrackMetadata(final Track track, final TrackMetadata trackMetadata) throws
             TrackSerializationException {
+                LOG.debug("Updating track metadata");
         try {
             trackRoomDatabase.getTrackDAONew().updateTrackMetadata(trackMetadata.toJsonString(), Long.parseLong(track.getTrackID().toString()));
+            LOG.debug("Track Metadata stored: " + trackRoomDatabase.getTrackDAONew().fetchTrackMetadata(Long.parseLong(track.getTrackID().toString())));
         } catch (JSONException e) {
             LOG.error(e.getMessage(), e);
             throw new TrackSerializationException(e);

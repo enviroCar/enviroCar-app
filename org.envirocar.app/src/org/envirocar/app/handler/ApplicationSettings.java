@@ -258,6 +258,10 @@ public class ApplicationSettings {
                 .asObservable();
     }
 
+    public static String getCampaignProfile(Context context) {
+        return getSharedPreferences(context).getString(s(context, R.string.prefkey_campaign_profile), DEFAULT_CAMPAIGN_PROFILE);
+    }
+
     private static final String s(Context context, int id){
         return context.getString(id);
     }
