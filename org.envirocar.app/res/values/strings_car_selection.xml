@@ -62,7 +62,7 @@
 
     <string name="car_selection_optional_parameters">Optional Parameters:</string>
 
-    <string name="car_selection_weight">Weight (kg)</string>
+    <string name="car_selection_weight">Mass (kg)</string>
     
     <string name="car_selection_car_type">Car Type</string>
     <string name="car_selection_private_vehicle">Passenger Car</string>
