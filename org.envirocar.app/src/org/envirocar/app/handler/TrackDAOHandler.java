@@ -182,16 +182,16 @@ public class TrackDAOHandler {
     }
 
     public Observable<TrackMetadata> updateTrackMetadataObservable(Track track, String touVersion) {
-        return this.updateTrackMetadataObservable(track, touVersion, null);
-    }
-
-    public Observable<TrackMetadata> updateTrackMetadataObservable(Track track, String touVersion, String campaignProfile) {
         return Observable.just(track)
                 .map(track1 -> {
-                    TrackMetadata result = new TrackMetadata(Util.getVersionString(context), touVersion);
-                    if (campaignProfile != null) {
-                        result.add(TrackMetadata.MEASUREMENT_PROFILE, campaignProfile);
+                    TrackMetadata result;
+                    if (track.getMetadata() != null) {
+                        result = track.getMetadata();
+                        result.add(TrackMetadata.TOU_VERSION, touVersion);
+                    } else {
+                        result = new TrackMetadata(Util.getVersionString(context), touVersion);
                     }
+                    
                     return result;
                 })
                 .flatMap(trackMetadata -> updateTrackMetadata(track

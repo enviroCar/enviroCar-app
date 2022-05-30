@@ -175,8 +175,7 @@ public class TrackUploadHandler {
         track.setTrackStatus(Track.TrackStatus.ONGOING);
         
         // metadata
-        String profile = ApplicationSettings.getCampaignProfile(mContext);
-        TrackMetadata meta = trackDAOHandler.updateTrackMetadataObservable(track, mUserManager.getUser().getTermsOfUseVersion(), profile).blockingFirst();
+        TrackMetadata meta = trackDAOHandler.updateTrackMetadataObservable(track, mUserManager.getUser().getTermsOfUseVersion()).blockingFirst();
         track.setMetadata(meta);
 
         LOG.info("Trying to create track." + track);
@@ -265,10 +264,9 @@ public class TrackUploadHandler {
     }
 
     private ObservableTransformer<Track, Track> updateTrackMetadata() {
-        String profile = ApplicationSettings.getCampaignProfile(mContext);
         return trackObservable -> trackObservable.flatMap(
                 track -> trackDAOHandler
-                        .updateTrackMetadataObservable(track, mUserManager.getUser().getTermsOfUseVersion(), profile)
+                        .updateTrackMetadataObservable(track, mUserManager.getUser().getTermsOfUseVersion())
                         .map(trackMetadata -> {
                             // add the metadata to the current track object as well, because this is used in
                             // current upload process
