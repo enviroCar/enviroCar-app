@@ -46,6 +46,8 @@ public class OBDLinkAdapter extends ELM327Adapter{
         result.add(new ConfigurationCommand("AT Z", ConfigurationCommand.Instance.RESET, true));
         result.add(ConfigurationCommand.instance(ConfigurationCommand.Instance.ECHO_OFF));
         result.add(ConfigurationCommand.instance(ConfigurationCommand.Instance.ECHO_OFF));
+        result.add(ConfigurationCommand.instance(ConfigurationCommand.Instance.DEVICE_DESCRIPTION));
+        result.add(ConfigurationCommand.instance(ConfigurationCommand.Instance.DEVICE_IDENTIFIER));
         result.add(ConfigurationCommand.instance(ConfigurationCommand.Instance.MEMORY_OFF));
         result.add(ConfigurationCommand.instance(ConfigurationCommand.Instance.LINE_FEED_OFF));
         result.add(new Timeout(62));

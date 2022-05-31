@@ -30,6 +30,7 @@ import com.squareup.otto.Subscribe;
 import org.envirocar.app.BaseApplication;
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
+import org.envirocar.app.events.TrackchunkEndUploadedEvent;
 import org.envirocar.app.injection.components.MainActivityComponent;
 import org.envirocar.app.injection.modules.MainActivityModule;
 import org.envirocar.app.views.trackdetails.TrackDetailsActivity;
@@ -177,6 +178,16 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<T
                 tracksLoaded = false;
             });
         }
+    }
+
+    @Subscribe
+    public void onReceiveTrackchunkEndUploadedEvent(TrackchunkEndUploadedEvent event) {
+        LOG.info("Received TrackchunkEndUploadedEvent");
+        mMainThreadWorker.schedule(() -> {
+            mRecyclerViewAdapter.mTrackDataset.clear();
+            mRecyclerViewAdapter.notifyDataSetChanged();
+            tracksLoaded = false;
+        });
     }
 
     private void onDownloadTrackClickedInner(final Track track, AbstractTrackListCardAdapter

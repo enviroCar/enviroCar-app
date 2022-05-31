@@ -93,6 +93,10 @@ public class AutomaticUploadNotificationHandler {
         if (!ApplicationSettings.getAutomaticUploadObservable(context).blockingFirst())
             return;
 
+        if(ApplicationSettings.isTrackchunkUploadEnabled(context)){
+            return;
+        }
+
         LOG.info("Received event %s. Automatic upload is enabled. Trying to upload track");
         if (!accessProvider.isConnected()) {
             LOG.info("No Internet connection available");

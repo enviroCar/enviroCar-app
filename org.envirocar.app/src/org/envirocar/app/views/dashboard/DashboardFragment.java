@@ -27,6 +27,7 @@ import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.provider.Settings;
@@ -54,6 +55,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
+import androidx.core.app.ActivityCompat;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -101,6 +103,7 @@ import org.envirocar.obd.events.TrackRecordingServiceStateChangedEvent;
 import org.envirocar.obd.service.BluetoothServiceState;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -288,6 +291,7 @@ public class DashboardFragment extends BaseInjectorFragment {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
             case LOCATION_PERMISSION_REQUEST_CODE: {
+                LOG.info("Permission result: " + Arrays.toString(permissions) + "; " + Arrays.toString(grantResults));
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     LOG.info("Location permission has been granted");
                     Snackbar.make(getView(), "Location Permission granted.",
@@ -317,6 +321,16 @@ public class DashboardFragment extends BaseInjectorFragment {
                             (dialog, which) -> userHandler.logOut().subscribe(onLogoutSubscriber()))
                     .setNegativeButton(R.string.menu_logout_envirocar_negative, null)
                     .show();
+        } else if (menuItem.getItemId() == R.id.dashboard_action_delete_account) {
+            // open the browser for account deletion
+            Intent deleteViaBrowserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://envirocar.org/app/#!/login?afterLogin=/profile"));
+
+            try {
+                startActivity(deleteViaBrowserIntent);
+            } catch (android.content.ActivityNotFoundException e) {
+                LOG.warn(e.getMessage(), e);
+                Snackbar.make(getView(), getString(R.string.others_could_not_open), Snackbar.LENGTH_LONG).show();
+            }
         }
     }
 
@@ -444,7 +458,19 @@ public class DashboardFragment extends BaseInjectorFragment {
             RecordingScreenActivity.navigate(getContext());
             return;
         } else if (!PermissionUtils.hasLocationPermission(getContext())) {
-            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+            String[] perms;
+            if (android.os.Build.VERSION.SDK_INT >= 31) {
+                perms = new String[]{
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                };
+            }
+            else{
+                perms = new String[]{
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                };
+            }
+            ActivityCompat.requestPermissions(getActivity(), perms,
                     LOCATION_PERMISSION_REQUEST_CODE);
         } else {
             switch (this.modeSegmentedGroup.getCheckedRadioButtonId()) {
@@ -601,10 +627,14 @@ public class DashboardFragment extends BaseInjectorFragment {
             if (event.mCar != null) {
                 this.carSelectionTextPrimary.setText(String.format("%s %s",
                         event.mCar.getManufacturer(), event.mCar.getModel()));
-                this.carSelectionTextSecondary.setText(String.format("%s, %s cm³, %s",
+                String secText = String.format("%s, %s cm³, %s",
                         "" + event.mCar.getConstructionYear(),
                         "" + event.mCar.getEngineDisplacement(),
-                        "" + getString(event.mCar.getFuelType().getStringResource())));
+                        "" + getString(event.mCar.getFuelType().getStringResource()));
+                if (event.mCar.getVehicleType() != null) {
+                    secText += ", " + getString(event.mCar.getVehicleType().getStringResource());
+                }
+                this.carSelectionTextSecondary.setText(secText);
 
                 // set indicator color accordingly
                 this.carIndicator.setActivated(true);

@@ -24,7 +24,12 @@
     <!-- fuel type values -->
     <string name="fuel_type_gasoline">Gasoline</string>
     <string name="fuel_type_diesel">Diesel</string>
-    <string name="fuel_type_gas">Gas</string>
+    <string name="fuel_type_gas">Natural Gas</string>
     <string name="fuel_type_hybrid">Hybrid</string>
     <string name="fuel_type_electric">Electric</string>
+
+    <!-- vehicle type values-->
+    <string name="car_selection_private_vehicle">Passenger Car</string>
+    <string name="car_selection_utility_car">Utility Car</string>
+    <string name="car_selection_taxi">Taxi</string>
 </resources>

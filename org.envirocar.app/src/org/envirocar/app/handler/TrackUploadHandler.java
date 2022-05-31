@@ -23,17 +23,17 @@ import android.content.Context;
 
 import com.google.common.base.Preconditions;
 
+import com.google.gson.JsonArray;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.agreement.AgreementManager;
 import org.envirocar.app.handler.preferences.CarPreferenceHandler;
 import org.envirocar.app.handler.preferences.UserPreferenceHandler;
 import org.envirocar.core.EnviroCarDB;
-import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
-import org.envirocar.core.exception.NoMeasurementsException;
-import org.envirocar.core.exception.TrackUploadException;
+import org.envirocar.core.exception.*;
 import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.logging.Logger;
+import org.envirocar.core.util.TrackMetadata;
 import org.envirocar.core.utils.TrackUtils;
 import org.envirocar.core.utils.rx.OptionalOrError;
 
@@ -171,6 +171,31 @@ public class TrackUploadHandler {
                         .lift(new OptionalOrErrorMappingOperator()));
     }
 
+    public Track uploadTrackChunkStart(Track track) throws ResourceConflictException, NotConnectedException, DataCreationFailureException, UnauthorizedException {
+        track.setTrackStatus(Track.TrackStatus.ONGOING);
+        
+        // metadata
+        TrackMetadata meta = trackDAOHandler.updateTrackMetadataObservable(track, mUserManager.getUser().getTermsOfUseVersion()).blockingFirst();
+        track.setMetadata(meta);
+
+        LOG.info("Trying to create track." + track);
+        mCarManager
+                .assertTemporaryCar(track.getCar());
+        return trackDAOHandler.createRemoteTrack(track);
+    }
+
+    public void uploadTrackChunk(String remoteID, JsonArray trackFeatures) throws NotConnectedException, UnauthorizedException {
+        LOG.info("Trying to update track.");
+        trackDAOHandler.updateRemoteTrack(remoteID, trackFeatures);
+        LOG.info("Track updated.");
+    }
+
+    public void uploadTrackChunkEnd(Track mTrack) throws NotConnectedException, UnauthorizedException {
+        LOG.info("Trying to finished track.");
+        trackDAOHandler.finishRemoteTrack(mTrack);
+        LOG.info("Track finished.");
+    }
+
     private Observable<Track> uploadTrack(Track track) {
         return Observable.just(track)
                 // general validation of the track
@@ -242,7 +267,12 @@ public class TrackUploadHandler {
         return trackObservable -> trackObservable.flatMap(
                 track -> trackDAOHandler
                         .updateTrackMetadataObservable(track, mUserManager.getUser().getTermsOfUseVersion())
-                        .map(trackMetadata -> track));
+                        .map(trackMetadata -> {
+                            // add the metadata to the current track object as well, because this is used in
+                            // current upload process
+                            track.setMetadata(trackMetadata);
+                            return track;
+                        }));
     }
 
     private class UploadExceptionMappingOperator implements ObservableOperator<Track, Track> {
@@ -257,6 +287,7 @@ public class TrackUploadHandler {
 
                 @Override
                 public void onError(Throwable e) {
+                    LOG.warn(e.getMessage(), e);
                     Throwable result = e;
                     if (e instanceof TrackUploadException) {
                         // do nothing
@@ -291,6 +322,7 @@ public class TrackUploadHandler {
 
                 @Override
                 public void onError(Throwable e) {
+                    LOG.warn(e.getMessage(), e);
                     if (e instanceof TrackUploadException) {
                         TrackUploadException ex = (TrackUploadException) e;
                         LOG.error(String.format("Track not uploaded. Reason -> [%s]", ex.getReason()));

@@ -69,6 +69,14 @@ public class ConfigurationCommand implements BasicCommand {
                 return new ConfigurationCommand("AT SP 0", i, true);
             case SPACES_OFF:
                 return new ConfigurationCommand("AT S0", i, true);
+            case DESCRIBE_PROTOCOL_NUMBER:
+                return new ConfigurationCommand("AT DPN", i, true);
+            case IDENTIFY:
+                return new ConfigurationCommand("AT I", i, true);
+            case DEVICE_DESCRIPTION:
+                return new ConfigurationCommand("AT@1", i, true);
+            case DEVICE_IDENTIFIER:
+                return new ConfigurationCommand("AT@2", i, true);
         }
 
         return null;
@@ -84,7 +92,11 @@ public class ConfigurationCommand implements BasicCommand {
         RESET,
         SELECT_AUTO_PROTOCOL,
         TIMEOUT,
-        SPACES_OFF
+        SPACES_OFF,
+        DESCRIBE_PROTOCOL_NUMBER,
+        IDENTIFY,
+        DEVICE_DESCRIPTION,
+        DEVICE_IDENTIFIER
     }
 
     @NonNull

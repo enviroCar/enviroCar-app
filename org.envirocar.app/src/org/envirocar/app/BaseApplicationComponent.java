@@ -19,8 +19,6 @@
 package org.envirocar.app;
 
 
-import com.squareup.sqlbrite3.SqlBrite;
-
 import org.envirocar.app.aidl.EnviroCarDataService;
 import org.envirocar.app.handler.DAOProvider;
 import org.envirocar.app.handler.LocationHandler;
@@ -35,6 +33,7 @@ import org.envirocar.app.recording.RecordingModule;
 import org.envirocar.app.services.TrackUploadService;
 import org.envirocar.app.services.autoconnect.AutoRecordingComponent;
 import org.envirocar.app.services.autoconnect.AutoRecordingModule;
+import org.envirocar.app.services.trackchunks.TrackchunkUploadService;
 import org.envirocar.app.views.SplashScreenActivity;
 import org.envirocar.app.views.carselection.CarSelectionActivity;
 import org.envirocar.app.views.carselection.CarSelectionAddCarFragment;
@@ -125,6 +124,7 @@ public interface BaseApplicationComponent {
     void inject(TrackUploadService trackUploadService);
     void inject(EnviroCarDataService enviroCarDataService);
     void inject(EnviroCarVehicleDB enviroCarVehicleDB);
+    void inject(TrackchunkUploadService trackchunkUploadService);
 
     // interactors
     void inject(GetUserStatistic getUserStatistic);

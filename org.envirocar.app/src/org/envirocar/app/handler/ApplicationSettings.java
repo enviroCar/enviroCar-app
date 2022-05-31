@@ -53,6 +53,7 @@ public class ApplicationSettings {
     public static final boolean DEFAULT_DEBUG_LOGGING = false;
     public static final int DEFAULT_SAMPLING_RATE = 5;
     public static final String DEFAULT_CAMPAIGN_PROFILE = "DEFAULT_COMANND_PROFILE";
+    public static final boolean DEFAULT_TRACK_CHUNK_UPLOAD= false;
 
 //    // General Settings
 //    public static final String PREF_AUTOMATIC_UPLOAD_OF_TRACKS = "pref_automatic_upload_tracks";
@@ -92,6 +93,10 @@ public class ApplicationSettings {
 
     public static boolean isObfuscationEnabled(Context context) {
         return getSharedPreferences(context).getBoolean(s(context, R.string.prefkey_privacy), DEFAULT_OBFUSCATION);
+    }
+
+    public static boolean isTrackchunkUploadEnabled(Context context) {
+        return getSharedPreferences(context).getBoolean(s(context, R.string.prefkey_track_chunk_upload), DEFAULT_TRACK_CHUNK_UPLOAD);
     }
 
     public static Observable<Boolean> getObfuscationObservable(Context context) {
@@ -251,6 +256,10 @@ public class ApplicationSettings {
         return getRxSharedPreferences(context)
                 .getString(s(context, R.string.prefkey_campaign_profile), DEFAULT_CAMPAIGN_PROFILE)
                 .asObservable();
+    }
+
+    public static String getCampaignProfile(Context context) {
+        return getSharedPreferences(context).getString(s(context, R.string.prefkey_campaign_profile), DEFAULT_CAMPAIGN_PROFILE);
     }
 
     private static final String s(Context context, int id){

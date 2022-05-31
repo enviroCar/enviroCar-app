@@ -29,5 +29,12 @@
         android:orderInCategory="100"
         android:title="@string/others_logout"
         app:showAsAction="collapseActionView" />
+    
+    <item
+        android:id="@+id/dashboard_action_delete_account"
+        android:orderInCategory="100"
+        android:title="@string/others_delete_account"
+        app:showAsAction="collapseActionView" />
+
 
 </menu>
