@@ -27,6 +27,7 @@ import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.provider.Settings;
@@ -320,6 +321,16 @@ public class DashboardFragment extends BaseInjectorFragment {
                             (dialog, which) -> userHandler.logOut().subscribe(onLogoutSubscriber()))
                     .setNegativeButton(R.string.menu_logout_envirocar_negative, null)
                     .show();
+        } else if (menuItem.getItemId() == R.id.dashboard_action_delete_account) {
+            // open the browser for account deletion
+            Intent deleteViaBrowserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://envirocar.org/app/#!/login?afterLogin=/profile"));
+
+            try {
+                startActivity(deleteViaBrowserIntent);
+            } catch (android.content.ActivityNotFoundException e) {
+                LOG.warn(e.getMessage(), e);
+                Snackbar.make(getView(), getString(R.string.others_could_not_open), Snackbar.LENGTH_LONG).show();
+            }
         }
     }
 
