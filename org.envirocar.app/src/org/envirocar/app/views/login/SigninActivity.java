@@ -69,7 +69,7 @@ import io.reactivex.schedulers.Schedulers;
  * @author dewall
  */
 public class SigninActivity extends BaseInjectorActivity {
-    private static final java.util.logging.Logger LOG = Logger.getLogger(SigninActivity.class);
+    private static final Logger LOG = Logger.getLogger(SigninActivity.class);
 
     public static void startActivity(Context context) {
         Intent intent = new Intent(context, SigninActivity.class);
