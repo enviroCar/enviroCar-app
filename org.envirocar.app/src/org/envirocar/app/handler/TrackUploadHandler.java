@@ -19,7 +19,10 @@
 package org.envirocar.app.handler;
 
 import android.app.Activity;
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.content.Context;
+import androidx.core.app.NotificationCompat;
 
 import com.google.common.base.Preconditions;
 
@@ -68,6 +71,7 @@ public class TrackUploadHandler {
     private final TrackDAOHandler trackDAOHandler;
     private final UserPreferenceHandler mUserManager;
     private final AgreementManager mAgreementManager;
+    private final NotificationManager mNotificationManager;
 
     /**
      * Normal constructor for this manager. Specify the context and the dbadapter.
@@ -82,7 +86,8 @@ public class TrackUploadHandler {
             DAOProvider daoProvider,
             TrackDAOHandler trackDAOHandler,
             UserPreferenceHandler userHandler,
-            AgreementManager agreementManager) {
+            AgreementManager agreementManager,
+            NotificationManager notificationManager) {
         this.mContext = context;
         this.mEnviroCarDB = enviroCarDB;
         this.mCarManager = carPreferenceHandler;
@@ -90,6 +95,7 @@ public class TrackUploadHandler {
         this.trackDAOHandler = trackDAOHandler;
         this.mUserManager = userHandler;
         this.mAgreementManager = agreementManager;
+        this.mNotificationManager = notificationManager;
     }
 
     /**
@@ -181,7 +187,17 @@ public class TrackUploadHandler {
         LOG.info("Trying to create track." + track);
         mCarManager
                 .assertTemporaryCar(track.getCar());
-        return trackDAOHandler.createRemoteTrack(track);
+        try {
+            return trackDAOHandler.createRemoteTrack(track);
+        } catch (NotConnectedException e) {
+            Notification forgroundNotification = new NotificationCompat.Builder(mContext)
+                .setSmallIcon(R.drawable.ic_cloud_upload_white_24dp)
+                .setContentTitle(mContext.getString(R.string.notification_autoupload_error_sub))
+                .setPriority(Integer.MAX_VALUE)
+                .build();
+            mNotificationManager.notify(100, forgroundNotification);
+            throw e;
+        }
     }
 
     public void uploadTrackChunk(String remoteID, JsonArray trackFeatures) throws NotConnectedException, UnauthorizedException {

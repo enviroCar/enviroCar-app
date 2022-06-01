@@ -20,18 +20,26 @@ package org.envirocar.app.handler.agreement;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+
+import androidx.appcompat.app.AlertDialog;
 
 import org.envirocar.app.R;
 import org.envirocar.core.exception.TermsOfUseException;
 import org.envirocar.app.exception.NotLoggedInException;
 import org.envirocar.app.handler.DAOProvider;
 import org.envirocar.app.handler.preferences.UserPreferenceHandler;
+import org.envirocar.app.views.utils.DialogUtils;
+import org.envirocar.core.utils.rx.Optional;
 import org.envirocar.core.utils.rx.dialogs.AbstractReactiveAcceptDialog;
 import org.envirocar.core.utils.rx.dialogs.ReactivePrivacyStatementDialog;
 import org.envirocar.core.utils.rx.dialogs.ReactiveTermsOfUseDialog;
 import org.envirocar.core.entity.PrivacyStatement;
 import org.envirocar.core.entity.TermsOfUse;
 import org.envirocar.core.entity.User;
+import org.envirocar.core.entity.UserImpl;
 import org.envirocar.core.exception.DataRetrievalFailureException;
 import org.envirocar.core.exception.DataUpdateFailureException;
 import org.envirocar.core.exception.NotConnectedException;
@@ -40,6 +48,7 @@ import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.logging.Logger;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -50,6 +59,8 @@ import io.reactivex.ObservableTransformer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
+import io.reactivex.observers.DisposableCompletableObserver;
+import io.reactivex.observers.DisposableObserver;
 
 /**
  * TODO JavaDoc
@@ -83,8 +94,12 @@ public class AgreementManager {
     }
 
     public Observable<TermsOfUse> verifyTermsOfUse(Activity activity) {
+        return verifyTermsOfUse(activity, false);
+    }
+
+    public Observable<TermsOfUse> verifyTermsOfUse(Activity activity, boolean forceReload) {
         LOG.info("verifyTermsOfUse()");
-        return getCurrentTermsOfUseObservable()
+        return getCurrentTermsOfUseObservable(forceReload)
                 .flatMap(checkTermsOfUseAcceptance(activity));
     }
 
@@ -97,8 +112,12 @@ public class AgreementManager {
     }
 
     public Observable<TermsOfUse> getCurrentTermsOfUseObservable() {
+        return getCurrentTermsOfUseObservable(false);
+    }
+
+    public Observable<TermsOfUse> getCurrentTermsOfUseObservable(boolean forceReload) {
         LOG.info("getCurrentTermsOfUseObservable()");
-        return current != null ? Observable.just(current) : getRemoteTermsOfUseObservable();
+        return (current != null && !forceReload) ? Observable.just(current) : getRemoteTermsOfUseObservable();
     }
 
     public Observable<PrivacyStatement> getCurrentPrivacyStatementObservable() {
@@ -279,6 +298,91 @@ public class AgreementManager {
                         throw e;
                     }
                 });
+    }
+
+    public void initializeTermsOfUseAcceptanceWorkflow(String username, String password, Activity activity, Class<? extends Activity> targetActivity, Consumer<Optional<TermsOfUse>> termsOfUseConsumer) {
+        User candidateUser = new UserImpl(username, password);
+        // temp login so we can use the agreementManager
+        mUserManager.setUser(candidateUser);
+
+        initializeTermsOfUseAcceptanceWorkflow(candidateUser, activity, targetActivity, termsOfUseConsumer);
+    }
+
+    public void initializeTermsOfUseAcceptanceWorkflow(User candidateUser, Activity activity, Class<? extends Activity> targetActivity, Consumer<Optional<TermsOfUse>> termsOfUseConsumer) {
+        
+        DisposableObserver disposable = Observable.just(candidateUser)
+            // Verify whether the TermsOfUSe have been accepted.
+            // When the TermsOfUse have not been accepted, create an
+            // Dialog to accept and continue when the getUserStatistic has accepted.
+            .compose(AgreementManager.TermsOfUseValidator.create(this, activity))
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            // Continue when the TermsOfUse has been accepted, otherwise
+            // throw an error
+            .subscribeWith(new DisposableObserver<User>() {
+                @Override
+                public void onNext(User u) {
+                    LOG.info("User accepted latest ToU");
+                    mUserManager.logIn(candidateUser.getUsername(), candidateUser.getToken())
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeWith(new DisposableCompletableObserver() {
+                            private AlertDialog dialog;
+
+                            @Override
+                            protected void onStart() {
+                                if (checkNetworkConnection(activity)) {
+                                    dialog = DialogUtils.createProgressBarDialogBuilder(activity,
+                                            R.string.activity_login_logging_in_dialog_title,
+                                            R.drawable.ic_baseline_login_24,
+                                            (String) null)
+                                            .setCancelable(false)
+                                            .show();
+                                }
+                            }
+
+                            @Override
+                            public void onComplete() {
+                                if (checkNetworkConnection(activity)) {
+                                    dialog.dismiss();
+                                }
+                                
+                                if (targetActivity != null) {
+                                    Intent intent = new Intent(activity.getBaseContext(), targetActivity);
+                                    activity.startActivity(intent);
+                                }
+                                
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+                                LOG.error(e);
+                                LOG.warn("Unexpected error in ToU mechanism.");
+                                termsOfUseConsumer.accept(Optional.create(null));
+                            }
+                        });
+                }
+
+                @Override
+                public void onError(Throwable e) {
+                    LOG.error(e);
+                    LOG.info("User did not accept latest ToU");
+                    termsOfUseConsumer.accept(Optional.create(null));
+                }
+
+                @Override
+                public void onComplete() {
+                    LOG.info("ToU acceptance workflow complete.");
+                    termsOfUseConsumer.accept(Optional.create(getCurrentTermsOfUseObservable().blockingFirst()));
+                }
+            });
+    }
+
+
+    private boolean checkNetworkConnection(Activity activity) {
+        ConnectivityManager connectivityManager = (ConnectivityManager) activity.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        return networkInfo != null && networkInfo.isConnected();
     }
 
 

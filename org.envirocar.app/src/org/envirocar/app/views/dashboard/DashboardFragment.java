@@ -74,6 +74,7 @@ import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
+import org.envirocar.app.handler.agreement.AgreementManager;
 import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.preferences.UserPreferenceHandler;
@@ -90,6 +91,7 @@ import org.envirocar.app.views.obdselection.OBDSelectionActivity;
 import org.envirocar.app.views.recordingscreen.RecordingScreenActivity;
 import org.envirocar.app.views.utils.DialogUtils;
 import org.envirocar.app.views.utils.SizeSyncTextView;
+import org.envirocar.core.entity.TermsOfUse;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.events.NewCarTypeSelectedEvent;
 import org.envirocar.core.events.NewUserSettingsEvent;
@@ -97,6 +99,7 @@ import org.envirocar.core.events.bluetooth.BluetoothDeviceSelectedEvent;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.core.events.gps.GpsStateChangedEvent;
 import org.envirocar.core.logging.Logger;
+import org.envirocar.core.utils.rx.Optional;
 import org.envirocar.core.utils.PermissionUtils;
 import org.envirocar.core.utils.ServiceUtils;
 import org.envirocar.obd.events.TrackRecordingServiceStateChangedEvent;
@@ -106,6 +109,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import javax.inject.Inject;
 
@@ -210,6 +214,9 @@ public class DashboardFragment extends BaseInjectorFragment {
     protected UserPreferenceHandler userHandler;
     @Inject
     protected BluetoothHandler bluetoothHandler;
+
+    @Inject
+    protected AgreementManager mAgreementManager;
 
     private CompositeDisposable disposables;
     private boolean statisticsKnown = false;
@@ -334,6 +341,8 @@ public class DashboardFragment extends BaseInjectorFragment {
         }
     }
 
+    
+
     private DisposableCompletableObserver onLogoutSubscriber() {
         return new DisposableCompletableObserver() {
             private MaterialDialog dialog = null;
@@ -454,6 +463,20 @@ public class DashboardFragment extends BaseInjectorFragment {
     @OnClick(R.id.fragment_dashboard_start_track_button)
     protected void onStartTrackButtonClicked() {
         LOG.info("Clicked on Start Track Button");
+
+        TermsOfUse tous;
+        try {
+            tous = mAgreementManager.verifyTermsOfUse(getActivity(), true)
+                .subscribeOn(Schedulers.io())
+                .doOnError(LOG::error)
+                .blockingFirst();
+        } catch (Exception e) {
+            LOG.warn(e.getMessage(), e);
+            tous = null;
+        }
+        
+        LOG.info("Terms Of Use: " + tous);
+
         if (RecordingService.RECORDING_STATE == RecordingState.RECORDING_RUNNING) {
             RecordingScreenActivity.navigate(getContext());
             return;
@@ -472,6 +495,31 @@ public class DashboardFragment extends BaseInjectorFragment {
             }
             ActivityCompat.requestPermissions(getActivity(), perms,
                     LOCATION_PERMISSION_REQUEST_CODE);
+        } else if (tous == null) {
+            User user = userHandler.getUser();
+            if (user == null) {
+                if (ApplicationSettings.isTrackchunkUploadEnabled(getContext())) {
+                    Snackbar.make(getView(),
+                            getString(R.string.dashboard_track_chunks_enabled_login),
+                            Snackbar.LENGTH_LONG).show();
+                }
+            } else {
+                mAgreementManager.initializeTermsOfUseAcceptanceWorkflow(user, getActivity(), null, new Consumer<Optional<TermsOfUse>>() {
+                    public void accept(Optional<TermsOfUse> tou) {
+                        if (tou.isEmpty()) {
+                            Snackbar.make(getView(),
+                                getString(R.string.terms_of_use_simple) + " - " + getString(R.string.terms_of_use_reject),
+                                Snackbar.LENGTH_LONG).show();
+                        } else {
+                            Snackbar.make(getView(),
+                                getString(R.string.terms_of_use_simple) + " - " + getString(R.string.terms_of_use_accept),
+                                Snackbar.LENGTH_LONG).show();
+                        }
+                        
+                    }
+                });
+            }
+            
         } else {
             switch (this.modeSegmentedGroup.getCheckedRadioButtonId()) {
                 case R.id.fragment_dashboard_obd_mode_button:
@@ -521,6 +569,8 @@ public class DashboardFragment extends BaseInjectorFragment {
             }
         }
     }
+
+   
 
     @OnClick(R.id.fragment_dashboard_indicator_car)
     protected void onCarIndicatorClicked() {
