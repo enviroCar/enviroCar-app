@@ -25,20 +25,26 @@ import android.view.MenuItem;
 import android.widget.TextView;
 import android.text.Html;
 import android.text.Spanned;
+
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
 import org.envirocar.app.R;
+import org.envirocar.app.handler.agreement.AgreementManager;
 import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.core.utils.rx.Optional;
 import org.envirocar.core.entity.TermsOfUse;
+import org.envirocar.core.entity.User;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.interactor.GetLatestTermsOfUse;
 import org.envirocar.app.BaseApplicationComponent;
+import org.envirocar.core.utils.rx.Optional;
+import org.envirocar.app.handler.preferences.UserPreferenceHandler;
 
 import butterknife.ButterKnife;
 import butterknife.BindView;
 
+import java.util.function.Consumer;
 import javax.inject.Inject;
 
 /**
@@ -59,6 +65,11 @@ public class TermsOfUseActivity extends BaseInjectorActivity {
     @Inject
     protected GetLatestTermsOfUse getLatestTermsOfUse;
 
+    @Inject
+    protected AgreementManager mAgreementManager;
+
+    @Inject
+    protected UserPreferenceHandler userHandler;
 
     @Override
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
@@ -100,40 +111,38 @@ public class TermsOfUseActivity extends BaseInjectorActivity {
                 }
             });
 
-        // TermsOfUse tous = resolveTermsOfUse();
+        // check if the user accepted the latest terms
+        TermsOfUse tous = resolveTermsOfUse();
+        User user = userHandler.getUser();
 
-        // if (tous == null) {
-        //     LOG.info("initializeTermsOfUseAcceptanceWorkflow from fragment load");
-        //     mAgreementManager.initializeTermsOfUseAcceptanceWorkflow(user, getContext(), null, new Consumer<Optional<TermsOfUse>>() {
-        //         public void accept(Optional<TermsOfUse> tou) {
-        //             if (tou.isEmpty()) {
-        //                 Snackbar.make(getView(),
-        //                     getString(R.string.terms_of_use_simple) + " - " + getString(R.string.terms_of_use_reject),
-        //                     Snackbar.LENGTH_LONG).show();
-        //             } else {
-        //                 Snackbar.make(getView(),
-        //                     getString(R.string.terms_of_use_simple) + " - " + getString(R.string.terms_of_use_accept),
-        //                     Snackbar.LENGTH_LONG).show();
-        //             }
+        if (tous == null && user != null) {
+            LOG.info("initializeTermsOfUseAcceptanceWorkflow from ToU Activity");
+            mAgreementManager.initializeTermsOfUseAcceptanceWorkflow(user, this, null, new Consumer<Optional<TermsOfUse>>() {
+                public void accept(Optional<TermsOfUse> tou) {
+                    if (tou.isEmpty()) {
+                        LOG.info("User did not accept ToU");
+                    } else {
+                        LOG.info("User accepted ToU");
+                    }
                     
-        //         }
-        //     });
-        // }
+                }
+            });
+        }
     }
 
-    // private TermsOfUse resolveTermsOfUse() {
-    //     TermsOfUse tous;
-    //     try {
-    //         tous = mAgreementManager.verifyTermsOfUse(getActivity(), true)
-    //             .subscribeOn(Schedulers.io())
-    //             .doOnError(LOG::error)
-    //             .blockingFirst();
-    //     } catch (Exception e) {
-    //         LOG.warn(e.getMessage(), e);
-    //         tous = null;
-    //     }
-    //     return tous;
-    // }
+    private TermsOfUse resolveTermsOfUse() {
+        TermsOfUse tous;
+        try {
+            tous = mAgreementManager.verifyTermsOfUse(this, true)
+                .subscribeOn(Schedulers.io())
+                .doOnError(LOG::error)
+                .blockingFirst();
+        } catch (Exception e) {
+            LOG.warn(e.getMessage(), e);
+            tous = null;
+        }
+        return tous;
+    }
 
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {

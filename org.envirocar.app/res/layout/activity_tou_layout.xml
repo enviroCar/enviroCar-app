@@ -73,7 +73,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
-                android:gravity="top|fill_vertical">
+                android:gravity="top|fill_vertical"
+                android:padding="10dp" >
 
             <TextView
                 android:id="@+id/tou_text_view"

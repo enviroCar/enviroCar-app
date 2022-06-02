@@ -463,8 +463,9 @@ public class DashboardFragment extends BaseInjectorFragment {
     private TermsOfUse resolveTermsOfUse() {
         TermsOfUse tous;
         try {
-            tous = mAgreementManager.verifyTermsOfUse(getActivity(), true)
+            tous = mAgreementManager.verifyTermsOfUse(null, true)
                 .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
                 .doOnError(LOG::error)
                 .blockingFirst();
         } catch (Exception e) {

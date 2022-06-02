@@ -244,9 +244,9 @@ public class AgreementManager {
                 return createTermsOfUseDialogObservable(user, termsOfUse, activity);
             }
             // Otherwise, throw an exception.
-            else {
-                throw new TermsOfUseException("The getUserStatistic has not accepted the terms of use");
-            }
+            
+            LOG.info("ToUs not accepted, throwing TermsOfUseException");
+            throw new TermsOfUseException("The getUserStatistic has not accepted the terms of use");
         };
     }
 
