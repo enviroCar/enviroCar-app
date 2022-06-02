@@ -128,6 +128,12 @@ public class OthersFragment extends BaseInjectorFragment {
         startActivity(intent);
     }
 
+    @OnClick(R.id.othersTou)
+    protected void onTouClicked() {
+        Intent intent = new Intent(getActivity(), TermsOfUseActivity.class);
+        startActivity(intent);
+    }
+
     @OnClick(R.id.othersReportIssue)
     protected void onReportIssueClicked() {
 //        if (checkPermissions()) {

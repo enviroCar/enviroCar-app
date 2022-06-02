@@ -48,6 +48,7 @@ import org.envirocar.app.views.obdselection.OBDSelectionActivity;
 import org.envirocar.app.views.obdselection.OBDSelectionFragment;
 import org.envirocar.app.views.others.OthersFragment;
 import org.envirocar.app.views.others.SendLogFileActivity;
+import org.envirocar.app.views.others.TermsOfUseActivity;
 import org.envirocar.app.views.preferences.BluetoothPairingPreference;
 import org.envirocar.app.views.preferences.SelectBluetoothPreference;
 import org.envirocar.app.views.recordingscreen.Tempomat;
@@ -108,6 +109,7 @@ public interface BaseApplicationComponent {
     void inject(TrackDetailsActivity trackDetailsActivity);
     void inject(TrackStatisticsActivity trackStatisticsActivity);
     void inject(SplashScreenActivity splashScreenActivity);
+    void inject(TermsOfUseActivity touActivity);
 
     // fragment injections
     void inject(DashboardFragment dashboardFragment);

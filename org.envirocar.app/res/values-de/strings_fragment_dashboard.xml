@@ -73,4 +73,6 @@
     <string name="dashboard_engine_not_running_dialog_title">Verbindung Fehlgeschlagen</string>
     <string name="dashboard_engine_not_running_dialog_content">Die Verbindung zum Fahrzeug kann nicht hergestellt werden. Bitte stellen Sie sicher, dass der Motor läuft.</string>
     <string name="dashboard_track_chunks_enabled_login">Hochladen während der Fahrt ist aktiviert. Sie müssen sich einloggen bevor Sie eine Fahrt aufzeichnen können.</string>
+    
+    <string name="dashboard_accept_tou">Bitte akzeptieren Sie die neusten Nutzungsbedingung. Diese finden Sie unter \'%s\'.</string>
 </resources>

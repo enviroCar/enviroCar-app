@@ -91,6 +91,9 @@
             android:name=".views.others.HelpActivity"
             android:screenOrientation="portrait" />
         <activity
+            android:name=".views.others.TermsOfUseActivity"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".views.BaseMainActivity"
             android:screenOrientation="portrait" />
         <activity

@@ -460,10 +460,7 @@ public class DashboardFragment extends BaseInjectorFragment {
         getActivity().startActivity(intent);
     }
 
-    @OnClick(R.id.fragment_dashboard_start_track_button)
-    protected void onStartTrackButtonClicked() {
-        LOG.info("Clicked on Start Track Button");
-
+    private TermsOfUse resolveTermsOfUse() {
         TermsOfUse tous;
         try {
             tous = mAgreementManager.verifyTermsOfUse(getActivity(), true)
@@ -474,6 +471,14 @@ public class DashboardFragment extends BaseInjectorFragment {
             LOG.warn(e.getMessage(), e);
             tous = null;
         }
+        return tous;
+    }
+
+    @OnClick(R.id.fragment_dashboard_start_track_button)
+    protected void onStartTrackButtonClicked() {
+        LOG.info("Clicked on Start Track Button");
+
+        TermsOfUse tous = this.resolveTermsOfUse();
         
         LOG.info("Terms Of Use: " + tous);
 
@@ -504,20 +509,13 @@ public class DashboardFragment extends BaseInjectorFragment {
                             Snackbar.LENGTH_LONG).show();
                 }
             } else {
-                mAgreementManager.initializeTermsOfUseAcceptanceWorkflow(user, getActivity(), null, new Consumer<Optional<TermsOfUse>>() {
-                    public void accept(Optional<TermsOfUse> tou) {
-                        if (tou.isEmpty()) {
-                            Snackbar.make(getView(),
-                                getString(R.string.terms_of_use_simple) + " - " + getString(R.string.terms_of_use_reject),
-                                Snackbar.LENGTH_LONG).show();
-                        } else {
-                            Snackbar.make(getView(),
-                                getString(R.string.terms_of_use_simple) + " - " + getString(R.string.terms_of_use_accept),
-                                Snackbar.LENGTH_LONG).show();
-                        }
-                        
+                // show snackbar with info how to accept
+                Snackbar.make(getView(), String.format(getString(R.string.dashboard_accept_tou), getString(R.string.title_others)), Snackbar.LENGTH_INDEFINITE).setAction("OK", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        LOG.info("ToU Snackbar closed");
                     }
-                });
+                }).show();
             }
             
         } else {

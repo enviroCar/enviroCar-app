@@ -192,7 +192,12 @@ public class AgreementManager {
     private Function<PrivacyStatement, Observable<PrivacyStatement>> checkPrivacyStatementAcceptance(Activity activity) {
         LOG.info("Check whether the Privacy Statement has been accepted.");
         return privacyStatement -> {
-            User user = checkUserLoggedInAndReturn();
+            User user;
+            try {
+                user = checkUserLoggedInAndReturn();
+            } catch (Exception e) {
+                throw new TermsOfUseException("The getUserStatistic has not accepted the privacy statement: " + e.getMessage());
+            }
             LOG.info("Retrieved privacy statement for getUserStatistic [%s] with version [%s]",
                     user.getUsername(), user.getPrivacyStatementVersion());
 
@@ -210,15 +215,20 @@ public class AgreementManager {
 
             // if no dialog is possible, throw an exception
             else {
-                throw new TermsOfUseException("The getUserStatistic has not accepted the terms of use");
+                throw new TermsOfUseException("The getUserStatistic has not accepted the privacy statement");
             }
         };
     }
 
-    private Function<TermsOfUse, Observable<TermsOfUse>> checkTermsOfUseAcceptance(Activity activity) {
+    private Function<TermsOfUse, Observable<TermsOfUse>> checkTermsOfUseAcceptance(Context activity) {
         LOG.info("checkTermsOfUseAcceptance()");
         return termsOfUse -> {
-            User user = checkUserLoggedInAndReturn();
+            User user;
+            try {
+                user = checkUserLoggedInAndReturn();
+            } catch (Exception e) {
+                throw new TermsOfUseException("The getUserStatistic has not accepted the terms of use: " + e.getMessage());
+            }
             LOG.info(String.format("Retrieved terms of use for getUserStatistic [%s] with terms of" +
                     " use version [%s]", user.getUsername(), user.getTermsOfUseVersion()));
 
@@ -230,6 +240,7 @@ public class AgreementManager {
             }
             // If the input activity is not null, then create an dialog observable.
             else if (activity != null) {
+                LOG.info("Opening ToUs dialog with parent activity: " + activity);
                 return createTermsOfUseDialogObservable(user, termsOfUse, activity);
             }
             // Otherwise, throw an exception.
@@ -244,6 +255,14 @@ public class AgreementManager {
         if (user == null) {
             throw new NotLoggedInException(mContext.getString(R.string.trackviews_not_logged_in));
         }
+        try {
+            user = mUserManager.retrieveUpdatedUser(user);
+        } catch (NotConnectedException e) {
+            // workaround to not jump out with an exception, the result is the same: user has
+            // not accepted the latest tou version
+            user.setTermsOfUseVersion("");
+        }
+        
         return user;
     }
 
@@ -258,7 +277,7 @@ public class AgreementManager {
     }
 
     public Observable<TermsOfUse> createTermsOfUseDialogObservable(
-            User user, TermsOfUse currentTermsOfUse, Activity activity) {
+            User user, TermsOfUse currentTermsOfUse, Context activity) {
         return new ReactiveTermsOfUseDialog(activity, currentTermsOfUse, getTermsOfUseParams(user))
                 .asObservable()
                 .map(termsOfUse -> {
@@ -300,21 +319,21 @@ public class AgreementManager {
                 });
     }
 
-    public void initializeTermsOfUseAcceptanceWorkflow(String username, String password, Activity activity, Class<? extends Activity> targetActivity, Consumer<Optional<TermsOfUse>> termsOfUseConsumer) {
+    public void initializeTermsOfUseAcceptanceWorkflow(String username, String password, Context ctx, Class<? extends Activity> targetActivity, Consumer<Optional<TermsOfUse>> termsOfUseConsumer) {
         User candidateUser = new UserImpl(username, password);
         // temp login so we can use the agreementManager
         mUserManager.setUser(candidateUser);
 
-        initializeTermsOfUseAcceptanceWorkflow(candidateUser, activity, targetActivity, termsOfUseConsumer);
+        initializeTermsOfUseAcceptanceWorkflow(candidateUser, ctx, targetActivity, termsOfUseConsumer);
     }
 
-    public void initializeTermsOfUseAcceptanceWorkflow(User candidateUser, Activity activity, Class<? extends Activity> targetActivity, Consumer<Optional<TermsOfUse>> termsOfUseConsumer) {
+    public void initializeTermsOfUseAcceptanceWorkflow(User candidateUser, Context ctx, Class<? extends Activity> targetActivity, Consumer<Optional<TermsOfUse>> termsOfUseConsumer) {
         
         DisposableObserver disposable = Observable.just(candidateUser)
             // Verify whether the TermsOfUSe have been accepted.
             // When the TermsOfUse have not been accepted, create an
             // Dialog to accept and continue when the getUserStatistic has accepted.
-            .compose(AgreementManager.TermsOfUseValidator.create(this, activity))
+            .compose(AgreementManager.TermsOfUseValidator.create(this, ctx))
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             // Continue when the TermsOfUse has been accepted, otherwise
@@ -331,8 +350,8 @@ public class AgreementManager {
 
                             @Override
                             protected void onStart() {
-                                if (checkNetworkConnection(activity)) {
-                                    dialog = DialogUtils.createProgressBarDialogBuilder(activity,
+                                if (checkNetworkConnection()) {
+                                    dialog = DialogUtils.createProgressBarDialogBuilder(ctx,
                                             R.string.activity_login_logging_in_dialog_title,
                                             R.drawable.ic_baseline_login_24,
                                             (String) null)
@@ -343,13 +362,13 @@ public class AgreementManager {
 
                             @Override
                             public void onComplete() {
-                                if (checkNetworkConnection(activity)) {
+                                if (checkNetworkConnection()) {
                                     dialog.dismiss();
                                 }
                                 
                                 if (targetActivity != null) {
-                                    Intent intent = new Intent(activity.getBaseContext(), targetActivity);
-                                    activity.startActivity(intent);
+                                    Intent intent = new Intent(ctx, targetActivity);
+                                    ctx.startActivity(intent);
                                 }
                                 
                             }
@@ -379,8 +398,8 @@ public class AgreementManager {
     }
 
 
-    private boolean checkNetworkConnection(Activity activity) {
-        ConnectivityManager connectivityManager = (ConnectivityManager) activity.getSystemService(Context.CONNECTIVITY_SERVICE);
+    private boolean checkNetworkConnection() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
         return networkInfo != null && networkInfo.isConnected();
     }
@@ -388,10 +407,10 @@ public class AgreementManager {
 
     public static class TermsOfUseValidator<T> implements ObservableTransformer<T, T> {
         private final AgreementManager agreementManager;
-        private final Activity activity;
+        private final Context ctx;
 
-        public static <T> TermsOfUseValidator<T> create(AgreementManager agreementManager, Activity activity) {
-            return new TermsOfUseValidator<T>(agreementManager, activity);
+        public static <T> TermsOfUseValidator<T> create(AgreementManager agreementManager, Context ctx) {
+            return new TermsOfUseValidator<T>(agreementManager, ctx);
         }
 
         /**
@@ -410,16 +429,16 @@ public class AgreementManager {
          * @param activity         the activity for the case when the getUserStatistic has not accepted the
          *                         terms of use. Then it creates a Dialog for acceptance.
          */
-        public TermsOfUseValidator(AgreementManager agreementManager, Activity activity) {
+        public TermsOfUseValidator(AgreementManager agreementManager, Context ctx) {
             this.agreementManager = agreementManager;
-            this.activity = activity;
+            this.ctx = ctx;
         }
 
         @Override
         public ObservableSource<T> apply(Observable<T> upstream) {
             return upstream.flatMap(t ->
                     agreementManager.getCurrentTermsOfUseObservable()
-                            .flatMap(agreementManager.checkTermsOfUseAcceptance(activity))
+                            .flatMap(agreementManager.checkTermsOfUseAcceptance(ctx))
 //                            .flatMap(o -> agreementManager.getCurrentPrivacyStatementObservable())
 //                            .flatMap(agreementManager.checkPrivacyStatementAcceptance(activity))
                             .flatMap(termsOfUse -> Observable.just(t)));
