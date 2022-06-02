@@ -506,12 +506,15 @@ public class DashboardFragment extends BaseInjectorFragment {
                     }, e -> {
                         LOG.warn("Error during TermsOfUse verification", e);
                         // inform the user about ToU acceptance
-                        Snackbar.make(getView(), String.format(getString(R.string.dashboard_accept_tou), getString(R.string.title_others)), Snackbar.LENGTH_INDEFINITE).setAction("OK", new View.OnClickListener() {
+                        Snackbar sb = Snackbar.make(getView(), String.format(getString(R.string.dashboard_accept_tou), getString(R.string.title_others)), Snackbar.LENGTH_INDEFINITE).setAction("OK", new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
                                 LOG.info("ToU Snackbar closed");
                             }
-                        }).show();
+                        });
+                        Snackbar.SnackbarLayout layout = (Snackbar.SnackbarLayout) sb.getView();
+                        layout.setMinimumHeight(50);
+                        sb.show();
                     });
             } else {
                 // we can check the ToUs later before upload

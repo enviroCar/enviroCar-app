@@ -112,22 +112,36 @@ public class TermsOfUseActivity extends BaseInjectorActivity {
             });
 
         // check if the user accepted the latest terms
-        TermsOfUse tous = resolveTermsOfUse();
-        User user = userHandler.getUser();
-
-        if (tous == null && user != null) {
-            LOG.info("initializeTermsOfUseAcceptanceWorkflow from ToU Activity");
-            mAgreementManager.initializeTermsOfUseAcceptanceWorkflow(user, this, null, new Consumer<Optional<TermsOfUse>>() {
-                public void accept(Optional<TermsOfUse> tou) {
-                    if (tou.isEmpty()) {
-                        LOG.info("User did not accept ToU");
-                    } else {
-                        LOG.info("User accepted ToU");
-                    }
-                    
+        LOG.info("Checking TermsOfUse");
+        mAgreementManager.verifyTermsOfUse(null, true)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(termsOfUse -> {
+                if (termsOfUse != null) {
+                    LOG.warn("TermsOfUse verified");
+                } else {
+                    LOG.warn("No TermsOfUse received from verification");
+                    initAcceptanceWorkflow();
                 }
+            }, e -> {
+                LOG.warn("Error during TermsOfUse verification", e);
+                initAcceptanceWorkflow();
             });
-        }
+        
+    }
+
+    private void initAcceptanceWorkflow() {
+        LOG.info("initializeTermsOfUseAcceptanceWorkflow from ToU Activity");
+        User user = userHandler.getUser();
+        mAgreementManager.initializeTermsOfUseAcceptanceWorkflow(user, this, null, new Consumer<Optional<TermsOfUse>>() {
+            public void accept(Optional<TermsOfUse> tou) {
+                if (tou.isEmpty()) {
+                    LOG.info("User did not accept ToU");
+                } else {
+                    LOG.info("User accepted ToU");
+                }   
+            }
+        });
     }
 
     private TermsOfUse resolveTermsOfUse() {
