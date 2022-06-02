@@ -460,28 +460,11 @@ public class DashboardFragment extends BaseInjectorFragment {
         getActivity().startActivity(intent);
     }
 
-    private TermsOfUse resolveTermsOfUse() {
-        TermsOfUse tous;
-        try {
-            tous = mAgreementManager.verifyTermsOfUse(null, true)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnError(LOG::error)
-                .blockingFirst();
-        } catch (Exception e) {
-            LOG.warn(e.getMessage(), e);
-            tous = null;
-        }
-        return tous;
-    }
-
     @OnClick(R.id.fragment_dashboard_start_track_button)
     protected void onStartTrackButtonClicked() {
         LOG.info("Clicked on Start Track Button");
 
-        TermsOfUse tous = this.resolveTermsOfUse();
-        
-        LOG.info("Terms Of Use: " + tous);
+        User user = userHandler.getUser();
 
         if (RecordingService.RECORDING_STATE == RecordingState.RECORDING_RUNNING) {
             RecordingScreenActivity.navigate(getContext());
@@ -494,78 +477,101 @@ public class DashboardFragment extends BaseInjectorFragment {
                     Manifest.permission.ACCESS_COARSE_LOCATION
                 };
             }
-            else{
+            else {
                 perms = new String[]{
                         Manifest.permission.ACCESS_FINE_LOCATION
                 };
             }
             ActivityCompat.requestPermissions(getActivity(), perms,
                     LOCATION_PERMISSION_REQUEST_CODE);
-        } else if (tous == null) {
-            User user = userHandler.getUser();
-            if (user == null) {
-                if (ApplicationSettings.isTrackchunkUploadEnabled(getContext())) {
-                    Snackbar.make(getView(),
-                            getString(R.string.dashboard_track_chunks_enabled_login),
-                            Snackbar.LENGTH_LONG).show();
-                }
+        } else if (user == null && ApplicationSettings.isTrackchunkUploadEnabled(getContext())) {
+                // cannot start, we need a user
+                LOG.info("cannot start, login is required for chunk upload feature");
+                Snackbar.make(getView(),
+                    getString(R.string.dashboard_track_chunks_enabled_login),
+                    Snackbar.LENGTH_LONG).show();
+        } else if (user != null) {
+            // if chunk is enabled, we need to check if the current ToU are accepted
+            if (ApplicationSettings.isTrackchunkUploadEnabled(getContext())) {
+                LOG.info("chunk upload is enabled, checking TermsOfUse");
+                mAgreementManager.verifyTermsOfUse(null, true)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(termsOfUse -> {
+                        if (termsOfUse != null) {
+                            startRecording();
+                        } else {
+                            LOG.warn("No TermsOfUse received from verification");
+                        }
+                    }, e -> {
+                        LOG.warn("Error during TermsOfUse verification", e);
+                        // inform the user about ToU acceptance
+                        Snackbar.make(getView(), String.format(getString(R.string.dashboard_accept_tou), getString(R.string.title_others)), Snackbar.LENGTH_INDEFINITE).setAction("OK", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                LOG.info("ToU Snackbar closed");
+                            }
+                        }).show();
+                    });
             } else {
-                // show snackbar with info how to accept
-                Snackbar.make(getView(), String.format(getString(R.string.dashboard_accept_tou), getString(R.string.title_others)), Snackbar.LENGTH_INDEFINITE).setAction("OK", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        LOG.info("ToU Snackbar closed");
-                    }
-                }).show();
+                // we can check the ToUs later before upload
+                LOG.info("A user is logged in, chunk upload is disabled");
+                startRecording();
             }
-            
         } else {
-            switch (this.modeSegmentedGroup.getCheckedRadioButtonId()) {
-                case R.id.fragment_dashboard_obd_mode_button:
-                    if (this.gpsIndicator.isActivated()
-                            && this.carIndicator.isActivated()
-                            && this.bluetoothIndicator.isActivated()
-                            && this.obdIndicator.isActivated()) {
-                        BluetoothDevice device = bluetoothHandler.getSelectedBluetoothDevice();
+            // no user, we can create a local track
+            LOG.info("No user available, chunk upload is disabled");
+            startRecording();
+        }
+    }
 
-                        Intent obdRecordingIntent = new Intent(getActivity(), RecordingService.class);
+    private void startRecording() {
+        LOG.info("All conditions met, starting track recording");
+        switch (this.modeSegmentedGroup.getCheckedRadioButtonId()) {
+            case R.id.fragment_dashboard_obd_mode_button:
+                if (this.gpsIndicator.isActivated()
+                        && this.carIndicator.isActivated()
+                        && this.bluetoothIndicator.isActivated()
+                        && this.obdIndicator.isActivated()) {
+                    BluetoothDevice device = bluetoothHandler.getSelectedBluetoothDevice();
 
-                        this.connectingDialog = DialogUtils.createProgressBarDialogBuilder(getContext(),
-                                R.string.dashboard_connecting,
-                                R.drawable.ic_bluetooth_white_24dp,
-                                String.format(getString(R.string.dashboard_connecting_find_template), device.getName()))
-                                .setNegativeButton(R.string.cancel, (dialog, which) -> {
-                                    ServiceUtils.stopService(getActivity(), obdRecordingIntent);
-                                })
-                                .show();
+                    Intent obdRecordingIntent = new Intent(getActivity(), RecordingService.class);
 
-                        // If the device is not found to start the track, dismiss the Dialog in 30 sec
-                        deviceDiscoveryTimer = new CountDownTimer(60000, 1000) {
-                            @Override
-                            public void onTick(long millisUntilFinished) {
-                            }
-
-                            @Override
-                            public void onFinish() {
-                                LOG.warn("Device discovery timeout. Stop recording.");
-                                connectingDialog.dismiss();
+                    this.connectingDialog = DialogUtils.createProgressBarDialogBuilder(getContext(),
+                            R.string.dashboard_connecting,
+                            R.drawable.ic_bluetooth_white_24dp,
+                            String.format(getString(R.string.dashboard_connecting_find_template), device.getName()))
+                            .setNegativeButton(R.string.cancel, (dialog, which) -> {
                                 ServiceUtils.stopService(getActivity(), obdRecordingIntent);
-                                Snackbar.make(getView(),
-                                        String.format(getString(R.string.dashboard_connecting_not_found_template),
-                                                device.getName()), Snackbar.LENGTH_LONG).show();
-                            }
-                        }.start();
+                            })
+                            .show();
 
-                        ServiceUtils.startService(getActivity(), obdRecordingIntent);
-                    }
-                    break;
-                case R.id.fragment_dashboard_gps_mode_button:
-                    Intent gpsOnlyIntent = new Intent(getActivity(), RecordingService.class);
-                    ServiceUtils.startService(getActivity(), gpsOnlyIntent);
-                    break;
-                default:
-                    break;
-            }
+                    // If the device is not found to start the track, dismiss the Dialog in 30 sec
+                    deviceDiscoveryTimer = new CountDownTimer(60000, 1000) {
+                        @Override
+                        public void onTick(long millisUntilFinished) {
+                        }
+
+                        @Override
+                        public void onFinish() {
+                            LOG.warn("Device discovery timeout. Stop recording.");
+                            connectingDialog.dismiss();
+                            ServiceUtils.stopService(getActivity(), obdRecordingIntent);
+                            Snackbar.make(getView(),
+                                    String.format(getString(R.string.dashboard_connecting_not_found_template),
+                                            device.getName()), Snackbar.LENGTH_LONG).show();
+                        }
+                    }.start();
+
+                    ServiceUtils.startService(getActivity(), obdRecordingIntent);
+                }
+                break;
+            case R.id.fragment_dashboard_gps_mode_button:
+                Intent gpsOnlyIntent = new Intent(getActivity(), RecordingService.class);
+                ServiceUtils.startService(getActivity(), gpsOnlyIntent);
+                break;
+            default:
+                break;
         }
     }
 

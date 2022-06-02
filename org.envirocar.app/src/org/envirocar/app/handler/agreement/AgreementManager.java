@@ -148,8 +148,9 @@ public class AgreementManager {
                         // Get the id of the first terms of use instance and fetch
                         // the terms of use
                         String id = termsOfUses.get(0).getId();
-                        TermsOfUse inst = mDAOProvider.getTermsOfUseDAO().getTermsOfUse(id);
-                        return inst;
+                        current = mDAOProvider.getTermsOfUseDAO().getTermsOfUse(id);
+                        
+                        return current;
                     } catch (DataRetrievalFailureException | NotConnectedException e) {
                         LOG.warn(e.getMessage(), e);
                         throw e;
