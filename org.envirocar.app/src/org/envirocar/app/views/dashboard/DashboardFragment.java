@@ -91,6 +91,7 @@ import org.envirocar.app.views.obdselection.OBDSelectionActivity;
 import org.envirocar.app.views.recordingscreen.RecordingScreenActivity;
 import org.envirocar.app.views.utils.DialogUtils;
 import org.envirocar.app.views.utils.SizeSyncTextView;
+import org.envirocar.app.views.others.TermsOfUseActivity;
 import org.envirocar.core.entity.TermsOfUse;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.events.NewCarTypeSelectedEvent;
@@ -510,10 +511,12 @@ public class DashboardFragment extends BaseInjectorFragment {
                             @Override
                             public void onClick(View v) {
                                 LOG.info("ToU Snackbar closed");
+                                Intent intent = new Intent(getActivity(), TermsOfUseActivity.class);
+                                getActivity().startActivity(intent);
                             }
                         });
                         Snackbar.SnackbarLayout layout = (Snackbar.SnackbarLayout) sb.getView();
-                        layout.setMinimumHeight(50);
+                        layout.setMinimumHeight(100);
                         sb.show();
                     });
             } else {

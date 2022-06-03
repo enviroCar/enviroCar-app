@@ -131,10 +131,10 @@ public class TrackUploadHandler {
 
                         @Override
                         public void onError(Throwable e) {
+                            LOG.error(e);
+
                             if (emitter.isDisposed())
                                 return;
-
-                            LOG.error(e);
                             emitter.onError(e);
                         }
 
