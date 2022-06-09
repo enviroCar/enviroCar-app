@@ -26,7 +26,7 @@ import org.envirocar.core.entity.PrivacyStatement;
 import org.envirocar.core.exception.TermsOfUseException;
 import org.envirocar.core.logging.Logger;
 
-import io.reactivex.ObservableEmitter;
+import io.reactivex.rxjava3.core.ObservableEmitter;
 
 /**
  * @author dewall

@@ -64,7 +64,7 @@ import javax.inject.Inject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import io.reactivex.Observable;
+import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
 /**
@@ -205,7 +205,7 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
                 .subscribeOn(AndroidSchedulers.mainThread())
                 .doOnNext(ignore -> switchViews())
                 .doOnError(LOG::error)
-                .subscribe();
+                .doOnSubscribe();
     }
 
     @OnClick(R.id.activity_recscreen_stopbutton)
@@ -231,7 +231,7 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
                 .subscribeOn(AndroidSchedulers.mainThread())
                 .doOnNext(e -> this.gpsImage.setEnabled(e.mGpsSatelliteFix.isFix()))
                 .doOnError(LOG::error)
-                .subscribe();
+                .doOnSubscribe();
     }
 
     @Subscribe
@@ -246,7 +246,7 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
                         timerText.stop();
                 })
                 .doOnError(LOG::error)
-                .subscribe();
+                .doOnSubscribe();
     }
 
     @Subscribe
@@ -259,7 +259,7 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
                 .subscribeOn(AndroidSchedulers.mainThread())
                 .doOnNext(e -> this.bluetoothImage.setEnabled(e.isBluetoothEnabled))
                 .doOnError(LOG::error)
-                .subscribe();
+                .doOnSubscribe();
     }
 
     @Subscribe
@@ -272,7 +272,7 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
                 .subscribeOn(AndroidSchedulers.mainThread())
                 .doOnNext(e -> this.bluetoothImage.setEnabled(e.mDrivingDetected))
                 .doOnError(LOG::error)
-                .subscribe();
+                .doOnSubscribe();
     }
 
     @Subscribe
@@ -281,7 +281,7 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
                 .subscribeOn(AndroidSchedulers.mainThread())
                 .doOnNext(e -> distanceText.setText(String.format("%s km", DECIMAL_FORMATTER.format(e.mDistanceValue))))
                 .doOnError(LOG::error)
-                .subscribe();
+                .doOnSubscribe();
     }
 
     @Subscribe
@@ -290,7 +290,7 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
                 .subscribeOn(AndroidSchedulers.mainThread())
                 .doOnNext(e -> speedText.setText(String.format("%s km/h", Integer.toString(e.mAvrgSpeed))))
                 .doOnError(LOG::error)
-                .subscribe();
+                .doOnSubscribe();
     }
 
     @Subscribe

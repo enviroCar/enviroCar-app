@@ -31,7 +31,7 @@ import com.google.common.base.Preconditions;
 import org.envirocar.app.R;
 import org.envirocar.app.recording.RecordingType;
 
-import io.reactivex.Observable;
+import io.reactivex.rxjava3.core.Observable;
 
 /**
  * TODO JavaDoc

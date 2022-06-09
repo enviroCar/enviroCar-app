@@ -55,6 +55,7 @@ import org.envirocar.storage.EnviroCarVehicleDB;
 import javax.inject.Inject;
 
 import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
 
 
 /**
@@ -119,17 +120,17 @@ public class BaseApplication extends Application {
 
         // debug logging setting listener
         this.disposables.add(
-                ApplicationSettings.getDebugLoggingObservable(this)
+                (Disposable) ApplicationSettings.getDebugLoggingObservable(this)
                         .doOnNext(this::setDebugLogging)
                         .doOnError(LOG::error)
-                        .subscribe());
+                        .doOnSubscribe());
 
         // obfuscation setting changed listener
         this.disposables.add(
-                ApplicationSettings.getObfuscationObservable(this)
+                (Disposable) ApplicationSettings.getObfuscationObservable(this)
                         .doOnNext(bool -> LOG.info("Obfuscation enabled: %s", bool.toString()))
                         .doOnError(LOG::error)
-                        .subscribe());
+                        .doOnSubscribe());
 
         // register Intentfilter for logging screen changes
         IntentFilter screenIntentFilter = new IntentFilter();
@@ -147,7 +148,7 @@ public class BaseApplication extends Application {
                             }
                         })
                         .doOnError(LOG::error)
-                        .subscribe());
+                        .doOnSubscribe());
     }
 
     @Override

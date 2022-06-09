@@ -21,7 +21,8 @@ package org.envirocar.core.repository;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.entity.UserStatistic;
 
-import io.reactivex.Observable;
+import io.reactivex.rxjava3.core.Observable;
+
 
 /**
  * @author dewall

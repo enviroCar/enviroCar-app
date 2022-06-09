@@ -32,7 +32,7 @@ import java.math.RoundingMode;
 import java.util.List;
 
 import io.reactivex.observers.TestObserver;
-import io.reactivex.schedulers.Schedulers;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class InterpolationMeasurementProviderTest {
 

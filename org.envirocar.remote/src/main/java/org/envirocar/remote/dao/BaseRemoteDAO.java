@@ -28,7 +28,7 @@ import org.envirocar.remote.util.EnvirocarServiceUtils;
 
 import java.io.IOException;
 
-import io.reactivex.Observable;
+import io.reactivex.rxjava3.core.Observable;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Response;

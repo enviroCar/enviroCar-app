@@ -31,8 +31,12 @@ import org.envirocar.core.repository.UserStatisticRepository;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.reactivex.Observable;
-import io.reactivex.Scheduler;
+import io.reactivex.rxjava3.core.Observable;
+
+import io.reactivex.rxjava3.core.Scheduler;
+import io.reactivex.rxjava3.schedulers.Schedulers;
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+
 
 @Singleton
 public class GetAggregatedUserStatistic extends Interactor<AggregatedUserStatistic, GetAggregatedUserStatistic.Params> {

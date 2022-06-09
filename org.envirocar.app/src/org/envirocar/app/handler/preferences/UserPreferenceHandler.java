@@ -40,7 +40,7 @@ import org.envirocar.core.logging.Logger;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.reactivex.Completable;
+import io.reactivex.rxjava3.core.Completable;
 
 /**
  * TODO JavaDoc

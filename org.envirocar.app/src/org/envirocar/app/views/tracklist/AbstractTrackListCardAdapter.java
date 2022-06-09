@@ -52,7 +52,7 @@ import java.util.TimeZone;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import io.reactivex.Scheduler;
+import io.reactivex.rxjava3.core.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
 /**

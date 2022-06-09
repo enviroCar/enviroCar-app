@@ -132,7 +132,7 @@ public class AutoRecordingService extends ScopedBaseInjectorService implements A
                             updateAutoRecording();
                         })
                         .doOnError(LOG::error)
-                        .subscribe());
+                        .doOnSubscribe());
     }
 
     @Override

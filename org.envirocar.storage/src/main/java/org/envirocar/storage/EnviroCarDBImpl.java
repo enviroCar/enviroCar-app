@@ -38,9 +38,9 @@ import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.reactivex.Observable;
-import io.reactivex.ObservableTransformer;
-import io.reactivex.functions.Function;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.ObservableTransformer;
+import io.reactivex.rxjava3.functions.Function;
 
 
 @Singleton
@@ -251,7 +251,7 @@ public class EnviroCarDBImpl implements EnviroCarDB {
         }
     }
 
-    public Observable<TrackMetadata> updateTrackMetadataObservable(
+    public Observable updateTrackMetadataObservable(
             final Track track, final TrackMetadata trackMetadata) {
         return Observable.create(emitter -> {
             try {

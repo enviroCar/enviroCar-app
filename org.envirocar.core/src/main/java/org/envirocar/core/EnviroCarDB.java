@@ -26,7 +26,7 @@ import org.envirocar.core.util.TrackMetadata;
 
 import java.util.List;
 
-import io.reactivex.Observable;
+import io.reactivex.rxjava3.core.Observable;
 
 
 /**
@@ -106,6 +106,6 @@ public interface EnviroCarDB {
     void updateTrackMetadata(final Track track, final TrackMetadata trackMetadata) throws
             TrackSerializationException;
 
-    Observable<TrackMetadata> updateTrackMetadataObservable(final Track track, final TrackMetadata trackMetadata) throws
+    io.reactivex.rxjava3.core.Observable updateTrackMetadataObservable(final Track track, final TrackMetadata trackMetadata) throws
             TrackSerializationException;
 }

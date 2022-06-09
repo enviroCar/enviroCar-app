@@ -32,7 +32,8 @@ import org.envirocar.core.entity.TrackTable;
 import java.util.List;
 
 import io.reactivex.Flowable;
-import io.reactivex.Observable;
+import io.reactivex.rxjava3.core.Observable;
+
 
 @Dao
 public interface LocalTrackDAONew {

@@ -38,7 +38,7 @@ dependencies {
     api rootProject.ext.retrofit2
     api rootProject.ext.retrofitGson2
     api rootProject.ext.retrofitAdapters2
-    api rootProject.ext.retrofitRxJava2
+    api rootProject.ext.retrofitRxJava3
 
     // third party
     implementation rootProject.ext.apacheCommons

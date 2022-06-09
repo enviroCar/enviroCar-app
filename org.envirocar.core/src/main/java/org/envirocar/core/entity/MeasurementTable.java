@@ -35,7 +35,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import io.reactivex.functions.Function;
+
+import io.reactivex.rxjava3.functions.Function;
 
 @Entity(tableName = "measurements")
 public class MeasurementTable {

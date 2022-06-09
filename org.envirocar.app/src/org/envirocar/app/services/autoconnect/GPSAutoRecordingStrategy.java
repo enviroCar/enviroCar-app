@@ -95,7 +95,7 @@ public class GPSAutoRecordingStrategy implements AutoRecordingStrategy {
                 RxBroadcastReceiver.create(service, new IntentFilter(TRANSITIONS_RECEIVER_ACTION))
                         .doOnNext(this::onReceiveTransitionIntent)
                         .doOnError(LOG::error)
-                        .subscribe());
+                        .doOnSubscribe());
     }
 
     @Override
