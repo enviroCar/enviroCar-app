@@ -1,23 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-
     Copyright (C) 2013 - 2021 the enviroCar community
-
     This file is part of the enviroCar app.
-
     The enviroCar app is free software: you can redistribute it and/or
     modify it under the terms of the GNU General Public License as published
     by the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-
     The enviroCar app is distributed in the hope that it will be useful, but
     WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
     Public License for more details.
-
     You should have received a copy of the GNU General Public License along
     with the enviroCar app. If not, see http://www.gnu.org/licenses/.
-
 -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
@@ -42,9 +36,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:layout_marginLeft="@dimen/spacing_large" />
+        android:layout_centerInParent="true"
+        android:layout_marginLeft="8dp" />
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -53,34 +46,62 @@
         android:layout_centerInParent="true"
         android:layout_toLeftOf="@id/activity_car_selection_layout_carlist_entry_radio"
         android:layout_toRightOf="@id/activity_car_selection_layout_carlist_entry_icon"
-        android:orientation="vertical"
-        android:paddingLeft="24dp"
-        android:paddingRight="@dimen/spacing_large">
+        android:orientation="horizontal"
+        android:paddingLeft="8dp">
 
-
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/activity_car_selection_layout_carlist_entry_firstline"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/roboto_medium"
-            android:singleLine="true"
-            android:text="@string/dashboard_carselection_no_car_selected"
-            android:textColor="#000000"
-            app:autoSizeMaxTextSize="20sp"
-            app:autoSizeMinTextSize="15sp"
-            app:autoSizeTextType="uniform" />
-
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/activity_car_selection_layout_carlist_entry_secondline"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/roboto"
-            android:singleLine="true"
-            android:text="@string/dashboard_carselection_no_car_selected_advise"
-            android:textColor="#000000"
-            app:autoSizeMaxTextSize="15sp"
-            app:autoSizeMinTextSize="7sp"
-            app:autoSizeTextType="uniform" />
+            android:layout_alignWithParentIfMissing="true"
+            android:layout_centerInParent="true"
+            android:layout_toLeftOf="@id/activity_car_selection_layout_carlist_entry_radio"
+            android:layout_toRightOf="@id/activity_car_selection_layout_carlist_entry_icon"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/activity_car_selection_layout_carlist_entry_firstline"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="marquee"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:fontFamily="@font/roboto_medium"
+                android:marqueeRepeatLimit="marquee_forever"
+                android:scrollHorizontally="true"
+                android:singleLine="true"
+                android:text="@string/dashboard_carselection_no_car_selected"
+                android:textColor="#000000"
+                app:autoSizeMaxTextSize="20sp"
+                app:autoSizeMinTextSize="15sp"
+                app:autoSizeTextType="uniform" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/activity_car_selection_layout_carlist_entry_secondline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/roboto"
+                android:singleLine="true"
+                android:text="@string/dashboard_carselection_no_car_selected_advise"
+                android:textColor="#000000"
+                app:autoSizeMaxTextSize="15sp"
+                app:autoSizeMinTextSize="7sp"
+                app:autoSizeTextType="uniform" />
+
+        </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/activity_car_selection_layout_carlist_delete_icon"
+            style="?attr/borderlessButtonStyle"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_gravity="center_vertical|right"
+            android:alpha="0.54"
+            android:background="?selectableItemBackgroundBorderless"
+            android:gravity="right"
+            android:src="@drawable/ic_delete_black_24dp"
+            android:visibility="visible" />
 
     </LinearLayout>
 
@@ -88,7 +109,7 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_alignParentBottom="true"
-        android:layout_marginLeft="24dp"
+        android:layout_marginLeft="8dp"
         android:layout_toRightOf="@id/activity_car_selection_layout_carlist_entry_icon"
         android:background="@color/envirocar_color_divider_grey" />
 
