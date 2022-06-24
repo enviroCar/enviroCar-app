@@ -18,7 +18,6 @@
  */
 package org.envirocar.app.views.others;
 
-
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -128,12 +127,21 @@ public class OthersFragment extends BaseInjectorFragment {
         startActivity(intent);
     }
 
+    @OnClick(R.id.othersShare)
+    protected void onShareClicked() {
+        Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+        sharingIntent.setType("text/plain");
+        sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "enviroCar App");
+        sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, "Hi, Download enviroCar app to Join the community - be a Citizen Scientist! :https://play.google.com/store/apps/details?id=org.envirocar.app");
+        startActivity(Intent.createChooser(sharingIntent, "Share via"));
+    }
+
     @OnClick(R.id.othersReportIssue)
     protected void onReportIssueClicked() {
 //        if (checkPermissions()) {
-            //access granted
-            Intent intent = new Intent(getActivity(), SendLogFileActivity.class);
-            startActivity(intent);
+        //access granted
+        Intent intent = new Intent(getActivity(), SendLogFileActivity.class);
+        startActivity(intent);
 //        } else {
 //            requestPermissions();
 //        }
@@ -270,9 +278,9 @@ public class OthersFragment extends BaseInjectorFragment {
     private void showSnackbar(final int mainTextStringId, final int actionStringId,
                               View.OnClickListener listener) {
         Snackbar.make(
-                getActivity().findViewById(R.id.navigation),
-                getString(mainTextStringId),
-                Snackbar.LENGTH_INDEFINITE)
+                        getActivity().findViewById(R.id.navigation),
+                        getString(mainTextStringId),
+                        Snackbar.LENGTH_INDEFINITE)
                 .setAction(getString(actionStringId), listener).show();
     }
 
