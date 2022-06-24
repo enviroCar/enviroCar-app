@@ -219,10 +219,10 @@
                 android:orientation="horizontal">
 
                 <ImageView
-                    android:layout_width="40dp"
+                    android:layout_width="36dp"
                     android:layout_height="40dp"
                     android:padding="6dp"
-                    android:src="@drawable/others_share"/>
+                    android:src="@drawable/others_share" />
 
                 <TextView
                     android:layout_width="match_parent"
