@@ -116,6 +116,12 @@ ext {
     //acra
     acra = 'ch.acra:acra-core:5.7.0'
 
+    //Voice command
+    def aimyboxVersion = "0.17.5.2"
+    aimyboxCore = "com.just-ai.aimybox:core:$aimyboxVersion"
+    kaldiSpeechkit = "com.just-ai.aimybox:kaldi-speechkit:$aimyboxVersion"
+    vosk = "com.alphacephei:vosk-android:0.3.32"
+
     // other third party dependencies.
     materialDialogs = 'com.afollestad.material-dialogs:core:0.9.6.0'
     helloCharts = 'com.github.lecho:hellocharts-library:1.5.8@aar'

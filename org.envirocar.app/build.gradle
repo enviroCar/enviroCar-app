@@ -56,6 +56,13 @@ dependencies {
         transitive = true
     }
 
+    //Voice command
+    implementation rootProject.ext.aimyboxCore
+    implementation(rootProject.ext.kaldiSpeechkit){
+        exclude group: 'net.java.dev.jna', module: 'jna'
+    }
+    implementation rootProject.ext.vosk
+
     // Test
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.mockito:mockito-core:3.11.0'
@@ -150,6 +157,10 @@ android {
     packagingOptions {
         exclude 'META-INF/services/javax.annotation.processing.Processor'
         exclude 'META-INF/rxjava.properties'
+        pickFirst 'lib/arm64-v8a/libjnidispatch.so'
+        pickFirst 'lib/armeabi-v7a/libjnidispatch.so'
+        pickFirst 'lib/x86/libjnidispatch.so'
+        pickFirst 'lib/x86_64/libjnidispatch.so'
     }
 
     defaultConfig {

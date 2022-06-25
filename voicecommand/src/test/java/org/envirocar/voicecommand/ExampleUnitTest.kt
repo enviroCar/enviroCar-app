@@ -1,4 +1,4 @@
-package com.example.voicecommand
+package org.envirocar.voicecommand
 
 import org.junit.Test
 
