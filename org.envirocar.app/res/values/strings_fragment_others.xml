@@ -25,6 +25,7 @@
     <string name="others_help">Help</string>
     <string name="others_report_issue">Report Issue</string>
     <string name="others_rate_us">Rate Us</string>
+    <string name="others_share">Share</string>
     <string name="others_logout">Logout</string>
     <string name="others_close_envirocar">Close enviroCar</string>
 </resources>

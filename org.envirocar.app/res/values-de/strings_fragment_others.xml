@@ -25,6 +25,7 @@
     <string name="others_help">Hilfe</string>
     <string name="others_report_issue">Problem melden</string>
     <string name="others_rate_us">Bewerte uns</string>
+    <string name="others_share">Teilen</string>
     <string name="others_logout">Ausloggen</string>
     <string name="others_close_envirocar">enviroCar Schließen</string>
 </resources>
