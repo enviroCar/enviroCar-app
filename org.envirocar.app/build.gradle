@@ -61,6 +61,7 @@ dependencies {
     implementation(rootProject.ext.kaldiSpeechkit){
         exclude group: 'net.java.dev.jna', module: 'jna'
     }
+    implementation rootProject.ext.googlePlatformSpeechkit
     implementation rootProject.ext.vosk
 
     // Test

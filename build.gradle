@@ -120,6 +120,8 @@ ext {
     def aimyboxVersion = "0.17.5.2"
     aimyboxCore = "com.just-ai.aimybox:core:$aimyboxVersion"
     kaldiSpeechkit = "com.just-ai.aimybox:kaldi-speechkit:$aimyboxVersion"
+    googlePlatformSpeechkit = "com.just-ai.aimybox:google-platform-speechkit:$aimyboxVersion"
+
     vosk = "com.alphacephei:vosk-android:0.3.32"
 
     // other third party dependencies.
