@@ -121,8 +121,14 @@ ext {
     aimyboxCore = "com.just-ai.aimybox:core:$aimyboxVersion"
     kaldiSpeechkit = "com.just-ai.aimybox:kaldi-speechkit:$aimyboxVersion"
     googlePlatformSpeechkit = "com.just-ai.aimybox:google-platform-speechkit:$aimyboxVersion"
-
+    rasaApi = "com.just-ai.aimybox:rasa-api:${aimyboxVersion}"
     vosk = "com.alphacephei:vosk-android:0.3.32"
+    devJna = "net.java.dev.jna:jna:5.10.0@aar"
+    aimyboxComponents = "com.just-ai.aimybox:components:$aimyboxVersion"
+
+    //coroutines
+    lifecycleExtension = "androidx.lifecycle:lifecycle-extensions:2.2.0"
+    coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.0"
 
     // other third party dependencies.
     materialDialogs = 'com.afollestad.material-dialogs:core:0.9.6.0'

@@ -58,11 +58,17 @@ dependencies {
 
     //Voice command
     implementation rootProject.ext.aimyboxCore
+    implementation rootProject.ext.aimyboxComponents
     implementation(rootProject.ext.kaldiSpeechkit){
         exclude group: 'net.java.dev.jna', module: 'jna'
     }
     implementation rootProject.ext.googlePlatformSpeechkit
+    implementation rootProject.ext.rasaApi
     implementation rootProject.ext.vosk
+    implementation rootProject.ext.devJna
+
+    implementation rootProject.ext.lifecycleExtension
+    implementation rootProject.ext.coroutines
 
     // Test
     testImplementation 'junit:junit:4.13.2'
