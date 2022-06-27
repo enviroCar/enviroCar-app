@@ -21,7 +21,13 @@ package org.envirocar.app.views.others;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.widget.NestedScrollView;
+
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ScrollView;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.envirocar.app.R;
 
@@ -38,11 +44,25 @@ public class HelpActivity extends AppCompatActivity {
     @BindView(R.id.activity_help_layout_general_toolbar)
     protected Toolbar toolbar;
 
+    NestedScrollView nestedScrollView;
+    FloatingActionButton floatingActionButton;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_help_layout_general);
+
+        nestedScrollView = findViewById(R.id.helpScroll);
+        floatingActionButton = findViewById(R.id.topScroll);
+
+        floatingActionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                nestedScrollView.fullScroll(NestedScrollView.FOCUS_UP);
+                floatingActionButton.show();
+            }
+        });
 
         // Inject views
         ButterKnife.bind(this);

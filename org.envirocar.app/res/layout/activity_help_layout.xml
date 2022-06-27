@@ -22,6 +22,7 @@
 <androidx.core.widget.NestedScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/helpScroll"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:clipToPadding="false"
@@ -286,5 +287,17 @@
             style="@style/enviroCar.Help.content"
             android:autoLink="email"
             android:text="@string/help_content_6"/>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/topScroll"
+            android:tint="#8CBF3F"
+            android:backgroundTint="#8CBF3F"
+            android:src="@drawable/ic_scroll_up"
+            android:layout_marginStart="220dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>
