@@ -128,6 +128,7 @@ public class OBDAutoRecordingStrategy implements AutoRecordingStrategy {
         }
 
         this.updateDetectionObservable();
+        checkPreconditions();
     }
 
     @Override

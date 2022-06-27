@@ -72,6 +72,7 @@ import butterknife.BindArray;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.OnFocusChange;
 
 /**
  * An activity for reporting issues.
@@ -147,6 +148,20 @@ public class SendLogFileActivity extends BaseInjectorActivity {
             }
         } catch (Exception e) {
             LOG.warn(e.getMessage(), e);
+        }
+    }
+
+    @OnFocusChange(R.id.report_issue_time_since_crash)
+    public void onWhenFieldFocusChange(View v, boolean hasFocus) {
+        if (!hasFocus) {
+            hideKeyboard(v);
+        }
+    }
+
+    @OnFocusChange(R.id.report_issue_desc)
+    public void onCommentsFocusChange(View v, boolean hasFocus) {
+        if (!hasFocus) {
+            hideKeyboard(v);
         }
     }
 

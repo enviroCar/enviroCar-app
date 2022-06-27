@@ -23,10 +23,6 @@
 
     <PreferenceCategory android:title="@string/pref_settings_general">
         <CheckBoxPreference
-            android:key="pref_always_upload"
-            android:title="@string/pref_automatic_upload"
-            android:summary="@string/pref_automatic_upload_sub"/>
-        <CheckBoxPreference
             android:key="pref_display_always_activ"
             android:title="@string/pref_display_always_activ"
             android:summary="@string/pref_display_always_activ_sub"/>

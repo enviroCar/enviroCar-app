@@ -47,6 +47,7 @@ import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.core.logging.Logger;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.IllegalStateException;
 import java.util.List;
 import java.util.Set;
 
@@ -147,7 +148,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
         if (mBTDiscoverySubscription != null && !mBTDiscoverySubscription.isDisposed()) {
             mBTDiscoverySubscription.dispose();
         }
-
+        mNewDevicesListView.setOnItemClickListener(null);
         super.onDestroy();
     }
 
@@ -496,12 +497,16 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
                         pairingIsRunning = false;
                         // Device is paired. Add it to the array adapter for paired devices and
                         // remove it from the adapter for new devices.
-                        showSnackbar(String.format(
-                                getString(R.string.obd_selection_pairing_success_template),
-                                device.getName()));
-                        // TODO Issue: Unstable bluetooth connect workflow #844
-                        //  --> under the in the issue explained circumstances the getString()-methode
-                        //  fails at this point because the fragment has no context
+                        try {
+                            showSnackbar(String.format(
+                                    getString(R.string.obd_selection_pairing_success_template),
+                                    device.getName()));
+                            // TODO Issue: Unstable bluetooth connect workflow #844
+                            //  --> under the in the issue explained circumstances the getString()-methode
+                            //  fails at this point because the fragment has no context
+                        } catch (IllegalStateException e) {
+                            LOGGER.warn(e.getMessage(), e);
+                        }
 
                         mNewDevicesArrayAdapter.remove(device);
                         mPairedDevicesAdapter.add(device);

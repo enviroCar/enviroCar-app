@@ -51,6 +51,10 @@ public class GetLatestTermsOfUse extends Interactor<Optional<TermsOfUse>, Void> 
         this.termsOfUseRepository = termsOfUseRepository;
     }
 
+    public Observable<Optional<TermsOfUse>> asObservable() {
+        return this.buildObservable(null);
+    }
+
     @Override
     protected Observable<Optional<TermsOfUse>> buildObservable(Void aVoid) {
         return termsOfUseRepository.getAllTermsOfUseObservable()

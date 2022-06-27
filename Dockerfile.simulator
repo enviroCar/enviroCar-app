@@ -1,0 +1,31 @@
+FROM mingc/android-build-box:1.24.0
+
+ARG ORG_GRADLE_PROJECT_MAPBOX_DOWNLOADS_TOKEN
+
+RUN mkdir /app
+WORKDIR /app
+
+# rm the NDK because it breaks the build
+RUN rm -rf /opt/android-sdk/ndk/current
+RUN rm -rf /opt/android-sdk/ndk/23.1.7779620
+
+COPY ./gradle /app/gradle
+COPY ./gradlew /app
+COPY ./gradle.properties /app
+COPY ./settings.gradle /app
+COPY ./build.gradle /app
+
+# add a step that downloads the latest gradle wrapper before the actual build
+#RUN ./gradlew help
+
+COPY . /app
+
+
+RUN ./gradlew assembleDebug -p android-obd-simulator
+
+# build the image with:
+# docker build --build-arg ORG_GRADLE_PROJECT_MAPBOX_DOWNLOADS_TOKEN=<mapbox-api-token> -t envirocar-app-build:latest -f Dockerfile.build .
+#
+# to copy the final APK from the image to the host path /tmp/envirocar:
+# docker run --rm -v /tmp/envirocar:/mnt/out envirocar-app-build:latest cp /app/org.envirocar.app/build/outputs/apk/debug/org.envirocar.app-debug.apk /mnt/out
+

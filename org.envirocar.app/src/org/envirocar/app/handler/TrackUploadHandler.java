@@ -19,21 +19,24 @@
 package org.envirocar.app.handler;
 
 import android.app.Activity;
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.content.Context;
+import androidx.core.app.NotificationCompat;
 
 import com.google.common.base.Preconditions;
 
+import com.google.gson.JsonArray;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.agreement.AgreementManager;
 import org.envirocar.app.handler.preferences.CarPreferenceHandler;
 import org.envirocar.app.handler.preferences.UserPreferenceHandler;
 import org.envirocar.core.EnviroCarDB;
-import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
-import org.envirocar.core.exception.NoMeasurementsException;
-import org.envirocar.core.exception.TrackUploadException;
+import org.envirocar.core.exception.*;
 import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.logging.Logger;
+import org.envirocar.core.util.TrackMetadata;
 import org.envirocar.core.utils.TrackUtils;
 import org.envirocar.core.utils.rx.OptionalOrError;
 
@@ -68,6 +71,7 @@ public class TrackUploadHandler {
     private final TrackDAOHandler trackDAOHandler;
     private final UserPreferenceHandler mUserManager;
     private final AgreementManager mAgreementManager;
+    private final NotificationManager mNotificationManager;
 
     /**
      * Normal constructor for this manager. Specify the context and the dbadapter.
@@ -82,7 +86,8 @@ public class TrackUploadHandler {
             DAOProvider daoProvider,
             TrackDAOHandler trackDAOHandler,
             UserPreferenceHandler userHandler,
-            AgreementManager agreementManager) {
+            AgreementManager agreementManager,
+            NotificationManager notificationManager) {
         this.mContext = context;
         this.mEnviroCarDB = enviroCarDB;
         this.mCarManager = carPreferenceHandler;
@@ -90,6 +95,7 @@ public class TrackUploadHandler {
         this.trackDAOHandler = trackDAOHandler;
         this.mUserManager = userHandler;
         this.mAgreementManager = agreementManager;
+        this.mNotificationManager = notificationManager;
     }
 
     /**
@@ -125,10 +131,10 @@ public class TrackUploadHandler {
 
                         @Override
                         public void onError(Throwable e) {
+                            LOG.error(e);
+
                             if (emitter.isDisposed())
                                 return;
-
-                            LOG.error(e);
                             emitter.onError(e);
                         }
 
@@ -169,6 +175,41 @@ public class TrackUploadHandler {
                 .flatMap(tracks1 -> Observable.fromIterable(tracks1))
                 .flatMap(track -> uploadTrack(track)
                         .lift(new OptionalOrErrorMappingOperator()));
+    }
+
+    public Track uploadTrackChunkStart(Track track) throws ResourceConflictException, NotConnectedException, DataCreationFailureException, UnauthorizedException {
+        track.setTrackStatus(Track.TrackStatus.ONGOING);
+        
+        // metadata
+        TrackMetadata meta = trackDAOHandler.updateTrackMetadataObservable(track, mUserManager.getUser().getTermsOfUseVersion()).blockingFirst();
+        track.setMetadata(meta);
+
+        LOG.info("Trying to create track." + track);
+        mCarManager
+                .assertTemporaryCar(track.getCar());
+        try {
+            return trackDAOHandler.createRemoteTrack(track);
+        } catch (NotConnectedException e) {
+            Notification forgroundNotification = new NotificationCompat.Builder(mContext)
+                .setSmallIcon(R.drawable.ic_cloud_upload_white_24dp)
+                .setContentTitle(mContext.getString(R.string.notification_autoupload_error_sub))
+                .setPriority(Integer.MAX_VALUE)
+                .build();
+            mNotificationManager.notify(100, forgroundNotification);
+            throw e;
+        }
+    }
+
+    public void uploadTrackChunk(String remoteID, JsonArray trackFeatures) throws NotConnectedException, UnauthorizedException {
+        LOG.info("Trying to update track.");
+        trackDAOHandler.updateRemoteTrack(remoteID, trackFeatures);
+        LOG.info("Track updated.");
+    }
+
+    public void uploadTrackChunkEnd(Track mTrack) throws NotConnectedException, UnauthorizedException {
+        LOG.info("Trying to finished track.");
+        trackDAOHandler.finishRemoteTrack(mTrack);
+        LOG.info("Track finished.");
     }
 
     private Observable<Track> uploadTrack(Track track) {
@@ -242,7 +283,12 @@ public class TrackUploadHandler {
         return trackObservable -> trackObservable.flatMap(
                 track -> trackDAOHandler
                         .updateTrackMetadataObservable(track, mUserManager.getUser().getTermsOfUseVersion())
-                        .map(trackMetadata -> track));
+                        .map(trackMetadata -> {
+                            // add the metadata to the current track object as well, because this is used in
+                            // current upload process
+                            track.setMetadata(trackMetadata);
+                            return track;
+                        }));
     }
 
     private class UploadExceptionMappingOperator implements ObservableOperator<Track, Track> {
@@ -257,6 +303,7 @@ public class TrackUploadHandler {
 
                 @Override
                 public void onError(Throwable e) {
+                    LOG.warn(e.getMessage(), e);
                     Throwable result = e;
                     if (e instanceof TrackUploadException) {
                         // do nothing
@@ -291,6 +338,7 @@ public class TrackUploadHandler {
 
                 @Override
                 public void onError(Throwable e) {
+                    LOG.warn(e.getMessage(), e);
                     if (e instanceof TrackUploadException) {
                         TrackUploadException ex = (TrackUploadException) e;
                         LOG.error(String.format("Track not uploaded. Reason -> [%s]", ex.getReason()));

@@ -24,10 +24,9 @@ import android.os.PowerManager;
 import com.squareup.otto.Bus;
 
 import org.envirocar.algorithm.MeasurementProvider;
-import org.envirocar.app.handler.ApplicationSettings;
-import org.envirocar.app.handler.BluetoothHandler;
-import org.envirocar.app.handler.InterpolationMeasurementProvider;
+import org.envirocar.app.handler.*;
 import org.envirocar.app.handler.preferences.CarPreferenceHandler;
+import org.envirocar.app.interactor.UploadTrack;
 import org.envirocar.app.recording.notification.SpeechOutput;
 import org.envirocar.app.recording.provider.LocationProvider;
 import org.envirocar.app.recording.provider.RecordingDetailsProvider;
@@ -36,6 +35,7 @@ import org.envirocar.app.recording.strategy.GPSRecordingStrategy;
 import org.envirocar.app.recording.strategy.OBDRecordingStrategy;
 import org.envirocar.app.recording.strategy.RecordingStrategy;
 import org.envirocar.app.recording.strategy.obd.OBDConnectionHandler;
+import org.envirocar.app.services.trackchunks.TrackchunkUploadService;
 import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.EnviroCarDB;
 
@@ -43,6 +43,7 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
+import org.envirocar.remote.dao.RemoteTrackDAO;
 
 @Module
 public class RecordingModule {
@@ -78,6 +79,12 @@ public class RecordingModule {
         return new LocationProvider(context, eventBus);
     }
 
+    @Provides
+    @RecordingScope
+    public TrackchunkUploadService provideTrackchunkUploadService(@InjectApplicationScope Context context, EnviroCarDB enviroCarDB, Bus eventBus, TrackUploadHandler trackUploadHandler, TrackDAOHandler trackDAOHandler) {
+        return new TrackchunkUploadService(context, enviroCarDB, eventBus, trackUploadHandler, trackDAOHandler);
+    }
+
 //    @Provides
 //    @RecordingScope
 //    public RecordingNotification provideRecordingNotification(@InjectApplicationScope Context context, Bus eventBus) {
@@ -102,7 +109,7 @@ public class RecordingModule {
     public RecordingStrategy.Factory provideRecordingStrategyFactory(
             @InjectApplicationScope Context context, Bus eventBus, SpeechOutput speechOutput, BluetoothHandler bluetoothHandler,
             OBDConnectionHandler obdConnectionHandler, MeasurementProvider measurementProvider,
-            TrackDatabaseSink trackDatabaseSink, LocationProvider locationProvider, CarPreferenceHandler carPreferenceHandler) {
+            TrackDatabaseSink trackDatabaseSink, LocationProvider locationProvider, CarPreferenceHandler carPreferenceHandler, TrackchunkUploadService trackchunkUploadService) {
         return () -> {
             RecordingType recordingType = ApplicationSettings.getSelectedRecordingTypeObservable(context).blockingFirst();
             switch (recordingType) {
@@ -113,7 +120,7 @@ public class RecordingModule {
                             trackDatabaseSink, locationProvider, carPreferenceHandler);
                 case ACTIVITY_RECOGNITION_BASED:
                     return new GPSRecordingStrategy(context, eventBus, locationProvider, measurementProvider,
-                            trackDatabaseSink, carPreferenceHandler);
+                            trackDatabaseSink, carPreferenceHandler, trackchunkUploadService);
             }
         };
     }

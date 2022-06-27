@@ -18,7 +18,7 @@
  */
 package org.envirocar.core.utils.rx.dialogs;
 
-import android.app.Activity;
+import android.content.Context;
 import android.text.Spanned;
 
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -47,7 +47,7 @@ public abstract class AbstractReactiveAcceptDialog<T extends BaseEntity> {
     protected final Scheduler.Worker backgroundWorker = Schedulers.io().createWorker();
 
     // instance specific variables
-    protected final Activity activityContext;
+    protected final Context activityContext;
     protected final T entity;
     protected final Params params;
 
@@ -57,7 +57,7 @@ public abstract class AbstractReactiveAcceptDialog<T extends BaseEntity> {
      * @param activityContext the context of the currently visible activity
      * @param entity          the entity to show the dialog for.
      */
-    public AbstractReactiveAcceptDialog(Activity activityContext, T entity, Params params) {
+    public AbstractReactiveAcceptDialog(Context activityContext, T entity, Params params) {
         this.activityContext = activityContext;
         this.entity = entity;
         this.params = params;
@@ -67,13 +67,17 @@ public abstract class AbstractReactiveAcceptDialog<T extends BaseEntity> {
      * @return the dialog observable.
      */
     public Observable<T> asObservable() {
+        LOG.info("AbstractReactiveAcceptDialog#asObservable");
         return Observable.create(new ObservableOnSubscribe<T>() {
             private MaterialDialog dialog;
 
             @Override
             public void subscribe(ObservableEmitter<T> emitter) throws Exception {
+                LOG.info("AbstractReactiveAcceptDialog#asObservable/subscribe");
                 MaterialDialog.Builder builder = createDialogBuilder(emitter, params);
+                LOG.info("AbstractReactiveAcceptDialog#asObservable/subscribe after builder");
                 mainThreadWorker.schedule(() -> dialog = builder.show());
+                LOG.info("AbstractReactiveAcceptDialog#asObservable/subscribe after builder.show()");
 
                 emitter.setDisposable(new Disposable() {
                     @Override
@@ -97,6 +101,7 @@ public abstract class AbstractReactiveAcceptDialog<T extends BaseEntity> {
      * @return the ready designed dialog builder.
      */
     protected MaterialDialog.Builder createDialogBuilder(ObservableEmitter<T> subscriber, Params params) {
+        LOG.info("AbstractReactiveAcceptDialog#createDialogBuilder");
         // Create the terms of use dialog.
         if (params.getUser() != null) {
             User user = params.getUser();
@@ -115,6 +120,7 @@ public abstract class AbstractReactiveAcceptDialog<T extends BaseEntity> {
      * @return the created dialog instance.
      */
     private MaterialDialog.Builder createAcceptDialogBuilder(Spanned content, Runnable onPositive, Runnable onNegative) {
+        LOG.info("AbstractReactiveAcceptDialog#createAcceptDialogBuilder");
         return new MaterialDialog.Builder(activityContext)
                 .title(params.getTitleRes())
                 .content(content)
@@ -132,6 +138,7 @@ public abstract class AbstractReactiveAcceptDialog<T extends BaseEntity> {
      * @return
      */
     private MaterialDialog.Builder createInfoDialogBuilder(Spanned content) {
+        LOG.info("AbstractReactiveAcceptDialog#createInfoDialogBuilder");
         return new MaterialDialog.Builder(activityContext)
 //                .title(params.getTitleRes())
                 .content(content)

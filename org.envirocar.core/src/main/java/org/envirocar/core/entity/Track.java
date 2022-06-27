@@ -50,6 +50,7 @@ public interface Track extends BaseEntity<Track>, Comparable<Track> {
     String KEY_TRACK_FEATURES_PROPERTIES_PHENOMENONS = "phenomenons";
     String KEY_TRACK_FEATURES_PROPERTIES_PHENOMENONS_VALUE = "value";
     String KEY_TRACK_FEATURES_PROPERTIES_PHENOMENONS_UNIT = "unit";
+    String KEY_TRACK_STATUS = "status";
 
     enum TrackStatus {
         ONGOING {

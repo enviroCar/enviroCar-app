@@ -334,14 +334,15 @@ public class CarPreferenceHandler implements LifecycleObserver {
                     car.getModel() == null ||
                     car.getConstructionYear() == 0 ||
                     car.getEngineDisplacement() == 0)
-                throw new Exception("Empty value!");
+                throw new Exception("Empty value!: " + car);
             if (car.getManufacturer().isEmpty() || car.getModel().isEmpty()) {
-                throw new Exception("Empty value!");
+                throw new Exception("Empty value!: " + car);
             }
 
         } catch (Exception e) {
             //TODO i18n
             Toast.makeText(mContext, mContext.getString(R.string.car_selection_not_all_values_defined), Toast.LENGTH_SHORT).show();
+            LOG.warn(e.getMessage(), e);
             return;
         }
 
