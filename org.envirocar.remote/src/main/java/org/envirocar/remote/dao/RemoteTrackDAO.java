@@ -20,20 +20,19 @@ package org.envirocar.remote.dao;
 
 import com.google.common.base.Preconditions;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import org.envirocar.core.UserManager;
 import org.envirocar.core.dao.TrackDAO;
 import org.envirocar.core.entity.Track;
-import org.envirocar.core.exception.DataCreationFailureException;
-import org.envirocar.core.exception.DataRetrievalFailureException;
-import org.envirocar.core.exception.NotConnectedException;
-import org.envirocar.core.exception.ResourceConflictException;
-import org.envirocar.core.exception.UnauthorizedException;
+import org.envirocar.core.exception.*;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.remote.service.EnviroCarService;
 import org.envirocar.remote.service.TrackService;
 import org.envirocar.remote.util.EnvirocarServiceUtils;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -353,6 +352,84 @@ public class RemoteTrackDAO extends BaseRemoteDAO<TrackDAO, TrackService> implem
                 EnvirocarServiceUtils.assertStatusCode(response);
             }
         } catch (IOException e) {
+            throw new NotConnectedException(e);
+        } catch (ResourceConflictException e) {
+            throw new NotConnectedException(e);
+        } catch (Exception e) {
+            LOG.warn("WARNING!!!");
+            throw e;
+        }
+    }
+
+    @Override
+    public void updateTrack(String remoteID, JsonArray trackFeatures) throws DataUpdateFailureException, NotConnectedException, UnauthorizedException {
+        Preconditions.checkState(remoteID != null, "No RemoteID for this Track.");
+        LOG.info(String.format("updateTrack(%s)", remoteID));
+
+        // If not logged in, then throw an exception
+        if (!userManager.isLoggedIn()) {
+            throw new UnauthorizedException("No User logged in.");
+        }
+
+        JsonObject featureCollection = new JsonObject();
+        featureCollection.addProperty("type", "FeatureCollection");
+        featureCollection.add("properties", new JsonObject());
+        featureCollection.add("features", trackFeatures);
+
+        // Init the retrofit remoteService endpoint and the update call
+        final TrackService trackService = EnviroCarService.getTrackService();
+        Call<ResponseBody> updateTrackCall = trackService.updateTrack(userManager.getUser()
+                .getUsername(), remoteID, featureCollection);
+
+        try {
+            // Execute the call
+            Response<ResponseBody> response = updateTrackCall.execute();
+
+            // Check whether the call was successful or not
+            if (!response.isSuccessful()) {
+                LOG.warn(String.format("updateTrack(): Error while updating remote track."));
+                EnvirocarServiceUtils.assertStatusCode(response);
+            }
+        } catch (IOException e) {
+            throw new NotConnectedException(e);
+        } catch (ResourceConflictException e) {
+            throw new NotConnectedException(e);
+        } catch (Exception e) {
+            LOG.warn("WARNING!!!");
+            throw e;
+        }
+
+    }
+
+    @Override
+    public void finishTrack(Track track) throws UnauthorizedException, NotConnectedException {
+        LOG.info("finishTrack()");
+
+        // check whether the getUserStatistic is logged in
+        if (!userManager.isLoggedIn()) {
+            throw new UnauthorizedException("The getUserStatistic is not logged in");
+        }
+
+        track.setTrackStatus(Track.TrackStatus.FINISHED);
+
+        //remove measurements
+        track.setMeasurements(new ArrayList<>());
+
+        // Initiate the remoteService and its call
+        final TrackService trackService = EnviroCarService.getTrackService();
+        Call<ResponseBody> finishTrackCall =
+                trackService.finishTrack(userManager.getUser().getUsername(), track.getRemoteID(), track);
+
+        try {
+            Response<ResponseBody> response = finishTrackCall.execute();
+
+            if (!response.isSuccessful()) {
+                LOG.severe("Error while finishing track: " + response.message());
+                LOG.severe(response.errorBody().string());
+                EnvirocarServiceUtils.assertStatusCode(response.code(),
+                        response.message(), response.errorBody().string());
+            }
+        }catch (IOException e) {
             throw new NotConnectedException(e);
         } catch (ResourceConflictException e) {
             throw new NotConnectedException(e);

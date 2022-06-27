@@ -16,12 +16,11 @@ COPY ./settings.gradle /app
 COPY ./build.gradle /app
 
 # add a step that downloads the latest gradle wrapper before the actual build
-#RUN ./gradlew help
+RUN ./gradlew --help --no-daemon
 
 COPY . /app
 
-
-RUN ./gradlew assembleDebug
+RUN ./gradlew assembleDebug --no-daemon -p org.envirocar.app
 
 # build the image with:
 # docker build --build-arg ORG_GRADLE_PROJECT_MAPBOX_DOWNLOADS_TOKEN=<mapbox-api-token> -t envirocar-app-build:latest -f Dockerfile.build .
