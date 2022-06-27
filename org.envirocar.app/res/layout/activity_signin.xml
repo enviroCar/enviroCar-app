@@ -77,17 +77,6 @@
             app:layout_constraintTop_toBottomOf="@+id/textView6"
             app:layout_constraintWidth_max="500dp">
 
-            <!--<androidx.appcompat.widget.AppCompatEditText
-                android:id="@+id/activity_signin_username_input"
-                style="@style/envirocar.login.edittext"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/login_edittext_rounded_corner_shape"
-                android:drawableStart="@drawable/ic_action_user"
-                android:hint="@string/username"
-                android:imeOptions="actionNext"
-                android:singleLine="true" />-->
-
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/activity_signin_username_input"
                 android:layout_width="match_parent"
@@ -118,16 +107,6 @@
             app:layout_constraintWidth_max="500dp"
             app:endIconMode="password_toggle"
             app:endIconDrawable="@drawable/custom_password_eye">
-
-            <!--<androidx.appcompat.widget.AppCompatEditText
-                android:id="@+id/activity_login_password_input"
-                style="@style/envirocar.login.edittext"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:drawableStart="@drawable/ic_action_pass"
-                android:hint="@string/password"
-                android:imeOptions="actionDone"
-                android:inputType="textPassword" />-->
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/activity_login_password_input"
