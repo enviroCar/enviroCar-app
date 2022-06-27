@@ -66,15 +66,18 @@
             android:id="@+id/activity_signin_username_input_layout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="0dp"
-            android:layout_height="40dp"
+            android:layout_height="wrap_content"
             android:layout_marginTop="40dp"
-            app:hintEnabled="false"
+            app:startIconDrawable="@drawable/ic_action_user"
+            app:boxStrokeColor="@color/black"
+            app:hintEnabled="true"
+            app:hintAnimationEnabled="true"
             app:layout_constraintEnd_toEndOf="@id/activity_signin_guideline_right"
             app:layout_constraintStart_toStartOf="@id/activity_signin_guideline_left"
             app:layout_constraintTop_toBottomOf="@+id/textView6"
             app:layout_constraintWidth_max="500dp">
 
-            <androidx.appcompat.widget.AppCompatEditText
+            <!--<androidx.appcompat.widget.AppCompatEditText
                 android:id="@+id/activity_signin_username_input"
                 style="@style/envirocar.login.edittext"
                 android:layout_width="match_parent"
@@ -83,7 +86,18 @@
                 android:drawableStart="@drawable/ic_action_user"
                 android:hint="@string/username"
                 android:imeOptions="actionNext"
-                android:singleLine="true" />
+                android:singleLine="true" />-->
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/activity_signin_username_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawableStart="@drawable/ic_action_user"
+                app:boxStrokeColor="@color/black"
+                app:boxStrokeWidth="1dp"
+                android:hint="Username"
+                android:inputType="text"
+                android:maxLines="1" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -91,18 +105,21 @@
             android:id="@+id/activity_signin_password_input_layout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="0dp"
-            android:layout_height="40dp"
+            android:layout_height="wrap_content"
             android:layout_marginTop="40dp"
-            app:hintEnabled="false"
+            app:passwordToggleDrawable="@drawable/custom_password_eye"
+            app:passwordToggleTint="@color/black"
+            app:startIconDrawable="@drawable/ic_action_pass"
+            app:boxStrokeColor="@color/black"
+            app:hintEnabled="true"
             app:layout_constraintEnd_toEndOf="@id/activity_signin_guideline_right"
             app:layout_constraintStart_toStartOf="@id/activity_signin_guideline_left"
             app:layout_constraintTop_toBottomOf="@+id/activity_signin_username_input_layout"
             app:layout_constraintWidth_max="500dp"
             app:endIconMode="password_toggle"
-            app:endIconDrawable="@drawable/custom_password_eye"
-            app:endIconTint="@color/white_cario">
+            app:endIconDrawable="@drawable/custom_password_eye">
 
-            <androidx.appcompat.widget.AppCompatEditText
+            <!--<androidx.appcompat.widget.AppCompatEditText
                 android:id="@+id/activity_login_password_input"
                 style="@style/envirocar.login.edittext"
                 android:layout_width="match_parent"
@@ -110,7 +127,18 @@
                 android:drawableStart="@drawable/ic_action_pass"
                 android:hint="@string/password"
                 android:imeOptions="actionDone"
-                android:inputType="textPassword" />
+                android:inputType="textPassword" />-->
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/activity_login_password_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawableStart="@drawable/ic_action_user"
+                app:boxStrokeColor="@color/black"
+                app:boxStrokeWidth="1dp"
+                android:hint="Password"
+                android:inputType="textPassword"
+                android:maxLines="1" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
