@@ -19,6 +19,7 @@
 package org.envirocar.app.views.carselection;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,7 +30,8 @@ import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
-import com.afollestad.materialdialogs.MaterialDialog;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import org.envirocar.app.R;
 import org.envirocar.core.entity.Car;
@@ -122,11 +124,11 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
         // If this car is the selected car, then set the radio button checked.
         if (mSelectedCar != null && mSelectedCar.equals(car)) {
             mSelectedButton = holder.mRadioButton;
-            holder.firstLine.setSelected(true);
             mSelectedButton.setChecked(true);
-        } else {
-            holder.firstLine.setSelected(false);
         }
+
+        //Start text marquee
+        holder.firstLine.setSelected(true);
 
         final CarViewHolder tmpHolder = holder;
         // set the onClickListener of the radio button.
@@ -149,6 +151,52 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
             mCallback.onDeleteCar(car,mSelectedButton);
         });
 
+        // Items of array.car_list_option_items are displayed according to the state of radio button.
+        Resources res = getContext().getResources();
+        String[] state;
+        if (mSelectedCar != null && mSelectedCar.equals(car)) {
+            state = res.getStringArray(R.array.car_list_option_item_Delete_car);
+        }
+        else{
+            state = res.getStringArray(R.array.car_list_option_items);
+        }
+
+        // Set the onClickListener for a single row.
+        convertView.setOnClickListener(v -> new MaterialAlertDialogBuilder(mContext)
+                .setTitle(String.format("%s - %s", car.getManufacturer(), car.getModel()))
+                .setItems(state, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int i) {
+                        switch (i) {
+                            case 0:
+                                // Call the callback
+                                mCallback.onDeleteCar(car, mSelectedButton);
+                                break;
+                            case 1:
+                                if(car.equals(mSelectedCar))
+                                    return;
+
+                                // Uncheck the currently checked car.
+                                if (mSelectedButton != null) {
+                                    mSelectedButton.setChecked(false);
+                                }
+
+                                // Set the new car as selected car type.
+                                mSelectedCar = car;
+                                mSelectedButton = tmpHolder.mRadioButton;
+                                mSelectedButton.setChecked(true);
+
+                                // Call the callback in order to react accordingly.
+                                mCallback.onSelectCar(car);
+                                break;
+                            default:
+                                LOG.warn("No action selected!");
+                        }
+                    }
+                })
+                .show());
+
+        // Return the created view.
         return convertView;
     }
 
