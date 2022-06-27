@@ -125,10 +125,10 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
         if (mSelectedCar != null && mSelectedCar.equals(car)) {
             mSelectedButton = holder.mRadioButton;
             mSelectedButton.setChecked(true);
+            holder.firstLine.setSelected(true);
+        } else {
+            holder.firstLine.setSelected(false);
         }
-
-        //Start text marquee
-        holder.firstLine.setSelected(true);
 
         final CarViewHolder tmpHolder = holder;
         // set the onClickListener of the radio button.
