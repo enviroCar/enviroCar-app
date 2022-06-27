@@ -33,6 +33,7 @@ public class TrackMetadata {
 	public static final String APP_VERSION = "appVersion";
 	public static final String OBD_DEVICE = "obdDevice";
 	public static final String TOU_VERSION = "touVersion";
+	public static final String MEASUREMENT_PROFILE = "measurementProfile";
 	
 	private Map<String, String> entries = new HashMap<String, String>();
 

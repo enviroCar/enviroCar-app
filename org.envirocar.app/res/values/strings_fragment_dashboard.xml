@@ -72,4 +72,7 @@
 
     <string name="dashboard_engine_not_running_dialog_title">Connection Failed</string>
     <string name="dashboard_engine_not_running_dialog_content">Unable to connect to the engine. Please make sure that the engine is running.</string>
+    <string name="dashboard_track_chunks_enabled_login">Track chunk upload is enabled. You need to login before starting a recording.</string>
+
+    <string name="dashboard_accept_tou">Please accept the latest Terms of Use under \'%s\'.</string>
 </resources>

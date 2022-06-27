@@ -52,6 +52,8 @@ public class TrackTable {
     public static final String KEY_TRACK_CAR_YEAR = "car_construction_year";
     public static final String KEY_TRACK_CAR_ENGINE_DISPLACEMENT = "engine_displacement";
     public static final String KEY_TRACK_CAR_VIN = "vin";
+    public static final String KEY_TRACK_CAR_VEHICLETYPE = "car_vehicle_type";
+    public static final String KEY_TRACK_CAR_WEIGHT = "car_weight";
     public static final String KEY_TRACK_CAR_ID = "carId";
     public static final String KEY_TRACK_METADATA = "trackMetadata";
 
@@ -100,6 +102,12 @@ public class TrackTable {
 
     @ColumnInfo(name = KEY_TRACK_CAR_VIN)
     String carVin;
+
+    @ColumnInfo(name = KEY_TRACK_CAR_WEIGHT)
+    String carWeight;
+
+    @ColumnInfo(name = KEY_TRACK_CAR_VEHICLETYPE)
+    String carVehicleType;
 
     @ColumnInfo(name = KEY_TRACK_CAR_ID)
     String carId;
@@ -195,6 +203,22 @@ public class TrackTable {
         this.carFuelType = carFuelType;
     }
 
+    public String getCarVehicleType() {
+        return carVehicleType;
+    }
+
+    public void setCarVehicleType(String carVehicleType) {
+        this.carVehicleType = carVehicleType;
+    }
+
+    public String getCarWeight() {
+        return carWeight;
+    }
+
+    public void setCarWeight(String carWeight) {
+        this.carWeight = carWeight;
+    }
+
     public String getTrackCarYear() {
         return trackCarYear;
     }
@@ -280,8 +304,19 @@ public class TrackTable {
         Car.FuelType fuelType = Car.FuelType.valueOf(trackTable.getCarFuelType());
         int engineDisplacement = Integer.parseInt(trackTable.getCarEngineDisplacement());
         int year = Integer.parseInt(trackTable.getTrackCarYear());
+        String carWeight = trackTable.getCarWeight();
+        Car.VehicleType vehicleType = Car.VehicleType.resolveVehicleType(trackTable.getCarVehicleType());
 
-        return new CarImpl(carId, manufacturer, model, fuelType, year, engineDisplacement);
+        CarImpl result = new CarImpl(carId, manufacturer, model, fuelType, year, engineDisplacement);
+
+        if (vehicleType != null) {
+            result.setVehicleType(vehicleType);
+        }
+        if (carWeight != null && carWeight.length() > 0) {
+            result.setWeight(Integer.parseInt(carWeight));
+        }
+
+        return result;
     }
 
     public static TrackTable trackToTrackTable(Track track) {
@@ -306,6 +341,8 @@ public class TrackTable {
             trackTable.setCarId(track.getCar().getId());
             trackTable.setCarEngineDisplacement("" + track.getCar().getEngineDisplacement());
             trackTable.setTrackCarYear("" + track.getCar().getConstructionYear());
+            trackTable.setCarWeight("" + track.getCar().getWeight());
+            trackTable.setCarVehicleType("" + track.getCar().getVehicleType());
         }
 
         if (track.getMetadata() != null) {

@@ -60,7 +60,7 @@ ext {
     targetSdkVersion = 31
     buildToolsVersion = '30.0.2'
     versionCode = 53
-    versionName = "2.1.1"
+    versionName = "2.2.0"
     ndkVersion = "21.4.7075529"
 
     javaCompileVersion = JavaVersion.VERSION_1_8

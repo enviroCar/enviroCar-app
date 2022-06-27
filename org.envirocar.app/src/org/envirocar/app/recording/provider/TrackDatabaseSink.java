@@ -24,6 +24,7 @@ import com.squareup.otto.Bus;
 
 import org.envirocar.app.R;
 import org.envirocar.app.handler.preferences.CarPreferenceHandler;
+import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
@@ -32,6 +33,8 @@ import org.envirocar.core.events.recording.RecordingNewMeasurementEvent;
 import org.envirocar.core.exception.MeasurementSerializationException;
 import org.envirocar.core.exception.TrackSerializationException;
 import org.envirocar.core.logging.Logger;
+import org.envirocar.core.util.TrackMetadata;
+import org.envirocar.core.util.Util;
 import org.envirocar.core.utils.LocationUtils;
 import org.envirocar.core.EnviroCarDB;
 
@@ -77,10 +80,17 @@ public class TrackDatabaseSink {
         return upstream -> upstream.flatMap(measurement -> Observable.create((ObservableOnSubscribe<Track>) emitter -> {
             LOG.info("Storing new measurement into database");
 
-            // If not rack exists, then create one.
+            // If no track exists, then create one.
             if (track == null) {
                 try {
-                    track = createNewTrack(measurement.getTime());
+                    // TODO add default TrackMetadata (app version, measurement profile, NOT at this point: tou)
+                    String profile = ApplicationSettings.getCampaignProfile(context);
+                    String appVersion = Util.getVersionString(context);
+                    TrackMetadata meta = new TrackMetadata(appVersion, null).add(TrackMetadata.MEASUREMENT_PROFILE, profile);
+
+
+                    track = createNewTrack(measurement.getTime(), meta);
+                    
                     emitter.onNext(track);
                 } catch (TrackSerializationException e) {
                     LOG.error("Unable to create track instance", e);
@@ -104,7 +114,7 @@ public class TrackDatabaseSink {
                     track.setLength(track.getLength() + distanceToLast);
                 }
 
-                // update track in databse
+                // update track in database
                 track.getMeasurements().add(measurement);
                 enviroCarDB.updateTrack(track);
                 eventBus.post(new RecordingNewMeasurementEvent(measurement));
@@ -118,7 +128,7 @@ public class TrackDatabaseSink {
                 .doOnComplete(() -> finishTrack(track));
     }
 
-    private Track createNewTrack(long startTime) throws TrackSerializationException {
+    private Track createNewTrack(long startTime, TrackMetadata metadata) throws TrackSerializationException {
         String date = format.format(new Date());
         Car car = carHandler.getCar();
 
@@ -128,6 +138,10 @@ public class TrackDatabaseSink {
         track.setDescription(String.format(context.getString(R.string.default_track_description), car != null ? car.getModel() : "null"));
         track.setLength(0.0);
         track.setStartTime(startTime);
+
+        if (metadata != null) {
+            track.setMetadata(metadata);
+        }
 
         enviroCarDB.insertTrack(track);
         return track;

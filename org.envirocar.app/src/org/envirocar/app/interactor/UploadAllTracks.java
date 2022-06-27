@@ -74,7 +74,7 @@ public class UploadAllTracks extends Interactor<UploadAllTracks.Result, Activity
             Observable.defer(() -> enviroCarDB.getAllLocalTracks())
                     .concatMap(tracks -> {
                         numberOfTracks.set(tracks.size());
-                        return uploadHandler.uploadTracksObservable(tracks);
+                        return uploadHandler.uploadTracksObservable(tracks, activity);
                     })
                     .subscribe(trackOptionalOrError -> {
                         if (trackOptionalOrError.isSuccessful()) {

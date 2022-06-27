@@ -30,6 +30,7 @@ import org.envirocar.app.handler.agreement.AgreementManager;
 import org.envirocar.app.handler.preferences.CarPreferenceHandler;
 import org.envirocar.app.handler.preferences.UserPreferenceHandler;
 import org.envirocar.app.recording.RecordingService;
+import org.envirocar.app.services.trackchunks.TrackchunkUploadService;
 import org.envirocar.core.utils.rx.Optional;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Track;
@@ -200,7 +201,7 @@ public class TrackRecordingHandler {
 
     /**
      * Returns the most recent track, which is not finished yet. It only returns the track when
-     * it has not been finished yet, i.e. its last measurement'S position meets the requirements
+     * it has not been finished yet, i.e. its last measurement's position meets the requirements
      * for continuing a track. Otherwise, it sets the track to finished and creates a new database
      * entry when required.
      *
@@ -225,8 +226,8 @@ public class TrackRecordingHandler {
 
     /**
      * This function checks whether the last unfinished track reference is a valid track
-     * reference, i.e. if its last measurement's spatial position is no to far away from the
-     * current position and the time difference between now and the last measurement is not to
+     * reference, i.e. if its last measurement's spatial position is not too far away from the
+     * current position and the time difference between now and the last measurement is not too
      * large.
      *
      * @param createNew should create a new measurement when it is not matching the requirements.

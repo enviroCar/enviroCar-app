@@ -21,10 +21,10 @@
 -->
 <resources>
     <string name="terms_of_use_simple">Nutzungsbedingungen</string>
-    <string name="terms_of_use_title">Nutzungsbedingungen akzeptieren?</string>
+    <string name="terms_of_use_title">Aktuelle Nutzungsbedingungen akzeptieren?</string>
     <string name="terms_of_use_accept">Akzeptieren</string>
     <string name="terms_of_use_reject">Ablehnen</string>
-    <string name="terms_of_use_info">Bevor Sie fortfahren, müssen Sie unsere Nutzungsbedingungen akzeptieren.</string>
+    <string name="terms_of_use_info">Bevor Sie fortfahren, müssen Sie unsere aktuellen Nutzungsbedingungen akzeptieren.</string>
     <string name="terms_of_use_sorry">Entschuldigen Sie die erneute Störung. Wir haben unsere Nutzungsbedingungen geändert.</string>
     <string name="terms_of_use_cant_continue">Sie müssen die Nutzungsbedingungen akzeptieren, bevor Sie Tracks hochladen können.</string>
 

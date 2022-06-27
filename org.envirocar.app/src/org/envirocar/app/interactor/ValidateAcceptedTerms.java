@@ -109,6 +109,9 @@ public class ValidateAcceptedTerms extends Interactor<Boolean, ValidateAcceptedT
 
     private Function<TermsOfUse, Observable<TermsOfUse>> checkTermsOfUseAcceptance(User user, Activity activity) {
         return termsOfUse -> {
+            if (user == null) {
+                throw new TermsOfUseException("The user has not accepted the terms of use. No user was available.");
+            }
             LOG.info(String.format("Retrieved terms of use for user [%s] with version [%s]",
                     user.getUsername(), user.getTermsOfUseVersion()));
 
