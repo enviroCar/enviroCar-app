@@ -19,16 +19,19 @@
 package org.envirocar.app.views.carselection;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
-import com.afollestad.materialdialogs.MaterialDialog;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import org.envirocar.app.R;
 import org.envirocar.core.entity.Car;
@@ -77,7 +80,7 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
 
     private Car mSelectedCar;
     private RadioButton mSelectedButton;
-
+    private final List<Car> mCars;
 
     /**
      * Constructor.
@@ -91,6 +94,7 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
                                    OnCarListActionCallback callback) {
         super(context, -1, values);
         this.mContext = context;
+        this.mCars = values;
         this.mCallback = callback;
         this.mSelectedCar = selectedCar;
     }
@@ -98,7 +102,7 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         // First get the car for which the view needs to be created.
-        final Car car = this.getItem(position);
+        final Car car = mCars.get(position);
 
         // Then inflate a new view for the car and create a holder
         LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -120,7 +124,12 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
         // If this car is the selected car, then set the radio button checked.
         if (mSelectedCar != null && mSelectedCar.equals(car)) {
             mSelectedButton = holder.mRadioButton;
+            holder.firstLine.setSelected(true);
+            holder.mDeleteButton.setVisibility(View.VISIBLE);
             mSelectedButton.setChecked(true);
+        } else {
+            holder.firstLine.setSelected(false);
+            holder.mDeleteButton.setVisibility(View.GONE);
         }
 
         final CarViewHolder tmpHolder = holder;
@@ -139,6 +148,11 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
             mCallback.onSelectCar(mSelectedCar);
         });
 
+        // set the onClickListener of the delete button.
+        holder.mDeleteButton.setOnClickListener( v -> {
+            mCallback.onDeleteCar(car,mSelectedButton);
+        });
+
         // Items of array.car_list_option_items are displayed according to the state of radio button.
         Resources res = getContext().getResources();
         String[] state;
@@ -150,33 +164,36 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
         }
 
         // Set the onClickListener for a single row.
-        convertView.setOnClickListener(v -> new MaterialDialog.Builder(mContext)
-                .items(state)
-                .itemsCallback((materialDialog, view, i, charSequence) -> {
-                    switch (i) {
-                        case 0:
-                            // Call the callback
-                            mCallback.onDeleteCar(car, mSelectedButton);
-                            break;
-                        case 1:
-                            if(car.equals(mSelectedCar))
-                                return;
+        convertView.setOnClickListener(v -> new MaterialAlertDialogBuilder(mContext)
+                .setTitle(String.format("%s - %s", car.getManufacturer(), car.getModel()))
+                .setItems(state, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int i) {
+                        switch (i) {
+                            case 0:
+                                // Call the callback
+                                mCallback.onDeleteCar(car, mSelectedButton);
+                                break;
+                            case 1:
+                                if(car.equals(mSelectedCar))
+                                    return;
 
-                            // Uncheck the currently checked car.
-                            if (mSelectedButton != null) {
-                                mSelectedButton.setChecked(false);
-                            }
+                                // Uncheck the currently checked car.
+                                if (mSelectedButton != null) {
+                                    mSelectedButton.setChecked(false);
+                                }
 
-                            // Set the new car as selected car type.
-                            mSelectedCar = car;
-                            mSelectedButton = tmpHolder.mRadioButton;
-                            mSelectedButton.setChecked(true);
+                                // Set the new car as selected car type.
+                                mSelectedCar = car;
+                                mSelectedButton = tmpHolder.mRadioButton;
+                                mSelectedButton.setChecked(true);
 
-                            // Call the callback in order to react accordingly.
-                            mCallback.onSelectCar(car);
-                            break;
-                        default:
-                            LOG.warn("No action selected!");
+                                // Call the callback in order to react accordingly.
+                                mCallback.onSelectCar(car);
+                                break;
+                            default:
+                                LOG.warn("No action selected!");
+                        }
                     }
                 })
                 .show());
@@ -185,13 +202,18 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
         return convertView;
     }
 
+    @Override
+    public Car getItem(int position) {
+        return mCars.get(position);
+    }
+
     /**
      * Adds a new {@link Car} to the list and finally invalidates the lsit.
      *
      * @param car the car to add to the list
      */
     protected void addCarItem(Car car) {
-        this.add(car);
+        this.mCars.add(car);
         if(this.getCount() == 1) {
             this.mSelectedCar = car;
         }
@@ -204,8 +226,8 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
      * @param car the car to remove from the list.
      */
     protected void removeCarItem(Car car) {
-        if (this.getPosition(car) >= 0) {
-            this.remove(car);
+        if (mCars.contains(car)) {
+            mCars.remove(car);
             notifyDataSetChanged();
         }
     }
@@ -225,6 +247,8 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
         protected TextView secondLine;
         @BindView(R.id.activity_car_selection_layout_carlist_entry_radio)
         protected RadioButton mRadioButton;
+        @BindView(R.id.activity_car_selection_layout_carlist_delete_icon)
+        protected ImageButton mDeleteButton;
 
         /**
          * Constructor.
