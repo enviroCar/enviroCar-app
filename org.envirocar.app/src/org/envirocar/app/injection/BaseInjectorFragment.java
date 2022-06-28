@@ -37,7 +37,8 @@ import javax.inject.Inject;
 /**
  * @author dewall
  */
-public abstract class BaseInjectorFragment extends Fragment {
+public abstract class
+BaseInjectorFragment extends Fragment {
     private static final String TAG = BaseInjectorFragment.class.getSimpleName();
 
 //    private static final Field mChildFragmentManagerFieldOfFragment;

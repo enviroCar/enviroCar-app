@@ -21,6 +21,7 @@
 <resources>
     <string name="pref_obd_recording">OBD Modus</string>
     <string name="pref_gps_recording">GPS Modus</string>
+    <string name="pref_track_chunks">Hochladen während der Fahrt</string>
 
     <!-- Settings Activity -->
     <string name="pref_settings_general">Allgemeine Einstellungen</string>
@@ -35,13 +36,18 @@
     <!-- General Settings-->
     <string name="pref_automatic_upload">Automatisches Hochladen</string>
     <string name="pref_automatic_upload_sub">Ermöglicht das automatische Hochladen von aufgenommenen Fahrten nach Beendigung der Aufnahme. Es wird lediglich direkt im Anschluss versucht den Track hochzuladen. Wenn der Upload fehlschlägt (z.B. keine Internetverbindung), muss der Track manuell hochgeladen werden.</string>
-    <string name="pref_display_always_activ">Bildschrim bleibt aktiv</string>
+    <string name="pref_display_always_activ">Bildschirm bleibt aktiv</string>
     <string name="pref_display_always_activ_sub">Bildschirm bleibt bei Aufzeichnung einer Fahrt aktiv.</string>
     <string name="pref_imperial_unit_summary">Imperiale Maßeinheiten (Meilen) für die Anzeige nutzen</string>
     <string name="pref_obfuscate_track">Start und Ziel verschleiern</string>
     <string name="pref_obfuscate_track_summary">Nur Messungen, die ab einer Entfernung von 250 Metern zum Start/Ziel sowie eine Minute nach Beginn und vor Ende der Route stattfanden, hochladen.</string>
     <string name="pref_text_to_speech">Sprachausgabe</string>
     <string name="pref_text_to_speech_summary">Ermöglicht die Sprachausgabe von spezifischen Ereignissen, wie z.B. OBD-Verbindung hergestellt oder Aufzeichnung wurde beendet.</string>
+
+    <!-- Track chunks -->
+    <string name="pref_track_chunk_upload">Hochladen während der Fahrt</string>
+    <string name="pref_track_chunk_upload_sub">Aktiviert das Hochladen während der Fahrt. Hinweis: Durch Aktivierung dieser Funktion werden durchgeführte Fahrten als Open Data auf den enviroCar Server hochgeladen.</string>
+    <string name="pref_beta_enable_track_chunk_upload">Hochladen während der Fahrt aktivieren</string>
 
     <!-- OBD-Settings -->
     <string name="pref_obd_settings">OBD Adapter Einstellungen</string>
@@ -89,5 +95,16 @@
 
     <string name="pref_gps_mode_ar_title">Automatische GPS Aufzeichnung</string>
     <string name="pref_gps_mode_ar_summary">Aktiviert die automatische Aufzeichnung von GPS-basierten Fahrten basierend auf Mechanismen der Aktivitätserkennung.\n\nHinweis: Diese Androidfunktion läuft bei einigen Smartphonemodellen nicht zuverlässig.</string>
+
+    <!-- Campaign Settings-->
+    <string name="pref_measurement_campaign">Messkampagne</string>
+    <string name="pref_dvfo_campaign">Ausgewähltes Messprofil</string>
+    <string name="pref_dvfo_campaign_sub">Wähle ein Messprofil, das kontrolliert, welche PIDs während Deiner Fahrt erfasst werden.</string>
+
+
+    <string-array name="pref_campaign_profile_entries">
+        <item>Standard</item>
+        <item>DVFO Kampagne</item>
+    </string-array>
 
 </resources>

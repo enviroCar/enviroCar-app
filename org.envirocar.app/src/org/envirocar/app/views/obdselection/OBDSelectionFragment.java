@@ -20,12 +20,8 @@ package org.envirocar.app.views.obdselection;
 
 import android.Manifest;
 import android.bluetooth.BluetoothDevice;
-import android.content.Context;
-import android.content.Intent;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,15 +38,16 @@ import androidx.annotation.Nullable;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.squareup.otto.Subscribe;
 
+import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.injection.BaseInjectorFragment;
-import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.core.events.bluetooth.BluetoothPairingChangedEvent;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.core.logging.Logger;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.IllegalStateException;
 import java.util.List;
 import java.util.Set;
 
@@ -65,8 +62,6 @@ import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 import pub.devrel.easypermissions.EasyPermissions;
 import pub.devrel.easypermissions.PermissionRequest;
-
-import static android.location.LocationManager.GPS_PROVIDER;
 
 
 /**
@@ -135,10 +130,6 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
         // Setup the listviews, its adapters, and its onClick listener.
         setupListViews();
 
-        // Check the GPS and Location permissions
-        // before Starting the discovery of bluetooth devices.
-        updateContentView();
-
         //        // TODO: very ugly... Instead a dynamic LinearLayout should be used.
         //        setDynamicListHeight(mNewDevicesListView);
         //        setDynamicListHeight(mPairedDevicesListView);
@@ -149,7 +140,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
     @Override
     public void onViewCreated(@NonNull @NotNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        requestLocationPermissions();
+        checkAndRequestPermissions();
     }
 
     @Override
@@ -157,7 +148,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
         if (mBTDiscoverySubscription != null && !mBTDiscoverySubscription.isDisposed()) {
             mBTDiscoverySubscription.dispose();
         }
-
+        mNewDevicesListView.setOnItemClickListener(null);
         super.onDestroy();
     }
 
@@ -165,14 +156,14 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
     public void onBluetoothStateChangedEvent(BluetoothStateChangedEvent event) {
         getActivity().getWindow().getDecorView().post(() -> {
             LOGGER.debug("onBluetoothStateChangedEvent(): " + event.toString());
-            updateContentView();
+            checkAndRequestPermissions();
         });
     }
 
     @OnClick(R.id.activity_obd_selection_layout_rescan_bluetooth)
     protected void rediscover() {
         mBluetoothHandler.stopBluetoothDeviceDiscovery();
-        requestLocationPermissions();
+        checkAndRequestPermissions();
     }
 
     /**
@@ -194,7 +185,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
         }
     }
 
-    private final int REQUEST_LOCATION_PERMISSION = 1;
+    private final int BLUETOOTH_PERMISSIONS = 1;
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -203,16 +194,36 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
         EasyPermissions.onRequestPermissionsResult(requestCode,permissions,grantResults,this);
     }
 
-    public void requestLocationPermissions() {
-        String[] perms = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION};
+    public void checkAndRequestPermissions() {
+        String[] perms;
+        LOGGER.info("Android SDK version: " + android.os.Build.VERSION.SDK_INT);
+        if (android.os.Build.VERSION.SDK_INT >= 31) {
+            perms = new String[]{
+                    Manifest.permission.BLUETOOTH_CONNECT,
+                    Manifest.permission.BLUETOOTH_SCAN
+            };
+        }
+        else{
+            perms = new String[]{
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+            };
+        }
+
         if (EasyPermissions.hasPermissions(getContext(), perms)){
-            // if location permissions are granted, Check GPS.
-            requestGps();
+            // if all permissions are granted, start bluetooth discovery.
+            LOGGER.info("Bluetooth permissions given, starting discovery");
+            startBluetoothDiscovery();
+
+            // Check the GPS and Location permissions
+            // before Starting the discovery of bluetooth devices.
+            updateContentView();
         }
         else{
             // Dialog requesting the user for location permission.
+            LOGGER.info("Bluetooth permissions not given, requesting");
             EasyPermissions.requestPermissions(
-                    new PermissionRequest.Builder(this, REQUEST_LOCATION_PERMISSION, perms)
+                    new PermissionRequest.Builder(this, BLUETOOTH_PERMISSIONS, perms)
                             .setRationale(R.string.location_permission_to_discover_newdevices)
                             .setPositiveButtonText(R.string.grant_permissions)
                             .setNegativeButtonText(R.string.cancel)
@@ -223,9 +234,14 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
 
     @Override
     public void onPermissionsGranted(int requestCode, @NonNull @NotNull List<String> perms) {
-        // if location permissions are granted, Check GPS.
-        if (requestCode == REQUEST_LOCATION_PERMISSION) {
-            requestGps();
+        // if location permissions are granted, start Bluetooth discovery.
+        if (requestCode == BLUETOOTH_PERMISSIONS) {
+            startBluetoothDiscovery();
+            
+            // Check the GPS and Location permissions
+            // before Starting the discovery of bluetooth devices.
+            updateContentView();
+            
             showSnackbar(getString(R.string.location_permission_granted));
         }
     }
@@ -233,62 +249,15 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
     @Override
     public void onPermissionsDenied(int requestCode, @NonNull @NotNull List<String> perms) {
         // if permissions are not granted, show toast.
-        if (requestCode == REQUEST_LOCATION_PERMISSION) {
+        if (requestCode == BLUETOOTH_PERMISSIONS) {
             showSnackbar(getString(R.string.location_permission_denied));
         }
-    }
-
-    public void requestGps() {
-        final LocationManager manager = (LocationManager) this.getContext().getSystemService(Context.LOCATION_SERVICE);
-        // Check whether the GPS is turned or not
-        if (manager.isProviderEnabled(GPS_PROVIDER)) {
-            // if the GPS is also enabled, start discovery
-            if(isResumed)
-                startBluetoothDiscovery();
-        } else {
-            // Request to turn GPS on
-            buildAlertMessageNoGps();
-        }
-    }
-
-    private void buildAlertMessageNoGps(){
-        final LocationManager manager = (LocationManager) this.getContext().
-                getSystemService(Context.LOCATION_SERVICE);
-
-        new MaterialAlertDialogBuilder(getActivity(),R.style.MaterialDialog)
-                .setTitle(R.string.GPS_turnon_title)
-                .setMessage(R.string.GPS_turnon_message)
-                .setIcon(R.drawable.ic_location_off_white_24dp)
-                .setPositiveButton(R.string.GPS_turnon_yes, (dialog, which) -> {
-                    Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                    startActivity(intent);
-
-                    // Check if location permissions are granted  and Start discovery
-                    // only after the GPS is also turned on.
-                    checkGpsAfterDialog();
-                })
-                .setNegativeButton(getString(R.string.GPS_turnon_no), (dialog, id) -> {
-                    dialog.cancel();
-                    showSnackbar(getString(R.string.GPS_request_denied));
-                })
-                .show();
     }
 
     @Override
     public void onResume() {
         super.onResume();
         isResumed = true;
-        checkGpsAfterDialog();
-    }
-
-    public void checkGpsAfterDialog(){
-        String[] perms = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION};
-        final LocationManager manager = (LocationManager) this.getContext().getSystemService(Context.LOCATION_SERVICE);
-
-        // Check whether the GPS is turned or not
-        if (EasyPermissions.hasPermissions(getContext(), perms) && manager.isProviderEnabled(GPS_PROVIDER) && !pairingIsRunning) {
-            startBluetoothDiscovery();
-        }
     }
 
     /**
@@ -528,12 +497,16 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
                         pairingIsRunning = false;
                         // Device is paired. Add it to the array adapter for paired devices and
                         // remove it from the adapter for new devices.
-                        showSnackbar(String.format(
-                                getString(R.string.obd_selection_pairing_success_template),
-                                device.getName()));
-                        // TODO Issue: Unstable bluetooth connect workflow #844
-                        //  --> under the in the issue explained circumstances the getString()-methode
-                        //  fails at this point because the fragment has no context
+                        try {
+                            showSnackbar(String.format(
+                                    getString(R.string.obd_selection_pairing_success_template),
+                                    device.getName()));
+                            // TODO Issue: Unstable bluetooth connect workflow #844
+                            //  --> under the in the issue explained circumstances the getString()-methode
+                            //  fails at this point because the fragment has no context
+                        } catch (IllegalStateException e) {
+                            LOGGER.warn(e.getMessage(), e);
+                        }
 
                         mNewDevicesArrayAdapter.remove(device);
                         mPairedDevicesAdapter.add(device);

@@ -206,7 +206,7 @@ public class RecordingNotification implements LifecycleObserver {
         }
 
         Intent i = new Intent(context, BaseMainActivity.class);
-        PendingIntent pIntent = PendingIntent.getActivity(context, (int) System.currentTimeMillis(), i, 0);
+        PendingIntent pIntent = PendingIntent.getActivity(context, (int) System.currentTimeMillis(), i, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
 
         this.notification = new NotificationCompat.Builder(context, channelId)
                 .setContentTitle(context.getString(state.getTitle()))
@@ -225,7 +225,7 @@ public class RecordingNotification implements LifecycleObserver {
         Intent intent = new Intent(this.context, this.screenClass);
 
         // use System.currentTimeMillis() to have a unique ID for the pending intent
-        PendingIntent pIntent = PendingIntent.getActivity(this.context, (int) System.currentTimeMillis(), intent, 0);
+        PendingIntent pIntent = PendingIntent.getActivity(this.context, (int) System.currentTimeMillis(), intent, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationActionHolder actionHolder = ServiceStateForNotification.CONNECTED.getAction(this.context);
 

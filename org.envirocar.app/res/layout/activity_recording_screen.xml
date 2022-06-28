@@ -76,7 +76,7 @@
                     android:gravity="center"
                     android:orientation="vertical">
 
-                    <ImageView
+                    <androidx.appcompat.widget.AppCompatImageView
                         android:id="@+id/activity_recscreen_trackdetails_gps"
                         android:layout_width="25dp"
                         android:layout_height="25dp"
@@ -102,7 +102,7 @@
                     android:gravity="center"
                     android:orientation="vertical">
 
-                    <ImageView
+                    <androidx.appcompat.widget.AppCompatImageView
                         android:id="@+id/activity_recscreen_trackdetails_bluetooth"
                         android:layout_width="25dp"
                         android:layout_height="25dp"
@@ -225,6 +225,30 @@
             android:padding="10dp">
 
             <LinearLayout
+                android:id="@+id/activity_recscreen_track_upload_status"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentLeft="true"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="20dp"
+                android:layout_marginLeft="20dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:visibility="invisible">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:text="@string/track_upload_active"
+                    android:textColor="@color/green_dark_cario"
+                    android:textSize="12sp"/>
+
+            </LinearLayout>
+
+            <LinearLayout
                 android:id="@+id/activity_recscreen_stopbutton"
                 android:layout_width="60dp"
                 android:layout_height="60dp"
@@ -259,7 +283,7 @@
                 android:gravity="center"
                 android:orientation="horizontal">
 
-                <ImageView
+                <androidx.appcompat.widget.AppCompatImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:padding="8dp"

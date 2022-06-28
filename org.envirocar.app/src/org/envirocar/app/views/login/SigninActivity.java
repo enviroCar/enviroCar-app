@@ -45,9 +45,14 @@ import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.app.views.BaseMainActivity;
 import org.envirocar.app.views.obdselection.OBDSelectionActivity;
 import org.envirocar.app.views.utils.DialogUtils;
+import org.envirocar.core.utils.rx.Optional;
 import org.envirocar.core.logging.Logger;
+import org.envirocar.core.entity.TermsOfUse;
+import org.envirocar.core.entity.User;
+import org.envirocar.core.entity.UserImpl;
 
 import javax.inject.Inject;
+import java.util.function.Consumer;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -55,8 +60,11 @@ import butterknife.OnClick;
 import butterknife.OnEditorAction;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.Observable;
 import io.reactivex.observers.DisposableCompletableObserver;
+import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
+
 
 /**
  * TODO JavaDoc
@@ -241,6 +249,23 @@ public class SigninActivity extends BaseInjectorActivity {
                                     break;
                                 case UNABLE_TO_COMMUNICATE_WITH_SERVER:
                                     passwordEditText.setError(getString(R.string.error_host_not_found), errorPassword);
+                                    break;
+                                case TERMS_NOT_ACCEPTED:
+                                    LOG.info("User has not accepted the latest terms of use");
+                                    agreementManager.initializeTermsOfUseAcceptanceWorkflow(username, password, SigninActivity.this, BaseMainActivity.class, new Consumer<Optional<TermsOfUse>>() {
+                                        public void accept(Optional<TermsOfUse> tou) {
+                                            if (tou.isEmpty()) {
+                                                passwordEditText.setError(getString(R.string.error_terms_not_acceppted), errorPassword);
+                                                userHandler.logOut();
+                                            } else {
+                                                if (userHandler.isLoggedIn()) {
+                                                    Intent intent = new Intent(getBaseContext(), BaseMainActivity.class);
+                                                    startActivity(intent);
+                                                }
+                                            }
+                                        }
+                                    });
+                                    
                                     break;
                                 default:
                                     passwordEditText.setError(getString(R.string.logbook_invalid_input), errorPassword);

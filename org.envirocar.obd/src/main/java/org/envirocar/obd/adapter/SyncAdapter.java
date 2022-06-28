@@ -21,6 +21,8 @@ package org.envirocar.obd.adapter;
 import android.util.Base64;
 
 import org.envirocar.core.logging.Logger;
+import org.envirocar.obd.commands.CampagneCommandProfile;
+import org.envirocar.obd.commands.CycleCommandProfile;
 import org.envirocar.obd.commands.PID;
 import org.envirocar.obd.commands.PIDSupported;
 import org.envirocar.obd.commands.PIDUtil;
@@ -80,6 +82,11 @@ public abstract class SyncAdapter implements OBDAdapter {
                     new PIDSupported("40"),
                     new PIDSupported("80")));
 
+    private CycleCommandProfile commandProfile;
+
+    public SyncAdapter (CycleCommandProfile cmp) {
+        this.commandProfile = cmp;
+    }
 
     @Override
     public Observable<Boolean> initialize(InputStream is, OutputStream os) {
@@ -96,7 +103,9 @@ public abstract class SyncAdapter implements OBDAdapter {
                 commandExecutor.setLogEverything(true);
 
                 while (!subscriber.isDisposed()) {
-                    if (analyzedSuccessfully) {
+                    BasicCommand cc = pollNextInitializationCommand();
+
+                    if (analyzedSuccessfully && cc == null) {
                         /**
                          * a successful data connection has been established:
                          * retrieve the supported PIDs
@@ -122,11 +131,11 @@ public abstract class SyncAdapter implements OBDAdapter {
                         subscriber.onNext(true);
                         subscriber.onComplete();
                     } else {
-                        BasicCommand cc = pollNextInitializationCommand();
-
+                        
                         if (cc == null) {
                             subscriber.onError(new AdapterFailedException(
                                     "All init commands sent, but could not verify connection"));
+                            return;
                         }
 
                         LOGGER.info("Sending Init Command: " + cc.toString());
@@ -279,7 +288,7 @@ public abstract class SyncAdapter implements OBDAdapter {
         if (requestCommands == null) {
             requestCommands = new ArrayList<>();
 
-            for (PID p : PID.values()) {
+            for (PID p : commandProfile.provideCommands()) {
                 addIfSupported(p);
             }
 

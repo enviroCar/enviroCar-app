@@ -21,6 +21,7 @@ package org.envirocar.obd.adapter;
 import android.util.Base64;
 
 import org.envirocar.core.logging.Logger;
+import org.envirocar.obd.commands.CycleCommandProfile;
 import org.envirocar.obd.commands.request.BasicCommand;
 import org.envirocar.obd.commands.request.PIDCommand;
 import org.envirocar.obd.commands.request.elm.ConfigurationCommand;
@@ -47,6 +48,10 @@ public class ELM327Adapter extends SyncAdapter {
     protected int succesfulCount;
     protected boolean certifiedConnection;
 
+    public ELM327Adapter(CycleCommandProfile cmp) {
+        super(cmp);
+    }
+
 
     @Override
     protected BasicCommand pollNextInitializationCommand() {
@@ -64,6 +69,8 @@ public class ELM327Adapter extends SyncAdapter {
         result.add(ConfigurationCommand.instance(ConfigurationCommand.Instance.RESET));
         result.add(ConfigurationCommand.instance(ConfigurationCommand.Instance.ECHO_OFF));
         result.add(ConfigurationCommand.instance(ConfigurationCommand.Instance.ECHO_OFF));
+        result.add(ConfigurationCommand.instance(ConfigurationCommand.Instance.DEVICE_DESCRIPTION));
+        result.add(ConfigurationCommand.instance(ConfigurationCommand.Instance.DEVICE_IDENTIFIER));
         result.add(ConfigurationCommand.instance(ConfigurationCommand.Instance.MEMORY_OFF));
         result.add(ConfigurationCommand.instance(ConfigurationCommand.Instance.LINE_FEED_OFF));
         result.add(new Timeout(62));

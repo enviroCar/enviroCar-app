@@ -21,8 +21,9 @@ package org.envirocar.app.handler;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.util.Pair;
+
+import androidx.preference.PreferenceManager;
 
 import com.f2prateek.rx.preferences2.RxSharedPreferences;
 import com.google.common.base.Preconditions;
@@ -51,6 +52,8 @@ public class ApplicationSettings {
     public static final int DEFAULT_TRACK_TRIM_DURATION = 110;
     public static final boolean DEFAULT_DEBUG_LOGGING = false;
     public static final int DEFAULT_SAMPLING_RATE = 5;
+    public static final String DEFAULT_CAMPAIGN_PROFILE = "DEFAULT_COMANND_PROFILE";
+    public static final boolean DEFAULT_TRACK_CHUNK_UPLOAD= false;
 
 //    // General Settings
 //    public static final String PREF_AUTOMATIC_UPLOAD_OF_TRACKS = "pref_automatic_upload_tracks";
@@ -90,6 +93,10 @@ public class ApplicationSettings {
 
     public static boolean isObfuscationEnabled(Context context) {
         return getSharedPreferences(context).getBoolean(s(context, R.string.prefkey_privacy), DEFAULT_OBFUSCATION);
+    }
+
+    public static boolean isTrackchunkUploadEnabled(Context context) {
+        return getSharedPreferences(context).getBoolean(s(context, R.string.prefkey_track_chunk_upload), DEFAULT_TRACK_CHUNK_UPLOAD);
     }
 
     public static Observable<Boolean> getObfuscationObservable(Context context) {
@@ -243,6 +250,16 @@ public class ApplicationSettings {
     public static SharedPreferences getSharedPreferences(Context context) {
         Preconditions.checkNotNull(context, "Input context cannot be null.");
         return PreferenceManager.getDefaultSharedPreferences(context);
+    }
+
+    public static Observable<String> getCampaignProfileObservable(Context context){
+        return getRxSharedPreferences(context)
+                .getString(s(context, R.string.prefkey_campaign_profile), DEFAULT_CAMPAIGN_PROFILE)
+                .asObservable();
+    }
+
+    public static String getCampaignProfile(Context context) {
+        return getSharedPreferences(context).getString(s(context, R.string.prefkey_campaign_profile), DEFAULT_CAMPAIGN_PROFILE);
     }
 
     private static final String s(Context context, int id){

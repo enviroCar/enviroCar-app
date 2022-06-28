@@ -26,7 +26,8 @@ public class LoginException extends Exception {
     public enum ErrorType {
         MAIL_NOT_CONFIREMED,
         UNABLE_TO_COMMUNICATE_WITH_SERVER,
-        USERNAME_OR_PASSWORD_INCORRECT
+        USERNAME_OR_PASSWORD_INCORRECT,
+        TERMS_NOT_ACCEPTED
     }
 
     private final ErrorType type;

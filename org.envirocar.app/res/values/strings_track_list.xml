@@ -34,6 +34,7 @@
     <string name="track_list_upload_track_uploading">Uploading Track</string>
     <string name="track_list_upload_track_no_measurements">The track does not contain enough measurements to upload as obfuscated track.</string>
     <string name="track_list_upload_track_general_error">Error while uploading track. Please try again later.</string>
+    <string name="track_list_local_track_general_error">An error occurred during the upload process.</string>
     <string name="track_list_upload_track_content">Uploading the following track as Open Data to the enviroCar server:</string>
     <string name="track_list_upload_track_success_template">The upload of track \'%s\' was successful.</string>
 

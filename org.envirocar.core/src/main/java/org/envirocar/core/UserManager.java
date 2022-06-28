@@ -19,6 +19,7 @@
 package org.envirocar.core;
 
 import org.envirocar.core.entity.User;
+import org.envirocar.core.exception.NotConnectedException;
 
 import io.reactivex.Completable;
 
@@ -43,6 +44,13 @@ public interface UserManager {
      * @return getUserStatistic
      */
     User getUser();
+
+    /**
+     * Get the getUserStatistic, but the most recent version from the remote DAO
+     *
+     * @return getUserStatistic
+     */
+    public User retrieveUpdatedUser(User user) throws NotConnectedException;
 
     /**
      * Sets the getUserStatistic

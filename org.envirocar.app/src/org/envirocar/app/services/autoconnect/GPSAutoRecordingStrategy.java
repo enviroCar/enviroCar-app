@@ -89,7 +89,7 @@ public class GPSAutoRecordingStrategy implements AutoRecordingStrategy {
 
         // Activity recognition stuff
         Intent intent = new Intent(TRANSITIONS_RECEIVER_ACTION);
-        this.pendingIntent = PendingIntent.getBroadcast(service, 0, intent, 0);
+        this.pendingIntent = PendingIntent.getBroadcast(service, 0, intent, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
         setupActivityTransitions();
         this.disposables.add(
                 RxBroadcastReceiver.create(service, new IntentFilter(TRANSITIONS_RECEIVER_ACTION))

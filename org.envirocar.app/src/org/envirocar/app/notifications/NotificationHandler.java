@@ -81,7 +81,7 @@ public class NotificationHandler {
 
         Intent intent = new Intent(context, BaseMainActivity.class);
         // use System.currentTimeMillis() to have a unique ID for the pending intent
-        PendingIntent pIntent = PendingIntent.getActivity(context, (int) System.currentTimeMillis(), intent, 0);
+        PendingIntent pIntent = PendingIntent.getActivity(context, (int) System.currentTimeMillis(), intent, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
 
 
         NotificationActionHolder actionHolder = state.getAction(context);
