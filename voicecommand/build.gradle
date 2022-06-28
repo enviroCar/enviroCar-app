@@ -36,14 +36,22 @@ dependencies {
 
     implementation 'androidx.core:core-ktx:1.6.0'
 
-    //Voice command
+    // Aimybox
     implementation rootProject.ext.aimyboxCore
     implementation rootProject.ext.aimyboxComponents
+
+    // Kaldi Speechkit
     implementation(rootProject.ext.kaldiSpeechkit){
         exclude group: 'net.java.dev.jna', module: 'jna'
     }
+
+    // Google Platform Speechkit
     implementation rootProject.ext.googlePlatformSpeechkit
+
+    // Rasa Core
     implementation rootProject.ext.rasaApi
+
+    // Vosk Api
     implementation rootProject.ext.vosk
     implementation rootProject.ext.devJna
 
