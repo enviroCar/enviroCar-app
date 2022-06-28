@@ -22,8 +22,6 @@ import static android.app.Activity.RESULT_OK;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.app.Application;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.Intent;
@@ -107,6 +105,7 @@ import org.envirocar.core.utils.PermissionUtils;
 import org.envirocar.core.utils.ServiceUtils;
 import org.envirocar.obd.events.TrackRecordingServiceStateChangedEvent;
 import org.envirocar.obd.service.BluetoothServiceState;
+import org.envirocar.voicecommand.BaseAimybox;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -232,8 +231,6 @@ public class DashboardFragment extends BaseInjectorFragment implements Coroutine
     private Boolean welcomeMessageShown = false;
 
     private AimyboxAssistantViewModel viewModel;
-    private static Long revealTimeMs = 0L;
-    private static final String ARGUMENTS_KEY = "arguments";
 
     @Override
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
@@ -285,7 +282,8 @@ public class DashboardFragment extends BaseInjectorFragment implements Coroutine
     public void onAttach(Context context) {
         super.onAttach(context);
 
-        AimyboxProvider aimyboxProvider = Objects.requireNonNull(findAimyboxProvider(),
+        AimyboxProvider aimyboxProvider = Objects.requireNonNull(
+                new BaseAimybox().findAimyboxProvider(requireActivity()),
                 "Parent Activity or Application must implement AimyboxProvider interface"
         );
 
@@ -294,29 +292,8 @@ public class DashboardFragment extends BaseInjectorFragment implements Coroutine
                     new ViewModelProvider(requireActivity(), aimyboxProvider.getViewModelFactory())
                             .get(AimyboxAssistantViewModel.class);
 
-            String initialPhrase = "";
-            if (getArguments() != null) {
-
-                if (getArguments().getString(ARGUMENTS_KEY) != null) {
-                    initialPhrase = getArguments().getString(ARGUMENTS_KEY);
-                } else {
-                    initialPhrase = context.getString(R.string.initial_phrase);
-                }
-            }
-
-            viewModel.setInitialPhrase(initialPhrase);
+            new BaseAimybox().setInitialPhrase(context, getArguments(), viewModel);
         }
-
-        revealTimeMs = (long) context.getResources().getInteger(R.integer.assistant_reveal_time_ms);
-    }
-
-    @Override
-    public void onViewCreated(@NonNull @NotNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
-        viewModel.getAimyboxState().observe(getViewLifecycleOwner(), state -> {
-            if (state == Aimybox.State.LISTENING) {
-                Toast.makeText(requireContext(), "STARTED LISTENING", Toast.LENGTH_SHORT).show();
-            }
-        });
     }
 
     @Override
@@ -336,19 +313,6 @@ public class DashboardFragment extends BaseInjectorFragment implements Coroutine
                                 }
                             }
                         });
-    }
-
-    private AimyboxProvider findAimyboxProvider() {
-        Activity activity = requireActivity();
-        Application application = activity.getApplication();
-
-        if (activity instanceof AimyboxProvider) {
-            return (AimyboxProvider) activity;
-        } else if (application instanceof AimyboxProvider) {
-            return (AimyboxProvider) application;
-        } else {
-            return null;
-        }
     }
 
     @Override

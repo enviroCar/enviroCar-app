@@ -56,17 +56,11 @@ dependencies {
         transitive = true
     }
 
-    //Voice command
+    // Aimybox
     implementation rootProject.ext.aimyboxCore
     implementation rootProject.ext.aimyboxComponents
-    implementation(rootProject.ext.kaldiSpeechkit){
-        exclude group: 'net.java.dev.jna', module: 'jna'
-    }
-    implementation rootProject.ext.googlePlatformSpeechkit
-    implementation rootProject.ext.rasaApi
-    implementation rootProject.ext.vosk
-    implementation rootProject.ext.devJna
 
+    // Coroutines
     implementation rootProject.ext.lifecycleExtension
     implementation rootProject.ext.coroutines
 
@@ -97,6 +91,7 @@ dependencies {
     api project(path: ':org.envirocar.obd')
     api project(path: ':org.envirocar.storage')
     api project(path: ':org.envirocar.algorithm')
+    api project(path: ':voicecommand')
     implementation 'com.github.enviroCar:enviroCar-aidl:d67cfa49f3'
 }
 

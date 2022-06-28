@@ -24,21 +24,13 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.os.Build;
-import android.preference.PreferenceManager;
 
 import androidx.annotation.NonNull;
 
 import com.justai.aimybox.Aimybox;
 import com.justai.aimybox.components.AimyboxAssistantViewModel;
 import com.justai.aimybox.components.AimyboxProvider;
-import com.justai.aimybox.core.Config;
-import com.justai.aimybox.dialogapi.rasa.RasaDialogApi;
-import com.justai.aimybox.speechkit.google.platform.GooglePlatformSpeechToText;
-import com.justai.aimybox.speechkit.google.platform.GooglePlatformTextToSpeech;
-import com.justai.aimybox.speechkit.kaldi.KaldiAssets;
-import com.justai.aimybox.speechkit.kaldi.KaldiVoiceTrigger;
 import com.mapbox.mapboxsdk.Mapbox;
 
 import org.acra.ACRA;
@@ -61,19 +53,11 @@ import org.envirocar.remote.service.FuelingService;
 import org.envirocar.remote.service.TermsOfUseService;
 import org.envirocar.remote.service.TrackService;
 import org.envirocar.remote.service.UserService;
-import org.envirocar.storage.EnviroCarVehicleDB;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.Locale;
-import java.util.UUID;
 
 import javax.inject.Inject;
 
 import io.reactivex.disposables.CompositeDisposable;
-import kotlin.Unit;
-
+import org.envirocar.voicecommand.BaseAimybox;
 
 /**
  * @author dewall
@@ -209,33 +193,10 @@ public class BaseApplication extends Application implements AimyboxProvider {
         return (BaseApplication) context.getApplicationContext();
     }
 
-    private Aimybox createAimybox(Context context) {
-
-        // Accessing model from assets folder
-        KaldiAssets assets = KaldiAssets.Companion.fromApkAssets(this, "model/en");
-
-        // initializing trigger words
-        KaldiVoiceTrigger voiceTrigger = new KaldiVoiceTrigger(assets, new ArrayList<>(Arrays.asList("listen", "hey car")));
-
-        String sender = UUID.randomUUID().toString();
-        String webhookUrl = "<webhook URL>/webhooks/rest/webhook";
-
-        GooglePlatformTextToSpeech textToSpeech = new GooglePlatformTextToSpeech(context, Locale.getDefault(), false);
-        GooglePlatformSpeechToText speechToText = new GooglePlatformSpeechToText(context, Locale.getDefault(), false, 10000L);
-
-        RasaDialogApi dialogApi = new RasaDialogApi(sender, webhookUrl, new LinkedHashSet<>());
-
-        return new Aimybox(Config.Companion.create(speechToText, textToSpeech, dialogApi, builder -> {
-            builder.setVoiceTrigger(voiceTrigger);
-            return Unit.INSTANCE;
-        }), this);
-
-    }
-
     @NonNull
     @Override
     public Aimybox getAimybox() {
-        return createAimybox(this);
+        return new BaseAimybox().createAimybox(this);
     }
 
     @NonNull
