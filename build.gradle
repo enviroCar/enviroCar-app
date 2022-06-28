@@ -10,15 +10,14 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.6.3'
-        classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
+        classpath 'com.android.tools.build:gradle:7.0.3'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.10"
     }
 
 }
 
 plugins {
-    id "com.github.dcendents.android-maven" version "2.1"
+    id 'maven-publish'
     id "com.github.hierynomus.license" version "0.15.0"
 }
 
