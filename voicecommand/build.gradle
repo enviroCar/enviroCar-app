@@ -1,0 +1,61 @@
+plugins {
+    id 'com.android.library'
+    id 'org.jetbrains.kotlin.android'
+}
+
+android {
+    compileSdkVersion 31
+
+    defaultConfig {
+        minSdkVersion 21
+        targetSdkVersion 31
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+}
+
+dependencies {
+    // Android dependencies.
+    implementation rootProject.ext.supportV4
+    implementation rootProject.ext.supportV7
+
+    implementation 'androidx.core:core-ktx:1.6.0'
+
+    // Aimybox
+    implementation rootProject.ext.aimyboxCore
+    implementation rootProject.ext.aimyboxComponents
+
+    // Kaldi Speechkit
+    implementation(rootProject.ext.kaldiSpeechkit){
+        exclude group: 'net.java.dev.jna', module: 'jna'
+    }
+
+    // Google Platform Speechkit
+    implementation rootProject.ext.googlePlatformSpeechkit
+
+    // Rasa Core
+    implementation rootProject.ext.rasaApi
+
+    // Vosk Api
+    implementation rootProject.ext.vosk
+    implementation rootProject.ext.devJna
+
+    // Coroutines
+    implementation rootProject.ext.lifecycleExtension
+    implementation rootProject.ext.coroutines
+}

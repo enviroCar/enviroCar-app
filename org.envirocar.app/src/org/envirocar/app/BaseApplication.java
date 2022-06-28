@@ -24,10 +24,13 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.os.Build;
-import android.preference.PreferenceManager;
 
+import androidx.annotation.NonNull;
+
+import com.justai.aimybox.Aimybox;
+import com.justai.aimybox.components.AimyboxAssistantViewModel;
+import com.justai.aimybox.components.AimyboxProvider;
 import com.mapbox.mapboxsdk.Mapbox;
 
 import org.acra.ACRA;
@@ -50,18 +53,17 @@ import org.envirocar.remote.service.FuelingService;
 import org.envirocar.remote.service.TermsOfUseService;
 import org.envirocar.remote.service.TrackService;
 import org.envirocar.remote.service.UserService;
-import org.envirocar.storage.EnviroCarVehicleDB;
 
 import javax.inject.Inject;
 
 import io.reactivex.disposables.CompositeDisposable;
-
+import org.envirocar.voicecommand.BaseAimybox;
 
 /**
  * @author dewall
  */
 @AcraCore(buildConfigClass = BuildConfig.class, reportSenderFactoryClasses = ACRASenderFactory.class)
-public class BaseApplication extends Application {
+public class BaseApplication extends Application implements AimyboxProvider {
     private static Logger LOG = Logger.getLogger(BaseApplication.class);
 
     BaseApplicationComponent baseApplicationComponent;
@@ -191,4 +193,15 @@ public class BaseApplication extends Application {
         return (BaseApplication) context.getApplicationContext();
     }
 
+    @NonNull
+    @Override
+    public Aimybox getAimybox() {
+        return new BaseAimybox().createAimybox(this);
+    }
+
+    @NonNull
+    @Override
+    public AimyboxAssistantViewModel.Factory getViewModelFactory() {
+        return AimyboxAssistantViewModel.Factory.Companion.getInstance(getAimybox());
+    }
 }

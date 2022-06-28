@@ -56,6 +56,14 @@ dependencies {
         exclude group: 'com.mapbox.mapboxsdk', module: 'mapbox-android-accounts'
     }
 
+    // Aimybox
+    implementation rootProject.ext.aimyboxCore
+    implementation rootProject.ext.aimyboxComponents
+
+    // Coroutines
+    implementation rootProject.ext.lifecycleExtension
+    implementation rootProject.ext.coroutines
+
     // Test
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.mockito:mockito-core:3.11.0'
@@ -83,6 +91,7 @@ dependencies {
     api project(path: ':org.envirocar.obd')
     api project(path: ':org.envirocar.storage')
     api project(path: ':org.envirocar.algorithm')
+    api project(path: ':voicecommand')
     implementation 'com.github.enviroCar:enviroCar-aidl:d67cfa49f3'
 }
 
@@ -166,6 +175,10 @@ android {
     packagingOptions {
         exclude 'META-INF/services/javax.annotation.processing.Processor'
         exclude 'META-INF/rxjava.properties'
+        pickFirst 'lib/arm64-v8a/libjnidispatch.so'
+        pickFirst 'lib/armeabi-v7a/libjnidispatch.so'
+        pickFirst 'lib/x86/libjnidispatch.so'
+        pickFirst 'lib/x86_64/libjnidispatch.so'
     }
 
     defaultConfig {

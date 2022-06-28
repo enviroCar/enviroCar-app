@@ -18,13 +18,15 @@
  */
 package org.envirocar.app.views.dashboard;
 
+import static android.app.Activity.RESULT_OK;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
-import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.net.Uri;
@@ -48,6 +50,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -55,12 +58,12 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.core.app.ActivityCompat;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.play.core.appupdate.AppUpdateInfo;
@@ -70,6 +73,9 @@ import com.google.android.play.core.install.model.AppUpdateType;
 import com.google.android.play.core.install.model.UpdateAvailability;
 import com.google.android.play.core.tasks.Task;
 import com.jakewharton.rxbinding3.appcompat.RxToolbar;
+import com.justai.aimybox.Aimybox;
+import com.justai.aimybox.components.AimyboxAssistantViewModel;
+import com.justai.aimybox.components.AimyboxProvider;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.BaseApplicationComponent;
@@ -105,10 +111,13 @@ import org.envirocar.core.utils.PermissionUtils;
 import org.envirocar.core.utils.ServiceUtils;
 import org.envirocar.obd.events.TrackRecordingServiceStateChangedEvent;
 import org.envirocar.obd.service.BluetoothServiceState;
+import org.envirocar.voicecommand.BaseAimybox;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
@@ -124,13 +133,15 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.observers.DisposableCompletableObserver;
 import io.reactivex.schedulers.Schedulers;
-
-import static android.app.Activity.RESULT_OK;
+import kotlin.coroutines.CoroutineContext;
+import kotlinx.coroutines.CoroutineScope;
+import kotlinx.coroutines.Dispatchers;
+import kotlinx.coroutines.JobKt;
 
 /**
  * @author dewall
  */
-public class DashboardFragment extends BaseInjectorFragment {
+public class DashboardFragment extends BaseInjectorFragment implements CoroutineScope {
     private static final Logger LOG = Logger.getLogger(DashboardFragment.class);
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1203;
@@ -230,6 +241,8 @@ public class DashboardFragment extends BaseInjectorFragment {
     private Task<AppUpdateInfo> appUpdateInfoTask;
     private Boolean welcomeMessageShown = false;
 
+    private AimyboxAssistantViewModel viewModel;
+
     @Override
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
         baseApplicationComponent.inject(this);
@@ -274,6 +287,24 @@ public class DashboardFragment extends BaseInjectorFragment {
                 .blockingFirst();
 
         return contentView;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        AimyboxProvider aimyboxProvider = Objects.requireNonNull(
+                new BaseAimybox().findAimyboxProvider(requireActivity()),
+                "Parent Activity or Application must implement AimyboxProvider interface"
+        );
+
+        if (viewModel == null) {
+            viewModel =
+                    new ViewModelProvider(requireActivity(), aimyboxProvider.getViewModelFactory())
+                            .get(AimyboxAssistantViewModel.class);
+
+            new BaseAimybox().setInitialPhrase(context, getArguments(), viewModel);
+        }
     }
 
     @Override
@@ -955,5 +986,11 @@ public class DashboardFragment extends BaseInjectorFragment {
         if (requestCode == 121 && resultCode != RESULT_OK) {
             appUpdateCheck();
         }
+    }
+
+    @NonNull
+    @Override
+    public CoroutineContext getCoroutineContext() {
+        return Dispatchers.getMain().plus((CoroutineContext) JobKt.Job(null));
     }
 }
