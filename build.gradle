@@ -110,9 +110,9 @@ ext {
     rxPreferences = 'com.f2prateek.rx.preferences2:rx-preferences:2.0.1'
 
     // RxBindings
-    def rxbinding_version = "3.1.0"
-    rxBindingCore = "com.jakewharton.rxbinding3:rxbinding-core:$rxbinding_version"
-    rxBindingAppCompat = "com.jakewharton.rxbinding3:rxbinding-appcompat:$rxbinding_version"
+    def rxbinding_version = "4.0.0"
+    rxBindingCore = "com.jakewharton.rxbinding4:rxbinding-core:$rxbinding_version"
+    rxBindingAppCompat = "com.jakewharton.rxbinding4:rxbinding-appcompat:$rxbinding_version"
 
 
     // Google dependencies
