@@ -21,7 +21,6 @@ package org.envirocar.voicecommand
 import android.app.Activity
 import android.content.Context
 import android.os.Bundle
-import androidx.lifecycle.ViewModelProvider
 import com.example.voicecommand.R
 import com.justai.aimybox.Aimybox
 import com.justai.aimybox.components.AimyboxAssistantViewModel
@@ -30,8 +29,8 @@ import com.justai.aimybox.core.Config.Companion.create
 import com.justai.aimybox.dialogapi.rasa.RasaDialogApi
 import com.justai.aimybox.speechkit.google.platform.GooglePlatformSpeechToText
 import com.justai.aimybox.speechkit.google.platform.GooglePlatformTextToSpeech
-import com.justai.aimybox.speechkit.kaldi.KaldiAssets.Companion.fromApkAssets
-import com.justai.aimybox.speechkit.kaldi.KaldiVoiceTrigger
+import org.envirocar.voicecommand.kaldiSpeechkit.KaldiAssets.Companion.fromApkAssets
+import org.envirocar.voicecommand.kaldiSpeechkit.KaldiVoiceTrigger
 import java.util.*
 
 class BaseAimybox {
@@ -43,12 +42,12 @@ class BaseAimybox {
         // initializing trigger words
         val voiceTrigger = KaldiVoiceTrigger(assets, ArrayList(listOf("listen", "hey car")))
         val sender = UUID.randomUUID().toString()
-        val webhookUrl = "<webhook URL>/webhooks/rest/webhook"
+        val webhookUrl = "https://rasa-server-cdhiraj40.cloud.okteto.net/webhooks/rest/webhook"
 
         val textToSpeech = GooglePlatformTextToSpeech(context, Locale.getDefault(), false)
         val speechToText = GooglePlatformSpeechToText(context, Locale.getDefault(), false, 10000L)
 
-        val dialogApi = RasaDialogApi(sender, webhookUrl, LinkedHashSet())
+        val dialogApi = RasaDialogApi(sender, webhookUrl, linkedSetOf())
 
         return Aimybox(create(speechToText, textToSpeech, dialogApi) {
             this.voiceTrigger = voiceTrigger
