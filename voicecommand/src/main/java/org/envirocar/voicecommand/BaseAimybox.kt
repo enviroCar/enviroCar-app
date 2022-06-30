@@ -29,8 +29,8 @@ import com.justai.aimybox.core.Config.Companion.create
 import com.justai.aimybox.dialogapi.rasa.RasaDialogApi
 import com.justai.aimybox.speechkit.google.platform.GooglePlatformSpeechToText
 import com.justai.aimybox.speechkit.google.platform.GooglePlatformTextToSpeech
-import org.envirocar.voicecommand.kaldiSpeechkit.KaldiAssets.Companion.fromApkAssets
-import org.envirocar.voicecommand.kaldiSpeechkit.KaldiVoiceTrigger
+import com.justai.aimybox.speechkit.kaldi.KaldiAssets.Companion.fromApkAssets
+import com.justai.aimybox.speechkit.kaldi.KaldiVoiceTrigger
 import java.util.*
 
 class BaseAimybox {
