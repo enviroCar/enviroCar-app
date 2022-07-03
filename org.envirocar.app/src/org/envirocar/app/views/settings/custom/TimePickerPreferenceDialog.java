@@ -69,6 +69,9 @@ public class TimePickerPreferenceDialog extends PreferenceDialogFragmentCompat {
     private int currentSeconds;
     private int currentMinutes;
 
+    // Instance of the binding class to reference any of the views
+    TimePickerPreferenceDialog binding;
+
 
     @BindView(R.id.preference_timepicker_text)
     protected TextView text;
@@ -85,37 +88,38 @@ public class TimePickerPreferenceDialog extends PreferenceDialogFragmentCompat {
         ButterKnife.bind(this, view);
 
         // Set the textview text
-        this.text.setText(R.string.pref_bt_discovery_interval_explanation);
+        binding.text.setText(R.string.pref_bt_discovery_interval_explanation);
 
         // set the settings for the minute NumberPicker.
-        this.minutePicker.setMinValue(0);
-        this.minutePicker.setMaxValue(10);
-        this.minutePicker.setOnLongPressUpdateInterval(100);
-        this.minutePicker.setFormatter(FORMATTER_TWO_DIGITS);
-        this.minutePicker.setOnValueChangedListener((picker, oldVal, newVal) -> {
-            int minValue = minutePicker.getMinValue();
-            int maxValue = minutePicker.getMaxValue();
+        binding.minutePicker.setMinValue(0);
+        binding.minutePicker.setMinValue(0);
+        binding.minutePicker.setMaxValue(10);
+        binding.minutePicker.setOnLongPressUpdateInterval(100);
+        binding.minutePicker.setFormatter(FORMATTER_TWO_DIGITS);
+        binding.minutePicker.setOnValueChangedListener((picker, oldVal, newVal) -> {
+            int minValue = binding.minutePicker.getMinValue();
+            int maxValue = binding.minutePicker.getMaxValue();
 
             if (oldVal == maxValue && newVal == minValue) {
             }
         });
 
         // set the settings for the seconds number picker.
-        this.secondsPicker.setMinValue(0);
-        this.secondsPicker.setMaxValue(59);
+        binding.secondsPicker.setMinValue(0);
+        binding.secondsPicker.setMaxValue(59);
 //        if (this.displaySeconds != null)
 //            this.secondsPicker.setDisplayedValues(displaySeconds);
-        this.secondsPicker.setOnLongPressUpdateInterval(100);
-        this.secondsPicker.setFormatter(FORMATTER_TWO_DIGITS);
-        this.secondsPicker.setOnValueChangedListener((spinner, oldVal, newVal) -> {
-            int minValue = secondsPicker.getMinValue();
-            int maxValue = secondsPicker.getMaxValue();
+        binding.secondsPicker.setOnLongPressUpdateInterval(100);
+        binding.secondsPicker.setFormatter(FORMATTER_TWO_DIGITS);
+        binding.secondsPicker.setOnValueChangedListener((spinner, oldVal, newVal) -> {
+            int minValue = binding.secondsPicker.getMinValue();
+            int maxValue = binding.secondsPicker.getMaxValue();
             if (oldVal == maxValue && newVal == minValue) {
-                int newMinute = minutePicker.getValue() + 1;
-                minutePicker.setValue(newMinute);
+                int newMinute = binding.minutePicker.getValue() + 1;
+                binding.minutePicker.setValue(newMinute);
             } else if (oldVal == minValue && newVal == maxValue) {
-                int newMinute = minutePicker.getValue() - 1;
-                minutePicker.setValue(newMinute);
+                int newMinute = binding.minutePicker.getValue() - 1;
+                binding.minutePicker.setValue(newMinute);
             }
         });
 
@@ -144,18 +148,18 @@ public class TimePickerPreferenceDialog extends PreferenceDialogFragmentCompat {
             currentMinutes = minutes;
             currentSeconds = seconds;
 
-            secondsPicker.setValue(currentSeconds);
-            minutePicker.setValue(currentMinutes);
+            binding.secondsPicker.setValue(currentSeconds);
+            binding.minutePicker.setValue(currentMinutes);
         }
     }
 
     @Override
     public void onDialogClosed(boolean positiveResult) {
         if (positiveResult) {
-            currentMinutes = minutePicker.getValue();
-            currentSeconds = secondsPicker.getValue();
+            currentMinutes = binding.minutePicker.getValue();
+            currentSeconds = binding.secondsPicker.getValue();
 
-            int time = minutePicker.getValue() * 60 + secondsPicker.getValue();
+            int time = binding.minutePicker.getValue() * 60 + binding.secondsPicker.getValue();
 
             // save the result
             DialogPreference preference = getPreference();
