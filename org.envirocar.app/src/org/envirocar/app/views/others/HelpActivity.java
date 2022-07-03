@@ -22,8 +22,11 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.View;
 
 import org.envirocar.app.R;
+import org.envirocar.app.databinding.ActivityHelpLayoutBinding;
+import org.envirocar.app.databinding.ActivityHelpLayoutGeneralBinding;
 
 import butterknife.ButterKnife;
 import butterknife.BindView;
@@ -38,18 +41,22 @@ public class HelpActivity extends AppCompatActivity {
     @BindView(R.id.activity_help_layout_general_toolbar)
     protected Toolbar toolbar;
 
+    ActivityHelpLayoutGeneralBinding activityHelpLayoutGeneralBinding;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_help_layout_general);
+        activityHelpLayoutGeneralBinding = ActivityHelpLayoutGeneralBinding.inflate(getLayoutInflater());
+        View view = activityHelpLayoutGeneralBinding.getRoot();
+        setContentView(view);
 
         // Inject views
         ButterKnife.bind(this);
 
         // Set Actionbar
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("Help");
+        activityHelpLayoutGeneralBinding.activityHelpLayoutGeneralToolbar.setTitle("Help");
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
