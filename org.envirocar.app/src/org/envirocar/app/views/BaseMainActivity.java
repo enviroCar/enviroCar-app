@@ -82,6 +82,9 @@ public class BaseMainActivity extends BaseInjectorActivity {
     private FragmentStatePagerAdapter fragmentStatePagerAdapter;
     private MenuItem prevMenuItem;
 
+    // Instance of the binding class to reference any of the views
+    BaseMainActivity binding;
+
     // Custom Callback Stack
     Stack<Integer> callbackStack = new Stack<Integer>();
 
@@ -129,13 +132,13 @@ public class BaseMainActivity extends BaseInjectorActivity {
             = item -> {
         switch (item.getItemId()) {
             case R.id.navigation_dashboard:
-                viewPager.setCurrentItem(0);
+                binding.viewPager.setCurrentItem(0);
                 return true;
             case R.id.navigation_my_tracks:
-                viewPager.setCurrentItem(1);
+                binding.viewPager.setCurrentItem(1);
                 return true;
             case R.id.navigation_others:
-                viewPager.setCurrentItem(2);
+                binding.viewPager.setCurrentItem(2);
                 return true;
         }
         return false;
@@ -155,11 +158,11 @@ public class BaseMainActivity extends BaseInjectorActivity {
         setContentView(R.layout.activity_base_main_bottom_bar);
         ButterKnife.bind(this);
 
-        navigationBottomBar.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
-        navigationBottomBar.setSelectedItemId(R.id.navigation_dashboard);
+        binding.navigationBottomBar.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+        binding.navigationBottomBar.setSelectedItemId(R.id.navigation_dashboard);
 
         fragmentStatePagerAdapter = new PageSlider(getSupportFragmentManager(), FragmentStatePagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
-        viewPager.setAdapter(fragmentStatePagerAdapter);
+        binding.viewPager.setAdapter(fragmentStatePagerAdapter);
 
         // Custom Back Navigation for fragments in BaseMainActivity
         callbackStack.push(0);
@@ -168,14 +171,14 @@ public class BaseMainActivity extends BaseInjectorActivity {
             public void handleOnBackPressed() {
                 // Handle the back button event
                 callbackStack.pop();
-                viewPager.setCurrentItem(callbackStack.peek());
+                binding.viewPager.setCurrentItem(callbackStack.peek());
                 if(callbackStack.size() < 2)
                     this.setEnabled(false);
             }
         };
         this.getOnBackPressedDispatcher().addCallback(this, callback);
 
-        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+        binding.viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
 
@@ -186,15 +189,15 @@ public class BaseMainActivity extends BaseInjectorActivity {
                 if (prevMenuItem != null) {
                     prevMenuItem.setChecked(false);
                 } else {
-                    navigationBottomBar.getMenu().getItem(0).setChecked(false);
+                    binding.navigationBottomBar.getMenu().getItem(0).setChecked(false);
                 }
                 // add page to callbackStack
                 if (callbackStack.peek() != position) {
                     callbackStack.push(position);
                     callback.setEnabled(true);
                 }
-                navigationBottomBar.getMenu().getItem(position).setChecked(true);
-                prevMenuItem = navigationBottomBar.getMenu().getItem(position);
+                binding.navigationBottomBar.getMenu().getItem(position).setChecked(true);
+                prevMenuItem = binding.navigationBottomBar.getMenu().getItem(position);
                 fragmentStatePagerAdapter.notifyDataSetChanged();
             }
 
@@ -315,10 +318,10 @@ public class BaseMainActivity extends BaseInjectorActivity {
     private void checkKeepScreenOn() {
         if (ApplicationSettings.getDisplayStaysActiveObservable(this).blockingFirst()) {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-            this.navigationBottomBar.setKeepScreenOn(true);
+            binding.navigationBottomBar.setKeepScreenOn(true);
         } else {
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-            this.navigationBottomBar.setKeepScreenOn(false);
+            binding.navigationBottomBar.setKeepScreenOn(false);
         }
     }
 
