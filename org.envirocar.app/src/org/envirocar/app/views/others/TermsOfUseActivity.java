@@ -22,6 +22,7 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
 import android.text.Html;
 import android.text.Spanned;
@@ -40,6 +41,7 @@ import org.envirocar.core.interactor.GetLatestTermsOfUse;
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.core.utils.rx.Optional;
 import org.envirocar.app.handler.preferences.UserPreferenceHandler;
+import org.envirocar.app.databinding.ActivityTouLayoutBinding;
 
 import butterknife.ButterKnife;
 import butterknife.BindView;
@@ -76,19 +78,22 @@ public class TermsOfUseActivity extends BaseInjectorActivity {
         baseApplicationComponent.inject(this);
     }
 
+    ActivityTouLayoutBinding activityTouLayoutBinding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_tou_layout);
+        activityTouLayoutBinding = ActivityTouLayoutBinding.inflate(getLayoutInflater());
+        View view = activityTouLayoutBinding.getRoot();
+        setContentView(view);
 
         // Inject views
         ButterKnife.bind(this);
 
         // Set Actionbar
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle(getString(R.string.terms_of_use_simple));
+        activityTouLayoutBinding.activityTouLayoutToolbar.setTitle(getString(R.string.terms_of_use_simple));
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -97,8 +102,7 @@ public class TermsOfUseActivity extends BaseInjectorActivity {
         Spanned htmlAsSpanned = Html.fromHtml(htmlAsString);
 
         // set the html content on a TextView
-        TextView textView = (TextView) findViewById(R.id.tou_text_view);
-        textView.setText(htmlAsSpanned);
+        activityTouLayoutBinding.touTextView.setText(htmlAsSpanned);
 
         getLatestTermsOfUse.asObservable()
             .subscribeOn(Schedulers.io())
@@ -107,7 +111,7 @@ public class TermsOfUseActivity extends BaseInjectorActivity {
                 LOG.info("Terms Of Use loaded: " + termsOfUse);
                 if (!termsOfUse.isEmpty()) {
                     Spanned htmlContent = Html.fromHtml(termsOfUse.getOptional().getContents());
-                    textView.setText(htmlContent);
+                    activityTouLayoutBinding.touTextView.setText(htmlContent);
                 }
             });
 

@@ -19,17 +19,17 @@
 package org.envirocar.app.views.others;
 
 import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+
 import org.envirocar.app.R;
-import org.envirocar.app.databinding.ActivityHelpLayoutBinding;
 import org.envirocar.app.databinding.ActivityHelpLayoutGeneralBinding;
 
-import butterknife.ButterKnife;
 import butterknife.BindView;
+import butterknife.ButterKnife;
 
 /**
  * TODO JavaDoc
