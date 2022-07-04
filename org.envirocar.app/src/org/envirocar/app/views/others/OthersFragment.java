@@ -61,7 +61,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.reactivex.rxjava3.core.Scheduler;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
-import io.reactivex.observers.DisposableCompletableObserver;
+import io.reactivex.rxjava3.observers.DisposableCompletableObserver;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 /**

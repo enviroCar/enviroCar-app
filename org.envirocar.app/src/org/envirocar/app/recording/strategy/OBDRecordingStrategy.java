@@ -61,7 +61,7 @@ import org.envirocar.obd.exception.AllAdaptersFailedException;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-import io.reactivex.Observable;
+import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.ObservableTransformer;
 import io.reactivex.rxjava3.core.Scheduler;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;

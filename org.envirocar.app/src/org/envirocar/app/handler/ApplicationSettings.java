@@ -30,7 +30,7 @@ import androidx.preference.PreferenceManager;
 
 import dev.drewhamilton.rxpreferences.dagger.RxPreferencesComponent;
 
-import com.f2prateek.rx.preferences2.RxSharedPreferences;
+import dev.drewhamilton.rxpreferences.dagger.RxPreferencesComponent;
 import com.google.common.base.Preconditions;
 
 import org.envirocar.app.R;
@@ -135,7 +135,6 @@ public class ApplicationSettings {
     public static Observable<Integer> getDiscoveryIntervalObservable(Context context) {
         return getRxSharedPreferences(context)
                 .getIntStream(s(context, R.string.prefkey_search_interval), DEFAULT_BLUETOOTH_DISCOVERY_INTERVAL);
-                .asObservable();
     }
 
     public static void setDiscoveryInterval(Context context, int discoveryInterval) {

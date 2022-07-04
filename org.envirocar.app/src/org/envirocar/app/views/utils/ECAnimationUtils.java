@@ -91,9 +91,9 @@ public class ECAnimationUtils {
                             action.run();
                         } catch (Exception e) {
                             e.printStackTrace();
-                        }
-                         catch (Throwable throwable) {
+                        } catch (Throwable throwable) {
                             throwable.printStackTrace();
+                        }
                     }
                 }
 

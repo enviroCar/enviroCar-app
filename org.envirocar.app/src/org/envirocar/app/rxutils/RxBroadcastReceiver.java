@@ -28,7 +28,7 @@ import org.envirocar.core.logging.Logger;
 import java.lang.ref.WeakReference;
 
 import io.reactivex.rxjava3.core.Emitter;
-import io.reactivex.Observable;
+import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.ObservableEmitter;
 import io.reactivex.rxjava3.core.ObservableOnSubscribe;
 import io.reactivex.rxjava3.disposables.Disposable;

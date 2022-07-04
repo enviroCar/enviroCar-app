@@ -37,7 +37,7 @@ import javax.inject.Inject;
 
 import butterknife.ButterKnife;
 import io.reactivex.rxjava3.core.Completable;
-import io.reactivex.Observable;
+import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.disposables.Disposable;

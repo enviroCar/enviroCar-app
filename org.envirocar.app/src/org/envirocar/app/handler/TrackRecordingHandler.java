@@ -216,8 +216,7 @@ public class TrackRecordingHandler {
                 .flatMap(track -> track.isEmpty() ?
                         mEnvirocarDB.getActiveTrackObservable(false)
                                 .map(t -> new Optional(t))
-                                .singleOrError()
-                                .onErrorResumeNext(Single.just(track)) :
+                                .singleOrError():
                         Single.just(track))
 
                 .flatMap(validateTrackRef(createNew))

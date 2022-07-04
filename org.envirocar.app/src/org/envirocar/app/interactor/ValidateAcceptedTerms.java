@@ -43,7 +43,7 @@ import org.envirocar.core.utils.rx.dialogs.ReactiveTermsOfUseDialog;
 
 import javax.inject.Inject;
 
-import io.reactivex.Observable;
+import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.ObservableSource;
 import io.reactivex.rxjava3.core.ObservableTransformer;
 import io.reactivex.rxjava3.core.Scheduler;

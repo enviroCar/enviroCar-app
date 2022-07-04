@@ -27,7 +27,7 @@ import org.envirocar.core.entity.BaseEntity;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.logging.Logger;
 
-import io.reactivex.Observable;
+import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.ObservableEmitter;
 import io.reactivex.rxjava3.core.ObservableOnSubscribe;
 import io.reactivex.rxjava3.core.Scheduler;
