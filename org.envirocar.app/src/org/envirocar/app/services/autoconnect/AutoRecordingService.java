@@ -41,7 +41,7 @@ import org.envirocar.core.utils.ServiceUtils;
 
 import javax.inject.Inject;
 
-import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;;
 
 import static org.envirocar.app.notifications.NotificationHandler.context;
 

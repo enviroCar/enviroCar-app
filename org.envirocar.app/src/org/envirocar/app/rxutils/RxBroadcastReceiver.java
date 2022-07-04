@@ -27,11 +27,11 @@ import org.envirocar.core.logging.Logger;
 
 import java.lang.ref.WeakReference;
 
-import io.reactivex.Emitter;
+import io.reactivex.rxjava3.core.Emitter;
 import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
-import io.reactivex.ObservableOnSubscribe;
-import io.reactivex.disposables.Disposable;
+import io.reactivex.rxjava3.core.ObservableEmitter;
+import io.reactivex.rxjava3.core.ObservableOnSubscribe;
+import io.reactivex.rxjava3.disposables.Disposable;
 
 /**
  * @author dewall

@@ -21,9 +21,9 @@ package org.envirocar.core.interactor;
 import com.google.common.base.Preconditions;
 
 import io.reactivex.Observable;
-import io.reactivex.Scheduler;
-import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.observers.DisposableObserver;
+import io.reactivex.rxjava3.core.Scheduler;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;;
+import io.reactivex.rxjava3.observers.DisposableObserver;
 
 /**
  * @author dewall

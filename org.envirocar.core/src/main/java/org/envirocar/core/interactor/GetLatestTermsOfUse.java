@@ -29,7 +29,7 @@ import java.util.Date;
 import javax.inject.Inject;
 
 import io.reactivex.Observable;
-import io.reactivex.Scheduler;
+import io.reactivex.rxjava3.core.Scheduler;
 
 /**
  * @author dewall

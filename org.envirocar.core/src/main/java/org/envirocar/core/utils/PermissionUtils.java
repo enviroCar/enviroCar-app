@@ -25,8 +25,8 @@ import android.content.pm.PackageManager;
 
 import androidx.core.app.ActivityCompat;
 
-import io.reactivex.Completable;
-import io.reactivex.functions.Function;
+import io.reactivex.rxjava3.core.Completable;
+import io.reactivex.rxjava3.functions.Function;
 
 /**
  * @author dewall

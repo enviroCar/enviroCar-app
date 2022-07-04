@@ -43,7 +43,7 @@ import java.lang.reflect.Method;
 
 import javax.inject.Inject;
 
-import io.reactivex.Completable;
+import io.reactivex.rxjava3.core.Completable;
 
 /**
  * @author dewall
