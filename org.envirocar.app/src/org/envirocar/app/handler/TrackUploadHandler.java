@@ -45,12 +45,14 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.reactivex.Observable;
-import io.reactivex.ObservableOperator;
-import io.reactivex.ObservableTransformer;
-import io.reactivex.Observer;
-import io.reactivex.functions.Function;
-import io.reactivex.observers.DisposableObserver;
+import io.reactivex.rxjava3.core.Observable;
+
+import io.reactivex.rxjava3.core.ObservableTransformer;
+import io.reactivex.rxjava3.core.ObservableOperator;
+import io.reactivex.rxjava3.core.ObservableOperator;
+import io.reactivex.rxjava3.core.Observer;
+import io.reactivex.rxjava3.functions.Function;
+import io.reactivex.rxjava3.observers.DisposableObserver;
 
 
 /**

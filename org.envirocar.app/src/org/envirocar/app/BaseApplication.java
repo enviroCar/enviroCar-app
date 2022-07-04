@@ -54,7 +54,7 @@ import org.envirocar.storage.EnviroCarVehicleDB;
 
 import javax.inject.Inject;
 
-import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
 
 
 /**
