@@ -34,13 +34,14 @@ import com.justai.aimybox.speechkit.kaldi.KaldiVoiceTrigger
 import java.util.*
 
 class BaseAimybox {
+
     fun createAimybox(context: Context): Aimybox {
 
         // Accessing model from assets folder
         val assets = fromApkAssets(context, "model/en")
 
         // initializing trigger words
-        val voiceTrigger = KaldiVoiceTrigger(assets, ArrayList(listOf("listen", "hey car")))
+        val voiceTrigger = KaldiVoiceTrigger(assets, listOf("listen", "hey car"))
         val sender = UUID.randomUUID().toString()
         val webhookUrl = "https://rasa-server-cdhiraj40.cloud.okteto.net/webhooks/rest/webhook"
 
@@ -63,7 +64,12 @@ class BaseAimybox {
         }
     }
 
-    fun setInitialPhrase(context: Context, arguments: Bundle?, viewModel: AimyboxAssistantViewModel){
+
+    fun setInitialPhrase(
+        context: Context,
+        arguments: Bundle?,
+        viewModel: AimyboxAssistantViewModel
+    ) {
         val initialPhrase = arguments?.getString(ARGUMENTS_KEY)
             ?: context.getString(R.string.initial_phrase)
 

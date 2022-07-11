@@ -50,7 +50,6 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -58,8 +57,8 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.core.app.ActivityCompat;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -80,9 +79,9 @@ import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
-import org.envirocar.app.handler.agreement.AgreementManager;
 import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.app.handler.BluetoothHandler;
+import org.envirocar.app.handler.agreement.AgreementManager;
 import org.envirocar.app.handler.preferences.UserPreferenceHandler;
 import org.envirocar.app.handler.userstatistics.UserStatisticsUpdateEvent;
 import org.envirocar.app.injection.BaseInjectorFragment;
@@ -91,14 +90,14 @@ import org.envirocar.app.recording.RecordingState;
 import org.envirocar.app.recording.RecordingType;
 import org.envirocar.app.recording.events.EngineNotRunningEvent;
 import org.envirocar.app.recording.events.RecordingStateEvent;
+import org.envirocar.app.views.BaseMainActivity;
 import org.envirocar.app.views.carselection.CarSelectionActivity;
 import org.envirocar.app.views.login.SigninActivity;
 import org.envirocar.app.views.obdselection.OBDSelectionActivity;
+import org.envirocar.app.views.others.TermsOfUseActivity;
 import org.envirocar.app.views.recordingscreen.RecordingScreenActivity;
 import org.envirocar.app.views.utils.DialogUtils;
 import org.envirocar.app.views.utils.SizeSyncTextView;
-import org.envirocar.app.views.others.TermsOfUseActivity;
-import org.envirocar.core.entity.TermsOfUse;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.events.NewCarTypeSelectedEvent;
 import org.envirocar.core.events.NewUserSettingsEvent;
@@ -106,7 +105,6 @@ import org.envirocar.core.events.bluetooth.BluetoothDeviceSelectedEvent;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.core.events.gps.GpsStateChangedEvent;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.core.utils.rx.Optional;
 import org.envirocar.core.utils.PermissionUtils;
 import org.envirocar.core.utils.ServiceUtils;
 import org.envirocar.obd.events.TrackRecordingServiceStateChangedEvent;
@@ -119,7 +117,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 
 import javax.inject.Inject;
 
@@ -308,6 +305,23 @@ public class DashboardFragment extends BaseInjectorFragment implements Coroutine
     }
 
     @Override
+    public void onViewCreated(@NonNull @NotNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
+        viewModel.getAimyboxState().observe(getViewLifecycleOwner(), state -> {
+            if (state == Aimybox.State.LISTENING) {
+
+                new BaseMainActivity().showVoiceTriggeredSnackbar(
+                        requireView(),
+                        requireActivity(),
+                        requireActivity().findViewById(R.id.navigation),
+                        userHandler.getUser()
+                );
+
+            }
+
+        });
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
         this.updateStatisticsVisibility(this.statisticsKnown);
@@ -325,6 +339,7 @@ public class DashboardFragment extends BaseInjectorFragment implements Coroutine
                             }
                         });
     }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -373,7 +388,7 @@ public class DashboardFragment extends BaseInjectorFragment implements Coroutine
         }
     }
 
-    
+
 
     private DisposableCompletableObserver onLogoutSubscriber() {
         return new DisposableCompletableObserver() {
@@ -612,7 +627,7 @@ public class DashboardFragment extends BaseInjectorFragment implements Coroutine
         }
     }
 
-   
+
 
     @OnClick(R.id.fragment_dashboard_indicator_car)
     protected void onCarIndicatorClicked() {

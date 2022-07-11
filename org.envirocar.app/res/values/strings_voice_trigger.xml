@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="voice_trigger_bottomsheeet_greet_heading">Hey, %1$s I am enviroBot 🤖</string>
+    <string name="voice_trigger_bottomsheeet_greet_sub_heading">How can I help you? Try saying "Who are you?", "What is the time?" or "Which car is selected?"</string>
+    <string name="voice_trigger_bottomsheeet_footer">enviroBot by %1$s</string>
+</resources>

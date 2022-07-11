@@ -18,16 +18,22 @@
  */
 package org.envirocar.app.views;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.Resources;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.WindowManager;
+import android.widget.TextView;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
+import androidx.core.text.HtmlCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
@@ -55,10 +61,12 @@ import org.envirocar.app.views.dashboard.DashboardFragment;
 import org.envirocar.app.views.others.OthersFragment;
 import org.envirocar.app.views.others.TroubleshootingFragment;
 import org.envirocar.app.views.tracklist.TrackListPagerFragment;
+import org.envirocar.core.entity.User;
 import org.envirocar.core.events.TrackFinishedEvent;
 import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.utils.ServiceUtils;
+import org.envirocar.core.utils.TextViewUtils;
 
 import java.util.Stack;
 
@@ -72,7 +80,7 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.observers.DisposableObserver;
 
 /**
- * @authro dewall
+ * @author dewall
  */
 public class BaseMainActivity extends BaseInjectorActivity {
     private static final Logger LOGGER = Logger.getLogger(BaseMainActivity.class);
@@ -353,6 +361,57 @@ public class BaseMainActivity extends BaseInjectorActivity {
 
     private void showSnackbar(String info) {
         Snackbar.make(navigationBottomBar, info, Snackbar.LENGTH_LONG).show();
+    }
+
+    public void showVoiceTriggeredSnackbar(View view, Activity activity, View anchorView, User user) {
+        Snackbar snackbar = Snackbar.make(view, "", Snackbar.LENGTH_LONG);
+
+        View customSnackView = activity.getLayoutInflater().inflate(R.layout.voice_trigger_snack_bar_layout, null);
+
+        // set the background of the default snackbar as transparent
+        snackbar.getView().setBackgroundColor(Color.TRANSPARENT);
+
+        // now change the layout of the snackbar
+        Snackbar.SnackbarLayout snackbarLayout = (Snackbar.SnackbarLayout) snackbar.getView();
+
+        // set padding of the all corners as 0
+        snackbarLayout.setPadding(0, 0, 0, 0);
+
+        TextView bottomsheetFooter = customSnackView.findViewById(R.id.bottomsheet_footer);
+        TextView greetHeading = customSnackView.findViewById(R.id.bottomsheet_greet_heading);
+
+            Resources resource = activity.getResources();
+            String footerText =
+                    String.format(
+                            resource.getString(R.string.voice_trigger_bottomsheeet_footer),
+                            new TextViewUtils().getColoredSpanned(resource.getString(R.string.envirocar),
+                            resource.getColor(R.color.cario_color_primary))
+                    );
+
+            bottomsheetFooter.setText(HtmlCompat.fromHtml(footerText, HtmlCompat.FROM_HTML_MODE_LEGACY));
+
+            if(user != null) {
+                greetHeading.setText(
+                        String.format(
+                                resource.getString(R.string.voice_trigger_bottomsheeet_greet_heading),
+                                user.getUsername() + "!")
+                );
+            }else{
+                greetHeading.setText(
+                        String.format(
+                                resource.getString(R.string.voice_trigger_bottomsheeet_greet_heading),
+                                "")
+                );
+            }
+
+        // add the custom layout
+        snackbarLayout.addView(customSnackView, 0);
+
+        // set the anchor view if provided
+        if(anchorView != null){
+            snackbar.setAnchorView(anchorView);
+        }
+        snackbar.show();
     }
 
     private class PageSlider extends FragmentStatePagerAdapter {
