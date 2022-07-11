@@ -4,7 +4,7 @@
     package="org.envirocar.app"
     android:installLocation="internalOnly"
     android:versionCode="53"
-    android:versionName="2.1.1"
+    android:versionName="2.2.0"
     >
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -91,6 +91,9 @@
             android:name=".views.others.HelpActivity"
             android:screenOrientation="portrait" />
         <activity
+            android:name=".views.others.TermsOfUseActivity"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".views.BaseMainActivity"
             android:screenOrientation="portrait" />
         <activity
@@ -124,6 +127,9 @@
         <service
             android:name=".services.TrackUploadService"
             android:enabled="true" />
+        <service
+            android:name=".services.trackchunks.TrackchunkUploadService"
+            android:enabled="true"/>
         <service
             android:name=".aidl.EnviroCarDataService"
             android:enabled="true"

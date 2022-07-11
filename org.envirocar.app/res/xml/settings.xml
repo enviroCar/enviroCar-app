@@ -27,11 +27,6 @@
         android:title="@string/pref_settings_general"
         app:iconSpaceReserved="false">
         <CheckBoxPreference
-            android:key="@string/prefkey_automatic_upload"
-            android:summary="@string/pref_automatic_upload_sub"
-            android:title="@string/pref_automatic_upload"
-            app:iconSpaceReserved="false" />
-        <CheckBoxPreference
             android:key="@string/prefkey_display_always_active"
             android:summary="@string/pref_display_always_activ_sub"
             android:title="@string/pref_display_always_activ"
@@ -105,6 +100,16 @@
             android:summary="@string/pref_track_cut_duration_summary"
             android:title="@string/pref_track_cut_duration"
             app:iconSpaceReserved="false" />
+    </PreferenceCategory>
+    <PreferenceCategory
+            android:title="@string/pref_track_chunks"
+            app:iconSpaceReserved="false">
+        <CheckBoxPreference
+                android:defaultValue="false"
+                android:key="@string/prefkey_track_chunk_upload"
+                android:summary="@string/pref_track_chunk_upload_sub"
+                android:title="@string/pref_beta_enable_track_chunk_upload"
+                app:iconSpaceReserved="false" />
     </PreferenceCategory>
 
     <PreferenceCategory

@@ -47,6 +47,7 @@ import org.envirocar.app.recording.RecordingState;
 import org.envirocar.app.recording.provider.LocationProvider;
 import org.envirocar.app.recording.provider.TrackDatabaseSink;
 import org.envirocar.app.rxutils.RxBroadcastReceiver;
+import org.envirocar.app.services.trackchunks.TrackchunkUploadService;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
@@ -85,6 +86,8 @@ public class GPSRecordingStrategy implements LifecycleObserver, RecordingStrateg
     private final TrackDatabaseSink trackDatabaseSink;
     private final LocationProvider locationProvider;
 
+    private TrackchunkUploadService trackchunkUploadService;
+
     private RecordingListener listener;
     private CompositeDisposable disposables = new CompositeDisposable();
 
@@ -107,12 +110,13 @@ public class GPSRecordingStrategy implements LifecycleObserver, RecordingStrateg
      * Constructor.
      */
     public GPSRecordingStrategy(Context context, Bus eventBus, LocationProvider locationProvider, MeasurementProvider measurementProvider,
-                                TrackDatabaseSink trackDatabaseSink, CarPreferenceHandler carPreferences) {
+                                TrackDatabaseSink trackDatabaseSink, CarPreferenceHandler carPreferences, TrackchunkUploadService trackchunkUploadService) {
         this.context = context;
         this.eventBus = eventBus;
         this.measurementProvider = measurementProvider;
         this.trackDatabaseSink = trackDatabaseSink;
         this.locationProvider = locationProvider;
+        this.trackchunkUploadService = trackchunkUploadService;
 
         // set the car specific properties.
         Car car = carPreferences.getCar();

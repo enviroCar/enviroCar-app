@@ -50,6 +50,13 @@ public class CarSerde implements JsonSerializer<Car>, JsonDeserializer<Car> {
                 src.getConstructionYear());
         carProperties.addProperty(Car.KEY_CAR_ENGINEDISPLACEMENT,
                 src.getEngineDisplacement());
+        carProperties.addProperty(Car.KEY_CAR_WEIGHT,
+                src.getWeight());
+        if (src.getVehicleType() != null) {
+            carProperties.addProperty(Car.KEY_CAR_VEHICLETYPE,
+                src.getVehicleType().toString());
+        }
+        
 
         // define the complete json object including type and properties.
         JsonObject carObject = new JsonObject();
@@ -75,10 +82,19 @@ public class CarSerde implements JsonSerializer<Car>, JsonDeserializer<Car> {
         res.setId(car.get(Car.KEY_CAR_ID).getAsString());
         res.setManufacturer(car.get(Car.KEY_CAR_MANUFACTURER).getAsString());
         res.setModel(car.get(Car.KEY_CAR_MODEL).getAsString());
-        if (car.has(Car.KEY_CAR_ENGINEDISPLACEMENT))
+        if (car.has(Car.KEY_CAR_ENGINEDISPLACEMENT)) {
             res.setEngineDisplacement(car.get(Car.KEY_CAR_ENGINEDISPLACEMENT).getAsInt());
+        }
         res.setConstructionYear(car.get(Car.KEY_CAR_CONSTRUCTIONYEAR).getAsInt());
         res.setFuelType(car.get(Car.KEY_CAR_FUELTYPE).getAsString());
+
+        if (car.has(Car.KEY_CAR_WEIGHT)) {
+            res.setWeight(car.get(Car.KEY_CAR_WEIGHT).getAsInt());
+        }
+
+        if (car.has(Car.KEY_CAR_VEHICLETYPE)) {
+            res.setVehicleType(car.get(Car.KEY_CAR_VEHICLETYPE).getAsString());
+        }
 
         // Check whether the result has been correctly generated and log it in case when not.
         return res;

@@ -112,4 +112,9 @@ public interface LocalTrackDAONew {
 
     @Query("UPDATE TRACKS SET trackMetadata = :metaData WHERE _id = :trackId")
     void updateTrackMetadata(String metaData, Long trackId);
+
+    @Query("SELECT trackMetadata FROM TRACKS" +
+            " WHERE _id = :trackId " +
+            " LIMIT 1")
+    String fetchTrackMetadata(Long trackId);
 }

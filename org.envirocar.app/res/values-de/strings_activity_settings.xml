@@ -21,6 +21,7 @@
 <resources>
     <string name="pref_obd_recording">OBD Modus</string>
     <string name="pref_gps_recording">GPS Modus</string>
+    <string name="pref_track_chunks">Hochladen während der Fahrt</string>
 
     <!-- Settings Activity -->
     <string name="pref_settings_general">Allgemeine Einstellungen</string>
@@ -42,6 +43,11 @@
     <string name="pref_obfuscate_track_summary">Nur Messungen, die ab einer Entfernung von 250 Metern zum Start/Ziel sowie eine Minute nach Beginn und vor Ende der Route stattfanden, hochladen.</string>
     <string name="pref_text_to_speech">Sprachausgabe</string>
     <string name="pref_text_to_speech_summary">Ermöglicht die Sprachausgabe von spezifischen Ereignissen, wie z.B. OBD-Verbindung hergestellt oder Aufzeichnung wurde beendet.</string>
+
+    <!-- Track chunks -->
+    <string name="pref_track_chunk_upload">Hochladen während der Fahrt</string>
+    <string name="pref_track_chunk_upload_sub">Aktiviert das Hochladen während der Fahrt. Hinweis: Durch Aktivierung dieser Funktion werden durchgeführte Fahrten als Open Data auf den enviroCar Server hochgeladen.</string>
+    <string name="pref_beta_enable_track_chunk_upload">Hochladen während der Fahrt aktivieren</string>
 
     <!-- OBD-Settings -->
     <string name="pref_obd_settings">OBD Adapter Einstellungen</string>

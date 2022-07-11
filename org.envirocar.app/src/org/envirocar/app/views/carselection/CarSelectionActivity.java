@@ -299,6 +299,11 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
                     public void onComplete() {
                         LOG.info("onCompleted() loading of all cars");
                         loadingView.setVisibility(View.INVISIBLE);
+                        mCarListAdapter.notifyDataSetChanged();
+                        if (mCarListAdapter.getCount() > 0) {
+                            headerView.setVisibility(View.VISIBLE);
+                            ECAnimationUtils.animateHideView(CarSelectionActivity.this, infoBackground, R.anim.fade_out);
+                        }
                     }
 
                     @Override
@@ -309,12 +314,13 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
 
                     @Override
                     public void onNext(List<Car> cars) {
-                        LOG.info("onNext() " + cars.size());
+                        LOG.info("onNext(List<Car> cars) " + cars.size());
                         for (Car car : cars) {
-                            if (!usedCars.contains(car))
-                                usedCars.add(car);
+                            if (!usedCars.contains(car)) {
+                                LOG.info("Adding car: " + car);
+                                mCarListAdapter.addCarItem(car);
+                            }
                         }
-                        mCarListAdapter.notifyDataSetInvalidated();
                     }
 
                 });
@@ -387,16 +393,26 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
         String model = vehicle.getCommerical_name();
         String yearString = vehicle.getAllotment_date();
         int year = convertDateToInt(yearString);
+        int weight = 0;
+        if (vehicle.getWeight() != null && vehicle.getWeight().length() > 0) {
+            weight = Integer.parseInt(vehicle.getWeight());
+        }
+        String vehicleType = vehicle.getVehicleType();
         int engine = 0;
         if (!vehicle.getEngine_capacity().isEmpty())
             engine = Integer.parseInt(vehicle.getEngine_capacity());
         Car.FuelType fuelType = getFuel(vehicle.getPower_source_id());
+        Car result;
         if (fuelType != Car.FuelType.ELECTRIC) {
-            return new CarImpl(manufacturer, model, fuelType, year, engine);
+            result = new CarImpl(manufacturer, model, fuelType, year, engine);
         } else {
-            return new CarImpl(manufacturer, model, fuelType, year);
-
+            result = new CarImpl(manufacturer, model, fuelType, year);
         }
+
+        result.setWeight(weight);
+        result.setVehicleType(vehicleType);
+        
+        return result;
     }
 
     @Override

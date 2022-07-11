@@ -34,6 +34,8 @@ import org.envirocar.core.events.NewUserSettingsEvent;
 import org.envirocar.core.exception.MailNotConfirmedException;
 import org.envirocar.core.exception.NotConnectedException;
 import org.envirocar.core.exception.UnauthorizedException;
+import org.envirocar.core.exception.DataRetrievalFailureException;
+import org.envirocar.core.exception.ResourceConflictException;
 import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.logging.Logger;
 
@@ -128,6 +130,23 @@ public class UserPreferenceHandler extends AbstractCachable<User> implements Use
      */
     public User getUser() {
         return this.readFromCache();
+    }
+
+    /**
+     * Get the getUserStatistic, but the most recent version from the remote DAO
+     *
+     * @return getUserStatistic
+     */
+    public User retrieveUpdatedUser(User user) throws NotConnectedException {
+        try {
+            User result = daoProvider.getUserDAO().getUser(user.getUsername());
+            result.setToken(user.getToken());
+            writeToCache(result);
+            return result;
+        } catch (DataRetrievalFailureException | UnauthorizedException | ResourceConflictException e) {
+            LOG.warn(e.getMessage(), e);
+            throw new NotConnectedException(e);
+        }
     }
 
     /**

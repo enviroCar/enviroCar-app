@@ -18,7 +18,7 @@
  */
 package org.envirocar.core.utils.rx.dialogs;
 
-import android.app.Activity;
+import android.content.Context;
 import android.text.Html;
 import android.text.Spanned;
 
@@ -40,7 +40,7 @@ public class ReactivePrivacyStatementDialog extends AbstractReactiveAcceptDialog
      * @param activityContext the context of the currently visible activity
      * @param entity          the entity to show the dialog for.
      */
-    public ReactivePrivacyStatementDialog(Activity activityContext, PrivacyStatement entity, Params params) {
+    public ReactivePrivacyStatementDialog(Context activityContext, PrivacyStatement entity, Params params) {
         super(activityContext, entity, params);
     }
 
