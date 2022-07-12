@@ -27,6 +27,8 @@ import android.view.ViewGroup;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.BaseApplicationComponent;
+import org.envirocar.app.databinding.FragmentOthersBinding;
+import org.envirocar.app.databinding.FragmentTempomatViewBinding;
 import org.envirocar.app.injection.components.MainActivityComponent;
 import org.envirocar.app.injection.modules.MainActivityModule;
 import org.envirocar.app.R;
@@ -35,8 +37,8 @@ import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.obd.events.SpeedUpdateEvent;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
+
+
 
 /**
  * @author dewall
@@ -44,23 +46,23 @@ import butterknife.ButterKnife;
 public class TempomatFragment extends BaseInjectorFragment {
     private static final Logger LOG = Logger.getLogger(TempomatFragment.class);
 
-    @BindView(R.id.fragment_dashboard_tempomat_view)
+
     protected Tempomat mTempomatView;
 
+    private FragmentTempomatViewBinding binding;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle
             savedInstanceState) {
         LOG.info("onCreateView()");
+        binding = FragmentTempomatViewBinding.inflate(inflater,container,false);
+        View view = binding.getRoot();
 
-        // First inflate the general dashboard view.
-        View contentView = inflater.inflate(R.layout.fragment_tempomat_view, container, false);
+        mTempomatView = binding.fragmentDashboardTempomatView;
 
-        // Inject all dashboard-related views.
-        ButterKnife.bind(this, contentView);
 
         // return the inflated content view.
-        return contentView;
+        return view;
     }
 
     @Override
