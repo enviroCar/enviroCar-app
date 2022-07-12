@@ -177,7 +177,7 @@ public class TrackUploadHandler {
                         .lift(new OptionalOrErrorMappingOperator()));
     }
 
-    public Track uploadTrackChunkStart(Track track) throws ResourceConflictException, NotConnectedException, DataCreationFailureException, UnauthorizedException {
+    public Observable<Track> uploadTrackChunkStart(Track track) throws ResourceConflictException, NotConnectedException, DataCreationFailureException, UnauthorizedException {
         track.setTrackStatus(Track.TrackStatus.ONGOING);
         
         // metadata
@@ -185,19 +185,24 @@ public class TrackUploadHandler {
         track.setMetadata(meta);
 
         LOG.info("Trying to create track." + track);
-        mCarManager
-                .assertTemporaryCar(track.getCar());
-        try {
-            return trackDAOHandler.createRemoteTrack(track);
-        } catch (NotConnectedException e) {
-            Notification forgroundNotification = new NotificationCompat.Builder(mContext)
-                .setSmallIcon(R.drawable.ic_cloud_upload_white_24dp)
-                .setContentTitle(mContext.getString(R.string.notification_autoupload_error_sub))
-                .setPriority(Integer.MAX_VALUE)
-                .build();
-            mNotificationManager.notify(100, forgroundNotification);
-            throw e;
-        }
+        return mCarManager
+                .assertTemporaryCar(track.getCar())
+                .map(car -> {
+                    track.setCar(car);
+                    return trackDAOHandler.createRemoteTrack(track);
+                })
+                .lift(new UploadExceptionMappingOperator());
+        // try {
+        //     return trackDAOHandler.createRemoteTrack(track);
+        // } catch (NotConnectedException e) {
+        //     Notification forgroundNotification = new NotificationCompat.Builder(mContext)
+        //         .setSmallIcon(R.drawable.ic_cloud_upload_white_24dp)
+        //         .setContentTitle(mContext.getString(R.string.notification_autoupload_error_sub))
+        //         .setPriority(Integer.MAX_VALUE)
+        //         .build();
+        //     mNotificationManager.notify(100, forgroundNotification);
+        //     throw e;
+        // }
     }
 
     public void uploadTrackChunk(String remoteID, JsonArray trackFeatures) throws NotConnectedException, UnauthorizedException {

@@ -115,8 +115,24 @@ public class TrackchunkUploadService extends BaseInjectorService {
                 if(!executed) {
                     executed = true;
                     try {
-                        currentTrack = trackUploadHandler.uploadTrackChunkStart(track);
-                        LOG.info("Track remote id: " + currentTrack.getRemoteID());
+                        trackUploadHandler.uploadTrackChunkStart(track)
+                        .subscribeWith(new DisposableObserver<Track>() {
+                            @Override
+                            public void onNext(Track track) {
+                                currentTrack = track;
+                                LOG.info("Track remote id: " + currentTrack.getRemoteID());
+                            }
+    
+                            @Override
+                            public void onError(Throwable e) {
+                                LOG.error(e);
+                                TrackchunkUploadService.this.eventBus.unregister(TrackchunkUploadService.this);
+                            }
+    
+                            @Override
+                            public void onComplete() {
+                            }
+                        });
                     } catch (Exception e) {
                         LOG.error(e);
                         TrackchunkUploadService.this.eventBus.unregister(TrackchunkUploadService.this);
@@ -153,7 +169,7 @@ public class TrackchunkUploadService extends BaseInjectorService {
         }
         measurements.add(event.mMeasurement);
         LOG.info("received new measurement" + this);
-        if(measurements.size() > MEASUREMENT_THRESHOLD) {
+        if(measurements.size() > MEASUREMENT_THRESHOLD && currentTrack != null && currentTrack.getRemoteID() != null) {
            List<Measurement> measurementsCopy = new ArrayList<>(measurements.size() + 1);
             measurementsCopy.addAll(measurements);
             JsonArray trackFeatures = createMeasurementJson(measurementsCopy);
@@ -259,7 +275,7 @@ public class TrackchunkUploadService extends BaseInjectorService {
 
     @Subscribe
     public void onReceiveTrackFinishedEvent(final TrackFinishedEvent event) {
-        if(!isEnabled){
+        if(!isEnabled || currentTrack == null){
             return;
         }
         LOG.info(String.format("onReceiveTrackFinishedEvent(): event=%s", event.toString()));
