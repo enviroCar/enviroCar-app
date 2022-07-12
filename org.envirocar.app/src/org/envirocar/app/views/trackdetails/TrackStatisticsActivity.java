@@ -34,6 +34,9 @@ import android.view.ViewGroup;
 
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
+import org.envirocar.app.databinding.ActivityTrackDetailsLayoutBinding;
+import org.envirocar.app.databinding.ActivityTrackStatisticsFragmentBinding;
+import org.envirocar.app.databinding.ActivityTrackStatisticsLayoutBinding;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
 import org.envirocar.app.injection.BaseInjectorActivity;
@@ -45,8 +48,8 @@ import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
-import butterknife.ButterKnife;
-import butterknife.BindView;
+
+
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import lecho.lib.hellocharts.formatter.SimpleAxisValueFormatter;
@@ -78,7 +81,7 @@ public class TrackStatisticsActivity extends BaseInjectorActivity {
     @Inject
     protected EnviroCarDB enviroCarDB;
 
-    @BindView(R.id.activity_track_statistics_toolbar)
+
     protected Toolbar mToolbar;
 
     private Track mTrack;
@@ -88,11 +91,15 @@ public class TrackStatisticsActivity extends BaseInjectorActivity {
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
         baseApplicationComponent.inject(this);
     }
-
+    private ActivityTrackStatisticsLayoutBinding binding;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_track_statistics_layout);
+        binding = ActivityTrackStatisticsLayoutBinding.inflate(getLayoutInflater());
+        View view = binding.getRoot();
+        setContentView(view);
+
+        mToolbar = binding.activityTrackStatisticsToolbar;
 
         int trackID = getIntent().getIntExtra(EXTRA_TRACKID, -1);
         Track.TrackId trackid = new Track.TrackId(trackID);
@@ -117,7 +124,6 @@ public class TrackStatisticsActivity extends BaseInjectorActivity {
                 });
 
         // Inject all annotated views.
-        ButterKnife.bind(this);
 
         // Initializes the Toolbar.
         setSupportActionBar(mToolbar);
@@ -164,9 +170,9 @@ public class TrackStatisticsActivity extends BaseInjectorActivity {
 
     public static class PlaceholderFragment extends Fragment {
 
-        @BindView(R.id.activity_track_statistics_fragment_chart)
+
         protected LineChartView mChart;
-        @BindView(R.id.activity_track_statistics_fragment_chart_preview)
+
         protected PreviewLineChartView mPreviewChart;
 
         private LineChartData mChartData;
@@ -183,15 +189,16 @@ public class TrackStatisticsActivity extends BaseInjectorActivity {
             this.mTrack = track;
         }
 
+        private ActivityTrackStatisticsFragmentBinding binding;
         @Nullable
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle
                 savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.activity_track_statistics_fragment,
-                    container, false);
+            binding = ActivityTrackStatisticsFragmentBinding.inflate(inflater,container,false);
+            View view = binding.getRoot();
 
-            // Inject all annotated views.
-            ButterKnife.bind(this, rootView);
+            mChart = binding.activityTrackStatisticsFragmentChart;
+            mPreviewChart = binding.activityTrackStatisticsFragmentChartPreview;
 
             if(mTrack.hasProperty(Measurement.PropertyKey.SPEED)){
                 generateData(Measurement.PropertyKey.SPEED);
@@ -210,7 +217,7 @@ public class TrackStatisticsActivity extends BaseInjectorActivity {
                 }
             });
 
-            return rootView;
+            return view;
         }
 
         private void generateData(Measurement.PropertyKey propertyKey) {
