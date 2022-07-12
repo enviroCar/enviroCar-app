@@ -47,6 +47,8 @@ import com.jakewharton.rxbinding3.widget.RxTextView;
 
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
+import org.envirocar.app.databinding.ActivitySigninBinding;
+import org.envirocar.app.databinding.ActivitySignupBinding;
 import org.envirocar.app.handler.DAOProvider;
 import org.envirocar.app.handler.agreement.AgreementManager;
 import org.envirocar.app.handler.preferences.UserPreferenceHandler;
@@ -66,9 +68,9 @@ import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
+
+
+
 import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -102,21 +104,21 @@ public class SignupActivity extends BaseInjectorActivity {
     protected AgreementManager agreementManager;
 
     // Injected Views
-    @BindView(R.id.activity_signup_username_input)
+
     protected EditText usernameEditText;
-    @BindView(R.id.activity_signup_email_input)
+
     protected EditText emailEditText;
-    @BindView(R.id.activity_signup_password_1)
+
     protected EditText password1EditText;
-    @BindView(R.id.activity_signup_password_2)
+
     protected EditText password2EditText;
-    @BindView(R.id.activity_signup_tou_checkbox)
+
     protected CheckBox touCheckbox;
-    @BindView(R.id.activity_signup_tou_text)
+
     protected TextView touText;
-    @BindView(R.id.activity_signup_ps_checkbox)
+
     protected CheckBox psCheckbox;
-    @BindView(R.id.activity_signup_ps_text)
+
     protected TextView psText;
 
     private final Scheduler.Worker mainThreadWorker = AndroidSchedulers.mainThread().createWorker();
@@ -130,14 +132,28 @@ public class SignupActivity extends BaseInjectorActivity {
         baseApplicationComponent.inject(this);
     }
 
+    private ActivitySignupBinding binding;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_signup);
+        binding = ActivitySignupBinding.inflate(getLayoutInflater());
+        View view = binding.getRoot();
+        setContentView(view);
+
+        usernameEditText = binding.activitySignupUsernameInput;
+        emailEditText = binding.activitySignupEmailInput;
+        password1EditText = binding.activitySignupPassword1;
+        password2EditText = binding.activitySignupPassword2;
+        touCheckbox = binding.activitySignupTouCheckbox;
+        touText = binding.activitySignupTouText;
+        psCheckbox = binding.activitySignupPsCheckbox;
+        psText = binding.activitySignupPsText;
+
+
         getWindow().setNavigationBarColor(getResources().getColor(R.color.cario_color_primary_dark));
 
         // inject the views
-        ButterKnife.bind(this);
+
 
         errorPassword = getResources().getDrawable(R.drawable.ic_error_red_24dp);
         errorPassword.setBounds(-70,0,0, errorPassword.getIntrinsicHeight());
@@ -158,23 +174,23 @@ public class SignupActivity extends BaseInjectorActivity {
         }
     }
 
-    @OnClick(R.id.imageView)
-    protected void closeKeyboard(){
-        View view = this.getCurrentFocus();
+    //@OnClick(R.id.imageView)
+    protected void closeKeyboard(View view){
+
         if (view != null) {
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
     }
 
-    @OnClick(R.id.activity_signup_login_button)
-    protected void onSwitchToRegister() {
+    //@OnClick(R.id.activity_signup_login_button)
+    protected void onSwitchToRegister(View view) {
         Intent intent = new Intent(this, SigninActivity.class);
         startActivity(intent);
     }
 
-    @OnClick(R.id.activity_signup_register_button)
-    protected void onRegisterAccountButtonClicked() {
+    //@OnClick(R.id.activity_signup_register_button)
+    protected void onRegisterAccountButtonClicked(View view) {
 
         // We do not want to have dublicate registration processes.
         if (this.registerSubscription != null && !this.registerSubscription.isDisposed()) {
@@ -231,11 +247,11 @@ public class SignupActivity extends BaseInjectorActivity {
 
         if(new ContextInternetAccessProvider(getApplicationContext()).isConnected()) {
             dialog = DialogUtils.createProgressBarDialogBuilder(SignupActivity.this,
-                R.string.register_progress_signing_in,
-                R.drawable.ic_baseline_login_24,
-                (String) null)
-                .setCancelable(false)
-                .show();
+                            R.string.register_progress_signing_in,
+                            R.drawable.ic_baseline_login_24,
+                            (String) null)
+                    .setCancelable(false)
+                    .show();
         }
 
         registerSubscription = backgroundWorker.schedule(() -> {
@@ -249,7 +265,7 @@ public class SignupActivity extends BaseInjectorActivity {
                     mainThreadWorker.schedule(() -> {
                         // Dismiss the progress dialog.
                         if(new ContextInternetAccessProvider(getApplicationContext()).isConnected())
-                        dialog.dismiss();
+                            dialog.dismiss();
 
                         new MaterialAlertDialogBuilder(SignupActivity.this, R.style.MaterialDialog)
                                 .setTitle(R.string.register_success_dialog_title)
@@ -268,7 +284,7 @@ public class SignupActivity extends BaseInjectorActivity {
                     });
                 }else{
                     if(new ContextInternetAccessProvider(getApplicationContext()).isConnected())
-                    dialog.dismiss();
+                        dialog.dismiss();
                     showSnackbar(getString(R.string.error_not_connected_to_network));
                 }
             } catch (ResourceConflictException e) {
