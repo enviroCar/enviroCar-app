@@ -26,6 +26,8 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import org.envirocar.app.R;
+import org.envirocar.app.databinding.ActivityCarSelectionLayoutCarlistEntryBinding;
+import org.envirocar.app.databinding.ActivityLogbookListentryBinding;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Fueling;
 import org.envirocar.app.views.utils.DateUtils;
@@ -37,8 +39,8 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 
-import butterknife.ButterKnife;
-import butterknife.BindView;
+
+
 
 /**
  * TODO JavaDoc
@@ -119,33 +121,46 @@ public class LogbookListAdapter extends ArrayAdapter<Fueling> {
     }
 
     static class FuelingViewHolder {
-        @BindView(R.id.activity_logbook_listentry_date)
+
         protected TextView dateText;
-        @BindView(R.id.activity_logbook_listentry_kmliter)
+
         protected TextView kmAndLiter;
-        @BindView(R.id.activity_logbook_listentry_priceperliter)
+
         protected TextView pricePerLiter;
-        @BindView(R.id.activity_logbook_listentry_totalprice)
+
         protected TextView totalPrice;
 
-        @BindView(R.id.activity_logbook_listentry_car)
+
         protected TextView car;
-        @BindView(R.id.activity_logbook_listentry_comment_view)
+
         protected View commentView;
-        @BindView(R.id.activity_logbook_listentry_comment)
+
         protected TextView commentText;
-        @BindView(R.id.activity_logbook_listentry_fillup)
+
         protected View filledUpView;
-        @BindView(R.id.activity_logbook_listentry_missedfillup)
+
         protected View missedFillUpView;
 
+
+        protected ActivityLogbookListentryBinding binding;
         /**
          * Constructor.
          *
          * @param view the core view to inject the subviews from.
          */
         FuelingViewHolder(View view) {
-            ButterKnife.bind(this, view);
+            binding = ActivityLogbookListentryBinding.bind(view);
+            dateText = binding.activityLogbookListentryDate;
+            kmAndLiter = binding.activityLogbookListentryKmliter;
+            pricePerLiter = binding.activityLogbookListentryPriceperliter;
+            totalPrice = binding.activityLogbookListentryTotalprice;
+
+            car = binding.activityLogbookListentryCar;
+            commentView = binding.activityLogbookListentryCommentView;
+            commentText = binding.activityLogbookListentryComment;
+            filledUpView = binding.activityLogbookListentryFillup;
+            missedFillUpView = binding.activityLogbookListentryMissedfillup;
+
         }
     }
 }
