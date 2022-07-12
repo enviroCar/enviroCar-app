@@ -31,28 +31,33 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 import org.envirocar.app.R;
+import org.envirocar.app.databinding.FragmentCarListBinding;
+import org.envirocar.app.databinding.FragmentDashboardViewNewBinding;
 import org.envirocar.core.entity.Vehicles;
 
 import java.util.List;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
+
+
+
 
 public class CarListFragment extends BottomSheetDialogFragment {
 
-    @BindView(R.id.fragment_car_list_view)
     RecyclerView recyclerView;
-   List<Vehicles> vehiclesList;
+    List<Vehicles> vehiclesList;
 
 
-
+    private FragmentCarListBinding binding;
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        View view = inflater.inflate(R.layout.fragment_car_list, container, false);
-        ButterKnife.bind(this, view);
+        binding = FragmentCarListBinding.inflate(inflater,container,false);
+        View view = binding.getRoot();
+
+        recyclerView = binding.fragmentCarListView;
+
+
         CarSelectionAttributeListAdapter carListAdapter = new CarSelectionAttributeListAdapter(getContext(), vehiclesList,
                 new OnCarInteractionCallback() {
 
@@ -73,7 +78,7 @@ public class CarListFragment extends BottomSheetDialogFragment {
     }
 
     CarListFragment(List<Vehicles> vehiclesList) {
-      this.vehiclesList = vehiclesList;
+        this.vehiclesList = vehiclesList;
     }
 
     @Override
@@ -81,8 +86,7 @@ public class CarListFragment extends BottomSheetDialogFragment {
         super.onDestroy();
     }
 
-    @OnClick(R.id.fragment_car_list_layout_cancel)
-    void cancelSheet() {
+    void cancelSheet(View view) {
         dismiss();
     }
 }

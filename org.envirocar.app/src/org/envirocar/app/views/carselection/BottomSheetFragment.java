@@ -33,28 +33,28 @@ import androidx.annotation.Nullable;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 import org.envirocar.app.R;
+import org.envirocar.app.databinding.CarAttributesDetailBottomsheetBinding;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Vehicles;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
+
+
+
 
 public class BottomSheetFragment extends BottomSheetDialogFragment {
 
-    @BindView(R.id.activity_car_details_attr_manufacturer_value)
     TextView manufacturer;
-    @BindView(R.id.activity_car_details_attr_car_value)
+
     TextView model;
-    @BindView(R.id.activity_car_details_attr_year_value)
+
     TextView year;
-    @BindView(R.id.activity_car_details_attr_fuel_value)
+
     TextView fuel;
-    @BindView(R.id.activity_car_details_attr_power_value)
+
     TextView power;
-    @BindView(R.id.activity_car_details_attr_engine_value)
+
     TextView engine;
-    @BindView(R.id.bottomSheetEngineLayout)
+
     View engineLayout;
 
     Vehicles vehicle;
@@ -63,11 +63,22 @@ public class BottomSheetFragment extends BottomSheetDialogFragment {
         this.vehicle = vehicles;
     }
 
+    private CarAttributesDetailBottomsheetBinding binding;
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.car_attributes_detail_bottomsheet, container,false);
-        ButterKnife.bind(this, view);
+
+        binding = CarAttributesDetailBottomsheetBinding.inflate(inflater,container,false);
+        View view = binding.getRoot();
+        manufacturer=binding.activityCarDetailsAttrManufacturerValue;
+        model=binding.activityCarDetailsAttrCarValue;
+        year=binding.activityCarDetailsAttrYearValue;
+        fuel=binding.activityCarDetailsAttrFuelValue;
+        power=binding.activityCarDetailsAttrPowerValue;
+        engine=binding.activityCarDetailsAttrEngineValue;
+        engineLayout=binding.bottomSheetEngineLayout;
+
+
         manufacturer.setText(vehicle.getManufacturer());
         model.setText(vehicle.getCommerical_name());
         year.setText(vehicle.getAllotment_date());
@@ -82,13 +93,11 @@ public class BottomSheetFragment extends BottomSheetDialogFragment {
         return view;
     }
 
-    @OnClick(R.id.activity_car_details_cancel)
-    void cancelSheet() {
+        void cancelSheet(View view) {
         dismiss();
     }
 
-    @OnClick(R.id.activity_car_details_create)
-    void proceed() {
+        void proceed(View view) {
         ((CarSelectionActivity)getActivity()).registerCar(vehicle);
         dismiss();
     }

@@ -38,6 +38,9 @@ import androidx.viewpager.widget.ViewPager;
 
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
+import org.envirocar.app.databinding.ActivityCarSelectionLayoutBinding;
+import org.envirocar.app.databinding.ActivityCarSelectionNewcarFragmentBinding;
+import org.envirocar.app.databinding.ActivityTrackStatisticsLayoutBinding;
 import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.app.views.utils.ECAnimationUtils;
 import org.envirocar.core.entity.Manufacturers;
@@ -49,9 +52,9 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
+
+
+
 import info.hoang8f.android.segmented.SegmentedGroup;
 import io.reactivex.Observable;
 import io.reactivex.Single;
@@ -64,15 +67,15 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
     private static final Logger LOG = Logger.getLogger(CarSelectionAddCarFragment.class);
 
 
-    @BindView(R.id.envirocar_toolbar)
+
     protected Toolbar toolbar;
-    @BindView(R.id.activity_car_selection_newcar_toolbar_exp)
+
     protected View toolbarExp;
-    @BindView(R.id.activity_car_selection_top)
+
     protected View topView;
-    @BindView(R.id.carSelectionSegmentedGroup)
+
     protected SegmentedGroup segmentedGroup;
-    @BindView(R.id.activity_car_selection_newcar_content_view)
+
     protected ViewPager mViewPager;
 
     @Inject
@@ -81,14 +84,21 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
     private CarSelectionPagerAdapter pagerAdapter;
     private List<Manufacturers> manufacturersList;
 
+    private ActivityCarSelectionNewcarFragmentBinding binding;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle
             savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
+        binding = ActivityCarSelectionNewcarFragmentBinding.inflate(inflater,container,false);
+        View view = binding.getRoot();
 
-        View view = inflater.inflate(R.layout.activity_car_selection_newcar_fragment, container, false);
-        ButterKnife.bind(this, view);
+        toolbar = binding.activityCarSelectionLayoutExptoolbar.envirocarToolbar;
+        toolbarExp = binding.activityCarSelectionNewcarToolbarExp;
+        topView = binding.activityCarSelectionTop;
+        segmentedGroup = binding.carSelectionSegmentedGroup;
+        mViewPager = binding.activityCarSelectionNewcarContentView;
+
 
         toolbar.setNavigationIcon(R.drawable.ic_close_white_24dp);
         toolbar.setNavigationOnClickListener(v -> {

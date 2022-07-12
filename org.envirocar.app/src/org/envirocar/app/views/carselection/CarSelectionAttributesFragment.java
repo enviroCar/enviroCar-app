@@ -28,8 +28,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.ArrayAdapter;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.Spinner;
@@ -42,6 +44,8 @@ import com.jakewharton.rxbinding3.widget.RxTextView;
 
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
+import org.envirocar.app.databinding.FragmentCarListBinding;
+import org.envirocar.app.databinding.FragmentCarSelectionAttributesBinding;
 import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.core.entity.Manufacturers;
 import org.envirocar.core.entity.Vehicles;
@@ -59,10 +63,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
-import butterknife.OnTextChanged;
+
 import io.reactivex.Observable;
 import io.reactivex.Scheduler;
 import io.reactivex.Single;
@@ -74,22 +75,22 @@ import io.reactivex.schedulers.Schedulers;
 
 public class CarSelectionAttributesFragment extends BaseInjectorFragment {
 
-    @BindView(R.id.fragment_attributes_manufacturer_input)
+
     protected AutoCompleteTextView manufactureEditText;
-    @BindView(R.id.fragment_attributes_model_input)
+
     protected AutoCompleteTextView modelEditText;
-    @BindView(R.id.fragment_attributes_year_input)
+
     protected AutoCompleteTextView yearEditText;
-    @BindView(R.id.fragment_attributes_fueltype_input)
+
     protected AutoCompleteTextView fuelTypeSelection;
-    @BindView(R.id.fragment_attributes_displacement_input)
+
     protected EditText displacementEditText;
-    @BindView(R.id.fragment_attributes_weight_input)
+
     protected EditText weightEditText;
-    @BindView(R.id.fragment_attributes_utility_input)
+
     protected AutoCompleteTextView utilityTypeSelection;
 
-    @BindView(R.id.fragment_car_search_button_text)
+
     protected TextView searchButton;
 
     @Inject
@@ -108,13 +109,27 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
         this.manufacturersList = manufacturersList;
     }
 
+    private FragmentCarSelectionAttributesBinding binding;
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
+        binding = FragmentCarSelectionAttributesBinding.inflate(inflater,container,false);
+        View view = binding.getRoot();
 
-        View view = inflater.inflate(R.layout.fragment_car_selection_attributes, container, false);
-        ButterKnife.bind(this, view);
+
+        manufactureEditText= binding.fragmentAttributesManufacturerInput;
+
+        modelEditText= binding.fragmentAttributesModelInput;
+        yearEditText= binding.fragmentAttributesYearInput;
+        fuelTypeSelection= binding.fragmentAttributesFueltypeInput;
+        displacementEditText = binding.fragmentAttributesDisplacementInput;
+        weightEditText= binding.fragmentAttributesWeightInput;
+        utilityTypeSelection= binding.fragmentAttributesUtilityInput;
+        searchButton = binding.fragmentCarSearchButtonText;
+        searchButton.setOnClickListener(this::searchButtonClick);
+
+
         fetchManufactures();
         initFocusChangedListener();
         initManufacturerTextChangeListener();
@@ -128,18 +143,18 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
                 getContext().getString(R.string.fuel_type_electric), getContext().getString(R.string.fuel_type_gas), getContext().getString(R.string.fuel_type_hybrid));
 
         ArrayAdapter<String> fuelTypesAdapter = new ArrayAdapter<>(
-            getContext(),
-            R.layout.activity_car_selection_newcar_fueltype_item,
-            fuelTypes);
+                getContext(),
+                R.layout.activity_car_selection_newcar_fueltype_item,
+                fuelTypes);
         fuelTypeSelection.setAdapter(fuelTypesAdapter);
         fuelTypeSelection.setText(fuelTypesAdapter.getItem(0).toString(), false);
 
         String[] utilityTypes = new String[]{getContext().getString(R.string.car_selection_private_vehicle), getContext().getString(R.string.car_selection_utility_car), getContext().getString(R.string.car_selection_taxi)};
 
         ArrayAdapter<String> utilityTypesAdapter = new ArrayAdapter<>(
-            getContext(),
-            R.layout.activity_car_selection_newcar_fueltype_item,
-            utilityTypes);
+                getContext(),
+                R.layout.activity_car_selection_newcar_fueltype_item,
+                utilityTypes);
         utilityTypeSelection.setAdapter(utilityTypesAdapter);
         utilityTypeSelection.setText(utilityTypesAdapter.getItem(0).toString(), false);
 
@@ -157,26 +172,25 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
         baseApplicationComponent.inject(this);
     }
 
-    @OnTextChanged(value = R.id.fragment_attributes_manufacturer_input, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
-    protected void onManufacturerChanged() {
+    protected void onManufacturerChanged(AdapterView.OnItemSelectedListener listener) {
         manufactureEditText.setError(null);
         modelEditText.setText("");
         yearEditText.setText("");
     }
 
-    @OnTextChanged(value = R.id.fragment_attributes_model_input, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
+    //@OnTextChanged(value = R.id.fragment_attributes_model_input, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
     protected void onModelChanged() {
         modelEditText.setError(null);
         yearEditText.setText("");
     }
 
-    @OnTextChanged(value = R.id.fragment_attributes_year_input, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
+    //@OnTextChanged(value = R.id.fragment_attributes_year_input, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
     protected void onYearChanged() {
         yearEditText.setError(null);
     }
 
-    @OnClick(R.id.fragment_car_search_button)
-    void searchButtonClick() {
+
+    void searchButtonClick(View view) {
         String manufacturer = manufactureEditText.getText().toString().trim();
         String model = modelEditText.getText().toString().trim();
         String year = yearEditText.getText().toString().trim();
@@ -210,20 +224,20 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
         if (hasStoredVehicle()) {
             // launch the selection fragment
             Single<List<Vehicles>> vehicle = enviroCarVehicleDB.vehicleDAO().getVehicleAttributeType(manufacturer, model, year);
-                vehicle.subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.io())
-                .subscribeWith(new DisposableSingleObserver<List<Vehicles>>() {
-                    @Override
-                    public void onSuccess(List<Vehicles> vehiclesList) {
-                        CarListFragment carListFragment = new CarListFragment(vehiclesList);
-                        carListFragment.show(getFragmentManager(), carListFragment.getTag());
-                    }
+            vehicle.subscribeOn(Schedulers.io())
+                    .observeOn(Schedulers.io())
+                    .subscribeWith(new DisposableSingleObserver<List<Vehicles>>() {
+                        @Override
+                        public void onSuccess(List<Vehicles> vehiclesList) {
+                            CarListFragment carListFragment = new CarListFragment(vehiclesList);
+                            carListFragment.show(getFragmentManager(), carListFragment.getTag());
+                        }
 
-                    @Override
-                    public void onError(Throwable e) {
-                        Log.i("fetchError", "" + e.getMessage());
-                    }
-                });
+                        @Override
+                        public void onError(Throwable e) {
+                            Log.i("fetchError", "" + e.getMessage());
+                        }
+                    });
         } else {
             // create new car without selection
             Vehicles vehicle = createVehicleFromFields();
@@ -231,7 +245,7 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
                 ((CarSelectionActivity) getActivity()).registerCar(vehicle);
             }
         }
-        
+
     }
 
 
@@ -278,7 +292,7 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
         vehicle.setManufacturer(manufacturer);
         vehicle.setCommerical_name(model);
         vehicle.setAllotment_date("01.01." + year);
-        
+
         vehicle.setEngine_capacity(displacement);
         vehicle.setPower_source_id(getFuelTypeId(fuelType));
 
@@ -305,10 +319,10 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
     @NonNull
     protected String getEnglishString(int res) {
         Configuration configuration = getEnglishConfiguration();
-    
+
         return getContext().createConfigurationContext(configuration).getResources().getString(res);
     }
-    
+
     @NonNull
     private Configuration getEnglishConfiguration() {
         Configuration configuration = new Configuration(getContext().getResources().getConfiguration());
