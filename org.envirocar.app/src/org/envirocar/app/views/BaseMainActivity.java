@@ -24,6 +24,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.WindowManager;
 
 import androidx.activity.OnBackPressedCallback;
@@ -40,6 +41,7 @@ import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
+import org.envirocar.app.databinding.ActivityBaseMainBottomBarBinding;
 import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.DAOProvider;
@@ -64,8 +66,8 @@ import java.util.Stack;
 
 import javax.inject.Inject;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
+
+
 import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
@@ -81,9 +83,6 @@ public class BaseMainActivity extends BaseInjectorActivity {
 
     private FragmentStatePagerAdapter fragmentStatePagerAdapter;
     private MenuItem prevMenuItem;
-
-    // Instance of the binding class to reference any of the views
-    BaseMainActivity binding;
 
     // Custom Callback Stack
     Stack<Integer> callbackStack = new Stack<Integer>();
@@ -115,10 +114,10 @@ public class BaseMainActivity extends BaseInjectorActivity {
     @Inject
     protected ValidateAcceptedTerms validateTermsOfUse;
 
-    @BindView(R.id.navigation)
+
     protected BottomNavigationView navigationBottomBar;
 
-    @BindView(R.id.fragmentContainer)
+
     protected ViewPager viewPager;
 
     private CompositeDisposable subscriptions = new CompositeDisposable();
@@ -132,13 +131,13 @@ public class BaseMainActivity extends BaseInjectorActivity {
             = item -> {
         switch (item.getItemId()) {
             case R.id.navigation_dashboard:
-                binding.viewPager.setCurrentItem(0);
+                viewPager.setCurrentItem(0);
                 return true;
             case R.id.navigation_my_tracks:
-                binding.viewPager.setCurrentItem(1);
+                viewPager.setCurrentItem(1);
                 return true;
             case R.id.navigation_others:
-                binding.viewPager.setCurrentItem(2);
+                viewPager.setCurrentItem(2);
                 return true;
         }
         return false;
@@ -150,19 +149,22 @@ public class BaseMainActivity extends BaseInjectorActivity {
                 .plus(new MainActivityModule(this))
                 .inject(this);
     }
-
+    private ActivityBaseMainBottomBarBinding binding;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 //        LOGGER.info("BaseMainActivity : onCreate");
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_base_main_bottom_bar);
-        ButterKnife.bind(this);
+        binding = ActivityBaseMainBottomBarBinding.inflate(getLayoutInflater());
+        View view = binding.getRoot();
+        setContentView(view);
+        navigationBottomBar = binding.navigation;
+        viewPager = binding.fragmentContainer;
 
-        binding.navigationBottomBar.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
-        binding.navigationBottomBar.setSelectedItemId(R.id.navigation_dashboard);
+        navigationBottomBar.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+        navigationBottomBar.setSelectedItemId(R.id.navigation_dashboard);
 
         fragmentStatePagerAdapter = new PageSlider(getSupportFragmentManager(), FragmentStatePagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
-        binding.viewPager.setAdapter(fragmentStatePagerAdapter);
+        viewPager.setAdapter(fragmentStatePagerAdapter);
 
         // Custom Back Navigation for fragments in BaseMainActivity
         callbackStack.push(0);
@@ -171,14 +173,14 @@ public class BaseMainActivity extends BaseInjectorActivity {
             public void handleOnBackPressed() {
                 // Handle the back button event
                 callbackStack.pop();
-                binding.viewPager.setCurrentItem(callbackStack.peek());
+                viewPager.setCurrentItem(callbackStack.peek());
                 if(callbackStack.size() < 2)
                     this.setEnabled(false);
             }
         };
         this.getOnBackPressedDispatcher().addCallback(this, callback);
 
-        binding.viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
 
@@ -189,15 +191,15 @@ public class BaseMainActivity extends BaseInjectorActivity {
                 if (prevMenuItem != null) {
                     prevMenuItem.setChecked(false);
                 } else {
-                    binding.navigationBottomBar.getMenu().getItem(0).setChecked(false);
+                    navigationBottomBar.getMenu().getItem(0).setChecked(false);
                 }
                 // add page to callbackStack
                 if (callbackStack.peek() != position) {
                     callbackStack.push(position);
                     callback.setEnabled(true);
                 }
-                binding.navigationBottomBar.getMenu().getItem(position).setChecked(true);
-                prevMenuItem = binding.navigationBottomBar.getMenu().getItem(position);
+                navigationBottomBar.getMenu().getItem(position).setChecked(true);
+                prevMenuItem = navigationBottomBar.getMenu().getItem(position);
                 fragmentStatePagerAdapter.notifyDataSetChanged();
             }
 
@@ -318,10 +320,10 @@ public class BaseMainActivity extends BaseInjectorActivity {
     private void checkKeepScreenOn() {
         if (ApplicationSettings.getDisplayStaysActiveObservable(this).blockingFirst()) {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-            binding.navigationBottomBar.setKeepScreenOn(true);
+            this.navigationBottomBar.setKeepScreenOn(true);
         } else {
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-            binding.navigationBottomBar.setKeepScreenOn(false);
+            this.navigationBottomBar.setKeepScreenOn(false);
         }
     }
 

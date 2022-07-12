@@ -35,7 +35,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
-import butterknife.ButterKnife;
+
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
@@ -93,7 +93,6 @@ public class SplashScreenActivity extends BaseInjectorActivity {
 
         setContentView(R.layout.activity_splashscreen);
         getWindow().setNavigationBarColor(getResources().getColor(R.color.cario_color_primary_dark));
-        ButterKnife.bind(this);
 
         if ((getIntent().getFlags() & Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT) != 0) {
             finish();
