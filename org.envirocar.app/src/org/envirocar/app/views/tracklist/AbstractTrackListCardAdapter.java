@@ -38,6 +38,10 @@ import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
 
 import org.envirocar.app.R;
+import org.envirocar.app.databinding.ActivityLogbookListentryBinding;
+import org.envirocar.app.databinding.FragmentTrackMapBinding;
+import org.envirocar.app.databinding.FragmentTracklistCardlayoutBinding;
+import org.envirocar.app.databinding.FragmentTracklistCardlayoutRemoteBinding;
 import org.envirocar.app.views.trackdetails.TrackMapLayer;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.logging.Logger;
@@ -50,8 +54,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
+
+
 import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
@@ -297,34 +301,52 @@ public abstract class AbstractTrackListCardAdapter<E extends
 
         protected final View mItemView;
 
-        @BindView(R.id.fragment_tracklist_cardlayout_toolbar)
+
         protected Toolbar mToolbar;
-        @BindView(R.id.fragment_tracklist_cardlayout_toolbar_title)
+
         protected TextView mTitleTextView;
-        @BindView(R.id.fragment_tracklist_cardlayout_content)
+
         protected View mContentView;
-        @BindView(R.id.track_details_attributes_header_distance)
+
         protected TextView mDistance;
-        @BindView(R.id.track_details_attributes_header_duration)
+
         protected TextView mDuration;
-        @BindView(R.id.fragment_tracklist_cardlayout_map)
+
         protected MapView mMapView;
-        @BindView(R.id.fragment_tracklist_cardlayout_invis_mapbutton)
+
         protected ImageButton mInvisMapButton;
-        @BindView(R.id.fragment_layout_card_view)
+
         protected LinearLayout cardViewLayout;
 
         protected MapView.OnDidFailLoadingMapListener failLoadingMapListener;
 
+
+
+        protected FragmentTracklistCardlayoutBinding binding;
         /**
          * Constructor.
          *
          * @param itemView the card view of the
          */
+
         public TrackCardViewHolder(View itemView) {
             super(itemView);
+
             this.mItemView = itemView;
-            ButterKnife.bind(this, itemView);
+            binding = FragmentTracklistCardlayoutBinding.bind(itemView);
+
+            mToolbar= binding.fragmentTracklistCardlayoutToolbar;
+            mTitleTextView = binding.fragmentTracklistCardlayoutToolbarTitle;
+            mContentView = binding.fragmentTracklistCardlayoutContent.getRoot();
+            mDistance = binding.fragmentTracklistCardlayoutContent.trackDetailsAttributesHeaderDistance;
+            mDuration = binding.fragmentTracklistCardlayoutContent.trackDetailsAttributesHeaderDuration;
+            mMapView = binding.fragmentTracklistCardlayoutContent.fragmentTracklistCardlayoutMap;
+            mInvisMapButton = binding.fragmentTracklistCardlayoutContent.fragmentTracklistCardlayoutInvisMapbutton;
+            cardViewLayout = binding.fragmentLayoutCardView;
+
+
+
+
             failLoadingMapListener = new MapView.OnDidFailLoadingMapListener() {
                 @Override
                 public void onDidFailLoadingMap(String errorMessage) {
@@ -355,13 +377,15 @@ public abstract class AbstractTrackListCardAdapter<E extends
      */
     static class RemoteTrackCardViewHolder extends TrackCardViewHolder {
 
-        @BindView(R.id.fragment_tracklist_cardlayout_remote_progresscircle)
+
         protected FABProgressCircle mProgressCircle;
-        @BindView(R.id.fragment_tracklist_cardlayout_remote_downloadfab)
+
         protected FloatingActionButton mDownloadButton;
-        @BindView(R.id.fragment_tracklist_cardlayout_downloading_notification)
+
         protected TextView mDownloadNotification;
 
+
+        protected FragmentTracklistCardlayoutRemoteBinding binding;
         /**
          * Constructor.
          *
@@ -369,6 +393,11 @@ public abstract class AbstractTrackListCardAdapter<E extends
          */
         public RemoteTrackCardViewHolder(View itemView) {
             super(itemView);
+            binding = FragmentTracklistCardlayoutRemoteBinding.bind(itemView);
+            mProgressCircle = binding.fragmentTracklistCardlayoutRemoteProgresscircle;
+            mDownloadButton = binding.fragmentTracklistCardlayoutRemoteDownloadfab;
+            mDownloadNotification = binding.fragmentTracklistCardlayoutDownloadingNotification;
+
         }
     }
 }
