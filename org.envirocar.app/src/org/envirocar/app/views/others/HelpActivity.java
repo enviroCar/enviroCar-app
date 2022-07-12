@@ -19,17 +19,17 @@
 package org.envirocar.app.views.others;
 
 import android.os.Bundle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-
 import org.envirocar.app.R;
+import org.envirocar.app.databinding.ActivityHelpLayoutBinding;
 import org.envirocar.app.databinding.ActivityHelpLayoutGeneralBinding;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
+
+
 
 /**
  * TODO JavaDoc
@@ -38,25 +38,26 @@ import butterknife.ButterKnife;
  */
 public class HelpActivity extends AppCompatActivity {
 
-    @BindView(R.id.activity_help_layout_general_toolbar)
+
     protected Toolbar toolbar;
 
-    ActivityHelpLayoutGeneralBinding activityHelpLayoutGeneralBinding;
-
+    private ActivityHelpLayoutGeneralBinding binding;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        binding = ActivityHelpLayoutGeneralBinding.inflate(getLayoutInflater());
+        View view = binding.getRoot();
 
-        activityHelpLayoutGeneralBinding = ActivityHelpLayoutGeneralBinding.inflate(getLayoutInflater());
-        View view = activityHelpLayoutGeneralBinding.getRoot();
         setContentView(view);
 
+        toolbar = binding.activityHelpLayoutGeneralToolbar;
+
         // Inject views
-        ButterKnife.bind(this);
+
 
         // Set Actionbar
         setSupportActionBar(toolbar);
-        activityHelpLayoutGeneralBinding.activityHelpLayoutGeneralToolbar.setTitle("Help");
+        getSupportActionBar().setTitle("Help");
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
