@@ -74,9 +74,9 @@ ext {
     supportConstraintLayout = 'androidx.constraintlayout:constraintlayout:2.0.1'
 
     androidxPreference = 'androidx.preference:preference:1.1.1'
-    androidRoom = 'androidx.room:room-runtime:2.2.5'
+    androidRoom = 'androidx.room:room-runtime:2.4.0-alpha03'
     androidRoomRxJava = 'androidx.room:room-rxjava2:2.2.5'
-    supportRoom = 'androidx.room:room-compiler:2.2.5'
+    supportRoom = 'androidx.room:room-compiler:2.4.0-alpha03'
 
 
     def lifecycle_version = "2.2.0"
