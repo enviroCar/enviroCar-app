@@ -30,9 +30,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.envirocar.app.R;
+import org.envirocar.app.databinding.ActivityLogbookListentryBinding;
+import org.envirocar.app.databinding.ActivityObdSelectionLayoutPairedListEntryBinding;
 
-import butterknife.ButterKnife;
-import butterknife.BindView;
+
+
 
 /**
  * @author dewall
@@ -215,24 +217,35 @@ public class OBDDeviceListAdapter extends ArrayAdapter<BluetoothDevice> {
         public final View mContentView;
 
         // All the views of a row to lookup for.
-        @BindView(R.id.activity_obd_selection_layout_paired_list_entry_image)
+
         protected ImageView mImageView;
-        @BindView(R.id.activity_obd_selection_layout_paired_list_entry_text)
+
         protected TextView mTextView;
-        @BindView(R.id.activity_obd_selection_layout_paired_list_entry_delete)
+
         protected ImageButton mDeleteButton;
-        @BindView(R.id.activity_obd_selection_layout_paired_list_entry_radio)
+
         protected AppCompatRadioButton mRadioButton;
 
+
+
+
+        protected ActivityObdSelectionLayoutPairedListEntryBinding binding;
         /**
          * Constructor.
          *
          * @param content the parent view of the listrow.
          */
+
         ViewHolder(View content) {
             this.mContentView = content;
-            // Inject the annotated views.
-            ButterKnife.bind(this, content);
+            binding = ActivityObdSelectionLayoutPairedListEntryBinding.bind(content);
+
+            mImageView = binding.activityObdSelectionLayoutPairedListEntryImage;
+            mTextView = binding.activityObdSelectionLayoutPairedListEntryText;
+            mDeleteButton = binding.activityObdSelectionLayoutPairedListEntryDelete;
+            mRadioButton = binding.activityObdSelectionLayoutPairedListEntryRadio;
+
+
         }
     }
 }
