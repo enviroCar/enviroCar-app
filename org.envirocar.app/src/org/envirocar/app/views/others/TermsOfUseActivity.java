@@ -26,6 +26,9 @@ import android.widget.TextView;
 import android.text.Html;
 import android.text.Spanned;
 
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
+
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
@@ -132,16 +135,21 @@ public class TermsOfUseActivity extends BaseInjectorActivity {
 
     private void initAcceptanceWorkflow() {
         LOG.info("initializeTermsOfUseAcceptanceWorkflow from ToU Activity");
-        User user = userHandler.getUser();
-        mAgreementManager.initializeTermsOfUseAcceptanceWorkflow(user, this, null, new Consumer<Optional<TermsOfUse>>() {
-            public void accept(Optional<TermsOfUse> tou) {
-                if (tou.isEmpty()) {
-                    LOG.info("User did not accept ToU");
-                } else {
-                    LOG.info("User accepted ToU");
-                }   
-            }
-        });
+        if (userHandler.isLoggedIn()) {
+            User user = userHandler.getUser();
+            mAgreementManager.initializeTermsOfUseAcceptanceWorkflow(user, this, null, new Consumer<Optional<TermsOfUse>>() {
+                public void accept(Optional<TermsOfUse> tou) {
+                    if (tou.isEmpty()) {
+                        LOG.info("User did not accept ToU");
+                    } else {
+                        LOG.info("User accepted ToU");
+                    }
+                }
+            });
+        }
+        else {
+            Snackbar.make(touTextView,  R.string.terms_of_use_no_login, Snackbar.LENGTH_LONG).show();
+        }
     }
 
     private TermsOfUse resolveTermsOfUse() {
