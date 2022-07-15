@@ -35,6 +35,7 @@ import io.reactivex.schedulers.Schedulers;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.agreement.AgreementManager;
 import org.envirocar.app.injection.BaseInjectorActivity;
+import org.envirocar.core.InternetAccessProvider;
 import org.envirocar.core.utils.rx.Optional;
 import org.envirocar.core.entity.TermsOfUse;
 import org.envirocar.core.entity.User;
@@ -74,6 +75,9 @@ public class TermsOfUseActivity extends BaseInjectorActivity {
     @Inject
     protected UserPreferenceHandler userHandler;
 
+    @Inject
+    protected InternetAccessProvider mInternetAccessProvider;
+
     @Override
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
         baseApplicationComponent.inject(this);
@@ -112,25 +116,29 @@ public class TermsOfUseActivity extends BaseInjectorActivity {
                     Spanned htmlContent = Html.fromHtml(termsOfUse.getOptional().getContents());
                     textView.setText(htmlContent);
                 }
+            }, e -> {
+                LOG.error("Error during TermsOfUse retrieving", e);
+                Snackbar.make(touTextView,  R.string.terms_of_use_no_internet, Snackbar.LENGTH_LONG).show();
             });
 
         // check if the user accepted the latest terms
         LOG.info("Checking TermsOfUse");
-        mAgreementManager.verifyTermsOfUse(null, true)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(termsOfUse -> {
-                if (termsOfUse != null) {
-                    LOG.warn("TermsOfUse verified");
-                } else {
-                    LOG.warn("No TermsOfUse received from verification");
-                    initAcceptanceWorkflow();
-                }
-            }, e -> {
-                LOG.warn("Error during TermsOfUse verification", e);
-                initAcceptanceWorkflow();
-            });
-        
+        if(mInternetAccessProvider.isConnected()) {
+            mAgreementManager.verifyTermsOfUse(null, true)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(termsOfUse -> {
+                        if (termsOfUse != null) {
+                            LOG.warn("TermsOfUse verified");
+                        } else {
+                            LOG.warn("No TermsOfUse received from verification");
+                            initAcceptanceWorkflow();
+                        }
+                    }, e -> {
+                        LOG.warn("Error during TermsOfUse verification", e);
+                        initAcceptanceWorkflow();
+                    });
+        }
     }
 
     private void initAcceptanceWorkflow() {
