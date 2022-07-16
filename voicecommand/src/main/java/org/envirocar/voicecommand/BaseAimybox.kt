@@ -51,7 +51,7 @@ class BaseAimybox {
         val dialogApi = RasaDialogApi(sender, webhookUrl, linkedSetOf())
 
         return Aimybox(create(speechToText, textToSpeech, dialogApi) {
-            this.voiceTrigger = voiceTrigger
+//            this.voiceTrigger = voiceTrigger
         }, context)
     }
 

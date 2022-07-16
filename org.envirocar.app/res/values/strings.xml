@@ -58,6 +58,7 @@
     <string name="goodbye_message">Goodbye, %s</string>
 
     <string name="envirocar.org" translatable="false">http://www.envirocar.org</string>
+    <string name="envirocar" translatable="false">envirocar</string>
 
     <string name="imperial_unit">Use Imperial units</string>
 
@@ -140,6 +141,7 @@
     <string name="prefkey_enable_debug_logging" tools:ignore="MissingTranslation">pref_enable_debug_logging</string>
     <string name="prefkey_track_trim_duration" tools:ignore="MissingTranslation">pref_track_cut_duration</string>>
     <string name="prefkey_track_chunk_upload" tools:ignore="MissingTranslation">pref_track_chunk_upload</string>
+    <string name="prefkey_voice_command" tools:ignore="MissingTranslation">pref_voice_command</string>
     <string name="prefkey_enable_gps_based_track_recording" tools:ignore="MissingTranslation">pref_enable_gps_based_track_recording</string>
     <string name="prefkey_enable_diesel_consumption" tools:ignore="MissingTranslation">pref_enable_diesel_consumption</string>
     <string name="prefkey_search_interval" tools:ignore="MissingTranslation">pref_search_interval</string>

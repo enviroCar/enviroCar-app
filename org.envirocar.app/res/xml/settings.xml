@@ -8,7 +8,7 @@
     The enviroCar app is free software: you can redistribute it and/or
     modify it under the terms of the GNU General Public License as published
     by the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+    (at your option) any later versio
 
     The enviroCar app is distributed in the hope that it will be useful, but
     WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -101,6 +101,18 @@
             android:title="@string/pref_track_cut_duration"
             app:iconSpaceReserved="false" />
     </PreferenceCategory>
+
+    <PreferenceCategory
+            android:title="@string/pref_voice_command"
+            app:iconSpaceReserved="false">
+        <CheckBoxPreference
+                android:defaultValue="false"
+                android:key="@string/prefkey_voice_command"
+                android:summary="@string/pref_enable_voice_command_sub"
+                android:title="@string/pref_enable_voice_command"
+                app:iconSpaceReserved="false" />
+    </PreferenceCategory>
+
     <PreferenceCategory
             android:title="@string/pref_track_chunks"
             app:iconSpaceReserved="false">
