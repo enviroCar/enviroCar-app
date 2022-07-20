@@ -47,7 +47,7 @@
 
     <!-- Voice Command -->
     <string name="pref_enable_voice_command">Sprachbefehl aktivieren</string>
-    <string name="pref_enable_voice_command_sub">Ermöglicht Sprachbefehlen, mit der Anwendung zu interagieren, um die Aufnahme zu starten, zu stoppen und mehr! .\n\nHINWEIS: Dieses Feature ist nur eine Beta-Funktion.</string>
+    <string name="pref_enable_voice_command_sub">Ermöglicht es, mit der Anwendung über Sprachbefehle zu interagieren, z.B. um die Trackaufzeichnung zu starten oder zu stoppen und vieles mehr! \n\nHINWEIS: Dieses Feature ist nur eine Beta-Funktion.</string>
 
     <!-- Track chunks -->
     <string name="pref_track_chunk_upload">Hochladen während der Fahrt</string>
