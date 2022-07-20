@@ -18,22 +18,19 @@
  */
 package org.envirocar.app.views;
 
-import android.app.Activity;
+import static org.envirocar.app.views.utils.SnackbarUtil.showGrantMicrophonePermission;
+
+import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.res.Resources;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.WindowManager;
-import android.widget.TextView;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
-import androidx.core.text.HtmlCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
@@ -61,13 +58,13 @@ import org.envirocar.app.views.dashboard.DashboardFragment;
 import org.envirocar.app.views.others.OthersFragment;
 import org.envirocar.app.views.others.TroubleshootingFragment;
 import org.envirocar.app.views.tracklist.TrackListPagerFragment;
-import org.envirocar.core.entity.User;
 import org.envirocar.core.events.TrackFinishedEvent;
 import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.utils.ServiceUtils;
-import org.envirocar.core.utils.TextViewUtils;
+import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
 import java.util.Stack;
 
 import javax.inject.Inject;
@@ -78,14 +75,19 @@ import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.observers.DisposableObserver;
+import pub.devrel.easypermissions.EasyPermissions;
+import pub.devrel.easypermissions.PermissionRequest;
 
 /**
  * @author dewall
  */
-public class BaseMainActivity extends BaseInjectorActivity {
+public class BaseMainActivity extends BaseInjectorActivity implements EasyPermissions.PermissionCallbacks {
     private static final Logger LOGGER = Logger.getLogger(BaseMainActivity.class);
 
     private static final String TROUBLESHOOTING_TAG = "TROUBLESHOOTING";
+
+    public static final int RECORD_AUDIO_PERMISSION_REQ_CODE = 55;
+
 
     private FragmentStatePagerAdapter fragmentStatePagerAdapter;
     private MenuItem prevMenuItem;
@@ -241,6 +243,11 @@ public class BaseMainActivity extends BaseInjectorActivity {
 
 
         registerReceiver(errorInformationReceiver, new IntentFilter(TroubleshootingFragment.INTENT));
+
+        // if voice commands feature is turned on then check if the user has microphone permission
+        if(ApplicationSettings.isVoiceCommandsEnabled(this)) {
+            checkAndRequestMicrophonePerms();
+        }
     }
 
     private DisposableObserver<Boolean> handleTermsOfUseValidation() {
@@ -363,55 +370,51 @@ public class BaseMainActivity extends BaseInjectorActivity {
         Snackbar.make(navigationBottomBar, info, Snackbar.LENGTH_LONG).show();
     }
 
-    public void showVoiceTriggeredSnackbar(View view, Activity activity, View anchorView, User user) {
-        Snackbar snackbar = Snackbar.make(view, "", Snackbar.LENGTH_LONG);
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        View customSnackView = activity.getLayoutInflater().inflate(R.layout.voice_trigger_snack_bar_layout, null);
+        EasyPermissions.onRequestPermissionsResult(requestCode,permissions,grantResults,this);
+    }
 
-        // set the background of the default snackbar as transparent
-        snackbar.getView().setBackgroundColor(Color.TRANSPARENT);
+    public void checkAndRequestMicrophonePerms() {
+        String[] perms = {Manifest.permission.RECORD_AUDIO};
 
-        // now change the layout of the snackbar
-        Snackbar.SnackbarLayout snackbarLayout = (Snackbar.SnackbarLayout) snackbar.getView();
+        // if the user does not have permission, request it
+        if (!EasyPermissions.hasPermissions(this, perms)){
 
-        // set padding of the all corners as 0
-        snackbarLayout.setPadding(0, 0, 0, 0);
-
-        TextView bottomsheetFooter = customSnackView.findViewById(R.id.bottomsheet_footer);
-        TextView greetHeading = customSnackView.findViewById(R.id.bottomsheet_greet_heading);
-
-            Resources resource = activity.getResources();
-            String footerText =
-                    String.format(
-                            resource.getString(R.string.voice_trigger_bottomsheeet_footer),
-                            new TextViewUtils().getColoredSpanned(resource.getString(R.string.envirocar),
-                            resource.getColor(R.color.cario_color_primary))
-                    );
-
-            bottomsheetFooter.setText(HtmlCompat.fromHtml(footerText, HtmlCompat.FROM_HTML_MODE_LEGACY));
-
-            if(user != null) {
-                greetHeading.setText(
-                        String.format(
-                                resource.getString(R.string.voice_trigger_bottomsheeet_greet_heading),
-                                user.getUsername() + "!")
-                );
-            }else{
-                greetHeading.setText(
-                        String.format(
-                                resource.getString(R.string.voice_trigger_bottomsheeet_greet_heading),
-                                "")
-                );
-            }
-
-        // add the custom layout
-        snackbarLayout.addView(customSnackView, 0);
-
-        // set the anchor view if provided
-        if(anchorView != null){
-            snackbar.setAnchorView(anchorView);
+            // Dialog requesting the user for microphone permission.
+            LOGGER.info("Microphone permissions not given, requesting");
+            EasyPermissions.requestPermissions(
+                    new PermissionRequest.Builder(this, RECORD_AUDIO_PERMISSION_REQ_CODE, perms)
+                            .setRationale(R.string.microphone_permission_voice_command)
+                            .setPositiveButtonText(R.string.grant_permission)
+                            .setNegativeButtonText(R.string.cancel)
+                            .setTheme(R.style.MaterialDialog)
+                            .build());
         }
-        snackbar.show();
+    }
+
+    @Override
+    public void onPermissionsGranted(int requestCode, @NonNull @NotNull List<String> perms) {
+        // if microphone permission is granted, initialise aimybox.
+        if (requestCode == RECORD_AUDIO_PERMISSION_REQ_CODE) {
+
+            // TODO init the aimybox? or ask for restart to get started with voice commands
+            showSnackbar(getString(R.string.microphone_permission_granted));
+        }
+    }
+
+    @Override
+    public void onPermissionsDenied(int requestCode, @NonNull @NotNull List<String> perms) {
+        // if permissions are not granted, show toast.
+        if (requestCode == RECORD_AUDIO_PERMISSION_REQ_CODE) {
+            // Disable the voice command feature .
+            ApplicationSettings.setVoiceCommandPreference(this, false);
+
+            // action opens app's general settings where user can grant microphone/any permission
+            showGrantMicrophonePermission(navigationBottomBar, this, this);
+        }
     }
 
     private class PageSlider extends FragmentStatePagerAdapter {

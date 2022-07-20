@@ -115,6 +115,13 @@ public class ApplicationSettings {
         return getSharedPreferences(context).getBoolean(s(context, R.string.prefkey_text_to_speech), DEFAULT_TEXT_TO_SPEECH);
     }
 
+    public static void setVoiceCommandPreference(Context context, Boolean value) {
+        getSharedPreferences(context)
+                .edit()
+                .putBoolean(s(context, R.string.prefkey_voice_command), value)
+                .apply();
+    }
+
     public static Observable<Boolean> getTextToSpeechObservable(Context context) {
         return getRxSharedPreferences(context)
                 .getBoolean(s(context, R.string.prefkey_text_to_speech), DEFAULT_TEXT_TO_SPEECH)

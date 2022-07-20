@@ -19,6 +19,7 @@
 package org.envirocar.app.views.dashboard;
 
 import static android.app.Activity.RESULT_OK;
+import static org.envirocar.app.views.utils.SnackbarUtil.showVoiceTriggeredSnackbar;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -309,9 +310,10 @@ public class DashboardFragment extends BaseInjectorFragment implements Coroutine
         viewModel.getAimyboxState().observe(getViewLifecycleOwner(), state -> {
             if (state == Aimybox.State.LISTENING) {
 
-                new BaseMainActivity().showVoiceTriggeredSnackbar(
+                showVoiceTriggeredSnackbar(
                         requireView(),
                         requireActivity(),
+                        getContext(),
                         requireActivity().findViewById(R.id.navigation),
                         userHandler.getUser()
                 );

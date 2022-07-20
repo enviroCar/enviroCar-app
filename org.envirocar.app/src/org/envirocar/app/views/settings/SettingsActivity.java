@@ -18,12 +18,11 @@
  */
 package org.envirocar.app.views.settings;
 
+import static org.envirocar.app.views.utils.SnackbarUtil.showGrantMicrophonePermission;
+
 import android.Manifest;
-import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -70,7 +69,7 @@ public class SettingsActivity extends AppCompatActivity {
         private Preference gpsAutoRecording;
         private CheckBoxPreference enableVoiceCommand;
 
-        private final int RECORD_AUDIO_PERMISSION = 22;
+        private final int RECORD_AUDIO_PERMISSION_REQ_CODE = 22;
 
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -111,7 +110,7 @@ public class SettingsActivity extends AppCompatActivity {
 
             this.enableVoiceCommand.setOnPreferenceChangeListener(((preference, newValue) -> {
                 if ((boolean) newValue) {
-                    requestMicPermission();
+                    requestMicrophonePermission();
                 }
                 return true;
             }));
@@ -136,20 +135,20 @@ public class SettingsActivity extends AppCompatActivity {
             }
         }
 
-        public void requestMicPermission() {
+        public void requestMicrophonePermission() {
             String[] perms = new String[]{Manifest.permission.RECORD_AUDIO};
 
             // if microphone permission is not granted, request it
             if (!(requireContext().checkCallingOrSelfPermission(Manifest.permission.RECORD_AUDIO)
                     == PackageManager.PERMISSION_GRANTED)) {
-                requestPermissions(perms, RECORD_AUDIO_PERMISSION);
+                requestPermissions(perms, RECORD_AUDIO_PERMISSION_REQ_CODE);
             }
         }
 
         @Override
         public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-            if (requestCode == RECORD_AUDIO_PERMISSION) {
+            if (requestCode == RECORD_AUDIO_PERMISSION_REQ_CODE) {
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
@@ -161,9 +160,8 @@ public class SettingsActivity extends AppCompatActivity {
                     this.enableVoiceCommand.setChecked(false);
 
                     // action opens app's general settings where user can grant microphone/any permission
-                    Snackbar.make(requireView(), R.string.microphone_permission_denied, Snackbar.LENGTH_LONG)
-                            .setAction(getString(R.string.grant_permission), view -> startActivity(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                                    Uri.parse("package:" + requireContext().getPackageName())))).show();
+                    showGrantMicrophonePermission(requireView(), requireContext(), getActivity());
+
                 }
             }
         }
