@@ -51,6 +51,8 @@ public class CarTrendAdapter extends SyncAdapter {
     private int initialCount;
     private ByteArrayOutputStream initialPhaseResponseLog = new ByteArrayOutputStream();
 
+    private String matchedProtocol = null;
+
     public CarTrendAdapter(CycleCommandProfile cmp) {
         super(cmp);
     }
@@ -83,13 +85,22 @@ public class CarTrendAdapter extends SyncAdapter {
 
         BasicCommand next = this.initializeRing.poll();
 
-        if (next instanceof ProtocolCommand) {
+        if (next instanceof ProtocolCommand && !this.connectionEstablished) {
             /**
              * re-add protocol selection
              */
             this.initializeRing.offer(next);
         }
+        else if (next instanceof ProtocolCommand && this.matchedProtocol != null) {
+            // skip other protocols as we might set an unsupported one
+            // this relies on the order in the ring. all protocol commands must be
+            // in a block
+            do {
+                next = this.initializeRing.poll();
+            } while (next instanceof ProtocolCommand);
+        }
 
+        logger.debug("Ring size: " + this.initializeRing.size());
         return next;
     }
 
@@ -123,8 +134,13 @@ public class CarTrendAdapter extends SyncAdapter {
 
         if (identifySuccess && asString.contains("onnected")) {
             this.connectionEstablished = true;
-            logger.info(String.format("Connected on Protocol %s. Adapter responded '%s'",
-                    new String(sentCommand.getOutputBytes()), new String(response)));
+            if (sentCommand instanceof GenericCommand) {
+                GenericCommand gen = (GenericCommand) sentCommand;
+                this.matchedProtocol = gen.getName();
+                logger.debug(String.format("Connected on Protocol %s. Adapter responded '%s'",
+                    new String(gen.getName()), new String(response)));
+            }
+            
         }
 
         if (sentCommand instanceof ProtocolCommand && asString.contains("error") && asString.contains("unable")) {
@@ -246,6 +262,10 @@ public class CarTrendAdapter extends SyncAdapter {
 
         @Override
         public String toString() {
+            return this.name;
+        }
+
+        public String getName() {
             return this.name;
         }
     }
