@@ -23,7 +23,7 @@ package org.envirocar.remote.service;
  * @author dewall
  */
 public class EnviroCarService {
-    public static final String BASE_URL = "https://envirocar.org/api/dev/";
+    public static final String BASE_URL = "https://envirocar.org/api/stable/";
 
     protected static UserService userService;
 
