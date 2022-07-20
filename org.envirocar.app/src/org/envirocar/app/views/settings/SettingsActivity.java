@@ -18,7 +18,12 @@
  */
 package org.envirocar.app.views.settings;
 
+import android.Manifest;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -28,6 +33,8 @@ import androidx.fragment.app.DialogFragment;
 import androidx.preference.CheckBoxPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
+
+import com.google.android.material.snackbar.Snackbar;
 
 import org.envirocar.app.R;
 import org.envirocar.app.handler.ApplicationSettings;
@@ -61,6 +68,9 @@ public class SettingsActivity extends AppCompatActivity {
         private Preference enableGPSMode;
         private Preference gpsTrimDuration;
         private Preference gpsAutoRecording;
+        private CheckBoxPreference enableVoiceCommand;
+
+        private final int RECORD_AUDIO_PERMISSION = 22;
 
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -77,6 +87,7 @@ public class SettingsActivity extends AppCompatActivity {
             this.enableGPSMode = findPreference(getString(R.string.prefkey_enable_gps_based_track_recording));
             this.gpsTrimDuration = findPreference(getString(R.string.prefkey_track_trim_duration));
             this.gpsAutoRecording = findPreference(getString(R.string.prefkey_gps_mode_ar));
+            this.enableVoiceCommand = findPreference(getString(R.string.prefkey_voice_command));
 
 
             // set initial state
@@ -97,6 +108,13 @@ public class SettingsActivity extends AppCompatActivity {
                 gpsAutoRecording.setVisible((boolean) newValue);
                 return true;
             }));
+
+            this.enableVoiceCommand.setOnPreferenceChangeListener(((preference, newValue) -> {
+                if ((boolean) newValue) {
+                    requestMicPermission();
+                }
+                return true;
+            }));
         }
 
         @Override
@@ -115,6 +133,38 @@ public class SettingsActivity extends AppCompatActivity {
                 fragment.show(this.getFragmentManager(), "android.support.v7.preference.PreferenceFragment.DIALOG");
             } else {
                 super.onDisplayPreferenceDialog(preference);
+            }
+        }
+
+        public void requestMicPermission() {
+            String[] perms = new String[]{Manifest.permission.RECORD_AUDIO};
+
+            // if microphone permission is not granted, request it
+            if (!(requireContext().checkCallingOrSelfPermission(Manifest.permission.RECORD_AUDIO)
+                    == PackageManager.PERMISSION_GRANTED)) {
+                requestPermissions(perms, RECORD_AUDIO_PERMISSION);
+            }
+        }
+
+        @Override
+        public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+            if (requestCode == RECORD_AUDIO_PERMISSION) {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    //If user grants permission then show the snackbar
+                    Snackbar.make(requireView(), R.string.microphone_permission_granted, Snackbar.LENGTH_LONG).show();
+                } else {
+                    //If user denies permission then uncheck the checkbox back
+                    // and show the Snackbar to grant permission
+                    this.enableVoiceCommand.setChecked(false);
+
+                    // action opens app's general settings where user can grant microphone/any permission
+                    Snackbar.make(requireView(), R.string.microphone_permission_denied, Snackbar.LENGTH_LONG)
+                            .setAction(getString(R.string.grant_permission), view -> startActivity(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                                    Uri.parse("package:" + requireContext().getPackageName())))).show();
+                }
             }
         }
     }
