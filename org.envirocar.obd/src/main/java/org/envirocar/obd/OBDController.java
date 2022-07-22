@@ -19,7 +19,7 @@
 package org.envirocar.obd;
 
 import com.google.common.base.Preconditions;
-import com.squareup.otto.Bus;
+import com.hwangjr.rxbus.Bus;
 
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.logging.Logger;

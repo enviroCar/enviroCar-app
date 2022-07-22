@@ -25,8 +25,9 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
 import com.f2prateek.rx.preferences2.RxSharedPreferences;
-import com.squareup.otto.Bus;
-import com.squareup.otto.ThreadEnforcer;
+import com.hwangjr.rxbus.Bus;
+import com.hwangjr.rxbus.thread.ThreadEnforcer;
+import com.hwangjr.rxbus.thread.ThreadEnforcer;
 
 import org.envirocar.app.handler.HandlerModule;
 import org.envirocar.app.handler.TemporaryFileManager;

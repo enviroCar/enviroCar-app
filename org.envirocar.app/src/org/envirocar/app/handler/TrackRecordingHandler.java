@@ -22,7 +22,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.icu.text.AlphabeticIndex;
 
-import com.squareup.otto.Bus;
+import com.hwangjr.rxbus.Bus;
 
 import org.envirocar.app.BaseApplication;
 import org.envirocar.app.R;

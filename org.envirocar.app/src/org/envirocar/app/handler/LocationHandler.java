@@ -29,8 +29,8 @@ import android.location.LocationManager;
 
 import androidx.core.app.ActivityCompat;
 
-import com.squareup.otto.Bus;
-import com.squareup.otto.Produce;
+import com.hwangjr.rxbus.Bus;
+import com.hwangjr.rxbus.annotation.Produce;
 
 import org.envirocar.core.events.gps.GpsStateChangedEvent;
 import org.envirocar.core.injection.InjectApplicationScope;

@@ -20,7 +20,7 @@ package org.envirocar.app.recording.provider;
 
 import android.content.Context;
 
-import com.squareup.otto.Bus;
+import com.hwangjr.rxbus.Bus;
 
 import org.envirocar.app.R;
 import org.envirocar.app.handler.preferences.CarPreferenceHandler;

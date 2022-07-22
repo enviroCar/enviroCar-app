@@ -24,9 +24,9 @@ import android.content.SharedPreferences;
 import androidx.annotation.NonNull;
 
 import com.google.common.base.MoreObjects;
-import com.squareup.otto.Bus;
-import com.squareup.otto.Produce;
-import com.squareup.otto.Subscribe;
+import com.hwangjr.rxbus.Bus;
+import com.hwangjr.rxbus.annotation.Produce;
+import com.hwangjr.rxbus.annotation.Subscribe;
 
 import org.envirocar.app.handler.DAOProvider;
 import org.envirocar.app.handler.TrackDAOHandler;

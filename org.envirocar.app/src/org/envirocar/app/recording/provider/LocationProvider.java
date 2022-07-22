@@ -28,7 +28,7 @@ import android.location.OnNmeaMessageListener;
 import android.os.Build;
 import android.os.Bundle;
 
-import com.squareup.otto.Bus;
+import com.hwangjr.rxbus.Bus;
 
 import org.envirocar.app.recording.RecordingScope;
 import org.envirocar.core.events.gps.GpsDOPEvent;

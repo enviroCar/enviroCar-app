@@ -26,7 +26,7 @@ import android.os.PowerManager;
 
 import androidx.annotation.Nullable;
 
-import com.squareup.otto.Bus;
+import com.hwangjr.rxbus.Bus;
 
 import org.envirocar.app.BaseApplication;
 import org.envirocar.app.injection.ScopedBaseInjectorService;

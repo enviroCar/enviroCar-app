@@ -24,7 +24,7 @@ import android.content.IntentFilter;
 import android.os.IBinder;
 import android.os.PowerManager;
 
-import com.squareup.otto.Subscribe;
+import com.hwangjr.rxbus.annotation.Subscribe;
 
 import org.envirocar.app.BaseApplication;
 import org.envirocar.app.handler.ApplicationSettings;

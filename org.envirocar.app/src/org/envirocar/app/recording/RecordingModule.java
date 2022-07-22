@@ -21,7 +21,7 @@ package org.envirocar.app.recording;
 import android.content.Context;
 import android.os.PowerManager;
 
-import com.squareup.otto.Bus;
+import com.hwangjr.rxbus.Bus;
 
 import org.envirocar.algorithm.MeasurementProvider;
 import org.envirocar.app.handler.*;

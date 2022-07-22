@@ -27,8 +27,8 @@ import android.content.IntentFilter;
 
 import androidx.core.app.NotificationCompat;
 
-import com.squareup.otto.Bus;
-import com.squareup.otto.Subscribe;
+import com.hwangjr.rxbus.Bus;
+import com.hwangjr.rxbus.annotation.Subscribe;
 
 import org.envirocar.app.R;
 import org.envirocar.app.handler.ApplicationSettings;

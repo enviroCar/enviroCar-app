@@ -26,7 +26,7 @@ import android.view.MenuItem;
 import android.widget.Switch;
 import android.widget.TextView;
 
-import com.squareup.otto.Subscribe;
+import com.hwangjr.rxbus.annotation.Subscribe;
 
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;

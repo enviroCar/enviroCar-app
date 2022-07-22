@@ -23,7 +23,7 @@ dependencies {
     // Dependency injection, view injection, event bus...
     implementation rootProject.ext.dagger
     annotationProcessor  rootProject.ext.daggerCompiler
-    implementation rootProject.ext.otto
+    implementation rootProject.ext.rxBus
 
     // RxJava dependencies
     implementation rootProject.ext.rxAndroid

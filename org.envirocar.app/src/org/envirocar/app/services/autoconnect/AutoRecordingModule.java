@@ -22,7 +22,7 @@ import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.os.PowerManager;
 
-import com.squareup.otto.Bus;
+import com.hwangjr.rxbus.Bus;
 
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.LocationHandler;
