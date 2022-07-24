@@ -92,6 +92,7 @@ import org.envirocar.app.views.recordingscreen.RecordingScreenActivity;
 import org.envirocar.app.views.utils.DialogUtils;
 import org.envirocar.app.views.utils.SizeSyncTextView;
 import org.envirocar.app.views.others.TermsOfUseActivity;
+import org.envirocar.core.ContextInternetAccessProvider;
 import org.envirocar.core.entity.TermsOfUse;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.events.NewCarTypeSelectedEvent;
@@ -495,6 +496,12 @@ public class DashboardFragment extends BaseInjectorFragment {
             // if chunk is enabled, we need to check if the current ToU are accepted
             if (ApplicationSettings.isTrackchunkUploadEnabled(getContext())) {
                 LOG.info("chunk upload is enabled, checking TermsOfUse");
+                if (! (new ContextInternetAccessProvider(mContext).isConnected())) {
+                    Snackbar.make(getView(),
+                        getString(R.string.error_not_connected_to_network),
+                        Snackbar.LENGTH_LONG).show();
+                    return;
+                }
                 mAgreementManager.verifyTermsOfUse(null, true)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
