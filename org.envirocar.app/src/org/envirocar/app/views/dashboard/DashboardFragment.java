@@ -496,7 +496,7 @@ public class DashboardFragment extends BaseInjectorFragment {
             // if chunk is enabled, we need to check if the current ToU are accepted
             if (ApplicationSettings.isTrackchunkUploadEnabled(getContext())) {
                 LOG.info("chunk upload is enabled, checking TermsOfUse");
-                if (! (new ContextInternetAccessProvider(mContext).isConnected())) {
+                if (! (new ContextInternetAccessProvider(getContext()).isConnected())) {
                     Snackbar.make(getView(),
                         getString(R.string.error_not_connected_to_network),
                         Snackbar.LENGTH_LONG).show();
