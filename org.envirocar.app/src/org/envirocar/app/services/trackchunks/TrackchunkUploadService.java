@@ -13,6 +13,7 @@ import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.Observer;
+
 import io.reactivex.rxjava3.core.Scheduler;
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
@@ -101,40 +102,7 @@ public class TrackchunkUploadService extends BaseInjectorService {
         LOG.info("TrackchunkUploadService initialized. Enabled: " + isEnabled);
     }
 
-    private Observer<Track> getActiveTrackObserver() {
-        return new Observer<Track>() {
 
-            @Override
-            public void onSubscribe(Disposable d) {
-                LOG.info("onSubscribe");
-            }
-
-            @Override
-            public void onNext(Track track) {
-                TrackchunkUploadService.this.setCar(track.getCar());
-                if(!executed) {
-                    executed = true;
-                    try {
-                        currentTrack = trackUploadHandler.uploadTrackChunkStart(track);
-                        LOG.info("Track remote id: " + currentTrack.getRemoteID());
-                    } catch (Exception e) {
-                        LOG.error(e);
-                        TrackchunkUploadService.this.eventBus.unregister(TrackchunkUploadService.this);
-                    }
-                }
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                LOG.info("onError: " + e.getMessage());
-            }
-
-            @Override
-            public void onComplete() {
-                LOG.info( "onComplete");
-            }
-        };
-    }
 
     private void setCar(Car car) {
         this.car = car;
@@ -147,14 +115,12 @@ public class TrackchunkUploadService extends BaseInjectorService {
             return;
         }
         if(!executed) {
-            final Observer<Track> trackObserver = enviroCarDB.getActiveTrackObservable(false).observeOn(Schedulers.io())
-                    .subscribeOn(Schedulers.io())
-                    .subscribeWith(getActiveTrackObserver());
+
         }
         measurements.add(event.mMeasurement);
         LOG.info("received new measurement" + this);
         if(measurements.size() > MEASUREMENT_THRESHOLD) {
-           List<Measurement> measurementsCopy = new ArrayList<>(measurements.size() + 1);
+            List<Measurement> measurementsCopy = new ArrayList<>(measurements.size() + 1);
             measurementsCopy.addAll(measurements);
             JsonArray trackFeatures = createMeasurementJson(measurementsCopy);
             LOG.info("trackFeatures" + trackFeatures);
