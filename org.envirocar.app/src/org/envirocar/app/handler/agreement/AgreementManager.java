@@ -427,8 +427,8 @@ public class AgreementManager {
          * Constructor.
          *
          * @param agreementManager the manager for the terms of use.
-         * @param activity         the activity for the case when the getUserStatistic has not accepted the
-         *                         terms of use. Then it creates a Dialog for acceptance.
+         * @param ctx the context for the case when the getUserStatistic has not accepted the
+         *            terms of use. Then it creates a Dialog for acceptance.
          */
         public TermsOfUseValidator(AgreementManager agreementManager, Context ctx) {
             this.agreementManager = agreementManager;
