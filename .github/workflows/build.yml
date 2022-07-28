@@ -5,6 +5,7 @@ on:
     branches:
       - develop
       - master
+      - gsoc2022
 
 jobs:
   build:
