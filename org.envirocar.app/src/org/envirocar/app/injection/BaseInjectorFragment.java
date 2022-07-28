@@ -24,7 +24,7 @@ import androidx.fragment.app.Fragment;
 import android.util.Log;
 
 import com.google.common.base.Preconditions;
-import com.squareup.otto.Bus;
+import com.hwangjr.rxbus.Bus;
 
 import org.envirocar.app.BaseApplication;
 import org.envirocar.app.BaseApplicationComponent;

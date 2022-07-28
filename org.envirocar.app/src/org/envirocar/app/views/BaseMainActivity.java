@@ -36,7 +36,7 @@ import androidx.viewpager.widget.ViewPager;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.mapbox.mapboxsdk.Mapbox;
-import com.squareup.otto.Subscribe;
+import com.hwangjr.rxbus.annotation.Subscribe;
 
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;

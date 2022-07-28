@@ -19,6 +19,7 @@
 package org.envirocar.app.views.obdselection;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -36,7 +37,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.squareup.otto.Subscribe;
+import com.hwangjr.rxbus.annotation.Subscribe;
 
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
@@ -237,11 +238,11 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
         // if location permissions are granted, start Bluetooth discovery.
         if (requestCode == BLUETOOTH_PERMISSIONS) {
             startBluetoothDiscovery();
-            
+
             // Check the GPS and Location permissions
             // before Starting the discovery of bluetooth devices.
             updateContentView();
-            
+
             showSnackbar(getString(R.string.location_permission_granted));
         }
     }
@@ -328,6 +329,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
                         LOGGER.error("Error while discovering bluetooth devices", e);
                     }
 
+                    @SuppressLint("MissingPermission")
                     @Override
                     public void onNext(BluetoothDevice device) {
                         LOGGER.info(String.format(
@@ -345,6 +347,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
                 });
     }
 
+    @SuppressLint("MissingPermission")
     private void setupListViews() {
         BluetoothDevice selectedBTDevice = mBluetoothHandler.getSelectedBluetoothDevice();
 
@@ -352,6 +355,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
         mNewDevicesArrayAdapter = new OBDDeviceListAdapter(getActivity(), false);
         mPairedDevicesAdapter = new OBDDeviceListAdapter(getActivity(), true, new
                 OBDDeviceListAdapter.OnOBDListActionCallback() {
+                    @SuppressLint("MissingPermission")
                     @Override
                     public void onOBDDeviceSelected(BluetoothDevice device) {
                         LOGGER.info(String.format("onOBDDeviceSelected(%s)", device.getName()));
@@ -364,6 +368,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
                                 R.string.obd_selection_is_selected_template), device.getName()));
                     }
 
+                    @SuppressLint("MissingPermission")
                     @Override
                     public void onDeleteOBDDevice(BluetoothDevice device) {
                         LOGGER.info(String.format("onDeleteOBDDevice(%s)", device.getName()));
@@ -396,6 +401,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
         });
     }
 
+    @SuppressLint("MissingPermission")
     private void showUnpairingDialog(BluetoothDevice device) {
         // Create the AlertDialog.
         new MaterialAlertDialogBuilder(getActivity(), R.style.MaterialDialog)
@@ -415,6 +421,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
         // Try to unpair the device
         mBluetoothHandler.unpairDevice(device,
                 new BluetoothHandler.BluetoothDeviceUnpairingCallback() {
+                    @SuppressLint("MissingPermission")
                     @Override
                     public void onDeviceUnpaired(BluetoothDevice device) {
                         showSnackbar(String.format(
@@ -428,6 +435,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
                         updatePairedDevicesList();
                     }
 
+                    @SuppressLint("MissingPermission")
                     @Override
                     public void onUnpairingError(BluetoothDevice device) {
                         showSnackbar(String.format(
@@ -471,6 +479,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
         mBluetoothHandler.pairDevice(device,
                 new BluetoothHandler.BluetoothDevicePairingCallback() {
 
+                    @SuppressLint("MissingPermission")
                     @Override
                     public void onPairingStarted(BluetoothDevice device) {
                         pairingIsRunning = true;
@@ -480,6 +489,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
                         }
                     }
 
+                    @SuppressLint("MissingPermission")
                     @Override
                     public void onPairingError(BluetoothDevice device) {
                         pairingIsRunning = false;
@@ -492,6 +502,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
                             text.setText(device.getName());
                     }
 
+                    @SuppressLint("MissingPermission")
                     @Override
                     public void onDevicePaired(BluetoothDevice device) {
                         pairingIsRunning = false;

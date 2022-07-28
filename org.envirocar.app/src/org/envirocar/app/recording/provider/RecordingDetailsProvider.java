@@ -25,9 +25,9 @@ import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.OnLifecycleEvent;
 
-import com.squareup.otto.Bus;
-import com.squareup.otto.Produce;
-import com.squareup.otto.Subscribe;
+import com.hwangjr.rxbus.Bus;
+import com.hwangjr.rxbus.annotation.Produce;
+import com.hwangjr.rxbus.annotation.Subscribe;
 
 import org.envirocar.app.events.AvrgSpeedUpdateEvent;
 import org.envirocar.app.events.DistanceValueUpdateEvent;

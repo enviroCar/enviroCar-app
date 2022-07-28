@@ -36,8 +36,8 @@ import android.widget.Toast;
 import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.squareup.otto.Bus;
-import com.squareup.otto.Subscribe;
+import com.hwangjr.rxbus.Bus;
+import com.hwangjr.rxbus.annotation.Subscribe;
 
 import org.envirocar.app.R;
 import org.envirocar.app.handler.BluetoothHandler;

@@ -23,7 +23,7 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import android.view.MenuItem;
 
-import com.squareup.otto.Bus;
+import com.hwangjr.rxbus.Bus;
 
 import org.envirocar.app.BaseApplication;
 import org.envirocar.app.BaseApplicationComponent;

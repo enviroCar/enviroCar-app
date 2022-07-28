@@ -30,7 +30,7 @@ import androidx.annotation.Nullable;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
-import com.squareup.otto.Subscribe;
+import com.hwangjr.rxbus.annotation.Subscribe;
 
 import org.envirocar.app.BaseApplication;
 import org.envirocar.app.BaseApplicationComponent;

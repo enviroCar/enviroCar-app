@@ -20,7 +20,7 @@ package org.envirocar.app.handler;
 
 import android.location.Location;
 
-import com.squareup.otto.Subscribe;
+import com.hwangjr.rxbus.annotation.Subscribe;
 
 import org.envirocar.algorithm.AbstractMeasurementProvider;
 import org.envirocar.app.handler.algorithm.DataResponseAlgorithm;

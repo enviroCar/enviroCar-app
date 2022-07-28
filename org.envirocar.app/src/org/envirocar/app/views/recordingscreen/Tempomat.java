@@ -41,8 +41,8 @@ import android.view.animation.RotateAnimation;
 import android.widget.FrameLayout;
 
 import com.google.common.base.Preconditions;
-import com.squareup.otto.Bus;
-import com.squareup.otto.Subscribe;
+import com.hwangjr.rxbus.Bus;
+import com.hwangjr.rxbus.annotation.Subscribe;
 
 import org.envirocar.app.BaseApplication;
 import org.envirocar.app.R;

@@ -20,8 +20,9 @@ dependencies {
 
     // Dependency injection, view injection, event bus ...
     implementation rootProject.ext.dagger
-    implementation rootProject.ext.otto
+    implementation rootProject.ext.rxBus
     implementation rootProject.ext.butterKnife
+    implementation 'com.hwangjr.rxbus:rxbus:3.0.0'
     annotationProcessor rootProject.ext.daggerCompiler
     annotationProcessor rootProject.ext.butterknifeCompiler
 

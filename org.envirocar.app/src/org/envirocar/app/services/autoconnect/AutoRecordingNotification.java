@@ -33,7 +33,7 @@ import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.OnLifecycleEvent;
 
-import com.squareup.otto.Bus;
+import com.hwangjr.rxbus.Bus;
 
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.notifications.EnviroCarNotification;

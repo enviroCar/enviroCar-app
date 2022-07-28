@@ -25,7 +25,7 @@ import android.os.IBinder;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LifecycleService;
 
-import com.squareup.otto.Bus;
+import com.hwangjr.rxbus.Bus;
 
 import org.envirocar.app.BaseApplication;
 import org.envirocar.app.BaseApplicationComponent;

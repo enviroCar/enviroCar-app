@@ -70,7 +70,7 @@ import com.google.android.play.core.install.model.AppUpdateType;
 import com.google.android.play.core.install.model.UpdateAvailability;
 import com.google.android.play.core.tasks.Task;
 import com.jakewharton.rxbinding3.appcompat.RxToolbar;
-import com.squareup.otto.Subscribe;
+import com.hwangjr.rxbus.annotation.Subscribe;
 
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;

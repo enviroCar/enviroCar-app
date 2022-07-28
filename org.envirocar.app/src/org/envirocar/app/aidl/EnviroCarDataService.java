@@ -25,7 +25,7 @@ import android.os.RemoteException;
 
 import androidx.annotation.Nullable;
 
-import com.squareup.otto.Subscribe;
+import com.hwangjr.rxbus.annotation.Subscribe;
 
 import org.envirocar.aidl.ECMeasurement;
 import org.envirocar.aidl.ECRawObdValue;

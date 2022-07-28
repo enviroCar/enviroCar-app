@@ -30,8 +30,8 @@ import android.content.IntentFilter;
 import android.util.Pair;
 
 import com.google.common.base.Preconditions;
-import com.squareup.otto.Bus;
-import com.squareup.otto.Produce;
+import com.hwangjr.rxbus.Bus;
+import com.hwangjr.rxbus.annotation.Produce;
 
 import org.envirocar.app.recording.RecordingService;
 import org.envirocar.app.rxutils.RxBroadcastReceiver;
