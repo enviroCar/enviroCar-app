@@ -18,20 +18,26 @@
  */
 package org.envirocar.app.handler;
 
+import android.Manifest;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.util.Pair;
 
+import androidx.core.app.ActivityCompat;
 import androidx.preference.PreferenceManager;
 
-import com.f2prateek.rx.preferences2.RxSharedPreferences;
+import dev.drewhamilton.rxpreferences.dagger.RxPreferencesComponent;
+
+import dev.drewhamilton.rxpreferences.dagger.RxPreferencesComponent;
 import com.google.common.base.Preconditions;
 
 import org.envirocar.app.R;
 import org.envirocar.app.recording.RecordingType;
 
-import io.reactivex.Observable;
+import dev.drewhamilton.rxpreferences.RxPreferences;
+import io.reactivex.rxjava3.core.Observable;
 
 /**
  * TODO JavaDoc
@@ -77,8 +83,7 @@ public class ApplicationSettings {
     // General Settings settings
     public static Observable<Boolean> getAutomaticUploadObservable(Context context){
         return getRxSharedPreferences(context)
-                .getBoolean(s(context, R.string.prefkey_automatic_upload), DEFAULT_AUTOMATIC_UPLOAD)
-                .asObservable();
+                .getBooleanStream(s(context, R.string.prefkey_automatic_upload), DEFAULT_AUTOMATIC_UPLOAD);
     }
 
     public static boolean isDisplayStaysActive(Context context) {
@@ -87,8 +92,7 @@ public class ApplicationSettings {
 
     public static Observable<Boolean> getDisplayStaysActiveObservable(Context context) {
         return getRxSharedPreferences(context)
-                .getBoolean(s(context, R.string.prefkey_display_always_active), DEFAULT_DISPLAY_STAYS_ACTIVE)
-                .asObservable();
+                .getBooleanStream(s(context, R.string.prefkey_display_always_active), DEFAULT_DISPLAY_STAYS_ACTIVE);
     }
 
     public static boolean isObfuscationEnabled(Context context) {
@@ -101,8 +105,7 @@ public class ApplicationSettings {
 
     public static Observable<Boolean> getObfuscationObservable(Context context) {
         return getRxSharedPreferences(context)
-                .getBoolean(s(context, R.string.prefkey_privacy), false)
-                .asObservable();
+                .getBooleanStream(s(context, R.string.prefkey_privacy), false);
     }
 
     public static boolean isTextToSpeechEnabled(Context context) {
@@ -111,8 +114,7 @@ public class ApplicationSettings {
 
     public static Observable<Boolean> getTextToSpeechObservable(Context context) {
         return getRxSharedPreferences(context)
-                .getBoolean(s(context, R.string.prefkey_text_to_speech), DEFAULT_TEXT_TO_SPEECH)
-                .asObservable();
+                .getBooleanStream(s(context, R.string.prefkey_text_to_speech), DEFAULT_TEXT_TO_SPEECH);
     }
 
     public static boolean isAutorecordingEnabled(Context context) {
@@ -122,8 +124,7 @@ public class ApplicationSettings {
 
     public static Observable<Boolean> getAutoconnectEnabledObservable(final Context context) {
         return getRxSharedPreferences(context)
-                .getBoolean(s(context, R.string.prefkey_automatic_recording), DEFAULT_BLUETOOTH_AUTOCONNECT)
-                .asObservable();
+                .getBooleanStream(s(context, R.string.prefkey_automatic_recording), DEFAULT_BLUETOOTH_AUTOCONNECT);
     }
 
     public static int getDiscoveryInterval(Context context) {
@@ -133,8 +134,7 @@ public class ApplicationSettings {
 
     public static Observable<Integer> getDiscoveryIntervalObservable(Context context) {
         return getRxSharedPreferences(context)
-                .getInteger(s(context, R.string.prefkey_search_interval), DEFAULT_BLUETOOTH_DISCOVERY_INTERVAL)
-                .asObservable();
+                .getIntStream(s(context, R.string.prefkey_search_interval), DEFAULT_BLUETOOTH_DISCOVERY_INTERVAL);
     }
 
     public static void setDiscoveryInterval(Context context, int discoveryInterval) {
@@ -158,14 +158,12 @@ public class ApplicationSettings {
 
     public static Observable<Integer> getRxSharedSamplingRate(Context context) {
         return getRxSharedPreferences(context)
-                .getInteger(s(context, R.string.prefkey_samplingrate), DEFAULT_SAMPLING_RATE)
-                .asObservable();
+                .getIntStream(s(context, R.string.prefkey_samplingrate), DEFAULT_SAMPLING_RATE);
     }
 
     public static Observable<Boolean> getDebugLoggingObservable(Context context) {
         return getRxSharedPreferences(context)
-                .getBoolean(s(context, R.string.prefkey_enable_debug_logging), DEFAULT_DEBUG_LOGGING)
-                .asObservable();
+                .getBooleanStream(s(context, R.string.prefkey_enable_debug_logging), DEFAULT_DEBUG_LOGGING);
     }
 
     public static boolean isDieselConsumptionEnabled(Context context) {
@@ -174,14 +172,12 @@ public class ApplicationSettings {
 
     public static Observable<Boolean> getDieselConsumptionObservable(Context context) {
         return getRxSharedPreferences(context)
-                .getBoolean(s(context, R.string.prefkey_enable_diesel_consumption), false)
-                .asObservable();
+                .getBooleanStream(s(context, R.string.prefkey_enable_diesel_consumption), false);
     }
 
     public static Observable<Integer> getTrackTrimDurationObservable(final Context context) {
-        return RxSharedPreferences.create(getSharedPreferences(context))
-                .getInteger(s(context, R.string.prefkey_track_trim_duration), DEFAULT_TRACK_TRIM_DURATION)
-                .asObservable();
+        return getRxSharedPreferences(context)
+                .getIntStream(s(context, R.string.prefkey_track_trim_duration), DEFAULT_TRACK_TRIM_DURATION);
     }
 
     public static void setTrackTrimDurationObservable(final Context context, int trackTrimDuration) {
@@ -209,14 +205,14 @@ public class ApplicationSettings {
     }
 
     public static Observable<RecordingType> getSelectedRecordingTypeObservable(final Context context) {
-        return RxSharedPreferences.create(getSharedPreferences(context))
-                .getEnum(PREF_RECORDING_TYPE, DEFAULT_RECORDING_TYPE, RecordingType.class)
-                .asObservable();
+        return getRxSharedPreferences(context)
+                .getStringStream(PREF_RECORDING_TYPE, "OBD_ADAPTER_BASED")
+                .map(RecordingType::valueOf);
     }
 
     public static Observable<Pair<String, String>> getSelectedBluetoothAdapterObservable(Context context) {
         return getRxSharedPreferences(context)
-                .getString(PREF_SELECTED_BLUETOOTH_ADDRESS).asObservable()
+                .getStringStream(PREF_SELECTED_BLUETOOTH_ADDRESS, "")
                 .map(address -> {
                     String name = getSharedPreferences(context).getString(PREF_SELECTED_BLUETOOTH_NAME, "");
                     return new Pair(name, address);
@@ -227,6 +223,10 @@ public class ApplicationSettings {
         if (device == null) {
             resetSelectedBluetoothAdapter(context);
         } else {
+            if (ActivityCompat.checkSelfPermission(context,
+                    Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
             getSharedPreferences(context)
                     .edit()
                     .putString(PREF_SELECTED_BLUETOOTH_NAME, device.getName())
@@ -243,8 +243,8 @@ public class ApplicationSettings {
                 .apply();
     }
 
-    private static RxSharedPreferences getRxSharedPreferences(Context context) {
-        return RxSharedPreferences.create(getSharedPreferences(context));
+    private static RxPreferences getRxSharedPreferences(Context context) {
+        return RxPreferencesComponent.create(getSharedPreferences(context)).rxPreferences();
     }
 
     public static SharedPreferences getSharedPreferences(Context context) {
@@ -254,8 +254,7 @@ public class ApplicationSettings {
 
     public static Observable<String> getCampaignProfileObservable(Context context){
         return getRxSharedPreferences(context)
-                .getString(s(context, R.string.prefkey_campaign_profile), DEFAULT_CAMPAIGN_PROFILE)
-                .asObservable();
+                .getStringStream(s(context, R.string.prefkey_campaign_profile), DEFAULT_CAMPAIGN_PROFILE);
     }
 
     public static String getCampaignProfile(Context context) {

@@ -27,7 +27,7 @@ import org.envirocar.core.entity.TermsOfUse;
 import org.envirocar.core.exception.TermsOfUseException;
 import org.envirocar.core.logging.Logger;
 
-import io.reactivex.ObservableEmitter;
+import io.reactivex.rxjava3.core.ObservableEmitter;
 
 /**
  * TODO JavaDoc

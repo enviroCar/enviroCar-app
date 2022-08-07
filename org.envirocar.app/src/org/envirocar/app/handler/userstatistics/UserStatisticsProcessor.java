@@ -45,7 +45,7 @@ import org.envirocar.core.EnviroCarDB;
 
 import javax.inject.Inject;
 
-import io.reactivex.observers.DisposableObserver;
+import io.reactivex.rxjava3.observers.DisposableObserver;
 
 
 /**

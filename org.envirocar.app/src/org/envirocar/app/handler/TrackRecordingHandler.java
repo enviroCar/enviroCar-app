@@ -49,11 +49,11 @@ import java.util.Date;
 
 import javax.inject.Inject;
 
-import io.reactivex.Completable;
-import io.reactivex.Observable;
-import io.reactivex.Single;
-import io.reactivex.functions.Function;
-import io.reactivex.schedulers.Schedulers;
+import io.reactivex.rxjava3.core.Completable;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.functions.Function;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 
 /**
@@ -216,8 +216,7 @@ public class TrackRecordingHandler {
                 .flatMap(track -> track.isEmpty() ?
                         mEnvirocarDB.getActiveTrackObservable(false)
                                 .map(t -> new Optional(t))
-                                .singleOrError()
-                                .onErrorResumeNext(Single.just(track)) :
+                                .singleOrError():
                         Single.just(track))
 
                 .flatMap(validateTrackRef(createNew))

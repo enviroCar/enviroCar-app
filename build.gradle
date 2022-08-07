@@ -74,9 +74,9 @@ ext {
     supportConstraintLayout = 'androidx.constraintlayout:constraintlayout:2.0.1'
 
     androidxPreference = 'androidx.preference:preference:1.1.1'
-    androidRoom = 'androidx.room:room-runtime:2.2.5'
-    androidRoomRxJava = 'androidx.room:room-rxjava2:2.2.5'
-    supportRoom = 'androidx.room:room-compiler:2.2.5'
+    androidRoom = 'androidx.room:room-runtime:2.4.2'
+    androidRoomRxJava = 'androidx.room:room-rxjava3:2.4.2'
+    supportRoom = 'androidx.room:room-compiler:2.4.2'
 
 
     def lifecycle_version = "2.2.0"
@@ -102,17 +102,19 @@ ext {
     retrofit2 = "com.squareup.retrofit2:retrofit:$retrofit_version"
     retrofitGson2 = "com.squareup.retrofit2:converter-gson:$retrofit_version"
     retrofitAdapters2 = "com.squareup.retrofit2:retrofit-adapters:$retrofit_version"
-    retrofitRxJava2 = "com.squareup.retrofit2:adapter-rxjava2:$retrofit_version"
+    retrofitRxJava3 = "com.squareup.retrofit2:adapter-rxjava3:2.9.0"
 
     // RxJava dependencies.
-    rxJava = 'io.reactivex.rxjava2:rxjava:2.2.21'
-    rxAndroid = 'io.reactivex.rxjava2:rxandroid:2.1.1'
-    rxPreferences = 'com.f2prateek.rx.preferences2:rx-preferences:2.0.1'
+    rxJava = 'io.reactivex.rxjava3:rxjava:3.1.5'
+    rxAndroid = 'io.reactivex.rxjava3:rxandroid:3.0.0'
+    //rxPreferences = 'com.f2prateek.rx.preferences2:rx-preferences:2.0.1'
+    rxPreferences= "dev.drewhamilton.rxpreferences:rxpreferences:3.0.0"
+    rxPreferences= "dev.drewhamilton.rxpreferences:rxpreferences-dagger:3.0.0"
 
     // RxBindings
-    def rxbinding_version = "3.1.0"
-    rxBindingCore = "com.jakewharton.rxbinding3:rxbinding-core:$rxbinding_version"
-    rxBindingAppCompat = "com.jakewharton.rxbinding3:rxbinding-appcompat:$rxbinding_version"
+    def rxbinding_version = "4.0.0"
+    rxBindingCore = "com.jakewharton.rxbinding4:rxbinding-core:$rxbinding_version"
+    rxBindingAppCompat = "com.jakewharton.rxbinding4:rxbinding-appcompat:$rxbinding_version"
 
 
     // Google dependencies

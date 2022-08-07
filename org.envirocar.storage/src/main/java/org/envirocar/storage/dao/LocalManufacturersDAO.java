@@ -18,6 +18,7 @@
  */
 package org.envirocar.storage.dao;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Query;
 
@@ -25,8 +26,8 @@ import org.envirocar.core.entity.Manufacturers;
 
 import java.util.List;
 
-import io.reactivex.Observable;
-import io.reactivex.Single;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Single;
 
 
 @Dao

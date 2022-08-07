@@ -21,7 +21,7 @@ package org.envirocar.core;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.exception.NotConnectedException;
 
-import io.reactivex.Completable;
+import io.reactivex.rxjava3.core.Completable;
 
 /**
  * TODO JavaDoc

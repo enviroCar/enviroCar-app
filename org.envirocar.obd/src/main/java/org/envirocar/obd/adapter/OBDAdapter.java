@@ -23,7 +23,7 @@ import org.envirocar.obd.commands.response.DataResponse;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import io.reactivex.Observable;
+import io.reactivex.rxjava3.core.Observable;
 
 
 /**

@@ -26,8 +26,8 @@ import android.widget.TextView;
 import android.text.Html;
 import android.text.Spanned;
 
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.schedulers.Schedulers;
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 import org.envirocar.app.R;
 import org.envirocar.app.handler.agreement.AgreementManager;

@@ -34,7 +34,7 @@ import java.util.ArrayDeque;
 import java.util.List;
 import java.util.Queue;
 
-import io.reactivex.Observable;
+import io.reactivex.rxjava3.core.Observable;
 
 
 /**
