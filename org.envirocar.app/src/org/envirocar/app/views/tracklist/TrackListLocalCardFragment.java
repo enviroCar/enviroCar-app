@@ -55,7 +55,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import butterknife.OnClick;
+
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.DisposableObserver;
@@ -119,8 +119,8 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
         mRecyclerViewAdapter.onDestroy();
     }
 
-    @OnClick(R.id.fragment_tracklist_fab)
-    protected void onUploadTracksFABClicked() {
+
+    protected void onUploadTracksFABClicked(View view) {
         new MaterialAlertDialogBuilder(getContext(), R.style.MaterialDialog)
                 .setTitle(R.string.track_list_upload_all_tracks_title)
                 .setMessage(R.string.track_list_upload_all_tracks_content)

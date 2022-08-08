@@ -31,12 +31,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import org.envirocar.app.R;
+import org.envirocar.app.databinding.ActivityCarSelectionLayoutCarlistEntryBinding;
+import org.envirocar.app.databinding.CarDetailCardLayoutBinding;
 import org.envirocar.core.entity.Vehicles;
 
 import java.util.List;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
+
+
 
 public class CarSelectionAttributeListAdapter extends RecyclerView.Adapter<CarSelectionAttributeListAdapter.CarSelectionViewHolder> {
 
@@ -118,32 +120,36 @@ public class CarSelectionAttributeListAdapter extends RecyclerView.Adapter<CarSe
 
     public class CarSelectionViewHolder extends RecyclerView.ViewHolder {
 
-        @BindView(R.id.car_layout_manufacturer_name)
         TextView manufacturerName;
-        @BindView(R.id.car_layout_vehcile_name)
         TextView vehicleName;
-        @BindView(R.id.car_layout_construction_year)
         TextView constructionYear;
-        @BindView(R.id.car_layout_fuel_type)
         TextView fuelType;
-        @BindView(R.id.car_layout_engine_capacity)
         TextView engineCapacity;
-        @BindView(R.id.car_layout_power)
         TextView power;
-        @BindView(R.id.car_layout_card)
         View carDetailView;
-        @BindView(R.id.expandView)
         ImageView imageView1;
-        @BindView(R.id.car_layout_engine_view)
         View engineView;
-        @BindView(R.id.car_layout_expanded_card)
         View expandCard;
-        @BindView(R.id.car_layout_hsn_tsn)
         TextView hsnTsn;
 
-        public CarSelectionViewHolder(@NonNull View itemView) {
-            super(itemView);
-            ButterKnife.bind(this, itemView);
+        CarDetailCardLayoutBinding binding;
+        public CarSelectionViewHolder(@NonNull View view) {
+            super(view);
+            binding = CarDetailCardLayoutBinding.bind(view);
+            manufacturerName=binding.carLayoutManufacturerName;
+            vehicleName = binding.carLayoutVehcileName;
+            constructionYear = binding.carLayoutConstructionYear;
+            fuelType = binding.carLayoutFuelType;
+            engineCapacity = binding.carLayoutFuelType;
+            power = binding.carLayoutFuelType;
+            carDetailView = binding.carLayoutFuelType;
+            imageView1 = binding.expandView;
+            engineView = binding.carLayoutEngineView;
+            expandCard = binding.carLayoutExpandedCard;
+            hsnTsn = binding.carLayoutHsnTsn;
+
         }
+
     }
+
 }

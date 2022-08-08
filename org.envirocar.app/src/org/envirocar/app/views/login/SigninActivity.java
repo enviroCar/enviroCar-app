@@ -23,13 +23,19 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.AppCompatEditText;
+import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityOptionsCompat;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -37,6 +43,7 @@ import com.google.android.material.snackbar.Snackbar;
 
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
+import org.envirocar.app.databinding.ActivitySigninBinding;
 import org.envirocar.app.exception.LoginException;
 import org.envirocar.app.handler.DAOProvider;
 import org.envirocar.app.handler.agreement.AgreementManager;
@@ -54,10 +61,7 @@ import org.envirocar.core.entity.UserImpl;
 import javax.inject.Inject;
 import java.util.function.Consumer;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
-import butterknife.OnEditorAction;
+
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.Observable;
@@ -73,6 +77,10 @@ import io.reactivex.schedulers.Schedulers;
  */
 public class SigninActivity extends BaseInjectorActivity {
     private static final Logger LOG = Logger.getLogger(SigninActivity.class);
+    private ImageView signInBackground;
+    private TextView registerButton;
+    private AppCompatEditText loginPasswordInput;
+
 
     public static void startActivity(Context context) {
         Intent intent = new Intent(context, SigninActivity.class);
@@ -89,13 +97,13 @@ public class SigninActivity extends BaseInjectorActivity {
     protected AgreementManager agreementManager;
 
     // Injected Views
-    @BindView(R.id.activity_signin_username_input)
-    protected EditText usernameEditText;
-    @BindView(R.id.activity_login_password_input)
-    protected EditText passwordEditText;
-    @BindView(R.id.activity_login_logo)
-    protected ImageView logoImageView;
 
+    protected EditText usernameEditText;
+
+    protected EditText passwordEditText;
+
+    protected ImageView logoImageView;
+    protected CardView activitySigninLoginButton;
     private Disposable loginSubscription;
     private static Drawable errorPassword;
     private static Drawable errorUsername;
@@ -105,14 +113,31 @@ public class SigninActivity extends BaseInjectorActivity {
         baseApplicationComponent.inject(this);
     }
 
+    private ActivitySigninBinding binding;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_signin);
+        binding = ActivitySigninBinding.inflate(getLayoutInflater());
+        View view = binding.getRoot();
+        setContentView(view);
+
+        usernameEditText = binding.activitySigninUsernameInput;
+        passwordEditText = binding.activityLoginPasswordInput;
+        logoImageView = binding.activityLoginLogo;
+        activitySigninLoginButton = binding.activitySigninLoginButton;
+        activitySigninLoginButton.setOnClickListener(this::onLoginClicked);
+        signInBackground = binding.signinBackground;
+        signInBackground.setOnClickListener(this::closeKeyboard);
+
+        registerButton = binding.activitySigninRegisterButton;
+        registerButton.setOnClickListener(this::onSwitchToRegisterClicked);
+
+        loginPasswordInput = binding.activityLoginPasswordInput;
+        loginPasswordInput.setOnEditorActionListener(this::implicitSubmit);
+
         getWindow().setNavigationBarColor(getResources().getColor(R.color.cario_color_primary_dark));
 
         // inject the views
-        ButterKnife.bind(this);
 
         errorPassword = getResources().getDrawable(R.drawable.ic_error_red_24dp);
         errorPassword.setBounds(-70,0,0, errorPassword.getIntrinsicHeight());
@@ -131,17 +156,17 @@ public class SigninActivity extends BaseInjectorActivity {
         }
     }
 
-    @OnClick(R.id.signin_background)
-    protected void closeKeyboard(){
-        View view = this.getCurrentFocus();
+
+    protected void closeKeyboard(View view){
+
         if (view != null) {
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
     }
 
-    @OnClick(R.id.activity_signin_register_button)
-    protected void onSwitchToRegisterClicked() {
+
+    protected void onSwitchToRegisterClicked(View view) {
         ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
                 this, logoImageView, "imageMain");
 
@@ -149,16 +174,15 @@ public class SigninActivity extends BaseInjectorActivity {
         SignupActivity.startActivity(this);
     }
 
-    @OnEditorAction(R.id.activity_login_password_input)
-    protected boolean implicitSubmit() {
+    protected boolean implicitSubmit(TextView var1, int var2, KeyEvent var3) {
         View logInSubmit;
         logInSubmit = findViewById(R.id.activity_signin_login_button);
         logInSubmit.performClick();
         return true;
     }
 
-    @OnClick(R.id.activity_signin_login_button)
-    protected void onLoginClicked() {
+
+    protected void onLoginClicked(View view) {
         LOG.info("Clicked on the login button");
         View focusView = null;
 
@@ -211,9 +235,9 @@ public class SigninActivity extends BaseInjectorActivity {
                     protected void onStart() {
                         if(checkNetworkConnection()) {
                             dialog = DialogUtils.createProgressBarDialogBuilder(SigninActivity.this,
-                                    R.string.activity_login_logging_in_dialog_title,
-                                    R.drawable.ic_baseline_login_24,
-                                    (String) null)
+                                            R.string.activity_login_logging_in_dialog_title,
+                                            R.drawable.ic_baseline_login_24,
+                                            (String) null)
                                     .setCancelable(false)
                                     .show();
                         }
@@ -222,15 +246,16 @@ public class SigninActivity extends BaseInjectorActivity {
                     @Override
                     public void onComplete() {
                         if(checkNetworkConnection())
-                        dialog.dismiss();
+                            dialog.dismiss();
                         Intent intent = new Intent(getBaseContext(), BaseMainActivity.class);
                         startActivity(intent);
                     }
 
+                    @RequiresApi(api = Build.VERSION_CODES.N)
                     @Override
                     public void onError(Throwable e) {
                         if(checkNetworkConnection())
-                        dialog.dismiss();
+                            dialog.dismiss();
                         if (e instanceof LoginException) {
                             switch (((LoginException) e).getType()) {
                                 case USERNAME_OR_PASSWORD_INCORRECT:
@@ -252,20 +277,18 @@ public class SigninActivity extends BaseInjectorActivity {
                                     break;
                                 case TERMS_NOT_ACCEPTED:
                                     LOG.info("User has not accepted the latest terms of use");
-                                    agreementManager.initializeTermsOfUseAcceptanceWorkflow(username, password, SigninActivity.this, BaseMainActivity.class, new Consumer<Optional<TermsOfUse>>() {
-                                        public void accept(Optional<TermsOfUse> tou) {
-                                            if (tou.isEmpty()) {
-                                                passwordEditText.setError(getString(R.string.error_terms_not_acceppted), errorPassword);
-                                                userHandler.logOut();
-                                            } else {
-                                                if (userHandler.isLoggedIn()) {
-                                                    Intent intent = new Intent(getBaseContext(), BaseMainActivity.class);
-                                                    startActivity(intent);
-                                                }
+                                    agreementManager.initializeTermsOfUseAcceptanceWorkflow(username, password, SigninActivity.this, BaseMainActivity.class, tou -> {
+                                        if (tou.isEmpty()) {
+                                            passwordEditText.setError(getString(R.string.error_terms_not_acceppted), errorPassword);
+                                            userHandler.logOut();
+                                        } else {
+                                            if (userHandler.isLoggedIn()) {
+                                                Intent intent = new Intent(getBaseContext(), BaseMainActivity.class);
+                                                startActivity(intent);
                                             }
                                         }
                                     });
-                                    
+
                                     break;
                                 default:
                                     passwordEditText.setError(getString(R.string.logbook_invalid_input), errorPassword);

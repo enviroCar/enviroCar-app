@@ -24,6 +24,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.WindowManager;
 
 import androidx.activity.OnBackPressedCallback;
@@ -40,6 +41,7 @@ import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
+import org.envirocar.app.databinding.ActivityBaseMainBottomBarBinding;
 import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.DAOProvider;
@@ -64,8 +66,8 @@ import java.util.Stack;
 
 import javax.inject.Inject;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
+
+
 import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
@@ -112,10 +114,10 @@ public class BaseMainActivity extends BaseInjectorActivity {
     @Inject
     protected ValidateAcceptedTerms validateTermsOfUse;
 
-    @BindView(R.id.navigation)
+
     protected BottomNavigationView navigationBottomBar;
 
-    @BindView(R.id.fragmentContainer)
+
     protected ViewPager viewPager;
 
     private CompositeDisposable subscriptions = new CompositeDisposable();
@@ -147,13 +149,16 @@ public class BaseMainActivity extends BaseInjectorActivity {
                 .plus(new MainActivityModule(this))
                 .inject(this);
     }
-
+    private ActivityBaseMainBottomBarBinding binding;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 //        LOGGER.info("BaseMainActivity : onCreate");
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_base_main_bottom_bar);
-        ButterKnife.bind(this);
+        binding = ActivityBaseMainBottomBarBinding.inflate(getLayoutInflater());
+        View view = binding.getRoot();
+        setContentView(view);
+        navigationBottomBar = binding.navigation;
+        viewPager = binding.fragmentContainer;
 
         navigationBottomBar.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         navigationBottomBar.setSelectedItemId(R.id.navigation_dashboard);

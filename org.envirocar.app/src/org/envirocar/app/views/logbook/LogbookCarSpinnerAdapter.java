@@ -26,12 +26,14 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import org.envirocar.app.R;
+import org.envirocar.app.databinding.ActivityCarSelectionLayoutCarlistEntryBinding;
+import org.envirocar.app.databinding.ActivityLogbookCarSpinnerEntryBinding;
 import org.envirocar.core.entity.Car;
 
 import java.util.List;
 
-import butterknife.ButterKnife;
-import butterknife.BindView;
+
+
 
 /**
  * TODO JavaDoc
@@ -52,6 +54,8 @@ public class LogbookCarSpinnerAdapter extends ArrayAdapter<Car> {
         super(context, R.layout.activity_logbook_car_spinner_entry, R.id
                 .activity_logbook_car_spinner_entry_firstline, objects);
         this.cars = objects;
+
+
     }
 
     @Override
@@ -87,9 +91,9 @@ public class LogbookCarSpinnerAdapter extends ArrayAdapter<Car> {
 
     static class CarSpinnerEntryHolder {
 
-        @BindView(R.id.activity_logbook_car_spinner_entry_firstline)
+
         protected TextView title;
-        @BindView(R.id.activity_logbook_car_spinner_entry_secondline)
+
         protected TextView secondLine;
 
 
@@ -98,8 +102,14 @@ public class LogbookCarSpinnerAdapter extends ArrayAdapter<Car> {
          *
          * @param view the parent view of an entry in the car spinner.
          */
+
+        protected ActivityLogbookCarSpinnerEntryBinding binding;
         CarSpinnerEntryHolder(View view) {
-            ButterKnife.bind(this, view);
+            binding = ActivityLogbookCarSpinnerEntryBinding.bind(view);
+            title = binding.activityLogbookCarSpinnerEntryFirstline;
+            secondLine = binding.activityLogbookCarSpinnerEntrySecondline;
+
+
         }
     }
 }

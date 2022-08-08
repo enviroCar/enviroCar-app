@@ -29,12 +29,13 @@ import androidx.preference.DialogPreference;
 import androidx.preference.PreferenceDialogFragmentCompat;
 
 import org.envirocar.app.R;
+import org.envirocar.app.databinding.PreferenceTimepickerDialogBinding;
 import org.envirocar.app.handler.ApplicationSettings;
 
 import java.lang.reflect.Field;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
+
+
 
 public class TimePickerPreferenceDialog extends PreferenceDialogFragmentCompat {
 
@@ -70,19 +71,23 @@ public class TimePickerPreferenceDialog extends PreferenceDialogFragmentCompat {
     private int currentMinutes;
 
 
-    @BindView(R.id.preference_timepicker_text)
+
     protected TextView text;
-    @BindView(R.id.preference_timepicker_minutes_picker)
+
     protected NumberPicker minutePicker;
-    @BindView(R.id.preference_timepicker_seconds_picker)
+
     protected NumberPicker secondsPicker;
 
+    protected PreferenceTimepickerDialogBinding binding;
     @Override
     protected void onBindDialogView(View view) {
         super.onBindDialogView(view);
+        binding = PreferenceTimepickerDialogBinding.bind(view);
+        text = binding.preferenceTimepickerText;
+        minutePicker = binding.preferenceTimepickerMinutesPicker;
+        secondsPicker = binding.preferenceTimepickerSecondsPicker;
 
-        // inject views
-        ButterKnife.bind(this, view);
+        // inject view
 
         // Set the textview text
         this.text.setText(R.string.pref_bt_discovery_interval_explanation);

@@ -38,6 +38,7 @@ import android.widget.TextView;
 
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
+import org.envirocar.app.databinding.ActivityCarSelectionLayoutBinding;
 import org.envirocar.app.handler.preferences.CarPreferenceHandler;
 import org.envirocar.app.handler.preferences.UserPreferenceHandler;
 import org.envirocar.app.views.utils.ECAnimationUtils;
@@ -55,9 +56,9 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-import butterknife.ButterKnife;
-import butterknife.BindView;
-import butterknife.OnClick;
+
+
+
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -69,24 +70,13 @@ import io.reactivex.schedulers.Schedulers;
  */
 public class CarSelectionActivity extends BaseInjectorActivity implements CarSelectionUiListener, CarSelectionCreation {
     private static final Logger LOG = Logger.getLogger(CarSelectionActivity.class);
-
     private static final int DURATION_SHEET_ANIMATION = 350;
-
-    @BindView(R.id.activity_car_selection_layout_content)
     protected View mContentView;
-    @BindView(R.id.envirocar_toolbar)
     protected Toolbar mToolbar;
-    @BindView(R.id.activity_car_selection_layout_exptoolbar)
     protected Toolbar mExpToolbar;
-    @BindView(R.id.actvity_car_selection_layout_loading)
     protected View loadingView;
-
-    @BindView(R.id.activity_car_selection_new_car_fab)
     protected FloatingActionButton mFab;
-
-    @BindView(R.id.activity_car_selection_layout_carlist)
     protected ListView mCarListView;
-
     @Inject
     protected DAOProvider mDAOProvider;
     @Inject
@@ -94,15 +84,15 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
     @Inject
     protected UserPreferenceHandler mUserHandler;
 
-    @BindView(R.id.layout_general_info_background)
+
     protected View infoBackground;
-    @BindView(R.id.layout_general_info_background_img)
+
     protected ImageView infoBackgroundImg;
-    @BindView(R.id.layout_general_info_background_firstline)
+
     protected TextView infoBackgroundFirst;
-    @BindView(R.id.layout_general_info_background_secondline)
+
     protected TextView infoBackgroundSecond;
-    @BindView(R.id.activity_car_selection_header)
+
     protected View headerView;
 
     private CarSelectionAddCarFragment addCarFragment;
@@ -114,16 +104,28 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
     protected void injectDependencies(BaseApplicationComponent appComponent) {
         appComponent.inject(this);
     }
-
+    private ActivityCarSelectionLayoutBinding binding;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        binding = ActivityCarSelectionLayoutBinding.inflate(getLayoutInflater());
+        View view = binding.getRoot();
+        setContentView(view);
 
-        // Set the content view of this activity.
-        setContentView(R.layout.activity_car_selection_layout);
+        infoBackground = binding.layoutGeneralInfoBackground.getRoot();
+        infoBackgroundImg = binding.layoutGeneralInfoBackground.layoutGeneralInfoBackgroundImg;
+        infoBackgroundFirst = binding.layoutGeneralInfoBackground.layoutGeneralInfoBackgroundFirstline;
+        infoBackgroundSecond = binding.layoutGeneralInfoBackground.layoutGeneralInfoBackgroundSecondline;
+        headerView = binding.activityCarSelectionHeader;
+        mContentView= binding.activityCarSelectionLayoutContent;
+        mToolbar = binding.activityCarSelectionLayoutExptoolbar;
+        mExpToolbar = binding.activityCarSelectionLayoutExptoolbar;
+        loadingView =binding.actvityCarSelectionLayoutLoading;
+        mFab = binding.activityCarSelectionNewCarFab;
+        mFab.setOnClickListener(this::onClickNewCarButton);
+        mCarListView = binding.activityCarSelectionLayoutCarlist;
 
         // Inject all annotated views.
-        ButterKnife.bind(this);
 
         // Set the toolbar as default actionbar.
         setSupportActionBar(mToolbar);
@@ -166,8 +168,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
 
     // Set the onClick listener for the FloatingActionButton. When triggered, the sheet view
     // gets shown.
-    @OnClick(R.id.activity_car_selection_new_car_fab)
-    public void onClickNewCarButton() {
+    public void onClickNewCarButton(View view) {
         showAddCarFragment();
     }
 
@@ -411,7 +412,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
 
         result.setWeight(weight);
         result.setVehicleType(vehicleType);
-        
+
         return result;
     }
 

@@ -44,6 +44,7 @@ import com.google.android.material.snackbar.Snackbar;
 
 import org.envirocar.app.BuildConfig;
 import org.envirocar.app.R;
+import org.envirocar.app.databinding.FragmentTracklistBinding;
 import org.envirocar.app.handler.DAOProvider;
 import org.envirocar.app.handler.TrackDAOHandler;
 import org.envirocar.app.handler.TrackUploadHandler;
@@ -66,8 +67,8 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
+
+
 import io.reactivex.Observable;
 import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -93,24 +94,24 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
     @Inject
     protected TrackUploadHandler mTrackUploadHandler;
 
-    @BindView(R.id.fragment_tracklist_info)
+
     protected View infoView;
-    @BindView(R.id.fragment_tracklist_info_img)
+
     protected ImageView infoImg;
-    @BindView(R.id.fragment_tracklist_info_text)
+
     protected TextView infoText;
-    @BindView(R.id.fragment_tracklist_info_subtext)
+
     protected TextView infoSubtext;
 
-    @BindView(R.id.fragment_tracklist_progress_view)
+
     protected View mProgressView;
-    @BindView(R.id.fragment_tracklist_progress_text)
+
     protected TextView mProgressText;
-    @BindView(R.id.fragment_tracklist_progress_progressBar)
+
     protected ProgressBar mProgressBar;
-    @BindView(R.id.fragment_tracklist_recycler_view)
+
     protected RecyclerView mRecyclerView;
-    @BindView(R.id.fragment_tracklist_fab)
+
     protected FloatingActionButton mFAB;
 
     protected E mRecyclerViewAdapter;
@@ -128,15 +129,25 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
 
     private int REQUEST_STORAGE_PERMISSION_REQUEST_CODE = 109;
 
+    private FragmentTracklistBinding binding;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle
             savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
+        binding = FragmentTracklistBinding.inflate(inflater,container,false);
+        View view = binding.getRoot();
 
-        // Inflate the view and inject the annotated view.
-        View view = inflater.inflate(R.layout.fragment_tracklist, container, false);
-        ButterKnife.bind(this, view);
+        infoView = binding.fragmentTracklistInfo.getRoot();
+        infoImg = binding.fragmentTracklistInfo.fragmentTracklistInfoImg;
+        infoText = binding.fragmentTracklistInfo.fragmentTracklistInfoText;
+        infoSubtext = binding.fragmentTracklistInfo.fragmentTracklistInfoSubtext;
+
+        mProgressView = binding.fragmentTracklistProgressView;
+        mProgressText = binding.fragmentTracklistProgressText;
+        mProgressBar = binding.fragmentTracklistProgressProgressBar;
+        mRecyclerView = binding.fragmentTracklistRecyclerView;
+        mFAB = binding.fragmentTracklistFab;
 
         // Initiate the recyclerview
 //        mRecyclerView.setHasFixedSize(true);
@@ -239,9 +250,9 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
     private void showSnackbar(final int mainTextStringId, final int actionStringId,
                               View.OnClickListener listener) {
         Snackbar.make(
-                getActivity().findViewById(R.id.navigation),
-                getString(mainTextStringId),
-                Snackbar.LENGTH_INDEFINITE)
+                        getActivity().findViewById(R.id.navigation),
+                        getString(mainTextStringId),
+                        Snackbar.LENGTH_INDEFINITE)
                 .setAction(getString(actionStringId), listener).show();
     }
 

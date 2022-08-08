@@ -34,14 +34,16 @@ import android.widget.TextView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import org.envirocar.app.R;
+import org.envirocar.app.databinding.ActivityCarSelectionLayoutBinding;
+import org.envirocar.app.databinding.ActivityCarSelectionLayoutCarlistEntryBinding;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.utils.CarUtils;
 
 import java.util.List;
 
-import butterknife.ButterKnife;
-import butterknife.BindView;
+
+
 
 /**
  * @author dewall
@@ -231,15 +233,15 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
 
         protected final View mCoreView;
 
-        @BindView(R.id.activity_car_selection_layout_carlist_entry_icon)
+
         protected ImageView iconView;
-        @BindView(R.id.activity_car_selection_layout_carlist_entry_firstline)
+
         protected TextView firstLine;
-        @BindView(R.id.activity_car_selection_layout_carlist_entry_secondline)
+
         protected TextView secondLine;
-        @BindView(R.id.activity_car_selection_layout_carlist_entry_radio)
+
         protected RadioButton mRadioButton;
-        @BindView(R.id.activity_car_selection_layout_carlist_delete_icon)
+
         protected ImageButton mDeleteButton;
 
         /**
@@ -247,9 +249,15 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
          *
          * @param view
          */
+        protected ActivityCarSelectionLayoutCarlistEntryBinding binding;
         CarViewHolder(View view) {
             this.mCoreView = view;
-            ButterKnife.bind(this, view);
+            binding = ActivityCarSelectionLayoutCarlistEntryBinding.bind(view);
+            iconView = binding.activityCarSelectionLayoutCarlistEntryIcon;
+            firstLine = binding.activityCarSelectionLayoutCarlistEntryFirstline;
+            secondLine = binding.activityCarSelectionLayoutCarlistEntrySecondline;
+            mRadioButton = binding.activityCarSelectionLayoutCarlistEntryRadio;
+            mDeleteButton = binding.activityCarSelectionLayoutCarlistDeleteIcon;
         }
     }
 }

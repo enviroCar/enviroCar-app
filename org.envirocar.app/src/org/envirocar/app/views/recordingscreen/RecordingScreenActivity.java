@@ -37,6 +37,7 @@ import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
+import org.envirocar.app.databinding.ActivityRecordingScreenBinding;
 import org.envirocar.app.events.*;
 import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.app.handler.TrackRecordingHandler;
@@ -55,9 +56,9 @@ import java.text.DecimalFormat;
 
 import javax.inject.Inject;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
+
+
+
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
@@ -87,27 +88,27 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
     protected TrackRecordingHandler trackRecordingHandler;
 
     // Injected views
-    @BindView(R.id.activity_recscreen_trackdetails_gps)
+
     protected ImageView gpsImage;
-    @BindView(R.id.activity_recscreen_trackdetails_bluetooth)
+
     protected ImageView bluetoothImage;
-    @BindView(R.id.activity_recscreen_trackdetails_bluetooth_text)
+
     protected TextView bluetoothText;
-    @BindView(R.id.activity_recscreen_trackdetails_timer)
+
     protected Chronometer timerText;
-    @BindView(R.id.activity_recscreen_trackdetails_distance)
+
     protected TextView distanceText;
-    @BindView(R.id.activity_recscreen_trackdetails_speed)
+
     protected TextView speedText;
-    @BindView(R.id.activity_recscreen_trackdetails_container)
+
     protected LinearLayout trackDetailsContainer;
-    @BindView(R.id.activity_recscreen_trackmap_container)
+
     protected LinearLayout mapContainer;
-    @BindView(R.id.activity_recscreen_tempomat_container)
+
     protected LinearLayout tempomatContainer;
-    @BindView(R.id.activity_recscreen_stopbutton)
+
     protected LinearLayout stopTrackRecordingButton;
-    @BindView(R.id.activity_recscreen_track_upload_status)
+
     protected LinearLayout trackUploadStatus;
 
     // state variables
@@ -120,11 +121,29 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
                 .inject(this);
     }
 
+    private ActivityRecordingScreenBinding binding;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         LOG.info("Creating RecordingScreenActivity");
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_recording_screen);
+        binding = ActivityRecordingScreenBinding.inflate(getLayoutInflater());
+        View view = binding.getRoot();
+        setContentView(view);
+
+        gpsImage = binding.activityRecscreenTrackdetailsGps;
+        bluetoothImage = binding.activityRecscreenTrackdetailsBluetooth;
+        bluetoothText = binding.activityRecscreenTrackdetailsBluetoothText;
+        timerText = binding.activityRecscreenTrackdetailsTimer;
+        distanceText = binding.activityRecscreenTrackdetailsDistance;
+        speedText = binding.activityRecscreenTrackdetailsSpeed;
+        trackDetailsContainer = binding.activityRecscreenTrackdetailsContainer;
+        mapContainer = binding.activityRecscreenTrackmapContainer;
+        tempomatContainer = binding.activityRecscreenTempomatContainer;
+
+        stopTrackRecordingButton = binding.activityRecscreenStopbutton;
+
+        stopTrackRecordingButton.setOnClickListener(this::onStopButtonClicked);
+        trackUploadStatus = binding.activityRecscreenTrackUploadStatus;
 
         //if the track recording service is stopped then finish this activity and goback to bottombar main activity
         if (RecordingService.RECORDING_STATE == RecordingState.RECORDING_STOPPED) {
@@ -133,7 +152,7 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
         }
 
         // Inject all dashboard-related views.
-        ButterKnife.bind(this);
+
 
         this.recordingType = ApplicationSettings.getSelectedRecordingTypeObservable(this).blockingFirst();
         if (recordingType.equals(RecordingType.ACTIVITY_RECOGNITION_BASED)) {
@@ -193,8 +212,8 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
         super.onDestroy();
     }
 
-    @OnClick(R.id.activity_recscreen_switchbutton)
-    protected void onSwitchViewsButtonClicked() {
+
+    protected void onSwitchViewsButtonClicked(View view) {
         LOG.info("Switch views button clicked");
         Observable.just(true)
                 .subscribeOn(AndroidSchedulers.mainThread())
@@ -203,8 +222,8 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
                 .subscribe();
     }
 
-    @OnClick(R.id.activity_recscreen_stopbutton)
-    protected void onStopButtonClicked() {
+    //@OnClick(R.id.activity_recscreen_stopbutton)
+    protected void onStopButtonClicked(View view) {
         LOG.info("Stop button has been clicked. Showing dialog to request confirmation");
 
         new MaterialAlertDialogBuilder(this,R.style.MaterialDialog)

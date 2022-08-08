@@ -41,6 +41,8 @@ import com.google.android.material.snackbar.Snackbar;
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.BuildConfig;
 import org.envirocar.app.R;
+import org.envirocar.app.databinding.FragmentDashboardViewNewBinding;
+import org.envirocar.app.databinding.FragmentOthersBinding;
 import org.envirocar.app.handler.TrackDAOHandler;
 import org.envirocar.app.handler.preferences.UserPreferenceHandler;
 import org.envirocar.app.injection.BaseInjectorFragment;
@@ -56,9 +58,9 @@ import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
+
+
+
 import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.observers.DisposableCompletableObserver;
@@ -75,9 +77,9 @@ public class OthersFragment extends BaseInjectorFragment {
     @Inject
     protected TrackDAOHandler mTrackDAOHandler;
 
-    @BindView(R.id.othersLogOut)
+
     protected LinearLayout othersLogOut;
-    @BindView(R.id.othersLogOutDivider)
+
     protected View othersLogOutDivider;
 
     private Scheduler.Worker mMainThreadWorker = AndroidSchedulers.mainThread().createWorker();
@@ -85,12 +87,15 @@ public class OthersFragment extends BaseInjectorFragment {
 
     private int REQUEST_PERMISSIONS_REQUEST_CODE = 101;
 
+    private FragmentOthersBinding binding;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_others, container, false);
+        binding = FragmentOthersBinding.inflate(inflater,container,false);
+        View view = binding.getRoot();
 
-        ButterKnife.bind(this, view);
+        othersLogOut = binding.othersLogOut;
+        othersLogOutDivider = binding.othersLogOutDivider;
 
         if (mUserManager.isLoggedIn()) {
             othersLogOut.setVisibility(View.VISIBLE);
@@ -110,43 +115,43 @@ public class OthersFragment extends BaseInjectorFragment {
     }
 
 
-    @OnClick(R.id.othersLogBook)
-    protected void onLogBookClicked() {
+    //@OnClick(R.id.othersLogBook)
+    protected void onLogBookClicked(View view) {
         Intent intent = new Intent(getActivity(), LogbookActivity.class);
         startActivity(intent);
     }
 
-    @OnClick(R.id.othersSettings)
-    protected void onSettingsClicked() {
+    //@OnClick(R.id.othersSettings)
+    protected void onSettingsClicked(View view) {
         Intent intent = new Intent(getActivity(), SettingsActivity.class);
         startActivity(intent);
     }
 
-    @OnClick(R.id.othersHelp)
-    protected void onHelpClicked() {
+    //@OnClick(R.id.othersHelp)
+    protected void onHelpClicked(View view) {
         Intent intent = new Intent(getActivity(), HelpActivity.class);
         startActivity(intent);
     }
 
-    @OnClick(R.id.othersTou)
-    protected void onTouClicked() {
+    //@OnClick(R.id.othersTou)
+    protected void onTouClicked(View view) {
         Intent intent = new Intent(getActivity(), TermsOfUseActivity.class);
         startActivity(intent);
     }
 
-    @OnClick(R.id.othersReportIssue)
-    protected void onReportIssueClicked() {
+    //@OnClick(R.id.othersReportIssue)
+    protected void onReportIssueClicked(View view) {
 //        if (checkPermissions()) {
-            //access granted
-            Intent intent = new Intent(getActivity(), SendLogFileActivity.class);
-            startActivity(intent);
+        //access granted
+        Intent intent = new Intent(getActivity(), SendLogFileActivity.class);
+        startActivity(intent);
 //        } else {
 //            requestPermissions();
 //        }
     }
 
-    @OnClick(R.id.othersRateUs)
-    protected void onRateUsClicked() {
+    //@OnClick(R.id.othersRateUs)
+    protected void onRateUsClicked(View view) {
         final String appPackageName = "org.envirocar.app"; // getPackageName() from Context or Activity object
         try {
             startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + appPackageName)));
@@ -155,8 +160,8 @@ public class OthersFragment extends BaseInjectorFragment {
         }
     }
 
-    @OnClick(R.id.othersLogOut)
-    protected void onLogOutClicked() {
+    //@OnClick(R.id.othersLogOut)
+    protected void onLogOutClicked(View view) {
         // show dialog
         new MaterialAlertDialogBuilder(getActivity(), R.style.MaterialDialog)
                 .setTitle(R.string.menu_logout_envirocar_title)
@@ -168,8 +173,8 @@ public class OthersFragment extends BaseInjectorFragment {
                 .show();
     }
 
-    @OnClick(R.id.othersCloseEnviroCar)
-    protected void onCloseEnviroCarClicked() {
+    // @OnClick(R.id.othersCloseEnviroCar)
+    protected void onCloseEnviroCarClicked(View view) {
         // show closing dialog
         new MaterialAlertDialogBuilder(getActivity(), R.style.MaterialDialog)
                 .setTitle(R.string.menu_close_envirocar_title)
@@ -276,9 +281,9 @@ public class OthersFragment extends BaseInjectorFragment {
     private void showSnackbar(final int mainTextStringId, final int actionStringId,
                               View.OnClickListener listener) {
         Snackbar.make(
-                getActivity().findViewById(R.id.navigation),
-                getString(mainTextStringId),
-                Snackbar.LENGTH_INDEFINITE)
+                        getActivity().findViewById(R.id.navigation),
+                        getString(mainTextStringId),
+                        Snackbar.LENGTH_INDEFINITE)
                 .setAction(getString(actionStringId), listener).show();
     }
 

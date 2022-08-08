@@ -26,13 +26,14 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import org.envirocar.app.R;
+import org.envirocar.app.databinding.ActivityAccountStatisticListEntryBinding;
 import org.envirocar.core.entity.Phenomenon;
 
 import java.text.DecimalFormat;
 import java.util.List;
 
-import butterknife.ButterKnife;
-import butterknife.BindView;
+
+
 
 /**
  * @author dewall
@@ -65,8 +66,8 @@ public class UserStatisticsAdapter extends ArrayAdapter<Phenomenon> {
                     R.layout.activity_account_statistic_list_entry, parent, false);
 
             // Create a new viewholder and inject the sub-views of the newly inflated convertView.
-            viewHolder = new ViewHolder();
-            ButterKnife.bind(viewHolder, convertView);
+            viewHolder = new ViewHolder(convertView);
+
 
             // Set the viewHolder as tag on the convertView.
             convertView.setTag(viewHolder);
@@ -86,13 +87,25 @@ public class UserStatisticsAdapter extends ArrayAdapter<Phenomenon> {
     }
 
     static final class ViewHolder {
-        @BindView(R.id.activity_account_statistics_list_entry_phenomenon)
+
+
         TextView mPhenomenonTextView;
-        @BindView(R.id.activity_account_statistics_list_entry_avg_value)
+
         TextView mAvgValue;
-        @BindView(R.id.activity_account_statistics_list_entry_max_value)
+
         TextView mMaxValue;
-        @BindView(R.id.activity_account_statistics_list_entry_min_value)
+
         TextView mMinValue;
+
+        protected ActivityAccountStatisticListEntryBinding binding;
+        ViewHolder(View view){
+            binding = ActivityAccountStatisticListEntryBinding.bind(view);
+            mPhenomenonTextView = binding.activityAccountStatisticsListEntryPhenomenon;
+            mAvgValue = binding.activityAccountStatisticsListEntryAvgValue;
+            mMaxValue = binding.activityAccountStatisticsListEntryMaxValue;
+            mMinValue = binding.activityAccountStatisticsListEntryMinValue;
+        }
+
+
     }
 }

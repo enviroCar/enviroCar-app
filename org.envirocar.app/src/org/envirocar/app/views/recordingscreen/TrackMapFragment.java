@@ -27,6 +27,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -56,6 +57,8 @@ import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.BaseApplicationComponent;
+import org.envirocar.app.databinding.FragmentTempomatViewBinding;
+import org.envirocar.app.databinding.FragmentTrackMapBinding;
 import org.envirocar.app.injection.components.MainActivityComponent;
 import org.envirocar.app.injection.modules.MainActivityModule;
 import org.envirocar.app.R;
@@ -68,10 +71,6 @@ import org.envirocar.core.logging.Logger;
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
-import butterknife.OnTouch;
 import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
@@ -85,9 +84,9 @@ public class TrackMapFragment extends BaseInjectorFragment implements Permission
     private MapboxMap mapboxMap;
     private Style mapStyle;
     private LocationComponent locationComponent;
-    @BindView(R.id.fragment_dashboard_frag_map_mapview)
+
     protected MapView mMapView;
-    @BindView(R.id.activity_map_follow_fab)
+
     protected FloatingActionButton mFollowFab;
 
     private MapLayer mPathOverlay;
@@ -98,17 +97,21 @@ public class TrackMapFragment extends BaseInjectorFragment implements Permission
 
     private boolean mIsFollowingLocation;
 
+    private FragmentTrackMapBinding binding;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle
             savedInstanceState) {
         LOG.info("onCreateView()");
+        binding = FragmentTrackMapBinding.inflate(inflater,container,false);
+        View view = binding.getRoot();
 
-        // First inflate the general dashboard view.
-        View contentView = inflater.inflate(R.layout.fragment_track_map, container, false);
+        mMapView = binding.fragmentDashboardFragMapMapview;
+        mMapView.setOnTouchListener(this::onTouchMapView);
 
-        // Inject all dashboard-related views.
-        ButterKnife.bind(this, contentView);
+        mFollowFab = binding.activityMapFollowFab;
+        mFollowFab.setOnClickListener(this::onClickFollowFab);
+
 
         // Init the map view
         mMapView.onCreate(savedInstanceState);
@@ -148,7 +151,7 @@ public class TrackMapFragment extends BaseInjectorFragment implements Permission
         mIsFollowingLocation = true;
         mFollowFab.setVisibility(View.INVISIBLE);
 
-        return contentView;
+        return view;
     }
 
     private void setCameraTrackingMode(@CameraMode.Mode int mode) {
@@ -179,8 +182,8 @@ public class TrackMapFragment extends BaseInjectorFragment implements Permission
         });
     }
 
-    @OnTouch(R.id.fragment_dashboard_frag_map_mapview)
-    protected boolean onTouchMapView() {
+
+    protected boolean onTouchMapView(View view, MotionEvent motionEvent) {
         if (mIsFollowingLocation) {
             setCameraTrackingMode(CameraMode.NONE);
             mIsFollowingLocation = false;
@@ -191,8 +194,8 @@ public class TrackMapFragment extends BaseInjectorFragment implements Permission
         return false;
     }
 
-    @OnClick(R.id.activity_map_follow_fab)
-    protected void onClickFollowFab() {
+
+    protected void onClickFollowFab(View view) {
         if (!mIsFollowingLocation) {
             setCameraTrackingMode(CameraMode.TRACKING_GPS);
             mIsFollowingLocation = true;
@@ -358,7 +361,7 @@ public class TrackMapFragment extends BaseInjectorFragment implements Permission
     @Override
     public void onResume() {
         super.onResume();
-        onClickFollowFab();
+        onClickFollowFab(mMapView);
         mMapView.onResume();
     }
 

@@ -22,6 +22,7 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
 import android.text.Html;
 import android.text.Spanned;
@@ -30,6 +31,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
 import org.envirocar.app.R;
+import org.envirocar.app.databinding.ActivityTouLayoutBinding;
 import org.envirocar.app.handler.agreement.AgreementManager;
 import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.core.utils.rx.Optional;
@@ -41,8 +43,8 @@ import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.core.utils.rx.Optional;
 import org.envirocar.app.handler.preferences.UserPreferenceHandler;
 
-import butterknife.ButterKnife;
-import butterknife.BindView;
+
+
 
 import java.util.function.Consumer;
 import javax.inject.Inject;
@@ -56,10 +58,10 @@ public class TermsOfUseActivity extends BaseInjectorActivity {
 
     private static final Logger LOG = Logger.getLogger(TermsOfUseActivity.class);
 
-    @BindView(R.id.tou_text_view)
+
     protected TextView touTextView;
 
-    @BindView(R.id.activity_tou_layout_toolbar)
+
     protected Toolbar toolbar;
 
     @Inject
@@ -77,14 +79,19 @@ public class TermsOfUseActivity extends BaseInjectorActivity {
     }
 
 
+    private ActivityTouLayoutBinding binding;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        binding = ActivityTouLayoutBinding.inflate(getLayoutInflater());
+        View view = binding.getRoot();
+        setContentView(view);
 
-        setContentView(R.layout.activity_tou_layout);
+        touTextView = binding.touTextView;
+        toolbar = binding.activityTouLayoutToolbar;
 
         // Inject views
-        ButterKnife.bind(this);
+
 
         // Set Actionbar
         setSupportActionBar(toolbar);
@@ -101,33 +108,33 @@ public class TermsOfUseActivity extends BaseInjectorActivity {
         textView.setText(htmlAsSpanned);
 
         getLatestTermsOfUse.asObservable()
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(termsOfUse -> {
-                LOG.info("Terms Of Use loaded: " + termsOfUse);
-                if (!termsOfUse.isEmpty()) {
-                    Spanned htmlContent = Html.fromHtml(termsOfUse.getOptional().getContents());
-                    textView.setText(htmlContent);
-                }
-            });
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(termsOfUse -> {
+                    LOG.info("Terms Of Use loaded: " + termsOfUse);
+                    if (!termsOfUse.isEmpty()) {
+                        Spanned htmlContent = Html.fromHtml(termsOfUse.getOptional().getContents());
+                        textView.setText(htmlContent);
+                    }
+                });
 
         // check if the user accepted the latest terms
         LOG.info("Checking TermsOfUse");
         mAgreementManager.verifyTermsOfUse(null, true)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(termsOfUse -> {
-                if (termsOfUse != null) {
-                    LOG.warn("TermsOfUse verified");
-                } else {
-                    LOG.warn("No TermsOfUse received from verification");
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(termsOfUse -> {
+                    if (termsOfUse != null) {
+                        LOG.warn("TermsOfUse verified");
+                    } else {
+                        LOG.warn("No TermsOfUse received from verification");
+                        initAcceptanceWorkflow();
+                    }
+                }, e -> {
+                    LOG.warn("Error during TermsOfUse verification", e);
                     initAcceptanceWorkflow();
-                }
-            }, e -> {
-                LOG.warn("Error during TermsOfUse verification", e);
-                initAcceptanceWorkflow();
-            });
-        
+                });
+
     }
 
     private void initAcceptanceWorkflow() {
@@ -139,7 +146,7 @@ public class TermsOfUseActivity extends BaseInjectorActivity {
                     LOG.info("User did not accept ToU");
                 } else {
                     LOG.info("User accepted ToU");
-                }   
+                }
             }
         });
     }
@@ -148,9 +155,9 @@ public class TermsOfUseActivity extends BaseInjectorActivity {
         TermsOfUse tous;
         try {
             tous = mAgreementManager.verifyTermsOfUse(this, true)
-                .subscribeOn(Schedulers.io())
-                .doOnError(LOG::error)
-                .blockingFirst();
+                    .subscribeOn(Schedulers.io())
+                    .doOnError(LOG::error)
+                    .blockingFirst();
         } catch (Exception e) {
             LOG.warn(e.getMessage(), e);
             tous = null;

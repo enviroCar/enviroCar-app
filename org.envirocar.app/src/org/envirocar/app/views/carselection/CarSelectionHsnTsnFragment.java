@@ -23,6 +23,7 @@ import android.app.Activity;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,6 +39,8 @@ import com.jakewharton.rxbinding3.widget.RxTextView;
 
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
+import org.envirocar.app.databinding.FragmentCarSelectionAttributesBinding;
+import org.envirocar.app.databinding.FragmentCarSelectionHsnTsnBinding;
 import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.core.entity.Manufacturers;
 import org.envirocar.core.entity.Vehicles;
@@ -53,10 +56,10 @@ import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
-import butterknife.OnEditorAction;
+
+
+
+
 import io.reactivex.Observable;
 import io.reactivex.Scheduler;
 import io.reactivex.Single;
@@ -68,9 +71,9 @@ import io.reactivex.schedulers.Schedulers;
 
 public class CarSelectionHsnTsnFragment extends BaseInjectorFragment {
 
-    @BindView(R.id.fragment_hsntsn_hsn_input)
+
     protected AutoCompleteTextView hsnEditText;
-    @BindView(R.id.fragment_hsntsn_tsn_input)
+
     protected AutoCompleteTextView tsnEditText;
     protected BottomSheetFragment bottomSheetFragment;
 
@@ -91,12 +94,18 @@ public class CarSelectionHsnTsnFragment extends BaseInjectorFragment {
         this.manufacturersList = manufacturersList;
     }
 
+    private FragmentCarSelectionHsnTsnBinding binding;
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        View view = inflater.inflate(R.layout.fragment_car_selection_hsn_tsn, container, false);
-        ButterKnife.bind(this, view);
+        binding = FragmentCarSelectionHsnTsnBinding.inflate(inflater,container,false);
+        View view = binding.getRoot();
+
+        hsnEditText = binding.fragmentHsntsnHsnInput;
+        tsnEditText = binding.fragmentHsntsnTsnInput;
+        //tsnEditText.onEditorAction(this::implicitSubmit);
+
         fetchAllVehicles();
         reactiveTexFieldCheck();
         focusChangeListener();
@@ -124,8 +133,8 @@ public class CarSelectionHsnTsnFragment extends BaseInjectorFragment {
         hideKeyboard(textView);
     }
 
-    @OnClick(R.id.fragment_search_vehicle)
-    protected void onSearchClicked() {
+    //@OnClick(R.id.fragment_search_vehicle)
+    protected void onSearchClicked(View view) {
         String hsnWithManufactureName = hsnEditText.getText().toString().trim();
         String tsn = tsnEditText.getText().toString().trim();
         View focusView = null;
@@ -172,9 +181,9 @@ public class CarSelectionHsnTsnFragment extends BaseInjectorFragment {
         baseApplicationComponent.inject(this);
     }
 
-    @OnEditorAction(R.id.fragment_hsntsn_tsn_input)
-    protected void implicitSubmit() {
-        onSearchClicked();
+    //@OnEditorAction(R.id.fragment_hsntsn_tsn_input)
+    protected void implicitSubmit(TextView var1, int var2, KeyEvent var3) {
+        onSearchClicked(var1);
     }
 
     private void fetchAllVehicles() {

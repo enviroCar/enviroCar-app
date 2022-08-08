@@ -39,6 +39,7 @@ import android.widget.TextView;
 
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
+import org.envirocar.app.databinding.ActivityLogbookBinding;
 import org.envirocar.app.handler.preferences.CarPreferenceHandler;
 import org.envirocar.app.views.utils.ECAnimationUtils;
 import org.envirocar.core.ContextInternetAccessProvider;
@@ -57,9 +58,9 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import butterknife.ButterKnife;
-import butterknife.BindView;
-import butterknife.OnClick;
+
+
+
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.observers.DisposableObserver;
@@ -80,24 +81,24 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
     @Inject
     protected UserManager userManager;
 
-    @BindView(R.id.activity_logbook_toolbar)
+
     protected Toolbar toolbar;
-    @BindView(R.id.activity_logbook_header)
+
     protected View headerView;
-    @BindView(R.id.activity_logbook_toolbar_new_fueling_fab)
+
     protected View newFuelingFab;
-    @BindView(R.id.activity_logbook_toolbar_fuelinglist)
+
     protected ListView fuelingList;
-    @BindView(R.id.overlay)
+
     protected View overlayView;
 
-    @BindView(R.id.layout_general_info_background)
+
     protected View infoBackground;
-    @BindView(R.id.layout_general_info_background_img)
+
     protected ImageView infoBackgroundImg;
-    @BindView(R.id.layout_general_info_background_firstline)
+
     protected TextView infoBackgroundFirst;
-    @BindView(R.id.layout_general_info_background_secondline)
+
     protected TextView infoBackgroundSecond;
 
 //    @BindView(R.id.activity_logbook_not_logged_in)
@@ -116,16 +117,31 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
         baseApplicationComponent.inject(this);
     }
 
+    private ActivityLogbookBinding binding;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         LOG.info("onCreate()");
         super.onCreate(savedInstanceState);
-
+        binding = ActivityLogbookBinding.inflate(getLayoutInflater());
+        View view = binding.getRoot();
         // First, set the content view.
-        setContentView(R.layout.activity_logbook);
+        setContentView(view);
+
+        toolbar = binding.activityLogbookToolbar;
+        headerView = binding.activityLogbookHeader;
+        newFuelingFab = binding.activityLogbookToolbarNewFuelingFab;
+        newFuelingFab.setOnClickListener(this::onClickNewFuelingFAB);
+        fuelingList = binding.activityLogbookToolbarFuelinglist;
+        overlayView = binding.overlay;
+
+        infoBackground = binding.layoutGeneralInfoBackground.getRoot();
+        infoBackgroundImg = binding.layoutGeneralInfoBackground.layoutGeneralInfoBackgroundImg;
+        infoBackgroundFirst = binding.layoutGeneralInfoBackground.layoutGeneralInfoBackgroundFirstline;
+        infoBackgroundSecond = binding.layoutGeneralInfoBackground.layoutGeneralInfoBackgroundSecondline;
+
 
         // Inject the Views.
-        ButterKnife.bind(this);
+
 
         // Initializes the Toolbar.
         setSupportActionBar(toolbar);
@@ -187,8 +203,8 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
         super.onBackPressed();
     }
 
-    @OnClick(R.id.activity_logbook_toolbar_new_fueling_fab)
-    protected void onClickNewFuelingFAB() {
+    //@OnClick(R.id.activity_logbook_toolbar_new_fueling_fab)
+    protected void onClickNewFuelingFAB(View view) {
         if(carHandler.hasCars()) {
             // Click on the fab should first hide the fab and then open the AddFuelingFragment
             showAddFuelingCard();

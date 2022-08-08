@@ -43,6 +43,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
+import org.envirocar.app.databinding.SendLogLayoutBinding;
+import org.envirocar.app.databinding.SendLogLayoutNewBinding;
 import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.preferences.CarPreferenceHandler;
@@ -68,11 +70,6 @@ import java.util.Locale;
 
 import javax.inject.Inject;
 
-import butterknife.BindArray;
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
-import butterknife.OnFocusChange;
 
 /**
  * An activity for reporting issues.
@@ -89,20 +86,20 @@ public class SendLogFileActivity extends BaseInjectorActivity {
     private static final String OTHER_DETAILS_PREFIX = "extra-info";
     private static final String EXTENSION = ".zip";
 
-    @BindView(R.id.envirocar_toolbar)
+
     protected Toolbar toolbar;
-    @BindView(R.id.report_issue_time_since_crash)
+
     protected EditText whenField;
-    @BindView(R.id.report_issue_desc)
+
     protected EditText comments;
-    @BindView(R.id.report_issue_submit)
+
     protected View submitIssue;
-    @BindView(R.id.report_issue_checkbox_list)
+
     protected ListView checkBoxListView;
 
-    @BindArray(R.array.report_issue_subject_header)
+
     protected String[] subjectHeaders;
-    @BindArray(R.array.report_issue_subject_tags)
+
     protected String[] subjectTags;
 
     @Inject
@@ -118,11 +115,24 @@ public class SendLogFileActivity extends BaseInjectorActivity {
         baseApplicationComponent.inject(this);
     }
 
+    private SendLogLayoutNewBinding binding;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.send_log_layout_new);
-        ButterKnife.bind(this);
+        binding = SendLogLayoutNewBinding.inflate(getLayoutInflater());
+        View view = binding.getRoot();
+        setContentView(view);
+
+        toolbar = binding.activityCarSelectionLayoutExptoolbar.envirocarToolbar;
+        whenField = binding.reportIssueTimeSinceCrash;
+        whenField.setOnFocusChangeListener(this::onWhenFieldFocusChange);
+        comments = binding.reportIssueDesc;
+        comments.setOnFocusChangeListener(this::onCommentsFocusChange);
+        submitIssue = binding.reportIssueSubmit;
+        submitIssue.setOnClickListener(this::onClickSubmitButton);
+        checkBoxListView = binding.reportIssueCheckboxList;
+        subjectHeaders = getResources().getStringArray(R.array.report_issue_subject_header);
+        subjectTags = getResources().getStringArray(R.array.report_issue_subject_tags);
 
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -137,7 +147,6 @@ public class SendLogFileActivity extends BaseInjectorActivity {
         }
     }
 
-    @OnClick(R.id.report_issue_submit)
     public void onClickSubmitButton(View v) {
         try {
             final File tmpBundle = createReportBundle();
@@ -151,14 +160,13 @@ public class SendLogFileActivity extends BaseInjectorActivity {
         }
     }
 
-    @OnFocusChange(R.id.report_issue_time_since_crash)
+
     public void onWhenFieldFocusChange(View v, boolean hasFocus) {
         if (!hasFocus) {
             hideKeyboard(v);
         }
     }
 
-    @OnFocusChange(R.id.report_issue_desc)
     public void onCommentsFocusChange(View v, boolean hasFocus) {
         if (!hasFocus) {
             hideKeyboard(v);

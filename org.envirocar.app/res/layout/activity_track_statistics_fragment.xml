@@ -25,6 +25,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="@dimen/spacing_medium"
+    tools:viewBindingIgnore="true"
     tools:context="org.envirocar.app.views.trackdetails.TrackStatisticsActivity$PlaceholderFragment">
 
     <lecho.lib.hellocharts.view.LineChartView
