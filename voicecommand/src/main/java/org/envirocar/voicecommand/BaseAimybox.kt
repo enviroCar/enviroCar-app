@@ -27,21 +27,39 @@ import com.justai.aimybox.components.AimyboxAssistantViewModel
 import com.justai.aimybox.components.AimyboxProvider
 import com.justai.aimybox.core.Config.Companion.create
 import com.justai.aimybox.dialogapi.rasa.RasaDialogApi
+import com.justai.aimybox.dialogapi.rasa.RasaRequest
 import com.justai.aimybox.speechkit.google.platform.GooglePlatformSpeechToText
 import com.justai.aimybox.speechkit.google.platform.GooglePlatformTextToSpeech
-import com.justai.aimybox.speechkit.kaldi.KaldiAssets.Companion.fromApkAssets
-import com.justai.aimybox.speechkit.kaldi.KaldiVoiceTrigger
+import com.justai.aimybox.speechkit.pocketsphinx.PocketsphinxAssets
+import com.justai.aimybox.speechkit.pocketsphinx.PocketsphinxRecognizerProvider
+import com.justai.aimybox.speechkit.pocketsphinx.PocketsphinxVoiceTrigger
 import java.util.*
+
+/**
+ * @author Dhiraj Chauhan
+ */
 
 class BaseAimybox {
 
     fun createAimybox(context: Context): Aimybox {
 
         // Accessing model from assets folder
-        val assets = fromApkAssets(context, "model/en")
+        val assets = PocketsphinxAssets
+            .fromApkAssets(
+                context,
+                acousticModelFileName = "model/en",
+                dictionaryFileName = "model/en/dictionary.dict"
+            )
+
+        // initializing pocketsphinx provider
+        val provider = PocketsphinxRecognizerProvider(assets, keywordThreshold = 1e-40f)
 
         // initializing trigger words
-        val voiceTrigger = KaldiVoiceTrigger(assets, listOf("listen", "hey car"))
+        val voiceTrigger = PocketsphinxVoiceTrigger(
+            provider,
+            context.getString(R.string.keyphrase_envirocar_listen)
+        )
+
         val sender = UUID.randomUUID().toString()
         val webhookUrl = "https://rasa-server-cdhiraj40.cloud.okteto.net/webhooks/rest/webhook"
 
@@ -51,11 +69,11 @@ class BaseAimybox {
         val dialogApi = RasaDialogApi(sender, webhookUrl, linkedSetOf())
 
         return Aimybox(create(speechToText, textToSpeech, dialogApi) {
-//            this.voiceTrigger = voiceTrigger
+            this.voiceTrigger = voiceTrigger
         }, context)
     }
 
-    fun findAimyboxProvider(activity: Activity): AimyboxProvider? {
+    private fun findAimyboxProvider(activity: Activity): AimyboxProvider? {
         val application = activity.application
         return when {
             activity is AimyboxProvider -> activity
@@ -64,20 +82,24 @@ class BaseAimybox {
         }
     }
 
-
-    fun setInitialPhrase(
-        context: Context,
-        arguments: Bundle?,
-        viewModel: AimyboxAssistantViewModel
-    ) {
-        val initialPhrase = arguments?.getString(ARGUMENTS_KEY)
-            ?: context.getString(R.string.initial_phrase)
-
-        viewModel.setInitialPhrase(initialPhrase)
+    fun getAimyboxProvider(activity: Activity): AimyboxProvider {
+        return requireNotNull(findAimyboxProvider(activity)) {
+            "Parent Activity or Application must implement AimyboxProvider interface"
+        }
     }
 
     companion object {
         const val ARGUMENTS_KEY = "arguments"
-    }
 
+        fun setInitialPhrase(
+            context: Context,
+            arguments: Bundle?,
+            viewModel: AimyboxAssistantViewModel
+        ) {
+            val initialPhrase = arguments?.getString(ARGUMENTS_KEY)
+                ?: context.getString(R.string.initial_phrase)
+
+            viewModel.setInitialPhrase(initialPhrase)
+        }
+    }
 }
