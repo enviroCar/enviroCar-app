@@ -73,7 +73,7 @@ class BaseAimybox {
         }, context)
     }
 
-    private fun findAimyboxProvider(activity: Activity): AimyboxProvider? {
+    fun findAimyboxProvider(activity: Activity): AimyboxProvider? {
         val application = activity.application
         return when {
             activity is AimyboxProvider -> activity

@@ -301,7 +301,7 @@ public class DashboardFragment extends BaseInjectorFragment implements Coroutine
                     new ViewModelProvider(requireActivity(), aimyboxProvider.getViewModelFactory())
                             .get(AimyboxAssistantViewModel.class);
 
-            new BaseAimybox().setInitialPhrase(context, getArguments(), viewModel);
+            new BaseAimybox().Companion.setInitialPhrase(context, getArguments(), viewModel);
         }
     }
 
@@ -522,8 +522,8 @@ public class DashboardFragment extends BaseInjectorFragment implements Coroutine
             String[] perms;
             if (android.os.Build.VERSION.SDK_INT >= 31) {
                 perms = new String[]{
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
                 };
             }
             else {
@@ -534,9 +534,9 @@ public class DashboardFragment extends BaseInjectorFragment implements Coroutine
             ActivityCompat.requestPermissions(getActivity(), perms,
                     LOCATION_PERMISSION_REQUEST_CODE);
         } else if (user == null && ApplicationSettings.isTrackchunkUploadEnabled(getContext())) {
-                // cannot start, we need a user
-                LOG.info("cannot start, login is required for chunk upload feature");
-                Snackbar.make(getView(),
+            // cannot start, we need a user
+            LOG.info("cannot start, login is required for chunk upload feature");
+            Snackbar.make(getView(),
                     getString(R.string.dashboard_track_chunks_enabled_login),
                     Snackbar.LENGTH_LONG).show();
         } else if (user != null) {
@@ -544,29 +544,29 @@ public class DashboardFragment extends BaseInjectorFragment implements Coroutine
             if (ApplicationSettings.isTrackchunkUploadEnabled(getContext())) {
                 LOG.info("chunk upload is enabled, checking TermsOfUse");
                 mAgreementManager.verifyTermsOfUse(null, true)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(termsOfUse -> {
-                        if (termsOfUse != null) {
-                            startRecording();
-                        } else {
-                            LOG.warn("No TermsOfUse received from verification");
-                        }
-                    }, e -> {
-                        LOG.warn("Error during TermsOfUse verification", e);
-                        // inform the user about ToU acceptance
-                        Snackbar sb = Snackbar.make(getView(), String.format(getString(R.string.dashboard_accept_tou), getString(R.string.title_others)), Snackbar.LENGTH_INDEFINITE).setAction("OK", new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                LOG.info("ToU Snackbar closed");
-                                Intent intent = new Intent(getActivity(), TermsOfUseActivity.class);
-                                getActivity().startActivity(intent);
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(termsOfUse -> {
+                            if (termsOfUse != null) {
+                                startRecording();
+                            } else {
+                                LOG.warn("No TermsOfUse received from verification");
                             }
+                        }, e -> {
+                            LOG.warn("Error during TermsOfUse verification", e);
+                            // inform the user about ToU acceptance
+                            Snackbar sb = Snackbar.make(getView(), String.format(getString(R.string.dashboard_accept_tou), getString(R.string.title_others)), Snackbar.LENGTH_INDEFINITE).setAction("OK", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    LOG.info("ToU Snackbar closed");
+                                    Intent intent = new Intent(getActivity(), TermsOfUseActivity.class);
+                                    getActivity().startActivity(intent);
+                                }
+                            });
+                            Snackbar.SnackbarLayout layout = (Snackbar.SnackbarLayout) sb.getView();
+                            layout.setMinimumHeight(100);
+                            sb.show();
                         });
-                        Snackbar.SnackbarLayout layout = (Snackbar.SnackbarLayout) sb.getView();
-                        layout.setMinimumHeight(100);
-                        sb.show();
-                    });
             } else {
                 // we can check the ToUs later before upload
                 LOG.info("A user is logged in, chunk upload is disabled");
@@ -592,9 +592,9 @@ public class DashboardFragment extends BaseInjectorFragment implements Coroutine
                     Intent obdRecordingIntent = new Intent(getActivity(), RecordingService.class);
 
                     this.connectingDialog = DialogUtils.createProgressBarDialogBuilder(getContext(),
-                            R.string.dashboard_connecting,
-                            R.drawable.ic_bluetooth_white_24dp,
-                            String.format(getString(R.string.dashboard_connecting_find_template), device.getName()))
+                                    R.string.dashboard_connecting,
+                                    R.drawable.ic_bluetooth_white_24dp,
+                                    String.format(getString(R.string.dashboard_connecting_find_template), device.getName()))
                             .setNegativeButton(R.string.cancel, (dialog, which) -> {
                                 ServiceUtils.stopService(getActivity(), obdRecordingIntent);
                             })
