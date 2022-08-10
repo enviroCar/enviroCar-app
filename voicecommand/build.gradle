@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
+    id 'kotlin-kapt'
 }
 
 android {
@@ -40,10 +41,8 @@ dependencies {
     implementation rootProject.ext.aimyboxCore
     implementation rootProject.ext.aimyboxComponents
 
-    // Kaldi Speechkit
-    implementation(rootProject.ext.kaldiSpeechkit){
-        exclude group: 'net.java.dev.jna', module: 'jna'
-    }
+    // Pocketsphinx Speechkit
+    implementation rootProject.ext.pocketsphinxSpeechkit
 
     // Google Platform Speechkit
     implementation rootProject.ext.googlePlatformSpeechkit
@@ -58,4 +57,6 @@ dependencies {
     // Coroutines
     implementation rootProject.ext.lifecycleExtension
     implementation rootProject.ext.coroutines
+
+    implementation(files("pocketsphinx-android-lib/pocketsphinx-android-5prealpha-release.aar"))
 }
