@@ -88,7 +88,7 @@ ext {
     def sqlite_version = "2.1.0"
     supportSqlite = "androidx.sqlite:sqlite:$sqlite_version"
     supportSqliteFramework = "androidx.sqlite:sqlite-framework:$sqlite_version"
-    sqlBrite = 'com.squareup.sqlbrite3:sqlbrite:3.2.0'
+    sqlDelight = 'com.squareup.sqldelight:gradle-plugin:1.5.0'
 
     // Dependency injection, view injection, event bus...
     dagger = 'com.google.dagger:dagger:2.35.1'
