@@ -29,8 +29,8 @@ import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.sqlite.db.SupportSQLiteOpenHelper;
 import androidx.sqlite.db.framework.*;
 
-import com.squareup.sqlbrite3.BriteDatabase;
-import com.squareup.sqlbrite3.SqlBrite;
+import com.squareup.sqldelight.gradle.SqlDelightDatabase;
+import com.squareup.sqldelight.gradle.SqlDelightPlugin;
 
 import org.envirocar.core.EnviroCarDB;
 import org.envirocar.core.entity.PowerSource;
