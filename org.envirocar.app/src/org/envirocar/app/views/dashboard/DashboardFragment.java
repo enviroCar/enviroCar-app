@@ -40,6 +40,7 @@ import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
@@ -56,6 +57,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.app.ActivityCompat;
+import androidx.core.widget.NestedScrollView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -210,6 +212,9 @@ public class DashboardFragment extends BaseInjectorFragment {
     @BindView(R.id.fragment_dashboard_start_track_button_text)
     protected TextView startTrackButtonText;
 
+    @BindView(R.id.fragment_dashboard_scrollview)
+    protected NestedScrollView dashboardScrollView;
+
     // injected variables
     @Inject
     protected UserPreferenceHandler userHandler;
@@ -252,6 +257,14 @@ public class DashboardFragment extends BaseInjectorFragment {
 
         // Bind views
         ButterKnife.bind(this, contentView);
+
+        dashboardScrollView.setNestedScrollingEnabled(false);
+        dashboardScrollView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return true;
+            }
+        });
 
         // inflate menus and init toolbar clicks
         toolbar.inflateMenu(R.menu.menu_dashboard_logged_out);
