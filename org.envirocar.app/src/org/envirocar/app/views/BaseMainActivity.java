@@ -18,9 +18,6 @@
  */
 package org.envirocar.app.views;
 
-import static org.envirocar.app.views.utils.SnackbarUtil.showGrantMicrophonePermission;
-
-import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -62,9 +59,7 @@ import org.envirocar.core.events.TrackFinishedEvent;
 import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.utils.ServiceUtils;
-import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
 import java.util.Stack;
 
 import javax.inject.Inject;
@@ -75,19 +70,14 @@ import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.observers.DisposableObserver;
-import pub.devrel.easypermissions.EasyPermissions;
-import pub.devrel.easypermissions.PermissionRequest;
 
 /**
  * @author dewall
  */
-public class BaseMainActivity extends BaseInjectorActivity implements EasyPermissions.PermissionCallbacks {
+public class BaseMainActivity extends BaseInjectorActivity {
     private static final Logger LOGGER = Logger.getLogger(BaseMainActivity.class);
 
     private static final String TROUBLESHOOTING_TAG = "TROUBLESHOOTING";
-
-    public static final int RECORD_AUDIO_PERMISSION_REQ_CODE = 55;
-
 
     private FragmentStatePagerAdapter fragmentStatePagerAdapter;
     private MenuItem prevMenuItem;
@@ -243,11 +233,6 @@ public class BaseMainActivity extends BaseInjectorActivity implements EasyPermis
 
 
         registerReceiver(errorInformationReceiver, new IntentFilter(TroubleshootingFragment.INTENT));
-
-        // if voice commands feature is turned on then check if the user has microphone permission
-        if(ApplicationSettings.isVoiceCommandsEnabled(this)) {
-            checkAndRequestMicrophonePerms();
-        }
     }
 
     private DisposableObserver<Boolean> handleTermsOfUseValidation() {
@@ -368,53 +353,6 @@ public class BaseMainActivity extends BaseInjectorActivity implements EasyPermis
 
     private void showSnackbar(String info) {
         Snackbar.make(navigationBottomBar, info, Snackbar.LENGTH_LONG).show();
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        EasyPermissions.onRequestPermissionsResult(requestCode,permissions,grantResults,this);
-    }
-
-    public void checkAndRequestMicrophonePerms() {
-        String[] perms = {Manifest.permission.RECORD_AUDIO};
-
-        // if the user does not have permission, request it
-        if (!EasyPermissions.hasPermissions(this, perms)){
-
-            // Dialog requesting the user for microphone permission.
-            LOGGER.info("Microphone permissions not given, requesting");
-            EasyPermissions.requestPermissions(
-                    new PermissionRequest.Builder(this, RECORD_AUDIO_PERMISSION_REQ_CODE, perms)
-                            .setRationale(R.string.microphone_permission_voice_command)
-                            .setPositiveButtonText(R.string.grant_permission)
-                            .setNegativeButtonText(R.string.cancel)
-                            .setTheme(R.style.MaterialDialog)
-                            .build());
-        }
-    }
-
-    @Override
-    public void onPermissionsGranted(int requestCode, @NonNull @NotNull List<String> perms) {
-        // if microphone permission is granted, initialise aimybox.
-        if (requestCode == RECORD_AUDIO_PERMISSION_REQ_CODE) {
-
-            // TODO init the aimybox? or ask for restart to get started with voice commands
-            showSnackbar(getString(R.string.microphone_permission_granted));
-        }
-    }
-
-    @Override
-    public void onPermissionsDenied(int requestCode, @NonNull @NotNull List<String> perms) {
-        // if permissions are not granted, show toast.
-        if (requestCode == RECORD_AUDIO_PERMISSION_REQ_CODE) {
-            // Disable the voice command feature .
-            ApplicationSettings.setVoiceCommandPreference(this, false);
-
-            // action opens app's general settings where user can grant microphone/any permission
-            showGrantMicrophonePermission(navigationBottomBar, this, this);
-        }
     }
 
     private class PageSlider extends FragmentStatePagerAdapter {

@@ -26,13 +26,9 @@ import com.justai.aimybox.Aimybox
 import com.justai.aimybox.components.AimyboxAssistantViewModel
 import com.justai.aimybox.components.AimyboxProvider
 import com.justai.aimybox.core.Config.Companion.create
-import com.justai.aimybox.dialogapi.rasa.RasaDialogApi
-import com.justai.aimybox.dialogapi.rasa.RasaRequest
+import org.envirocar.voicecommand.dialogapi.CustomRasaDialogApi
 import com.justai.aimybox.speechkit.google.platform.GooglePlatformSpeechToText
 import com.justai.aimybox.speechkit.google.platform.GooglePlatformTextToSpeech
-import com.justai.aimybox.speechkit.pocketsphinx.PocketsphinxAssets
-import com.justai.aimybox.speechkit.pocketsphinx.PocketsphinxRecognizerProvider
-import com.justai.aimybox.speechkit.pocketsphinx.PocketsphinxVoiceTrigger
 import java.util.*
 
 /**
@@ -41,35 +37,36 @@ import java.util.*
 
 class BaseAimybox {
 
-    fun createAimybox(context: Context): Aimybox {
+    fun createAimybox(context: Context, metadataManager: MetadataManager): Aimybox {
 
-        // Accessing model from assets folder
-        val assets = PocketsphinxAssets
-            .fromApkAssets(
-                context,
-                acousticModelFileName = "model/en",
-                dictionaryFileName = "model/en/dictionary.dict"
-            )
+//        // Accessing model from assets folder
+//        val assets = PocketsphinxAssets
+//            .fromApkAssets(
+//                context,
+//                acousticModelFileName = "model/en",
+//                dictionaryFileName = "model/en/dictionary.dict"
+//            )
+//
+//        // initializing pocketsphinx provider
+//        val provider = PocketsphinxRecognizerProvider(assets, keywordThreshold = 1e-40f)
+//
+//        // initializing trigger words
+//        val voiceTrigger = PocketsphinxVoiceTrigger(
+//            provider,
+//            context.getString(R.string.keyphrase_envirocar_listen)
+//        )
 
-        // initializing pocketsphinx provider
-        val provider = PocketsphinxRecognizerProvider(assets, keywordThreshold = 1e-40f)
-
-        // initializing trigger words
-        val voiceTrigger = PocketsphinxVoiceTrigger(
-            provider,
-            context.getString(R.string.keyphrase_envirocar_listen)
-        )
 
         val sender = UUID.randomUUID().toString()
-        val webhookUrl = "https://rasa-server-cdhiraj40.cloud.okteto.net/webhooks/rest/webhook"
+        val webhookUrl = "https://rasa-server-cdhiraj40.cloud.okteto.net/webhooks/envirocar/webhook"
 
         val textToSpeech = GooglePlatformTextToSpeech(context, Locale.getDefault(), false)
         val speechToText = GooglePlatformSpeechToText(context, Locale.getDefault(), false, 10000L)
 
-        val dialogApi = RasaDialogApi(sender, webhookUrl, linkedSetOf())
+        val dialogApi = CustomRasaDialogApi(sender, webhookUrl, linkedSetOf(MyCustomSkill(metadataManager)))
 
         return Aimybox(create(speechToText, textToSpeech, dialogApi) {
-            this.voiceTrigger = voiceTrigger
+//            this.voiceTrigger = voiceTrigger
         }, context)
     }
 
@@ -82,14 +79,8 @@ class BaseAimybox {
         }
     }
 
-    fun getAimyboxProvider(activity: Activity): AimyboxProvider {
-        return requireNotNull(findAimyboxProvider(activity)) {
-            "Parent Activity or Application must implement AimyboxProvider interface"
-        }
-    }
-
     companion object {
-        const val ARGUMENTS_KEY = "arguments"
+        private const val ARGUMENTS_KEY = "arguments"
 
         fun setInitialPhrase(
             context: Context,
