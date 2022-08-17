@@ -21,13 +21,22 @@
 -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".views.BaseMainActivity">
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <item
-        android:id="@+id/dashboard_action_login"
-        android:orderInCategory="100"
-        android:title="@string/login_register"
-        app:showAsAction="collapseActionView" />
+    <item android:id="@+id/more"
+          android:title=""
+          android:icon="@drawable/ic_baseline_more_vert_24"
+          app:showAsAction="always"
+        >
+
+        <menu>
+            <item
+                android:id="@+id/dashboard_action_login"
+                android:icon="@drawable/ic_baseline_login_24"
+                android:title="@string/login_register"
+                app:showAsAction="ifRoom" />
+        </menu>
+
+    </item>
 
 </menu>

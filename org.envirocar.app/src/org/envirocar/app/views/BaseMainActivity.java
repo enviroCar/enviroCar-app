@@ -23,6 +23,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
 
@@ -233,6 +234,12 @@ public class BaseMainActivity extends BaseInjectorActivity {
 
 
         registerReceiver(errorInformationReceiver, new IntentFilter(TroubleshootingFragment.INTENT));
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_dashboard_logged_out, menu);
+        return true;
     }
 
     private DisposableObserver<Boolean> handleTermsOfUseValidation() {
