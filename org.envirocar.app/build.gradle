@@ -46,6 +46,7 @@ dependencies {
     implementation "com.andkulikov:transitionseverywhere:2.1.0"
     implementation 'de.hdodenhof:circleimageview:3.1.0'
     implementation 'pub.devrel:easypermissions:3.0.0'
+    implementation 'com.airbnb.android:lottie:3.4.0'
 
     // RxBindings
     implementation rootProject.ext.rxBindingCore

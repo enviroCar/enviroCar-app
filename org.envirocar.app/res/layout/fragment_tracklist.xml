@@ -20,10 +20,10 @@
 
 -->
 
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
     <androidx.recyclerview.widget.RecyclerView
@@ -44,16 +44,18 @@
         android:layout_alignParentTop="true"
         android:background="#cd202020">
 
-        <ProgressBar
-            android:id="@+id/fragment_tracklist_progress_progressBar"
-            style="?android:attr/progressBarStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/lottie_main"
+            android:layout_width="96dp"
+            android:layout_height="500dp"
+            android:layout_marginLeft="12dp"
             android:layout_centerVertical="true"
-            android:layout_gravity="center"
-            android:layout_marginLeft="@dimen/spacing_xlarge"
-            android:layout_marginRight="@dimen/spacing_medium"
-            android:progressTint="@color/white_cario" />
+            android:scaleX="3"
+            android:scaleY="3"
+            app:lottie_autoPlay="true"
+            app:lottie_fileName="dot_loading.json"
+            app:lottie_loop="true"
+            app:lottie_speed="2" />
 
         <TextView
             android:id="@+id/fragment_tracklist_progress_text"

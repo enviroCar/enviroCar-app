@@ -38,6 +38,9 @@ import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.airbnb.lottie.LottieAnimationView;
+import com.airbnb.lottie.LottieComposition;
+import com.airbnb.lottie.LottieDrawable;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -106,8 +109,8 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
     protected View mProgressView;
     @BindView(R.id.fragment_tracklist_progress_text)
     protected TextView mProgressText;
-    @BindView(R.id.fragment_tracklist_progress_progressBar)
-    protected ProgressBar mProgressBar;
+    @BindView(R.id.lottie_main)
+    protected LottieAnimationView lottieAnimationView;
     @BindView(R.id.fragment_tracklist_recycler_view)
     protected RecyclerView mRecyclerView;
     @BindView(R.id.fragment_tracklist_fab)
