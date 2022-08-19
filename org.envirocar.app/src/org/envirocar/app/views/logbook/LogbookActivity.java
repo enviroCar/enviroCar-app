@@ -30,6 +30,7 @@ import android.os.Bundle;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 import androidx.appcompat.widget.Toolbar;
+import androidx.cardview.widget.CardView;
 
 import android.view.View;
 import android.widget.AdapterView;
@@ -40,6 +41,7 @@ import android.widget.TextView;
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.preferences.CarPreferenceHandler;
+import org.envirocar.app.views.login.SigninActivity;
 import org.envirocar.app.views.utils.ECAnimationUtils;
 import org.envirocar.core.ContextInternetAccessProvider;
 import org.envirocar.core.InternetAccessProvider;
@@ -99,6 +101,8 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
     protected TextView infoBackgroundFirst;
     @BindView(R.id.layout_general_info_background_secondline)
     protected TextView infoBackgroundSecond;
+    @BindView(R.id.logbook_login_register_button)
+    protected CardView logbookLoginRegisterButton;
 
 //    @BindView(R.id.activity_logbook_not_logged_in)
 //    protected View notLoggedInView;
@@ -185,6 +189,11 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
             return;
         }
         super.onBackPressed();
+    }
+
+    @OnClick(R.id.logbook_login_register_button)
+    protected void onClickLoginRegisterButton(){
+        SigninActivity.startActivity(this);
     }
 
     @OnClick(R.id.activity_logbook_toolbar_new_fueling_fab)
