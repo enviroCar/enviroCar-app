@@ -33,7 +33,7 @@ import com.justai.aimybox.speechkit.pocketsphinx.PocketsphinxRecognizerProvider
 import com.justai.aimybox.speechkit.pocketsphinx.PocketsphinxVoiceTrigger
 import com.squareup.otto.Bus
 import org.envirocar.voicecommand.customskills.EnviroCarRasaCustomSkill
-import org.envirocar.voicecommand.dialogapi.CustomRasaDialogApi
+import org.envirocar.voicecommand.dialogapi.rasa.CustomRasaDialogApi
 import org.envirocar.voicecommand.handler.MetadataHandler
 import java.util.*
 

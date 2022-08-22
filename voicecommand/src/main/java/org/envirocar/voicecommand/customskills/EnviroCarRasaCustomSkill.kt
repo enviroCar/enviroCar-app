@@ -21,21 +21,18 @@ package org.envirocar.voicecommand.customskills
 import com.justai.aimybox.Aimybox
 import com.justai.aimybox.model.Response
 import com.squareup.otto.Bus
-import org.envirocar.voicecommand.dialogapi.EnviroCarRasaRequest
-import org.envirocar.voicecommand.dialogapi.EnviroCarRasaResponse
+import org.envirocar.voicecommand.dialogapi.rasa.EnviroCarRasaRequest
+import org.envirocar.voicecommand.dialogapi.rasa.EnviroCarRasaResponse
 import org.envirocar.voicecommand.handler.MetadataHandler
 import org.envirocar.voicecommand.handler.rasaresponse.RasaResponseHandler
 import org.envirocar.voicecommand.intention.EnviroCarIntention
 
-
 /**
+ * @author Dhiraj Chauhan
+ *
  * This is a custom skill that enables the voice assistant to perform any actions right on the
  * device from where the user speaks their voice commands.
  * docs: https://help.aimybox.com/en/article/android-custom-skills-1a1j0x0/
- */
-
-/**
- * @author Dhiraj Chauhan
  */
 class EnviroCarRasaCustomSkill(private val metadataHandler: MetadataHandler, private val bus: Bus) :
     AbstractEnviroCarCustomSkill(metadataHandler, bus) {

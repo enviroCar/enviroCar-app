@@ -16,20 +16,25 @@
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
-package org.envirocar.voicecommand.customskills
+package org.envirocar.voicecommand.dialogapi.rasa
 
-import com.justai.aimybox.core.CustomSkill
-import com.squareup.otto.Bus
-import org.envirocar.voicecommand.dialogapi.rasa.EnviroCarRasaRequest
-import org.envirocar.voicecommand.dialogapi.rasa.EnviroCarRasaResponse
-import org.envirocar.voicecommand.handler.MetadataHandler
+import com.google.gson.JsonArray
+import com.justai.aimybox.model.Response
+import com.justai.aimybox.model.reply.Reply
+import org.envirocar.voicecommand.model.CustomRasaResponse
 
 /**
  * @author Dhiraj Chauhan
  */
-open class AbstractEnviroCarCustomSkill(metadataHandler: MetadataHandler, bus: Bus) :
-    CustomSkill<EnviroCarRasaRequest, EnviroCarRasaResponse> {
 
-    var mBus: Bus = bus
-    var mMetadataHandler: MetadataHandler = metadataHandler
-}
+data class EnviroCarRasaResponse(
+    override var query: String?,
+    val recipient_id: String = "",
+    val text: String? = null,
+    override var action: String? = null,
+    override val intent: String? = null,
+    override val question: Boolean? = true,
+    override val replies: List<Reply> = listOf(),
+    var custom: CustomRasaResponse? = null,
+    val httpResponse: JsonArray? = null,
+) : Response
