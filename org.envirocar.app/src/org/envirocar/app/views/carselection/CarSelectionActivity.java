@@ -47,6 +47,7 @@ import org.envirocar.core.entity.CarImpl;
 import org.envirocar.core.entity.Vehicles;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.app.handler.DAOProvider;
+import org.envirocar.voicecommand.handler.MetadataHandler;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -93,6 +94,8 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
     protected CarPreferenceHandler mCarManager;
     @Inject
     protected UserPreferenceHandler mUserHandler;
+    @Inject
+    protected MetadataHandler metadataHandler;
 
     @BindView(R.id.layout_general_info_background)
     protected View infoBackground;
@@ -131,6 +134,9 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle("");
 //        getSupportActionBar().setTitle(R.string.car_selection_header);
+
+        // set `isDashboardFragment` to false
+        metadataHandler.makeIsDashboardFragmentFalse();
 
         // If no cars present show background image.
         if (!mCarManager.hasCars()){

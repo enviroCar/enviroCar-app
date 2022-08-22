@@ -40,6 +40,7 @@ import org.envirocar.core.interactor.GetLatestTermsOfUse;
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.core.utils.rx.Optional;
 import org.envirocar.app.handler.preferences.UserPreferenceHandler;
+import org.envirocar.voicecommand.handler.MetadataHandler;
 
 import butterknife.ButterKnife;
 import butterknife.BindView;
@@ -70,6 +71,9 @@ public class TermsOfUseActivity extends BaseInjectorActivity {
 
     @Inject
     protected UserPreferenceHandler userHandler;
+
+    @Inject
+    protected MetadataHandler metadataHandler;
 
     @Override
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
@@ -127,7 +131,9 @@ public class TermsOfUseActivity extends BaseInjectorActivity {
                 LOG.warn("Error during TermsOfUse verification", e);
                 initAcceptanceWorkflow();
             });
-        
+
+        // set `isDashboardFragment` to false
+        metadataHandler.makeIsDashboardFragmentFalse();
     }
 
     private void initAcceptanceWorkflow() {

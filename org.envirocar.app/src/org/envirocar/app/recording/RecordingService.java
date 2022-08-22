@@ -41,6 +41,8 @@ import org.envirocar.core.entity.Track;
 import org.envirocar.core.events.TrackFinishedEvent;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.utils.ServiceUtils;
+import org.envirocar.voicecommand.handler.MetadataHandler;
+import org.envirocar.voicecommand.model.ExtraMetadata;
 
 import javax.inject.Inject;
 
@@ -75,6 +77,8 @@ public class RecordingService extends ScopedBaseInjectorService {
     protected LocationProvider locationProvider;
     @Inject
     protected PowerManager.WakeLock wakeLock;
+    @Inject
+    protected MetadataHandler metadataHandler;
 
 
     private RecordingStrategy recordingStrategy;
@@ -120,6 +124,9 @@ public class RecordingService extends ScopedBaseInjectorService {
                 })
                 .doOnError(LOG::error)
                 .subscribe());
+
+        // set `isDashboardFragment` to false
+        metadataHandler.makeIsDashboardFragmentFalse();
     }
 
     @Override

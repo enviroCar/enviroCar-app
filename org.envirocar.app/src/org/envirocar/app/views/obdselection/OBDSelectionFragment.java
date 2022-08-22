@@ -45,6 +45,7 @@ import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.core.events.bluetooth.BluetoothPairingChangedEvent;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.core.logging.Logger;
+import org.envirocar.core.utils.PermissionUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.IllegalStateException;
@@ -195,21 +196,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
     }
 
     public void checkAndRequestPermissions() {
-        String[] perms;
-        LOGGER.info("Android SDK version: " + android.os.Build.VERSION.SDK_INT);
-        if (android.os.Build.VERSION.SDK_INT >= 31) {
-            perms = new String[]{
-                    Manifest.permission.BLUETOOTH_CONNECT,
-                    Manifest.permission.BLUETOOTH_SCAN
-            };
-        }
-        else{
-            perms = new String[]{
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-            };
-        }
-
+        String[] perms = PermissionUtils.getBluetoothPermissions(LOGGER);
         if (EasyPermissions.hasPermissions(getContext(), perms)){
             // if all permissions are granted, start bluetooth discovery.
             LOGGER.info("Bluetooth permissions given, starting discovery");

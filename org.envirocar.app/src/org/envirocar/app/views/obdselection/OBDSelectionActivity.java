@@ -34,6 +34,8 @@ import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.core.logging.Logger;
+import org.envirocar.voicecommand.handler.MetadataHandler;
+import org.envirocar.voicecommand.model.ExtraMetadata;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -52,6 +54,9 @@ public class OBDSelectionActivity extends BaseInjectorActivity implements
 
     @Inject
     protected BluetoothHandler mBluetoothHandler;
+
+    @Inject
+    protected MetadataHandler metadataHandler;
 
     @BindView(R.id.activity_obd_selection_layout_toolbar)
     protected Toolbar mToolbar;
@@ -93,6 +98,10 @@ public class OBDSelectionActivity extends BaseInjectorActivity implements
                 .beginTransaction()
                 .replace(R.id.activity_obd_selection_layout_container, mOBDSelectionFragment)
                 .commit();
+
+        // set `isDashboardFragment` to false
+        metadataHandler.makeIsDashboardFragmentFalse();
+
 
         // Setup the bluetooth toolbar
         setupBluetoothSwitch();
