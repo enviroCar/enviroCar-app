@@ -266,7 +266,10 @@ public class TrackchunkUploadService extends BaseInjectorService {
                 if (isDiesel && (key == Measurement.PropertyKey.CO2 || key == Measurement.PropertyKey.CONSUMPTION)) {
                     // DO NOTHING TODO delete when necessary
                 } else {
-                    result.add(key.toString(), TrackSerde.createValue(props.get(key)));
+                    // do not add key if it is null or NaN
+                    if (props.get(key) != null && props.get(key) != Double.NaN) {
+                        result.add(key.toString(), TrackSerde.createValue(props.get(key)));
+                    }
                 }
             }
         }
