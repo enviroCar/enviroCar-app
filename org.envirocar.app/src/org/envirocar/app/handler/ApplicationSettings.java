@@ -168,6 +168,10 @@ public class ApplicationSettings {
                 .asObservable();
     }
 
+    public static boolean isDebugLoggingEnabled(Context context) {
+        return getSharedPreferences(context).getBoolean(s(context, R.string.prefkey_enable_debug_logging), DEFAULT_DEBUG_LOGGING);
+    }
+
     public static boolean isDieselConsumptionEnabled(Context context) {
         return getSharedPreferences(context).getBoolean(s(context, R.string.prefkey_enable_diesel_consumption), false);
     }

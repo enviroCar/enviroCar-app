@@ -91,9 +91,10 @@ public class TrackchunkUploadService extends BaseInjectorService {
         this.trackDAOHandler = trackDAOHandler;
         measurementSerde = new MeasurementSerde();
         measurements = new ArrayList<>();
-        if(isEnabled){
+        if (isEnabled){
             try {
                 this.eventBus.register(this);
+                LOG.info("TrackchunkUploadService registered to event bus.", e);
             } catch (IllegalArgumentException e){
                 LOG.error("TrackchunkUploadService was already registered.", e);
             }
@@ -111,8 +112,10 @@ public class TrackchunkUploadService extends BaseInjectorService {
 
             @Override
             public void onNext(Track track) {
+                LOG.info("Received new Track: " + track.getRemoteID());
+                LOG.info("Service already registered Track?: " + executed);
                 TrackchunkUploadService.this.setCar(track.getCar());
-                if(!executed) {
+                if (!executed) {
                     executed = true;
                     try {
                         trackUploadHandler.uploadTrackChunkStart(track)
@@ -214,7 +217,7 @@ public class TrackchunkUploadService extends BaseInjectorService {
                 trackFeatures.add(measurementJson);
             }
         } catch (JSONException e) {
-            e.printStackTrace();
+            LOG.error(e);
         }
         return trackFeatures;
     }
