@@ -94,7 +94,7 @@ public class TrackchunkUploadService extends BaseInjectorService {
         if (isEnabled){
             try {
                 this.eventBus.register(this);
-                LOG.info("TrackchunkUploadService registered to event bus.", e);
+                LOG.info("TrackchunkUploadService registered to event bus.");
             } catch (IllegalArgumentException e){
                 LOG.error("TrackchunkUploadService was already registered.", e);
             }
