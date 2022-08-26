@@ -1,34 +1,21 @@
 package org.envirocar.app.services.trackchunks;
 
 import android.content.Context;
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleObserver;
-import androidx.lifecycle.LifecycleService;
-import androidx.lifecycle.OnLifecycleEvent;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
-import io.reactivex.Observable;
-import io.reactivex.Observer;
-import io.reactivex.Scheduler;
-import io.reactivex.Single;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.observers.DisposableObserver;
-import io.reactivex.schedulers.Schedulers;
+
 import org.envirocar.app.BaseApplicationComponent;
-import org.envirocar.app.R;
 import org.envirocar.app.events.TrackchunkEndUploadedEvent;
 import org.envirocar.app.events.TrackchunkUploadEvent;
 import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.app.handler.TrackDAOHandler;
 import org.envirocar.app.handler.TrackUploadHandler;
 import org.envirocar.app.injection.BaseInjectorService;
-import org.envirocar.app.injection.ScopedBaseInjectorService;
-import org.envirocar.app.interactor.UploadTrack;
 import org.envirocar.app.recording.RecordingState;
 import org.envirocar.app.recording.events.RecordingStateEvent;
 import org.envirocar.core.EnviroCarDB;
@@ -37,21 +24,24 @@ import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.events.TrackFinishedEvent;
 import org.envirocar.core.events.recording.RecordingNewMeasurementEvent;
-import org.envirocar.core.exception.DataCreationFailureException;
-import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.exception.NotConnectedException;
 import org.envirocar.core.exception.UnauthorizedException;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.util.Util;
-import org.envirocar.core.utils.rx.Optional;
-import org.envirocar.remote.dao.RemoteTrackDAO;
 import org.envirocar.remote.serde.MeasurementSerde;
 import org.envirocar.remote.serde.TrackSerde;
 import org.json.JSONException;
 
-import javax.inject.Inject;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
+
+import io.reactivex.Observer;
+import io.reactivex.Scheduler;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.observers.DisposableObserver;
+import io.reactivex.schedulers.Schedulers;
 
 public class TrackchunkUploadService extends BaseInjectorService {
 
