@@ -29,6 +29,8 @@ import org.envirocar.app.handler.TrackUploadHandler;
 import org.envirocar.app.injection.BaseInjectorService;
 import org.envirocar.app.injection.ScopedBaseInjectorService;
 import org.envirocar.app.interactor.UploadTrack;
+import org.envirocar.app.recording.RecordingState;
+import org.envirocar.app.recording.events.RecordingStateEvent;
 import org.envirocar.core.EnviroCarDB;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Measurement;
@@ -301,6 +303,19 @@ public class TrackchunkUploadService extends BaseInjectorService {
             this.eventBus.unregister(this);
         } catch (IllegalArgumentException e){
             LOG.error("TrackchunkUploadService not unregistered.", e);
+        }
+    }
+
+    @Subscribe
+    public void onReceiveRecordingStatedChanged(final RecordingStateEvent event){
+        LOG.info(String.format("onReceiveRecordingStatedChanged(): event=%s", event.toString()));
+        if(isEnabled && currentTrack == null && event.recordingState == RecordingState.RECORDING_STOPPED){
+            try {
+                LOG.info("No valid track available. Unregister TrackchunkUploadService.");
+                this.eventBus.unregister(this);
+            } catch (IllegalArgumentException e){
+                LOG.error("TrackchunkUploadService not unregistered.", e);
+            }
         }
     }
 }
