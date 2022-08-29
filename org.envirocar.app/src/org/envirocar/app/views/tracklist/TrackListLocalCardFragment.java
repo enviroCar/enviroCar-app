@@ -216,9 +216,12 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
     @Subscribe
     public void onTrackChunkUploadEndEvent(TrackchunkEndUploadedEvent event) {
         LOG.info("Received TrackchunkEndUploadedEvent for %s", event.getTrack().getName());
-        
+
         this.getActivity().runOnUiThread(() -> {
             mRecyclerViewAdapter.removeItem(event.getTrack());
+            if(mTrackList.isEmpty()){
+                showNoTracksInfo();
+            }
         });
     }
 
