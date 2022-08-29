@@ -4,14 +4,14 @@ import org.envirocar.core.entity.Track;
 
 public class TrackchunkEndUploadedEvent {
 
-    private String name;
+    private Track track;
 
-    public TrackchunkEndUploadedEvent(String name) {
-        this.name = name;
+    public TrackchunkEndUploadedEvent(Track track) {
+        this.track = track;
     }
 
-    public String getName() {
-        return this.name;
+    public Track getTrack() {
+        return this.track;
     }
 
     @Override

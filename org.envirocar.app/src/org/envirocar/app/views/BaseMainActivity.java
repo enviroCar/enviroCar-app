@@ -350,9 +350,9 @@ public class BaseMainActivity extends BaseInjectorActivity {
 
     @Subscribe
     public void onTrackChunkUploadEndEvent(TrackchunkEndUploadedEvent event) {
-        LOGGER.info("Received TrackchunkEndUploadedEvent for %s", event.getName());
+        LOGGER.info("Received TrackchunkEndUploadedEvent for %s", event.getTrack().getName());
         showSnackbar(String.format(getString(R.string.track_list_upload_track_success_template),
-                event.getName()));
+                event.getTrack().getName()));
     }
 
     private void showSnackbar(int infoRes) {

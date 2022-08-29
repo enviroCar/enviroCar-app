@@ -35,6 +35,7 @@ import com.squareup.otto.Subscribe;
 import org.envirocar.app.BaseApplication;
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
+import org.envirocar.app.events.TrackchunkEndUploadedEvent;
 import org.envirocar.app.injection.components.MainActivityComponent;
 import org.envirocar.app.injection.modules.MainActivityModule;
 import org.envirocar.app.interactor.UploadAllTracks;
@@ -210,6 +211,15 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
     @Subscribe
     public void onTrackFinishedEvent(TrackFinishedEvent event){
         tracksLoaded = false;
+    }
+
+    @Subscribe
+    public void onTrackChunkUploadEndEvent(TrackchunkEndUploadedEvent event) {
+        LOG.info("Received TrackchunkEndUploadedEvent for %s", event.getTrack().getName());
+        
+        this.getActivity().runOnUiThread(() -> {
+            mRecyclerViewAdapter.removeItem(event.getTrack());
+        });
     }
 
     @Override
