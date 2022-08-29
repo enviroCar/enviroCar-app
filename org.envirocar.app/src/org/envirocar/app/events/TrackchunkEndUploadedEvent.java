@@ -1,9 +1,17 @@
 package org.envirocar.app.events;
 
+import org.envirocar.core.entity.Track;
+
 public class TrackchunkEndUploadedEvent {
 
-    public TrackchunkEndUploadedEvent() {
+    private String name;
 
+    public TrackchunkEndUploadedEvent(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return this.name;
     }
 
     @Override

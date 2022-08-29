@@ -287,7 +287,7 @@ public class TrackchunkUploadService extends BaseInjectorService {
             }
             LOG.info("Delete local track.");
             enviroCarDB.deleteTrack(currentTrack);
-            this.eventBus.post(new TrackchunkEndUploadedEvent());
+            this.eventBus.post(new TrackchunkEndUploadedEvent(currentTrack.getName()));
         },5000, TimeUnit.MILLISECONDS);
         try {
             this.eventBus.unregister(this);
