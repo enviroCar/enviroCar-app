@@ -391,7 +391,6 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
         public void onNext(Track track) {
             // Update the lists.
             mRecyclerViewAdapter.removeItem(track);
-            mRecyclerViewAdapter.notifyDataSetChanged();
 
             if (onTrackUploadedListener != null)
                 onTrackUploadedListener.onTrackUploaded(track);
@@ -527,7 +526,6 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
                 numberOfSuccesses++;
                 // Update the lists.
                 mRecyclerViewAdapter.removeItem(result.getTrack());
-                mRecyclerViewAdapter.notifyDataSetChanged();
 
                 if (onTrackUploadedListener != null)
                     onTrackUploadedListener.onTrackUploaded(result.getTrack());
