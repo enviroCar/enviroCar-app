@@ -161,6 +161,10 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
 
+                String text = adapterView.getItemAtPosition(i).toString();
+                addFuelingPricePerLitreText.setHint("0.00 "+text+"/l");
+                addFuelingTotalCostText.setHint("0.00 "+text);
+
             }
 
             @Override
