@@ -33,11 +33,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -131,6 +134,8 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
     protected TextView infoBackgroundFirst;
     @BindView(R.id.layout_general_info_background_secondline)
     protected TextView infoBackgroundSecond;
+    @BindView(R.id.currency_options)
+    protected Spinner currencySpinner;
 
     @Inject
     protected CarPreferenceHandler carHandler;
@@ -148,6 +153,21 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
         // Inflate the view and inject the annotated view.
         View view = inflater.inflate(R.layout.activity_logbook_add_fueling_card, container, false);
         ButterKnife.bind(this, view);
+
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(),R.array.currency, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        currencySpinner.setAdapter(adapter);
+        currencySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
 
         view.setOnClickListener(v -> hideKeyboard(view));
         contentView.setOnClickListener(v -> hideKeyboard(contentView));

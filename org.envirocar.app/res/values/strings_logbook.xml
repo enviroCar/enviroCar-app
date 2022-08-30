@@ -51,4 +51,12 @@
     <string name="logbook_background_no_cars_second">Please create a car before accessing this feature.</string>
     <string name="logbook_background_no_internet_first">NO INTERNET CONNECTION</string>
     <string name="logbook_background_no_internet_second">You are offline,To access the logs you need an active internet connection</string>
+    
+    <string-array name="currency">
+        <item>€</item>
+        <item>$</item>
+        <item>¥</item>
+        <item>£</item>
+    </string-array>
+    
 </resources>
