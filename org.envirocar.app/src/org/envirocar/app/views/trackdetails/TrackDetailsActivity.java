@@ -362,15 +362,13 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
         }
         catch (FuelConsumptionException e) {
             LOG.error(e);
-            if(e.getMissingProperties() != null){
-                List<Measurement.PropertyKey> missingProperties = e.getMissingProperties();
-                Snackbar.make(mMapView, getString(R.string.track_list_details_no_fuel_consumption),
-                        BaseTransientBottomBar.LENGTH_LONG).show();
-            }
-            else {
-                Snackbar.make(mMapView, getString(R.string.track_list_details_no_fuel_consumption),
-                        BaseTransientBottomBar.LENGTH_LONG).show();
-            }
+            Snackbar.make(mMapView, getString(R.string.track_list_details_no_fuel_consumption),
+                    BaseTransientBottomBar.LENGTH_LONG).show();
+
+            mEmissionText.setText(R.string.track_list_details_diesel_not_supported);
+            mConsumptionText.setText(R.string.track_list_details_diesel_not_supported);
+            mEmissionText.setTextColor(Color.RED);
+            mConsumptionText.setTextColor(Color.RED);
         }
 
         try {
