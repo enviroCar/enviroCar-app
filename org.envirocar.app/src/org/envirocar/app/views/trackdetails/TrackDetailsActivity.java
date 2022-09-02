@@ -39,6 +39,8 @@ import androidx.core.widget.NestedScrollView;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
@@ -70,6 +72,7 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -354,8 +357,20 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
                 mEmissionText.setTextColor(Color.RED);
                 mConsumptionText.setTextColor(Color.RED);
             }
-        } catch (FuelConsumptionException | NoMeasurementsException | UnsupportedFuelTypeException e) {
+        } catch (NoMeasurementsException | UnsupportedFuelTypeException e) {
             LOG.error(e);
+        }
+        catch (FuelConsumptionException e) {
+            LOG.error(e);
+            if(e.getMissingProperties() != null){
+                List<Measurement.PropertyKey> missingProperties = e.getMissingProperties();
+                Snackbar.make(mMapView, String.format(getString(R.string.track_list_details_no_fuel_consumption), missingProperties),
+                        BaseTransientBottomBar.LENGTH_LONG).show();
+            }
+            else {
+                Snackbar.make(mMapView, String.format(getString(R.string.track_list_details_no_fuel_consumption), ""),
+                        BaseTransientBottomBar.LENGTH_LONG).show();
+            }
         }
 
         try {
