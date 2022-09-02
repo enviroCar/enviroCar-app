@@ -364,11 +364,11 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
             LOG.error(e);
             if(e.getMissingProperties() != null){
                 List<Measurement.PropertyKey> missingProperties = e.getMissingProperties();
-                Snackbar.make(mMapView, String.format(getString(R.string.track_list_details_no_fuel_consumption), missingProperties),
+                Snackbar.make(mMapView, getString(R.string.track_list_details_no_fuel_consumption),
                         BaseTransientBottomBar.LENGTH_LONG).show();
             }
             else {
-                Snackbar.make(mMapView, String.format(getString(R.string.track_list_details_no_fuel_consumption), ""),
+                Snackbar.make(mMapView, getString(R.string.track_list_details_no_fuel_consumption),
                         BaseTransientBottomBar.LENGTH_LONG).show();
             }
         }
