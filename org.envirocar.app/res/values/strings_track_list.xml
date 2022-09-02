@@ -81,7 +81,8 @@
     <string name="track_list_num_stops">Number of Stops</string>
     <string name="track_list_total_stoptime">Total stop time</string>
     <string name="track_list_details_diesel_not_supported">NOT SUPPORTED\nFOR DIESEL</string>
-    <string name="track_list_details_no_fuel_consumption">Fuel consumption could not be calculated due to missing parameters.</string>
+    <string name="track_list_details_no_fuel_consumption">* = These values could not be calculated.</string>
+    <string name="track_list_details_no_fuel_consumption_missing_properties">* = These values could not be calculated due to missing measurement parameters: %s</string>
 
     <string name="track_list_upload_all_tracks_title">Upload All Local Tracks?</string>
     <string name="track_list_upload_all_tracks_content">You are about to upload all tracks. This means that all tracks will be uploaded and assigned to your account.\n\nDo you want to continue?</string>

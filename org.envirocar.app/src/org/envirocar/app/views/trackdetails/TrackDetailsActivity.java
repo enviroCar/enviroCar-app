@@ -161,7 +161,6 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
     @BindView(R.id.activity_track_details_stoptime_value)
     protected TextView stoptimeValue;
 
-
     private Track track;
     TrackMapLayer trackMapOverlay;
     protected MapboxMap mapboxMap;
@@ -362,13 +361,19 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
         }
         catch (FuelConsumptionException e) {
             LOG.error(e);
-            Snackbar.make(mMapView, getString(R.string.track_list_details_no_fuel_consumption),
-                    BaseTransientBottomBar.LENGTH_LONG).show();
+            if(e.getMissingProperties() != null){
+                List<Measurement.PropertyKey> missingProperties = e.getMissingProperties();
+                descriptionTv.setText(String.format(getString(R.string.track_list_details_no_fuel_consumption_missing_properties), missingProperties));
+            }
+            else {
+                descriptionTv.setText(getString(R.string.track_list_details_no_fuel_consumption));
+            }
 
             mEmissionText.setText(R.string.track_list_details_diesel_not_supported);
             mConsumptionText.setText(R.string.track_list_details_diesel_not_supported);
             mEmissionText.setTextColor(Color.RED);
             mConsumptionText.setTextColor(Color.RED);
+
         }
 
         try {
