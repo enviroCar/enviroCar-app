@@ -20,8 +20,13 @@ package org.envirocar.voicecommand.intention
 
 import com.justai.aimybox.Aimybox
 import com.squareup.otto.Bus
+import org.envirocar.voicecommand.enums.CarSelection
+import org.envirocar.voicecommand.enums.NavigationScreens
 import org.envirocar.voicecommand.enums.Recording
 import org.envirocar.voicecommand.enums.RecordingRequirements
+import org.envirocar.voicecommand.events.VoiceCommandEventType
+import org.envirocar.voicecommand.events.carselection.CarSelectionEvent
+import org.envirocar.voicecommand.events.navigation.NavigationEvent
 import org.envirocar.voicecommand.events.recording.RecordingRequirementEvent
 import org.envirocar.voicecommand.events.recording.RecordingTrackEvent
 
@@ -31,7 +36,37 @@ import org.envirocar.voicecommand.events.recording.RecordingTrackEvent
 
 class EnviroCarIntention {
     companion object {
-        fun postEvent(bus: Bus, aimybox: Aimybox, action: String, nextAction: Aimybox.NextAction) {
+
+        fun postEvent(
+            bus: Bus,
+            aimybox: Aimybox,
+            action: String,
+            actionType: String,
+            nextAction: Aimybox.NextAction
+        ) {
+            when (actionType) {
+                VoiceCommandEventType.Recording.name -> {
+                    postRecordingEvent(bus, aimybox, action, nextAction)
+                }
+                VoiceCommandEventType.RecordingRequirements.name -> {
+                    postRecordingRequirementEvent(bus, aimybox, action, nextAction)
+                }
+                VoiceCommandEventType.CarSelection.name -> {
+                    postCarSelectionEvent(bus, aimybox, action, nextAction)
+                }
+                VoiceCommandEventType.NavigationScreens.name -> {
+                    postNavigationEvent(bus, aimybox, action, nextAction)
+                }
+            }
+
+        }
+
+        private fun postRecordingEvent(
+            bus: Bus,
+            aimybox: Aimybox,
+            action: String,
+            nextAction: Aimybox.NextAction
+        ) {
             when (action) {
                 Recording.START.name -> {
                     bus.post(
@@ -78,6 +113,90 @@ class EnviroCarIntention {
                         )
                     )
                 }
+            }
+        }
+
+        private fun postCarSelectionEvent(
+            bus: Bus,
+            aimybox: Aimybox,
+            action: String,
+            nextAction: Aimybox.NextAction
+        ) {
+            when (action) {
+                CarSelection.SELECT.name -> {
+                    bus.post(
+                        CarSelectionEvent(
+                            aimybox,
+                            CarSelection.SELECT,
+                            nextAction
+                        )
+                    )
+                }
+                CarSelection.DESELECT.name -> {
+                    bus.post(
+                        CarSelectionEvent(
+                            aimybox,
+                            CarSelection.DESELECT,
+                            nextAction
+                        )
+                    )
+                }
+                CarSelection.DELETE.name -> {
+                    bus.post(
+                        CarSelectionEvent(
+                            aimybox,
+                            CarSelection.DELETE,
+                            nextAction
+                        )
+                    )
+                }
+            }
+        }
+
+        private fun postNavigationEvent(
+            bus: Bus,
+            aimybox: Aimybox,
+            action: String,
+            nextAction: Aimybox.NextAction
+        ) {
+            when (action) {
+                NavigationScreens.CAR_SELECTION.name -> {
+                    bus.post(
+                        NavigationEvent(
+                            aimybox,
+                            NavigationScreens.CAR_SELECTION,
+                            nextAction
+                        )
+                    )
+                }
+                CarSelection.DESELECT.name -> {
+                    bus.post(
+                        CarSelectionEvent(
+                            aimybox,
+                            CarSelection.DESELECT,
+                            nextAction
+                        )
+                    )
+                }
+                CarSelection.DELETE.name -> {
+                    bus.post(
+                        CarSelectionEvent(
+                            aimybox,
+                            CarSelection.DELETE,
+                            nextAction
+                        )
+                    )
+                }
+            }
+        }
+
+        private fun postRecordingRequirementEvent(
+            bus: Bus,
+            aimybox: Aimybox,
+            action: String,
+            nextAction: Aimybox.NextAction
+        ) {
+            when (action) {
                 RecordingRequirements.GPS.name -> {
                     bus.post(
                         RecordingRequirementEvent(

@@ -66,8 +66,8 @@ class EnviroCarRasaCustomSkill(private val metadataHandler: MetadataHandler, pri
         val rasaResponse = rasaResponseHandler.decodeRasaResponse(response.httpResponse!!)
 
         // if event based actions then post events else default handle
-        if (rasaResponse.action != null && rasaResponse.custom?.action?.next_action != null) {
-            EnviroCarIntention.postEvent(bus, aimybox, rasaResponse.action!!, rasaResponse.custom?.action?.next_action!!)
+        if (rasaResponse.action != null &&  rasaResponse.actionType != null && rasaResponse.custom?.action?.next_action != null) {
+            EnviroCarIntention.postEvent(bus, aimybox, rasaResponse.action!!, response.actionType!!, rasaResponse.custom?.action?.next_action!!)
             defaultHandler(rasaResponse)
         } else {
             defaultHandler(rasaResponse)
