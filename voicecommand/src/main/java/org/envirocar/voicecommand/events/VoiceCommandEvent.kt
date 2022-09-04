@@ -27,3 +27,7 @@ interface VoiceCommandEvent {
     var aimybox: Aimybox
     var nextAction: Aimybox.NextAction?
 }
+
+enum class VoiceCommandEventType {
+    Recording, RecordingRequirements, CarSelection, NavigationScreens
+}
