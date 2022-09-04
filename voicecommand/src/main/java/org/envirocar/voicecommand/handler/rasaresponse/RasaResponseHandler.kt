@@ -47,6 +47,7 @@ class RasaResponseHandler : AbstractResponseHandler() {
             query = response.query,
             text = response.text,
             action = response.action,
+            actionType = response.actionType,
             intent = response.intent,
             question = response.question,
             replies = parseReplies(response),
@@ -79,9 +80,10 @@ class RasaResponseHandler : AbstractResponseHandler() {
         // set query and other data to response
         response.query = customResponse.query
 
-
+        // setting the action and action type to decode intention
         if (customResponse.action != null) {
-            response.action = customResponse.action.custom_event
+            response.action = customResponse.action.custom_event?.name
+            response.actionType = customResponse.action.custom_event?.type
         }
 
         return customResponse

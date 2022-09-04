@@ -32,6 +32,7 @@ data class EnviroCarRasaResponse(
     val recipient_id: String = "",
     val text: String? = null,
     override var action: String? = null,
+    var actionType: String? = null,
     override val intent: String? = null,
     override val question: Boolean? = true,
     override val replies: List<Reply> = listOf(),
