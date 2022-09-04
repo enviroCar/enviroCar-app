@@ -18,17 +18,12 @@
  */
 package org.envirocar.voicecommand.model
 
-import com.justai.aimybox.Aimybox
-
 /**
  * @author Dhiraj Chauhan
  *
- * data class for action model
+ * data class for custom event model
  */
-
-data class ActionModel(
-    var custom_event: CustomEventModel? = null,
-    val activity_class_name: String? = null,
-    val activity_extras: ActivityExtrasModel? = null,
-    val next_action: Aimybox.NextAction? = null
+data class CustomEventModel(
+    val type: String,
+    val name: String
 )
