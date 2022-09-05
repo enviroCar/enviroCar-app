@@ -8,7 +8,7 @@
         </shape>
     </item>
     <item
-        android:height="620dp"
+        android:height="580dp"
         android:gravity="bottom">
         <shape xmlns:android="http://schemas.android.com/apk/res/android"
             android:shape="rectangle">

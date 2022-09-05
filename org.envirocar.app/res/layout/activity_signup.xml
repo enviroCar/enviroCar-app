@@ -55,7 +55,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/sign_up"
-            android:textColor="@color/white_cario"
+            android:textColor="#ffffff"
             android:textSize="26dp"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
@@ -73,7 +73,7 @@
             app:hintEnabled="true"
             app:hintAnimationEnabled="true"
             app:hintTextColor="#0065A0"
-            app:boxBackgroundColor="#B387CEEB"
+            app:boxBackgroundColor="#8C87CEEB"
             app:layout_constraintEnd_toEndOf="@id/activity_signup_guideline_right"
             app:layout_constraintStart_toStartOf="@id/activity_signup_guideline_left"
             app:layout_constraintTop_toBottomOf="@+id/textView6"
@@ -95,17 +95,17 @@
             style="@style/LoginTextInputLayoutStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            app:startIconDrawable="@drawable/ic_action_mail"
-            app:startIconTint="#0065A0"
-            app:hintEnabled="true"
+            android:layout_marginTop="18dp"
+            app:boxBackgroundColor="#8C87CEEB"
             app:hintAnimationEnabled="true"
+            app:hintEnabled="true"
             app:hintTextColor="#0065A0"
-            app:boxBackgroundColor="#B387CEEB"
             app:layout_constraintEnd_toEndOf="@id/activity_signup_guideline_right"
             app:layout_constraintStart_toStartOf="@id/activity_signup_guideline_left"
             app:layout_constraintTop_toBottomOf="@+id/activity_signup_username_input_layout"
-            app:layout_constraintWidth_max="500dp">
+            app:layout_constraintWidth_max="500dp"
+            app:startIconDrawable="@drawable/ic_action_mail"
+            app:startIconTint="#0065A0">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/activity_signup_email_input"
@@ -121,20 +121,20 @@
             style="@style/LoginTextInputLayoutStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            app:startIconDrawable="@drawable/ic_action_mail"
-            app:startIconTint="#0065A0"
-            app:hintEnabled="true"
+            android:layout_marginTop="18dp"
+            app:boxBackgroundColor="#8C87CEEB"
+            app:endIconDrawable="@drawable/custom_password_eye"
+            app:endIconMode="password_toggle"
+            app:endIconTint="#0065A0"
             app:hintAnimationEnabled="true"
+            app:hintEnabled="true"
             app:hintTextColor="#0065A0"
-            app:boxBackgroundColor="#B387CEEB"
             app:layout_constraintEnd_toEndOf="@id/activity_signup_guideline_right"
             app:layout_constraintStart_toStartOf="@id/activity_signup_guideline_left"
             app:layout_constraintTop_toBottomOf="@+id/activity_signup_email_input_layout"
             app:layout_constraintWidth_max="500dp"
-            app:endIconMode="password_toggle"
-            app:endIconDrawable="@drawable/custom_password_eye"
-            app:endIconTint="#0065A0">
+            app:startIconDrawable="@drawable/ic_action_pass"
+            app:startIconTint="#0065A0">
 
 
             <com.google.android.material.textfield.TextInputEditText
@@ -152,20 +152,20 @@
             style="@style/LoginTextInputLayoutStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            app:startIconDrawable="@drawable/ic_action_mail"
-            app:startIconTint="#0065A0"
-            app:hintEnabled="true"
+            android:layout_marginTop="18dp"
+            app:boxBackgroundColor="#8C87CEEB"
+            app:endIconDrawable="@drawable/custom_password_eye"
+            app:endIconMode="password_toggle"
+            app:endIconTint="#0065A0"
             app:hintAnimationEnabled="true"
+            app:hintEnabled="true"
             app:hintTextColor="#0065A0"
-            app:boxBackgroundColor="#B387CEEB"
             app:layout_constraintEnd_toEndOf="@id/activity_signup_guideline_right"
             app:layout_constraintStart_toStartOf="@id/activity_signup_guideline_left"
             app:layout_constraintTop_toBottomOf="@+id/activity_signup_password_1_layout"
             app:layout_constraintWidth_max="500dp"
-            app:endIconMode="password_toggle"
-            app:endIconDrawable="@drawable/custom_password_eye"
-            app:endIconTint="#0065A0">
+            app:startIconDrawable="@drawable/ic_action_pass"
+            app:startIconTint="#0065A0">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/activity_signup_password_2"
@@ -181,7 +181,7 @@
             android:id="@+id/activity_signup_tou_checkbox"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="28dp"
+            android:layout_marginTop="6dp"
             android:buttonTint="#0065A0"
             app:layout_constraintStart_toStartOf="@id/activity_signup_guideline_left"
             app:layout_constraintTop_toBottomOf="@+id/activity_signup_password_2_layout" />
@@ -202,7 +202,7 @@
             android:id="@+id/activity_signup_ps_checkbox"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="6dp"
             android:buttonTint="#0065A0"
             app:layout_constraintStart_toStartOf="@id/activity_signup_guideline_left"
             app:layout_constraintTop_toBottomOf="@+id/activity_signup_tou_text" />
@@ -244,36 +244,41 @@
 
         </androidx.cardview.widget.CardView>
 
-        <LinearLayout
-            android:id="@+id/linearLayout3"
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:layout_marginBottom="16dp"
-            android:gravity="center_horizontal"
-            android:orientation="vertical"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/activity_signup_register_button">
+            android:layout_marginTop="80dp"
+            android:text="or"
+            android:textColor="#878787"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="@id/activity_signup_guideline_right"
+            app:layout_constraintStart_toStartOf="@id/activity_signup_guideline_left"
+            app:layout_constraintTop_toBottomOf="@+id/activity_signup_ps_text" />
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/activity_signup_login_button"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginHorizontal="0dp"
+            android:layout_marginTop="110dp"
+            app:cardBackgroundColor="#E2E2E2"
+            app:cardCornerRadius="10dp"
+            app:cardElevation="0dp"
+            app:layout_constraintEnd_toEndOf="@id/activity_signup_guideline_right"
+            app:layout_constraintStart_toStartOf="@id/activity_signup_guideline_left"
+            app:layout_constraintTop_toBottomOf="@+id/activity_signup_ps_text">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="5dp"
-                android:text="@string/already_registered_question" />
+                android:layout_gravity="center"
+                android:text="Sign In"
+                android:textColor="#878787"
+                android:textSize="18dp"
+                android:textStyle="bold" />
 
-            <TextView
-                android:id="@+id/activity_signup_login_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:focusable="true"
-                android:importantForAccessibility="yes"
-                android:text="@string/already_registered_sign_in"
-                android:textAppearance="@android:style/TextAppearance.Medium"
-                android:textColor="@color/white_cario" />
-
-        </LinearLayout>
+        </androidx.cardview.widget.CardView>
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/activity_signup_guideline_right"
