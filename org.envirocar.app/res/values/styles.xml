@@ -83,4 +83,9 @@
         <item name="android:scrollbarAlwaysDrawVerticalTrack">true</item>
         <item name="android:dropDownSelector">@android:color/white</item>
     </style>
+
+    <style name="LoginTextInputLayoutStyle" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="boxStrokeColor">#0065A0</item>
+        <item name="boxStrokeWidth">2dp</item>
+    </style>
 </resources>

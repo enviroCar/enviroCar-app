@@ -19,7 +19,7 @@
     with the enviroCar app. If not, see http://www.gnu.org/licenses/.
 
 -->
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <color name="pressed_cario">#8CBF3F</color>
     <color name="actionbar_title_font_cario">#FFFFFF</color>
     <color name="blue_dark_cario">#0065A0</color>
@@ -40,4 +40,6 @@
     <color name="black">#000000</color>
     <color name="dark_charcoal">#ff323232</color>
     <color name="spanish_gray">#939393</color>
+
+    <color name="mtrl_textinput_default_box_stroke_color" tools:override="true">#0065A0</color>
 </resources>

@@ -36,7 +36,7 @@
 
     <style name="envirocar.login.logo" parent="">
         <item name="android:layout_width">200dp</item>
-        <item name="android:layout_height">100dp</item>
+        <item name="android:layout_height">80dp</item>
         <item name="android:layout_alignParentStart" tools:targetApi="jelly_bean_mr1">true</item>
         <item name="android:layout_alignParentEnd" tools:targetApi="jelly_bean_mr1">true</item>
         <item name="android:layout_alignParentLeft">true</item>
@@ -44,7 +44,7 @@
         <item name="android:layout_alignParentRight">true</item>
         <item name="android:layout_marginStart">55dp</item>
         <item name="android:layout_marginLeft">55dp</item>
-        <item name="android:layout_marginTop">8dp</item>
+        <item name="android:layout_marginTop">0dp</item>
         <item name="android:layout_marginEnd" tools:targetApi="jelly_bean_mr1">55dp</item>
         <item name="android:layout_marginRight">55dp</item>
     </style>
