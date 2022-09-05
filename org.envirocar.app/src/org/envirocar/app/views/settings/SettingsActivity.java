@@ -33,6 +33,7 @@ import org.envirocar.app.R;
 import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.app.recording.RecordingType;
 import org.envirocar.app.views.settings.custom.AutoConnectIntervalPreference;
+import org.envirocar.app.views.settings.custom.GPSConnectionDurationPreference;
 import org.envirocar.app.views.settings.custom.GPSTrimDurationPreference;
 import org.envirocar.app.views.settings.custom.SamplingRatePreference;
 import org.envirocar.app.views.settings.custom.TimePickerPreferenceDialog;
@@ -107,6 +108,8 @@ public class SettingsActivity extends AppCompatActivity {
             } else if (preference instanceof SamplingRatePreference) {
                 fragment = SamplingRatePreference.Dialog.newInstance(preference.getKey());
             } else if (preference instanceof GPSTrimDurationPreference) {
+                fragment = TimePickerPreferenceDialog.newInstance(preference.getKey());
+            } else if (preference instanceof GPSConnectionDurationPreference) {
                 fragment = TimePickerPreferenceDialog.newInstance(preference.getKey());
             }
 

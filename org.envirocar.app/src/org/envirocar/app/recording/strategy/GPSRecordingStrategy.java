@@ -99,6 +99,7 @@ public class GPSRecordingStrategy implements LifecycleObserver, RecordingStrateg
     private int trackTrimDuration = 55 * 2;
     private boolean drivingDetected = false;
     private long startingTime;
+    private int gpsConnectionDuration = 60 * 2;
     private Disposable stopDrivingFuture;
 
     private boolean isTrackFinished = false;
@@ -126,6 +127,9 @@ public class GPSRecordingStrategy implements LifecycleObserver, RecordingStrateg
     protected void onCreate() {
         LOG.info("Creating GPSRecordingStrategy");
 
+    }
+
+    private void setGpsConnectionDuration(Integer integer) {
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
@@ -195,6 +199,10 @@ public class GPSRecordingStrategy implements LifecycleObserver, RecordingStrateg
         // subscribe for preference changes
         disposables.add(ApplicationSettings.getTrackTrimDurationObservable(context)
                 .doOnNext(newDuration -> this.trackTrimDuration = newDuration)
+                .subscribe());
+
+        disposables.add(ApplicationSettings.getGPSConnectionDurationObservable(context)
+                .doOnNext(duration -> this.gpsConnectionDuration = duration)
                 .subscribe());
     }
 
@@ -378,14 +386,24 @@ public class GPSRecordingStrategy implements LifecycleObserver, RecordingStrateg
      * Private internal class for detecting
      */
     private final class GPSOnlyConnectionRecognizer {
-        private static final long GPS_INTERVAL = 1000 * 60 * 2; // 2 minutes;
-
+        private static final long GPS_PENDING_INTERVAL = 1000 * 30; // 30 seconds
         private final Scheduler.Worker backgroundWorker = Schedulers.io().createWorker();
         private Disposable gpsCheckerSubscription;
+        private Disposable gpsPendingSubscription;
 
         private final Runnable gpsConnectionCloser = () -> {
+            if(isTrackRecording) {
+                stopRecording();
+            }
+        };
+
+        private final Runnable gpsNotChangedNotifier = () -> {
             LOG.warn("No GPS values. Connection may be closed.");
-            eventBus.post(new GpsNotChangedEvent(GPS_INTERVAL / 1000));
+            eventBus.post(new GpsNotChangedEvent(gpsConnectionDuration));
+            // Just wait for another 30 seconds, whether user decides for continuing recording or not.
+            // If there is no decision during this time interval, stop recording
+            gpsPendingSubscription = backgroundWorker.schedule(gpsConnectionCloser,
+                    GPS_PENDING_INTERVAL, TimeUnit.MILLISECONDS);
         };
 
         @Subscribe
@@ -403,12 +421,16 @@ public class GPSRecordingStrategy implements LifecycleObserver, RecordingStrateg
         }
 
         private void scheduleGpsConnection() {
+            if (gpsPendingSubscription != null) {
+                gpsPendingSubscription.dispose();
+                gpsPendingSubscription = null;
+            }
             if (gpsCheckerSubscription != null) {
                 gpsCheckerSubscription.dispose();
                 gpsCheckerSubscription = null;
             }
-            gpsCheckerSubscription = backgroundWorker.schedule(gpsConnectionCloser,
-                    GPS_INTERVAL, TimeUnit.MILLISECONDS);
+            gpsCheckerSubscription = backgroundWorker.schedule(gpsNotChangedNotifier,
+                    gpsConnectionDuration * 1000, TimeUnit.MILLISECONDS);
         }
 
         public void shutDown() {

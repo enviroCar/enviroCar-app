@@ -93,6 +93,8 @@
     <string name="pref_version">Version</string>
     <string name="pref_other">Anderes</string>
 
+    <string name="pref_gps_connection_title">GPS-Verbindungsdauer</string>
+    <string name="pref_gps_connection_summary">Zeitintervall, in dem die GPS-Verbindung aufrechterhalten wird. Sollte innerhalb dieses Zeitintervalls keine neue GPS-Messung vorliegen, wird der Nutzer gefragt, ob die Trackaufnahme beendet werden soll. Wenn der Benutzer nichts unternimmt, wird die Aufzeichnung nach einigen Sekunden automatisch gestopp.</string>
     <string name="pref_gps_mode_ar_title">Automatische GPS Aufzeichnung</string>
     <string name="pref_gps_mode_ar_summary">Aktiviert die automatische Aufzeichnung von GPS-basierten Fahrten basierend auf Mechanismen der Aktivitätserkennung.\n\nHinweis: Diese Androidfunktion läuft bei einigen Smartphonemodellen nicht zuverlässig.</string>
 

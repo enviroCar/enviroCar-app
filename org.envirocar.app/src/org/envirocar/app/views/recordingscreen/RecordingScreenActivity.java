@@ -250,6 +250,7 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
 
     @Subscribe
     public void onGpsNotChangedEvent(GpsNotChangedEvent event){
+        LOG.info("Received event: %s", event.toString());
         String secondsText = String.valueOf(event.getSeconds());
         String message = String.format(getString(R.string.dashboard_dialog_no_gps_stop_track_content),
                 secondsText, secondsText);
