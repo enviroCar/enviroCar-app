@@ -92,22 +92,25 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/activity_signup_email_input_layout"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            style="@style/LoginTextInputLayoutStyle"
             android:layout_width="0dp"
-            android:layout_height="40dp"
+            android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            app:hintEnabled="false"
+            app:startIconDrawable="@drawable/ic_action_mail"
+            app:startIconTint="#0065A0"
+            app:hintEnabled="true"
+            app:hintAnimationEnabled="true"
+            app:hintTextColor="#0065A0"
+            app:boxBackgroundColor="#87CEEB"
             app:layout_constraintEnd_toEndOf="@id/activity_signup_guideline_right"
             app:layout_constraintStart_toStartOf="@id/activity_signup_guideline_left"
             app:layout_constraintTop_toBottomOf="@+id/activity_signup_username_input_layout"
             app:layout_constraintWidth_max="500dp">
 
-            <androidx.appcompat.widget.AppCompatEditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/activity_signup_email_input"
-                style="@style/envirocar.login.edittext"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:drawableLeft="@drawable/ic_action_mail"
+                android:layout_height="wrap_content"
                 android:hint="@string/email"
                 android:inputType="textPersonName" />
 
