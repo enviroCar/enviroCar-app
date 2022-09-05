@@ -79,6 +79,7 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
     private final OnCarListActionCallback mCallback;
 
     private Car mSelectedCar;
+    private Car mSelectedTempCar;
     private RadioButton mSelectedButton;
 
 
@@ -96,6 +97,8 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
         this.mContext = context;
         this.mCallback = callback;
         this.mSelectedCar = selectedCar;
+        this.mSelectedTempCar = selectedCar;
+
     }
 
     @Override
@@ -206,6 +209,11 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
      */
     protected void addCarItem(Car car) {
         this.add(car);
+        if (this.getCount()==1){
+            mSelectedCar = car;
+        } else {
+            mSelectedCar =mSelectedTempCar;
+        }
         notifyDataSetChanged();
     }
 

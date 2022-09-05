@@ -377,6 +377,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
             int count = mCarListAdapter.getCount();
             if(count == 1) {
                 mCarManager.setCar(car);
+                mCarListAdapter.notifyDataSetChanged();
                 showSnackbar(String.format(getString(R.string.car_selection_car_selected_after_add),
                         car.getManufacturer(), car.getModel()));
             }
