@@ -24,17 +24,23 @@ package org.envirocar.voicecommand.model
 
 data class ExtraMetadata(
     val type: String,
+    var isDashboardFragment: Boolean,
     val recordingMetadata: RecordingMetadata? = null,
+    var car_selection_metadata: CarSelectionMetadata? = null,
 )
 
 data class RecordingMetadata(
     val recording_status: String,
     val recording_mode: String,
-    var isDashboardFragment: Boolean,
     val gps: Boolean,
     val car: Boolean,
     val bluetooth: Boolean,
     val obd_adapter: Boolean,
     val has_location_permission: Boolean,
     val has_bluetooth_permission: Boolean,
+)
+
+data class CarSelectionMetadata(
+    val cars: List<String>,
+    var is_car_selection_fragment: Boolean,
 )

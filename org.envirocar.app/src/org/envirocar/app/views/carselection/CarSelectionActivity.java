@@ -18,6 +18,8 @@
  */
 package org.envirocar.app.views.carselection;
 
+import static org.envirocar.app.views.utils.SnackbarUtil.showVoiceTriggeredSnackbar;
+
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -25,7 +27,10 @@ import android.os.Bundle;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.justai.aimybox.Aimybox;
+import com.justai.aimybox.components.AimyboxAssistantViewModel;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 
 import android.view.MenuItem;
@@ -47,7 +52,10 @@ import org.envirocar.core.entity.CarImpl;
 import org.envirocar.core.entity.Vehicles;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.app.handler.DAOProvider;
+import org.envirocar.voicecommand.BaseAimybox;
+import org.envirocar.voicecommand.BaseAimyboxAssistantViewModel;
 import org.envirocar.voicecommand.handler.MetadataHandler;
+import org.envirocar.voicecommand.model.CarSelectionMetadata;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -64,11 +72,15 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
+import kotlin.coroutines.CoroutineContext;
+import kotlinx.coroutines.CoroutineScope;
+import kotlinx.coroutines.Dispatchers;
+import kotlinx.coroutines.JobKt;
 
 /**
  * @author dewall
  */
-public class CarSelectionActivity extends BaseInjectorActivity implements CarSelectionUiListener, CarSelectionCreation {
+public class CarSelectionActivity extends BaseInjectorActivity implements CoroutineScope, CarSelectionUiListener, CarSelectionCreation {
     private static final Logger LOG = Logger.getLogger(CarSelectionActivity.class);
 
     private static final int DURATION_SHEET_ANIMATION = 350;
@@ -111,6 +123,12 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
     private CarSelectionAddCarFragment addCarFragment;
     private CarSelectionListAdapter mCarListAdapter;
     private Disposable loadingCarsSubscription;
+    private List<Car> usedCars;
+
+    private AimyboxAssistantViewModel viewModel;
+
+    @Inject
+    protected UserPreferenceHandler userHandler;
 
 
     @Override
@@ -138,12 +156,43 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
         // set `isDashboardFragment` to false
         metadataHandler.makeIsDashboardFragmentFalse();
 
+        // setting the `is_car_selection_fragment` true
+        metadataHandler.makeIsCarSelectionFragmentTrue();
+
         // If no cars present show background image.
         if (!mCarManager.hasCars()){
             showBackgroundImage();
         }
 
         setupListView();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        initAimyboxViewModel(this);
+        if (viewModel != null) {
+            viewModel.getAimyboxState().observe(this, state -> {
+                if (state == Aimybox.State.LISTENING) {
+                    // TODO Check internet connection if not on then ask user to connect to internet
+                    setCarMetadata();
+                    showVoiceTriggeredSnackbar(
+                            mContentView,
+                            this,
+                            this,
+                            this.findViewById(R.id.navigation),
+                            userHandler.getUser()
+                    );
+                }
+            });
+        }
+    }
+
+    private void initAimyboxViewModel(Context context) {
+        if (viewModel == null) {
+            viewModel = new BaseAimyboxAssistantViewModel().getAimyboxAssistantViewModel(this);
+            BaseAimybox.Companion.setInitialPhrase(context, this.getIntent().getExtras(), viewModel);
+        }
     }
 
     @Override
@@ -229,7 +278,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
 
     private void setupListView() {
         Car selectedCar = mCarManager.getCar();
-        List<Car> usedCars = new ArrayList<>();
+        usedCars = new ArrayList<>();
 
         mCarListAdapter = new CarSelectionListAdapter(this, selectedCar, usedCars,
                 new CarSelectionListAdapter.OnCarListActionCallback() {
@@ -332,6 +381,21 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
                 });
     }
 
+    private void setCarMetadata(){
+        List<String> deserializedCars = new ArrayList<>();
+        for (Car car : usedCars){
+            deserializedCars.add(String.format("%s - %s", car.getManufacturer(), car.getModel()));
+        }
+
+        CarSelectionMetadata carSelectionMetadata = new CarSelectionMetadata(
+                deserializedCars,
+                true
+        );
+        if (metadataHandler.getMetadata() != null) {
+            metadataHandler.getMetadata().setCar_selection_metadata(carSelectionMetadata);
+        }
+    }
+
     /**
      * Creates and shows a snackbar
      *
@@ -417,7 +481,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
 
         result.setWeight(weight);
         result.setVehicleType(vehicleType);
-        
+
         return result;
     }
 
@@ -486,5 +550,11 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
             // We only want to show a maximum of 2 suggestions.
             return Math.min(2, super.getCount());
         }
+    }
+
+    @NonNull
+    @Override
+    public CoroutineContext getCoroutineContext() {
+        return Dispatchers.getMain().plus((CoroutineContext) JobKt.Job(null));
     }
 }

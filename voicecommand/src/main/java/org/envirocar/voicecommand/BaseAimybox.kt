@@ -97,7 +97,6 @@ class BaseAimybox (
         private const val WEBHOOK_URL =
             "https://rasa-server-cdhiraj40.cloud.okteto.net/webhooks/envirocar/webhook"
 
-
         fun setInitialPhrase(
             context: Context,
             arguments: Bundle?,

@@ -29,5 +29,5 @@ import org.envirocar.voicecommand.events.VoiceCommandEvent
 data class CarSelectionEvent(
     override var aimybox: Aimybox,
     var action: CarSelection,
-    override var nextAction: Aimybox.NextAction? = Aimybox.NextAction.RECOGNITION,
+    override var nextAction: Aimybox.NextAction? = null,
 ) : VoiceCommandEvent

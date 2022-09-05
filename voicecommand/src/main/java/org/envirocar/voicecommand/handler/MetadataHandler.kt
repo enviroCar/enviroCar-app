@@ -30,10 +30,18 @@ class MetadataHandler @Inject constructor() {
     var metadata: ExtraMetadata? = null
 
     fun makeIsDashboardFragmentFalse() {
-        metadata?.recordingMetadata?.isDashboardFragment = false
+        metadata?.isDashboardFragment = false
     }
 
     fun makeIsDashboardFragmentTrue() {
-        metadata?.recordingMetadata?.isDashboardFragment = true
+        metadata?.isDashboardFragment = true
+    }
+
+    fun makeIsCarSelectionFragmentFalse() {
+        metadata?.car_selection_metadata?.is_car_selection_fragment = false
+    }
+
+    fun makeIsCarSelectionFragmentTrue() {
+        metadata?.car_selection_metadata?.is_car_selection_fragment = true
     }
 }

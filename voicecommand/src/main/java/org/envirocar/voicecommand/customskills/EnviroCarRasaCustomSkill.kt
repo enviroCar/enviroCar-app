@@ -18,6 +18,7 @@
  */
 package org.envirocar.voicecommand.customskills
 
+import android.annotation.SuppressLint
 import com.justai.aimybox.Aimybox
 import com.justai.aimybox.model.Response
 import com.squareup.otto.Bus
@@ -47,7 +48,6 @@ class EnviroCarRasaCustomSkill(private val metadataHandler: MetadataHandler, pri
         aimybox: Aimybox
     ): EnviroCarRasaRequest {
 
-        // TODO: if start recording then check if you are on dashboard fragment in rasa
         request.data = metadataHandler.metadata
         return request
     }
@@ -56,6 +56,7 @@ class EnviroCarRasaCustomSkill(private val metadataHandler: MetadataHandler, pri
      * The main method of the custom skill that should perform the actual action for the particular
      * dialog API's Response.
      */
+    @SuppressLint("MissingPermission")
     override suspend fun onResponse(
         response: EnviroCarRasaResponse,
         aimybox: Aimybox,
@@ -69,6 +70,15 @@ class EnviroCarRasaCustomSkill(private val metadataHandler: MetadataHandler, pri
         if (rasaResponse.action != null &&  rasaResponse.actionType != null && rasaResponse.custom?.action?.next_action != null) {
             EnviroCarIntention.postEvent(bus, aimybox, rasaResponse.action!!, response.actionType!!, rasaResponse.custom?.action?.next_action!!)
             defaultHandler(rasaResponse)
+        } else if (rasaResponse.custom?.action?.next_action != null) {
+            // if response is not event based but has a next action
+            defaultHandler(rasaResponse)
+            when (rasaResponse.custom?.action?.next_action) {
+                    Aimybox.NextAction.NOTHING -> Unit
+                    Aimybox.NextAction.RECOGNITION -> aimybox.startRecognition()
+                    Aimybox.NextAction.STANDBY -> aimybox.standby()
+                null -> Unit
+            }
         } else {
             defaultHandler(rasaResponse)
             aimybox.standby()

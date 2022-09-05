@@ -44,6 +44,7 @@ import org.envirocar.core.entity.Manufacturers;
 import org.envirocar.core.entity.Vehicles;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.storage.EnviroCarVehicleDB;
+import org.envirocar.voicecommand.handler.MetadataHandler;
 
 import java.util.List;
 
@@ -77,6 +78,9 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
 
     @Inject
     EnviroCarVehicleDB enviroCarVehicleDB;
+
+    @Inject
+    MetadataHandler metadataHandler;
 
     private CarSelectionPagerAdapter pagerAdapter;
     private List<Manufacturers> manufacturersList;
@@ -134,6 +138,9 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
 
             }
         });
+
+        // setting the `is_car_selection_fragment` false
+        metadataHandler.makeIsCarSelectionFragmentFalse();
 
         return view;
     }
