@@ -36,6 +36,8 @@
     <string name="today">Today</string>
     <string name="yesterday">Yesterday</string>
     <string name="cancel">Cancel</string>
+    <string name="wait">Wait</string>
+    <string name="finish">Finish</string>
 
     <string name="app_name" translatable="false">enviroCar</string>
 

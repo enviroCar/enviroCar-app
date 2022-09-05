@@ -37,7 +37,11 @@ import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
-import org.envirocar.app.events.*;
+import org.envirocar.app.events.AvrgSpeedUpdateEvent;
+import org.envirocar.app.events.DistanceValueUpdateEvent;
+import org.envirocar.app.events.DrivingDetectedEvent;
+import org.envirocar.app.events.GpsNotChangedEvent;
+import org.envirocar.app.events.StartingTimeEvent;
 import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.app.handler.TrackRecordingHandler;
 import org.envirocar.app.injection.BaseInjectorActivity;
@@ -245,6 +249,25 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
     }
 
     @Subscribe
+    public void onGpsNotChangedEvent(GpsNotChangedEvent event){
+        String secondsText = String.valueOf(event.getSeconds());
+        String message = String.format(getString(R.string.dashboard_dialog_no_gps_stop_track_content),
+                secondsText, secondsText);
+        runOnUiThread(() -> new MaterialAlertDialogBuilder(this,R.style.MaterialDialog)
+                .setTitle(R.string.dashboard_dialog_stop_track)
+                .setMessage(message)
+                .setIcon(R.drawable.ic_outline_stop_circle_24)
+                .setPositiveButton(R.string.finish,(dialog, which) -> {
+                    trackRecordingHandler.finishCurrentTrack();
+                    finish();
+                })
+                .setNegativeButton(R.string.wait,(dialog, which) ->
+                    trackRecordingHandler.continueCurrentTrackRecording()
+                )
+                .show());
+    }
+
+    @Subscribe
     public void onBluetoothStateEvent(BluetoothStateChangedEvent event) {
         if (!this.recordingType.equals(RecordingType.OBD_ADAPTER_BASED)) {
             return;
@@ -283,7 +306,7 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
     public void onAvrgSpeedEvent(AvrgSpeedUpdateEvent event) {
         Observable.just(event)
                 .subscribeOn(AndroidSchedulers.mainThread())
-                .doOnNext(e -> speedText.setText(String.format("%s km/h", Integer.toString(e.mAvrgSpeed))))
+                .doOnNext(e -> speedText.setText(String.format("%s km/h", e.mAvrgSpeed)))
                 .doOnError(LOG::error)
                 .subscribe();
     }

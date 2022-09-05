@@ -37,6 +37,7 @@
 
     <string name="dashboard_dialog_stop_track">Aufzeichnung beenden?</string>
     <string name="dashboard_dialog_stop_track_content">Möchten Sie wirklich die Aufzeichung beenden und die derzeitige Fahrt finalisieren?</string>
+    <string name="dashboard_dialog_no_gps_stop_track_content">Kein GPS-Signal seit %s Sekunden vorhanden. Möchten Sie die Aufzeichung beenden und die bisherige Fahrt finalisieren oder weitere %s Sekunden warten?</string>
     <string name="dashboard_dialog_obd_not_found">OBD Adapter nicht gefunden</string>
     <string name="dashboard_dialog_obd_not_found_content_template">\'%s\' nicht gefunden. Bitte vergewissern Sie sich, dass der OBD Adapter in Reichweite und korrekt im OBD Steckplatz eingesteckt ist.</string>
 

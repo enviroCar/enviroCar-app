@@ -22,7 +22,6 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
@@ -41,12 +40,13 @@ import com.squareup.otto.Subscribe;
 import org.envirocar.algorithm.MeasurementProvider;
 import org.envirocar.app.BuildConfig;
 import org.envirocar.app.events.DrivingDetectedEvent;
+import org.envirocar.app.events.GpsNotChangedEvent;
+import org.envirocar.app.events.TrackRecordingContinueEvent;
 import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.app.handler.preferences.CarPreferenceHandler;
 import org.envirocar.app.recording.RecordingState;
 import org.envirocar.app.recording.provider.LocationProvider;
 import org.envirocar.app.recording.provider.TrackDatabaseSink;
-import org.envirocar.app.rxutils.RxBroadcastReceiver;
 import org.envirocar.app.services.trackchunks.TrackchunkUploadService;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Measurement;
@@ -68,7 +68,6 @@ import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 
@@ -385,14 +384,25 @@ public class GPSRecordingStrategy implements LifecycleObserver, RecordingStrateg
         private Disposable gpsCheckerSubscription;
 
         private final Runnable gpsConnectionCloser = () -> {
-            LOG.warn("CONNECTION CLOSED due to no GPS values");
-            if(isTrackRecording) {
-                stopRecording();
-            }
+            LOG.warn("No GPS values. Connection may be closed.");
+            eventBus.post(new GpsNotChangedEvent(GPS_INTERVAL / 1000));
         };
 
         @Subscribe
+        public void onReceiveContinueRecordingEvent(TrackRecordingContinueEvent event) {
+            LOG.info("Continue recording of track '%s' despite missing GPS connection." +
+                            " No stop required via GPS Connection Recognizer.",
+                    String.valueOf(event.getTrack().getName()));
+            scheduleGpsConnection();
+        }
+
+        @Subscribe
         public void onReceiveGpsLocationChangedEvent(GpsLocationChangedEvent event) {
+            LOG.info("Received GPS Update. No stop required via GPS Connection Recognizer.");
+            scheduleGpsConnection();
+        }
+
+        private void scheduleGpsConnection() {
             if (gpsCheckerSubscription != null) {
                 gpsCheckerSubscription.dispose();
                 gpsCheckerSubscription = null;

@@ -26,6 +26,7 @@ import com.squareup.otto.Bus;
 
 import org.envirocar.app.BaseApplication;
 import org.envirocar.app.R;
+import org.envirocar.app.events.TrackRecordingContinueEvent;
 import org.envirocar.app.handler.agreement.AgreementManager;
 import org.envirocar.app.handler.preferences.CarPreferenceHandler;
 import org.envirocar.app.handler.preferences.UserPreferenceHandler;
@@ -139,6 +140,13 @@ public class TrackRecordingHandler {
                 .observeOn(Schedulers.io())
                 .doOnSubscribe(disposable -> mBus.post(new TrackRecordingServiceStateChangedEvent(BluetoothServiceState.SERVICE_STOPPING)))
                 .doOnSuccess(track -> mBus.post(new TrackRecordingServiceStateChangedEvent(BluetoothServiceState.SERVICE_STOPPED)));
+    }
+
+    public void continueCurrentTrackRecording() {
+        getActiveTrackReference(false).subscribe
+                (track -> {
+                    mBus.post(new TrackRecordingContinueEvent(track));
+                });
     }
 
 
