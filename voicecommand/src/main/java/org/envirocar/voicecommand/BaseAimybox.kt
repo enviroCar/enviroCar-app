@@ -77,8 +77,8 @@ class BaseAimybox (
             context.getString(R.string.keyphrase_envirocar_listen)
         )
 
-        val textToSpeech = GooglePlatformTextToSpeech(context, Locale.getDefault(), false)
-        val speechToText = GooglePlatformSpeechToText(context, Locale.getDefault(), false, 10000L)
+        val textToSpeech = GooglePlatformTextToSpeech(context, Locale.ENGLISH, false)
+        val speechToText = GooglePlatformSpeechToText(context, Locale.ENGLISH, false, 10000L)
 
         val dialogApi = CustomRasaDialogApi(
             sender, WEBHOOK_URL, linkedSetOf(
