@@ -30,7 +30,7 @@ import org.envirocar.voicecommand.model.CustomRasaResponse
 data class EnviroCarRasaResponse(
     override var query: String?,
     val recipient_id: String = "",
-    val text: String? = null,
+    val message: String? = null,
     override var action: String? = null,
     var actionType: String? = null,
     override val intent: String? = null,

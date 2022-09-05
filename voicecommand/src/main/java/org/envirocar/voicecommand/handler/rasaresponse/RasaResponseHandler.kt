@@ -45,7 +45,7 @@ class RasaResponseHandler : AbstractResponseHandler() {
         return EnviroCarRasaResponse(
             recipient_id = response.recipient_id,
             query = response.query,
-            text = response.text,
+            message = response.message,
             action = response.action,
             actionType = response.actionType,
             intent = response.intent,
@@ -62,8 +62,8 @@ class RasaResponseHandler : AbstractResponseHandler() {
     private fun parseReplies(response: EnviroCarRasaResponse): List<Reply> {
         val replies = ArrayList<Reply>()
 
-        if (response.text != null) {
-            replies.add(TextReply(response.text))
+        if (response.message != null) {
+            replies.add(TextReply(response.message))
         }
         if (response.custom?.reply != null) {
             replies.add(TextReply(response.custom?.reply))
