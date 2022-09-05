@@ -209,10 +209,12 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
      */
     protected void addCarItem(Car car) {
         this.add(car);
-        if (this.getCount()==1){
-            mSelectedCar = car;
-        } else {
-            mSelectedCar =mSelectedTempCar;
+        if (mSelectedCar!=null) {
+            if (this.getCount() == 1) {
+                mSelectedCar = car;
+            } else {
+                mSelectedCar = mSelectedTempCar;
+            }
         }
         notifyDataSetChanged();
     }
