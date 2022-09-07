@@ -23,7 +23,7 @@ import com.justai.aimybox.model.Request
 import org.envirocar.voicecommand.model.ExtraMetadata
 
 data class EnviroCarRasaRequest(
-    @SerializedName("text")
+    @SerializedName("message")
     override val query: String,
     @SerializedName("sender")
     val sender: String,

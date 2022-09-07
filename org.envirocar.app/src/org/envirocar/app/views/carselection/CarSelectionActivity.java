@@ -21,18 +21,7 @@ package org.envirocar.app.views.carselection;
 import static org.envirocar.app.views.utils.SnackbarUtil.showVoiceTriggeredSnackbar;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
-
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
-import com.justai.aimybox.Aimybox;
-import com.justai.aimybox.components.AimyboxAssistantViewModel;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.widget.Toolbar;
-
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -41,19 +30,30 @@ import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.widget.Toolbar;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
+import com.justai.aimybox.Aimybox;
+import com.justai.aimybox.components.AimyboxAssistantViewModel;
+import com.squareup.otto.Subscribe;
+
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
+import org.envirocar.app.handler.DAOProvider;
 import org.envirocar.app.handler.preferences.CarPreferenceHandler;
 import org.envirocar.app.handler.preferences.UserPreferenceHandler;
+import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.app.views.utils.ECAnimationUtils;
 import org.envirocar.core.entity.Car;
-import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.core.entity.CarImpl;
 import org.envirocar.core.entity.Vehicles;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.app.handler.DAOProvider;
 import org.envirocar.voicecommand.BaseAimybox;
 import org.envirocar.voicecommand.BaseAimyboxAssistantViewModel;
+import org.envirocar.voicecommand.events.carselection.CarSelectionEvent;
 import org.envirocar.voicecommand.handler.MetadataHandler;
 import org.envirocar.voicecommand.model.CarSelectionMetadata;
 
@@ -64,8 +64,8 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-import butterknife.ButterKnife;
 import butterknife.BindView;
+import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -160,7 +160,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements Corout
         metadataHandler.makeIsCarSelectionFragmentTrue();
 
         // If no cars present show background image.
-        if (!mCarManager.hasCars()){
+        if (!mCarManager.hasCars()) {
             showBackgroundImage();
         }
 
@@ -325,7 +325,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements Corout
                                     // then remove it from the list and show a snackbar.
                                     mCarListAdapter.removeCarItem(car);// Nothing to do on cancel
                                 })
-                                .setNegativeButton(R.string.cancel,null)
+                                .setNegativeButton(R.string.cancel, null)
                                 .show();
                     }
                 });
@@ -381,9 +381,9 @@ public class CarSelectionActivity extends BaseInjectorActivity implements Corout
                 });
     }
 
-    private void setCarMetadata(){
+    private void setCarMetadata() {
         List<String> deserializedCars = new ArrayList<>();
-        for (Car car : usedCars){
+        for (Car car : usedCars) {
             deserializedCars.add(String.format("%s - %s", car.getManufacturer(), car.getModel()));
         }
 
@@ -396,6 +396,25 @@ public class CarSelectionActivity extends BaseInjectorActivity implements Corout
         }
     }
 
+    @Subscribe
+    public void onCarSelectionEvent(final CarSelectionEvent event) {
+        LOG.info(String.format("onStartEvent(): event=%s", event.getAction()));
+        String carName = event.getCarName();
+        for (int i = 0; i < usedCars.size(); ++i) {
+            String carNameFromList = String.format("%s - %s", usedCars.get(i).getManufacturer(), usedCars.get(i).getModel());
+            if (carNameFromList.equals(carName)) {
+                int index = i;
+                runOnUiThread(() -> {
+                    View view = mCarListView.getAdapter().getView(index, null, mCarListView);
+                    CarSelectionListAdapter.CarViewHolder holder = new CarSelectionListAdapter.CarViewHolder(view);
+
+                    mCarListAdapter.setSelectedCar(usedCars.get(index), holder);
+                });
+                return;
+            }
+        }
+    }
+
     /**
      * Creates and shows a snackbar
      *
@@ -405,7 +424,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements Corout
         Snackbar.make(mFab, msg, Snackbar.LENGTH_LONG).show();
     }
 
-    public void showBackgroundImage(){
+    public void showBackgroundImage() {
         showInfoBackground(R.drawable.img_alert,
                 R.string.car_selection_no_car_no_car_first,
                 R.string.car_selection_no_car_no_car_second);
@@ -445,7 +464,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements Corout
 
             // Check the total Cars count after adding, if only 1 car then set it.
             int count = mCarListAdapter.getCount();
-            if(count == 1) {
+            if (count == 1) {
                 mCarManager.setCar(car);
                 showSnackbar(String.format(getString(R.string.car_selection_car_selected_after_add),
                         car.getManufacturer(), car.getModel()));

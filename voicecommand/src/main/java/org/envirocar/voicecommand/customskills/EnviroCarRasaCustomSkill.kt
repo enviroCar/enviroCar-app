@@ -18,15 +18,24 @@
  */
 package org.envirocar.voicecommand.customskills
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.util.Log
+import androidx.annotation.RequiresPermission
 import com.justai.aimybox.Aimybox
 import com.justai.aimybox.model.Response
+import com.justai.aimybox.model.TextSpeech
+import com.justai.aimybox.model.reply.AudioReply
+import com.justai.aimybox.model.reply.TextReply
+import com.justai.aimybox.model.reply.asAudioSpeech
+import com.justai.aimybox.model.reply.asTextSpeech
 import com.squareup.otto.Bus
 import org.envirocar.voicecommand.dialogapi.rasa.EnviroCarRasaRequest
 import org.envirocar.voicecommand.dialogapi.rasa.EnviroCarRasaResponse
 import org.envirocar.voicecommand.handler.MetadataHandler
 import org.envirocar.voicecommand.handler.rasaresponse.RasaResponseHandler
 import org.envirocar.voicecommand.intention.EnviroCarIntention
+import java.util.concurrent.CancellationException
 
 /**
  * @author Dhiraj Chauhan
@@ -64,24 +73,70 @@ class EnviroCarRasaCustomSkill(private val metadataHandler: MetadataHandler, pri
     ) {
         // decoding the response from rasa
         val rasaResponseHandler = RasaResponseHandler()
-        val rasaResponse = rasaResponseHandler.decodeRasaResponse(response.httpResponse!!)
 
-        // if event based actions then post events else default handle
-        if (rasaResponse.action != null &&  rasaResponse.actionType != null && rasaResponse.custom?.action?.next_action != null) {
-            EnviroCarIntention.postEvent(bus, aimybox, rasaResponse.action!!, response.actionType!!, rasaResponse.custom?.action?.next_action!!)
-            defaultHandler(rasaResponse)
-        } else if (rasaResponse.custom?.action?.next_action != null) {
-            // if response is not event based but has a next action
-            defaultHandler(rasaResponse)
-            when (rasaResponse.custom?.action?.next_action) {
-                    Aimybox.NextAction.NOTHING -> Unit
-                    Aimybox.NextAction.RECOGNITION -> aimybox.startRecognition()
-                    Aimybox.NextAction.STANDBY -> aimybox.standby()
-                null -> Unit
+        if (response.httpResponse != null && response.httpResponse.size() != 0) {
+            val rasaResponse = rasaResponseHandler.decodeRasaResponse(response.httpResponse)
+
+            // if event based actions then post events else default handle
+            if (rasaResponse.action != null && rasaResponse.actionType != null && rasaResponse.custom?.action?.next_action != null) {
+                EnviroCarIntention.postEvent(
+                    bus,
+                    aimybox,
+                    rasaResponse.custom?.data,
+                    rasaResponse.action!!,
+                    rasaResponse.actionType!!,
+                    rasaResponse.custom?.action?.next_action!!
+                )
+                speakResponse(rasaResponse, aimybox, rasaResponse.custom?.action?.next_action!!)
+            } else if (rasaResponse.custom?.action?.next_action != null) {
+                // if response is not event based but has a next action
+                speakResponse(rasaResponse, aimybox, rasaResponse.custom?.action?.next_action!!)
+            } else {
+                speakResponse(rasaResponse, aimybox, Aimybox.NextAction.STANDBY)
             }
         } else {
-            defaultHandler(rasaResponse)
-            aimybox.standby()
+            aimybox.speak(
+                TextSpeech("Something went wrong. Please try again."),
+                Aimybox.NextAction.STANDBY
+            )
+        }
+    }
+
+    @RequiresPermission(Manifest.permission.RECORD_AUDIO)
+    private suspend fun speakResponse(
+        response: EnviroCarRasaResponse,
+        aimybox: Aimybox,
+        nextAction: Aimybox.NextAction
+    ) {
+        try {
+            val speeches = response.replies
+                .filter { it is TextReply || it is AudioReply }
+                .map {
+                    when (it) {
+                        is TextReply -> it.asTextSpeech()
+                        is AudioReply -> it.asAudioSpeech()
+                        else -> throw IllegalArgumentException("Reply type is not supported by default handler")
+                    }
+                }
+
+            speeches.takeIf { it.isNotEmpty() }?.let { it ->
+
+                try {
+                    val filteredSpeeches = it.filter { speech ->
+                        !(speech is TextSpeech && speech.text.isEmpty())
+                    }
+                    if (filteredSpeeches.isNotEmpty()) {
+                        aimybox.speak(filteredSpeeches, nextAction)?.join()
+                    } else {
+                        aimybox.standby()
+                    }
+                } catch (e: CancellationException) {
+                    Log.w("Speech cancelled", e)
+                }
+            } ?: aimybox.standby()
+
+        } catch (e: Throwable) {
+            Log.e("parsing replies from $response", e.message.toString())
         }
     }
 }

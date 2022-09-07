@@ -106,4 +106,9 @@ public class PermissionUtils {
         }
     }
 
+    public static String[] getMicrophonePermissions() {
+        return new String[]{
+                Manifest.permission.RECORD_AUDIO,
+        };
+    }
 }

@@ -18,6 +18,7 @@
  */
 package org.envirocar.voicecommand.intention
 
+import com.google.gson.JsonObject
 import com.justai.aimybox.Aimybox
 import com.squareup.otto.Bus
 import org.envirocar.voicecommand.enums.CarSelection
@@ -40,6 +41,7 @@ class EnviroCarIntention {
         fun postEvent(
             bus: Bus,
             aimybox: Aimybox,
+            data: JsonObject?,
             action: String,
             actionType: String,
             nextAction: Aimybox.NextAction
@@ -52,7 +54,7 @@ class EnviroCarIntention {
                     postRecordingRequirementEvent(bus, aimybox, action, nextAction)
                 }
                 VoiceCommandEventType.CarSelection.name -> {
-                    postCarSelectionEvent(bus, aimybox, action, nextAction)
+                    postCarSelectionEvent(bus, aimybox, action, data, nextAction)
                 }
                 VoiceCommandEventType.NavigationScreens.name -> {
                     postNavigationEvent(bus, aimybox, action, nextAction)
@@ -120,14 +122,17 @@ class EnviroCarIntention {
             bus: Bus,
             aimybox: Aimybox,
             action: String,
+            data: JsonObject?,
             nextAction: Aimybox.NextAction
         ) {
+            val carName = data?.get("car_name")?.asString.toString()
             when (action) {
                 CarSelection.SELECT.name -> {
                     bus.post(
                         CarSelectionEvent(
                             aimybox,
                             CarSelection.SELECT,
+                            carName,
                             nextAction
                         )
                     )
@@ -137,7 +142,7 @@ class EnviroCarIntention {
                         CarSelectionEvent(
                             aimybox,
                             CarSelection.DESELECT,
-                            nextAction
+                            nextAction = nextAction
                         )
                     )
                 }
@@ -146,7 +151,7 @@ class EnviroCarIntention {
                         CarSelectionEvent(
                             aimybox,
                             CarSelection.DELETE,
-                            nextAction
+                            nextAction = nextAction
                         )
                     )
                 }
@@ -165,24 +170,6 @@ class EnviroCarIntention {
                         NavigationEvent(
                             aimybox,
                             NavigationScreens.CAR_SELECTION,
-                            nextAction
-                        )
-                    )
-                }
-                CarSelection.DESELECT.name -> {
-                    bus.post(
-                        CarSelectionEvent(
-                            aimybox,
-                            CarSelection.DESELECT,
-                            nextAction
-                        )
-                    )
-                }
-                CarSelection.DELETE.name -> {
-                    bus.post(
-                        CarSelectionEvent(
-                            aimybox,
-                            CarSelection.DELETE,
                             nextAction
                         )
                     )

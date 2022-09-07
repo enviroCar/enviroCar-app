@@ -112,11 +112,14 @@ import org.envirocar.obd.service.BluetoothServiceState;
 import org.envirocar.voicecommand.BaseAimybox;
 import org.envirocar.voicecommand.BaseAimyboxAssistantViewModel;
 import org.envirocar.voicecommand.enums.MetadataType;
+import org.envirocar.voicecommand.enums.NavigationScreens;
 import org.envirocar.voicecommand.enums.RecordingMode;
 import org.envirocar.voicecommand.enums.RecordingRequirements;
+import org.envirocar.voicecommand.events.navigation.NavigationEvent;
 import org.envirocar.voicecommand.events.recording.RecordingRequirementEvent;
 import org.envirocar.voicecommand.events.recording.RecordingTrackEvent;
 import org.envirocar.voicecommand.handler.MetadataHandler;
+import org.envirocar.voicecommand.model.CarSelectionMetadata;
 import org.envirocar.voicecommand.model.ExtraMetadata;
 import org.envirocar.voicecommand.model.RecordingMetadata;
 import org.jetbrains.annotations.NotNull;
@@ -315,7 +318,7 @@ public class DashboardFragment extends BaseInjectorFragment implements Coroutine
             viewModel.getAimyboxState().observe(getViewLifecycleOwner(), state -> {
                 if (state == Aimybox.State.LISTENING) {
 
-                    getRecordingMetadata();
+                    getMetadata();
                     showVoiceTriggeredSnackbar(
                             requireView(),
                             requireActivity(),
@@ -323,9 +326,7 @@ public class DashboardFragment extends BaseInjectorFragment implements Coroutine
                             requireActivity().findViewById(R.id.navigation),
                             userHandler.getUser()
                     );
-
                 }
-
             });
         }
     }
@@ -348,7 +349,7 @@ public class DashboardFragment extends BaseInjectorFragment implements Coroutine
                             }
                         });
 
-        getRecordingMetadata();
+        getMetadata();
     }
 
 
@@ -380,7 +381,7 @@ public class DashboardFragment extends BaseInjectorFragment implements Coroutine
     }
 
     public void checkAndRequestMicrophonePerms() {
-        String[] perms = {Manifest.permission.RECORD_AUDIO};
+        String[] perms = PermissionUtils.getMicrophonePermissions();
 
         // if the user does not have permission, request it
         if (!EasyPermissions.hasPermissions(requireContext(), perms)) {
@@ -765,6 +766,15 @@ public class DashboardFragment extends BaseInjectorFragment implements Coroutine
     }
 
     @Subscribe
+    public void onNavigationEvent(final NavigationEvent event) {
+        LOG.info(String.format("onStartEvent(): event=%s", event.getAction()));
+
+        if (event.getAction() == NavigationScreens.CAR_SELECTION) {
+            onCarSelectionClicked();
+        }
+    }
+
+    @Subscribe
     public void onEngineNotRunningEvent(EngineNotRunningEvent event) {
         LOG.info("Retrieved Engine not running event");
         if (connectingDialog != null) {
@@ -1086,13 +1096,17 @@ public class DashboardFragment extends BaseInjectorFragment implements Coroutine
         return Dispatchers.getMain().plus((CoroutineContext) JobKt.Job(null));
     }
 
-    public void getRecordingMetadata() {
+    public void getMetadata() {
         final RecordingMode recordingMode =
                 obdModeRadioButton.isChecked() ? RecordingMode.OBD_MODE : RecordingMode.GPS_MODE;
+
+        CarSelectionMetadata carSelectionMetadata = new CarSelectionMetadata(
+                new ArrayList<>(),
+                false
+        );
         RecordingMetadata recordingMetadata = new RecordingMetadata(
                 RecordingService.RECORDING_STATE.name(),
                 recordingMode.name(),
-                true,
                 this.gpsIndicator.isActivated(),
                 this.carIndicator.isActivated(),
                 this.bluetoothIndicator.isActivated(),
@@ -1104,7 +1118,9 @@ public class DashboardFragment extends BaseInjectorFragment implements Coroutine
 
         ExtraMetadata extraMetadata = new ExtraMetadata(
                 MetadataType.RECORDING.name(),
-                recordingMetadata
+                true,
+                recordingMetadata,
+                carSelectionMetadata
         );
         metadataHandler.setMetadata(extraMetadata);
     }
