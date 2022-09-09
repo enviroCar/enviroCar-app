@@ -186,10 +186,6 @@ public class CarSelectionActivity extends BaseInjectorActivity implements Corout
                 }
             });
         }
-
-        headerView.setOnClickListener(v -> {
-            viewModel.getAimybox().startRecognition();
-        });
     }
 
     private void initAimyboxViewModel(Context context) {
