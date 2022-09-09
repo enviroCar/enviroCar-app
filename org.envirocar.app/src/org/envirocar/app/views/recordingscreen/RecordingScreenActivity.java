@@ -50,6 +50,7 @@ import org.envirocar.app.views.BaseMainActivity;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.core.events.gps.GpsSatelliteFixEvent;
 import org.envirocar.core.logging.Logger;
+import org.envirocar.voicecommand.handler.MetadataHandler;
 
 import java.text.DecimalFormat;
 
@@ -85,6 +86,8 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
     protected TempomatFragment tempomatFragment;
     @Inject
     protected TrackRecordingHandler trackRecordingHandler;
+    @Inject
+    protected MetadataHandler metadataHandler;
 
     // Injected views
     @BindView(R.id.activity_recscreen_trackdetails_gps)
@@ -148,6 +151,12 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
         // set keep screen on setting
         boolean keepScreenOn = ApplicationSettings.getDisplayStaysActiveObservable(this).blockingFirst();
         this.trackDetailsContainer.setKeepScreenOn(keepScreenOn);
+
+        // set `isDashboardFragment` to false
+        metadataHandler.onDashboardFragmentFalse();
+
+        // setting the `is_recording_screen` true
+        metadataHandler.onRecordingScreenTrue();
     }
 
     @Override

@@ -32,6 +32,7 @@ data class ExtraMetadata(
 data class RecordingMetadata(
     val recording_status: String,
     val recording_mode: String,
+    var is_recording_screen: Boolean,
     val gps: Boolean,
     val car: Boolean,
     val bluetooth: Boolean,

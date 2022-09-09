@@ -29,19 +29,27 @@ import javax.inject.Singleton
 class MetadataHandler @Inject constructor() {
     var metadata: ExtraMetadata? = null
 
-    fun makeIsDashboardFragmentFalse() {
+    fun onDashboardFragmentFalse() {
         metadata?.isDashboardFragment = false
     }
 
-    fun makeIsDashboardFragmentTrue() {
+    fun onDashboardFragmentTrue() {
         metadata?.isDashboardFragment = true
     }
 
-    fun makeIsCarSelectionFragmentFalse() {
+    fun onRecordingScreenFalse() {
+        metadata?.recordingMetadata?.is_recording_screen = false
+    }
+
+    fun onRecordingScreenTrue() {
+        metadata?.recordingMetadata?.is_recording_screen = true
+    }
+
+    fun onCarSelectionFragmentFalse() {
         metadata?.car_selection_metadata?.is_car_selection_fragment = false
     }
 
-    fun makeIsCarSelectionFragmentTrue() {
+    fun onCarSelectionFragmentTrue() {
         metadata?.car_selection_metadata?.is_car_selection_fragment = true
     }
 }

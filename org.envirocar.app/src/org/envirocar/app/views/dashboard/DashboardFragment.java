@@ -113,6 +113,7 @@ import org.envirocar.voicecommand.BaseAimybox;
 import org.envirocar.voicecommand.BaseAimyboxAssistantViewModel;
 import org.envirocar.voicecommand.enums.MetadataType;
 import org.envirocar.voicecommand.enums.NavigationScreens;
+import org.envirocar.voicecommand.enums.Recording;
 import org.envirocar.voicecommand.enums.RecordingMode;
 import org.envirocar.voicecommand.enums.RecordingRequirements;
 import org.envirocar.voicecommand.events.navigation.NavigationEvent;
@@ -740,7 +741,10 @@ public class DashboardFragment extends BaseInjectorFragment implements Coroutine
     @Subscribe
     public void onRecordingTrackEvent(final RecordingTrackEvent event) {
         LOG.info(String.format("onStartEvent(): event=%s", event.getAction()));
-        onStartTrackButtonClicked();
+
+        if (event.getAction() == Recording.START) {
+            onStartTrackButtonClicked();
+        }
     }
 
     @Subscribe
@@ -1107,6 +1111,7 @@ public class DashboardFragment extends BaseInjectorFragment implements Coroutine
         RecordingMetadata recordingMetadata = new RecordingMetadata(
                 RecordingService.RECORDING_STATE.name(),
                 recordingMode.name(),
+                false,
                 this.gpsIndicator.isActivated(),
                 this.carIndicator.isActivated(),
                 this.bluetoothIndicator.isActivated(),

@@ -154,10 +154,10 @@ public class CarSelectionActivity extends BaseInjectorActivity implements Corout
 //        getSupportActionBar().setTitle(R.string.car_selection_header);
 
         // set `isDashboardFragment` to false
-        metadataHandler.makeIsDashboardFragmentFalse();
+        metadataHandler.onDashboardFragmentFalse();
 
         // setting the `is_car_selection_fragment` true
-        metadataHandler.makeIsCarSelectionFragmentTrue();
+        metadataHandler.onCarSelectionFragmentTrue();
 
         // If no cars present show background image.
         if (!mCarManager.hasCars()) {
@@ -186,6 +186,10 @@ public class CarSelectionActivity extends BaseInjectorActivity implements Corout
                 }
             });
         }
+
+        headerView.setOnClickListener(v -> {
+            viewModel.getAimybox().startRecognition();
+        });
     }
 
     private void initAimyboxViewModel(Context context) {
