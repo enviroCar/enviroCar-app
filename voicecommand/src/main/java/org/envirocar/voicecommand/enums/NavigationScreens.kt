@@ -23,5 +23,6 @@ package org.envirocar.voicecommand.enums
  */
 enum class NavigationScreens {
     CAR_SELECTION,
+    RECORDING
 //    DASHBOARD
 }

@@ -24,6 +24,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:id="@+id/parent_view_recording_screen"
     tools:context=".views.recordingscreen.OBDPlusGPSTrackRecordingScreen">
 
     <LinearLayout
@@ -244,7 +245,7 @@
                     android:layout_marginTop="5dp"
                     android:text="@string/track_upload_active"
                     android:textColor="@color/green_dark_cario"
-                    android:textSize="12sp"/>
+                    android:textSize="12sp" />
 
             </LinearLayout>
 

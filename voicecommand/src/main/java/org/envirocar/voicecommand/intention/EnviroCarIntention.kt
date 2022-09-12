@@ -174,6 +174,15 @@ class EnviroCarIntention {
                         )
                     )
                 }
+                NavigationScreens.RECORDING.name -> {
+                    bus.post(
+                        NavigationEvent(
+                            aimybox,
+                            NavigationScreens.RECORDING,
+                            nextAction
+                        )
+                    )
+                }
             }
         }
 

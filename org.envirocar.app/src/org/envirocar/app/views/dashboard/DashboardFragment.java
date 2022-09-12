@@ -23,7 +23,6 @@ import static org.envirocar.app.views.utils.SnackbarUtil.showGrantMicrophonePerm
 import static org.envirocar.app.views.utils.SnackbarUtil.showSnackbarLong;
 import static org.envirocar.app.views.utils.SnackbarUtil.showVoiceTriggeredSnackbar;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
@@ -736,6 +735,10 @@ public class DashboardFragment extends BaseInjectorFragment implements Coroutine
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::updateByRecordingState, LOG::error);
+
+        if (metadataHandler.getMetadata() != null && metadataHandler.getMetadata().getRecordingMetadata() != null) {
+            metadataHandler.getMetadata().getRecordingMetadata().setRecording_status(event.recordingState.name());
+        }
     }
 
     @Subscribe
@@ -775,6 +778,8 @@ public class DashboardFragment extends BaseInjectorFragment implements Coroutine
 
         if (event.getAction() == NavigationScreens.CAR_SELECTION) {
             onCarSelectionClicked();
+        } else if (event.getAction() == NavigationScreens.RECORDING) {
+            requireActivity().startActivity(new Intent(getContext(), RecordingScreenActivity.class));
         }
     }
 

@@ -18,6 +18,9 @@
  */
 package org.envirocar.app.views.recordingscreen;
 
+import static org.envirocar.app.views.utils.SnackbarUtil.showVoiceTriggeredSnackbar;
+
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -33,6 +36,9 @@ import android.widget.TextView;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.justai.aimybox.Aimybox;
+import com.justai.aimybox.components.AimyboxAssistantViewModel;
+import com.justai.aimybox.model.TextSpeech;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.BaseApplicationComponent;
@@ -40,6 +46,7 @@ import org.envirocar.app.R;
 import org.envirocar.app.events.*;
 import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.app.handler.TrackRecordingHandler;
+import org.envirocar.app.handler.preferences.UserPreferenceHandler;
 import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.app.injection.modules.RecordingScreenModule;
 import org.envirocar.app.recording.RecordingService;
@@ -50,6 +57,10 @@ import org.envirocar.app.views.BaseMainActivity;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.core.events.gps.GpsSatelliteFixEvent;
 import org.envirocar.core.logging.Logger;
+import org.envirocar.voicecommand.BaseAimybox;
+import org.envirocar.voicecommand.BaseAimyboxAssistantViewModel;
+import org.envirocar.voicecommand.enums.Recording;
+import org.envirocar.voicecommand.events.recording.RecordingTrackEvent;
 import org.envirocar.voicecommand.handler.MetadataHandler;
 
 import java.text.DecimalFormat;
@@ -87,9 +98,13 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
     @Inject
     protected TrackRecordingHandler trackRecordingHandler;
     @Inject
+    protected UserPreferenceHandler userHandler;
+    @Inject
     protected MetadataHandler metadataHandler;
 
     // Injected views
+    @BindView(R.id.parent_view_recording_screen)
+    protected View mContentView;
     @BindView(R.id.activity_recscreen_trackdetails_gps)
     protected ImageView gpsImage;
     @BindView(R.id.activity_recscreen_trackdetails_bluetooth)
@@ -115,6 +130,8 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
 
     // state variables
     private RecordingType recordingType;
+
+    private AimyboxAssistantViewModel viewModel;
 
     @Override
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
@@ -157,6 +174,8 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
 
         // setting the `is_recording_screen` true
         metadataHandler.onRecordingScreenTrue();
+
+        initAimyboxViewModel(this);
     }
 
     @Override
@@ -171,6 +190,27 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
 
         // show initial animation
         initAnimations();
+        if (viewModel != null) {
+            viewModel.getAimyboxState().observe(this, state -> {
+                if (state == Aimybox.State.LISTENING) {
+                    // TODO Check internet connection if not on then ask user to connect to internet
+                    showVoiceTriggeredSnackbar(
+                            mContentView,
+                            this,
+                            this,
+                            this.findViewById(R.id.navigation),
+                            userHandler.getUser()
+                    );
+                }
+            });
+        }
+    }
+
+    private void initAimyboxViewModel(Context context) {
+        if (viewModel == null) {
+            viewModel = new BaseAimyboxAssistantViewModel().getAimyboxAssistantViewModel(this);
+            BaseAimybox.Companion.setInitialPhrase(context, this.getIntent().getExtras(), viewModel);
+        }
     }
 
     @Override
@@ -182,6 +222,24 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
         if (RecordingService.RECORDING_STATE == RecordingState.RECORDING_STOPPED) {
             startActivity(new Intent(RecordingScreenActivity.this, BaseMainActivity.class));
             finish();
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    @Subscribe
+    public void onRecordingTrackEvent(final RecordingTrackEvent event) {
+        LOG.info(String.format("onStartEvent(): event=%s", event.getAction()));
+        if (event.getAction() == Recording.STOP) {
+            trackRecordingHandler.finishCurrentTrack();
+            finish();
+        } else if (event.getAction() == Recording.CHANGE_VIEW) {
+            onSwitchViewsButtonClicked();
+        } else if (event.getAction() == Recording.DISTANCE) {
+            String message = String.format("You have travelled %s", distanceText.getText().toString());
+            event.getAimybox().speak(new TextSpeech(message, null), Aimybox.NextAction.STANDBY, true);
+        } else if (event.getAction() == Recording.TRAVEL_TIME) {
+            String message = String.format("Travel time is %s", timerText.getText());
+            event.getAimybox().speak(new TextSpeech(message, null), Aimybox.NextAction.STANDBY, true);
         }
     }
 
