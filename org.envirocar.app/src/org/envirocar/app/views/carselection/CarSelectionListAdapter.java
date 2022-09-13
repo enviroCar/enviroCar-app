@@ -34,11 +34,14 @@ import android.widget.TextView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import org.envirocar.app.R;
+import org.envirocar.app.handler.preferences.CarPreferenceHandler;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.utils.CarUtils;
 
 import java.util.List;
+
+import javax.inject.Inject;
 
 import butterknife.ButterKnife;
 import butterknife.BindView;
@@ -79,7 +82,6 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
     private final OnCarListActionCallback mCallback;
 
     private Car mSelectedCar;
-    private Car mSelectedTempCar;
     private RadioButton mSelectedButton;
 
 
@@ -97,7 +99,6 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
         this.mContext = context;
         this.mCallback = callback;
         this.mSelectedCar = selectedCar;
-        this.mSelectedTempCar = selectedCar;
 
     }
 
@@ -209,12 +210,8 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
      */
     protected void addCarItem(Car car) {
         this.add(car);
-        if (mSelectedCar!=null) {
-            if (this.getCount() == 1) {
-                mSelectedCar = car;
-            } else {
-                mSelectedCar = mSelectedTempCar;
-            }
+        if (mSelectedCar==null) {
+             mSelectedCar = car;
         }
         notifyDataSetChanged();
     }
