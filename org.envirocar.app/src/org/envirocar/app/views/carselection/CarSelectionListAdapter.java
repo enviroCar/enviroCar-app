@@ -34,14 +34,12 @@ import android.widget.TextView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import org.envirocar.app.R;
-import org.envirocar.app.handler.preferences.CarPreferenceHandler;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.utils.CarUtils;
 
 import java.util.List;
 
-import javax.inject.Inject;
 
 import butterknife.ButterKnife;
 import butterknife.BindView;
