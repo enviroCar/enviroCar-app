@@ -318,7 +318,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
                         for (Car car : cars) {
                             if (!usedCars.contains(car)) {
                                 LOG.info("Adding car: " + car);
-                                mCarListAdapter.addCarItem(car);
+                                mCarListAdapter.addCarItem(car,cars.size());
                             }
                         }
                     }
@@ -365,7 +365,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
         LOG.info("onCarAdded(Car)");
 
         if (mCarManager.addCar(car)) {
-            mCarListAdapter.addCarItem(car);
+            mCarListAdapter.addCarItem(car,null);
 
             headerView.setVisibility(View.VISIBLE);
             ECAnimationUtils.animateHideView(this, infoBackground, R.anim.fade_out);

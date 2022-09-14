@@ -206,10 +206,24 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
      *
      * @param car the car to add to the list
      */
-    protected void addCarItem(Car car) {
+//    protected void addCarItem(Car car) {
+//        this.add(car);
+//        if (mSelectedCar!=null) {
+//            if (this.getCount()==1) {
+//                mSelectedCar = car;
+//            }
+//        }
+//        notifyDataSetChanged();
+//    }
+
+    protected void addCarItem(Car car,Integer count) {
         this.add(car);
-        if (mSelectedCar==null) {
-             mSelectedCar = car;
+        if (mSelectedCar!=null) {
+            if (count!=null && count==1) {
+                mSelectedCar = car;
+            } else if (count==null & this.getCount() ==1){
+                mSelectedCar = car;
+            }
         }
         notifyDataSetChanged();
     }
