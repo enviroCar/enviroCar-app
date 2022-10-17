@@ -40,6 +40,7 @@ import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
+import org.envirocar.app.events.TrackchunkEndUploadedEvent;
 import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.DAOProvider;
@@ -345,6 +346,13 @@ public class BaseMainActivity extends BaseInjectorActivity {
                 showSnackbar(R.string.track_finished_no_measurements);
             }
         });
+    }
+
+    @Subscribe
+    public void onTrackChunkUploadEndEvent(TrackchunkEndUploadedEvent event) {
+        LOGGER.info("Received TrackchunkEndUploadedEvent for %s", event.getTrack().getName());
+        showSnackbar(String.format(getString(R.string.track_list_upload_track_success_template),
+                event.getTrack().getName()));
     }
 
     private void showSnackbar(int infoRes) {

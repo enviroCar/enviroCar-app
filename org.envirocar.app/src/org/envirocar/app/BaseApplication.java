@@ -123,6 +123,7 @@ public class BaseApplication extends Application {
                         .doOnNext(this::setDebugLogging)
                         .doOnError(LOG::error)
                         .subscribe());
+        this.setDebugLogging(ApplicationSettings.isDebugLoggingEnabled(this));
 
         // obfuscation setting changed listener
         this.disposables.add(
@@ -148,6 +149,8 @@ public class BaseApplication extends Application {
                         })
                         .doOnError(LOG::error)
                         .subscribe());
+
+        LOG.info("BaseApplication started: " + this.hashCode());
     }
 
     @Override

@@ -106,7 +106,8 @@ public abstract class AbstractTrackListCardAdapter<E extends
      */
     public void addItem(Track track) {
         mTrackDataset.add(track);
-        notifyDataSetChanged();
+        int pos = mTrackDataset.indexOf(track);
+        notifyItemInserted(pos);
     }
 
     /**
@@ -117,7 +118,8 @@ public abstract class AbstractTrackListCardAdapter<E extends
     public void removeItem(Track track) {
         if (mTrackDataset.contains(track)) {
             mTrackDataset.remove(track);
-            notifyDataSetChanged();
+            int pos = mTrackDataset.indexOf(track);
+            notifyItemRemoved(pos);
         }
     }
 

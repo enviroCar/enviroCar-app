@@ -80,6 +80,8 @@
     <string name="track_list_num_stops">Anzahl Stopps</string>
     <string name="track_list_total_stoptime">Gesamtstoppzeit</string>
     <string name="track_list_details_diesel_not_supported">DIESEL NICHT\nUNTERSTÜTZT</string>
+    <string name="track_list_details_no_fuel_consumption">* = Diese Werte konnten nicht berechnet werden.</string>
+    <string name="track_list_details_no_fuel_consumption_missing_properties">* = Diese Werte konnten aufgrund fehlender Messparameter nicht berechnet werden: %s</string>
 
     <string name="track_list_upload_all_tracks_title">Alle Fahrten Hochladen?</string>
     <string name="track_list_upload_all_tracks_content">Sie sind dabei alle ihre Fahrten auf den enviroCar Server als Open Data hochzuladen. Alle Fahrten werden damit ihrem Benutzerkonto zugewiesen und anaonymisiert für andere zugreifbar.\n\nMöchten Sie fortfahren?</string>

@@ -37,6 +37,8 @@
     <string name="yesterday">Gestern</string>
 
     <string name="cancel">Abbrechen</string>
+    <string name="wait">Warten</string>
+    <string name="finish">Beenden</string>
 
     <string name="fuel_type">Kraftstoffart</string>
     <string name="car">Fahrzeug</string>

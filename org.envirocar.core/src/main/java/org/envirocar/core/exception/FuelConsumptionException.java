@@ -18,6 +18,10 @@
  */
 package org.envirocar.core.exception;
 
+import org.envirocar.core.entity.Measurement;
+
+import java.util.List;
+
 /**
  * TODO JavaDoc
  *
@@ -25,6 +29,12 @@ package org.envirocar.core.exception;
  */
 public class FuelConsumptionException extends Exception {
     private static final long serialVersionUID = 7331880723569229640L;
+
+    private List<Measurement.PropertyKey> missingProperties;
+
+    public List<Measurement.PropertyKey> getMissingProperties() {
+        return missingProperties;
+    }
 
     /**
      * Constructor.
@@ -49,5 +59,10 @@ public class FuelConsumptionException extends Exception {
      */
     public FuelConsumptionException(Throwable e) {
         super(e);
+    }
+
+    public FuelConsumptionException(String message, List<Measurement.PropertyKey > properties) {
+        super(message);
+        this.missingProperties = properties;
     }
 }

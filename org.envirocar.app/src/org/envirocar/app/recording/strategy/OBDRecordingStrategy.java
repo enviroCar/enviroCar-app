@@ -29,6 +29,8 @@ import com.squareup.otto.Subscribe;
 
 import org.envirocar.algorithm.MeasurementProvider;
 import org.envirocar.app.R;
+import org.envirocar.app.events.GpsNotChangedEvent;
+import org.envirocar.app.events.TrackRecordingContinueEvent;
 import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.preferences.CarPreferenceHandler;
@@ -101,6 +103,7 @@ public class OBDRecordingStrategy implements RecordingStrategy {
     private boolean isTrackFinished = false;
     private Track track = null;
     private CycleCommandProfile cycleCommandProfile;
+    private int gpsConnectionDuration = 60 * 2;
 
     /**
      * Constructor.
@@ -163,6 +166,10 @@ public class OBDRecordingStrategy implements RecordingStrategy {
         // subscribe for preference changes
         disposables.add(ApplicationSettings.getCampaignProfileObservable(context)
                 .doOnNext(campaign -> this.cycleCommandProfile = getCycleCommandProfile(campaign))
+                .subscribe());
+
+        disposables.add(ApplicationSettings.getGPSConnectionDurationObservable(context)
+                .doOnNext(duration -> this.gpsConnectionDuration = duration)
                 .subscribe());
     }
 
@@ -390,7 +397,7 @@ public class OBDRecordingStrategy implements RecordingStrategy {
 
     private final class OBDConnectionRecognizer {
         private static final long OBD_INTERVAL = 1000 * 10; // 10 seconds;
-        private static final long GPS_INTERVAL = 1000 * 60 * 2; // 2 minutes;
+        private static final long GPS_PENDING_INTERVAL = 1000 * 30; // 30 seconds
 
         private long timeLastSpeedMeasurement;
         private long timeLastGpsMeasurement;
@@ -399,6 +406,7 @@ public class OBDRecordingStrategy implements RecordingStrategy {
         private final Scheduler.Worker mBackgroundWorker = Schedulers.newThread().createWorker();
         private Disposable mOBDCheckerSubscription;
         private Disposable mGPSCheckerSubscription;
+        private Disposable gpsPendingSubscription;
 
         private final Runnable gpsConnectionCloser = () -> {
             if (!isRunning) {
@@ -407,6 +415,20 @@ public class OBDRecordingStrategy implements RecordingStrategy {
 
             LOG.warn("CONNECTION CLOSED due to no GPS values");
             stopRecording();
+
+        };
+
+        private final Runnable gpsNotChangedNotifier = () -> {
+            if (!isRunning) {
+                return;
+            }
+
+            LOG.warn("No GPS values. Connection may be closed.");
+            eventBus.post(new GpsNotChangedEvent(gpsConnectionDuration));
+            // Just wait for another 30 seconds, whether user decides for continuing recording or not.
+            // If there is no decision during this time interval, stop recording
+            gpsPendingSubscription = mBackgroundWorker.schedule(gpsConnectionCloser,
+                    GPS_PENDING_INTERVAL, TimeUnit.MILLISECONDS);
         };
 
         private final Runnable obdConnectionCloser = () -> {
@@ -419,25 +441,23 @@ public class OBDRecordingStrategy implements RecordingStrategy {
         };
 
         @Subscribe
+        public void onReceiveContinueRecordingEvent(TrackRecordingContinueEvent event) {
+            LOG.info("Continue recording of track '%s' despite missing GPS connection." +
+                            " No stop required via GPS Connection Recognizer.",
+                    String.valueOf(event.getTrack().getName()));
+            scheduleGpsConnection();
+        }
+
+        @Subscribe
         public void onReceiveGpsLocationChangedEvent(GpsLocationChangedEvent event) {
-            if (isRunning) {
-                LOG.info("Received GPS Update. no stop required via OBD Connection Recognizer");
-                if (mGPSCheckerSubscription != null) {
-                    mGPSCheckerSubscription.dispose();
-                    mGPSCheckerSubscription = null;
-                }
-
-                timeLastGpsMeasurement = System.currentTimeMillis();
-
-                mGPSCheckerSubscription = mBackgroundWorker.schedule(
-                        gpsConnectionCloser, GPS_INTERVAL, TimeUnit.MILLISECONDS);
-            }
+            LOG.info("Received GPS Update. No stop required via GPS Connection Recognizer.");
+            scheduleGpsConnection();
         }
 
         @Subscribe
         public void onReceiveSpeedUpdateEvent(SpeedUpdateEvent event) {
             if (isRunning) {
-                LOG.info("Received speed update, no stop required via OBD Connection Recognizer!");
+                LOG.info("Received speed update. No stop required via OBD Connection Recognizer.");
                 if (mOBDCheckerSubscription != null) {
                     mOBDCheckerSubscription.dispose();
                     mOBDCheckerSubscription = null;
@@ -447,6 +467,25 @@ public class OBDRecordingStrategy implements RecordingStrategy {
 
                 mOBDCheckerSubscription = mBackgroundWorker.schedule(
                         obdConnectionCloser, OBD_INTERVAL, TimeUnit.MILLISECONDS);
+            }
+        }
+
+        private void scheduleGpsConnection() {
+            if (isRunning) {
+                LOG.info("Received GPS Update. No stop required via OBD Connection Recognizer");
+                if (gpsPendingSubscription != null) {
+                    gpsPendingSubscription.dispose();
+                    gpsPendingSubscription = null;
+                }
+                if (mGPSCheckerSubscription != null) {
+                    mGPSCheckerSubscription.dispose();
+                    mGPSCheckerSubscription = null;
+                }
+
+                timeLastGpsMeasurement = System.currentTimeMillis();
+
+                mGPSCheckerSubscription = mBackgroundWorker.schedule(
+                        gpsNotChangedNotifier, gpsConnectionDuration * 1000, TimeUnit.MILLISECONDS);
             }
         }
 

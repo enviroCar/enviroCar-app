@@ -50,6 +50,7 @@ public class ApplicationSettings {
     public static final boolean DEFAULT_OBFUSCATION = false;
     public static final int DEFAULT_BLUETOOTH_DISCOVERY_INTERVAL = 60;
     public static final int DEFAULT_TRACK_TRIM_DURATION = 110;
+    public static final int DEFAULT_GPS_CONNECTION_DURATION = 120;
     public static final boolean DEFAULT_DEBUG_LOGGING = false;
     public static final int DEFAULT_SAMPLING_RATE = 5;
     public static final String DEFAULT_CAMPAIGN_PROFILE = "DEFAULT_COMANND_PROFILE";
@@ -168,6 +169,10 @@ public class ApplicationSettings {
                 .asObservable();
     }
 
+    public static boolean isDebugLoggingEnabled(Context context) {
+        return getSharedPreferences(context).getBoolean(s(context, R.string.prefkey_enable_debug_logging), DEFAULT_DEBUG_LOGGING);
+    }
+
     public static boolean isDieselConsumptionEnabled(Context context) {
         return getSharedPreferences(context).getBoolean(s(context, R.string.prefkey_enable_diesel_consumption), false);
     }
@@ -175,6 +180,12 @@ public class ApplicationSettings {
     public static Observable<Boolean> getDieselConsumptionObservable(Context context) {
         return getRxSharedPreferences(context)
                 .getBoolean(s(context, R.string.prefkey_enable_diesel_consumption), false)
+                .asObservable();
+    }
+
+    public static Observable<Integer> getGPSConnectionDurationObservable(final Context context) {
+        return RxSharedPreferences.create(getSharedPreferences(context))
+                .getInteger(s(context, R.string.prefkey_gps_connection), DEFAULT_GPS_CONNECTION_DURATION)
                 .asObservable();
     }
 

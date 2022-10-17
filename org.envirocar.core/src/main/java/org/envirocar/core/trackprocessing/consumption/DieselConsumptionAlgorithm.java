@@ -26,6 +26,8 @@ import org.envirocar.core.logging.Logger;
 
 import static org.envirocar.core.entity.Measurement.PropertyKey.*;
 
+import java.util.Arrays;
+
 /**
  *
  * This implements the diesel fuel calculations based on the following parameters:<br/>
@@ -74,7 +76,7 @@ public class DieselConsumptionAlgorithm implements ConsumptionAlgorithm {
 
         if (!measurement.hasProperty(LAMBDA_VOLTAGE_ER)
                 && !measurement.hasProperty(LAMBDA_VOLTAGE)) {
-            throw new FuelConsumptionException("No lambda voltage values available");
+            throw new FuelConsumptionException("No lambda voltage values available", Arrays.asList(LAMBDA_VOLTAGE, LAMBDA_VOLTAGE_ER));
         }
 
         /**

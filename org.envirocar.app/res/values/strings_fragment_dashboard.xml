@@ -37,6 +37,7 @@
 
     <string name="dashboard_dialog_stop_track">Stop Track?</string>
     <string name="dashboard_dialog_stop_track_content">Do you really want to stop the recording and finish the current track?</string>
+    <string name="dashboard_dialog_no_gps_stop_track_content">No GPS signal for %s seconds available. Do you want to stop recording and finish the current track or do you want to wait for another %s seconds?</string>
     <string name="dashboard_dialog_obd_not_found">OBD-II adapter not found</string>
     <string name="dashboard_dialog_obd_not_found_content_template">\'%s\' not found. Please ensure that the OBD-II device is in range and correctly inserted into the OBD-II port of your car.</string>
 

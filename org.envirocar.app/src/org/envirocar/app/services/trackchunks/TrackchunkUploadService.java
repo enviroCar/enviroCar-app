@@ -1,55 +1,47 @@
 package org.envirocar.app.services.trackchunks;
 
 import android.content.Context;
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleObserver;
-import androidx.lifecycle.LifecycleService;
-import androidx.lifecycle.OnLifecycleEvent;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
-import io.reactivex.Observable;
-import io.reactivex.Observer;
-import io.reactivex.Scheduler;
-import io.reactivex.Single;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.observers.DisposableObserver;
-import io.reactivex.schedulers.Schedulers;
+
 import org.envirocar.app.BaseApplicationComponent;
-import org.envirocar.app.R;
 import org.envirocar.app.events.TrackchunkEndUploadedEvent;
 import org.envirocar.app.events.TrackchunkUploadEvent;
 import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.app.handler.TrackDAOHandler;
 import org.envirocar.app.handler.TrackUploadHandler;
 import org.envirocar.app.injection.BaseInjectorService;
-import org.envirocar.app.injection.ScopedBaseInjectorService;
-import org.envirocar.app.interactor.UploadTrack;
+import org.envirocar.app.recording.RecordingState;
+import org.envirocar.app.recording.events.RecordingStateEvent;
 import org.envirocar.core.EnviroCarDB;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.events.TrackFinishedEvent;
 import org.envirocar.core.events.recording.RecordingNewMeasurementEvent;
-import org.envirocar.core.exception.DataCreationFailureException;
-import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.exception.NotConnectedException;
 import org.envirocar.core.exception.UnauthorizedException;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.util.Util;
-import org.envirocar.core.utils.rx.Optional;
-import org.envirocar.remote.dao.RemoteTrackDAO;
 import org.envirocar.remote.serde.MeasurementSerde;
 import org.envirocar.remote.serde.TrackSerde;
 import org.json.JSONException;
 
-import javax.inject.Inject;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
+
+import io.reactivex.Observer;
+import io.reactivex.Scheduler;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.observers.DisposableObserver;
+import io.reactivex.schedulers.Schedulers;
 
 public class TrackchunkUploadService extends BaseInjectorService {
 
@@ -91,9 +83,10 @@ public class TrackchunkUploadService extends BaseInjectorService {
         this.trackDAOHandler = trackDAOHandler;
         measurementSerde = new MeasurementSerde();
         measurements = new ArrayList<>();
-        if(isEnabled){
+        if (isEnabled){
             try {
                 this.eventBus.register(this);
+                LOG.info("TrackchunkUploadService registered to event bus.");
             } catch (IllegalArgumentException e){
                 LOG.error("TrackchunkUploadService was already registered.", e);
             }
@@ -111,8 +104,10 @@ public class TrackchunkUploadService extends BaseInjectorService {
 
             @Override
             public void onNext(Track track) {
+                LOG.info("Received new Track: " + track.getRemoteID());
+                LOG.info("Service already registered Track?: " + executed);
                 TrackchunkUploadService.this.setCar(track.getCar());
-                if(!executed) {
+                if (!executed) {
                     executed = true;
                     try {
                         trackUploadHandler.uploadTrackChunkStart(track)
@@ -214,7 +209,7 @@ public class TrackchunkUploadService extends BaseInjectorService {
                 trackFeatures.add(measurementJson);
             }
         } catch (JSONException e) {
-            e.printStackTrace();
+            LOG.error(e);
         }
         return trackFeatures;
     }
@@ -266,7 +261,10 @@ public class TrackchunkUploadService extends BaseInjectorService {
                 if (isDiesel && (key == Measurement.PropertyKey.CO2 || key == Measurement.PropertyKey.CONSUMPTION)) {
                     // DO NOTHING TODO delete when necessary
                 } else {
-                    result.add(key.toString(), TrackSerde.createValue(props.get(key)));
+                    // do not add key if it is null or NaN
+                    if (props.get(key) != null && props.get(key) != Double.NaN) {
+                        result.add(key.toString(), TrackSerde.createValue(props.get(key)));
+                    }
                 }
             }
         }
@@ -289,12 +287,25 @@ public class TrackchunkUploadService extends BaseInjectorService {
             }
             LOG.info("Delete local track.");
             enviroCarDB.deleteTrack(currentTrack);
-            this.eventBus.post(new TrackchunkEndUploadedEvent());
+            this.eventBus.post(new TrackchunkEndUploadedEvent(currentTrack));
         },5000, TimeUnit.MILLISECONDS);
         try {
             this.eventBus.unregister(this);
         } catch (IllegalArgumentException e){
             LOG.error("TrackchunkUploadService not unregistered.", e);
+        }
+    }
+
+    @Subscribe
+    public void onReceiveRecordingStatedChanged(final RecordingStateEvent event){
+        LOG.info(String.format("onReceiveRecordingStatedChanged(): event=%s", event.toString()));
+        if(isEnabled && currentTrack == null && event.recordingState == RecordingState.RECORDING_STOPPED){
+            try {
+                LOG.info("No valid track available. Unregister TrackchunkUploadService.");
+                this.eventBus.unregister(this);
+            } catch (IllegalArgumentException e){
+                LOG.error("TrackchunkUploadService not unregistered.", e);
+            }
         }
     }
 }

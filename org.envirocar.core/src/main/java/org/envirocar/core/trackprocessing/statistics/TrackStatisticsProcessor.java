@@ -18,6 +18,9 @@
  */
 package org.envirocar.core.trackprocessing.statistics;
 
+import static org.envirocar.core.entity.Measurement.PropertyKey.LAMBDA_VOLTAGE;
+import static org.envirocar.core.entity.Measurement.PropertyKey.LAMBDA_VOLTAGE_ER;
+
 import android.location.Location;
 
 import org.envirocar.core.entity.Car;
@@ -27,6 +30,7 @@ import org.envirocar.core.exception.UnsupportedFuelTypeException;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.trackprocessing.consumption.ConsumptionAlgorithm;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -104,10 +108,8 @@ public class TrackStatisticsProcessor {
             try {
                 consumption += consumptionAlgorithm.calculateConsumption(measurement);
                 consideredCount++;
-            } catch (UnsupportedFuelTypeException e) {
+            } catch (UnsupportedFuelTypeException | FuelConsumptionException e) {
                 LOG.debug(e.getMessage());
-            } catch (FuelConsumptionException e) {
-                // no action required.
             }
         }
 
@@ -115,7 +117,7 @@ public class TrackStatisticsProcessor {
                 consideredCount, measurements.size()));
 
         if (consideredCount <= 0) {
-            throw new FuelConsumptionException("No fuel consumption computation possible. No values with required parameters");
+            throw new FuelConsumptionException("No fuel consumption computation possible. No values with required parameters", Arrays.asList(LAMBDA_VOLTAGE, LAMBDA_VOLTAGE_ER));
         }
 
         return consumption / consideredCount;

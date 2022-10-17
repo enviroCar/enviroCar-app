@@ -93,6 +93,8 @@
     <string name="pref_other">Other</string>
     <string name="pref_settings_title">Settings</string>
 
+    <string name="pref_gps_connection_title">GPS connection duration</string>
+    <string name="pref_gps_connection_summary">GPS connection will be maintained in this time interval. If there is no new GPS location within this time interval, the user will be asked whether the track recording should be stopped. If user takes no action, recording will be stopped automatically after some seconds.</string>
     <string name="pref_gps_mode_ar_title">Automatic Recording (GPS)</string>
     <string name="pref_gps_mode_ar_summary">Activates automatic recording of GPS-based trips based on activity detection mechanisms.\n\nNote: This Android function does not work reliably on some smartphone models.</string>
 
