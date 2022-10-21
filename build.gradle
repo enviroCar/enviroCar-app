@@ -2,8 +2,8 @@ buildscript {
     repositories {
         mavenLocal()
         mavenCentral()
-        maven { url "https://jitpack.io" }
         maven { url "https://plugins.gradle.org/m2/" }
+        maven { url "https://jitpack.io" }
         google()
 
     }
@@ -34,8 +34,9 @@ allprojects {
 
     repositories {
         mavenLocal()
-        maven { url "https://jitpack.io" }
         mavenCentral()
+        maven { url "https://plugins.gradle.org/m2/" }
+        maven { url "https://jitpack.io" }
         google()
         maven {
             url 'https://api.mapbox.com/downloads/v2/releases/maven'
