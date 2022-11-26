@@ -81,7 +81,7 @@ public class SignupActivity extends BaseInjectorActivity {
     private static final Logger LOG = Logger.getLogger(SignupActivity.class);
 
     private static final String EMAIL_REGEX = "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})$";
-    private static final String PASSWORD_REGEX = "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{6,}$";
+    private static final String PASSWORD_REGEX= "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,20}$";
     private static final String USERNAME_REGEX = "^[A-Za-z0-9_-]{6,}$";
     private static final int CHECK_FORM_DELAY = 750;
     private static Drawable errorPassword;
@@ -231,11 +231,11 @@ public class SignupActivity extends BaseInjectorActivity {
 
         if(new ContextInternetAccessProvider(getApplicationContext()).isConnected()) {
             dialog = DialogUtils.createProgressBarDialogBuilder(SignupActivity.this,
-                R.string.register_progress_signing_in,
-                R.drawable.ic_baseline_login_24,
-                (String) null)
-                .setCancelable(false)
-                .show();
+                            R.string.register_progress_signing_in,
+                            R.drawable.ic_baseline_login_24,
+                            (String) null)
+                    .setCancelable(false)
+                    .show();
         }
 
         registerSubscription = backgroundWorker.schedule(() -> {
@@ -249,7 +249,7 @@ public class SignupActivity extends BaseInjectorActivity {
                     mainThreadWorker.schedule(() -> {
                         // Dismiss the progress dialog.
                         if(new ContextInternetAccessProvider(getApplicationContext()).isConnected())
-                        dialog.dismiss();
+                            dialog.dismiss();
 
                         new MaterialAlertDialogBuilder(SignupActivity.this, R.style.MaterialDialog)
                                 .setTitle(R.string.register_success_dialog_title)
@@ -268,7 +268,7 @@ public class SignupActivity extends BaseInjectorActivity {
                     });
                 }else{
                     if(new ContextInternetAccessProvider(getApplicationContext()).isConnected())
-                    dialog.dismiss();
+                        dialog.dismiss();
                     showSnackbar(getString(R.string.error_not_connected_to_network));
                 }
             } catch (ResourceConflictException e) {
@@ -400,7 +400,7 @@ public class SignupActivity extends BaseInjectorActivity {
         if (password == null || password.isEmpty() || password.equals("")) {
             password1EditText.setError(getString(R.string.error_field_required), errorPassword);
             isValidPassword = false;
-        } else if (password.length() < 6) {
+        } else if (password.length() < 8) {
             password1EditText.setError(getString(R.string.error_invalid_password), errorPassword);
             isValidPassword = false;
         } else if (!Pattern.matches(PASSWORD_REGEX, password)) {
