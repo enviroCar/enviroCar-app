@@ -318,9 +318,10 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
                         for (Car car : cars) {
                             if (!usedCars.contains(car)) {
                                 LOG.info("Adding car: " + car);
-                                mCarListAdapter.addCarItem(car);
+                                usedCars.add(car);
                             }
                         }
+                        mCarListAdapter.notifyDataSetInvalidated();
                     }
 
                 });
