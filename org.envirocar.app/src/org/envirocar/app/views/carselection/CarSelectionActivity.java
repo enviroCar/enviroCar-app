@@ -19,7 +19,6 @@
 package org.envirocar.app.views.carselection;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -27,12 +26,13 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
@@ -84,8 +84,8 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
     @BindView(R.id.activity_car_selection_new_car_fab)
     protected FloatingActionButton mFab;
 
-    @BindView(R.id.activity_car_selection_layout_carlist)
-    protected ListView mCarListView;
+    @BindView(R.id.activity_car_selection_layout_car_recycler)
+    protected RecyclerView mCarListView;
 
     @Inject
     protected DAOProvider mDAOProvider;
@@ -106,7 +106,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
     protected View headerView;
 
     private CarSelectionAddCarFragment addCarFragment;
-    private CarSelectionListAdapter mCarListAdapter;
+    private CarSelectionRecyclerAdapter mCarRecyclerAdapter;
     private Disposable loadingCarsSubscription;
 
 
@@ -225,56 +225,57 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
         Car selectedCar = mCarManager.getCar();
         List<Car> usedCars = new ArrayList<>();
 
-        mCarListAdapter = new CarSelectionListAdapter(this, selectedCar, usedCars,
-                new CarSelectionListAdapter.OnCarListActionCallback() {
+        mCarRecyclerAdapter = new CarSelectionRecyclerAdapter(this, selectedCar, usedCars, new CarSelectionRecyclerAdapter.OnCarListActionCallback() {
 
-                    @Override
-                    public void onSelectCar(Car car) {
-                        Car selectedCar = mCarManager.getCar();
-                        mCarManager.setCar(car);
-                        mCarListAdapter.notifyDataSetChanged();
+            @Override
+            public void onSelectCar(Car car) {
+                Car selectedCar = mCarManager.getCar();
+                mCarManager.setCar(car);
+                mCarRecyclerAdapter.notifyDataSetChanged();
 
-                        // Show Snackbar.
-                        if (!car.equals(selectedCar)) {
-                            showSnackbar(String.format(getString(R.string.car_selection_car_selected),
-                                    car.getManufacturer(), car.getModel()));
-                        }
-                    }
+                // Show Snackbar.
+                if (!car.equals(selectedCar)) {
+                    showSnackbar(String.format(getString(R.string.car_selection_car_selected),
+                            car.getManufacturer(), car.getModel()));
+                }
+            }
 
-                    @Override
-                    public void onDeleteCar(Car car, RadioButton mSelectedButton) {
-                        LOG.info(String.format("onDeleteCar(%s %s %s %s)",
-                                car.getManufacturer(), car.getModel(),
-                                "" + car.getConstructionYear(),
-                                "" + car.getEngineDisplacement()));
+            @Override
+            public void onDeleteCar(Car car, RadioButton mSelectedButton) {
+                LOG.info(String.format("onDeleteCar(%s %s %s %s)",
+                        car.getManufacturer(), car.getModel(),
+                        "" + car.getConstructionYear(),
+                        "" + car.getEngineDisplacement()));
 
-                        // Create a dialog to confirm the car deletion
-                        new MaterialAlertDialogBuilder(CarSelectionActivity.this, R.style.MaterialDialog)
-                                .setTitle(R.string.car_deselection_dialog_delete_pairing_title)
-                                .setMessage(String.format(getString(R.string.car_deselection_dialog_delete_pairing_content_template),
-                                        car.getManufacturer(), car.getModel()))
-                                .setIcon(R.drawable.ic_drive_eta_white_24dp)
-                                .setPositiveButton(R.string.car_deselection_dialog_delete_title, (dialog, which) -> {
-                                    // If the car has been removed successfully...
-                                    if (mCarManager.removeCar(car)) {
-                                        showSnackbar(String.format(
-                                                getString(R.string.car_selection_car_deleted_tmp),
-                                                car.getManufacturer(), car.getModel()));
-                                        if (!mCarManager.hasCars()) {
-                                            showBackgroundImage();
-                                        }
-                                    }
-                                    if (mSelectedButton != null) {
-                                        mSelectedButton.setChecked(false);
-                                    }
-                                    // then remove it from the list and show a snackbar.
-                                    mCarListAdapter.removeCarItem(car);// Nothing to do on cancel
-                                })
-                                .setNegativeButton(R.string.cancel,null)
-                                .show();
-                    }
-                });
-        mCarListView.setAdapter(mCarListAdapter);
+                // Create a dialog to confirm the car deletion
+                new MaterialAlertDialogBuilder(CarSelectionActivity.this, R.style.MaterialDialog)
+                        .setTitle(R.string.car_deselection_dialog_delete_pairing_title)
+                        .setMessage(String.format(getString(R.string.car_deselection_dialog_delete_pairing_content_template),
+                                car.getManufacturer(), car.getModel()))
+                        .setIcon(R.drawable.ic_drive_eta_white_24dp)
+                        .setPositiveButton(R.string.car_deselection_dialog_delete_title, (dialog, which) -> {
+                            // If the car has been removed successfully...
+                            if (mCarManager.removeCar(car)) {
+                                showSnackbar(String.format(
+                                        getString(R.string.car_selection_car_deleted_tmp),
+                                        car.getManufacturer(), car.getModel()));
+                                if (!mCarManager.hasCars()) {
+                                    showBackgroundImage();
+                                }
+                            }
+                            if (mSelectedButton != null) {
+                                mSelectedButton.setChecked(false);
+                            }
+                            // then remove it from the list and show a snackbar.
+                            mCarRecyclerAdapter.removeCarItem(car);// Nothing to do on cancel
+                        })
+                        .setNegativeButton(R.string.cancel,null)
+                        .show();
+            }
+        });
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
+        mCarListView.setLayoutManager(layoutManager);
+        mCarListView.setAdapter(mCarRecyclerAdapter);
 
         loadingCarsSubscription = mCarManager.getAllDeserializedCars()
                 .flatMap(cars -> {
@@ -299,8 +300,8 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
                     public void onComplete() {
                         LOG.info("onCompleted() loading of all cars");
                         loadingView.setVisibility(View.INVISIBLE);
-                        mCarListAdapter.notifyDataSetChanged();
-                        if (mCarListAdapter.getCount() > 0) {
+                        mCarRecyclerAdapter.notifyDataSetChanged();
+                        if (mCarRecyclerAdapter.getItemCount() > 0) {
                             headerView.setVisibility(View.VISIBLE);
                             ECAnimationUtils.animateHideView(CarSelectionActivity.this, infoBackground, R.anim.fade_out);
                         }
@@ -318,7 +319,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
                         for (Car car : cars) {
                             if (!usedCars.contains(car)) {
                                 LOG.info("Adding car: " + car);
-                                mCarListAdapter.addCarItem(car);
+                                mCarRecyclerAdapter.addCarItem(car,mCarManager.getCar());
                             }
                         }
                     }
@@ -365,8 +366,6 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
         LOG.info("onCarAdded(Car)");
 
         if (mCarManager.addCar(car)) {
-            mCarListAdapter.addCarItem(car);
-
             headerView.setVisibility(View.VISIBLE);
             ECAnimationUtils.animateHideView(this, infoBackground, R.anim.fade_out);
 
@@ -374,11 +373,14 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
                     car.getManufacturer(), car.getModel()));
 
             // Check the total Cars count after adding, if only 1 car then set it.
-            int count = mCarListAdapter.getCount();
-            if(count == 1) {
+            int count = mCarRecyclerAdapter.getItemCount();
+            if(count == 0) {
                 mCarManager.setCar(car);
                 showSnackbar(String.format(getString(R.string.car_selection_car_selected_after_add),
                         car.getManufacturer(), car.getModel()));
+                mCarRecyclerAdapter.addCarItem(car,car);
+            } else {
+                mCarRecyclerAdapter.addCarItem(car,mCarManager.getCar());
             }
         } else {
             showSnackbar(String.format(getString(R.string.car_selection_already_in_list_tmp),

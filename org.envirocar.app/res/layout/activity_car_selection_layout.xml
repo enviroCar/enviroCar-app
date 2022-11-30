@@ -20,6 +20,7 @@
 
 -->
 <androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_car_selection_layout_content"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -96,11 +97,11 @@
                         <!--android:visibility="invisible"/>-->
                 </LinearLayout>
 
-                <ListView
-                    android:id="@+id/activity_car_selection_layout_carlist"
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/activity_car_selection_layout_car_recycler"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:choiceMode="singleChoice"
+                    tools:listitem="@layout/activity_car_selection_layout_carlist_entry"
                     android:divider="#00000000"
                     android:padding="@dimen/spacing_medium"/>
 
