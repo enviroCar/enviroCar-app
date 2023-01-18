@@ -22,11 +22,13 @@ import org.envirocar.core.EnviroCarDB;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
+import org.envirocar.core.entity.TrackImpl;
 import org.envirocar.core.events.TrackFinishedEvent;
 import org.envirocar.core.events.recording.RecordingNewMeasurementEvent;
 import org.envirocar.core.exception.NotConnectedException;
 import org.envirocar.core.exception.UnauthorizedException;
 import org.envirocar.core.logging.Logger;
+import org.envirocar.core.trackprocessing.statistics.TrackStatisticsProcessor;
 import org.envirocar.core.util.Util;
 import org.envirocar.remote.serde.MeasurementSerde;
 import org.envirocar.remote.serde.TrackSerde;
@@ -165,7 +167,13 @@ public class TrackchunkUploadService extends BaseInjectorService {
         measurements.add(event.mMeasurement);
         LOG.info("received new measurement" + this);
         if(measurements.size() > MEASUREMENT_THRESHOLD && currentTrack != null && currentTrack.getRemoteID() != null) {
-           List<Measurement> measurementsCopy = new ArrayList<>(measurements.size() + 1);
+            if (currentTrack.getMeasurements().size() == 1) {
+                currentTrack.addMeasurements(measurements.subList(1, measurements.size()));
+            }
+            else {
+                currentTrack.addMeasurements(measurements);
+            }
+            List<Measurement> measurementsCopy = new ArrayList<>(measurements.size() + 1);
             measurementsCopy.addAll(measurements);
             JsonArray trackFeatures = createMeasurementJson(measurementsCopy);
             LOG.info("trackFeatures" + trackFeatures);

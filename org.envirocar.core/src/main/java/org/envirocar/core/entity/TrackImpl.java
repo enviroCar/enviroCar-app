@@ -300,6 +300,11 @@ public class TrackImpl implements Track, TrackStatisticsProvider {
     }
 
     @Override
+    public void addMeasurements(List<Measurement> measurements) {
+        this.measurements.addAll(measurements);
+    }
+
+    @Override
     public boolean hasProperty(Measurement.PropertyKey propertyKey) {
         for (Measurement m : measurements) {
             if (m.hasProperty(propertyKey)) {

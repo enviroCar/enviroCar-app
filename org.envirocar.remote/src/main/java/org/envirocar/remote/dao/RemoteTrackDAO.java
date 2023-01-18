@@ -25,6 +25,7 @@ import com.google.gson.JsonObject;
 import org.envirocar.core.UserManager;
 import org.envirocar.core.dao.TrackDAO;
 import org.envirocar.core.entity.Track;
+import org.envirocar.core.entity.TrackImpl;
 import org.envirocar.core.exception.*;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.remote.service.EnviroCarService;
@@ -411,6 +412,7 @@ public class RemoteTrackDAO extends BaseRemoteDAO<TrackDAO, TrackService> implem
         }
 
         track.setTrackStatus(Track.TrackStatus.FINISHED);
+        track.setLength(((TrackImpl) track).getDistanceOfTrack());
 
         //remove measurements
         track.setMeasurements(new ArrayList<>());
