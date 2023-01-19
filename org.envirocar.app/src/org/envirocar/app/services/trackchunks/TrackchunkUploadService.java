@@ -111,23 +111,23 @@ public class TrackchunkUploadService extends BaseInjectorService {
                     executed = true;
                     try {
                         trackUploadHandler.uploadTrackChunkStart(track)
-                        .subscribeWith(new DisposableObserver<Track>() {
-                            @Override
-                            public void onNext(Track track) {
-                                currentTrack = track;
-                                LOG.info("Track remote id: " + currentTrack.getRemoteID());
-                            }
-    
-                            @Override
-                            public void onError(Throwable e) {
-                                LOG.error(e);
-                                TrackchunkUploadService.this.eventBus.unregister(TrackchunkUploadService.this);
-                            }
-    
-                            @Override
-                            public void onComplete() {
-                            }
-                        });
+                                .subscribeWith(new DisposableObserver<Track>() {
+                                    @Override
+                                    public void onNext(Track track) {
+                                        currentTrack = track;
+                                        LOG.info("Track remote id: " + currentTrack.getRemoteID());
+                                    }
+
+                                    @Override
+                                    public void onError(Throwable e) {
+                                        LOG.error(e);
+                                        TrackchunkUploadService.this.eventBus.unregister(TrackchunkUploadService.this);
+                                    }
+
+                                    @Override
+                                    public void onComplete() {
+                                    }
+                                });
                     } catch (Exception e) {
                         LOG.error(e);
                         TrackchunkUploadService.this.eventBus.unregister(TrackchunkUploadService.this);
