@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.Scheduler;
 import io.reactivex.disposables.Disposable;
@@ -50,6 +51,10 @@ public class TrackchunkUploadService extends BaseInjectorService {
     private static final Logger LOG = Logger.getLogger(TrackchunkUploadService.class);
 
     private static final int MEASUREMENT_THRESHOLD = 10;
+
+    private static final int MAX_RETRIES = 6;
+
+    private static final int RETRY_DURATION = 10; // in seconds
 
     private final Scheduler.Worker mMainThreadWorker = Schedulers.io().createWorker();
 
@@ -113,23 +118,41 @@ public class TrackchunkUploadService extends BaseInjectorService {
                     executed = true;
                     try {
                         trackUploadHandler.uploadTrackChunkStart(track)
-                        .subscribeWith(new DisposableObserver<Track>() {
-                            @Override
-                            public void onNext(Track track) {
-                                currentTrack = track;
-                                LOG.info("Track remote id: " + currentTrack.getRemoteID());
-                            }
-    
-                            @Override
-                            public void onError(Throwable e) {
-                                LOG.error(e);
-                                TrackchunkUploadService.this.eventBus.unregister(TrackchunkUploadService.this);
-                            }
-    
-                            @Override
-                            public void onComplete() {
-                            }
-                        });
+                                .retryWhen(errors -> {
+                                    int [] count = {1};
+                                    return errors
+                                            .flatMap(err -> {
+                                                if (count[0] < MAX_RETRIES) {
+                                                    LOG.warn(String.format("Failing attempt (no. %s) for " +
+                                                            "uploading track chunk start. Will retry " +
+                                                            "in %s seconds.", count[0], RETRY_DURATION));
+                                                    count[0]++;
+                                                    return Observable.timer(RETRY_DURATION, TimeUnit.SECONDS);
+                                                } else {
+                                                    LOG.warn("Reached maximum number of failing attempts " +
+                                                            "for uploading track chunk start. Will not try again.");
+                                                    return Observable.error(err);
+                                                }
+
+                                            });
+                                })
+                                .subscribeWith(new DisposableObserver<Track>() {
+                                    @Override
+                                    public void onNext(Track track) {
+                                        currentTrack = track;
+                                        LOG.info("Track remote id: " + currentTrack.getRemoteID());
+                                    }
+
+                                    @Override
+                                    public void onError(Throwable e) {
+                                        LOG.error(e);
+                                        TrackchunkUploadService.this.eventBus.unregister(TrackchunkUploadService.this);
+                                    }
+
+                                    @Override
+                                    public void onComplete() {
+                                    }
+                                });
                     } catch (Exception e) {
                         LOG.error(e);
                         TrackchunkUploadService.this.eventBus.unregister(TrackchunkUploadService.this);
