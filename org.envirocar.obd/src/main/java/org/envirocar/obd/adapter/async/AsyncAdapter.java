@@ -107,9 +107,11 @@ public abstract class AsyncAdapter implements OBDAdapter {
                     }
 
                 } catch (IOException e) {
-                    emitter.onError(e);
+                    if (!emitter.isDisposed())
+                        emitter.onError(e);
                 } catch (StreamFinishedException e) {
-                    emitter.onError(e);
+                    if (!emitter.isDisposed())
+                        emitter.onError(e);
                 } catch (InvalidCommandResponseException e) {
                     LOGGER.warn(e.getMessage(), e);
                 } catch (NoDataReceivedException e) {
