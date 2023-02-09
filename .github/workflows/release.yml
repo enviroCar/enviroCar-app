@@ -30,3 +30,4 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         tag_name: v2.2.4-SNAPSHOT
+        files: org.envirocar.app/build/outputs/apk/debug/org.envirocar.app-debug.apk
