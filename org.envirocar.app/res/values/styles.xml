@@ -21,10 +21,11 @@
 -->
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <style name="enviroCar.Toolbar" parent="Theme.MaterialComponents.Light.DarkActionBar">
+    <style name="enviroCar.Toolbar" parent="Theme.Material3.Light">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">50dp</item>
         <item name="android:background">@color/blue_dark_cario</item>
+        <item name="colorSecondaryContainer">@color/blue_dark_cario</item>
         <item name="android:textColorPrimary">@color/white</item>
         <item name="android:textColorSecondary">@color/white</item>
         <item name="actionMenuTextColor">@color/white</item>
@@ -37,7 +38,7 @@
         <item name="android:paddingRight">@dimen/spacing_large</item>
     </style>
 
-    <style name="Widget.enviroCar.Fab" parent="Widget.MaterialComponents.FloatingActionButton">
+    <style name="Widget.enviroCar.Fab" parent="Widget.Material3.FloatingActionButton.Primary">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_margin">@dimen/fab_margin_16</item>
