@@ -10,6 +10,8 @@ import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.BaseApplicationComponent;
+import org.envirocar.app.recording.RecordingError;
+import org.envirocar.app.recording.events.RecordingErrorEvent;
 import org.envirocar.app.events.TrackchunkEndUploadedEvent;
 import org.envirocar.app.events.TrackchunkUploadEvent;
 import org.envirocar.app.handler.ApplicationSettings;
@@ -22,13 +24,11 @@ import org.envirocar.core.EnviroCarDB;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
-import org.envirocar.core.entity.TrackImpl;
 import org.envirocar.core.events.TrackFinishedEvent;
 import org.envirocar.core.events.recording.RecordingNewMeasurementEvent;
 import org.envirocar.core.exception.NotConnectedException;
 import org.envirocar.core.exception.UnauthorizedException;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.core.trackprocessing.statistics.TrackStatisticsProcessor;
 import org.envirocar.core.util.Util;
 import org.envirocar.remote.serde.MeasurementSerde;
 import org.envirocar.remote.serde.TrackSerde;
@@ -146,6 +146,7 @@ public class TrackchunkUploadService extends BaseInjectorService {
                                     @Override
                                     public void onError(Throwable e) {
                                         LOG.error(e);
+                                        eventBus.post(new RecordingErrorEvent(RecordingError.TRACK_UPLOAD_FAILURE, "Uploading track chunk start failed."));
                                         TrackchunkUploadService.this.eventBus.unregister(TrackchunkUploadService.this);
                                     }
 
