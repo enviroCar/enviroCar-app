@@ -40,7 +40,7 @@ import org.envirocar.app.R;
 import org.envirocar.app.events.AvrgSpeedUpdateEvent;
 import org.envirocar.app.events.DistanceValueUpdateEvent;
 import org.envirocar.app.events.DrivingDetectedEvent;
-import org.envirocar.app.events.GpsNotChangedEvent;
+import org.envirocar.app.recording.events.RecordingErrorEvent;
 import org.envirocar.app.events.StartingTimeEvent;
 import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.app.handler.TrackRecordingHandler;
@@ -73,6 +73,7 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
 
     private static final String PREF_SELECTED_VIEW = "pref_selected_view";
     private static final DecimalFormat DECIMAL_FORMATTER = new DecimalFormat("###.#");
+    private static final String RECORDING_ERROR_EXTRA_DATA_KEY = "GPS_ERROR_SECONDS";
     /**
      * Starts the activity.
      *
@@ -249,9 +250,37 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
     }
 
     @Subscribe
-    public void onGpsNotChangedEvent(GpsNotChangedEvent event){
-        LOG.info("Received event: %s", event.toString());
-        String secondsText = String.valueOf(event.getSeconds());
+    public void onRecordingEvent(RecordingErrorEvent event) {
+        switch (event.getErrorType()) {
+            case NO_GPS:
+                handleGpsNotChangedEvent(event);
+                break;
+            case TRACK_UPLOAD_FAILURE:
+                handleTrackchunkUploadErrorEvent(event);
+                break;
+            default:
+                LOG.warn(String.format("Received error event, which has no handle strategy. Error message: %s",
+                        event.getErrorMessage()));
+
+        }
+    }
+
+    private void handleTrackchunkUploadErrorEvent(RecordingErrorEvent event) {
+        LOG.info("Received recording error event: %s", event.getErrorType().toString());
+        runOnUiThread(() -> new MaterialAlertDialogBuilder(this,R.style.MaterialDialog)
+                .setTitle(R.string.dashboard_dialog_stop_recording)
+                .setMessage(R.string.dashboard_dialog_trackchunk_upload_error_content)
+                .setIcon(R.drawable.ic_outline_stop_circle_24)
+                .setPositiveButton(R.string.finish,(dialog, which) -> {
+                    trackRecordingHandler.finishCurrentTrack();
+                    finish();
+                })
+                .show());
+    }
+
+    private void handleGpsNotChangedEvent(RecordingErrorEvent event){
+        LOG.info("Received recording error event: %s", event.getErrorType().toString());
+        String secondsText = event.getExtraData().get(RECORDING_ERROR_EXTRA_DATA_KEY);
         String message = String.format(getString(R.string.dashboard_dialog_no_gps_stop_track_content),
                 secondsText, secondsText);
         runOnUiThread(() -> new MaterialAlertDialogBuilder(this,R.style.MaterialDialog)

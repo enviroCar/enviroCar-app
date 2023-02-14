@@ -139,6 +139,14 @@ public class TrackSerde extends AbstractJsonSerde implements JsonSerializer<Trac
                 src.getDescription());
         trackProperties.addProperty(Track.KEY_TRACK_SENSOR, src.getCar().getId());
         trackProperties.addProperty(Track.KEY_TRACK_STATUS, src.getTrackStatus().name());
+        
+        if (src.getLength() != null && src.getLength() > 0.0) {
+            trackProperties.addProperty(Track.KEY_TRACK_LENGTH, src.getLength());
+        }
+        else {
+            LOG.debug("Track length not included: " + src.getLength());
+        }
+        
 
         try {
             if (src.getMetadata() != null) {

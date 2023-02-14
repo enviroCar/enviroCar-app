@@ -40,11 +40,12 @@ import com.squareup.otto.Subscribe;
 import org.envirocar.algorithm.MeasurementProvider;
 import org.envirocar.app.BuildConfig;
 import org.envirocar.app.events.DrivingDetectedEvent;
-import org.envirocar.app.events.GpsNotChangedEvent;
 import org.envirocar.app.events.TrackRecordingContinueEvent;
 import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.app.handler.preferences.CarPreferenceHandler;
+import org.envirocar.app.recording.RecordingError;
 import org.envirocar.app.recording.RecordingState;
+import org.envirocar.app.recording.events.RecordingErrorEvent;
 import org.envirocar.app.recording.provider.LocationProvider;
 import org.envirocar.app.recording.provider.TrackDatabaseSink;
 import org.envirocar.app.services.trackchunks.TrackchunkUploadService;
@@ -77,6 +78,7 @@ import io.reactivex.schedulers.Schedulers;
 public class GPSRecordingStrategy implements LifecycleObserver, RecordingStrategy {
     private static final Logger LOG = Logger.getLogger(GPSRecordingStrategy.class);
     private static final String TRANSITIONS_RECEIVER_ACTION = BuildConfig.APPLICATION_ID + "TRANSITIONS_RECEIVER_ACTION";
+    private static final String RECORDING_ERROR_EXTRA_DATA_KEY = "GPS_ERROR_SECONDS";
 
     // final injected variables
     private final Context context;
@@ -399,7 +401,10 @@ public class GPSRecordingStrategy implements LifecycleObserver, RecordingStrateg
 
         private final Runnable gpsNotChangedNotifier = () -> {
             LOG.warn("No GPS values. Connection may be closed.");
-            eventBus.post(new GpsNotChangedEvent(gpsConnectionDuration));
+            RecordingErrorEvent event = new RecordingErrorEvent(RecordingError.NO_GPS,
+                    String.format("GPS connection error. No new GPS values since %s seconds.", gpsConnectionDuration));
+            event.addExtraData(RECORDING_ERROR_EXTRA_DATA_KEY, String.valueOf(gpsConnectionDuration));
+            eventBus.post(event);
             // Just wait for another 30 seconds, whether user decides for continuing recording or not.
             // If there is no decision during this time interval, stop recording
             gpsPendingSubscription = backgroundWorker.schedule(gpsConnectionCloser,

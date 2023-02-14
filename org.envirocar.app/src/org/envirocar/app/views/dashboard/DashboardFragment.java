@@ -660,13 +660,15 @@ public class DashboardFragment extends BaseInjectorFragment {
         Observable.just(event)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(AndroidSchedulers.mainThread())
-                .subscribe(engineNotRunningEveunt -> new MaterialDialog.Builder(getContext())
-                        .title(R.string.dashboard_engine_not_running_dialog_title)
-                        .content(R.string.dashboard_engine_not_running_dialog_content)
-                        .iconRes(R.drawable.ic_error_black_24dp)
-                        .positiveText(R.string.ok)
-                        .cancelable(true)
-                        .show());
+                .subscribe(
+                        engineNotRunningEvent -> new MaterialAlertDialogBuilder(getActivity(), R.style.MaterialDialog)
+                                .setTitle(R.string.dashboard_engine_not_running_dialog_title)
+                                .setMessage(R.string.dashboard_engine_not_running_dialog_content)
+                                .setIcon(R.drawable.ic_error_black_24dp)
+                                .setPositiveButton(R.string.ok, null)
+                                .setCancelable(true)
+                                .show(),
+                        throwable -> LOG.error("Error while showing EngineNotRunningEvent dialog:", throwable));
     }
 
     /**

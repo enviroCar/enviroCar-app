@@ -135,6 +135,8 @@ public interface Track extends BaseEntity<Track>, Comparable<Track> {
 
     void setMeasurements(List<Measurement> measurements);
 
+    void addMeasurements(List<Measurement> measurements);
+
     boolean hasProperty(Measurement.PropertyKey propertyKey);
 
     List<Measurement.PropertyKey> getSupportedProperties();
