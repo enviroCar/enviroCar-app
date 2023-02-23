@@ -275,6 +275,7 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
                     trackRecordingHandler.finishCurrentTrack();
                     finish();
                 })
+                .setCancelable(false)
                 .show());
     }
 
