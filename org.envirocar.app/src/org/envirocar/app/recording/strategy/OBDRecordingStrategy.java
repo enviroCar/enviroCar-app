@@ -476,7 +476,7 @@ public class OBDRecordingStrategy implements RecordingStrategy {
 
         private void scheduleGpsConnection() {
             if (isRunning) {
-                LOG.info("Received GPS Update. No stop required via OBD Connection Recognizer");
+                LOG.info("Received GPS Update. No stop required via GPS Connection Recognizer");
                 if (gpsPendingSubscription != null) {
                     gpsPendingSubscription.dispose();
                     gpsPendingSubscription = null;

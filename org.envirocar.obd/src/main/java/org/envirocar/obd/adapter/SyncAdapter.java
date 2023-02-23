@@ -217,6 +217,7 @@ public abstract class SyncAdapter implements OBDAdapter {
                                 response.getPid(),
                                 response.getValue()));
                         subscriber.onNext(response);
+                        clearFailureCount(latestCommand.getPid());
                     }
                 } catch (IOException e) {
                     if (!subscriber.isDisposed())
@@ -264,6 +265,7 @@ public abstract class SyncAdapter implements OBDAdapter {
                 /**
                  * blacklisted: do not re-add it and return the next candidate
                  */
+                LOGGER.info("Command is on the blocklist: " + cmd.getPid());
                 return pollNextCommand();
             }
         }
@@ -281,6 +283,18 @@ public abstract class SyncAdapter implements OBDAdapter {
         } else {
             AtomicInteger ai = new AtomicInteger(1);
             this.failureMap.put(command, ai);
+        }
+    }
+
+    protected void clearFailureCount(PID command) {
+        if (command == null) {
+            return;
+        }
+
+        if (this.failureMap.containsKey(command)) {
+            if (this.failureMap.get(command).getAndSet(0) > 0) {
+                LOGGER.info("Command recovered from failures: " + cmd.getPid());
+            }
         }
     }
 
