@@ -293,7 +293,7 @@ public abstract class SyncAdapter implements OBDAdapter {
 
         if (this.failureMap.containsKey(command)) {
             if (this.failureMap.get(command).getAndSet(0) > 0) {
-                LOGGER.info("Command recovered from failures: " + cmd.getPid());
+                LOGGER.info("Command recovered from failures: " + command);
             }
         }
     }
