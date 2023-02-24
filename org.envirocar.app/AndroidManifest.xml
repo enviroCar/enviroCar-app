@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="org.envirocar.app"
     android:installLocation="internalOnly"
-    android:versionCode="59"
-    android:versionName="2.2.5"
+    android:versionCode="60"
+    android:versionName="2.2.6"
     >
 
     <uses-permission android:name="android.permission.INTERNET" />
