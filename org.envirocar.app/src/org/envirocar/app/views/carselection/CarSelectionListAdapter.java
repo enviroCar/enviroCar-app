@@ -76,7 +76,7 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
     private final OnCarListActionCallback mCallback;
 
     private Car mSelectedCar;
-    private RadioButton mSelectedButton;
+    public RadioButton mSelectedButton;
 
 
     /**
@@ -185,6 +185,24 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
         return convertView;
     }
 
+    public void setSelectedCar(Car car, CarViewHolder holder) {
+        if(car.equals(mSelectedCar))
+            return;
+
+        // Uncheck the currently checked car.
+        if (mSelectedButton != null) {
+            mSelectedButton.setChecked(false);
+        }
+
+        // Set the new car as selected car type.
+        mSelectedCar = car;
+        mSelectedButton = holder.mRadioButton;
+        mSelectedButton.setChecked(true);
+
+        // Call the callback in order to react accordingly.
+        mCallback.onSelectCar(car);
+    }
+
     /**
      * Adds a new {@link Car} to the list and finally invalidates the lsit.
      *
@@ -192,10 +210,10 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
      */
     protected void addCarItem(Car car) {
         this.add(car);
-        if(this.getCount() == 1) {
-            this.mSelectedCar = car;
-        }
-        notifyDataSetChanged();
+//        if(this.getCount() == 1) {
+//            this.mSelectedCar = car;
+//        }
+//        notifyDataSetChanged();
     }
 
     /**

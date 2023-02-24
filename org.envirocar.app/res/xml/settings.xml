@@ -101,6 +101,18 @@
             android:title="@string/pref_track_cut_duration"
             app:iconSpaceReserved="false" />
     </PreferenceCategory>
+
+    <PreferenceCategory
+            android:title="@string/pref_voice_command"
+            app:iconSpaceReserved="false">
+        <CheckBoxPreference
+                android:defaultValue="false"
+                android:key="@string/prefkey_voice_command"
+                android:summary="@string/pref_enable_voice_command_sub"
+                android:title="@string/pref_enable_voice_command"
+                app:iconSpaceReserved="false" />
+    </PreferenceCategory>
+
     <PreferenceCategory
             android:title="@string/pref_track_chunks"
             app:iconSpaceReserved="false">

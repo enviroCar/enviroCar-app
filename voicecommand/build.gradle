@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
+    id 'kotlin-kapt'
 }
 
 android {
@@ -36,14 +37,16 @@ dependencies {
 
     implementation 'androidx.core:core-ktx:1.6.0'
 
+    // Test
+    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+
     // Aimybox
     implementation rootProject.ext.aimyboxCore
     implementation rootProject.ext.aimyboxComponents
 
-    // Kaldi Speechkit
-    implementation(rootProject.ext.kaldiSpeechkit){
-        exclude group: 'net.java.dev.jna', module: 'jna'
-    }
+    // Pocketsphinx Speechkit
+    implementation rootProject.ext.pocketsphinxSpeechkit
 
     // Google Platform Speechkit
     implementation rootProject.ext.googlePlatformSpeechkit
@@ -51,11 +54,20 @@ dependencies {
     // Rasa Core
     implementation rootProject.ext.rasaApi
 
-    // Vosk Api
-    implementation rootProject.ext.vosk
-    implementation rootProject.ext.devJna
-
     // Coroutines
     implementation rootProject.ext.lifecycleExtension
     implementation rootProject.ext.coroutines
+
+    // Dependency injection, view injection, event bus ...
+    implementation rootProject.ext.dagger
+    annotationProcessor rootProject.ext.daggerCompiler
+    implementation rootProject.ext.otto
+
+
+    // ok https3
+    implementation 'com.google.code.gson:gson:2.8.9'
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.9.0'
+    implementation 'com.squareup.okhttp3:okhttp:4.9.0'
+
+    implementation(files("pocketsphinx-android-lib/pocketsphinx-android-5prealpha-release.aar"))
 }

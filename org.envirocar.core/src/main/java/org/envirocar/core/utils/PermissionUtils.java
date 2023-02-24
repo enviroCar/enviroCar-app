@@ -25,6 +25,8 @@ import android.content.pm.PackageManager;
 
 import androidx.core.app.ActivityCompat;
 
+import org.envirocar.core.logging.Logger;
+
 import io.reactivex.Completable;
 import io.reactivex.functions.Function;
 
@@ -34,7 +36,7 @@ import io.reactivex.functions.Function;
 public class PermissionUtils {
 
     public static final int LOCATION_PERMISSION_REQUEST_CODE = 89;
-    
+
     public static boolean hasLocationPermission(Context Context) {
         return ActivityCompat.checkSelfPermission(Context, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED &&
@@ -75,4 +77,38 @@ public class PermissionUtils {
                 LOCATION_PERMISSION_REQUEST_CODE);
     }
 
+    public static String[] getLocationPermission(Logger log) {
+        log.info("Android SDK version: " + android.os.Build.VERSION.SDK_INT);
+        if (android.os.Build.VERSION.SDK_INT >= 31) {
+            return new String[]{
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+            };
+        } else {
+            return new String[]{
+                    Manifest.permission.ACCESS_FINE_LOCATION
+            };
+        }
+    }
+
+    public static String[] getBluetoothPermissions(Logger log) {
+        log.info("Android SDK version: " + android.os.Build.VERSION.SDK_INT);
+        if (android.os.Build.VERSION.SDK_INT >= 31) {
+            return new String[]{
+                    Manifest.permission.BLUETOOTH_CONNECT,
+                    Manifest.permission.BLUETOOTH_SCAN
+            };
+        } else {
+            return new String[]{
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+            };
+        }
+    }
+
+    public static String[] getMicrophonePermissions() {
+        return new String[]{
+                Manifest.permission.RECORD_AUDIO,
+        };
+    }
 }

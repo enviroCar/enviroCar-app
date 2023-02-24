@@ -21,58 +21,101 @@ package org.envirocar.voicecommand
 import android.app.Activity
 import android.content.Context
 import android.os.Bundle
-import androidx.lifecycle.ViewModelProvider
 import com.example.voicecommand.R
 import com.justai.aimybox.Aimybox
 import com.justai.aimybox.components.AimyboxAssistantViewModel
 import com.justai.aimybox.components.AimyboxProvider
 import com.justai.aimybox.core.Config.Companion.create
-import com.justai.aimybox.dialogapi.rasa.RasaDialogApi
 import com.justai.aimybox.speechkit.google.platform.GooglePlatformSpeechToText
 import com.justai.aimybox.speechkit.google.platform.GooglePlatformTextToSpeech
-import com.justai.aimybox.speechkit.kaldi.KaldiAssets.Companion.fromApkAssets
-import com.justai.aimybox.speechkit.kaldi.KaldiVoiceTrigger
+import com.justai.aimybox.speechkit.pocketsphinx.PocketsphinxAssets
+import com.justai.aimybox.speechkit.pocketsphinx.PocketsphinxRecognizerProvider
+import com.justai.aimybox.speechkit.pocketsphinx.PocketsphinxVoiceTrigger
+import com.squareup.otto.Bus
+import org.envirocar.voicecommand.customskills.EnviroCarRasaCustomSkill
+import org.envirocar.voicecommand.dialogapi.rasa.CustomRasaDialogApi
+import org.envirocar.voicecommand.handler.MetadataHandler
 import java.util.*
 
-class BaseAimybox {
-    fun createAimybox(context: Context): Aimybox {
+
+/**
+ * @author Dhiraj Chauhan
+ */
+
+class BaseAimybox (
+    context: Context,
+    bus: Bus,
+    metadataHandler: MetadataHandler
+) {
+
+    var aimybox: Aimybox
+
+    init {
+        aimybox = createAimybox(context, bus, metadataHandler)
+    }
+
+    private fun createAimybox(
+        context: Context,
+        mBus: Bus,
+        metadataHandler: MetadataHandler
+    ): Aimybox {
 
         // Accessing model from assets folder
-        val assets = fromApkAssets(context, "model/en")
+        val assets = PocketsphinxAssets
+            .fromApkAssets(
+                context,
+                acousticModelFileName = "model/en",
+                dictionaryFileName = "model/en/dictionary.dict"
+            )
+
+        // initializing pocketsphinx provider
+        val provider = PocketsphinxRecognizerProvider(assets, keywordThreshold = 1e-40f)
 
         // initializing trigger words
-        val voiceTrigger = KaldiVoiceTrigger(assets, ArrayList(listOf("listen", "hey car")))
-        val sender = UUID.randomUUID().toString()
-        val webhookUrl = "<webhook URL>/webhooks/rest/webhook"
+        val voiceTrigger = PocketsphinxVoiceTrigger(
+            provider,
+            context.getString(R.string.keyphrase_envirocar_listen)
+        )
 
-        val textToSpeech = GooglePlatformTextToSpeech(context, Locale.getDefault(), false)
-        val speechToText = GooglePlatformSpeechToText(context, Locale.getDefault(), false, 10000L)
+        val textToSpeech = GooglePlatformTextToSpeech(context, Locale.ENGLISH, false)
+        val speechToText = GooglePlatformSpeechToText(context, Locale.ENGLISH, false, 10000L)
 
-        val dialogApi = RasaDialogApi(sender, webhookUrl, LinkedHashSet())
+        val dialogApi = CustomRasaDialogApi(
+            sender, WEBHOOK_URL, linkedSetOf(
+                EnviroCarRasaCustomSkill(metadataHandler, mBus)
+            )
+        )
 
         return Aimybox(create(speechToText, textToSpeech, dialogApi) {
             this.voiceTrigger = voiceTrigger
         }, context)
     }
 
-    fun findAimyboxProvider(activity: Activity): AimyboxProvider? {
-        val application = activity.application
-        return when {
-            activity is AimyboxProvider -> activity
-            application is AimyboxProvider -> application
-            else -> null
+    companion object {
+        private const val ARGUMENTS_KEY = "arguments"
+        private val sender = UUID.randomUUID().toString()
+        private const val WEBHOOK_URL =
+            "https://rasa-server-cdhiraj40.cloud.okteto.net/webhooks/envirocar/webhook"
+
+        fun setInitialPhrase(
+            context: Context,
+            arguments: Bundle?,
+            viewModel: AimyboxAssistantViewModel
+        ) {
+            val initialPhrase = arguments?.getString(ARGUMENTS_KEY)
+                ?: context.getString(R.string.initial_phrase)
+
+            viewModel.setInitialPhrase(initialPhrase)
+
+        }
+
+        fun findAimyboxProvider(activity: Activity): AimyboxProvider? {
+            val application = activity.application
+            return when {
+                activity is AimyboxProvider -> activity
+                application is AimyboxProvider -> application
+                else -> null
+            }
         }
     }
-
-    fun setInitialPhrase(context: Context, arguments: Bundle?, viewModel: AimyboxAssistantViewModel){
-        val initialPhrase = arguments?.getString(ARGUMENTS_KEY)
-            ?: context.getString(R.string.initial_phrase)
-
-        viewModel.setInitialPhrase(initialPhrase)
-    }
-
-    companion object {
-        const val ARGUMENTS_KEY = "arguments"
-    }
-
 }

@@ -32,6 +32,7 @@ import com.justai.aimybox.Aimybox;
 import com.justai.aimybox.components.AimyboxAssistantViewModel;
 import com.justai.aimybox.components.AimyboxProvider;
 import com.mapbox.mapboxsdk.Mapbox;
+import com.squareup.otto.Bus;
 
 import org.acra.ACRA;
 import org.acra.BuildConfig;
@@ -53,15 +54,19 @@ import org.envirocar.remote.service.FuelingService;
 import org.envirocar.remote.service.TermsOfUseService;
 import org.envirocar.remote.service.TrackService;
 import org.envirocar.remote.service.UserService;
+import org.envirocar.voicecommand.BaseAimybox;
+import org.envirocar.voicecommand.handler.MetadataHandler;
 
 import javax.inject.Inject;
 
 import io.reactivex.disposables.CompositeDisposable;
-import org.envirocar.voicecommand.BaseAimybox;
+
+
 
 /**
  * @author dewall
  */
+
 @AcraCore(buildConfigClass = BuildConfig.class, reportSenderFactoryClasses = ACRASenderFactory.class)
 public class BaseApplication extends Application implements AimyboxProvider {
     private static Logger LOG = Logger.getLogger(BaseApplication.class);
@@ -90,6 +95,10 @@ public class BaseApplication extends Application implements AimyboxProvider {
     protected LocationHandler locationHandler;
     @Inject
     protected AutomaticUploadNotificationHandler automaticUploadHandler;
+    @Inject
+    protected MetadataHandler metadataHandler;
+    @Inject
+    protected Bus mBus;
 
     private CompositeDisposable disposables = new CompositeDisposable();
 
@@ -196,7 +205,7 @@ public class BaseApplication extends Application implements AimyboxProvider {
     @NonNull
     @Override
     public Aimybox getAimybox() {
-        return new BaseAimybox().createAimybox(this);
+        return new BaseAimybox(this, mBus, metadataHandler).getAimybox();
     }
 
     @NonNull

@@ -22,6 +22,7 @@
     <string name="pref_obd_recording">OBD Mode</string>
     <string name="pref_gps_recording">GPS Mode</string>
     <string name="pref_track_chunks">Track Chunk Upload</string>
+    <string name="pref_voice_command">Voice Command</string>
 
     <!-- Settings Activity -->
     <string name="pref_settings_general">General Settings</string>
@@ -43,6 +44,13 @@
     <string name="pref_obfuscate_track_summary">Only upload measurements which are taken 250 meter (820 feet) and one minute after start and before end of each track.</string>
     <string name="pref_text_to_speech">Verbal Announcements</string>
     <string name="pref_text_to_speech_summary">Enabling the verbal announcements of specific events, e.g. OBD-II connection established/lost, track finished.</string>
+
+    <!-- Voice Command -->
+    <string name="pref_enable_voice_command">Enable Voice Command</string>
+    <string name="pref_enable_voice_command_sub">Allows you to interact with the application via voice commands, e.g. to start or stop track recording and much more! \n\nNOTE: This feature is just a beta feature.</string>
+    <string name="microphone_permission_granted">Microphone permission granted</string>
+    <string name="microphone_permission_denied">Microphone permission not granted, voice commands feature cannot be used.</string>
+    <string name="grant_permission">Grant</string>
 
     <!-- Track chunks -->
     <string name="pref_track_chunk_upload">Upload while driving</string>

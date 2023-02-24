@@ -11,6 +11,7 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:7.0.3'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.10"
+
     }
 
 }
@@ -129,7 +130,7 @@ ext {
     //Voice command
     def aimyboxVersion = "0.17.5.2"
     aimyboxCore = "com.just-ai.aimybox:core:$aimyboxVersion"
-    kaldiSpeechkit = "com.just-ai.aimybox:kaldi-speechkit:$aimyboxVersion"
+    pocketsphinxSpeechkit = "com.just-ai.aimybox:pocketsphinx-speechkit:$aimyboxVersion"
     googlePlatformSpeechkit = "com.just-ai.aimybox:google-platform-speechkit:$aimyboxVersion"
     rasaApi = "com.just-ai.aimybox:rasa-api:${aimyboxVersion}"
     vosk = "com.alphacephei:vosk-android:0.3.32"

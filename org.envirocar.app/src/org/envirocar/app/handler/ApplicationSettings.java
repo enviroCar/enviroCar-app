@@ -54,6 +54,7 @@ public class ApplicationSettings {
     public static final int DEFAULT_SAMPLING_RATE = 5;
     public static final String DEFAULT_CAMPAIGN_PROFILE = "DEFAULT_COMANND_PROFILE";
     public static final boolean DEFAULT_TRACK_CHUNK_UPLOAD= false;
+    public static final boolean DEFAULT_VOICE_COMMAND= false;
 
 //    // General Settings
 //    public static final String PREF_AUTOMATIC_UPLOAD_OF_TRACKS = "pref_automatic_upload_tracks";
@@ -99,6 +100,11 @@ public class ApplicationSettings {
         return getSharedPreferences(context).getBoolean(s(context, R.string.prefkey_track_chunk_upload), DEFAULT_TRACK_CHUNK_UPLOAD);
     }
 
+
+    public static Boolean isVoiceCommandsEnabled(Context context) {
+        return getSharedPreferences(context).getBoolean(s(context, R.string.prefkey_voice_command), DEFAULT_VOICE_COMMAND);
+    }
+
     public static Observable<Boolean> getObfuscationObservable(Context context) {
         return getRxSharedPreferences(context)
                 .getBoolean(s(context, R.string.prefkey_privacy), false)
@@ -107,6 +113,13 @@ public class ApplicationSettings {
 
     public static boolean isTextToSpeechEnabled(Context context) {
         return getSharedPreferences(context).getBoolean(s(context, R.string.prefkey_text_to_speech), DEFAULT_TEXT_TO_SPEECH);
+    }
+
+    public static void setVoiceCommandPreference(Context context, Boolean value) {
+        getSharedPreferences(context)
+                .edit()
+                .putBoolean(s(context, R.string.prefkey_voice_command), value)
+                .apply();
     }
 
     public static Observable<Boolean> getTextToSpeechObservable(Context context) {

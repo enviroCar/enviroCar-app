@@ -18,7 +18,6 @@
  */
 package org.envirocar.app.recording;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.IBinder;
@@ -40,7 +39,7 @@ import org.envirocar.app.rxutils.RxBroadcastReceiver;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.events.TrackFinishedEvent;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.core.utils.ServiceUtils;
+import org.envirocar.voicecommand.handler.MetadataHandler;
 
 import javax.inject.Inject;
 
@@ -75,7 +74,6 @@ public class RecordingService extends ScopedBaseInjectorService {
     protected LocationProvider locationProvider;
     @Inject
     protected PowerManager.WakeLock wakeLock;
-
 
     private RecordingStrategy recordingStrategy;
     private RecordingNotification recordingNotification;

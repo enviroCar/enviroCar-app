@@ -75,6 +75,7 @@ import org.envirocar.remote.dao.RemoteTrackDAO;
 import org.envirocar.remote.dao.RemoteUserDAO;
 import org.envirocar.remote.dao.RemoteUserStatisticsDAO;
 import org.envirocar.storage.EnviroCarVehicleDB;
+import org.envirocar.voicecommand.handler.MetadataHandler;
 
 import javax.inject.Singleton;
 
@@ -121,6 +122,8 @@ public interface BaseApplicationComponent {
     void inject(OthersFragment othersFragment);
     void inject(CarSelectionHsnTsnFragment hsnTsnFragment);
     void inject(CarSelectionAttributesFragment attributesFragment);
+
+    void inject(MetadataHandler metadataHandler);
 
     // service injections
     void inject(TrackUploadService trackUploadService);

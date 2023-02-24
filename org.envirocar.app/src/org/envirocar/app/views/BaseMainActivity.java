@@ -59,6 +59,7 @@ import org.envirocar.core.events.TrackFinishedEvent;
 import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.utils.ServiceUtils;
+import org.envirocar.voicecommand.handler.MetadataHandler;
 
 import java.util.Stack;
 
@@ -72,7 +73,7 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.observers.DisposableObserver;
 
 /**
- * @authro dewall
+ * @author dewall
  */
 public class BaseMainActivity extends BaseInjectorActivity {
     private static final Logger LOGGER = Logger.getLogger(BaseMainActivity.class);
@@ -108,6 +109,8 @@ public class BaseMainActivity extends BaseInjectorActivity {
     protected Mapbox mapbox;
     @Inject
     protected AgreementManager agreementManager;
+    @Inject
+    protected MetadataHandler metadataHandler;
 
     @Inject
     protected ValidateAcceptedTerms validateTermsOfUse;
@@ -130,12 +133,16 @@ public class BaseMainActivity extends BaseInjectorActivity {
         switch (item.getItemId()) {
             case R.id.navigation_dashboard:
                 viewPager.setCurrentItem(0);
+                metadataHandler.onDashboardFragmentTrue();
                 return true;
-            case R.id.navigation_my_tracks:
+            case R.id.navigation_my_tracks: {
                 viewPager.setCurrentItem(1);
+                metadataHandler.onDashboardFragmentFalse();
                 return true;
+            }
             case R.id.navigation_others:
                 viewPager.setCurrentItem(2);
+                metadataHandler.onDashboardFragmentFalse();
                 return true;
         }
         return false;

@@ -19,8 +19,10 @@
 package org.envirocar.app.views.dashboard;
 
 import static android.app.Activity.RESULT_OK;
+import static org.envirocar.app.views.utils.SnackbarUtil.showGrantMicrophonePermission;
+import static org.envirocar.app.views.utils.SnackbarUtil.showSnackbarLong;
+import static org.envirocar.app.views.utils.SnackbarUtil.showVoiceTriggeredSnackbar;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
@@ -50,7 +52,6 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -58,7 +59,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.core.app.ActivityCompat;
 
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -75,14 +75,13 @@ import com.google.android.play.core.tasks.Task;
 import com.jakewharton.rxbinding3.appcompat.RxToolbar;
 import com.justai.aimybox.Aimybox;
 import com.justai.aimybox.components.AimyboxAssistantViewModel;
-import com.justai.aimybox.components.AimyboxProvider;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
-import org.envirocar.app.handler.agreement.AgreementManager;
 import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.app.handler.BluetoothHandler;
+import org.envirocar.app.handler.agreement.AgreementManager;
 import org.envirocar.app.handler.preferences.UserPreferenceHandler;
 import org.envirocar.app.handler.userstatistics.UserStatisticsUpdateEvent;
 import org.envirocar.app.injection.BaseInjectorFragment;
@@ -94,11 +93,10 @@ import org.envirocar.app.recording.events.RecordingStateEvent;
 import org.envirocar.app.views.carselection.CarSelectionActivity;
 import org.envirocar.app.views.login.SigninActivity;
 import org.envirocar.app.views.obdselection.OBDSelectionActivity;
+import org.envirocar.app.views.others.TermsOfUseActivity;
 import org.envirocar.app.views.recordingscreen.RecordingScreenActivity;
 import org.envirocar.app.views.utils.DialogUtils;
 import org.envirocar.app.views.utils.SizeSyncTextView;
-import org.envirocar.app.views.others.TermsOfUseActivity;
-import org.envirocar.core.entity.TermsOfUse;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.events.NewCarTypeSelectedEvent;
 import org.envirocar.core.events.NewUserSettingsEvent;
@@ -106,20 +104,30 @@ import org.envirocar.core.events.bluetooth.BluetoothDeviceSelectedEvent;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.core.events.gps.GpsStateChangedEvent;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.core.utils.rx.Optional;
 import org.envirocar.core.utils.PermissionUtils;
 import org.envirocar.core.utils.ServiceUtils;
 import org.envirocar.obd.events.TrackRecordingServiceStateChangedEvent;
 import org.envirocar.obd.service.BluetoothServiceState;
 import org.envirocar.voicecommand.BaseAimybox;
+import org.envirocar.voicecommand.BaseAimyboxAssistantViewModel;
+import org.envirocar.voicecommand.enums.MetadataType;
+import org.envirocar.voicecommand.enums.NavigationScreens;
+import org.envirocar.voicecommand.enums.Recording;
+import org.envirocar.voicecommand.enums.RecordingMode;
+import org.envirocar.voicecommand.enums.RecordingRequirements;
+import org.envirocar.voicecommand.events.navigation.NavigationEvent;
+import org.envirocar.voicecommand.events.recording.RecordingRequirementEvent;
+import org.envirocar.voicecommand.events.recording.RecordingTrackEvent;
+import org.envirocar.voicecommand.handler.MetadataHandler;
+import org.envirocar.voicecommand.model.CarSelectionMetadata;
+import org.envirocar.voicecommand.model.ExtraMetadata;
+import org.envirocar.voicecommand.model.RecordingMetadata;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 
 import javax.inject.Inject;
 
@@ -137,14 +145,17 @@ import kotlin.coroutines.CoroutineContext;
 import kotlinx.coroutines.CoroutineScope;
 import kotlinx.coroutines.Dispatchers;
 import kotlinx.coroutines.JobKt;
+import pub.devrel.easypermissions.EasyPermissions;
+import pub.devrel.easypermissions.PermissionRequest;
 
 /**
  * @author dewall
  */
-public class DashboardFragment extends BaseInjectorFragment implements CoroutineScope {
+public class DashboardFragment extends BaseInjectorFragment implements CoroutineScope, EasyPermissions.PermissionCallbacks {
     private static final Logger LOG = Logger.getLogger(DashboardFragment.class);
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1203;
+    public static final int RECORD_AUDIO_PERMISSION_REQ_CODE = 55;
 
     // View Injections
     @BindView(R.id.fragment_dashboard_toolbar)
@@ -230,6 +241,9 @@ public class DashboardFragment extends BaseInjectorFragment implements Coroutine
     @Inject
     protected AgreementManager mAgreementManager;
 
+    @Inject
+    protected MetadataHandler metadataHandler;
+
     private CompositeDisposable disposables;
     private boolean statisticsKnown = false;
 
@@ -292,18 +306,28 @@ public class DashboardFragment extends BaseInjectorFragment implements Coroutine
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
+        // if voice commands feature is turned on then check if the user has microphone permission
+        if (ApplicationSettings.isVoiceCommandsEnabled(getContext())) {
+            checkAndRequestMicrophonePerms();
+        }
+    }
 
-        AimyboxProvider aimyboxProvider = Objects.requireNonNull(
-                new BaseAimybox().findAimyboxProvider(requireActivity()),
-                "Parent Activity or Application must implement AimyboxProvider interface"
-        );
+    @Override
+    public void onViewCreated(@NonNull @NotNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
+        if (viewModel != null) {
+            viewModel.getAimyboxState().observe(getViewLifecycleOwner(), state -> {
+                if (state == Aimybox.State.LISTENING) {
 
-        if (viewModel == null) {
-            viewModel =
-                    new ViewModelProvider(requireActivity(), aimyboxProvider.getViewModelFactory())
-                            .get(AimyboxAssistantViewModel.class);
-
-            new BaseAimybox().setInitialPhrase(context, getArguments(), viewModel);
+                    getMetadata();
+                    showVoiceTriggeredSnackbar(
+                            requireView(),
+                            requireActivity(),
+                            getContext(),
+                            requireActivity().findViewById(R.id.navigation),
+                            userHandler.getUser()
+                    );
+                }
+            });
         }
     }
 
@@ -324,7 +348,10 @@ public class DashboardFragment extends BaseInjectorFragment implements Coroutine
                                 }
                             }
                         });
+
+        getMetadata();
     }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -342,6 +369,58 @@ public class DashboardFragment extends BaseInjectorFragment implements Coroutine
                             BaseTransientBottomBar.LENGTH_LONG).show();
                 }
             }
+        }
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
+    }
+
+    private void initAimyboxViewModel(Context context) {
+        if (viewModel == null) {
+            viewModel = new BaseAimyboxAssistantViewModel().getAimyboxAssistantViewModel(requireActivity());
+            BaseAimybox.Companion.setInitialPhrase(context, getArguments(), viewModel);
+        }
+    }
+
+    public void checkAndRequestMicrophonePerms() {
+        String[] perms = PermissionUtils.getMicrophonePermissions();
+
+        // if the user does not have permission, request it
+        if (!EasyPermissions.hasPermissions(requireContext(), perms)) {
+
+            // Dialog requesting the user for microphone permission.
+            LOG.info("Microphone permissions not given, requesting");
+            EasyPermissions.requestPermissions(
+                    new PermissionRequest.Builder(this, RECORD_AUDIO_PERMISSION_REQ_CODE, perms)
+                            .setRationale(R.string.microphone_permission_voice_command)
+                            .setPositiveButtonText(R.string.grant_permission)
+                            .setNegativeButtonText(R.string.cancel)
+                            .setTheme(R.style.MaterialDialog)
+                            .build());
+        } else {
+            initAimyboxViewModel(requireContext());
+        }
+    }
+
+    @Override
+    public void onPermissionsGranted(int requestCode, @NonNull @NotNull List<String> perms) {
+        // if microphone permission is granted, initialise aimybox.
+        if (requestCode == RECORD_AUDIO_PERMISSION_REQ_CODE) {
+
+            // TODO init the aimybox? or ask for restart to get started with voice commands
+            showSnackbarLong(requireView(), getString(R.string.microphone_permission_granted));
+
+            initAimyboxViewModel(requireContext());
+        }
+    }
+
+    @Override
+    public void onPermissionsDenied(int requestCode, @NonNull @NotNull List<String> perms) {
+        // if permissions are not granted, show toast.
+        if (requestCode == RECORD_AUDIO_PERMISSION_REQ_CODE) {
+            // Disable the voice command feature .
+            ApplicationSettings.setVoiceCommandPreference(requireContext(), false);
+
+            // action opens app's general settings where user can grant microphone/any permission
+            showGrantMicrophonePermission(requireView(), requireContext(), requireActivity());
         }
     }
 
@@ -373,7 +452,6 @@ public class DashboardFragment extends BaseInjectorFragment implements Coroutine
         }
     }
 
-    
 
     private DisposableCompletableObserver onLogoutSubscriber() {
         return new DisposableCompletableObserver() {
@@ -502,24 +580,12 @@ public class DashboardFragment extends BaseInjectorFragment implements Coroutine
             RecordingScreenActivity.navigate(getContext());
             return;
         } else if (!PermissionUtils.hasLocationPermission(getContext())) {
-            String[] perms;
-            if (android.os.Build.VERSION.SDK_INT >= 31) {
-                perms = new String[]{
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-                };
-            }
-            else {
-                perms = new String[]{
-                        Manifest.permission.ACCESS_FINE_LOCATION
-                };
-            }
-            ActivityCompat.requestPermissions(getActivity(), perms,
+            ActivityCompat.requestPermissions(getActivity(), PermissionUtils.getLocationPermission(LOG),
                     LOCATION_PERMISSION_REQUEST_CODE);
         } else if (user == null && ApplicationSettings.isTrackchunkUploadEnabled(getContext())) {
-                // cannot start, we need a user
-                LOG.info("cannot start, login is required for chunk upload feature");
-                Snackbar.make(getView(),
+            // cannot start, we need a user
+            LOG.info("cannot start, login is required for chunk upload feature");
+            Snackbar.make(getView(),
                     getString(R.string.dashboard_track_chunks_enabled_login),
                     Snackbar.LENGTH_LONG).show();
         } else if (user != null) {
@@ -527,29 +593,29 @@ public class DashboardFragment extends BaseInjectorFragment implements Coroutine
             if (ApplicationSettings.isTrackchunkUploadEnabled(getContext())) {
                 LOG.info("chunk upload is enabled, checking TermsOfUse");
                 mAgreementManager.verifyTermsOfUse(null, true)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(termsOfUse -> {
-                        if (termsOfUse != null) {
-                            startRecording();
-                        } else {
-                            LOG.warn("No TermsOfUse received from verification");
-                        }
-                    }, e -> {
-                        LOG.warn("Error during TermsOfUse verification", e);
-                        // inform the user about ToU acceptance
-                        Snackbar sb = Snackbar.make(getView(), String.format(getString(R.string.dashboard_accept_tou), getString(R.string.title_others)), Snackbar.LENGTH_INDEFINITE).setAction("OK", new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                LOG.info("ToU Snackbar closed");
-                                Intent intent = new Intent(getActivity(), TermsOfUseActivity.class);
-                                getActivity().startActivity(intent);
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(termsOfUse -> {
+                            if (termsOfUse != null) {
+                                startRecording();
+                            } else {
+                                LOG.warn("No TermsOfUse received from verification");
                             }
+                        }, e -> {
+                            LOG.warn("Error during TermsOfUse verification", e);
+                            // inform the user about ToU acceptance
+                            Snackbar sb = Snackbar.make(getView(), String.format(getString(R.string.dashboard_accept_tou), getString(R.string.title_others)), Snackbar.LENGTH_INDEFINITE).setAction("OK", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    LOG.info("ToU Snackbar closed");
+                                    Intent intent = new Intent(getActivity(), TermsOfUseActivity.class);
+                                    getActivity().startActivity(intent);
+                                }
+                            });
+                            Snackbar.SnackbarLayout layout = (Snackbar.SnackbarLayout) sb.getView();
+                            layout.setMinimumHeight(100);
+                            sb.show();
                         });
-                        Snackbar.SnackbarLayout layout = (Snackbar.SnackbarLayout) sb.getView();
-                        layout.setMinimumHeight(100);
-                        sb.show();
-                    });
             } else {
                 // we can check the ToUs later before upload
                 LOG.info("A user is logged in, chunk upload is disabled");
@@ -575,9 +641,9 @@ public class DashboardFragment extends BaseInjectorFragment implements Coroutine
                     Intent obdRecordingIntent = new Intent(getActivity(), RecordingService.class);
 
                     this.connectingDialog = DialogUtils.createProgressBarDialogBuilder(getContext(),
-                            R.string.dashboard_connecting,
-                            R.drawable.ic_bluetooth_white_24dp,
-                            String.format(getString(R.string.dashboard_connecting_find_template), device.getName()))
+                                    R.string.dashboard_connecting,
+                                    R.drawable.ic_bluetooth_white_24dp,
+                                    String.format(getString(R.string.dashboard_connecting_find_template), device.getName()))
                             .setNegativeButton(R.string.cancel, (dialog, which) -> {
                                 ServiceUtils.stopService(getActivity(), obdRecordingIntent);
                             })
@@ -612,7 +678,6 @@ public class DashboardFragment extends BaseInjectorFragment implements Coroutine
         }
     }
 
-   
 
     @OnClick(R.id.fragment_dashboard_indicator_car)
     protected void onCarIndicatorClicked() {
@@ -670,6 +735,52 @@ public class DashboardFragment extends BaseInjectorFragment implements Coroutine
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::updateByRecordingState, LOG::error);
+
+        if (metadataHandler.getMetadata() != null && metadataHandler.getMetadata().getRecordingMetadata() != null) {
+            metadataHandler.getMetadata().getRecordingMetadata().setRecording_status(event.recordingState.name());
+        }
+    }
+
+    @Subscribe
+    public void onRecordingTrackEvent(final RecordingTrackEvent event) {
+        LOG.info(String.format("onStartEvent(): event=%s", event.getAction()));
+
+        if (event.getAction() == Recording.START) {
+            onStartTrackButtonClicked();
+        }
+    }
+
+    @Subscribe
+    public void onRecordingRequirementsEvent(final RecordingRequirementEvent event) {
+        LOG.info(String.format("onStartEvent(): event=%s", event.getAction()));
+
+        if (event.getAction() == RecordingRequirements.GPS) {
+            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+            requireActivity().startActivity(intent);
+        } else if (event.getAction() == RecordingRequirements.BLUETOOTH) {
+            bluetoothHandler.enableBluetooth(requireActivity());
+        } else if (event.getAction() == RecordingRequirements.CAR) {
+            onCarIndicatorClicked();
+        } else if (event.getAction() == RecordingRequirements.OBD) {
+            onObdIndicatorClicked();
+        } else if (event.getAction() == RecordingRequirements.LOCATION_PERMS) {
+            ActivityCompat.requestPermissions(requireActivity(), PermissionUtils.getLocationPermission(LOG),
+                    LOCATION_PERMISSION_REQUEST_CODE);
+        } else if (event.getAction() == RecordingRequirements.BLUETOOTH_PERMS) {
+            ActivityCompat.requestPermissions(requireActivity(), PermissionUtils.getBluetoothPermissions(LOG),
+                    LOCATION_PERMISSION_REQUEST_CODE);
+        }
+    }
+
+    @Subscribe
+    public void onNavigationEvent(final NavigationEvent event) {
+        LOG.info(String.format("onStartEvent(): event=%s", event.getAction()));
+
+        if (event.getAction() == NavigationScreens.CAR_SELECTION) {
+            onCarSelectionClicked();
+        } else if (event.getAction() == NavigationScreens.RECORDING) {
+            requireActivity().startActivity(new Intent(getContext(), RecordingScreenActivity.class));
+        }
     }
 
     @Subscribe
@@ -992,5 +1103,35 @@ public class DashboardFragment extends BaseInjectorFragment implements Coroutine
     @Override
     public CoroutineContext getCoroutineContext() {
         return Dispatchers.getMain().plus((CoroutineContext) JobKt.Job(null));
+    }
+
+    public void getMetadata() {
+        final RecordingMode recordingMode =
+                obdModeRadioButton.isChecked() ? RecordingMode.OBD_MODE : RecordingMode.GPS_MODE;
+
+        CarSelectionMetadata carSelectionMetadata = new CarSelectionMetadata(
+                new ArrayList<>(),
+                false
+        );
+        RecordingMetadata recordingMetadata = new RecordingMetadata(
+                RecordingService.RECORDING_STATE.name(),
+                recordingMode.name(),
+                false,
+                this.gpsIndicator.isActivated(),
+                this.carIndicator.isActivated(),
+                this.bluetoothIndicator.isActivated(),
+                this.obdIndicator.isActivated(),
+                PermissionUtils.hasLocationPermission(requireContext()),
+                EasyPermissions.hasPermissions(requireContext(),
+                        PermissionUtils.getBluetoothPermissions(LOG))
+        );
+
+        ExtraMetadata extraMetadata = new ExtraMetadata(
+                MetadataType.RECORDING.name(),
+                true,
+                recordingMetadata,
+                carSelectionMetadata
+        );
+        metadataHandler.setMetadata(extraMetadata);
     }
 }
