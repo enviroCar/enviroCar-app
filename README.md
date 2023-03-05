@@ -54,7 +54,7 @@ Once you have created an account, you will need to configure credentials
 1. This is a secret token, and we will use it in ``gradle.properties`` file. You should not expose the token in public, that's why add ``gradle.properties`` in ``.gitignore`` . It's also possible to store the sercret token in your local user's _gradle.properties_ file, usually stored at _«USER_HOME»/.gradle/gradle.properties_. 
 2. Now open the ``gradle.properties`` file and add this line ``MAPBOX_DOWNLOADS_TOKEN = <your-secret-token> ``. The secret token has to be pasted without any quote marks. 
 ``MAPBOX_DOWNLOADS_TOKEN=sk.dutaksgjdvlsayVDSADUTLASDs@!ahsvdaslud*JVAS@%DLUTSVgdJLA&&>Hdval.sujdvadvasuydgalisy``(this is just a random string, not a real token)
-3. That't it. You are good to go!
+3. That's it. You are good to go!
 
 If you are still facing any problem, checkout the [Mapbox guide](https://docs.mapbox.com/android/maps/guides/install/) or feel free to [create an issue](https://github.com/enviroCar/enviroCar-app/issues/new)
 
