@@ -64,7 +64,7 @@ public class SettingsActivity extends AppCompatActivity {
         private Preference enableGPSMode;
         private Preference gpsTrimDuration;
         private Preference gpsAutoRecording;
-        private Preference resetSetting;
+        private Preference resetToDefault;
 
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -81,7 +81,7 @@ public class SettingsActivity extends AppCompatActivity {
             this.enableGPSMode = findPreference(getString(R.string.prefkey_enable_gps_based_track_recording));
             this.gpsTrimDuration = findPreference(getString(R.string.prefkey_track_trim_duration));
             this.gpsAutoRecording = findPreference(getString(R.string.prefkey_gps_mode_ar));
-            this.resetSetting=findPreference(getString(R.string.reset_settings));
+            this.resetToDefault=findPreference(getString(R.string.reset));
 
             // set initial state
             this.searchInterval.setVisible(((CheckBoxPreference) automaticRecording).isChecked());
@@ -101,12 +101,13 @@ public class SettingsActivity extends AppCompatActivity {
                 gpsAutoRecording.setVisible((boolean) newValue);
                 return true;
             }));
-            this.resetSetting.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            this.resetToDefault.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
                     SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
                     prefs.edit().clear().apply();
                     // Update your UI to reflect the new state of the preferences
+                    getActivity().recreate();
                     return true;
                 }
             });

@@ -155,7 +155,6 @@
     <string name="prefkey_display_always_active" tools:ignore="MissingTranslation">pref_display_always_active</string>
     <string name="prefkey_automatic_upload" tools:ignore="MissingTranslation">pref_automatic_upload</string>
     <string name="prefkey_gps_mode_ar" tools:ignore="MissingTranslation">prefkey_gps_mode_ar</string>
-    <string name="reset_settings" tools:ignore="MissingTranslation">reset_button</string>
     <string name="prefkey_campaign_profile" tools:ignore="MissingTranslation">prefkey_campaign_profile</string>
 
 

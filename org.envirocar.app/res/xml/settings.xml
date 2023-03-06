@@ -22,19 +22,11 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     app:iconSpaceReserved="false">
-
     <Preference
-        android:key="reset_button"
-        android:title="Reset Settings"
-        android:id="@+id/reset_button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Reset Settings"
-        android:textColor="@color/white"
-        android:textStyle="bold"
-        android:padding="16dp"
+        android:key="@string/reset"
+        android:title="@string/reset_to_default"
+        app:iconSpaceReserved="false"
         />
-
     <PreferenceCategory
         android:title="@string/pref_settings_general"
         app:iconSpaceReserved="false">

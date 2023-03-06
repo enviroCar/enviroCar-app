@@ -24,6 +24,8 @@
     <string name="pref_track_chunks">Hochladen während der Fahrt</string>
 
     <!-- Settings Activity -->
+    <string name="reset_to_default">Zurücksetzen</string>
+    <string name="reset">zurücksetzen</string>
     <string name="pref_settings_general">Allgemeine Einstellungen</string>
     <string name="pref_settings_general_summary">Anzeige, Sprachausgabe, automatisches Hochladen ...</string>
     <string name="pref_settings_autoconnect">Verbindungseinstellungen</string>
