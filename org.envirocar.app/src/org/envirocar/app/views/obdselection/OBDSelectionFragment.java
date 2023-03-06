@@ -19,6 +19,7 @@
 package org.envirocar.app.views.obdselection;
 
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.bluetooth.BluetoothDevice;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -119,7 +120,9 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle
             savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-
+        ProgressDialog progressDialog = new ProgressDialog(getContext());
+        progressDialog.setMessage(String.format(getString(R.string.loading)));
+        progressDialog.setCancelable(false);
         // infalte the content view of this activity.
         View contentView = inflater.inflate(R.layout.activity_obd_selection_fragment,
                 container, false);
@@ -128,7 +131,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
         ButterKnife.bind(this, contentView);
 
         // Setup the listviews, its adapters, and its onClick listener.
-        setupListViews();
+        setupListViews(progressDialog);
 
         //        // TODO: very ugly... Instead a dynamic LinearLayout should be used.
         //        setDynamicListHeight(mNewDevicesListView);
@@ -345,7 +348,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
                 });
     }
 
-    private void setupListViews() {
+    private void setupListViews(ProgressDialog progressDialog) {
         BluetoothDevice selectedBTDevice = mBluetoothHandler.getSelectedBluetoothDevice();
 
         // Initialize the array adapter for both list views
@@ -389,7 +392,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
                             (dialog, which) -> {
                                 // If this button is clicked, pair with the given device
                                 view1.setClickable(false);
-                                pairDevice(device, view1);
+                                pairDevice(device, view1,progressDialog);
                             })
                     .setNegativeButton(R.string.cancel, null) // Nothing to do on cancel
                     .show();
@@ -464,7 +467,8 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
      * @param view   the view of the listview entry.
      */
 
-    private void pairDevice(BluetoothDevice device, final View view) {
+    private void pairDevice(BluetoothDevice device, final View view,ProgressDialog progressDialog) {
+        progressDialog.show();
         final TextView text = view.findViewById(R.id
                 .bluetooth_selection_preference_device_list_entry_text);
 
@@ -482,6 +486,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
 
                     @Override
                     public void onPairingError(BluetoothDevice device) {
+                        progressDialog.dismiss();
                         pairingIsRunning = false;
                         if (getActivity() != null) {
                             Toast.makeText(getActivity(),
@@ -494,6 +499,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
 
                     @Override
                     public void onDevicePaired(BluetoothDevice device) {
+                        progressDialog.dismiss();
                         pairingIsRunning = false;
                         // Device is paired. Add it to the array adapter for paired devices and
                         // remove it from the adapter for new devices.
