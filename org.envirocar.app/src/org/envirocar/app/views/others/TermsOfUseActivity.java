@@ -133,7 +133,7 @@ public class TermsOfUseActivity extends BaseInjectorActivity {
             });
 
         // set `isDashboardFragment` to false
-        metadataHandler.makeIsDashboardFragmentFalse();
+        metadataHandler.onDashboardFragmentFalse();
     }
 
     private void initAcceptanceWorkflow() {
