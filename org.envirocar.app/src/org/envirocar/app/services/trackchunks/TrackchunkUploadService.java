@@ -191,12 +191,6 @@ public class TrackchunkUploadService extends BaseInjectorService {
         measurements.add(event.mMeasurement);
         LOG.info("received new measurement" + this);
         if(measurements.size() > MEASUREMENT_THRESHOLD && currentTrack != null && currentTrack.getRemoteID() != null) {
-            if (currentTrack.getMeasurements().size() == 1) {
-                currentTrack.addMeasurements(measurements.subList(1, measurements.size()));
-            }
-            else {
-                currentTrack.addMeasurements(measurements);
-            }
             List<Measurement> measurementsCopy = new ArrayList<>(measurements.size() + 1);
             measurementsCopy.addAll(measurements);
             JsonArray trackFeatures = createMeasurementJson(measurementsCopy);
@@ -207,6 +201,12 @@ public class TrackchunkUploadService extends BaseInjectorService {
                 LOG.error("Could not upload track chunk", e);
                 this.eventBus.post(new TrackchunkUploadEvent(TrackchunkUploadEvent.FAILED));
                 return;
+            }
+            if (currentTrack.getMeasurements().size() == 1) {
+                currentTrack.addMeasurements(measurements.subList(1, measurements.size()));
+            }
+            else {
+                currentTrack.addMeasurements(measurements);
             }
             this.eventBus.post(new TrackchunkUploadEvent(TrackchunkUploadEvent.SUCCESSFUL));
             measurements.clear();
