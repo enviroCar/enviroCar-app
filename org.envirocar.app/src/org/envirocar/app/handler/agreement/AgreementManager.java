@@ -202,7 +202,7 @@ public class AgreementManager {
             LOG.info("Retrieved privacy statement for getUserStatistic [%s] with version [%s]",
                     user.getUsername(), user.getPrivacyStatementVersion());
 
-            boolean hasAccepted = privacyStatement.getIssuedDate().equals(user.getTermsOfUseVersion());
+            boolean hasAccepted = privacyStatement.getIssuedDate().equals(user.getPrivacyStatementVersion());
 
             // if the getUserStatistic has accepted, then just return the statement
             if (hasAccepted) {
