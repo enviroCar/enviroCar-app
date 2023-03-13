@@ -18,12 +18,10 @@
     <uses-permission android:name="android.permission.BLUETOOTH_SCAN"/> -->
 
     <!-- for Android 11 and lower -->
-    <uses-permission
-        android:name="android.permission.BLUETOOTH"
-        android:maxSdkVersion="30" />
-    <uses-permission
-        android:name="android.permission.BLUETOOTH_ADMIN"
-        android:maxSdkVersion="30" />
+    <!-- tools:remove fixes a Xiaomi related permission issue-->
+    <uses-permission android:name="android.permission.BLUETOOTH" tools:remove="android:maxSdkVersion" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" tools:remove="android:maxSdkVersion" />
+
 
     <!-- for Android 12 and above, include the ones you really need -->
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
@@ -114,7 +112,7 @@
         </activity>
         <activity
             android:name=".views.recordingscreen.RecordingScreenActivity"
-            android:launchMode="singleTop"
+            android:launchMode="singleTop"  
             android:screenOrientation="portrait" />
 
         <!-- Services -->

@@ -23,7 +23,7 @@ COPY . /app
 RUN ./gradlew assembleDebug --no-daemon -p org.envirocar.app
 
 # build the image with:
-# docker build --build-arg ORG_GRADLE_PROJECT_MAPBOX_DOWNLOADS_TOKEN=<mapbox-api-token> -t envirocar-app-build:latest -f Dockerfile.build .
+# docker build -t envirocar-app-build:latest -f Dockerfile.build .
 #
 # to copy the final APK from the image to the host path /tmp/envirocar:
 # docker run --rm -v /tmp/envirocar:/mnt/out envirocar-app-build:latest cp /app/org.envirocar.app/build/outputs/apk/debug/org.envirocar.app-debug.apk /mnt/out
