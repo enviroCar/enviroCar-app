@@ -56,7 +56,11 @@ public class CarSerde implements JsonSerializer<Car>, JsonDeserializer<Car> {
             carProperties.addProperty(Car.KEY_CAR_VEHICLETYPE,
                 src.getVehicleType().toString());
         }
-        
+
+        if (src.getEmissionClass() != null) {
+            carProperties.addProperty(Car.KEY_CAR_EMISSION_CLASS,
+                src.getEmissionClass().toString());
+        }
 
         // define the complete json object including type and properties.
         JsonObject carObject = new JsonObject();

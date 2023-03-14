@@ -82,6 +82,8 @@ public class Vehicles {
 
     String vehicleType;
 
+    String emissionClass;
+
     public String getManufacturer_id() {
         return manufacturer_id;
     }
@@ -120,6 +122,14 @@ public class Vehicles {
 
     public void setVehicleType(String type) {
         this.vehicleType = type;
+    }
+
+    public String getEmissionClass() {
+        return emissionClass;
+    }
+
+    public void setEmissionClass(String c) {
+        this.emissionClass = c;
     }
 
     public String getCommerical_name() {

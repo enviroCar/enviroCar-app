@@ -411,6 +411,10 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
 
         result.setWeight(weight);
         result.setVehicleType(vehicleType);
+
+        if (vehicle.getEmissionClass() != null) {
+            result.setEmissionClass(vehicle.getEmissionClass());
+        }
         
         return result;
     }

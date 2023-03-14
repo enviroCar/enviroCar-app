@@ -38,6 +38,7 @@ public class CarImpl implements Car {
     protected int engineDisplacement;
     protected int weight;
     protected VehicleType vehicleType;
+    protected EmissionClass emissionClass;
 
     @Deprecated
     public static double ccmToLiter(int ccm) {
@@ -212,10 +213,25 @@ public class CarImpl implements Car {
         this.vehicleType = vehicleType;
     }
 
+    @Override
+    public EmissionClass getEmissionClass() {
+        return this.emissionClass;
+    }
+
+    @Override
+    public void setEmissionClass(String emissionClass) {
+        this.emissionClass = EmissionClass.resolveEmissionClass(emissionClass);
+    }
+
+    @Override
+    public void setEmissionClass(EmissionClass emissionClass) {
+        this.emissionClass = emissionClass;
+    }
+
 
     @Override
     public String toString() {
-        return String.format("%s %s %d (%s / %dcc; %dkg; type: %s)", manufacturer, model, constructionYear, fuelType, engineDisplacement, weight, vehicleType);
+        return String.format("%s %s %d (%s / %dcc; %dkg; type: %s; emissionClass: %s)", manufacturer, model, constructionYear, fuelType, engineDisplacement, weight, vehicleType, emissionClass);
     }
 
     @Override
@@ -230,12 +246,13 @@ public class CarImpl implements Car {
                 Objects.equals(manufacturer, car.manufacturer) &&
                 weight == car.weight &&
                 Objects.equals(vehicleType, car.vehicleType) &&
-                fuelType == car.fuelType;
+                fuelType == car.fuelType &&
+                Objects.equals(emissionClass, car.emissionClass);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, model, manufacturer, fuelType, constructionYear, engineDisplacement, weight, vehicleType);
+        return Objects.hash(id, model, manufacturer, fuelType, constructionYear, engineDisplacement, weight, vehicleType, emissionClass);
     }
 
     @Override
@@ -249,6 +266,7 @@ public class CarImpl implements Car {
         res.engineDisplacement = engineDisplacement;
         res.weight = weight;
         res.vehicleType = vehicleType;
+        res.emissionClass = emissionClass;
         return res;
     }
 }
