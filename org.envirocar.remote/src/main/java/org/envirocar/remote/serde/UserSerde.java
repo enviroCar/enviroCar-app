@@ -96,7 +96,7 @@ public class UserSerde implements JsonSerializer<User>, JsonDeserializer<User> {
         }
 
         if (userObject.has(User.KEY_USER_PRIVACY_STATEMENT_ACCEPTED)) {
-            String psVersion = userObject.get(User.KEY_USER_TOU_ACCEPTED).getAsString();
+            String psVersion = userObject.get(User.KEY_USER_PRIVACY_STATEMENT_ACCEPTED).getAsString();
             user.setPrivacyStatementVersion(psVersion);
         }
 
