@@ -80,7 +80,7 @@
     <string name="car_selection_emission_euro6c">Euro 6c</string>
     <string name="car_selection_emission_euro6d_temp">Euro 6d-TEMP</string>
     <string name="car_selection_emission_euro6d">Euro 6d</string>
-    <string name="car_selection_emission_euro7">Euro 7</string>
+    <string name="car_selection_emission_euro7">Euro 6a</string>
 
     <string name="car_selection_newcar_title">Auswahl des Fahrzeugs</string>
 

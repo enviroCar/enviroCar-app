@@ -208,7 +208,7 @@ public interface Car extends BaseEntity<Car>, Serializable {
     String EMISSION_CLASS_EURO6C = "Euro 6c";
     String EMISSION_CLASS_EURO6DTEMP = "Euro 6d-TEMP";
     String EMISSION_CLASS_EURO6D = "Euro 6d";
-    String EMISSION_CLASS_EURO7 = "Euro 7";
+    String EMISSION_CLASS_EURO6A = "Euro 6a";
     
     
     interface EmissionClassStrings {
@@ -316,14 +316,14 @@ public interface Car extends BaseEntity<Car>, Serializable {
                 return EMISSION_CLASS_EURO6D;
             }
         },
-        EURO7 {
+        EURO6A {
             @Override
             public int getStringResource() {
                 return R.string.car_selection_emission_euro7;
             }
 
             public String toString() {
-                return EMISSION_CLASS_EURO7;
+                return EMISSION_CLASS_EURO6A;
             }
         },
         ;
@@ -353,8 +353,8 @@ public interface Car extends BaseEntity<Car>, Serializable {
                 return EURO6DTEMP;
             } else if (emissionClass.equals(EURO6D.toString())) {
                 return EURO6D;
-            } else if (emissionClass.equals(EURO7.toString())) {
-                return EURO7;
+            } else if (emissionClass.equals(EURO6A.toString())) {
+                return EURO6A;
             }
             
             return null;
