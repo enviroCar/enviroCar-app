@@ -319,7 +319,7 @@ public interface Car extends BaseEntity<Car>, Serializable {
         EURO6A {
             @Override
             public int getStringResource() {
-                return R.string.car_selection_emission_euro7;
+                return R.string.car_selection_emission_euro6a;
             }
 
             public String toString() {

@@ -160,7 +160,7 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
             getContext().getString(R.string.car_selection_emission_euro6c),
             getContext().getString(R.string.car_selection_emission_euro6d_temp),
             getContext().getString(R.string.car_selection_emission_euro6d),
-            getContext().getString(R.string.car_selection_emission_euro7)
+            getContext().getString(R.string.car_selection_emission_euro6a)
         };
 
         ArrayAdapter<String> emissionClassAdapter = new ArrayAdapter<>(
@@ -303,7 +303,7 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
                 R.string.car_selection_emission_euro6c,
                 R.string.car_selection_emission_euro6d_temp,
                 R.string.car_selection_emission_euro6d,
-                R.string.car_selection_emission_euro7,
+                R.string.car_selection_emission_euro6a,
                 R.string.car_selection_emission_euro3,
                 R.string.car_selection_emission_euro2,
                 R.string.car_selection_emission_euro1
