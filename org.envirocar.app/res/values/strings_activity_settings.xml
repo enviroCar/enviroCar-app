@@ -46,7 +46,7 @@
 
     <!-- Track chunks -->
     <string name="pref_track_chunk_upload">Upload while driving</string>
-    <string name="pref_track_chunk_upload_sub">Enables uploading while driving. Note: By activating this function, tracks are uploaded to the enviroCar server as open data.</string>
+    <string name="pref_track_chunk_upload_sub">Enables uploading while driving. Note: By activating this function, tracks are uploaded to the enviroCar server as open data. Anonymization of start and destination will be disabled.</string>
     <string name="pref_beta_enable_track_chunk_upload">Enable Upload while driving</string>
 
     <!-- OBD-Settings -->
