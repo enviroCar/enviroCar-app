@@ -125,7 +125,7 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
         error = getResources().getDrawable(R.drawable.ic_error_red_24dp);
         error.setBounds(-50, 0, 0, error.getIntrinsicHeight());
         manufactureEditText.setOnItemClickListener((parent, view1, position, id) -> requestNextTextFieldFocus(manufactureEditText));
-        modelEditText.setOnItemClickListener((parent, view12, position, id) -> requestNextTextFieldFocus(modelEditText));
+        // modelEditText.setOnItemClickListener((parent, view12, position, id) -> requestNextTextFieldFocus(modelEditText));
 
         // if (databaseSearchEnabled) {
         //     yearEditText.setOnItemClickListener((parent, view13, position, id) -> requestNextTextFieldFocus(yearEditText));
@@ -369,6 +369,8 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
             fuel = "04";
         else if (id.equalsIgnoreCase(getContext().getString(R.string.fuel_type_gas)))
             fuel = "05";
+        else if (id.equalsIgnoreCase(getContext().getString(R.string.fuel_type_hybrid)))
+            fuel = "99";
 
         return fuel;
     }
