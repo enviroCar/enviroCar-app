@@ -22,6 +22,7 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.room.Database;
+import androidx.room.migration.Migration;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.sqlite.db.SupportSQLiteDatabase;
@@ -38,7 +39,7 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-@Database(entities = {Manufacturers.class, Vehicles.class, PowerSource.class}, version = 1)
+@Database(entities = {Manufacturers.class, Vehicles.class, PowerSource.class}, version = 2)
 public abstract class EnviroCarVehicleDB extends RoomDatabase {
 
     //DAO car selection
@@ -47,4 +48,13 @@ public abstract class EnviroCarVehicleDB extends RoomDatabase {
     public abstract LocalPowerSourcesDAO powerSourcesDAO();
 
     public abstract LocalVehicleDAO vehicleDAO();
+
+    public static final Migration MIGRATION_1_2 = new Migration(1, 2) {
+        @Override
+        public void migrate(SupportSQLiteDatabase database) {
+            database.execSQL("ALTER TABLE vehicles "
+            + " ADD COLUMN emission_class TEXT");      
+        }
+      };
+      
 }

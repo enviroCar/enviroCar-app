@@ -182,7 +182,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
 
                     @Override
                     public void onError(Throwable e) {
-                        LOG.info("manufactureFetch() :", e.getMessage());
+                        LOG.warn("getAllManufacturers failed: " + e.getMessage(), e);
                     }
 
                     @Override
