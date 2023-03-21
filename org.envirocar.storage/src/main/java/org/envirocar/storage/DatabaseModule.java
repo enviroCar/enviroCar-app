@@ -82,6 +82,7 @@ public final class DatabaseModule {
     @Singleton
     EnviroCarVehicleDB provideRoomDatabase(@InjectApplicationScope Context context) {
         enviroCarVehicleDB = Room.databaseBuilder(context, EnviroCarVehicleDB.class, VECHILE_DATABASE_NAME)
+                .addMigrations(EnviroCarVehicleDB.MIGRATION_1_2)
                 .addCallback(new RoomDatabase.Callback() {
                     @Override
                     public void onCreate(@NonNull SupportSQLiteDatabase db) {

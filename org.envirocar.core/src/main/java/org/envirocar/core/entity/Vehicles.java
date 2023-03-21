@@ -82,6 +82,7 @@ public class Vehicles {
 
     String vehicleType;
 
+    @ColumnInfo(name = "emission_class")
     String emissionClass;
 
     public String getManufacturer_id() {
