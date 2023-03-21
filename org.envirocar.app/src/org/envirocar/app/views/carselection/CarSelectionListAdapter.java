@@ -121,8 +121,10 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
         holder.firstLine.setText(String.format("%s - %s", car.getManufacturer(), car.getModel()));
         holder.secondLine.setText(CarUtils.carAttributesToString(car, getContext()));
 
-        // If this car is the selected car, then set the radio button checked.
-        if (mSelectedCar != null && mSelectedCar.equals(car)) {
+        if ((mSelectedCar == null && position == 0) || (mSelectedCar != null && mSelectedCar.equals(car))) {
+            // if there is no selection at all, use the first one
+            // OR
+            // If this car is the selected car, then set the radio button checked.
             LOG.debug(String.format("Settings selected state for car view: %d, %s", position, car));
             mSelectedButton = holder.mRadioButton;
             mSelectedButton.setChecked(true);
