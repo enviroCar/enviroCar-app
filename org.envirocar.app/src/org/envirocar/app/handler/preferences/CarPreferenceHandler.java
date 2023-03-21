@@ -241,7 +241,7 @@ public class CarPreferenceHandler implements LifecycleObserver {
      * @return true if the car has been successfully deleted.
      */
     public boolean removeCar(Car car) {
-        LOG.info(String.format("removeCar(%s %s)", car.getManufacturer(), car.getModel()));
+        LOG.info(String.format("removeCar(%s)", car.toString()));
 
         // If the cartype equals the selected car, then set it to null and fire an event on the
         // event bus.
@@ -256,11 +256,26 @@ public class CarPreferenceHandler implements LifecycleObserver {
 
 
         // Return false when the car is not contained in the set.
-        if (!mDeserialzedCars.contains(car))
-            return false;
+        LOG.debug(String.format("Car size before removal: %d", mDeserialzedCars.size()));
 
-        // Remove from both sets.
-        mDeserialzedCars.remove(car);
+        // use a temporary set that will not contain the to be removed car
+        Set<Car> tempCars = new HashSet<>();
+        boolean found = false;
+        for (Car c : mDeserialzedCars) {
+            if (c.equals(car)) {
+                found = true;
+            } else {
+                tempCars.add(c);
+            }
+        }
+
+        if (!found) {
+            LOG.info("Car not in the available set.");
+            return false;
+        }
+        mDeserialzedCars = tempCars;
+
+        LOG.debug(String.format("Car size after removal: %d", mDeserialzedCars.size()));
 
         // Finally flush the state to shared preferences
         flushCarListState();
@@ -409,21 +424,29 @@ public class CarPreferenceHandler implements LifecycleObserver {
             mSerializedCarStrings.add(CarUtils.serializeCar(car));
         }
 
+        LOG.debug(String.format("mSerializedCarStrings: %s", mSerializedCarStrings));
+
+
         // First, delete the entry set of serialized car strings. Very important here to note is
         // that there has to be a commit happen before setting the next string set.
-        boolean deleteSuccess = PreferenceManager.getDefaultSharedPreferences(mContext).edit()
+        boolean deleteSuccess = this.mSharedPreferences.edit()
                 .remove(PREF_CARS_OF_USER)
                 .commit();
 
         // then set the new string set.
-        boolean insertSuccess = PreferenceManager.getDefaultSharedPreferences(mContext).edit()
+        boolean insertSuccess = this.mSharedPreferences.edit()
                 .putStringSet(PREF_CARS_OF_USER, mSerializedCarStrings)
                 .commit();
 
-        if (deleteSuccess && insertSuccess)
+        Set<String> verifiedSet = this.mSharedPreferences.getStringSet(PREF_CARS_OF_USER, new HashSet<>());
+        
+
+        if (deleteSuccess && insertSuccess) {
             LOG.info("flushCarListState(): Successfully inserted into shared preferences");
-        else
+            LOG.debug(String.format("Preferences verification: %s", verifiedSet));
+        } else {
             LOG.severe("flushCarListState(): Error on insert.");
+        }
     }
 
     /**

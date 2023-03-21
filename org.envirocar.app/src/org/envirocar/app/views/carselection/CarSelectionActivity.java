@@ -223,9 +223,9 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
 
     private void setupListView() {
         Car selectedCar = mCarManager.getCar();
-        List<Car> usedCars = new ArrayList<>();
+        LOG.info(String.format("setupListView() selected car: %s", selectedCar));
 
-        mCarListAdapter = new CarSelectionListAdapter(this, selectedCar, usedCars,
+        mCarListAdapter = new CarSelectionListAdapter(this, selectedCar, new ArrayList<>(),
                 new CarSelectionListAdapter.OnCarListActionCallback() {
 
                     @Override
@@ -243,10 +243,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
 
                     @Override
                     public void onDeleteCar(Car car, RadioButton mSelectedButton) {
-                        LOG.info(String.format("onDeleteCar(%s %s %s %s)",
-                                car.getManufacturer(), car.getModel(),
-                                "" + car.getConstructionYear(),
-                                "" + car.getEngineDisplacement()));
+                        LOG.info(String.format("onDeleteCar(%s)", car));
 
                         // Create a dialog to confirm the car deletion
                         new MaterialAlertDialogBuilder(CarSelectionActivity.this, R.style.MaterialDialog)
@@ -256,7 +253,9 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
                                 .setIcon(R.drawable.ic_drive_eta_white_24dp)
                                 .setPositiveButton(R.string.car_deselection_dialog_delete_title, (dialog, which) -> {
                                     // If the car has been removed successfully...
+                                    LOG.debug("call carManager.removeCar()");
                                     if (mCarManager.removeCar(car)) {
+                                        LOG.debug("carManager.removeCar() success");
                                         showSnackbar(String.format(
                                                 getString(R.string.car_selection_car_deleted_tmp),
                                                 car.getManufacturer(), car.getModel()));
@@ -275,55 +274,73 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
                     }
                 });
         mCarListView.setAdapter(mCarListAdapter);
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        this.reloadCars();
+    }
+
+    private void reloadCars() {
+        LOG.debug("reloadCars()");
+        mCarListAdapter.clear();
         loadingCarsSubscription = mCarManager.getAllDeserializedCars()
-                .flatMap(cars -> {
-                    Observable<List<Car>> carsObs = Observable.just(cars);
-                    if (mUserHandler.isLoggedIn() && !mCarManager.isDownloaded()) {
-                        LOG.info("Loading Cars: getUserStatistic has not downloaded its remote cars. " +
-                                "Trying to fetch these.");
-                        carsObs = carsObs.concatWith(mCarManager.downloadRemoteCarsOfUser());
-                    }
-                    return carsObs;
-                })
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new DisposableObserver<List<Car>>() {
-                    @Override
-                    public void onStart() {
-                        LOG.info("onStart()");
-                        loadingView.setVisibility(View.VISIBLE);
-                    }
+        .flatMap(cars -> {
+            Observable<List<Car>> carsObs = Observable.just(cars);
+            if (mUserHandler.isLoggedIn() && !mCarManager.isDownloaded()) {
+                LOG.info("Loading Cars: getUserStatistic has not downloaded its remote cars. " +
+                        "Trying to fetch these.");
+                carsObs = carsObs.concatWith(mCarManager.downloadRemoteCarsOfUser());
+            }
+            return carsObs;
+        })
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribeWith(new DisposableObserver<List<Car>>() {
+            @Override
+            public void onStart() {
+                LOG.info("onStart()");
+                loadingView.setVisibility(View.VISIBLE);
+            }
 
-                    @Override
-                    public void onComplete() {
-                        LOG.info("onCompleted() loading of all cars");
-                        loadingView.setVisibility(View.INVISIBLE);
-                        mCarListAdapter.notifyDataSetChanged();
-                        if (mCarListAdapter.getCount() > 0) {
-                            headerView.setVisibility(View.VISIBLE);
-                            ECAnimationUtils.animateHideView(CarSelectionActivity.this, infoBackground, R.anim.fade_out);
-                        }
-                    }
+            @Override
+            public void onComplete() {
+                LOG.info("onCompleted() loading of all cars");
+                loadingView.setVisibility(View.INVISIBLE);
+                mCarListAdapter.notifyDataSetChanged();
+                if (mCarListAdapter.getCount() > 0) {
+                    headerView.setVisibility(View.VISIBLE);
+                    ECAnimationUtils.animateHideView(CarSelectionActivity.this, infoBackground, R.anim.fade_out);
+                }
+            }
 
-                    @Override
-                    public void onError(Throwable e) {
-                        LOG.error(e.getMessage(), e);
-                        loadingView.setVisibility(View.INVISIBLE);
-                    }
+            @Override
+            public void onError(Throwable e) {
+                LOG.error(e.getMessage(), e);
+                loadingView.setVisibility(View.INVISIBLE);
+            }
 
-                    @Override
-                    public void onNext(List<Car> cars) {
-                        LOG.info("onNext(List<Car> cars) " + cars.size());
-                        for (Car car : cars) {
-                            if (!usedCars.contains(car)) {
-                                LOG.info("Adding car: " + car);
-                                mCarListAdapter.addCarItem(car);
-                            }
-                        }
+            @Override
+            public void onNext(List<Car> cars) {
+                LOG.info("onNext(List<Car> cars) " + cars.size());
+                for (Car car : cars) {
+                    if (mCarListAdapter.getPosition(car) < 0) {
+                        LOG.info("Adding car: " + car);
+                        mCarListAdapter.addCarItem(car);
                     }
+                }
 
-                });
+                // set the first one as the current car, if non is selected
+                Car selectedCar = mCarManager.getCar();
+                LOG.info(String.format("Selected car: %s", selectedCar));
+                if (selectedCar == null && cars.size() > 0) {
+                    mCarManager.setCar(cars.get(0));
+                }
+                
+            }
+
+        });
     }
 
     /**
@@ -411,6 +428,10 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
 
         result.setWeight(weight);
         result.setVehicleType(vehicleType);
+
+        if (vehicle.getEmissionClass() != null) {
+            result.setEmissionClass(vehicle.getEmissionClass());
+        }
         
         return result;
     }
@@ -418,13 +439,13 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
     @Override
     public Car.FuelType getFuel(String id) {
         String fuel = null;
-        if (id.equals("01"))
+        if ("01".equals(id))
             fuel = "gasoline";
-        else if (id.equals("02"))
+        else if ("02".equals(id))
             fuel = "diesel";
-        else if (id.equals("04"))
+        else if ("04".equals(id))
             fuel = "electric";
-        else if (id.equals("05") || id.equals("09") || id.equals("38"))
+        else if ("05".equals(id) || "09".equals(id) || "38".equals(id))
             fuel = "gas";
         else
             fuel = "hybrid";

@@ -135,7 +135,7 @@ public class ValidateAcceptedTerms extends Interactor<Boolean, ValidateAcceptedT
     private Function<PrivacyStatement, Observable<PrivacyStatement>> checkPrivacyStatement(User user, Activity activity) {
         return privacyStatement -> {
             LOG.info(String.format("Retrieved privacy statement for user [%s] with version [%s]",
-                    user.getUsername(), user.getTermsOfUseVersion()));
+                    user.getUsername(), user.getPrivacyStatementVersion()));
 
             boolean hasAccepted = false;
             if (user.getPrivacyStatementVersion() != null) {

@@ -79,7 +79,7 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
     @BindView(R.id.fragment_attributes_model_input)
     protected AutoCompleteTextView modelEditText;
     @BindView(R.id.fragment_attributes_year_input)
-    protected AutoCompleteTextView yearEditText;
+    protected EditText yearEditText;
     @BindView(R.id.fragment_attributes_fueltype_input)
     protected AutoCompleteTextView fuelTypeSelection;
     @BindView(R.id.fragment_attributes_displacement_input)
@@ -88,6 +88,8 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
     protected EditText weightEditText;
     @BindView(R.id.fragment_attributes_utility_input)
     protected AutoCompleteTextView utilityTypeSelection;
+    @BindView(R.id.fragment_attributes_emission_input)
+    protected AutoCompleteTextView emissionClassSelection;
 
     @BindView(R.id.fragment_car_search_button_text)
     protected TextView searchButton;
@@ -103,6 +105,8 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
     private static final int ERROR_DEBOUNCE_TIME = 750;
     private List<Manufacturers> manufacturersList;
     private static Drawable error;
+
+    private boolean databaseSearchEnabled = false;
 
     CarSelectionAttributesFragment(List<Manufacturers> manufacturersList) {
         this.manufacturersList = manufacturersList;
@@ -121,9 +125,13 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
         error = getResources().getDrawable(R.drawable.ic_error_red_24dp);
         error.setBounds(-50, 0, 0, error.getIntrinsicHeight());
         manufactureEditText.setOnItemClickListener((parent, view1, position, id) -> requestNextTextFieldFocus(manufactureEditText));
-        modelEditText.setOnItemClickListener((parent, view12, position, id) -> requestNextTextFieldFocus(modelEditText));
-        yearEditText.setOnItemClickListener((parent, view13, position, id) -> requestNextTextFieldFocus(yearEditText));
+        // modelEditText.setOnItemClickListener((parent, view12, position, id) -> requestNextTextFieldFocus(modelEditText));
 
+        // if (databaseSearchEnabled) {
+        //     yearEditText.setOnItemClickListener((parent, view13, position, id) -> requestNextTextFieldFocus(yearEditText));
+        // }
+
+        // fuel types dropdown
         List<String> fuelTypes = Arrays.asList(getContext().getString(R.string.fuel_type_gasoline), getContext().getString(R.string.fuel_type_diesel),
                 getContext().getString(R.string.fuel_type_electric), getContext().getString(R.string.fuel_type_gas), getContext().getString(R.string.fuel_type_hybrid));
 
@@ -134,6 +142,7 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
         fuelTypeSelection.setAdapter(fuelTypesAdapter);
         fuelTypeSelection.setText(fuelTypesAdapter.getItem(0).toString(), false);
 
+        // vehicle type dropdown
         String[] utilityTypes = new String[]{getContext().getString(R.string.car_selection_private_vehicle), getContext().getString(R.string.car_selection_utility_car), getContext().getString(R.string.car_selection_taxi)};
 
         ArrayAdapter<String> utilityTypesAdapter = new ArrayAdapter<>(
@@ -142,6 +151,29 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
             utilityTypes);
         utilityTypeSelection.setAdapter(utilityTypesAdapter);
         utilityTypeSelection.setText(utilityTypesAdapter.getItem(0).toString(), false);
+
+        // emission class dropdown
+        String[] emissionClasses = new String[]{
+            getContext().getString(R.string.car_selection_emission_na),
+            getContext().getString(R.string.car_selection_emission_euro1),
+            getContext().getString(R.string.car_selection_emission_euro2),
+            getContext().getString(R.string.car_selection_emission_euro3),           
+            getContext().getString(R.string.car_selection_emission_euro4),
+            getContext().getString(R.string.car_selection_emission_euro5a),
+            getContext().getString(R.string.car_selection_emission_euro5b),
+            getContext().getString(R.string.car_selection_emission_euro6a),
+            getContext().getString(R.string.car_selection_emission_euro6b),
+            getContext().getString(R.string.car_selection_emission_euro6c),
+            getContext().getString(R.string.car_selection_emission_euro6d_temp),
+            getContext().getString(R.string.car_selection_emission_euro6d)
+        };
+
+        ArrayAdapter<String> emissionClassAdapter = new ArrayAdapter<>(
+            getContext(),
+            R.layout.activity_car_selection_newcar_fueltype_item,
+            emissionClasses);
+        emissionClassSelection.setAdapter(emissionClassAdapter);
+        emissionClassSelection.setText(emissionClassAdapter.getItem(0).toString(), false);
 
         return view;
     }
@@ -161,13 +193,19 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
     protected void onManufacturerChanged() {
         manufactureEditText.setError(null);
         modelEditText.setText("");
-        yearEditText.setText("");
+
+        if (databaseSearchEnabled) {
+            yearEditText.setText("");
+        }
     }
 
     @OnTextChanged(value = R.id.fragment_attributes_model_input, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
     protected void onModelChanged() {
         modelEditText.setError(null);
-        yearEditText.setText("");
+        
+        if (databaseSearchEnabled) {
+            yearEditText.setText("");
+        }
     }
 
     @OnTextChanged(value = R.id.fragment_attributes_year_input, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
@@ -187,12 +225,12 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
         }
 
         if (model.isEmpty()) {
-            modelEditText.setError(getString(R.string.car_selection_error_select_from_list), error);
+            modelEditText.setError(getString(R.string.car_selection_error_empty_input), error);
             focusView = modelEditText;
         }
 
         if (year.isEmpty()) {
-            yearEditText.setError(getString(R.string.car_selection_error_select_from_list), error);
+            yearEditText.setError(getString(R.string.car_selection_error_empty_input), error);
             focusView = yearEditText;
         }
 
@@ -207,7 +245,7 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
             return;
         }
 
-        if (hasStoredVehicle()) {
+        if (databaseSearchEnabled && hasStoredVehicle()) {
             // launch the selection fragment
             Single<List<Vehicles>> vehicle = enviroCarVehicleDB.vehicleDAO().getVehicleAttributeType(manufacturer, model, year);
                 vehicle.subscribeOn(Schedulers.io())
@@ -243,6 +281,7 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
         String displacement = displacementEditText.getText().toString().trim();
         String vehicleType = utilityTypeSelection.getText().toString().trim();
         String weight = weightEditText.getText().toString().trim();
+        String emissionClass = emissionClassSelection.getText().toString().trim();
 
         View focusView = null;
         if (fuelType.isEmpty()) {
@@ -251,7 +290,7 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
         }
 
         if (displacement.isEmpty()) {
-            displacementEditText.setError(getString(R.string.car_selection_error_select_from_list), error);
+            displacementEditText.setError(getString(R.string.car_selection_error_empty_input), error);
             focusView = displacementEditText;
         }
 
@@ -262,6 +301,34 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
         } else if (vehicleType.equals(getContext().getString(R.string.car_selection_taxi))) {
             vehicleType = getEnglishString(R.string.car_selection_taxi);
         }
+
+
+        if (emissionClass.equals(getContext().getString(R.string.car_selection_emission_na))) {
+            emissionClass = null;
+        } else {
+            int[] emissionClasses = new int[]{
+                R.string.car_selection_emission_euro4,
+                R.string.car_selection_emission_euro5a,
+                R.string.car_selection_emission_euro5b,
+                R.string.car_selection_emission_euro6b,
+                R.string.car_selection_emission_euro6c,
+                R.string.car_selection_emission_euro6d_temp,
+                R.string.car_selection_emission_euro6d,
+                R.string.car_selection_emission_euro6a,
+                R.string.car_selection_emission_euro3,
+                R.string.car_selection_emission_euro2,
+                R.string.car_selection_emission_euro1
+            };
+
+            for (int ec : emissionClasses) {
+                if (emissionClass.equals(getContext().getString(ec))) {
+                    emissionClass = getEnglishString(ec);
+                    break;
+                }
+            }
+        }
+
+        
 
         if (weight.length() == 0) {
             weight = null;
@@ -285,6 +352,10 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
         vehicle.setWeight(weight);
         vehicle.setVehicleType(vehicleType);
 
+        if (emissionClass != null) {
+            vehicle.setEmissionClass(emissionClass);
+        }
+
         return vehicle;
     }
 
@@ -298,6 +369,8 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
             fuel = "04";
         else if (id.equalsIgnoreCase(getContext().getString(R.string.fuel_type_gas)))
             fuel = "05";
+        else if (id.equalsIgnoreCase(getContext().getString(R.string.fuel_type_hybrid)))
+            fuel = "99";
 
         return fuel;
     }
@@ -383,12 +456,12 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
     }
 
     private void updateYearView(Pair<String, String> manufactureModel) {
-        if (mManufactureModelToYear.containsKey(manufactureModel)) {
-            yearEditText.setAdapter(((CarSelectionActivity) getActivity()).sortedAdapter(getContext(), mManufactureModelToYear.get(manufactureModel)));
-        } else {
-            yearEditText.setAdapter(null);
-            searchButton.setText("Add new car");
-        }
+        // if (databaseSearchEnabled && mManufactureModelToYear.containsKey(manufactureModel)) {
+        //     yearEditText.setAdapter(((CarSelectionActivity) getActivity()).sortedAdapter(getContext(), mManufactureModelToYear.get(manufactureModel)));
+        // } else {
+        //     yearEditText.setAdapter(null);
+        //     searchButton.setText("Add new car");
+        // }
     }
 
     private void initFocusChangedListener() {
@@ -500,7 +573,7 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
     }
 
     private void updateSearchButtonState() {
-        if (hasStoredVehicle()) {
+        if (databaseSearchEnabled && hasStoredVehicle()) {
             searchButton.setText(R.string.car_selection_search);
         } else {
             searchButton.setText(R.string.car_selection_add_new_car);
@@ -525,7 +598,7 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
         }
 
         // check year
-        found = checkAdapterContainsEntry(yearEditText.getAdapter(), year);
+        // found = checkAdapterContainsEntry(yearEditText.getAdapter(), year);
 
         return found;
     }

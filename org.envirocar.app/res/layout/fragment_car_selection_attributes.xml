@@ -82,7 +82,7 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/fragment_attributes_year_input_layout"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
@@ -93,14 +93,22 @@
                 app:layout_constraintWidth_max="500dp"
                 app:startIconDrawable="@drawable/ic_baseline_date_range_24">
 
-                <AutoCompleteTextView
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/fragment_attributes_year_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:inputType="number"
+                    android:singleLine="true"
+                    android:textColor="@color/black"
+                    android:textSize="16dp" />
+                <!-- <AutoCompleteTextView
                     android:id="@+id/fragment_attributes_year_input"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:inputType="textPersonName"
                     android:singleLine="true"
                     android:textColor="@color/black"
-                    android:textSize="16dp" />
+                    android:textSize="16dp" /> -->
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -220,6 +228,29 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
+            <com.google.android.material.textfield.TextInputLayout
+                android:id = "@+id/fragment_attributes_emission_input_layout"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                app:layout_constraintEnd_toEndOf="@id/activity_car_guideline_right"
+                app:layout_constraintStart_toStartOf="@id/activity_car_guideline_left"
+                app:layout_constraintTop_toBottomOf="@+id/fragment_attributes_utility_input_layout"
+                app:layout_constraintWidth_max="500dp"
+                android:hint="@string/car_selection_emission_class"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                app:startIconDrawable="@drawable/ic_construction">
+
+                <AutoCompleteTextView android:id = "@+id/fragment_attributes_emission_input"
+                    android:layout_width = "match_parent"
+                    android:layout_height = "match_parent"
+                    android:clickable = "true"
+                    android:focusable = "true"
+                    android:focusableInTouchMode = "false"
+                    android:inputType = "none"/>
+
+            </com.google.android.material.textfield.TextInputLayout>
+
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/fragment_car_search_button"
                 android:layout_width="0dp"
@@ -232,7 +263,7 @@
                 app:cardElevation="10dp"
                 app:layout_constraintEnd_toStartOf="@id/activity_car_guideline_right"
                 app:layout_constraintStart_toStartOf="@id/activity_car_guideline_left"
-                app:layout_constraintTop_toBottomOf="@+id/fragment_attributes_utility_input_layout">
+                app:layout_constraintTop_toBottomOf="@+id/fragment_attributes_emission_input_layout">
 
                 <TextView
                     android:id="@+id/fragment_car_search_button_text"

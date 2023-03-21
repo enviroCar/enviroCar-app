@@ -191,12 +191,6 @@ public class TrackchunkUploadService extends BaseInjectorService {
         measurements.add(event.mMeasurement);
         LOG.info("received new measurement" + this);
         if(measurements.size() > MEASUREMENT_THRESHOLD && currentTrack != null && currentTrack.getRemoteID() != null) {
-            if (currentTrack.getMeasurements().size() == 1) {
-                currentTrack.addMeasurements(measurements.subList(1, measurements.size()));
-            }
-            else {
-                currentTrack.addMeasurements(measurements);
-            }
             List<Measurement> measurementsCopy = new ArrayList<>(measurements.size() + 1);
             measurementsCopy.addAll(measurements);
             JsonArray trackFeatures = createMeasurementJson(measurementsCopy);
@@ -207,6 +201,12 @@ public class TrackchunkUploadService extends BaseInjectorService {
                 LOG.error("Could not upload track chunk", e);
                 this.eventBus.post(new TrackchunkUploadEvent(TrackchunkUploadEvent.FAILED));
                 return;
+            }
+            if (currentTrack.getMeasurements().size() == 1) {
+                currentTrack.addMeasurements(measurements.subList(1, measurements.size()));
+            }
+            else {
+                currentTrack.addMeasurements(measurements);
             }
             this.eventBus.post(new TrackchunkUploadEvent(TrackchunkUploadEvent.SUCCESSFUL));
             measurements.clear();
@@ -293,8 +293,8 @@ public class TrackchunkUploadService extends BaseInjectorService {
                 if (isDiesel && (key == Measurement.PropertyKey.CO2 || key == Measurement.PropertyKey.CONSUMPTION)) {
                     // DO NOTHING TODO delete when necessary
                 } else {
-                    // do not add key if it is null or NaN
-                    if (props.get(key) != null && props.get(key) != Double.NaN) {
+                    // do not add key if it is null or NaN or Infinite
+                    if (props.get(key) != null && !Double.isNaN(props.get(key)) && !Double.isInfinite(props.get(key))) {
                         result.add(key.toString(), TrackSerde.createValue(props.get(key)));
                     }
                 }

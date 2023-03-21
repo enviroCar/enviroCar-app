@@ -32,4 +32,17 @@
     <string name="car_selection_private_vehicle">Passenger Car</string>
     <string name="car_selection_utility_car">Utility Car</string>
     <string name="car_selection_taxi">Taxi</string>
+
+    <!-- emission class values -->
+    <string name="car_selection_emission_euro1">Euro 1</string>
+    <string name="car_selection_emission_euro2">Euro 2</string>
+    <string name="car_selection_emission_euro3">Euro 3</string>
+    <string name="car_selection_emission_euro4">Euro 4</string>
+    <string name="car_selection_emission_euro5a">Euro 5a</string>
+    <string name="car_selection_emission_euro5b">Euro 5b</string>
+    <string name="car_selection_emission_euro6b">Euro 6b</string>
+    <string name="car_selection_emission_euro6c">Euro 6c</string>
+    <string name="car_selection_emission_euro6d_temp">Euro 6d-TEMP</string>
+    <string name="car_selection_emission_euro6d">Euro 6d</string>
+    <string name="car_selection_emission_euro6a">Euro 6a</string>
 </resources>
