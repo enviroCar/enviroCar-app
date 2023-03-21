@@ -102,6 +102,7 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
     public View getView(int position, View convertView, ViewGroup parent) {
         // First get the car for which the view needs to be created.
         final Car car = this.getItem(position);
+        LOG.info(String.format("getView() for car: %s", car));
 
         // Then inflate a new view for the car and create a holder
         LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -122,11 +123,13 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
 
         // If this car is the selected car, then set the radio button checked.
         if (mSelectedCar != null && mSelectedCar.equals(car)) {
+            LOG.debug(String.format("Settings selected state for car view: %d, %s", position, car));
             mSelectedButton = holder.mRadioButton;
             mSelectedButton.setChecked(true);
             holder.firstLine.setSelected(true);
         } else {
             holder.firstLine.setSelected(false);
+            holder.mRadioButton.setChecked(false);
         }
 
         final CarViewHolder tmpHolder = holder;
@@ -206,9 +209,7 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
      */
     protected void addCarItem(Car car) {
         this.add(car);
-        if(this.getCount() == 1) {
-            this.mSelectedCar = car;
-        }
+
         notifyDataSetChanged();
     }
 

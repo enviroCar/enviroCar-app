@@ -223,6 +223,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
 
     private void setupListView() {
         Car selectedCar = mCarManager.getCar();
+        LOG.info(String.format("setupListView() selected car: %s", selectedCar));
 
         mCarListAdapter = new CarSelectionListAdapter(this, selectedCar, new ArrayList<>(),
                 new CarSelectionListAdapter.OnCarListActionCallback() {
@@ -242,10 +243,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
 
                     @Override
                     public void onDeleteCar(Car car, RadioButton mSelectedButton) {
-                        LOG.info(String.format("onDeleteCar(%s %s %s %s)",
-                                car.getManufacturer(), car.getModel(),
-                                "" + car.getConstructionYear(),
-                                "" + car.getEngineDisplacement()));
+                        LOG.info(String.format("onDeleteCar(%s)", car));
 
                         // Create a dialog to confirm the car deletion
                         new MaterialAlertDialogBuilder(CarSelectionActivity.this, R.style.MaterialDialog)
@@ -335,6 +333,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
 
                 // set the first one as the current car, if non is selected
                 Car selectedCar = mCarManager.getCar();
+                LOG.info(String.format("Selected car: %s", selectedCar));
                 if (selectedCar == null && cars.size() > 0) {
                     mCarManager.setCar(cars.get(0));
                 }
