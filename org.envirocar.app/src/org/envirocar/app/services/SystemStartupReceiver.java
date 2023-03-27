@@ -22,6 +22,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
+import androidx.core.content.ContextCompat;
+
 import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.app.services.autoconnect.AutoRecordingService;
 import org.envirocar.core.logging.Logger;
@@ -64,7 +66,7 @@ public class SystemStartupReceiver extends BroadcastReceiver {
         if (autoStartService && !ServiceUtils.isServiceRunning(
                 context, AutoRecordingService.class)) {
             Intent startIntent = new Intent(context, AutoRecordingService.class);
-            context.startService(startIntent);
+            ContextCompat.startForegroundService(context, startIntent);
         } else if (!autoStartService) {
             AutoRecordingService.stopService(context);
         }
