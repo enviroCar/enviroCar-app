@@ -205,12 +205,16 @@ public class BaseApplication extends Application implements AimyboxProvider {
     @NonNull
     @Override
     public Aimybox getAimybox() {
-        return new BaseAimybox(this, mBus, metadataHandler).getAimybox();
+        BaseAimybox.Companion.setCurrentAimybox(new BaseAimybox(this, mBus, metadataHandler).getAimybox());
+        return BaseAimybox.Companion.getCurrentAimybox();
     }
 
     @NonNull
     @Override
     public AimyboxAssistantViewModel.Factory getViewModelFactory() {
-        return AimyboxAssistantViewModel.Factory.Companion.getInstance(getAimybox());
+        if(BaseAimybox.Companion.getCurrentAimybox() == null){
+            return AimyboxAssistantViewModel.Factory.Companion.getInstance(getAimybox());
+        }
+        return AimyboxAssistantViewModel.Factory.Companion.getInstance(BaseAimybox.Companion.getCurrentAimybox());
     }
 }
