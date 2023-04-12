@@ -253,7 +253,8 @@ public class OBDAutoRecordingStrategy implements AutoRecordingStrategy {
                 return true;
             }
         } catch (Exception e) {
-            LOG.info("Unable to connect to bluetooth device.");
+            LOG.warn("Unable to create a direct connection to bluetooth device: "
+                    + e.getMessage(), e);
             throw Exceptions.propagate(new RuntimeException("Connection could not be established."));
         } finally {
             Thread.sleep(500);
