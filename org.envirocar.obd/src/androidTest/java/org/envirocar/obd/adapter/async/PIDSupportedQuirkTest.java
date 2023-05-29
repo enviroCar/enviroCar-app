@@ -18,7 +18,6 @@
  */
 package org.envirocar.obd.adapter.async;
 
-import android.test.InstrumentationTestCase;
 import android.util.Base64;
 
 import org.envirocar.obd.adapter.CommandExecutor;
@@ -32,7 +31,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 
-public class PIDSupportedQuirkTest extends InstrumentationTestCase {
+public class PIDSupportedQuirkTest {
 
     @Test
     public void testQuirk() {

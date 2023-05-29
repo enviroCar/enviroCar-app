@@ -18,6 +18,7 @@
  */
 package org.envirocar.app.views.settings;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
@@ -38,6 +39,9 @@ import org.envirocar.app.views.settings.custom.GPSTrimDurationPreference;
 import org.envirocar.app.views.settings.custom.SamplingRatePreference;
 import org.envirocar.app.views.settings.custom.TimePickerPreferenceDialog;
 
+import de.fh.muenster.locationprivacytoolkit.ui.LocationPrivacyConfigActivity;
+
+
 /**
  * @author dewall
  */
@@ -48,11 +52,14 @@ public class SettingsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
+        Intent intent = new Intent(this, LocationPrivacyConfigActivity.class);
+        startActivity(intent);
+
         // add the settingsfragment
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.activity_settings_content, new SettingsFragment())
-                .commit();
+//        getSupportFragmentManager()
+//                .beginTransaction()
+//                .replace(R.id.activity_settings_content, new SettingsFragment())
+//                .commit();
     }
 
     public static class SettingsFragment extends PreferenceFragmentCompat {

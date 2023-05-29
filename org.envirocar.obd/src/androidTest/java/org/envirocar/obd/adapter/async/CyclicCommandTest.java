@@ -18,7 +18,6 @@
  */
 package org.envirocar.obd.adapter.async;
 
-import android.test.InstrumentationTestCase;
 
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
@@ -27,7 +26,7 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CyclicCommandTest extends InstrumentationTestCase {
+public class CyclicCommandTest {
 
     @Test
     public void testBytes() {

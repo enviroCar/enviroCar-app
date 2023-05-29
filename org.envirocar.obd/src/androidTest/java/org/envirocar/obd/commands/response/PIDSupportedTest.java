@@ -18,7 +18,6 @@
  */
 package org.envirocar.obd.commands.response;
 
-import android.test.InstrumentationTestCase;
 
 import org.envirocar.obd.commands.PID;
 import org.envirocar.obd.commands.PIDSupported;
@@ -32,7 +31,7 @@ import org.junit.Test;
 
 import java.util.Set;
 
-public class PIDSupportedTest extends InstrumentationTestCase {
+public class PIDSupportedTest {
 
     @Test
     public void testParsing() throws InvalidCommandResponseException, NoDataReceivedException, UnmatchedResponseException, AdapterSearchingException {
