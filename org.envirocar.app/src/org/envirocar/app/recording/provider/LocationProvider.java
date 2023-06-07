@@ -28,6 +28,8 @@ import android.location.OnNmeaMessageListener;
 import android.os.Build;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+
 import com.squareup.otto.Bus;
 
 import org.envirocar.app.recording.RecordingScope;
@@ -43,6 +45,7 @@ import java.lang.reflect.Method;
 
 import javax.inject.Inject;
 
+import de.fh.muenster.locationprivacytoolkit.LocationPrivacyToolkit;
 import io.reactivex.Completable;
 
 /**
@@ -80,7 +83,7 @@ public class LocationProvider {
     };
 
 
-    private void onNewNmeaUpdate(String nmea, long timestamp) {
+    private void onNewNmeaUpdate(@NonNull String nmea, long timestamp) {
         // eg2.: $GPGSA,A,3,19,28,14,18,27,22,31,39,,,,,1.7,1.0,1.3*35
         if (nmea.startsWith(GPGSA)) {
             boolean fix = true;
@@ -172,6 +175,8 @@ public class LocationProvider {
 
     private Method oldAddNmeaMethod;
 
+    LocationPrivacyToolkit toolkit;
+
     /**
      * Constructor.
      *
@@ -187,7 +192,8 @@ public class LocationProvider {
         this.mLastBestLocation = null;
 
         // Get the LocationManager
-        mLocationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
+        toolkit =new LocationPrivacyToolkit(mContext, null);
+        mLocationManager = toolkit.getLocationManager();
 
     }
 
@@ -198,16 +204,18 @@ public class LocationProvider {
         return Completable.create(emitter -> {
             if (!PermissionUtils.hasLocationPermission(mContext))
                 emitter.onError(new PermissionException("User has not activated Location permission"));
-            mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, mLocationListener);
+//            mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, mLocationListener);
+             toolkit.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, mLocationListener);
 
-            try {
+             try {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     final OnNmeaMessageListener nmeaListener = (nmea, timestamp) -> onNewNmeaUpdate(nmea, timestamp);
                     mLocationManager.addNmeaListener(nmeaListener);
 
                     emitter.setCancellable(() -> {
                         LOGGER.info("stopLocating()");
-                        mLocationManager.removeUpdates(mLocationListener);
+//                        mLocationManager.removeUpdates(mLocationListener);
+                        toolkit.removeUpdates(mLocationListener);
                         mLocationManager.removeNmeaListener(nmeaListener);
                     });
                 } else {
@@ -220,8 +228,8 @@ public class LocationProvider {
                     oldAddNmeaMethod.invoke(mLocationManager, nmeaListener);
                     emitter.setCancellable(() -> {
                         LOGGER.info("stopLocating()");
-                        mLocationManager.removeUpdates(mLocationListener);
-
+//                        mLocationManager.removeUpdates(mLocationListener);
+                        toolkit.removeUpdates(mLocationListener);
                         try {
                             Method oldRemoveNmeaMethod = LocationManager.class.getMethod("removeNmeaListener", GpsStatus.NmeaListener.class);
                             oldRemoveNmeaMethod.invoke(mLocationManager, nmeaListener);

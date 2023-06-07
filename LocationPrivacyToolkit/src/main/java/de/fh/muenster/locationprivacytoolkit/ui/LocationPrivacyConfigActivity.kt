@@ -5,8 +5,10 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
@@ -20,6 +22,7 @@ class LocationPrivacyConfigActivity : AppCompatActivity(), LocationPrivacyConfig
     private lateinit var configAdapter: LocationPrivacyConfigAdapter
     private lateinit var configManager: LocationPrivacyConfigManager
 
+    @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
