@@ -1,12 +1,15 @@
 package de.fh.muenster.locationprivacytoolkit.ui
 
+import android.content.res.ColorStateList
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import de.fh.muenster.locationprivacytoolkit.R
 import de.fh.muenster.locationprivacytoolkit.config.LocationPrivacyConfig
 import de.fh.muenster.locationprivacytoolkit.config.LocationPrivacyConfigInterface
 import de.fh.muenster.locationprivacytoolkit.databinding.ListItemLocationPrivacyConfigBinding
@@ -59,6 +62,13 @@ class LocationPrivacyConfigAdapter(private var listener: LocationPrivacyConfigAd
         private fun initSwitch(config: LocationPrivacyConfig, hasLocationAccess: Boolean) {
             dataBinding.locationConfigSwitch.isChecked = listener.getPrivacyConfigValue(config) > 0
             val isLocationAccessConfig = config == LocationPrivacyConfig.Access
+
+            val customColor = ContextCompat.getColor(dataBinding.locationConfigSwitch.context, R.color.cario_color_primary)
+            val customColor2 = ContextCompat.getColor(dataBinding.locationConfigSwitch.context, R.color.blue_light_cario)
+
+            dataBinding.locationConfigSwitch.thumbTintList = ColorStateList.valueOf(customColor)
+            dataBinding.locationConfigSwitch.trackTintList = ColorStateList.valueOf(customColor2)
+
             dataBinding.locationConfigSwitch.setOnCheckedChangeListener { _, isChecked ->
                 listener.onPrivacyConfigChanged(
                     config,

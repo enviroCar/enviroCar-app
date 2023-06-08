@@ -20,7 +20,7 @@ import java.util.function.Consumer
 
 class LocationPrivacyToolkit(context: Context, private val listener: LocationPrivacyToolkitListener? = null): LocationListener {
 
-    private val locationManager = context.getSystemService(LOCATION_SERVICE) as LocationManager
+    public val locationManager = context.getSystemService(LOCATION_SERVICE) as LocationManager
     private var config = LocationPrivacyConfigManager(context)
 
     private val accessProcessor = AccessProcessor(context)

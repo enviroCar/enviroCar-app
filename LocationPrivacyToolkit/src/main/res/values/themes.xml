@@ -9,8 +9,8 @@
   -->
 
 <resources>
-    <style name="Theme.LocationPrivacyToolkit" parent="Theme.MaterialComponents.DayNight.NoActionBar.Bridge">
-        <!-- empty theme, override in app -->
+    <style name="Theme.LocationPrivacyToolkit" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="colorPrimary">@color/blue_light_cario</item>
     </style>
 
     <style name="Theme.LocationPrivacyToolkit.Slider" parent="Widget.MaterialComponents.Slider">
