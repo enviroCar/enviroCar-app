@@ -242,7 +242,7 @@ public class LocationProvider {
                 LOGGER.error("Error while initiating NMEA Listener", e);
                 emitter.setCancellable(() -> {
                     LOGGER.info("stopLocating()");
-                    mLocationManager.removeUpdates(mLocationListener);
+                    toolkit.removeUpdates(mLocationListener);
                 });
             }
         });
