@@ -1,0 +1,17 @@
+<resources>
+    <string name="accessTitle">Access</string>
+    <string name="accessSubtitle">Share your location info?</string>
+    <string name="accessDescription">The access-option is the tool to choose, whether your location data is passed to the app or not. With this option you can allow or disallow an app to use your location information altogether.</string>
+    <string name="accuracyTitle">Accuracy</string>
+    <string name="accuracySubtitle">How accurate is your shared location?</string>
+    <string name="accuracyDescription">With accuracy, you are able to determine the precision of your device location. The value for accuracy defines a radius, in which the retrieved location usually lays in. Therefore a higher value is more imprecise and potentially has the effect of degrading service quality, while improving your privacy.</string>
+    <string name="intervalTitle">Interval</string>
+    <string name="intervalSubtitle">How often is your location accessed?</string>
+    <string name="intervalDescription">Using the interval you can determine, how often this app is able to retrieve a new location from your device. A higher value therefore leads to a less frequent retrieval of your devices location. Example: If you\'ve set to 10 Minutes, this means a new location is at maximum retrieved every 10 Minutes. In the meantime the previously retrieved location is used, which of course it might up to 10 Minutes old, which could potentially degrade the service quality.</string>
+    <string name="visibilityTitle">Visibility</string>
+    <string name="visibilitySubtitle">Who is your location shared with?</string>
+    <string name="visibilityDescription">TODO: Visibility-Description</string>
+    <string name="autoDeletionTitle">Auto-Deletion</string>
+    <string name="autoDeletionSubtitle">How long is your location info usable?</string>
+    <string name="autoDeletionDescription">Using the auto-deletion-option, you can select whether and after what time your location data is deleted. This way your location-data will be invalidated automatically.</string>
+</resources>
