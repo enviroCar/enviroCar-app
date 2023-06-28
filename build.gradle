@@ -9,7 +9,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.0.3'
+        classpath 'com.android.tools.build:gradle:7.4.2'
     }
 
 }
@@ -17,6 +17,7 @@ buildscript {
 plugins {
     id 'maven-publish'
     id "com.github.hierynomus.license" version "0.16.1"
+    id 'org.jetbrains.kotlin.android' version '1.7.20' apply false
 }
 
 allprojects {

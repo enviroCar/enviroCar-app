@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
 
     Copyright (C) 2013 - 2021 the enviroCar community
 
@@ -80,9 +79,9 @@
                         android:id="@+id/activity_recscreen_trackdetails_gps"
                         android:layout_width="25dp"
                         android:layout_height="25dp"
+                        android:enabled="false"
                         android:src="@drawable/recscreen_gps_drawable"
-                        android:tint="@color/white"
-                        android:enabled="false"/>
+                        android:tint="@color/white" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -244,7 +243,7 @@
                     android:layout_marginTop="5dp"
                     android:text="@string/track_upload_active"
                     android:textColor="@color/green_dark_cario"
-                    android:textSize="12sp"/>
+                    android:textSize="12sp" />
 
             </LinearLayout>
 

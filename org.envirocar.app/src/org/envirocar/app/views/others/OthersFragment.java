@@ -59,6 +59,7 @@ import javax.inject.Inject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import de.fh.muenster.locationprivacytoolkit.ui.LocationPrivacyConfigActivity;
 import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.observers.DisposableCompletableObserver;
@@ -119,6 +120,12 @@ public class OthersFragment extends BaseInjectorFragment {
     @OnClick(R.id.othersSettings)
     protected void onSettingsClicked() {
         Intent intent = new Intent(getActivity(), SettingsActivity.class);
+        startActivity(intent);
+    }
+
+    @OnClick(R.id.othersLocationToolkit)
+    protected void onLocationClicked(){
+        Intent intent = new Intent(getActivity(), LocationPrivacyConfigActivity.class);
         startActivity(intent);
     }
 

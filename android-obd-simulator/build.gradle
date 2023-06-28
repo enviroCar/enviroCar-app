@@ -5,8 +5,7 @@ dependencies {
 }
 
 android {
-    compileSdkVersion rootProject.ext.compileSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
+    compileSdk 33
     ndkVersion rootProject.ext.ndkVersion
 
     sourceSets {

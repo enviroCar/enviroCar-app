@@ -10,6 +10,7 @@ dependencies {
     implementation rootProject.ext.supportConstraintLayout
     implementation rootProject.ext.androidRoom
     implementation rootProject.ext.androidRoomRxJava
+    implementation project(path: ':LocationPrivacyToolkit')
     annotationProcessor rootProject.ext.supportRoom
 
     implementation rootProject.ext.supportLifecycleExtension
@@ -99,8 +100,7 @@ configurations.all {
 }
 
 android {
-    compileSdkVersion rootProject.ext.compileSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
+    compileSdk 33
     ndkVersion rootProject.ext.ndkVersion
 
     signingConfigs {
@@ -173,6 +173,9 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         multiDexEnabled true
+    }
+    dataBinding {
+        enabled = true
     }
 }
 
