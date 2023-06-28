@@ -52,14 +52,11 @@ public class SettingsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
-        Intent intent = new Intent(this, LocationPrivacyConfigActivity.class);
-        startActivity(intent);
-
-        // add the settingsfragment
-//        getSupportFragmentManager()
-//                .beginTransaction()
-//                .replace(R.id.activity_settings_content, new SettingsFragment())
-//                .commit();
+//         add the settingsfragment
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.activity_settings_content, new SettingsFragment())
+                .commit();
     }
 
     public static class SettingsFragment extends PreferenceFragmentCompat {

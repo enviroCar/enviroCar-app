@@ -78,4 +78,6 @@
     <string name="dashboard_track_chunks_enabled_login">Track chunk upload is enabled. You need to login before starting a recording.</string>
 
     <string name="dashboard_accept_tou">Please accept the latest Terms of Use under \'%s\'.</string>
+    <string name="dashboard_location_access_blocked" translatable="false">Location Access Blocked</string>
+    <string name="dashboard_location_access_blocked_content" translatable="false">Location Access is turned off in Location Toolkit. make sure to turn it on for real time location updates.</string>
 </resources>

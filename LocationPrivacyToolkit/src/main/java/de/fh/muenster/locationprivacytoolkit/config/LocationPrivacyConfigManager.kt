@@ -8,7 +8,7 @@ import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
 import java.lang.ref.WeakReference
 
-internal class LocationPrivacyConfigManager(context: Context) {
+class LocationPrivacyConfigManager(context: Context) {
 
     private val preferences: SharedPreferences
     private val contextReference: WeakReference<Context>

@@ -204,7 +204,6 @@ public class LocationProvider {
         return Completable.create(emitter -> {
             if (!PermissionUtils.hasLocationPermission(mContext))
                 emitter.onError(new PermissionException("User has not activated Location permission"));
-//            mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, mLocationListener);
              toolkit.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, mLocationListener);
 
              try {
@@ -214,7 +213,6 @@ public class LocationProvider {
 
                     emitter.setCancellable(() -> {
                         LOGGER.info("stopLocating()");
-//                        mLocationManager.removeUpdates(mLocationListener);
                         toolkit.removeUpdates(mLocationListener);
                         mLocationManager.removeNmeaListener(nmeaListener);
                     });
@@ -228,7 +226,6 @@ public class LocationProvider {
                     oldAddNmeaMethod.invoke(mLocationManager, nmeaListener);
                     emitter.setCancellable(() -> {
                         LOGGER.info("stopLocating()");
-//                        mLocationManager.removeUpdates(mLocationListener);
                         toolkit.removeUpdates(mLocationListener);
                         try {
                             Method oldRemoveNmeaMethod = LocationManager.class.getMethod("removeNmeaListener", GpsStatus.NmeaListener.class);

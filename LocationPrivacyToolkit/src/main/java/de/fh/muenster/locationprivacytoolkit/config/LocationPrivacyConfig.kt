@@ -6,7 +6,7 @@ enum class LocationPrivacyConfig {
     Access,
     Accuracy,
     Interval,
-    Visibility,
+//    Visibility,
     AutoDeletion;
 
     val titleId: Int
@@ -14,7 +14,7 @@ enum class LocationPrivacyConfig {
             Access -> R.string.accessTitle
             Accuracy -> R.string.accuracyTitle
             Interval -> R.string.intervalTitle
-            Visibility -> R.string.visibilityTitle
+//            Visibility -> R.string.visibilityTitle
             AutoDeletion -> R.string.autoDeletionTitle
         }
 
@@ -23,7 +23,7 @@ enum class LocationPrivacyConfig {
             Access -> R.string.accessSubtitle
             Accuracy -> R.string.accuracySubtitle
             Interval -> R.string.intervalSubtitle
-            Visibility -> R.string.visibilitySubtitle
+//            Visibility -> R.string.visibilitySubtitle
             AutoDeletion -> R.string.autoDeletionSubtitle
         }
 
@@ -32,7 +32,7 @@ enum class LocationPrivacyConfig {
             Access -> R.string.accessDescription
             Accuracy -> R.string.accuracyDescription
             Interval -> R.string.intervalDescription
-            Visibility -> R.string.visibilityDescription
+//            Visibility -> R.string.visibilityDescription
             AutoDeletion -> R.string.autoDeletionDescription
         }
 
@@ -41,17 +41,17 @@ enum class LocationPrivacyConfig {
             Access -> 0
             Accuracy -> 0
             Interval -> 0
-            Visibility -> 0
+//            Visibility -> 0
             AutoDeletion -> 0
         }
 
     val values: Array<Int>
         get() = when(this) {
             Access -> arrayOf(0, 1)
-            Accuracy -> arrayOf(1000, 500, 100, 0)
-            Interval -> arrayOf(1000, 600, 60, 0)
-            Visibility -> arrayOf(0, 1, 2, 3)
-            AutoDeletion -> arrayOf(1000, 600, 60, 0)
+            Accuracy -> (0..1000 step 100).reversed().toList().toTypedArray()
+            Interval -> (0..1000 step 60).reversed().toList().toTypedArray()
+//            Visibility -> arrayOf(0, 1, 2, 3)
+            AutoDeletion -> (0..1000 step 60).reversed().toList().toTypedArray()
         }
 
     val userInterface: LocationPrivacyConfigInterface
@@ -59,7 +59,7 @@ enum class LocationPrivacyConfig {
             Access -> LocationPrivacyConfigInterface.Switch
             Accuracy -> LocationPrivacyConfigInterface.Slider
             Interval -> LocationPrivacyConfigInterface.Slider
-            Visibility -> LocationPrivacyConfigInterface.Slider
+//            Visibility -> LocationPrivacyConfigInterface.Slider
             AutoDeletion -> LocationPrivacyConfigInterface.Slider
         }
 
@@ -71,14 +71,14 @@ enum class LocationPrivacyConfig {
             Access -> ""
             Accuracy -> "${value}m"
             Interval -> "${value}s"
-            Visibility -> {
-                when(value) {
-                    1 -> "Friends"
-                    2 -> "Contacts"
-                    3 -> "Everyone"
-                    else -> "None"
-                }
-            }
+//            Visibility -> {
+//                when(value) {
+//                    1 -> "Friends"
+//                    2 -> "Contacts"
+//                    3 -> "Everyone"
+//                    else -> "None"
+//                }
+//            }
             AutoDeletion -> "${value}s"
         }
     }

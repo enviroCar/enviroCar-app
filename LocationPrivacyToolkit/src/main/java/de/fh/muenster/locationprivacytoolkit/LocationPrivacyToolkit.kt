@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Context.LOCATION_SERVICE
 import android.location.*
 import android.os.*
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
 import de.fh.muenster.locationprivacytoolkit.config.LocationPrivacyConfig
@@ -179,14 +180,18 @@ class LocationPrivacyToolkit(context: Context, private val listener: LocationPri
         // pipe location through all processors
         return location
                 .let { accessProcessor.process(it) }
-                .let { accuracyProcessor.process(it) }
-                .let { intervalProcessor.process(it) }
+                .let { accuracyProcessor.process(it)}
+                .let { intervalProcessor.process(it)}
     }
 
     // LocationListener
 
     override fun onLocationChanged(l: Location) {
         val processedLocation = processLocation(l) ?: return
+
+        Log.i("location", "location: ${l.longitude}, ${l.latitude}")
+        Log.i("location", "location: ${processedLocation.longitude}, ${processedLocation.latitude}")
+
         internalListeners.forEach { it.onLocationChanged(processedLocation) }
         internalPendingIntents.forEach { /* TODO */ }
 
