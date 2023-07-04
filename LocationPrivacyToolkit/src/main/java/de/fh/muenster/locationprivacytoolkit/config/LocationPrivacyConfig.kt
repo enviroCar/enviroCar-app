@@ -1,107 +1,56 @@
 package de.fh.muenster.locationprivacytoolkit.config
 
-import de.fh.muenster.locationprivacytoolkit.R
+import android.content.Context
+import de.fh.muenster.locationprivacytoolkit.LocationPrivacyToolkitListener
+import de.fh.muenster.locationprivacytoolkit.processors.AbstractInternalLocationProcessor
+import de.fh.muenster.locationprivacytoolkit.processors.AccessProcessor
+import de.fh.muenster.locationprivacytoolkit.processors.AccuracyProcessor
+import de.fh.muenster.locationprivacytoolkit.processors.AutoDeletionProcessor
+import de.fh.muenster.locationprivacytoolkit.processors.DelayProcessor
+import de.fh.muenster.locationprivacytoolkit.processors.ExclusionZoneProcessor
+import de.fh.muenster.locationprivacytoolkit.processors.HistoryProcessor
+import de.fh.muenster.locationprivacytoolkit.processors.IntervalProcessor
+import de.fh.muenster.locationprivacytoolkit.processors.VisibilityProcessor
 
 enum class LocationPrivacyConfig {
     Access,
+    History,
+    ExclusionZone,
     Accuracy,
+    AutoDeletion,
+    Delay,
     Interval,
-//    Visibility,
-    AutoDeletion;
+    Visibility,
+    External;
 
-    val titleId: Int
-        get() = when(this) {
-            Access -> R.string.accessTitle
-            Accuracy -> R.string.accuracyTitle
-            Interval -> R.string.intervalTitle
-//            Visibility -> R.string.visibilityTitle
-            AutoDeletion -> R.string.autoDeletionTitle
-        }
-
-    val subtitleId: Int
-        get() = when(this) {
-            Access -> R.string.accessSubtitle
-            Accuracy -> R.string.accuracySubtitle
-            Interval -> R.string.intervalSubtitle
-//            Visibility -> R.string.visibilitySubtitle
-            AutoDeletion -> R.string.autoDeletionSubtitle
-        }
-
-    val descriptionId: Int
-        get() = when(this) {
-            Access -> R.string.accessDescription
-            Accuracy -> R.string.accuracyDescription
-            Interval -> R.string.intervalDescription
-//            Visibility -> R.string.visibilityDescription
-            AutoDeletion -> R.string.autoDeletionDescription
-        }
-
-    val defaultValue: Int
-        get() = when(this) {
+    val sortIndex: Int
+        get() = when (this) {
             Access -> 0
-            Accuracy -> 0
-            Interval -> 0
-//            Visibility -> 0
-            AutoDeletion -> 0
+            ExclusionZone -> 1
+            Accuracy -> 2
+            Delay -> 3
+            Interval -> 4
+            AutoDeletion -> 5
+            Visibility -> 6
+            History -> 7
+            External -> Int.MAX_VALUE
         }
 
-    val values: Array<Int>
-        get() = when(this) {
-            Access -> arrayOf(0, 1)
-            Accuracy -> (0..1000 step 100).reversed().toList().toTypedArray()
-            Interval -> (0..1000 step 60).reversed().toList().toTypedArray()
-//            Visibility -> arrayOf(0, 1, 2, 3)
-            AutoDeletion -> (0..1000 step 60).reversed().toList().toTypedArray()
-        }
-
-    val userInterface: LocationPrivacyConfigInterface
-        get() = when(this) {
-            Access -> LocationPrivacyConfigInterface.Switch
-            Accuracy -> LocationPrivacyConfigInterface.Slider
-            Interval -> LocationPrivacyConfigInterface.Slider
-//            Visibility -> LocationPrivacyConfigInterface.Slider
-            AutoDeletion -> LocationPrivacyConfigInterface.Slider
-        }
-
-    val range: IntRange
-        get() = IntRange(0, values.size - 1)
-
-    fun formatLabel(value: Int): String {
-        return when(this) {
-            Access -> ""
-            Accuracy -> "${value}m"
-            Interval -> "${value}s"
-//            Visibility -> {
-//                when(value) {
-//                    1 -> "Friends"
-//                    2 -> "Contacts"
-//                    3 -> "Everyone"
-//                    else -> "None"
-//                }
-//            }
-            AutoDeletion -> "${value}s"
+    fun getLocationProcessor(
+        context: Context,
+        listener: LocationPrivacyToolkitListener?
+    ): AbstractInternalLocationProcessor? {
+        return when (this) {
+            Access -> AccessProcessor(context)
+            Accuracy -> AccuracyProcessor(context)
+            Delay -> DelayProcessor(context)
+            ExclusionZone -> ExclusionZoneProcessor(context)
+            Interval -> IntervalProcessor(context)
+            Visibility -> VisibilityProcessor(context, listener)
+            AutoDeletion -> AutoDeletionProcessor(context, listener)
+            History -> HistoryProcessor(context, listener)
+            else -> null
         }
     }
-    fun indexToValue(indexValue: Float): Int? {
-        val configValues = this.values
-        if (configValues.isNotEmpty()) {
-            val index = indexValue.toInt()
-            return configValues[index]
-        }
-        return null
-    }
 
-    fun valueToIndex(value: Int): Int? {
-        val index = this.values.indexOf(value)
-        if (index >= 0) {
-            return index
-        }
-        return null
-    }
-
-}
-
-enum class LocationPrivacyConfigInterface {
-    Switch,
-    Slider
 }

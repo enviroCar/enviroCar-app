@@ -7,35 +7,48 @@ import android.content.Context
 import android.content.Context.LOCATION_SERVICE
 import android.location.*
 import android.os.*
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
-import de.fh.muenster.locationprivacytoolkit.config.LocationPrivacyConfig
 import de.fh.muenster.locationprivacytoolkit.config.LocationPrivacyConfigManager
-import de.fh.muenster.locationprivacytoolkit.processors.AccessProcessor
-import de.fh.muenster.locationprivacytoolkit.processors.AccuracyProcessor
-import de.fh.muenster.locationprivacytoolkit.processors.IntervalProcessor
+import de.fh.muenster.locationprivacytoolkit.processors.AbstractInternalLocationProcessor
+import de.fh.muenster.locationprivacytoolkit.processors.AbstractExternalLocationProcessor
+import de.fh.muenster.locationprivacytoolkit.processors.db.LocationDatabase
+import de.fh.muenster.locationprivacytoolkit.processors.db.LocationPrivacyDatabase
+import de.fh.muenster.locationprivacytoolkit.processors.utils.LocationPrivacyVisibility
 import kotlinx.coroutines.*
 import java.util.concurrent.Executor
 import java.util.function.Consumer
 
-class LocationPrivacyToolkit(context: Context, private val listener: LocationPrivacyToolkitListener? = null): LocationListener {
+class LocationPrivacyToolkit(
+    context: Context, listener: LocationPrivacyToolkitListener? = null
+) : LocationListener {
+
+    init {
+        internalProcessors.addAll(
+            LocationPrivacyConfigManager.getLocationProcessors(context, listener)
+        )
+    }
 
     public val locationManager = context.getSystemService(LOCATION_SERVICE) as LocationManager
-    private var config = LocationPrivacyConfigManager(context)
-
-    private val accessProcessor = AccessProcessor(context)
-    private val accuracyProcessor = AccuracyProcessor(context)
-    private val intervalProcessor = IntervalProcessor(context)
-
     private val internalListeners: MutableList<LocationListener> = mutableListOf()
     private val internalPendingIntents: MutableList<PendingIntent> = mutableListOf()
+    private val locationDatabase: LocationPrivacyDatabase by lazy {
+        LocationPrivacyDatabase.sharedInstance(context)
+    }
 
-    private val autoDeletionTimeSeconds: Int?
-        get() {
-            val time = config.getPrivacyConfig(LocationPrivacyConfig.AutoDeletion) ?: return null
-            return if (time <= 0) null else time
-        }
+    fun loadAllLocations(): List<Location> {
+        return locationDatabase.loadLocations()
+    }
+
+    fun loadLocations(fromTimestamp: Long, toTimestamp: Long): List<Location> {
+        return locationDatabase.loadLocations(false, fromTimestamp, toTimestamp)
+    }
+
+    fun loadLocations(atTimestamp: Long): Location {
+        return locationDatabase.loadLocation(false, atTimestamp)
+    }
+
+    // LocationManager methods
 
     @RequiresApi(Build.VERSION_CODES.P)
     fun isLocationEnabled(): Boolean {
@@ -80,15 +93,14 @@ class LocationPrivacyToolkit(context: Context, private val listener: LocationPri
             val processedLocation = processLocation(it)
             consumer.accept(processedLocation)
         }
-        locationManager.getCurrentLocation(provider, locationRequest, cancellationSignal, executor, privacyConsumer)
+        locationManager.getCurrentLocation(
+            provider, locationRequest, cancellationSignal, executor, privacyConsumer
+        )
     }
 
     @RequiresPermission(anyOf = [ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION])
     fun requestLocationUpdates(
-        provider: String,
-        minTimeMs: Long,
-        minDistanceM: Float,
-        listener: LocationListener
+        provider: String, minTimeMs: Long, minDistanceM: Float, listener: LocationListener
     ) {
         internalListeners.add(listener)
         locationManager.requestLocationUpdates(provider, minTimeMs, minDistanceM, this)
@@ -121,10 +133,7 @@ class LocationPrivacyToolkit(context: Context, private val listener: LocationPri
 
     @RequiresPermission(anyOf = [ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION])
     fun requestLocationUpdates(
-        provider: String,
-        minTimeMs: Long,
-        minDistanceM: Float,
-        pendingIntent: PendingIntent
+        provider: String, minTimeMs: Long, minDistanceM: Float, pendingIntent: PendingIntent
     ) {
         throw NotImplementedError("PendingIntents are not implemented yet")
         /*
@@ -148,9 +157,7 @@ class LocationPrivacyToolkit(context: Context, private val listener: LocationPri
     @RequiresApi(Build.VERSION_CODES.S)
     @RequiresPermission(anyOf = [ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION])
     fun requestLocationUpdates(
-        provider: String,
-        locationRequest: LocationRequest,
-        pendingIntent: PendingIntent
+        provider: String, locationRequest: LocationRequest, pendingIntent: PendingIntent
     ) {
         throw NotImplementedError("PendingIntents are not implemented yet")
         /*
@@ -178,33 +185,32 @@ class LocationPrivacyToolkit(context: Context, private val listener: LocationPri
 
     fun processLocation(location: Location?): Location? {
         // pipe location through all processors
-        return location
-                .let { accessProcessor.process(it) }
-                .let { accuracyProcessor.process(it)}
-                .let { intervalProcessor.process(it)}
+        var l = location
+        internalProcessors.forEach { p -> l = p.process(l) }
+        externalProcessors.forEach { p -> l = p.process(l) }
+        return l
     }
 
     // LocationListener
 
     override fun onLocationChanged(l: Location) {
         val processedLocation = processLocation(l) ?: return
-
-        Log.i("location", "location: ${l.longitude}, ${l.latitude}")
-        Log.i("location", "location: ${processedLocation.longitude}, ${processedLocation.latitude}")
-
         internalListeners.forEach { it.onLocationChanged(processedLocation) }
         internalPendingIntents.forEach { /* TODO */ }
+    }
 
-        val autoDeletionTime = autoDeletionTimeSeconds ?: return
-        MainScope().launch {
-            delay(autoDeletionTime * 1000L)
-            listener?.onRemoveLocation(processedLocation)
-        }
+    companion object {
+        internal val internalProcessors: MutableList<AbstractInternalLocationProcessor> =
+            mutableListOf()
+        var externalProcessors: MutableList<AbstractExternalLocationProcessor> = mutableListOf()
+        var mapTilesUrl: String = "https://demotiles.maplibre.org/style.json"
     }
 }
 
 interface LocationPrivacyToolkitListener {
     fun onRemoveLocation(l: Location)
     fun onRemoveLocation(timestamp: Long)
+    fun onRemoveLocations(locations: List<Location>)
     fun onRemoveLocationRange(fromTimestamp: Long, toTimestamp: Long)
+    fun onUpdateVisibilityPreference(visibility: LocationPrivacyVisibility)
 }

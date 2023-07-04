@@ -29,4 +29,8 @@
     <style name="Theme.LocationPrivacyToolkit.Switch" parent="Widget.MaterialComponents.CompoundButton.Switch">
         <!-- empty theme, override in app -->
     </style>
+
+    <style name="Theme.LocationPrivacyToolkit.FloatingActionButton" parent="Widget.MaterialComponents.FloatingActionButton">
+        <!-- empty theme, override in app -->
+    </style>
 </resources>

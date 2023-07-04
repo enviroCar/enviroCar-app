@@ -2,10 +2,26 @@ package de.fh.muenster.locationprivacytoolkit.processors
 
 import android.content.Context
 import android.location.*
+import de.fh.muenster.locationprivacytoolkit.R
 import de.fh.muenster.locationprivacytoolkit.config.LocationPrivacyConfig
+import de.fh.muenster.locationprivacytoolkit.processors.utils.DurationFormat
+import de.fh.muenster.locationprivacytoolkit.processors.utils.LocationProcessorUserInterface
 
-class IntervalProcessor(context: Context): AbstractLocationProcessor(context) {
-    override val configKey = LocationPrivacyConfig.Interval
+/**
+ * The IntervalProcessor only relays locations in the configured frequency.
+ * If available, previous locations are passed through.
+ */
+class IntervalProcessor(context: Context) : AbstractInternalLocationProcessor(context) {
+
+    override val config = LocationPrivacyConfig.Interval
+    override val titleId = R.string.intervalTitle
+    override val subtitleId = R.string.intervalSubtitle
+    override val descriptionId = R.string.intervalDescription
+    override val userInterface = LocationProcessorUserInterface.Slider
+    override val values = arrayOf(1800, 600, 60, 0)
+
+    override fun formatLabel(value: Int): String =
+        DurationFormat.humanReadableFormat(value.toLong())
 
     private var localLastLocation: Location? = null
     private var lastLocation: Location?
