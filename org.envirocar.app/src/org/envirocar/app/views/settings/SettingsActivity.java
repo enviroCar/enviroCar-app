@@ -155,11 +155,7 @@ public class SettingsActivity extends AppCompatActivity {
                         // app.
                         Snackbar.make(requireView(), R.string.microphone_permission_granted, Snackbar.LENGTH_LONG).show();
                     } else {
-                        // Explain to the user that the feature is unavailable because the
-                        // feature requires a permission that the user has denied. At the
-                        // same time, respect the user's decision. Don't link to system
-                        // settings in an effort to convince the user to change their
-                        // decision.
+
                         this.enableVoiceCommand.setChecked(false);
 
                         // action opens app's general settings where user can grant microphone/any permission

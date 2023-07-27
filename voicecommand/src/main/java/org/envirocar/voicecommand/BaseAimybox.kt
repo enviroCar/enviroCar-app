@@ -78,7 +78,6 @@ class BaseAimybox (
     }
 
     companion object {
-        private var currentAimybox: Aimybox? = null;
         private const val ARGUMENTS_KEY = "arguments"
         private val sender = UUID.randomUUID().toString()
         private const val WEBHOOK_URL =
@@ -94,14 +93,6 @@ class BaseAimybox (
 
             viewModel.setInitialPhrase(initialPhrase)
 
-        }
-
-        fun setCurrentAimybox(aimybox: Aimybox) {
-            currentAimybox = aimybox;
-        }
-
-        fun getCurrentAimybox() : Aimybox? {
-            return currentAimybox;
         }
 
         fun findAimyboxProvider(activity: Activity): AimyboxProvider? {
