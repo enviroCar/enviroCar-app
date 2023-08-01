@@ -468,9 +468,9 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
 
     private void pairDevice(BluetoothDevice device, final View view) {
         progress = DialogUtils.createProgressBarDialogBuilder(getContext(),
-                        R.string.pairing,
+                        R.string.obd_selection_progress_bar_pairing_title,
                         R.drawable.baseline_bluetooth_connected_24,
-                        (String) null)
+                        R.string.obd_selection_progress_bar_pairing)
                 .setCancelable(false)
                 .create();
         final TextView text = view.findViewById(R.id

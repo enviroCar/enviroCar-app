@@ -39,7 +39,8 @@
 
     <string name="obd_selection_dialog_pairing_title">Pair Device</string>
     <string name="obd_selection_dialog_pairing_content_template">Do you want to pair with %s?</string>
-    <string name="pairing">Pairing..</string>
+    <string name="obd_selection_progress_bar_pairing_title">Pairing</string>
+    <string name="obd_selection_progress_bar_pairing">Trying to establish Bluetooth connection with device.</string>
     <string name="obd_selection_dialog_delete_pairing_title">Unpair device?</string>
     <string name="obd_selection_dialog_delete_pairing_content_template">Do you want to remove the pairing with "%s"?</string>
 
