@@ -39,6 +39,7 @@
 
     <string name="obd_selection_dialog_pairing_title">Gerät koppeln</string>
     <string name="obd_selection_dialog_pairing_content_template">Möchten Sie ihr Gerät mit %s koppeln?</string>
+    <string name="pairing">Paarung..</string>
     <string name="obd_selection_dialog_delete_pairing_title">Gerät entkoppeln?</string>
     <string name="obd_selection_dialog_delete_pairing_content_template">Möchten Sie die Kopplung mit \"%s\" löschen?</string>
 
