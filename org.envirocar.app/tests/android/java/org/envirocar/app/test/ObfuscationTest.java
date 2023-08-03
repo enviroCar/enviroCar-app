@@ -18,8 +18,6 @@
  */
 package org.envirocar.app.test;
 
-import android.test.InstrumentationTestCase;
-
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.CarImpl;
 import org.envirocar.core.entity.Measurement;
@@ -39,7 +37,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class ObfuscationTest extends InstrumentationTestCase {
+public class ObfuscationTest {
 
     private static int TARGET_LENGTH = 10;
     private MeasurementImpl first;

@@ -35,7 +35,7 @@ import java.io.InputStream
 import java.time.Instant
 
 
-class LocationPrivacyConfigActivity : AppCompatActivity(),
+public class LocationPrivacyConfigActivity : AppCompatActivity(),
     LocationProcessorAdapter.LocationPrivacyConfigAdapterListener {
 
     private lateinit var binding: ActivityLocationPrivacyConfigBinding
@@ -50,6 +50,8 @@ class LocationPrivacyConfigActivity : AppCompatActivity(),
             }
         }
 
+private lateinit var toolkit: LocationPrivacyToolkit
+
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,6 +59,8 @@ class LocationPrivacyConfigActivity : AppCompatActivity(),
         configManager = LocationPrivacyConfigManager(this)
         binding = ActivityLocationPrivacyConfigBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        toolkit = LocationPrivacyToolkit(this)
 
         configAdapter = LocationProcessorAdapter(this).apply {
             val processors =

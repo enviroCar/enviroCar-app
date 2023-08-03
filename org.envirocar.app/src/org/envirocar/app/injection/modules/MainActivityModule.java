@@ -85,7 +85,7 @@ public class MainActivityModule {
     @Provides
     @PerActivity
     public Mapbox provideMapBox() {
-        return Mapbox.getInstance(mActivity, "");
+        return Mapbox.getInstance(mActivity);
     }
 
 }

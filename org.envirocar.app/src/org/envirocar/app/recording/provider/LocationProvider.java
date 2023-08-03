@@ -192,7 +192,7 @@ public class LocationProvider {
         this.mLastBestLocation = null;
 
         // Get the LocationManager
-        toolkit =new LocationPrivacyToolkit(mContext, null);
+        toolkit =new LocationPrivacyToolkit(mContext);
         mLocationManager = toolkit.getLocationManager();
 
     }

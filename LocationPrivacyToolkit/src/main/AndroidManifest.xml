@@ -9,11 +9,17 @@
     <application>
         <activity
             android:name=".ui.LocationPrivacyConfigActivity"
-            android:exported="true">
+            android:exported="true"
+            android:label="@string/locationPrivacyToolkitTitle">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
+
+        <receiver
+            android:name=".processors.AbstractInternalLocationProcessor"
+            android:exported="false" />
     </application>
+
 
 </manifest>

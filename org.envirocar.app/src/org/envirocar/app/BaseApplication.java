@@ -97,7 +97,7 @@ public class BaseApplication extends Application {
         // hack
         Logger.addFileHandlerLocation(getFilesDir().getAbsolutePath());
 
-        Mapbox.getInstance(this, "");
+        Mapbox.getInstance(this);
 
         baseApplicationComponent =
                 DaggerBaseApplicationComponent
