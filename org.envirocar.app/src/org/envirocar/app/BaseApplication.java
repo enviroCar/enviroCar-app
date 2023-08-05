@@ -68,12 +68,14 @@ import io.reactivex.disposables.CompositeDisposable;
  */
 
 @AcraCore(buildConfigClass = BuildConfig.class, reportSenderFactoryClasses = ACRASenderFactory.class)
-public class BaseApplication extends Application implements AimyboxProvider {
+public class BaseApplication extends Application {
     private static Logger LOG = Logger.getLogger(BaseApplication.class);
 
     BaseApplicationComponent baseApplicationComponent;
     protected BroadcastReceiver mScreenReceiver;
 
+    @Inject
+    protected BaseAimybox baseAimybox;
     @Inject
     protected UserService userService;
     @Inject
@@ -202,15 +204,4 @@ public class BaseApplication extends Application implements AimyboxProvider {
         return (BaseApplication) context.getApplicationContext();
     }
 
-    @NonNull
-    @Override
-    public Aimybox getAimybox() {
-        return new BaseAimybox(this, mBus, metadataHandler).getAimybox();
-    }
-
-    @NonNull
-    @Override
-    public AimyboxAssistantViewModel.Factory getViewModelFactory() {
-        return AimyboxAssistantViewModel.Factory.Companion.getInstance(getAimybox());
-    }
 }

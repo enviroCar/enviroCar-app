@@ -109,7 +109,6 @@ import org.envirocar.core.utils.ServiceUtils;
 import org.envirocar.obd.events.TrackRecordingServiceStateChangedEvent;
 import org.envirocar.obd.service.BluetoothServiceState;
 import org.envirocar.voicecommand.BaseAimybox;
-import org.envirocar.voicecommand.BaseAimyboxAssistantViewModel;
 import org.envirocar.voicecommand.enums.MetadataType;
 import org.envirocar.voicecommand.enums.NavigationScreens;
 import org.envirocar.voicecommand.enums.Recording;
@@ -237,7 +236,8 @@ public class DashboardFragment extends BaseInjectorFragment implements Coroutine
     protected UserPreferenceHandler userHandler;
     @Inject
     protected BluetoothHandler bluetoothHandler;
-
+    @Inject
+    protected BaseAimybox baseAimybox;
     @Inject
     protected AgreementManager mAgreementManager;
 
@@ -373,11 +373,9 @@ public class DashboardFragment extends BaseInjectorFragment implements Coroutine
         EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
     }
 
-    private void initAimyboxViewModel(Context context) {
-        if (viewModel == null) {
-            viewModel = new BaseAimyboxAssistantViewModel().getAimyboxAssistantViewModel(requireActivity());
-            BaseAimybox.Companion.setInitialPhrase(context, getArguments(), viewModel);
-        }
+    private void initAimybox(Context context) {
+        baseAimybox.initializeAimybox();
+        baseAimybox.activityContext = context;
     }
 
     public void checkAndRequestMicrophonePerms() {
@@ -396,7 +394,7 @@ public class DashboardFragment extends BaseInjectorFragment implements Coroutine
                             .setTheme(R.style.MaterialDialog)
                             .build());
         } else {
-            initAimyboxViewModel(requireContext());
+            initAimybox(requireContext());
         }
     }
 
@@ -408,7 +406,7 @@ public class DashboardFragment extends BaseInjectorFragment implements Coroutine
             // TODO init the aimybox? or ask for restart to get started with voice commands
             showSnackbarLong(requireView(), getString(R.string.microphone_permission_granted));
 
-            initAimyboxViewModel(requireContext());
+            initAimybox(requireContext());
         }
     }
 
