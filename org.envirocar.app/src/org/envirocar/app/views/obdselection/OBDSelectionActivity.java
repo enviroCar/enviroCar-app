@@ -99,7 +99,7 @@ public class OBDSelectionActivity extends BaseInjectorActivity implements
                 .commit();
 
         // set `isDashboardFragment` to false
-        metadataHandler.onDashboardFragmentFalse();
+        metadataHandler.setDashboardFragmentVisibility();
 
 
         // Setup the bluetooth toolbar

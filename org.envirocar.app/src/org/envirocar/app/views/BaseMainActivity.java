@@ -133,16 +133,16 @@ public class BaseMainActivity extends BaseInjectorActivity {
         switch (item.getItemId()) {
             case R.id.navigation_dashboard:
                 viewPager.setCurrentItem(0);
-                metadataHandler.onDashboardFragmentTrue();
+                metadataHandler.setDashboardFragmentVisibility();
                 return true;
             case R.id.navigation_my_tracks: {
                 viewPager.setCurrentItem(1);
-                metadataHandler.onDashboardFragmentFalse();
+                metadataHandler.setDashboardFragmentVisibility();
                 return true;
             }
             case R.id.navigation_others:
                 viewPager.setCurrentItem(2);
-                metadataHandler.onDashboardFragmentFalse();
+                metadataHandler.setDashboardFragmentVisibility();
                 return true;
         }
         return false;
