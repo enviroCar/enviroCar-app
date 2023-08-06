@@ -74,10 +74,11 @@ class HistoryProcessorFragment : Fragment() {
     private var isLayersFabExtended = false
     private val useExampleData: Boolean
         get() = locationPrivacyConfig?.getUseExampleData() ?: false
-    private val firstLocationTime: Long?
-        get() = lastLocations?.minBy { l -> l.time }?.time
-    private val lastLocationTime: Long?
-        get() = lastLocations?.maxBy { l -> l.time }?.time
+    private val firstLocationTime: Long
+        get() = lastLocations?.minByOrNull { l -> l.time }?.time ?: 0L
+
+    private val lastLocationTime: Long
+        get() = lastLocations?.maxByOrNull { l -> l.time }?.time ?: 0L
 
     // map modes
     private var mapContentMode: HistoryMapContentMode = HistoryMapContentMode.Timeline
