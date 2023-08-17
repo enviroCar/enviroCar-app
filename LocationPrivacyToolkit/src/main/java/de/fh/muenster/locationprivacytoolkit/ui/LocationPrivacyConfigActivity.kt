@@ -91,9 +91,10 @@ private lateinit var toolkit: LocationPrivacyToolkit
 
         val hasBackgroundPermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             checkSelfPermission(ACCESS_BACKGROUND_LOCATION)
-        } else {
-            TODO("VERSION.SDK_INT < Q")
+        }else{
+            Log.d("Error", "No background permission asked for lower sdk versions")
         }
+
         binding.locationConfigSystemBackgroundValue.text =
             if (hasBackgroundPermission == PackageManager.PERMISSION_GRANTED) {
                 "yes"

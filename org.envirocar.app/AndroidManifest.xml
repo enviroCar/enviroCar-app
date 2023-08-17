@@ -25,7 +25,7 @@
 
     <!-- for Android 12 and above, include the ones you really need -->
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
-    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" 
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN"
         android:usesPermissionFlags="neverForLocation" />
     <!-- <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" /> -->
 
