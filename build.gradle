@@ -9,7 +9,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.0.3'
+        classpath 'com.android.tools.build:gradle:7.4.2'
     }
 
 }
@@ -57,11 +57,11 @@ allprojects {
 ext {
     androidPlugin = 'com.android.tools.build:gradle:3.1.2'
     minSdkVersion = 24
-    compileSdkVersion = 31
-    targetSdkVersion = 31
+    compileSdkVersion = 33
+    targetSdkVersion = 33
     buildToolsVersion = '30.0.2'
-    versionCode = 63
-    versionName = "2.2.9"
+    versionCode = 64
+    versionName = "2.2.10"
     ndkVersion = "21.4.7075529"
 
     javaCompileVersion = JavaVersion.VERSION_1_8
