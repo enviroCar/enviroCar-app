@@ -1,4 +1,5 @@
-apply plugin: 'com.android.application' //or apply plugin: 'java'
+apply plugin: 'com.android.application'
+apply plugin: 'org.jetbrains.kotlin.android'//or apply plugin: 'java'
 
 dependencies {
     // Android dependencies.

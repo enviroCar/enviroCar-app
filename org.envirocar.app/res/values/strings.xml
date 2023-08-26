@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
 
     Copyright (C) 2013 - 2021 the enviroCar community
 
@@ -78,7 +77,6 @@
     <string name="general_error_please_report">General Track Error - Please report this issue</string>
 
 
-
     <string name="ok" translatable="false">OK</string>
 
     <string name="driving">Driving</string>
@@ -98,7 +96,6 @@
     <!-- ################# -->
     <!-- Sign In / Sign Up -->
     <!-- ################# -->
-
 
 
     <!-- ################# -->
@@ -139,7 +136,8 @@
     <!--  Preference Keys  -->
     <!-- ################# -->
     <string name="prefkey_enable_debug_logging" tools:ignore="MissingTranslation">pref_enable_debug_logging</string>
-    <string name="prefkey_track_trim_duration" tools:ignore="MissingTranslation">pref_track_cut_duration</string>>
+    <string name="prefkey_track_trim_duration" tools:ignore="MissingTranslation">pref_track_cut_duration</string>
+    >
     <string name="prefkey_track_chunk_upload" tools:ignore="MissingTranslation">pref_track_chunk_upload</string>
     <string name="prefkey_voice_command" tools:ignore="MissingTranslation">pref_voice_command</string>
     <string name="prefkey_enable_gps_based_track_recording" tools:ignore="MissingTranslation">pref_enable_gps_based_track_recording</string>
@@ -195,7 +193,7 @@
         <item>@string/item_campaign_profile_default</item>
         <item>@string/item_campaign_profile_dvfo</item>
     </string-array>
-    
+
     <!-- ###################### -->
     <!--   Public Mapbox key    -->
     <!-- ###################### -->
