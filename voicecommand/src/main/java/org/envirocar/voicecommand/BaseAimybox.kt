@@ -28,9 +28,8 @@ import com.justai.aimybox.components.AimyboxProvider
 import com.justai.aimybox.core.Config.Companion.create
 import com.justai.aimybox.speechkit.google.platform.GooglePlatformSpeechToText
 import com.justai.aimybox.speechkit.google.platform.GooglePlatformTextToSpeech
-import com.justai.aimybox.speechkit.pocketsphinx.PocketsphinxAssets
-import com.justai.aimybox.speechkit.pocketsphinx.PocketsphinxRecognizerProvider
-import com.justai.aimybox.speechkit.pocketsphinx.PocketsphinxVoiceTrigger
+import com.justai.aimybox.speechkit.kaldi.KaldiAssets
+import com.justai.aimybox.speechkit.kaldi.KaldiVoiceTrigger
 import com.squareup.otto.Bus
 import org.envirocar.voicecommand.customskills.EnviroCarRasaCustomSkill
 import org.envirocar.voicecommand.dialogapi.rasa.CustomRasaDialogApi
@@ -47,7 +46,6 @@ class BaseAimybox (
     bus: Bus,
     metadataHandler: MetadataHandler
 ) {
-
     var aimybox: Aimybox
 
     init {
@@ -59,23 +57,11 @@ class BaseAimybox (
         mBus: Bus,
         metadataHandler: MetadataHandler
     ): Aimybox {
-
         // Accessing model from assets folder
-        val assets = PocketsphinxAssets
-            .fromApkAssets(
-                context,
-                acousticModelFileName = "model/en",
-                dictionaryFileName = "model/en/dictionary.dict"
-            )
-
-        // initializing pocketsphinx provider
-        val provider = PocketsphinxRecognizerProvider(assets, keywordThreshold = 1e-40f)
+        val assets = KaldiAssets.fromApkAssets(context,"model/en")
 
         // initializing trigger words
-        val voiceTrigger = PocketsphinxVoiceTrigger(
-            provider,
-            context.getString(R.string.keyphrase_envirocar_listen)
-        )
+        val voiceTrigger = KaldiVoiceTrigger(assets, listOf("envirocar listen"))
 
         val textToSpeech = GooglePlatformTextToSpeech(context, Locale.ENGLISH, false)
         val speechToText = GooglePlatformSpeechToText(context, Locale.ENGLISH, false, 10000L)

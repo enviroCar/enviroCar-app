@@ -37,6 +37,7 @@ allprojects {
     repositories {
         mavenLocal()
         maven { url "https://jitpack.io" }
+        maven { url "https://alphacephei.com/maven" }
         mavenCentral()
         google()
         maven {
@@ -130,10 +131,9 @@ ext {
     //Voice command
     def aimyboxVersion = "0.17.5.2"
     aimyboxCore = "com.just-ai.aimybox:core:$aimyboxVersion"
-    pocketsphinxSpeechkit = "com.just-ai.aimybox:pocketsphinx-speechkit:$aimyboxVersion"
+    kaldiSpeechkit = "com.just-ai.aimybox:kaldi-speechkit:$aimyboxVersion"
     googlePlatformSpeechkit = "com.just-ai.aimybox:google-platform-speechkit:$aimyboxVersion"
     rasaApi = "com.just-ai.aimybox:rasa-api:${aimyboxVersion}"
-    vosk = "com.alphacephei:vosk-android:0.3.32"
     devJna = "net.java.dev.jna:jna:5.10.0@aar"
     aimyboxComponents = "com.just-ai.aimybox:components:$aimyboxVersion"
 

@@ -170,7 +170,7 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
         this.trackDetailsContainer.setKeepScreenOn(keepScreenOn);
 
         // set `isDashboardFragment` to false
-        metadataHandler.onDashboardFragmentFalse();
+        metadataHandler.setDashboardFragmentVisibility();
 
         // setting the `is_recording_screen` true
         metadataHandler.onRecordingScreenTrue();

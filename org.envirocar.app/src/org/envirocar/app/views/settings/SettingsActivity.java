@@ -25,6 +25,8 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.View;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -59,6 +61,8 @@ public class SettingsActivity extends AppCompatActivity {
                 .replace(R.id.activity_settings_content, new SettingsFragment())
                 .commit();
     }
+
+
 
     public static class SettingsFragment extends PreferenceFragmentCompat {
 
@@ -136,34 +140,27 @@ public class SettingsActivity extends AppCompatActivity {
         }
 
         public void requestMicrophonePermission() {
-            String[] perms = new String[]{Manifest.permission.RECORD_AUDIO};
 
             // if microphone permission is not granted, request it
             if (!(requireContext().checkCallingOrSelfPermission(Manifest.permission.RECORD_AUDIO)
                     == PackageManager.PERMISSION_GRANTED)) {
-                requestPermissions(perms, RECORD_AUDIO_PERMISSION_REQ_CODE);
+                requestPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO);
             }
         }
 
-        @Override
-        public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-            if (requestCode == RECORD_AUDIO_PERMISSION_REQ_CODE) {
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+        private ActivityResultLauncher<String> requestPermissionLauncher =
+                registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                    if (isGranted) {
+                        // Permission is granted. Continue the action or workflow in your
+                        // app.
+                        Snackbar.make(requireView(), R.string.microphone_permission_granted, Snackbar.LENGTH_LONG).show();
+                    } else {
 
-                    //If user grants permission then show the snackbar
-                    Snackbar.make(requireView(), R.string.microphone_permission_granted, Snackbar.LENGTH_LONG).show();
-                } else {
-                    //If user denies permission then uncheck the checkbox back
-                    // and show the Snackbar to grant permission
-                    this.enableVoiceCommand.setChecked(false);
+                        this.enableVoiceCommand.setChecked(false);
 
-                    // action opens app's general settings where user can grant microphone/any permission
-                    showGrantMicrophonePermission(requireView(), requireContext(), getActivity());
-
-                }
-            }
-        }
+                        // action opens app's general settings where user can grant microphone/any permission
+                        showGrantMicrophonePermission(requireView(), requireContext(), getActivity());
+                    }
+                });
     }
 }

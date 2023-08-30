@@ -154,7 +154,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements Corout
 //        getSupportActionBar().setTitle(R.string.car_selection_header);
 
         // set `isDashboardFragment` to false
-        metadataHandler.onDashboardFragmentFalse();
+        metadataHandler.setDashboardFragmentVisibility();
 
         // setting the `is_car_selection_fragment` true
         metadataHandler.onCarSelectionFragmentTrue();

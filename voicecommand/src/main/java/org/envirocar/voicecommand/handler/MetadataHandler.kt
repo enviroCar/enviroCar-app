@@ -29,7 +29,7 @@ import javax.inject.Singleton
 class MetadataHandler @Inject constructor() {
     var metadata: ExtraMetadata? = null
 
-    fun onDashboardFragmentFalse() {
+    fun setDashboardFragmentVisibility() {
         metadata?.isDashboardFragment = false
     }
 
