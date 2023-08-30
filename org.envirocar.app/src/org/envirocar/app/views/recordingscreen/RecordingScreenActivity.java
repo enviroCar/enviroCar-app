@@ -58,7 +58,6 @@ import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.core.events.gps.GpsSatelliteFixEvent;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.voicecommand.BaseAimybox;
-import org.envirocar.voicecommand.BaseAimyboxAssistantViewModel;
 import org.envirocar.voicecommand.enums.Recording;
 import org.envirocar.voicecommand.events.recording.RecordingTrackEvent;
 import org.envirocar.voicecommand.handler.MetadataHandler;
@@ -99,6 +98,8 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
     protected TrackRecordingHandler trackRecordingHandler;
     @Inject
     protected UserPreferenceHandler userHandler;
+    @Inject
+    protected BaseAimybox baseAimybox;
     @Inject
     protected MetadataHandler metadataHandler;
 
@@ -175,7 +176,7 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
         // setting the `is_recording_screen` true
         metadataHandler.onRecordingScreenTrue();
 
-        initAimyboxViewModel(this);
+        initAimybox(this);
     }
 
     @Override
@@ -206,11 +207,9 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
         }
     }
 
-    private void initAimyboxViewModel(Context context) {
-        if (viewModel == null) {
-            viewModel = new BaseAimyboxAssistantViewModel().getAimyboxAssistantViewModel(this);
-            BaseAimybox.Companion.setInitialPhrase(context, this.getIntent().getExtras(), viewModel);
-        }
+    private void initAimybox(Context context) {
+        baseAimybox.initializeAimybox();
+        baseAimybox.activityContext = context;
     }
 
     @Override

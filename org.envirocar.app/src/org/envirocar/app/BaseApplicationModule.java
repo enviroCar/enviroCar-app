@@ -41,6 +41,8 @@ import org.envirocar.core.util.Util;
 import org.envirocar.app.handler.DAOProvider;
 import org.envirocar.remote.injection.modules.RemoteModule;
 import org.envirocar.storage.DatabaseModule;
+import org.envirocar.voicecommand.BaseAimybox;
+import org.envirocar.voicecommand.handler.MetadataHandler;
 
 import javax.inject.Singleton;
 
@@ -173,4 +175,9 @@ public class BaseApplicationModule {
         return (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
     }
 
+    @Provides
+    @Singleton
+    public BaseAimybox provideBaseAimybox(Bus bus, MetadataHandler metadataHandler) {
+        return new BaseAimybox(mAppContext,bus,metadataHandler);
+    }
 }

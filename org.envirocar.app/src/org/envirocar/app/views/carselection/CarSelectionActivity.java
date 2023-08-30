@@ -52,7 +52,6 @@ import org.envirocar.core.entity.CarImpl;
 import org.envirocar.core.entity.Vehicles;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.voicecommand.BaseAimybox;
-import org.envirocar.voicecommand.BaseAimyboxAssistantViewModel;
 import org.envirocar.voicecommand.events.carselection.CarSelectionEvent;
 import org.envirocar.voicecommand.handler.MetadataHandler;
 import org.envirocar.voicecommand.model.CarSelectionMetadata;
@@ -106,6 +105,8 @@ public class CarSelectionActivity extends BaseInjectorActivity implements Corout
     protected CarPreferenceHandler mCarManager;
     @Inject
     protected UserPreferenceHandler mUserHandler;
+    @Inject
+    protected BaseAimybox baseAimybox;
     @Inject
     protected MetadataHandler metadataHandler;
 
@@ -170,7 +171,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements Corout
     @Override
     protected void onStart() {
         super.onStart();
-        initAimyboxViewModel(this);
+        initAimybox(this);
         if (viewModel != null) {
             viewModel.getAimyboxState().observe(this, state -> {
                 if (state == Aimybox.State.LISTENING) {
@@ -188,11 +189,9 @@ public class CarSelectionActivity extends BaseInjectorActivity implements Corout
         }
     }
 
-    private void initAimyboxViewModel(Context context) {
-        if (viewModel == null) {
-            viewModel = new BaseAimyboxAssistantViewModel().getAimyboxAssistantViewModel(this);
-            BaseAimybox.Companion.setInitialPhrase(context, this.getIntent().getExtras(), viewModel);
-        }
+    private void initAimybox(Context context) {
+        baseAimybox.initializeAimybox();
+        baseAimybox.activityContext = context;
     }
 
     @Override
