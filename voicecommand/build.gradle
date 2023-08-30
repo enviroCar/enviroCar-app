@@ -64,7 +64,6 @@ dependencies {
     annotationProcessor rootProject.ext.daggerCompiler
     implementation rootProject.ext.otto
 
-
     // ok https3
     implementation 'com.google.code.gson:gson:2.8.9'
     implementation 'com.squareup.okhttp3:logging-interceptor:4.9.0'
@@ -73,5 +72,4 @@ dependencies {
     // retrofit
     implementation rootProject.ext.retrofit2
     implementation rootProject.ext.retrofitGson2
-
 }

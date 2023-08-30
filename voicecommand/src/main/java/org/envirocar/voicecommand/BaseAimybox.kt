@@ -76,14 +76,12 @@ class BaseAimybox @Inject constructor(
         mBus: Bus,
         metadataHandler: MetadataHandler
     ): Aimybox {
-
         // Accessing model from assets folder
         val assets = KaldiAssets.fromApkAssets(context, "model/en")
 
         // initializing pocketsphinx provider
         val voiceTrigger = KaldiVoiceTrigger(assets, listOf("envirocar listen"))
 
-        // initializing trigger words
         val textToSpeech = GooglePlatformTextToSpeech(context, Locale.ENGLISH, false)
         val speechToText = GooglePlatformSpeechToText(context, Locale.ENGLISH, false, 10000L)
 
