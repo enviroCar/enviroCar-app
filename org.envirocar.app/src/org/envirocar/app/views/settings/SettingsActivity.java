@@ -18,6 +18,7 @@
  */
 package org.envirocar.app.views.settings;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 
@@ -28,6 +29,7 @@ import androidx.fragment.app.DialogFragment;
 import androidx.preference.CheckBoxPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceManager;
 
 import org.envirocar.app.R;
 import org.envirocar.app.handler.ApplicationSettings;
@@ -62,6 +64,7 @@ public class SettingsActivity extends AppCompatActivity {
         private Preference enableGPSMode;
         private Preference gpsTrimDuration;
         private Preference gpsAutoRecording;
+        private Preference resetToDefault;
 
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -78,7 +81,7 @@ public class SettingsActivity extends AppCompatActivity {
             this.enableGPSMode = findPreference(getString(R.string.prefkey_enable_gps_based_track_recording));
             this.gpsTrimDuration = findPreference(getString(R.string.prefkey_track_trim_duration));
             this.gpsAutoRecording = findPreference(getString(R.string.prefkey_gps_mode_ar));
-
+            this.resetToDefault=findPreference(getString(R.string.reset));
 
             // set initial state
             this.searchInterval.setVisible(((CheckBoxPreference) automaticRecording).isChecked());
@@ -98,6 +101,17 @@ public class SettingsActivity extends AppCompatActivity {
                 gpsAutoRecording.setVisible((boolean) newValue);
                 return true;
             }));
+            this.resetToDefault.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                    prefs.edit().clear().apply();
+                    // Update your UI to reflect the new state of the preferences
+                    getActivity().recreate();
+                    return true;
+                }
+            });
+
         }
 
         @Override

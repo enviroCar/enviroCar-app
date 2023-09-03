@@ -22,7 +22,11 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     app:iconSpaceReserved="false">
-
+    <Preference
+        android:key="@string/reset"
+        android:title="@string/reset_to_default"
+        app:iconSpaceReserved="false"
+        />
     <PreferenceCategory
         android:title="@string/pref_settings_general"
         app:iconSpaceReserved="false">

@@ -24,6 +24,8 @@
     <string name="pref_track_chunks">Track Chunk Upload</string>
 
     <!-- Settings Activity -->
+    <string name="reset_to_default">Reset to default</string>
+    <string name="reset">reset</string>
     <string name="pref_settings_general">General Settings</string>
     <string name="pref_settings_general_summary">Display, Verbal Announcements, Automatic Upload ...</string>
     <string name="pref_settings_autoconnect">Connection Settings</string>
