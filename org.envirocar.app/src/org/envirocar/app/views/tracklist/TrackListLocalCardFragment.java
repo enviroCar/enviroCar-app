@@ -391,7 +391,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
             // Create the dialog to show.
             this.dialog = new MaterialDialog.Builder(getContext())
                     .title(R.string.track_list_upload_track_uploading)
-                    .customView(contentView, false)
+                    .content(R.string.track_list_upload_track_uploading_content)
                     .cancelable(false)
                     .negativeText(R.string.cancel)
                     .onNegative((materialDialog, dialogAction) -> {

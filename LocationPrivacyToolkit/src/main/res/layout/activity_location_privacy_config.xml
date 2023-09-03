@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:id="@+id/fragmentContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:keepScreenOn="true"
+            android:orientation="vertical"
+            android:theme="@style/Theme.LocationPrivacyToolkit">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:gravity="center"
+                android:background="@color/cario_color_primary"
+                >
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="30dp"
+                    android:src="@drawable/img_envirocar_logo_white"
+                    />
+
+            </LinearLayout>
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="8dp">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:animateLayoutChanges="true"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:id="@+id/locationConfigSystemCardTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/systemPermissionTitle"
+                        android:textAlignment="textStart"
+                        android:textSize="18sp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <Button
+                        android:id="@+id/locationConfigSystemSettingsButton"
+                        style="?android:attr/buttonBarButtonStyle"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:contentDescription="@string/systemPermissionOpenSettingsTitle"
+                        android:drawableEnd="@drawable/ic_open"
+                        android:padding="0dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="1.0"
+                        app:layout_constraintStart_toEndOf="@id/locationConfigSystemCardTitle"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <Button
+                        android:id="@+id/locationConfigShowMoreButton"
+                        style="?android:attr/buttonBarButtonStyle"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:contentDescription="@string/systemPermissionShowMoreButton"
+                        android:drawableEnd="@drawable/ic_arrow_down"
+                        android:padding="0dp"
+                        app:layout_constraintBottom_toTopOf="@id/locationConfigMoreMenu"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="1.0"
+                        app:layout_constraintStart_toEndOf="@id/locationConfigSystemCardTitle" />
+
+                    <Button
+                        android:id="@+id/locationConfigHideMoreButton"
+                        style="?android:attr/buttonBarButtonStyle"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:contentDescription="@string/systemPermissionShowMoreButton"
+                        android:drawableEnd="@drawable/ic_arrow_up"
+                        android:padding="0dp"
+                        android:visibility="gone"
+                        app:layout_constraintBottom_toTopOf="@id/locationConfigMoreMenu"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="1.0"
+                        app:layout_constraintStart_toEndOf="@id/locationConfigSystemCardTitle" />
+
+                    <TextView
+                        android:id="@+id/locationConfigSystemAccessTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingStart="8dp"
+                        android:paddingTop="8dp"
+                        android:paddingEnd="0dp"
+                        android:paddingBottom="4dp"
+                        android:text="@string/systemPermissionLocationAccessTitle"
+                        android:textAlignment="textStart"
+                        android:textSize="12sp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/locationConfigSystemCardTitle" />
+
+                    <TextView
+                        android:id="@+id/locationConfigSystemAccessValue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingHorizontal="4dp"
+                        android:textAlignment="textStart"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        app:layout_constraintBaseline_toBaselineOf="@id/locationConfigSystemAccessTitle"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0"
+                        app:layout_constraintStart_toEndOf="@id/locationConfigSystemAccessTitle" />
+
+                    <TextView
+                        android:id="@+id/locationConfigSystemBackgroundTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingStart="8dp"
+                        android:paddingTop="4dp"
+                        android:paddingEnd="0dp"
+                        android:text="@string/systemPermissionBackgroundAccessTitle"
+                        android:textAlignment="textStart"
+                        android:textSize="12sp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/locationConfigSystemAccessTitle" />
+
+                    <TextView
+                        android:id="@+id/locationConfigSystemBackgroundValue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingHorizontal="4dp"
+                        android:paddingTop="16dp"
+                        android:textAlignment="textStart"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        app:layout_constraintBaseline_toBaselineOf="@id/locationConfigSystemBackgroundTitle"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0"
+                        app:layout_constraintStart_toEndOf="@id/locationConfigSystemBackgroundTitle" />
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/locationConfigMoreMenu"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:visibility="gone"
+                        app:layout_constraintTop_toBottomOf="@id/locationConfigSystemBackgroundTitle"
+                        app:layout_constraintBottom_toBottomOf="parent">
+
+                        <com.google.android.material.divider.MaterialDivider
+                            android:id="@+id/locationConfigMoreDivider"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:layout_marginBottom="8dp"
+                            android:paddingStart="8dp"
+                            app:layout_constraintBottom_toTopOf="@id/locationConfigMoreExampleDataText"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <TextView
+                            android:id="@+id/locationConfigMoreExampleDataText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:paddingStart="8dp"
+                            android:paddingEnd="0dp"
+                            android:text="@string/systemPermissionUseExampleData"
+                            android:textAlignment="textStart"
+                            android:textSize="12sp"
+                            app:layout_constraintBottom_toBottomOf="@id/locationConfigMoreExampleDataSwitch"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="@id/locationConfigMoreExampleDataSwitch" />
+
+                        <androidx.appcompat.widget.SwitchCompat
+                            android:id="@+id/locationConfigMoreExampleDataSwitch"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:layout_constraintBottom_toTopOf="@id/locationConfigDeleteExampleDataButton"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintHorizontal_bias="1.0"
+                            app:layout_constraintStart_toEndOf="@id/locationConfigMoreExampleDataText"
+                            app:layout_constraintTop_toBottomOf="@id/locationConfigMoreDivider" />
+
+                        <Button
+                            android:id="@+id/locationConfigImportExampleDataButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:text="@string/systemPermissionImportExampleData"
+                            android:textSize="10sp"
+                            android:enabled="false"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toStartOf="@id/locationConfigDeleteExampleDataButton"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/locationConfigMoreExampleDataText" />
+
+                        <Button
+                            android:id="@+id/locationConfigDeleteExampleDataButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:textSize="10sp"
+                            android:text="@string/systemPermissionDeleteExampleData"
+                            android:enabled="false"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toEndOf="@id/locationConfigImportExampleDataButton"
+                            app:layout_constraintTop_toBottomOf="@id/locationConfigMoreExampleDataText" />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="8dp">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:id="@+id/locationConfigToolkitCardTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingBottom="16dp"
+                        android:text="@string/privacyConfigTitle"
+                        android:textAlignment="textStart"
+                        android:textSize="18sp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/locationConfigRecyclerView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/locationConfigToolkitCardTitle" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </androidx.cardview.widget.CardView>
+
+        </LinearLayout>
+    </ScrollView>
+</layout>

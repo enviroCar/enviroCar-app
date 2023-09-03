@@ -18,7 +18,6 @@
  */
 package org.envirocar.obd.adapter.async;
 
-import android.test.InstrumentationTestCase;
 import android.util.Base64;
 
 import org.envirocar.obd.commands.PID;
@@ -33,7 +32,7 @@ import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class DriveDeckParserTest extends InstrumentationTestCase {
+public class DriveDeckParserTest {
 
     @Test
     public void testSpeedParsing() throws InvalidCommandResponseException, NoDataReceivedException, UnmatchedResponseException, AdapterSearchingException {

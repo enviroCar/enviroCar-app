@@ -51,6 +51,7 @@ import org.envirocar.app.recording.RecordingState;
 import org.envirocar.app.recording.RecordingType;
 import org.envirocar.app.recording.events.RecordingStateEvent;
 import org.envirocar.app.views.BaseMainActivity;
+import org.envirocar.app.views.settings.SettingsActivity;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.core.events.gps.GpsSatelliteFixEvent;
 import org.envirocar.core.logging.Logger;
@@ -62,6 +63,9 @@ import javax.inject.Inject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import de.fh.muenster.locationprivacytoolkit.config.LocationPrivacyConfig;
+import de.fh.muenster.locationprivacytoolkit.config.LocationPrivacyConfigManager;
+import de.fh.muenster.locationprivacytoolkit.ui.LocationPrivacyConfigActivity;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
@@ -153,6 +157,8 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
         // set keep screen on setting
         boolean keepScreenOn = ApplicationSettings.getDisplayStaysActiveObservable(this).blockingFirst();
         this.trackDetailsContainer.setKeepScreenOn(keepScreenOn);
+
+        LocationAccessBlocked();
     }
 
     @Override
@@ -207,6 +213,25 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
                 .doOnError(LOG::error)
                 .subscribe();
     }
+
+    public void LocationAccessBlocked() {
+        LocationPrivacyConfigManager configManager = new LocationPrivacyConfigManager(this);
+        int isaccess = configManager.getPrivacyConfig(LocationPrivacyConfig.Access);
+        if (isaccess == 0) {
+            MaterialAlertDialogBuilder dialogBuilder = new MaterialAlertDialogBuilder(this, R.style.MaterialDialog);
+            dialogBuilder.setTitle(R.string.dashboard_location_access_blocked);
+            dialogBuilder.setMessage(R.string.dashboard_location_access_blocked_content);
+            dialogBuilder.setIcon(R.drawable.ic_outline_stop_circle_24);
+            dialogBuilder.setPositiveButton(R.string.go, (dialog, which) -> {
+                Intent intent = new Intent(this, LocationPrivacyConfigActivity.class);
+                startActivity(intent);
+                finish();
+            });
+            dialogBuilder.setNegativeButton(R.string.cancel, null);
+            dialogBuilder.show();
+        }
+    }
+
 
     @OnClick(R.id.activity_recscreen_stopbutton)
     protected void onStopButtonClicked() {

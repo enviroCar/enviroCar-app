@@ -90,7 +90,7 @@ public class TrackDatabaseSink {
 
 
                     track = createNewTrack(measurement.getTime(), meta);
-                    
+
                     emitter.onNext(track);
                 } catch (TrackSerializationException e) {
                     LOG.error("Unable to create track instance", e);

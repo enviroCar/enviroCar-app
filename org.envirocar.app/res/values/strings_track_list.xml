@@ -19,7 +19,7 @@
     with the enviroCar app. If not, see http://www.gnu.org/licenses/.
 
 -->
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="track_list_local_tracks">Local</string>
     <string name="track_list_remote_tracks">Uploaded</string>
 
@@ -32,6 +32,7 @@
     <string name="track_list_delete_track_success_template">%s has been successfully deleted.</string>
 
     <string name="track_list_upload_track_uploading">Uploading Track</string>
+    <string name="track_list_upload_track_uploading_content" tools:ignore="MissingTranslation">Please be aware that you track will be stored on the enviroCar server and will be publicly availabe without a traceback to your user information. You can delete your tracks at any time, but they will be processed directly after upload to generate certain anonymized map products.</string>
     <string name="track_list_upload_track_no_measurements">The track does not contain enough measurements to upload as obfuscated track.</string>
     <string name="track_list_upload_track_general_error">Error while uploading track. Please try again later.</string>
     <string name="track_list_local_track_general_error">An error occurred during the upload process.</string>

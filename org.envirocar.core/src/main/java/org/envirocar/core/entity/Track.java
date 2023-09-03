@@ -58,7 +58,6 @@ public interface Track extends BaseEntity<Track>, Comparable<Track> {
             public String toString() {
                 return "ONGOING";
             }
-
         },
 
         FINISHED {

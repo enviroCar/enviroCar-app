@@ -18,7 +18,6 @@
  */
 package org.envirocar.obd.commands.response;
 
-import android.test.InstrumentationTestCase;
 
 import org.envirocar.obd.commands.PID;
 import org.envirocar.obd.commands.response.entity.LambdaProbeVoltageResponse;
@@ -30,7 +29,7 @@ import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class ResponseParserTest extends InstrumentationTestCase {
+public class ResponseParserTest {
 
     @Test
     public void testLambdaParsing() throws InvalidCommandResponseException, NoDataReceivedException, UnmatchedResponseException, AdapterSearchingException {
