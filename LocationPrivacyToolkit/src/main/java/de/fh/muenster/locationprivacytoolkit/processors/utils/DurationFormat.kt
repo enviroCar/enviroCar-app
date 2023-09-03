@@ -2,22 +2,23 @@ package de.fh.muenster.locationprivacytoolkit.processors.utils
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import de.fh.muenster.locationprivacytoolkit.config.LocationPrivacyConfig
 import java.time.Duration
 import java.util.concurrent.TimeUnit
 
 class DurationFormat {
     companion object {
 
-        fun humanReadableFormat(timeSeconds: Long): String {
+        fun humanReadableFormat(timeSeconds: Long, index: Int): String {
             return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                humanReadableFormatApi26(Duration.ofSeconds(timeSeconds))
+                humanReadableFormatApi26(Duration.ofSeconds(timeSeconds), index)
             } else {
                 "${timeSeconds}s"
             }
         }
 
         @RequiresApi(Build.VERSION_CODES.O)
-        private fun humanReadableFormatApi26(duration: Duration): String {
+        private fun humanReadableFormatApi26(duration: Duration, index: Int): String {
             val days = duration.toDays()
             val hours = duration.toHours() - TimeUnit.DAYS.toHours(days)
             val minutes = duration.toMinutes() - TimeUnit.HOURS.toMinutes(duration.toHours())
@@ -36,7 +37,14 @@ class DurationFormat {
                 if (durationString.isNotBlank()) durationString += " "
                 durationString += String.format("%ss", seconds)
             }
-            if (durationString.isBlank()) durationString = "–"
+            if (durationString.isBlank()){
+                if(index == LocationPrivacyConfig.Delay.sortIndex)
+                    durationString = "No Delay"
+                if(index == LocationPrivacyConfig.Interval.sortIndex)
+                    durationString = "Frequently"
+                if(index == LocationPrivacyConfig.AutoDeletion.sortIndex)
+                    durationString = "No Deletion"
+            }
 
             return durationString
         }

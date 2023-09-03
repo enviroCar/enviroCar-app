@@ -21,7 +21,7 @@ class IntervalProcessor(context: Context) : AbstractInternalLocationProcessor(co
     override val values = arrayOf(1800, 600, 60, 0)
 
     override fun formatLabel(value: Int): String =
-        DurationFormat.humanReadableFormat(value.toLong())
+        DurationFormat.humanReadableFormat(value.toLong(), config.sortIndex)
 
     private var localLastLocation: Location? = null
     private var lastLocation: Location?

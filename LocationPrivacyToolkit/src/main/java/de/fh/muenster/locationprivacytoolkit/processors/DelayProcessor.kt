@@ -21,7 +21,7 @@ class DelayProcessor(context: Context) : AbstractInternalLocationProcessor(conte
     override val values = arrayOf(1800, 300, 60, 30, 10, 0)
 
     override fun formatLabel(value: Int): String =
-        DurationFormat.humanReadableFormat(value.toLong())
+        DurationFormat.humanReadableFormat(value.toLong(), config.sortIndex)
 
     private var previousLocations: MutableList<Location> = mutableListOf()
 

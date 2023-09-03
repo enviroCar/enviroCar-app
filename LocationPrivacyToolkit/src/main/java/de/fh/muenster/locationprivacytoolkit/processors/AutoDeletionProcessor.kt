@@ -26,7 +26,7 @@ class AutoDeletionProcessor(context: Context, listener: LocationPrivacyToolkitLi
     override val values = arrayOf(1800, 600, 60, 10, 0)
 
     override fun formatLabel(value: Int): String =
-        DurationFormat.humanReadableFormat(value.toLong())
+        DurationFormat.humanReadableFormat(value.toLong(), config.sortIndex)
 
     override fun manipulateLocation(location: Location, config: Int): Location {
         if (config > 0) {

@@ -105,6 +105,7 @@ class LocationProcessorAdapter(private var listener: LocationPrivacyConfigAdapte
             dataBinding.locationConfigSlider.isTickVisible = true
             dataBinding.locationConfigSlider.setLabelFormatter { value ->
                 val configValue = processor.indexToValue(value)
+
                 if (configValue != null) {
                     processor.formatLabel(configValue) ?: ""
                 } else {
