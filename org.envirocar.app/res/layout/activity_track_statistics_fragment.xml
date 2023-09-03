@@ -46,4 +46,14 @@
         android:layout_height="0dp"
         android:layout_weight="1"/>
 
+    <androidx.appcompat.widget.AppCompatSeekBar
+        android:id="@+id/activity_track_statistics_seekBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginTop="8dp"
+        android:visibility="gone"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true" />
+
 </tools:LinearLayout>
