@@ -44,6 +44,10 @@
     <string name="logbook_dialog_uploading_fueling_header">Hochladen</string>
     <string name="logbook_dialog_uploading_fueling_car">Registrierung des Fahrzeugtyps...</string>
     <string name="logbook_dialog_uploading_fueling_content">Der Tankeintrag wird hochgeladen...</string>
+    <string name="logbook_edit_fueling">Tanken bearbeiten</string>
+    <string name="logbook_dialog_editing_fueling_header">Bearbeitung</string>
+    <string name="logbook_dialog_editing_fueling_content">Bearbeiten der Betankung.</string>
+    <string name="logbook_fuel_edited_successfully">Tanken wurde erfolgreich bearbeitet.</string>
     <string name="logbook_background_not_logged_in_first">AUSGELOGGT</string>
     <string name="logbook_background_no_fuelings_first">KEINE EINTRÄGE</string>
     <string name="logbook_background_no_fuelings_second">Es sind keine Tankeinträge\ndem eingeloggten Nutzer zugeordnet.</string>
