@@ -21,6 +21,7 @@
 -->
 <resources>
     <string name="others_logbook">Logbuch</string>
+    <string name="others_model_dashboard">Sprachmodell-Dashboard</string>
     <string name="others_settings">Einstellungen</string>
     <string name="others_help">Hilfe</string>
     <string name="others_report_issue">Problem melden</string>

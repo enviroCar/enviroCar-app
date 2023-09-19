@@ -58,6 +58,7 @@ dependencies {
     implementation rootProject.ext.lifecycleExtension
     implementation rootProject.ext.coroutines
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.0'
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.4.0"
 
     // Dependency injection, view injection, event bus ...
     implementation rootProject.ext.dagger

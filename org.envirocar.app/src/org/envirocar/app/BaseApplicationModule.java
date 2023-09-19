@@ -42,7 +42,7 @@ import org.envirocar.app.handler.DAOProvider;
 import org.envirocar.remote.injection.modules.RemoteModule;
 import org.envirocar.storage.DatabaseModule;
 import org.envirocar.voicecommand.BaseAimybox;
-import org.envirocar.voicecommand.handler.MetadataHandler;
+import org.envirocar.voicecommand.handlers.MetadataHandler;
 
 import javax.inject.Singleton;
 

@@ -2,77 +2,124 @@ package org.envirocar.voicecommand.viewmodels
 
 import android.app.Application
 import android.content.Context
+import android.content.SharedPreferences
 import android.util.Log
 import androidx.lifecycle.*
-import org.envirocar.voicecommand.model.VoiceModel
+import com.justai.aimybox.extensions.className
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
-import okhttp3.ResponseBody
+import org.envirocar.voicecommand.enums.ModelPhase
+import org.envirocar.voicecommand.enums.ModelState
+import org.envirocar.voicecommand.handlers.VoiceModelHandler
+import org.envirocar.voicecommand.model.AvailableVoiceModel
+import org.envirocar.voicecommand.model.DownloadedVoiceModel
+import org.envirocar.voicecommand.model.VoiceModel
 import org.envirocar.voicecommand.service.DownloadState
-import org.envirocar.voicecommand.service.VoiceModelNetwork
+import java.io.File
 
 class VoiceModelViewModel(application: Application) : AndroidViewModel(application) {
 
-    private var _models = MutableLiveData<List<VoiceModel>>()
+    private val application = getApplication<Application>()
+    private val _progressPhase = MutableLiveData<ModelPhase>()
+    private val _downloadProgress = MutableLiveData<Int>(0)
 
-    val models: LiveData<List<VoiceModel>>
-        get() = _models
+    private val _availableModels = MutableLiveData<AvailableVoiceModel>()
+    private val _downloadedModels = MutableLiveData<DownloadedVoiceModel>()
+
+    val availableModels: LiveData<AvailableVoiceModel>
+        get() = _availableModels
+    val downloadedModels: LiveData<DownloadedVoiceModel>
+        get() = _downloadedModels
+    val progressPhase: LiveData<ModelPhase>
+        get() = _progressPhase
+    val downloadProgress: LiveData<Int>
+        get() = _downloadProgress
+
+    private val preferences: SharedPreferences
+
+    private val voiceModelHandler: VoiceModelHandler
 
     init {
-        getModelsListFromNetwork()
+        preferences = application.getSharedPreferences("voicemodel",Context.MODE_PRIVATE)
+        voiceModelHandler = VoiceModelHandler(getApplication())
+
+        refreshModelsList()
     }
 
-    private fun getModelsListFromNetwork() = viewModelScope.launch {
-
-        val modelsList = VoiceModelNetwork.voiceModel.getModelsList()
-
-        _models.postValue(modelsList.body())
+    private fun refreshModelsList() {
+        getDownloadedModelsList()
+        getAvailableModelsList()
     }
 
-    fun getModel() = viewModelScope.launch(Dispatchers.IO) {
+    private fun getAvailableModelsList() = viewModelScope.launch(Dispatchers.IO) {
+        _availableModels.postValue(AvailableVoiceModel(ModelState.LOADING, null))
+        try{
+            _availableModels.postValue(AvailableVoiceModel(ModelState.SUCCESS,voiceModelHandler.getModelsListFromNetwork(downloadedModels)))
+        }
+        catch(e: Exception) {
+            _availableModels.postValue(AvailableVoiceModel(ModelState.FAILURE, null))
+        }
+    }
 
-        VoiceModelNetwork.voiceModel.getModel("Vosk-Model-Latest.7z").saveFile().collect { downloadState->
+    private fun getDownloadedModelsList() = viewModelScope.launch(Dispatchers.IO) {
+        _downloadedModels.postValue(DownloadedVoiceModel(ModelState.LOADING, null))
+        try{
+            if(File(application.getExternalFilesDir(null)!!.absoluteFile, "/kaldi-assets/meta").exists() && File(application.getExternalFilesDir(null)!!.absoluteFile, "/kaldi-assets/meta").listFiles().size > 0){
+                val models = voiceModelHandler.getModelsListFromStorage()
+                _downloadedModels.postValue(DownloadedVoiceModel(ModelState.SUCCESS, models))
+            }
+            else{
+                _downloadedModels.postValue(DownloadedVoiceModel(ModelState.FAILURE, null))
+            }
+        }
+        catch(e: Exception){
+            _downloadedModels.postValue(DownloadedVoiceModel(ModelState.FAILURE, null))
+        }
+    }
+
+    fun getModel(voiceModel: VoiceModel) = viewModelScope.launch(Dispatchers.IO) {
+        _progressPhase.postValue(ModelPhase.DOWNLOADING)
+        voiceModelHandler.getModelFromNetwork(voiceModel).collect { downloadState->
             when (downloadState) {
                 is DownloadState.Downloading -> {
-                    Log.d("myTag", "progress=${downloadState.progress}")
+                    _downloadProgress.postValue(((downloadState.progress/voiceModel.size.toDouble())*100).toInt())
                 }
                 is DownloadState.Failed -> {
-                    Log.d("myTag", downloadState.error.toString())
+                    Log.d(className, downloadState.error!!.stackTraceToString())
+                    with(preferences.edit()) {
+                        putBoolean("prefkey_voice_model_downloaded", false)
+                        apply()
+                    }
                 }
                 is DownloadState.Finished -> {
-                    Log.d("myTag", "Finished")
+                    _progressPhase.postValue(ModelPhase.DECOMPRESSING)
+                    unzipModel(voiceModel.name)
+                    with(preferences.edit()) {
+                        putBoolean("prefkey_voice_model_downloaded", true)
+                        apply()
+                    }
                 }
             }
         }
 
     }
 
-    private fun ResponseBody.saveFile(): Flow<DownloadState> {
-        return flow{
-            emit(DownloadState.Downloading(0))
+    private fun unzipModel(voiceModelName: String) = viewModelScope.launch(Dispatchers.IO) {
 
-            try {
-                byteStream().use { inputStream->
-                    getApplication<Application>().openFileOutput("some", Context.MODE_PRIVATE).use { outputStream->
-                        val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
-                        var progressBytes = 0L
-                        var bytes = inputStream.read(buffer)
-                        while (bytes >= 0) {
-                            outputStream.write(buffer, 0, bytes)
-                            progressBytes += bytes
-                            bytes = inputStream.read(buffer)
-                            emit(DownloadState.Downloading(progressBytes.toInt()))
-                        }
-                    }
-                }
-                emit(DownloadState.Finished)
-            } catch (e: Exception) {
-                emit(DownloadState.Failed(e))
-            }
-        }.flowOn(Dispatchers.IO).distinctUntilChanged()
+        voiceModelHandler.unzipModelFromStorage(voiceModelName)
+
+        _progressPhase.postValue(ModelPhase.FINISHED)
+
+        refreshModelsList()
     }
+
+    fun removeModelFromStorage() {
+        voiceModelHandler.deleteModelFromStorage()
+        refreshModelsList()
+        with(preferences.edit()) {
+            putBoolean("prefkey_voice_model_downloaded", false)
+            apply()
+        }
+    }
+
 }

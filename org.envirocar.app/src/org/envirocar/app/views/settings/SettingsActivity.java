@@ -21,6 +21,9 @@ package org.envirocar.app.views.settings;
 import static org.envirocar.app.views.utils.SnackbarUtil.showGrantMicrophonePermission;
 
 import android.Manifest;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.View;
@@ -40,6 +43,7 @@ import com.google.android.material.snackbar.Snackbar;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.app.recording.RecordingType;
+import org.envirocar.app.views.modeldashboard.ModelDashboardActivity;
 import org.envirocar.app.views.settings.custom.AutoConnectIntervalPreference;
 import org.envirocar.app.views.settings.custom.GPSTrimDurationPreference;
 import org.envirocar.app.views.settings.custom.SamplingRatePreference;
@@ -62,8 +66,6 @@ public class SettingsActivity extends AppCompatActivity {
                 .commit();
     }
 
-
-
     public static class SettingsFragment extends PreferenceFragmentCompat {
 
         private Preference automaticRecording;
@@ -71,7 +73,9 @@ public class SettingsActivity extends AppCompatActivity {
         private Preference enableGPSMode;
         private Preference gpsTrimDuration;
         private Preference gpsAutoRecording;
+        private Preference voiceModelDashboard;
         private CheckBoxPreference enableVoiceCommand;
+        private SharedPreferences voiceModelPreferences;
 
         private final int RECORD_AUDIO_PERMISSION_REQ_CODE = 22;
 
@@ -91,12 +95,23 @@ public class SettingsActivity extends AppCompatActivity {
             this.gpsTrimDuration = findPreference(getString(R.string.prefkey_track_trim_duration));
             this.gpsAutoRecording = findPreference(getString(R.string.prefkey_gps_mode_ar));
             this.enableVoiceCommand = findPreference(getString(R.string.prefkey_voice_command));
+            this.voiceModelDashboard = findPreference("pref_model_dashboard");
+            this.voiceModelPreferences = getActivity().getSharedPreferences("voicemodel", Context.MODE_PRIVATE);
 
 
             // set initial state
             this.searchInterval.setVisible(((CheckBoxPreference) automaticRecording).isChecked());
             this.gpsTrimDuration.setVisible(((CheckBoxPreference) enableGPSMode).isChecked());
             this.gpsAutoRecording.setVisible(((CheckBoxPreference) enableGPSMode).isChecked());
+            this.voiceModelDashboard.setVisible(enableVoiceCommand.isChecked());
+            this.voiceModelDashboard.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    Intent intent = new Intent(getActivity(), ModelDashboardActivity.class);
+                    startActivity(intent);
+                    return true;
+                }
+            });
 
             // set preference change listener
             this.automaticRecording.setOnPreferenceChangeListener((preference, newValue) -> {
@@ -116,8 +131,17 @@ public class SettingsActivity extends AppCompatActivity {
                 if ((boolean) newValue) {
                     requestMicrophonePermission();
                 }
+                else{
+                    this.voiceModelDashboard.setVisible(false);
+                }
                 return true;
             }));
+        }
+
+        @Override
+        public void onResume() {
+            super.onResume();
+            enableVoiceCommand.setChecked(voiceModelPreferences.getBoolean("prefkey_voice_model_downloaded",false));
         }
 
         @Override
@@ -146,6 +170,9 @@ public class SettingsActivity extends AppCompatActivity {
                     == PackageManager.PERMISSION_GRANTED)) {
                 requestPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO);
             }
+            else{
+                onVoiceCommandEnabled();
+            }
         }
 
         private ActivityResultLauncher<String> requestPermissionLauncher =
@@ -154,13 +181,22 @@ public class SettingsActivity extends AppCompatActivity {
                         // Permission is granted. Continue the action or workflow in your
                         // app.
                         Snackbar.make(requireView(), R.string.microphone_permission_granted, Snackbar.LENGTH_LONG).show();
+                        onVoiceCommandEnabled();
                     } else {
 
                         this.enableVoiceCommand.setChecked(false);
-
+                        this.voiceModelDashboard.setVisible(false);
                         // action opens app's general settings where user can grant microphone/any permission
                         showGrantMicrophonePermission(requireView(), requireContext(), getActivity());
                     }
                 });
+
+        private void onVoiceCommandEnabled() {
+            this.voiceModelDashboard.setVisible(true);
+            Intent intent = new Intent(getActivity(), ModelDashboardActivity.class);
+            startActivity(intent);
+            enableVoiceCommand.setChecked(false);
+        }
+
     }
 }

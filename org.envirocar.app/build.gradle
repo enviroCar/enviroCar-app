@@ -64,6 +64,7 @@ dependencies {
     // Coroutines
     implementation rootProject.ext.lifecycleExtension
     implementation rootProject.ext.coroutines
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.4.1"
 
     // Test
     testImplementation 'junit:junit:4.13.2'
@@ -187,6 +188,10 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         multiDexEnabled true
+    }
+
+    buildFeatures {
+        viewBinding = true
     }
 }
 

@@ -26,11 +26,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
 
-import androidx.annotation.NonNull;
-
-import com.justai.aimybox.Aimybox;
-import com.justai.aimybox.components.AimyboxAssistantViewModel;
-import com.justai.aimybox.components.AimyboxProvider;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.squareup.otto.Bus;
 
@@ -55,7 +50,7 @@ import org.envirocar.remote.service.TermsOfUseService;
 import org.envirocar.remote.service.TrackService;
 import org.envirocar.remote.service.UserService;
 import org.envirocar.voicecommand.BaseAimybox;
-import org.envirocar.voicecommand.handler.MetadataHandler;
+import org.envirocar.voicecommand.handlers.MetadataHandler;
 
 import javax.inject.Inject;
 

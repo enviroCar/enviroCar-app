@@ -32,8 +32,8 @@ import com.justai.aimybox.model.reply.asTextSpeech
 import com.squareup.otto.Bus
 import org.envirocar.voicecommand.dialogapi.rasa.EnviroCarRasaRequest
 import org.envirocar.voicecommand.dialogapi.rasa.EnviroCarRasaResponse
-import org.envirocar.voicecommand.handler.MetadataHandler
-import org.envirocar.voicecommand.handler.rasaresponse.RasaResponseHandler
+import org.envirocar.voicecommand.handlers.MetadataHandler
+import org.envirocar.voicecommand.handlers.rasaresponse.RasaResponseHandler
 import org.envirocar.voicecommand.intention.EnviroCarIntention
 import java.util.concurrent.CancellationException
 

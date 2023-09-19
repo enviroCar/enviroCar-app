@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".views.modeldasboard.ModelDashboardActivity">
+    tools:context=".views.modeldashboard.ModelDashboardActivity">
 
     <LinearLayout
         android:id="@+id/linearLayout2"
@@ -70,8 +70,19 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/voiceModelSegmentedGroup" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/availableRecycler"
+
+    <ProgressBar
+        android:id="@+id/available_models_progressBar"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        app:layout_constraintBottom_toBottomOf="@+id/availableModelTitle"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.9"
+        app:layout_constraintStart_toEndOf="@+id/availableModelTitle"
+        app:layout_constraintTop_toTopOf="@+id/availableModelTitle" />
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginStart="10dp"
@@ -84,7 +95,12 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/availableModelTitle">
 
-    </androidx.recyclerview.widget.RecyclerView>
+        <FrameLayout
+            android:id="@+id/available_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </LinearLayout>
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline2"
@@ -107,8 +123,18 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/guideline2" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/downloadedRecycler"
+    <ProgressBar
+        android:id="@+id/downloaded_models_progressBar"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        app:layout_constraintBottom_toBottomOf="@+id/downloadedTitle"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.9"
+        app:layout_constraintStart_toEndOf="@+id/downloadedTitle"
+        app:layout_constraintTop_toTopOf="@+id/downloadedTitle" />
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginStart="10dp"
@@ -122,6 +148,11 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/downloadedTitle">
 
-    </androidx.recyclerview.widget.RecyclerView>
+        <FrameLayout
+            android:id="@+id/downloaded_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

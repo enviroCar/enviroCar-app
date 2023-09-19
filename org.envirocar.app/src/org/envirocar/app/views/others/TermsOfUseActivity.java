@@ -19,16 +19,13 @@
 package org.envirocar.app.views.others;
 
 import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import android.view.MenuItem;
 import android.widget.TextView;
 import android.text.Html;
 import android.text.Spanned;
-
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
-
 import org.envirocar.app.R;
 import org.envirocar.app.handler.agreement.AgreementManager;
 import org.envirocar.app.injection.BaseInjectorActivity;
@@ -38,13 +35,10 @@ import org.envirocar.core.entity.User;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.interactor.GetLatestTermsOfUse;
 import org.envirocar.app.BaseApplicationComponent;
-import org.envirocar.core.utils.rx.Optional;
 import org.envirocar.app.handler.preferences.UserPreferenceHandler;
-import org.envirocar.voicecommand.handler.MetadataHandler;
-
+import org.envirocar.voicecommand.handlers.MetadataHandler;
 import butterknife.ButterKnife;
 import butterknife.BindView;
-
 import java.util.function.Consumer;
 import javax.inject.Inject;
 

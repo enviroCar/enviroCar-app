@@ -53,7 +53,7 @@ import org.envirocar.core.entity.Vehicles;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.voicecommand.BaseAimybox;
 import org.envirocar.voicecommand.events.carselection.CarSelectionEvent;
-import org.envirocar.voicecommand.handler.MetadataHandler;
+import org.envirocar.voicecommand.handlers.MetadataHandler;
 import org.envirocar.voicecommand.model.CarSelectionMetadata;
 
 import java.util.ArrayList;

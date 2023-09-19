@@ -34,7 +34,7 @@ import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.voicecommand.handler.MetadataHandler;
+import org.envirocar.voicecommand.handlers.MetadataHandler;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
