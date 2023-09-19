@@ -19,8 +19,6 @@ class ModelDashboardActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityModelDashboardBinding
 
-    private lateinit var availableModelsProgressBar: ProgressBar;
-    private lateinit var downloadedModelsProgressBar: ProgressBar;
     private val downloadDialogFragment = DownloadDialogFragment(::stopModelDownload)
     private val deleteDialogFragment = DeleteDialogFragment(::removeModel)
 
@@ -63,12 +61,12 @@ class ModelDashboardActivity : AppCompatActivity() {
 
 
     private fun showAvailableLoader() {
-        availableModelsProgressBar.visibility = View.VISIBLE
+        binding.availableModelsProgressBar.visibility = View.VISIBLE
         supportFragmentManager.beginTransaction().replace(R.id.available_content, AvailableModelsFragment(availableModelsAdapter, listOf())).commit()
     }
 
     private fun showDownloadedLoader() {
-        downloadedModelsProgressBar.visibility = View.VISIBLE
+        binding.availableModelsProgressBar.visibility = View.VISIBLE
         supportFragmentManager.beginTransaction().replace(R.id.downloaded_content, DownloadedModelsFragment(downloadedModelsAdapter,listOf())).commit()
     }
 
@@ -84,12 +82,12 @@ class ModelDashboardActivity : AppCompatActivity() {
 
     private fun showAvailableModels(models: List<VoiceModel>) {
         supportFragmentManager.beginTransaction().replace(R.id.available_content, AvailableModelsFragment(availableModelsAdapter,models)).commit()
-        availableModelsProgressBar.visibility = View.GONE
+        binding.availableModelsProgressBar.visibility = View.GONE
     }
 
     private fun showDownloadedModels(models: List<String>) {
         supportFragmentManager.beginTransaction().replace(R.id.downloaded_content, DownloadedModelsFragment(downloadedModelsAdapter,models)).commit()
-        downloadedModelsProgressBar.visibility = View.GONE
+        binding.downloadedModelsProgressBar.visibility = View.GONE
     }
 
 
