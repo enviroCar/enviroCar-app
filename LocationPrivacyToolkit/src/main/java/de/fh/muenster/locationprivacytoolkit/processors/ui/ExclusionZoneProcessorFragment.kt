@@ -22,6 +22,8 @@ import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.WellKnownTileServer
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
 import com.mapbox.mapboxsdk.geometry.LatLng
+import com.mapbox.mapboxsdk.maps.MapboxMap
+import com.mapbox.mapboxsdk.maps.Style
 import com.mapbox.mapboxsdk.plugins.annotation.OnSymbolDragListener
 import com.mapbox.mapboxsdk.plugins.annotation.Symbol
 import com.mapbox.mapboxsdk.plugins.annotation.SymbolManager
@@ -70,14 +72,25 @@ class ExclusionZoneProcessorFragment : Fragment() {
         binding = FragmentExclusionZoneBinding.inflate(inflater, container, false)
 
         binding.mapView.getMapAsync { map ->
-            map.setStyle(LocationPrivacyToolkit.mapTilesUrl)
-            val initialLatLng = LatLng(
-                INITIAL_LATITUDE, INITIAL_LONGITUDE
-            )
-            val camera = CameraUpdateFactory.newLatLngZoom(
-                initialLatLng, INITIAL_ZOOM
-            )
-            map.easeCamera(camera)
+            var styleBuilder = Style.Builder()
+            styleBuilder.fromJson("{\n" +
+                    "    \"version\": 8,\n" +
+                    "    \"sources\": {\n" +
+                    "      \"osm\": {\n" +
+                    "        \"type\": \"raster\",\n" +
+                    "        \"tiles\": [\"https://tile.openstreetmap.org/{z}/{x}/{y}.png\"],\n" +
+                    "        \"tileSize\": 256,\n" +
+                    "        \"attribution\": \"Map tiles by <a target=\\\"_top\\\" rel=\\\"noopener\\\" href=\\\"https://tile.openstreetmap.org/\\\">OpenStreetMap tile servers</a>, under the <a target=\\\"_top\\\" rel=\\\"noopener\\\" href=\\\"https://operations.osmfoundation.org/policies/tiles/\\\">tile usage policy</a>. Data by <a target=\\\"_top\\\" rel=\\\"noopener\\\" href=\\\"http://openstreetmap.org\\\">OpenStreetMap</a>\"\n" +
+                    "      }\n" +
+                    "    },\n" +
+                    "    \"layers\": [{\n" +
+                    "      \"id\": \"osm\",\n" +
+                    "      \"type\": \"raster\",\n" +
+                    "      \"source\": \"osm\"\n" +
+                    "    }]\n" +
+                    "}");
+            map.setStyle(styleBuilder)
+            centerMapTo(map, INITIAL_LATITUDE, INITIAL_LONGITUDE, INITIAL_ZOOM)
         }
 
         binding.addZoneButton.setOnClickListener {
@@ -142,6 +155,12 @@ class ExclusionZoneProcessorFragment : Fragment() {
         broadcastUpdate()
         super.onDestroy()
         binding.mapView.onDestroy()
+    }
+
+    private fun centerMapTo(map: MapboxMap, lat: Double, lon: Double, zoom: Double? = null) {
+        val camera =
+            CameraUpdateFactory.newLatLngZoom(LatLng(lat, lon), zoom ?: map.cameraPosition.zoom)
+        map.easeCamera(camera)
     }
 
     private fun showZoneCreationOverlay() {
