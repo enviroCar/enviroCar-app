@@ -19,8 +19,9 @@
 package org.envirocar.app.views.settings;
 
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
-
+import androidx.appcompat.widget.Toolbar;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -37,23 +38,38 @@ import org.envirocar.app.views.settings.custom.GPSConnectionDurationPreference;
 import org.envirocar.app.views.settings.custom.GPSTrimDurationPreference;
 import org.envirocar.app.views.settings.custom.SamplingRatePreference;
 import org.envirocar.app.views.settings.custom.TimePickerPreferenceDialog;
+import butterknife.ButterKnife;
+import butterknife.BindView;
 
 /**
  * @author dewall
  */
 public class SettingsActivity extends AppCompatActivity {
 
+    @BindView(R.id.envirocar_toolbar)
+    protected Toolbar toolbar;
+    
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
-        // add the settingsfragment
+        // add the settings fragment
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.activity_settings_content, new SettingsFragment())
                 .commit();
+
+        // Inject views
+        ButterKnife.bind(this);
+
+        // Set Actionbar
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle("");
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
+
 
     public static class SettingsFragment extends PreferenceFragmentCompat {
 
@@ -120,5 +136,11 @@ public class SettingsActivity extends AppCompatActivity {
                 super.onDisplayPreferenceDialog(preference);
             }
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) onBackPressed();
+            return super.onOptionsItemSelected(item);
     }
 }
