@@ -65,14 +65,6 @@ class LocationProcessorAdapter(private var listener: LocationPrivacyConfigAdapte
             hasLocationAccess: Boolean
         ) {
             val value = listener.getPrivacyConfigValue(processor.config) ?: processor.defaultValue
-
-            val customColor = ContextCompat.getColor(dataBinding.locationConfigSwitch.context, R.color.cario_color_primary)
-            val customColor2 = ContextCompat.getColor(dataBinding.locationConfigSwitch.context, R.color.blue_light_cario)
-
-            dataBinding.locationConfigSwitch.thumbTintList = ColorStateList.valueOf(customColor)
-            dataBinding.locationConfigSwitch.trackTintList = ColorStateList.valueOf(customColor2)
-
-
             dataBinding.locationConfigSwitch.isChecked = value > 0
             dataBinding.locationConfigSwitch.tag = processor.config
             val isLocationAccessConfig = processor.config == LocationPrivacyConfig.Access

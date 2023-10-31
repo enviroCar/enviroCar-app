@@ -182,6 +182,7 @@
 
                         <androidx.appcompat.widget.SwitchCompat
                             android:id="@+id/locationConfigMoreExampleDataSwitch"
+                            android:theme="@style/Theme.LocationPrivacyToolkit.Switch"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             app:layout_constraintBottom_toTopOf="@id/locationConfigDeleteExampleDataButton"

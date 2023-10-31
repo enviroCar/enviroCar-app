@@ -143,4 +143,7 @@
         <item name="android:background">@color/blue_dark_cario</item>
     </style>
 
+    <style name="Theme.LocationPrivacyToolkit.Switch" parent="Widget.MaterialComponents.CompoundButton.Switch">
+        <item name="colorAccent">@color/blue_dark_cario</item>
+    </style>
 </resources>

@@ -55,9 +55,8 @@
             app:layout_constraintLeft_toRightOf="@id/locationConfigTitleView"
             app:layout_constraintTop_toTopOf="@id/locationConfigTitleView" />
 
-        <com.google.android.material.switchmaterial.SwitchMaterial
+        <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/locationConfigSwitch"
-            style="@style/Theme.LocationPrivacyToolkit.Switch"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:animateLayoutChanges="true"
@@ -65,6 +64,7 @@
             android:paddingTop="16dp"
             android:paddingBottom="16dp"
             android:visibility="gone"
+            android:theme="@style/Theme.LocationPrivacyToolkit.Switch"
             app:layout_constraintBottom_toBottomOf="@id/locationConfigTitleView"
             app:layout_constraintHorizontal_weight="1"
             app:layout_constraintRight_toRightOf="parent"
