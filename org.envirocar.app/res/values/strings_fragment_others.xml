@@ -29,5 +29,7 @@
     <string name="others_close_envirocar">Close enviroCar</string>
     <string name="others_delete_account">Delete Account</string>
     <string name="others_could_not_open">A browser could not be opened. Please use the enviroCar website directly.</string>
-    <string name="others_toolkit" translatable="false">Location Toolkit</string>
+    <string name="others_toolkit" translatable="false">Location Privacy Toolkit</string>
+    <string name="others_toolkitTitle" translatable="false">Location Privacy Toolkit</string>
+    <string name="others_toolkitDescription">The Location Privacy Toolkit developed within the SIMPORT project allows you to control the location data used by this app. Note that these settings are experimental and can have implications on the data quality. If tracks are selected for upload by the user, they will be stored in a development data base.</string>
 </resources>

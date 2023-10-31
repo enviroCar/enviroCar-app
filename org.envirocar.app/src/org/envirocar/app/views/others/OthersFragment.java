@@ -129,6 +129,11 @@ public class OthersFragment extends BaseInjectorFragment {
         startActivity(intent);
     }
 
+    @OnClick(R.id.locationToolkitConfigTitle)
+    protected void onLocationInfoClicked(){
+        showConfigDetails();
+    }
+
     @OnClick(R.id.othersHelp)
     protected void onHelpClicked() {
         Intent intent = new Intent(getActivity(), HelpActivity.class);
@@ -197,6 +202,14 @@ public class OthersFragment extends BaseInjectorFragment {
         return permissionState == PackageManager.PERMISSION_GRANTED;
     }
 
+    private void showConfigDetails() {
+        new MaterialAlertDialogBuilder(getContext(), R.style.MaterialDialog)
+                .setTitle(R.string.others_toolkitTitle)
+                .setMessage(R.string.others_toolkitDescription)
+                .setIcon(R.drawable.others_location)
+                .setPositiveButton(R.string.ok,null)
+                .show();
+    }
     private void requestPermissions() {
         boolean shouldProvideRationale =
                 ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),

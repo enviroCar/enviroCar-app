@@ -29,5 +29,8 @@
     <string name="others_close_envirocar">enviroCar Schließen</string>
     <string name="others_delete_account">Account löschen</string>
     <string name="others_could_not_open">Es konnte kein Browser geöffnet werden. Nutzen Sie bitte die enviroCar-Webseite direkt.</string>
-    
+    <string name="others_toolkitTitle" translatable="false">Location Privacy Toolkit</string>
+    <string name="others_toolkitDescription">Das Location Privacy Toolkit, entwickelt im SIMPORT Projekt, erlaubt die Kontrolle der ortsbezogenen Daten, die diese App nutzt. Bitte beachten Sie, dass diese Einstellungen experimentell sind und Auswirkungen auf die Datenqualität haben. Wenn Sie Fahrten aus dieser App hochladen, werden sie in einer separaten Datenbank gespeichert.</string>
+
+
 </resources>
