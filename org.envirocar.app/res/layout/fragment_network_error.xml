@@ -18,7 +18,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Network Connection Error"
+        android:text="@string/networkError"
         android:layout_gravity="center"
         android:textSize="18sp"/>
 

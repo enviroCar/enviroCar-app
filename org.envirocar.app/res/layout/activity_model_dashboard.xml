@@ -46,7 +46,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:checked="true"
-            android:text="English" />
+            android:text="@string/english" />
 
         <RadioButton
             android:id="@+id/germanSegmentedButton"
@@ -54,7 +54,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="German" />
+            android:text="@string/german" />
 
     </info.hoang8f.android.segmented.SegmentedGroup>
 
@@ -66,7 +66,7 @@
         android:layout_marginStart="10dp"
         android:layout_marginTop="15dp"
         android:padding="0dp"
-        android:text="Available Models"
+        android:text="@string/availableModels"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/voiceModelSegmentedGroup" />
 
@@ -119,7 +119,7 @@
         android:layout_marginStart="10dp"
         android:layout_marginTop="10dp"
         android:padding="0dp"
-        android:text="Downloaded Models"
+        android:text="@string/downloadedModels"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/guideline2" />
 

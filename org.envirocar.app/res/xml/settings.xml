@@ -115,8 +115,8 @@
 
         <Preference
             app:key="pref_model_dashboard"
-            app:summary="Manage Voice Models for the Voice Command Feature"
-            app:title="Voice Model Dashboard"
+            app:summary="@string/pref_model_dashboard_sub"
+            app:title="@string/pref_model_dashboard"
             app:iconSpaceReserved="false" />
     </PreferenceCategory>
 

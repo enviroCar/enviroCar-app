@@ -7,6 +7,7 @@ import android.view.View
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
+import org.envirocar.app.R
 import org.envirocar.app.databinding.DialogModelDownloadBinding
 import org.envirocar.voicecommand.enums.ModelPhase
 
@@ -32,8 +33,8 @@ class DownloadDialogFragment(cancelDownload: ()->Unit) : DialogFragment() {
                 when (currentPhase) {
                     ModelPhase.DOWNLOADING -> {
                         binding.modelPhaseTextview.text = "1 / 2"
-                        binding.phaseDescriptionTextview.text = "Downloading model..."
-                        binding.multipurposeButton.text = "CANCEL"
+                        binding.phaseDescriptionTextview.text = getString(R.string.downloading)
+                        binding.multipurposeButton.text = getString(R.string.cancel)
                         binding.multipurposeButton.setOnClickListener(View.OnClickListener { cancelDownload(); dismiss() })
                         progress.observe(requireActivity(), Observer<Int> { prog ->
                             binding.modelDownloadProgressbar.progress = prog; binding.modelDownloadPercentage.text = "$prog%"
@@ -41,17 +42,17 @@ class DownloadDialogFragment(cancelDownload: ()->Unit) : DialogFragment() {
                     }
                     ModelPhase.DECOMPRESSING -> {
                         binding.modelPhaseTextview.text = "2 / 2"
-                        binding.phaseDescriptionTextview.text = "Decompressing model..."
+                        binding.phaseDescriptionTextview.text = getString(R.string.decompressing)
                         binding.modelDownloadPercentage.text = ""
-                        binding.multipurposeButton.text = "CANCEL"
+                        binding.multipurposeButton.text = getString(R.string.cancel)
                         binding.multipurposeButton.setOnClickListener(View.OnClickListener { cancelDownload(); dismiss() })
                         binding.modelDownloadProgressbar.isIndeterminate = true
                     }
                     ModelPhase.FINISHED -> {
                         binding.modelPhaseTextview.text = ""
-                        binding.phaseDescriptionTextview.text = "Model Download Successful"
+                        binding.phaseDescriptionTextview.text = getString(R.string.downloadSuccessful)
                         binding.modelDownloadPercentage.text = ""
-                        binding.multipurposeButton.text = "DONE"
+                        binding.multipurposeButton.text = getString(R.string.done)
                         binding.multipurposeButton.setOnClickListener(View.OnClickListener { dismiss() })
                         binding.modelDownloadProgressbar.visibility = View.GONE
                     }
