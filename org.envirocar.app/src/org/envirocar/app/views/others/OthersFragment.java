@@ -41,12 +41,14 @@ import com.google.android.material.snackbar.Snackbar;
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.BuildConfig;
 import org.envirocar.app.R;
+import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.app.handler.TrackDAOHandler;
 import org.envirocar.app.handler.preferences.UserPreferenceHandler;
 import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.app.recording.RecordingService;
 import org.envirocar.app.services.autoconnect.AutoRecordingService;
 import org.envirocar.app.views.logbook.LogbookActivity;
+import org.envirocar.app.views.modeldashboard.ModelDashboardActivity;
 import org.envirocar.app.views.settings.SettingsActivity;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.logging.Logger;
@@ -79,6 +81,8 @@ public class OthersFragment extends BaseInjectorFragment {
     protected LinearLayout othersLogOut;
     @BindView(R.id.othersLogOutDivider)
     protected View othersLogOutDivider;
+    @BindView(R.id.othersModelDashboard)
+    protected LinearLayout othersModelDashboard;
 
     private Scheduler.Worker mMainThreadWorker = AndroidSchedulers.mainThread().createWorker();
     private final Scheduler.Worker mBackgroundWorker = Schedulers.newThread().createWorker();
@@ -100,9 +104,27 @@ public class OthersFragment extends BaseInjectorFragment {
             othersLogOutDivider.setVisibility(View.GONE);
         }
 
+        othersModelDashboard.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), ModelDashboardActivity.class);
+                startActivity(intent);
+            }
+        });
+
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        if(ApplicationSettings.isVoiceCommandsEnabled(getContext())) {
+            othersModelDashboard.setVisibility(View.VISIBLE);
+        }
+        else{
+            othersModelDashboard.setVisibility(View.GONE);
+        }
+    }
 
     @Override
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {

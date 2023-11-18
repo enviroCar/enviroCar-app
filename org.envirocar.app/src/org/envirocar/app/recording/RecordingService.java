@@ -39,7 +39,6 @@ import org.envirocar.app.rxutils.RxBroadcastReceiver;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.events.TrackFinishedEvent;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.voicecommand.handler.MetadataHandler;
 
 import javax.inject.Inject;
 

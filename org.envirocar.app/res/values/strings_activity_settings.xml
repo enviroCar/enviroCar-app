@@ -52,6 +52,12 @@
     <string name="microphone_permission_denied">Microphone permission not granted, voice commands feature cannot be used.</string>
     <string name="grant_permission">Grant</string>
 
+    <!-- Voice Model Dashboard -->
+    <string name="pref_model_dashboard">Voice Model Dashboard</string>
+    <string name="pref_model_dashboard_sub">Manage Voice Models for the Voice Command Feature</string>
+
+
+
     <!-- Track chunks -->
     <string name="pref_track_chunk_upload">Upload while driving</string>
     <string name="pref_track_chunk_upload_sub">Enables uploading while driving. Note: By activating this function, tracks are uploaded to the enviroCar server as open data.</string>

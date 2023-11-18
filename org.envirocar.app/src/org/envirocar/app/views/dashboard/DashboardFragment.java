@@ -117,7 +117,7 @@ import org.envirocar.voicecommand.enums.RecordingRequirements;
 import org.envirocar.voicecommand.events.navigation.NavigationEvent;
 import org.envirocar.voicecommand.events.recording.RecordingRequirementEvent;
 import org.envirocar.voicecommand.events.recording.RecordingTrackEvent;
-import org.envirocar.voicecommand.handler.MetadataHandler;
+import org.envirocar.voicecommand.handlers.MetadataHandler;
 import org.envirocar.voicecommand.model.CarSelectionMetadata;
 import org.envirocar.voicecommand.model.ExtraMetadata;
 import org.envirocar.voicecommand.model.RecordingMetadata;

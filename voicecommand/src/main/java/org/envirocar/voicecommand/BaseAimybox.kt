@@ -18,14 +18,8 @@
  */
 package org.envirocar.voicecommand
 
-import android.app.Activity
-import android.app.Application
 import android.content.Context
-import android.os.Bundle
-import com.example.voicecommand.R
 import com.justai.aimybox.Aimybox
-import com.justai.aimybox.components.AimyboxAssistantViewModel
-import com.justai.aimybox.components.AimyboxProvider
 import com.justai.aimybox.core.Config.Companion.create
 import com.justai.aimybox.speechkit.google.platform.GooglePlatformSpeechToText
 import com.justai.aimybox.speechkit.google.platform.GooglePlatformTextToSpeech
@@ -34,7 +28,7 @@ import com.justai.aimybox.speechkit.kaldi.KaldiVoiceTrigger
 import com.squareup.otto.Bus
 import org.envirocar.voicecommand.customskills.EnviroCarRasaCustomSkill
 import org.envirocar.voicecommand.dialogapi.rasa.CustomRasaDialogApi
-import org.envirocar.voicecommand.handler.MetadataHandler
+import org.envirocar.voicecommand.handlers.MetadataHandler
 import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -54,7 +48,6 @@ class BaseAimybox @Inject constructor(
     val mContext: Context
     val mBus: Bus
     val mMetadataHandler: MetadataHandler
-
 
     init {
         mContext = context

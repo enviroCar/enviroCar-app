@@ -60,7 +60,7 @@ import org.envirocar.core.logging.Logger;
 import org.envirocar.voicecommand.BaseAimybox;
 import org.envirocar.voicecommand.enums.Recording;
 import org.envirocar.voicecommand.events.recording.RecordingTrackEvent;
-import org.envirocar.voicecommand.handler.MetadataHandler;
+import org.envirocar.voicecommand.handlers.MetadataHandler;
 
 import java.text.DecimalFormat;
 

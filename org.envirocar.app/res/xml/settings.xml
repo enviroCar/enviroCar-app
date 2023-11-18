@@ -110,7 +110,14 @@
                 android:key="@string/prefkey_voice_command"
                 android:summary="@string/pref_enable_voice_command_sub"
                 android:title="@string/pref_enable_voice_command"
-                app:iconSpaceReserved="false" />
+                app:iconSpaceReserved="false" >
+        </CheckBoxPreference>
+
+        <Preference
+            app:key="pref_model_dashboard"
+            app:summary="@string/pref_model_dashboard_sub"
+            app:title="@string/pref_model_dashboard"
+            app:iconSpaceReserved="false" />
     </PreferenceCategory>
 
     <PreferenceCategory

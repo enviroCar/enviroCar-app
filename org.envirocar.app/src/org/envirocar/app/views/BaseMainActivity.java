@@ -59,7 +59,7 @@ import org.envirocar.core.events.TrackFinishedEvent;
 import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.utils.ServiceUtils;
-import org.envirocar.voicecommand.handler.MetadataHandler;
+import org.envirocar.voicecommand.handlers.MetadataHandler;
 
 import java.util.Stack;
 

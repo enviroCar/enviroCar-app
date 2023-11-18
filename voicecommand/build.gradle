@@ -57,16 +57,20 @@ dependencies {
     // Coroutines
     implementation rootProject.ext.lifecycleExtension
     implementation rootProject.ext.coroutines
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.0'
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.4.0"
 
     // Dependency injection, view injection, event bus ...
     implementation rootProject.ext.dagger
     annotationProcessor rootProject.ext.daggerCompiler
     implementation rootProject.ext.otto
 
-
     // ok https3
     implementation 'com.google.code.gson:gson:2.8.9'
     implementation 'com.squareup.okhttp3:logging-interceptor:4.9.0'
     implementation 'com.squareup.okhttp3:okhttp:4.9.0'
 
+    // retrofit
+    implementation rootProject.ext.retrofit2
+    implementation rootProject.ext.retrofitGson2
 }

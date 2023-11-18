@@ -42,7 +42,7 @@ import org.envirocar.app.views.utils.ECAnimationUtils;
 import org.envirocar.core.entity.Manufacturers;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.storage.EnviroCarVehicleDB;
-import org.envirocar.voicecommand.handler.MetadataHandler;
+import org.envirocar.voicecommand.handlers.MetadataHandler;
 
 import java.util.List;
 

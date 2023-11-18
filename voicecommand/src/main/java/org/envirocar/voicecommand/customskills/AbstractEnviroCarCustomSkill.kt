@@ -22,7 +22,7 @@ import com.justai.aimybox.core.CustomSkill
 import com.squareup.otto.Bus
 import org.envirocar.voicecommand.dialogapi.rasa.EnviroCarRasaRequest
 import org.envirocar.voicecommand.dialogapi.rasa.EnviroCarRasaResponse
-import org.envirocar.voicecommand.handler.MetadataHandler
+import org.envirocar.voicecommand.handlers.MetadataHandler
 
 /**
  * @author Dhiraj Chauhan

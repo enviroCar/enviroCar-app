@@ -52,6 +52,10 @@
     <string name="microphone_permission_denied">Mikrofonberechtigung nicht erteilt, Sprachbefehlsfunktion kann nicht verwendet werden.</string>
     <string name="grant_permission">Gewähren</string>
 
+    <!-- Voice Model Dashboard -->
+    <string name="pref_model_dashboard">Sprachmodell-Dashboard</string>
+    <string name="pref_model_dashboard_sub">Verwalten Sie Sprachmodelle für die Sprachbefehlsfunktion</string>
+
     <!-- Track chunks -->
     <string name="pref_track_chunk_upload">Hochladen während der Fahrt</string>
     <string name="pref_track_chunk_upload_sub">Aktiviert das Hochladen während der Fahrt. Hinweis: Durch Aktivierung dieser Funktion werden durchgeführte Fahrten als Open Data auf den enviroCar Server hochgeladen.</string>
