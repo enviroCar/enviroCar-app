@@ -14,7 +14,7 @@ import org.envirocar.voicecommand.handlers.VoiceModelHandler
 import org.envirocar.voicecommand.model.AvailableVoiceModel
 import org.envirocar.voicecommand.model.DownloadedVoiceModel
 import org.envirocar.voicecommand.model.VoiceModel
-import org.envirocar.voicecommand.service.DownloadState
+import org.envirocar.voicecommand.model.DownloadState
 import java.io.File
 
 class VoiceModelViewModel(application: Application) : AndroidViewModel(application) {

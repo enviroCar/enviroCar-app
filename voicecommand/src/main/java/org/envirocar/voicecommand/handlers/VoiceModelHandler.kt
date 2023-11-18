@@ -14,7 +14,7 @@ import okhttp3.ResponseBody
 import org.envirocar.voicecommand.enums.ModelState
 import org.envirocar.voicecommand.model.DownloadedVoiceModel
 import org.envirocar.voicecommand.model.VoiceModel
-import org.envirocar.voicecommand.service.DownloadState
+import org.envirocar.voicecommand.model.DownloadState
 import org.envirocar.voicecommand.service.VoiceModelNetwork
 import java.io.BufferedInputStream
 import java.io.File

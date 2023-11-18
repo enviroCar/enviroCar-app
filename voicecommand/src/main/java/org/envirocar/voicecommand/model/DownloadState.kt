@@ -1,4 +1,4 @@
-package org.envirocar.voicecommand.service
+package org.envirocar.voicecommand.model
 
 sealed class DownloadState {
     data class Downloading(val progress: Int) : DownloadState()

@@ -23,9 +23,10 @@ interface VoiceModelService {
 
 object VoiceModelNetwork {
 
+    const val BASE_URL = "http://ec2-15-206-186-192.ap-south-1.compute.amazonaws.com:8000/"
 
     private val retrofit = Retrofit.Builder()
-        .baseUrl("http://ec2-15-206-186-192.ap-south-1.compute.amazonaws.com:8000/")
+        .baseUrl(BASE_URL)
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 
