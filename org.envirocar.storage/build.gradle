@@ -1,8 +1,7 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion rootProject.ext.compileSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
+    namespace "org.envirocar.storage"
 
     compileOptions {
         sourceCompatibility rootProject.ext.javaCompileVersion
@@ -10,8 +9,9 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion rootProject.ext.minSdkVersion
-        targetSdkVersion rootProject.ext.targetSdkVersion
+        minSdk rootProject.ext.minSdk
+        compileSdk rootProject.ext.compileSdk
+        targetSdk rootProject.ext.targetSdk
     }
 }
 

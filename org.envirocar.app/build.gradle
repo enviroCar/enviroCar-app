@@ -1,9 +1,12 @@
+import com.hierynomus.gradle.license.tasks.LicenseFormat
+
 apply plugin: 'com.android.application' //or apply plugin: 'java'
 
 dependencies {
     // Android dependencies.
     implementation rootProject.ext.supportV4
     implementation rootProject.ext.supportV7
+    implementation rootProject.ext.supportCore
     implementation rootProject.ext.supportDesign
     implementation rootProject.ext.supportCardview
     implementation rootProject.ext.supportRecyclerview
@@ -14,7 +17,6 @@ dependencies {
 
     implementation rootProject.ext.supportLifecycleExtension
     implementation rootProject.ext.supportLifecycleRuntime
-    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation rootProject.ext.androidxPreference
     annotationProcessor rootProject.ext.supportLifecycleCompiler
 
@@ -52,13 +54,13 @@ dependencies {
     implementation rootProject.ext.rxBindingAppCompat
 
     //MapBox SDK
-    implementation (rootProject.ext.mapbox){
+    implementation(rootProject.ext.mapbox) {
         exclude group: 'com.mapbox.mapboxsdk', module: 'mapbox-android-accounts'
     }
 
     // Test
     testImplementation 'junit:junit:4.13.2'
-    testImplementation 'org.mockito:mockito-core:3.11.0'
+    testImplementation 'org.mockito:mockito-core:5.7.0'
     testImplementation('org.powermock:powermock-api-mockito:1.7.4') {
         exclude module: 'hamcrest-core'
         exclude module: 'objenesis'
@@ -68,12 +70,12 @@ dependencies {
         exclude module: 'objenesis'
     }
     androidTestImplementation 'junit:junit:4.13.2'
-    androidTestImplementation('androidx.test:runner:1.4.0-beta02') {
+    androidTestImplementation('androidx.test:runner:1.5.2') {
         exclude module: 'support-annotations'
     }
 
-    androidTestImplementation'android.arch.core:core-testing:1.1.0'
-    androidTestImplementation('androidx.test:rules:1.4.0-beta02') {
+    androidTestImplementation 'android.arch.core:core-testing:1.1.1'
+    androidTestImplementation('androidx.test:rules:1.5.0') {
         exclude module: 'support-annotations'
     }
 
@@ -87,7 +89,7 @@ dependencies {
 }
 
 
-configurations.all {
+configurations.configureEach {
     resolutionStrategy.eachDependency { DependencyResolveDetails details ->
         def requested = details.requested
         if (requested.group == "androidx") {
@@ -99,8 +101,7 @@ configurations.all {
 }
 
 android {
-    compileSdkVersion rootProject.ext.compileSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
+    namespace "org.envirocar.app"
     ndkVersion rootProject.ext.ndkVersion
 
     signingConfigs {
@@ -116,20 +117,18 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            zipAlignEnabled true
             signingConfig signingConfigs.release
         }
         debug {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            zipAlignEnabled true
             signingConfig signingConfigs.debug
         }
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility rootProject.ext.javaCompileVersion
+        targetCompatibility rootProject.ext.javaCompileVersion
     }
 
     sourceSets {
@@ -169,25 +168,33 @@ android {
     }
 
     defaultConfig {
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        minSdkVersion rootProject.ext.minSdkVersion
-        targetSdkVersion rootProject.ext.targetSdkVersion
+        minSdk rootProject.ext.minSdk
+        compileSdk rootProject.ext.compileSdk
+        targetSdk rootProject.ext.targetSdk
+        versionCode rootProject.ext.versionCode
+        versionName rootProject.ext.versionName
+
         multiDexEnabled true
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildFeatures {
+        buildConfig true
     }
 }
 
 // custom licenseFormat-tasks to access the directories, which are not part of the standard maven directory pattern
-task licenseFormatSrc(type: com.hierynomus.gradle.license.tasks.LicenseFormat) {
+tasks.register('licenseFormatSrc', LicenseFormat) {
     source = fileTree(dir: "src").include("**/*.java", '**/*.xml', '**/*.html').exclude('**/MoreObjects.java', '**/Preconditions.java')
 }
 licenseFormat.dependsOn licenseFormatSrc
 
-task licenseFormatTests(type: com.hierynomus.gradle.license.tasks.LicenseFormat) {
+tasks.register('licenseFormatTests', LicenseFormat) {
     source = fileTree(dir: "tests").include("**/*.java", '**/*.xml', '**/*.html').exclude('**/MoreObjects.java', '**/Preconditions.java')
 }
 licenseFormat.dependsOn licenseFormatTests
 
-task licenseFormatRes(type: com.hierynomus.gradle.license.tasks.LicenseFormat) {
+tasks.register('licenseFormatRes', LicenseFormat) {
     source = fileTree(dir: "res").include("**/*.java", '**/*.xml', '**/*.html').exclude('**/MoreObjects.java', '**/Preconditions.java')
 }
 licenseFormat.dependsOn licenseFormatRes

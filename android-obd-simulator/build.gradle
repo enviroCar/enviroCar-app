@@ -1,3 +1,5 @@
+import com.hierynomus.gradle.license.tasks.LicenseFormat
+
 apply plugin: 'com.android.application'
 
 dependencies {
@@ -5,8 +7,7 @@ dependencies {
 }
 
 android {
-    compileSdkVersion rootProject.ext.compileSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
+    namespace "org.envirocar.obd"
     ndkVersion rootProject.ext.ndkVersion
 
     sourceSets {
@@ -34,18 +35,19 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion rootProject.ext.minSdkVersion
-        targetSdkVersion rootProject.ext.targetSdkVersion
+        minSdk rootProject.ext.minSdk
+        compileSdk rootProject.ext.compileSdk
+        targetSdk rootProject.ext.targetSdk
     }
 }
 
 // custom licenseFormat-tasks to access the directories, which are not part of the standard maven directory pattern
-task licenseFormatSrc(type: com.hierynomus.gradle.license.tasks.LicenseFormat) {
+tasks.register('licenseFormatSrc', LicenseFormat) {
     source = fileTree(dir: "src").include("**/*.java", '**/*.xml', '**/*.html').exclude('**/MoreObjects.java', '**/Preconditions.java')
 }
 licenseFormat.dependsOn licenseFormatSrc
 
-task licenseFormatRes(type: com.hierynomus.gradle.license.tasks.LicenseFormat) {
+tasks.register('licenseFormatRes', LicenseFormat) {
     source = fileTree(dir: "res").include("**/*.java", '**/*.xml', '**/*.html').exclude('**/MoreObjects.java', '**/Preconditions.java')
 }
 licenseFormat.dependsOn licenseFormatRes
