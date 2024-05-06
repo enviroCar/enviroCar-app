@@ -19,7 +19,6 @@
 
 -->
 <resources>
-    <string name="app_name" translatable="false">core</string>
 
     <!-- fuel type values -->
     <string name="fuel_type_gasoline">Gasoline</string>
