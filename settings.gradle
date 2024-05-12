@@ -1,7 +1,52 @@
-include ':org.envirocar.app'
-include ':org.envirocar.core'
-include ':org.envirocar.remote'
-include ':org.envirocar.obd'
-include ':org.envirocar.storage'
-include ':org.envirocar.algorithm'
-include ':android-obd-simulator'
+pluginManagement {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        maven { url "https://plugins.gradle.org/m2/" }
+        maven { url "https://jitpack.io" }
+        google()
+        maven {
+            url "https://api.mapbox.com/downloads/v2/releases/maven"
+            authentication {
+                basic(BasicAuthentication)
+            }
+            credentials {
+                username = "mapbox"
+                password = rootProject.properties["MAPBOX_DOWNLOADS_TOKEN"] ?: ""
+            }
+        }
+    }
+}
+
+dependencyResolutionManagement {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        maven { url "https://plugins.gradle.org/m2/" }
+        maven { url "https://jitpack.io" }
+        google()
+        maven {
+            url "https://api.mapbox.com/downloads/v2/releases/maven"
+            authentication {
+                basic(BasicAuthentication)
+            }
+            credentials {
+                // Do not change the username below.
+                // This should always be `mapbox` (not your username).
+                username = "mapbox"
+                // Use the secret token you stored in gradle.properties as the password
+                password = rootProject.properties["MAPBOX_DOWNLOADS_TOKEN"] ?: ""
+            }
+        }
+    }
+}
+
+rootProject.name = "enviroCar"
+
+include ":org.envirocar.app"
+include ":org.envirocar.core"
+include ":org.envirocar.remote"
+include ":org.envirocar.obd"
+include ":org.envirocar.storage"
+include ":org.envirocar.algorithm"
+include ":android-obd-simulator"

@@ -1,50 +1,54 @@
-apply plugin: 'com.android.library'
+plugins {
+    alias libs.plugins.android.library
+}
 
 android {
     namespace "org.envirocar.core"
 
-    compileOptions {
-        sourceCompatibility rootProject.ext.javaCompileVersion
-        targetCompatibility rootProject.ext.javaCompileVersion
+    defaultConfig {
+        minSdk libs.versions.minSdk.get().toInteger()
+        compileSdk libs.versions.compileSdk.get().toInteger()
+        targetSdk libs.versions.targetSdk.get().toInteger()
     }
 
-    defaultConfig {
-        minSdk rootProject.ext.minSdk
-        compileSdk rootProject.ext.compileSdk
-        targetSdk rootProject.ext.targetSdk
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
 
 dependencies {
-    // Android dependencies
-    implementation rootProject.ext.supportV4
-    implementation rootProject.ext.supportV7
+    // Android dependencies.
 
-    // Dependency injection, view injection, event bus...
-    implementation rootProject.ext.dagger
-    annotationProcessor  rootProject.ext.daggerCompiler
-    implementation rootProject.ext.otto
+    implementation libs.androidx.legacy.support.v4
+    implementation libs.androidx.appcompat
 
-    // RxJava dependencies
-    implementation rootProject.ext.rxAndroid
-    implementation rootProject.ext.rxJava
+    implementation libs.androidx.room.runtime
+    annotationProcessor libs.room.compiler
 
-    // acra
-    implementation rootProject.ext.acra
+    // Dependency injection, view injection, event bus etc.
 
-    // Google dependencies
-    implementation rootProject.ext.gson
-    implementation rootProject.ext.findBugs
+    implementation libs.dagger
+    annotationProcessor libs.dagger.compiler
 
-    // Third party
-    implementation rootProject.ext.apacheCommons
-    implementation rootProject.ext.materialDialogs
-    implementation rootProject.ext.openCSVReader exclude module: 'commons-logging'
+    implementation libs.otto
 
-    //Room
-    implementation rootProject.ext.androidRoom
-    annotationProcessor rootProject.ext.supportRoom
+    // RxJava dependencies.
+
+    implementation libs.rxjava
+    implementation libs.rxjava2.rxandroid
+
+    // Google dependencies.
+
+    implementation libs.gson
+    implementation libs.jsr305
+
+    // Third party libraries.
+
+    implementation libs.acra.core
+    implementation libs.commons.compress
+    implementation libs.material.dialogs.core
+    implementation(libs.opencsv) {
+        exclude module: "commons-logging"
+    }
 }
-
-
-

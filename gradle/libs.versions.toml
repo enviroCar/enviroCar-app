@@ -1,0 +1,113 @@
+[versions]
+acraCore = "5.7.0"
+afollestadCore = "0.9.6.0"
+agp = "8.4.0"
+androidSegmented = "1.0.6"
+androidxCore = "1.13.1"
+appcompat = "1.6.1"
+butterknife = "10.2.3"
+cardview = "1.0.0"
+circleimageview = "3.1.0"
+commonsCompress = "1.21"
+constraintlayout = "2.1.4"
+coreTesting = "1.1.1"
+dagger = "2.51.1"
+easypermissions = "3.0.0"
+envirocarAidl = "d67cfa49f3"
+fabprogresscircle = "1.01"
+gson = "2.10.1"
+hellochartsLibrary = "1.5.8"
+jsr305 = "3.0.2"
+junit = "4.13.2"
+legacySupportV4 = "1.0.0"
+licensePlugin = "0.16.1"
+lifecycleCompiler = "2.7.0"
+lifecycleExtensions = "2.2.0"
+lifecycleRuntime = "2.7.0"
+mapboxAndroidSdk = "9.2.1"
+material = "1.12.0"
+mockitoCore = "5.7.0"
+opencsv = "4.6"
+otto = "1.3.8"
+playCore = "1.10.3"
+playServicesLocation = "18.0.0"
+powermockApiMockito = "1.7.4"
+powermockModuleJunit4 = "2.0.9"
+preference = "1.2.1"
+recyclerview = "1.3.2"
+retrofit = "2.9.0"
+roomCompiler = "2.6.1"
+roomRuntime = "2.6.1"
+rules = "1.5.0"
+runner = "1.5.2"
+rxPreferences = "2.0.1"
+rxandroid = "2.1.1"
+rxbindingCore = "3.1.0"
+rxjava = "2.2.21"
+sqlbrite = "3.2.0"
+sqlite = "2.4.0"
+transitionseverywhere = "2.1.0"
+
+minSdk = "24"
+compileSdk = "34"
+targetSdk = "34"
+
+[libraries]
+acra-core = { module = "ch.acra:acra-core", version.ref = "acraCore" }
+android-segmented = { module = "info.hoang8f:android-segmented", version.ref = "androidSegmented" }
+androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
+androidx-cardview = { module = "androidx.cardview:cardview", version.ref = "cardview" }
+androidx-constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version.ref = "constraintlayout" }
+androidx-core = { module = "androidx.core:core", version.ref = "androidxCore" }
+androidx-legacy-support-v4 = { module = "androidx.legacy:legacy-support-v4", version.ref = "legacySupportV4" }
+androidx-lifecycle-compiler = { module = "androidx.lifecycle:lifecycle-runtime", version.ref = "lifecycleCompiler" }
+androidx-lifecycle-extensions = { module = "androidx.lifecycle:lifecycle-extensions", version.ref = "lifecycleExtensions" }
+androidx-lifecycle-runtime = { module = "androidx.lifecycle:lifecycle-runtime", version.ref = "lifecycleRuntime" }
+androidx-preference = { module = "androidx.preference:preference", version.ref = "preference" }
+androidx-recyclerview = { module = "androidx.recyclerview:recyclerview", version.ref = "recyclerview" }
+androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
+androidx-room-rxjava2 = { module = "androidx.room:room-rxjava2", version.ref = "roomRuntime" }
+androidx-rules = { module = "androidx.test:rules", version.ref = "rules" }
+androidx-runner = { module = "androidx.test:runner", version.ref = "runner" }
+androidx-sqlite = { module = "androidx.sqlite:sqlite", version.ref = "sqlite" }
+androidx-sqlite-framework = { module = "androidx.sqlite:sqlite-framework", version.ref = "sqlite" }
+butterknife = { module = "com.jakewharton:butterknife", version.ref = "butterknife" }
+butterknife-compiler = { module = "com.jakewharton:butterknife-compiler", version.ref = "butterknife" }
+circleimageview = { module = "de.hdodenhof:circleimageview", version.ref = "circleimageview" }
+commons-compress = { module = "org.apache.commons:commons-compress", version.ref = "commonsCompress" }
+core = { module = "com.google.android.play:core", version.ref = "playCore" }
+core-testing = { module = "android.arch.core:core-testing", version.ref = "coreTesting" }
+dagger = { module = "com.google.dagger:dagger", version.ref = "dagger" }
+dagger-compiler = { module = "com.google.dagger:dagger-compiler", version.ref = "dagger" }
+easypermissions = { module = "pub.devrel:easypermissions", version.ref = "easypermissions" }
+envirocar-aidl = { module = "com.github.enviroCar:enviroCar-aidl", version.ref = "envirocarAidl" }
+fabprogresscircle = { module = "com.github.jorgecastilloprz:fabprogresscircle", version.ref = "fabprogresscircle" }
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
+hellocharts-library = { module = "com.github.lecho:hellocharts-library", version.ref = "hellochartsLibrary" }
+jsr305 = { module = "com.google.code.findbugs:jsr305", version.ref = "jsr305" }
+junit = { module = "junit:junit", version.ref = "junit" }
+mapbox-android-sdk = { module = "com.mapbox.mapboxsdk:mapbox-android-sdk", version.ref = "mapboxAndroidSdk" }
+material = { module = "com.google.android.material:material", version.ref = "material" }
+material-dialogs-core = { module = "com.afollestad.material-dialogs:core", version.ref = "afollestadCore" }
+mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockitoCore" }
+opencsv = { module = "com.opencsv:opencsv", version.ref = "opencsv" }
+otto = { module = "com.squareup:otto", version.ref = "otto" }
+play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesLocation" }
+powermock-api-mockito = { module = "org.powermock:powermock-api-mockito", version.ref = "powermockApiMockito" }
+powermock-module-junit4 = { module = "org.powermock:powermock-module-junit4", version.ref = "powermockModuleJunit4" }
+retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
+retrofit-adapter-rxjava2 = { module = "com.squareup.retrofit2:adapter-rxjava2", version.ref = "retrofit" }
+retrofit-converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
+room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomCompiler" }
+rx-preferences = { module = "com.f2prateek.rx.preferences2:rx-preferences", version.ref = "rxPreferences" }
+rxbinding-appcompat = { module = "com.jakewharton.rxbinding3:rxbinding-appcompat", version.ref = "rxbindingCore" }
+rxbinding-core = { module = "com.jakewharton.rxbinding3:rxbinding-core", version.ref = "rxbindingCore" }
+rxjava = { module = "io.reactivex.rxjava2:rxjava", version.ref = "rxjava" }
+rxjava2-rxandroid = { module = "io.reactivex.rxjava2:rxandroid", version.ref = "rxandroid" }
+sqlbrite = { module = "com.squareup.sqlbrite3:sqlbrite", version.ref = "sqlbrite" }
+transitionseverywhere = { module = "com.andkulikov:transitionseverywhere", version.ref = "transitionseverywhere" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }
+license-plugin = { id = "com.github.hierynomus.license", version.ref = "licensePlugin" }

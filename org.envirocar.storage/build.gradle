@@ -1,51 +1,58 @@
-apply plugin: 'com.android.library'
+plugins {
+    alias libs.plugins.android.library
+}
 
 android {
     namespace "org.envirocar.storage"
 
-    compileOptions {
-        sourceCompatibility rootProject.ext.javaCompileVersion
-        targetCompatibility rootProject.ext.javaCompileVersion
+    defaultConfig {
+        minSdk libs.versions.minSdk.get().toInteger()
+        compileSdk libs.versions.compileSdk.get().toInteger()
+        targetSdk libs.versions.targetSdk.get().toInteger()
     }
 
-    defaultConfig {
-        minSdk rootProject.ext.minSdk
-        compileSdk rootProject.ext.compileSdk
-        targetSdk rootProject.ext.targetSdk
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
 
 dependencies {
-    // Android dependencies
-    implementation rootProject.ext.supportV7
+    // Android dependencies.
 
-    // Dependency injection, view injection, event bus...
-    implementation rootProject.ext.dagger
-    annotationProcessor rootProject.ext.daggerCompiler
+    implementation libs.androidx.appcompat
 
-    // RxJava dependencies
-    implementation rootProject.ext.rxJava
-    implementation rootProject.ext.rxAndroid
-    api rootProject.ext.sqlBrite // change to implementation when updating
+    implementation libs.androidx.room.runtime
+    implementation libs.androidx.room.rxjava2
+    annotationProcessor libs.room.compiler
 
-    // Testing
-    testImplementation rootProject.ext.junit
-    androidTestImplementation rootProject.ext.junit
+    // Dependency injection, view injection, event bus etc.
 
-    // Database Dependencies
-    implementation rootProject.ext.supportSqlite
-    implementation rootProject.ext.supportSqliteFramework
-    implementation rootProject.ext.sqlBrite
+    implementation libs.dagger
+    annotationProcessor libs.dagger.compiler
+
+    // RxJava dependencies.
+
+    implementation libs.rxjava
+    implementation libs.rxjava2.rxandroid
+    implementation libs.rx.preferences
+
+    // RxBinding dependencies.
+
+    implementation libs.rxbinding.core
+    implementation libs.rxbinding.appcompat
+
+    // Testing.
+
+    testImplementation libs.junit
+    androidTestImplementation libs.junit
+
+    // Database Dependencies.
+
+    implementation libs.androidx.sqlite
+    implementation libs.androidx.sqlite.framework
+    implementation libs.sqlbrite
 
     // Modules
-    api project(path : ':org.envirocar.core')
-
-    //Room dependencies
-    implementation rootProject.ext.androidRoom
-    annotationProcessor rootProject.ext.supportRoom
-    implementation rootProject.ext.androidRoomRxJava
-
-    implementation rootProject.ext.rxBindingCore
-    implementation rootProject.ext.rxBindingAppCompat
+    api project(path : ":org.envirocar.core")
 }
-

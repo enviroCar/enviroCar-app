@@ -1,93 +1,184 @@
-import com.hierynomus.gradle.license.tasks.LicenseFormat
+plugins {
+    alias libs.plugins.android.application
+}
 
-apply plugin: 'com.android.application' //or apply plugin: 'java'
+android {
+    namespace "org.envirocar.app"
+
+    defaultConfig {
+        versionName "2.1.0"
+        versionCode 64
+
+        minSdk libs.versions.minSdk.get().toInteger()
+        compileSdk libs.versions.compileSdk.get().toInteger()
+        targetSdk libs.versions.targetSdk.get().toInteger()
+
+        multiDexEnabled true
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildFeatures {
+        buildConfig true
+    }
+
+    signingConfigs {
+        release {
+            storeFile file(project.properties["RELEASE_STORE_FILE"] ?: "/tmp/tmp.key")
+            storePassword project.properties["RELEASE_STORE_PASSWORD"] ?: ""
+            keyAlias project.properties["RELEASE_KEY_ALIAS"] ?: ""
+            keyPassword project.properties["RELEASE_KEY_PASSWORD"] ?: ""
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+            signingConfig signingConfigs.release
+        }
+        debug {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+            signingConfig signingConfigs.debug
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    sourceSets {
+        main {
+            manifest.srcFile "AndroidManifest.xml"
+            java.srcDirs = ["src"]
+            resources.srcDirs = ["src"]
+            aidl.srcDirs = ["src"]
+            renderscript.srcDirs = ["src"]
+            res.srcDirs = ["res"]
+            assets.srcDirs = ["assets"]
+        }
+
+        // Move the tests to tests/java, tests/res, etc...
+        test.setRoot("tests/unit")
+        androidTest.setRoot("tests/android")
+
+        // Move the build types to build-types/<type>
+        // For instance, build-types/debug/java, build-types/debug/AndroidManifest.xml, ...
+        // This moves them out of them default location under src/<type>/... which would
+        // conflict with src/ being used by the main source set.
+        // Adding new build types or product flavors should be accompanied
+        // by a similar customization.
+        debug.setRoot("build-types/debug")
+        release.setRoot("build-types/release")
+    }
+
+    testOptions {
+        unitTests {
+            returnDefaultValues = true
+        }
+    }
+
+    packagingOptions {
+        exclude "META-INF/services/javax.annotation.processing.Processor"
+        exclude "META-INF/rxjava.properties"
+    }
+}
 
 dependencies {
     // Android dependencies.
-    implementation rootProject.ext.supportV4
-    implementation rootProject.ext.supportV7
-    implementation rootProject.ext.supportCore
-    implementation rootProject.ext.supportDesign
-    implementation rootProject.ext.supportCardview
-    implementation rootProject.ext.supportRecyclerview
-    implementation rootProject.ext.supportConstraintLayout
-    implementation rootProject.ext.androidRoom
-    implementation rootProject.ext.androidRoomRxJava
-    annotationProcessor rootProject.ext.supportRoom
 
-    implementation rootProject.ext.supportLifecycleExtension
-    implementation rootProject.ext.supportLifecycleRuntime
-    implementation rootProject.ext.androidxPreference
-    annotationProcessor rootProject.ext.supportLifecycleCompiler
+    implementation libs.androidx.appcompat
+    implementation libs.androidx.legacy.support.v4
+    implementation libs.androidx.core
+    implementation libs.material
+    implementation libs.androidx.cardview
+    implementation libs.androidx.recyclerview
+    implementation libs.androidx.constraintlayout
 
-    // Dependency injection, view injection, event bus ...
-    implementation rootProject.ext.dagger
-    implementation rootProject.ext.otto
-    implementation rootProject.ext.butterKnife
-    annotationProcessor rootProject.ext.daggerCompiler
-    annotationProcessor rootProject.ext.butterknifeCompiler
+    implementation libs.androidx.preference
+    implementation libs.androidx.room.runtime
+    implementation libs.androidx.room.rxjava2
+    annotationProcessor libs.room.compiler
 
-    // Google dependencies
-    implementation rootProject.ext.gson
-    implementation rootProject.ext.playServicesLocation
-    implementation rootProject.ext.findBugs
-    implementation rootProject.ext.playCore
+    implementation libs.androidx.lifecycle.compiler
+    implementation libs.androidx.lifecycle.extensions
+    implementation libs.androidx.lifecycle.runtime
 
-    // RxJava for Android
-    implementation rootProject.ext.rxAndroid
-    implementation rootProject.ext.rxJava
-    implementation rootProject.ext.rxPreferences
-//    implementation rootProject.ext.rxBinding
+    // Dependency injection, view injection, event bus etc.
 
-    // other third party libraries
-    implementation rootProject.ext.acra
-    implementation rootProject.ext.helloCharts
-    implementation rootProject.ext.fabProgressCircle
-    implementation rootProject.ext.segmentedUIController
-    implementation rootProject.ext.materialDialogs
-    implementation "com.andkulikov:transitionseverywhere:2.1.0"
-    implementation 'de.hdodenhof:circleimageview:3.1.0'
-    implementation 'pub.devrel:easypermissions:3.0.0'
+    implementation libs.dagger
+    annotationProcessor libs.dagger.compiler
 
-    // RxBindings
-    implementation rootProject.ext.rxBindingCore
-    implementation rootProject.ext.rxBindingAppCompat
+    implementation libs.butterknife
+    annotationProcessor libs.butterknife.compiler
 
-    //MapBox SDK
-    implementation(rootProject.ext.mapbox) {
-        exclude group: 'com.mapbox.mapboxsdk', module: 'mapbox-android-accounts'
+    implementation libs.otto
+
+    // Google dependencies.
+
+    implementation libs.gson
+    implementation libs.play.services.location
+    implementation libs.jsr305
+    implementation libs.core
+
+    // RxJava dependencies.
+
+    implementation libs.rxjava
+    implementation libs.rxjava2.rxandroid
+    implementation libs.rx.preferences
+
+    // RxBinding dependencies.
+
+    implementation libs.rxbinding.core
+    implementation libs.rxbinding.appcompat
+
+    // Third party libraries.
+
+    implementation libs.acra.core
+    implementation libs.hellocharts.library
+    implementation libs.fabprogresscircle
+    implementation libs.android.segmented
+    implementation libs.material.dialogs.core
+    implementation libs.transitionseverywhere
+    implementation libs.circleimageview
+    implementation libs.easypermissions
+
+    // MapBox SDK.
+
+    implementation libs.mapbox.android.sdk
+
+    // Testing.
+
+    testImplementation libs.junit
+    testImplementation libs.mockito.core
+    testImplementation(libs.powermock.api.mockito) {
+        exclude module: "hamcrest-core"
+        exclude module: "objenesis"
+    }
+    testImplementation(libs.powermock.module.junit4) {
+        exclude module: "hamcrest-core"
+        exclude module: "objenesis"
+    }
+    androidTestImplementation libs.junit
+    androidTestImplementation(libs.androidx.runner) {
+        exclude module: "support-annotations"
     }
 
-    // Test
-    testImplementation 'junit:junit:4.13.2'
-    testImplementation 'org.mockito:mockito-core:5.7.0'
-    testImplementation('org.powermock:powermock-api-mockito:1.7.4') {
-        exclude module: 'hamcrest-core'
-        exclude module: 'objenesis'
-    }
-    testImplementation('org.powermock:powermock-module-junit4:2.0.9') {
-        exclude module: 'hamcrest-core'
-        exclude module: 'objenesis'
-    }
-    androidTestImplementation 'junit:junit:4.13.2'
-    androidTestImplementation('androidx.test:runner:1.5.2') {
-        exclude module: 'support-annotations'
+    androidTestImplementation libs.core.testing
+    androidTestImplementation(libs.androidx.rules) {
+        exclude module: "support-annotations"
     }
 
-    androidTestImplementation 'android.arch.core:core-testing:1.1.1'
-    androidTestImplementation('androidx.test:rules:1.5.0') {
-        exclude module: 'support-annotations'
-    }
+    // Modules.
 
-    // modules
-    api project(path: ':org.envirocar.core')
-    api project(path: ':org.envirocar.remote')
-    api project(path: ':org.envirocar.obd')
-    api project(path: ':org.envirocar.storage')
-    api project(path: ':org.envirocar.algorithm')
-    implementation 'com.github.enviroCar:enviroCar-aidl:d67cfa49f3'
+    api project(path: ":org.envirocar.core")
+    api project(path: ":org.envirocar.remote")
+    api project(path: ":org.envirocar.obd")
+    api project(path: ":org.envirocar.storage")
+    api project(path: ":org.envirocar.algorithm")
+    implementation libs.envirocar.aidl
 }
-
 
 configurations.configureEach {
     resolutionStrategy.eachDependency { DependencyResolveDetails details ->
@@ -99,102 +190,3 @@ configurations.configureEach {
         }
     }
 }
-
-android {
-    namespace "org.envirocar.app"
-    ndkVersion rootProject.ext.ndkVersion
-
-    signingConfigs {
-        release {
-            storeFile file(project.properties['RELEASE_STORE_FILE'] ?: "/tmp/tmp.key")
-            storePassword project.properties['RELEASE_STORE_PASSWORD'] ?: ""
-            keyAlias project.properties['RELEASE_KEY_ALIAS'] ?: ""
-            keyPassword project.properties['RELEASE_KEY_PASSWORD'] ?: ""
-        }
-    }
-
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.release
-        }
-        debug {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.debug
-        }
-    }
-
-    compileOptions {
-        sourceCompatibility rootProject.ext.javaCompileVersion
-        targetCompatibility rootProject.ext.javaCompileVersion
-    }
-
-    sourceSets {
-        main {
-            manifest.srcFile 'AndroidManifest.xml'
-            java.srcDirs = ['src']
-            resources.srcDirs = ['src']
-            aidl.srcDirs = ['src']
-            renderscript.srcDirs = ['src']
-            res.srcDirs = ['res']
-            assets.srcDirs = ['assets']
-        }
-
-        // Move the tests to tests/java, tests/res, etc...
-        test.setRoot('tests/unit')
-        androidTest.setRoot('tests/android')
-
-        // Move the build types to build-types/<type>
-        // For instance, build-types/debug/java, build-types/debug/AndroidManifest.xml, ...
-        // This moves them out of them default location under src/<type>/... which would
-        // conflict with src/ being used by the main source set.
-        // Adding new build types or product flavors should be accompanied
-        // by a similar customization.
-        debug.setRoot('build-types/debug')
-        release.setRoot('build-types/release')
-    }
-
-    testOptions {
-        unitTests {
-            returnDefaultValues = true
-        }
-    }
-
-    packagingOptions {
-        exclude 'META-INF/services/javax.annotation.processing.Processor'
-        exclude 'META-INF/rxjava.properties'
-    }
-
-    defaultConfig {
-        minSdk rootProject.ext.minSdk
-        compileSdk rootProject.ext.compileSdk
-        targetSdk rootProject.ext.targetSdk
-        versionCode rootProject.ext.versionCode
-        versionName rootProject.ext.versionName
-
-        multiDexEnabled true
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-    }
-
-    buildFeatures {
-        buildConfig true
-    }
-}
-
-// custom licenseFormat-tasks to access the directories, which are not part of the standard maven directory pattern
-tasks.register('licenseFormatSrc', LicenseFormat) {
-    source = fileTree(dir: "src").include("**/*.java", '**/*.xml', '**/*.html').exclude('**/MoreObjects.java', '**/Preconditions.java')
-}
-licenseFormat.dependsOn licenseFormatSrc
-
-tasks.register('licenseFormatTests', LicenseFormat) {
-    source = fileTree(dir: "tests").include("**/*.java", '**/*.xml', '**/*.html').exclude('**/MoreObjects.java', '**/Preconditions.java')
-}
-licenseFormat.dependsOn licenseFormatTests
-
-tasks.register('licenseFormatRes', LicenseFormat) {
-    source = fileTree(dir: "res").include("**/*.java", '**/*.xml', '**/*.html').exclude('**/MoreObjects.java', '**/Preconditions.java')
-}
-licenseFormat.dependsOn licenseFormatRes

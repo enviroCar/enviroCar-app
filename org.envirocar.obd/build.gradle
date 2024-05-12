@@ -1,45 +1,52 @@
-apply plugin: 'com.android.library'
+plugins {
+    alias libs.plugins.android.library
+}
 
 android {
     namespace "org.envirocar.obd"
 
-    compileOptions {
-        sourceCompatibility rootProject.ext.javaCompileVersion
-        targetCompatibility rootProject.ext.javaCompileVersion
+    defaultConfig {
+        minSdk libs.versions.minSdk.get().toInteger()
+        compileSdk libs.versions.compileSdk.get().toInteger()
+        targetSdk libs.versions.targetSdk.get().toInteger()
     }
 
-    defaultConfig {
-        minSdk rootProject.ext.minSdk
-        compileSdk rootProject.ext.compileSdk
-        targetSdk rootProject.ext.targetSdk
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 
     buildTypes {
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
     }
 }
 
 dependencies {
-    // Android dependencies
-    implementation supportV7
+    // Android dependencies.
 
-    // Dependency injection, view injection, event bus...
-    implementation rootProject.ext.dagger
-    annotationProcessor rootProject.ext.daggerCompiler
-    implementation rootProject.ext.otto
+    implementation libs.androidx.appcompat
 
-    // RxJava dependencies
-    implementation rootProject.ext.rxAndroid
-    implementation rootProject.ext.rxJava
+    // Dependency injection, view injection, event bus etc.
 
-    // Testing dependencies
-    testImplementation rootProject.ext.junit
-    androidTestImplementation rootProject.ext.junit
+    implementation libs.dagger
+    annotationProcessor libs.dagger.compiler
 
-    // Modules
-    api project(path : ':org.envirocar.core')
+    implementation libs.otto
+
+    // RxJava dependencies.
+
+    implementation libs.rxjava
+    implementation libs.rxjava2.rxandroid
+
+    // Testing.
+
+    testImplementation libs.junit
+    androidTestImplementation libs.junit
+
+    // Modules.
+
+    api project(path : ":org.envirocar.core")
 }
-
