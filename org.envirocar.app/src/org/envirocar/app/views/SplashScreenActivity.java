@@ -18,14 +18,12 @@
  */
 package org.envirocar.app.views;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
 import org.envirocar.app.injection.BaseInjectorActivity;
-import org.envirocar.app.views.carselection.CarSelectionAddCarFragment;
 import org.envirocar.core.entity.Manufacturers;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.storage.EnviroCarVehicleDB;
@@ -35,14 +33,11 @@ import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
-import butterknife.ButterKnife;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
-import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.DisposableObserver;
-import io.reactivex.observers.DisposableSingleObserver;
 import io.reactivex.schedulers.Schedulers;
 
 /**
@@ -93,7 +88,6 @@ public class SplashScreenActivity extends BaseInjectorActivity {
 
         setContentView(R.layout.activity_splashscreen);
         getWindow().setNavigationBarColor(getResources().getColor(R.color.cario_color_primary_dark));
-        ButterKnife.bind(this);
 
         if ((getIntent().getFlags() & Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT) != 0) {
             finish();
