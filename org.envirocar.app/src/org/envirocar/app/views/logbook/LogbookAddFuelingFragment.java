@@ -18,14 +18,9 @@
  */
 package org.envirocar.app.views.logbook;
 
+import static com.mapbox.mapboxsdk.Mapbox.getApplicationContext;
+
 import android.app.Activity;
-import android.app.Application;
-import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.Network;
-import android.net.NetworkCapabilities;
-import android.net.NetworkInfo;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.InputFilter;
 import android.text.Spanned;
@@ -43,16 +38,17 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 
-import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
+import org.envirocar.app.databinding.ActivityLogbookAddFuelingCardBinding;
 import org.envirocar.app.handler.DAOProvider;
 import org.envirocar.app.handler.preferences.CarPreferenceHandler;
 import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.app.views.utils.DialogUtils;
-import org.envirocar.app.views.utils.ECAnimationUtils;import org.envirocar.core.ContextInternetAccessProvider;
+import org.envirocar.app.views.utils.ECAnimationUtils;
+import org.envirocar.core.ContextInternetAccessProvider;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Fueling;
 import org.envirocar.core.entity.FuelingImpl;
@@ -72,14 +68,10 @@ import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
-
-import static com.mapbox.mapboxsdk.Mapbox.getApplicationContext;
 
 /**
  * TODO JavaDoc
@@ -98,38 +90,24 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
         DECIMAL_FORMATTER_3.setDecimalFormatSymbols(symbols);
     }
 
-    @BindView(R.id.logbook_layout_addfueling_toolbar)
+    private ActivityLogbookAddFuelingCardBinding binding;
+
     protected Toolbar addFuelingToolbar;
-    @BindView(R.id.activity_log_book_add_fueling_toolbar_exp)
     protected View addFuelingToolbarExp;
-    @BindView(R.id.activity_logbook_add_fueling_card_content)
     protected View contentView;
-    @BindView(R.id.activity_logbook_add_fueling_card_scrollview)
     protected View contentScrollview;
-    @BindView(R.id.activity_logbook_add_fueling_car_selection)
     protected Spinner addFuelingCarSelection;
-    @BindView(R.id.logbook_add_fueling_milagetext)
     protected EditText addFuelingMilageText;
-    @BindView(R.id.logbook_add_fueling_volumetext)
     protected EditText addFuelingVolumeText;
-    @BindView(R.id.logbook_add_fueling_totalpricetext)
     protected EditText addFuelingTotalCostText;
-    @BindView(R.id.logbook_add_fueling_priceperlitretext)
     protected EditText addFuelingPricePerLitreText;
-    @BindView(R.id.logbook_add_fueling_partialfueling_checkbox)
     protected CheckBox partialFuelingCheckbox;
-    @BindView(R.id.logbook_add_fueling_missedfueling_checkbox)
     protected CheckBox missedFuelingCheckbox;
-    @BindView(R.id.logbook_add_fueling_comment)
     protected EditText commentText;
 
-    @BindView(R.id.layout_general_info_background)
     protected View infoBackground;
-    @BindView(R.id.layout_general_info_background_img)
     protected ImageView infoBackgroundImg;
-    @BindView(R.id.layout_general_info_background_firstline)
     protected TextView infoBackgroundFirst;
-    @BindView(R.id.layout_general_info_background_secondline)
     protected TextView infoBackgroundSecond;
 
     @Inject
@@ -145,11 +123,26 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
             savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
 
-        // Inflate the view and inject the annotated view.
-        View view = inflater.inflate(R.layout.activity_logbook_add_fueling_card, container, false);
-        ButterKnife.bind(this, view);
+        binding = ActivityLogbookAddFuelingCardBinding.inflate(inflater, container, false);
+        final View view = binding.getRoot();
 
-        view.setOnClickListener(v -> hideKeyboard(view));
+        addFuelingToolbar = binding.logbookLayoutAddfuelingToolbar;
+        addFuelingToolbarExp = binding.activityLogBookAddFuelingToolbarExp;
+        contentView = binding.activityLogbookAddFuelingCardContent;
+        contentScrollview = binding.activityLogbookAddFuelingCardScrollview;
+        addFuelingCarSelection = binding.activityLogbookAddFuelingCarSelection;
+        addFuelingMilageText = binding.logbookAddFuelingMilagetext;
+        addFuelingVolumeText = binding.logbookAddFuelingVolumetext;
+        addFuelingTotalCostText = binding.logbookAddFuelingTotalpricetext;
+        addFuelingPricePerLitreText = binding.logbookAddFuelingPriceperlitretext;
+        partialFuelingCheckbox = binding.logbookAddFuelingPartialfuelingCheckbox;
+        missedFuelingCheckbox = binding.logbookAddFuelingMissedfuelingCheckbox;
+        commentText = binding.logbookAddFuelingComment;
+        infoBackground = binding.layoutGeneralInfoBackground.getRoot();
+        infoBackgroundImg = binding.layoutGeneralInfoBackground.layoutGeneralInfoBackgroundImg;
+        infoBackgroundFirst = binding.layoutGeneralInfoBackground.layoutGeneralInfoBackgroundFirstline;
+        infoBackgroundSecond = binding.layoutGeneralInfoBackground.layoutGeneralInfoBackgroundSecondline;
+
         contentView.setOnClickListener(v -> hideKeyboard(contentView));
 
         addFuelingToolbar.setNavigationIcon(R.drawable.ic_close_white_24dp);
