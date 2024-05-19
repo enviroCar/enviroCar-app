@@ -22,6 +22,8 @@ import android.app.Activity;
 import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
@@ -41,6 +43,7 @@ import com.jakewharton.rxbinding3.widget.RxTextView;
 
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
+import org.envirocar.app.databinding.FragmentCarSelectionAttributesBinding;
 import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.core.entity.Manufacturers;
 import org.envirocar.core.entity.Vehicles;
@@ -58,10 +61,6 @@ import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
-import butterknife.OnTextChanged;
 import io.reactivex.Observable;
 import io.reactivex.Scheduler;
 import io.reactivex.Single;
@@ -72,26 +71,50 @@ import io.reactivex.observers.DisposableSingleObserver;
 import io.reactivex.schedulers.Schedulers;
 
 public class CarSelectionAttributesFragment extends BaseInjectorFragment {
+    private FragmentCarSelectionAttributesBinding binding;
 
-    @BindView(R.id.fragment_attributes_manufacturer_input)
     protected AutoCompleteTextView manufactureEditText;
-    @BindView(R.id.fragment_attributes_model_input)
     protected AutoCompleteTextView modelEditText;
-    @BindView(R.id.fragment_attributes_year_input)
     protected EditText yearEditText;
-    @BindView(R.id.fragment_attributes_fueltype_input)
     protected AutoCompleteTextView fuelTypeSelection;
-    @BindView(R.id.fragment_attributes_displacement_input)
     protected EditText displacementEditText;
-    @BindView(R.id.fragment_attributes_weight_input)
     protected EditText weightEditText;
-    @BindView(R.id.fragment_attributes_utility_input)
     protected AutoCompleteTextView utilityTypeSelection;
-    @BindView(R.id.fragment_attributes_emission_input)
     protected AutoCompleteTextView emissionClassSelection;
-
-    @BindView(R.id.fragment_car_search_button_text)
     protected TextView searchButton;
+
+    private TextWatcher manufactureEditTextWatcher = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {}
+        @Override
+        public void afterTextChanged(Editable s) {
+            onManufacturerChanged();
+        }
+    };
+
+    private TextWatcher modelEditTextWatcher = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {}
+        @Override
+        public void afterTextChanged(Editable s) {
+            onModelChanged();
+        }
+    };
+
+    private TextWatcher yearEditTextWatcher = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {}
+        @Override
+        public void afterTextChanged(Editable s) {
+            onYearChanged();
+        }
+    };
 
     @Inject
     EnviroCarVehicleDB enviroCarVehicleDB;
@@ -115,9 +138,24 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
+        binding = FragmentCarSelectionAttributesBinding.inflate(inflater, container, false);
+        final View view = binding.getRoot();
+        manufactureEditText = binding.fragmentAttributesManufacturerInput;
+        modelEditText = binding.fragmentAttributesModelInput;
+        yearEditText = binding.fragmentAttributesYearInput;
+        fuelTypeSelection = binding.fragmentAttributesFueltypeInput;
+        displacementEditText = binding.fragmentAttributesDisplacementInput;
+        weightEditText = binding.fragmentAttributesWeightInput;
+        utilityTypeSelection = binding.fragmentAttributesUtilityInput;
+        emissionClassSelection = binding.fragmentAttributesEmissionInput;
+        searchButton = binding.fragmentCarSearchButtonText;
 
-        View view = inflater.inflate(R.layout.fragment_car_selection_attributes, container, false);
-        ButterKnife.bind(this, view);
+        manufactureEditText.addTextChangedListener(manufactureEditTextWatcher);
+        modelEditText.addTextChangedListener(modelEditTextWatcher);
+        yearEditText.addTextChangedListener(yearEditTextWatcher);
+
+        binding.fragmentCarSearchButton.setOnClickListener(v -> searchButtonClick());
+
         fetchManufactures();
         initFocusChangedListener();
         initManufacturerTextChangeListener();
@@ -183,6 +221,15 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
     }
 
     @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        manufactureEditText.removeTextChangedListener(manufactureEditTextWatcher);
+        modelEditText.removeTextChangedListener(modelEditTextWatcher);
+        yearEditText.removeTextChangedListener(yearEditTextWatcher);
+        binding = null;
+    }
+
+    @Override
     public void onDestroy() {
         disposable.dispose();
         super.onDestroy();
@@ -193,7 +240,6 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
         baseApplicationComponent.inject(this);
     }
 
-    @OnTextChanged(value = R.id.fragment_attributes_manufacturer_input, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
     protected void onManufacturerChanged() {
         manufactureEditText.setError(null);
         modelEditText.setText("");
@@ -203,7 +249,6 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
         }
     }
 
-    @OnTextChanged(value = R.id.fragment_attributes_model_input, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
     protected void onModelChanged() {
         modelEditText.setError(null);
 
@@ -212,12 +257,10 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
         }
     }
 
-    @OnTextChanged(value = R.id.fragment_attributes_year_input, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
     protected void onYearChanged() {
         yearEditText.setError(null);
     }
 
-    @OnClick(R.id.fragment_car_search_button)
     void searchButtonClick() {
         String manufacturer = manufactureEditText.getText().toString().trim();
         String model = modelEditText.getText().toString().trim();
