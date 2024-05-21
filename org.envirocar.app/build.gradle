@@ -1,128 +1,44 @@
-apply plugin: 'com.android.application' //or apply plugin: 'java'
-
-dependencies {
-    // Android dependencies.
-    implementation rootProject.ext.supportV4
-    implementation rootProject.ext.supportV7
-    implementation rootProject.ext.supportDesign
-    implementation rootProject.ext.supportCardview
-    implementation rootProject.ext.supportRecyclerview
-    implementation rootProject.ext.supportConstraintLayout
-    implementation rootProject.ext.androidRoom
-    implementation rootProject.ext.androidRoomRxJava
-    annotationProcessor rootProject.ext.supportRoom
-
-    implementation rootProject.ext.supportLifecycleExtension
-    implementation rootProject.ext.supportLifecycleRuntime
-    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation rootProject.ext.androidxPreference
-    annotationProcessor rootProject.ext.supportLifecycleCompiler
-
-    // Dependency injection, view injection, event bus ...
-    implementation rootProject.ext.dagger
-    implementation rootProject.ext.otto
-    implementation rootProject.ext.butterKnife
-    annotationProcessor rootProject.ext.daggerCompiler
-    annotationProcessor rootProject.ext.butterknifeCompiler
-
-    // Google dependencies
-    implementation rootProject.ext.gson
-    implementation rootProject.ext.playServicesLocation
-    implementation rootProject.ext.findBugs
-    implementation rootProject.ext.playCore
-
-    // RxJava for Android
-    implementation rootProject.ext.rxAndroid
-    implementation rootProject.ext.rxJava
-    implementation rootProject.ext.rxPreferences
-//    implementation rootProject.ext.rxBinding
-
-    // other third party libraries
-    implementation rootProject.ext.acra
-    implementation rootProject.ext.helloCharts
-    implementation rootProject.ext.fabProgressCircle
-    implementation rootProject.ext.segmentedUIController
-    implementation rootProject.ext.materialDialogs
-    implementation "com.andkulikov:transitionseverywhere:2.1.0"
-    implementation 'de.hdodenhof:circleimageview:3.1.0'
-    implementation 'pub.devrel:easypermissions:3.0.0'
-
-    // RxBindings
-    implementation rootProject.ext.rxBindingCore
-    implementation rootProject.ext.rxBindingAppCompat
-
-    //MapBox SDK
-    implementation (rootProject.ext.mapbox){
-        exclude group: 'com.mapbox.mapboxsdk', module: 'mapbox-android-accounts'
-    }
-
-    // Test
-    testImplementation 'junit:junit:4.13.2'
-    testImplementation 'org.mockito:mockito-core:3.11.0'
-    testImplementation('org.powermock:powermock-api-mockito:1.7.4') {
-        exclude module: 'hamcrest-core'
-        exclude module: 'objenesis'
-    }
-    testImplementation('org.powermock:powermock-module-junit4:2.0.9') {
-        exclude module: 'hamcrest-core'
-        exclude module: 'objenesis'
-    }
-    androidTestImplementation 'junit:junit:4.13.2'
-    androidTestImplementation('androidx.test:runner:1.4.0-beta02') {
-        exclude module: 'support-annotations'
-    }
-
-    androidTestImplementation'android.arch.core:core-testing:1.1.0'
-    androidTestImplementation('androidx.test:rules:1.4.0-beta02') {
-        exclude module: 'support-annotations'
-    }
-
-    // modules
-    api project(path: ':org.envirocar.core')
-    api project(path: ':org.envirocar.remote')
-    api project(path: ':org.envirocar.obd')
-    api project(path: ':org.envirocar.storage')
-    api project(path: ':org.envirocar.algorithm')
-    implementation 'com.github.enviroCar:enviroCar-aidl:d67cfa49f3'
-}
-
-
-configurations.all {
-    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
-        def requested = details.requested
-        if (requested.group == "androidx") {
-            if (!requested.name.startsWith("multidex")) {
-                details.useVersion "${targetSdk}.+"
-            }
-        }
-    }
+plugins {
+    alias libs.plugins.android.application
 }
 
 android {
-    compileSdkVersion rootProject.ext.compileSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
-    ndkVersion rootProject.ext.ndkVersion
+    namespace "org.envirocar.app"
+
+    defaultConfig {
+        versionName "2.1.0"
+        versionCode 64
+
+        minSdk libs.versions.minSdk.get().toInteger()
+        compileSdk libs.versions.compileSdk.get().toInteger()
+        targetSdk libs.versions.targetSdk.get().toInteger()
+
+        multiDexEnabled true
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildFeatures {
+        buildConfig true
+    }
 
     signingConfigs {
         release {
-            storeFile file(project.properties['RELEASE_STORE_FILE'] ?: "/tmp/tmp.key")
-            storePassword project.properties['RELEASE_STORE_PASSWORD'] ?: ""
-            keyAlias project.properties['RELEASE_KEY_ALIAS'] ?: ""
-            keyPassword project.properties['RELEASE_KEY_PASSWORD'] ?: ""
+            storeFile file(project.properties["RELEASE_STORE_FILE"] ?: "/tmp/tmp.key")
+            storePassword project.properties["RELEASE_STORE_PASSWORD"] ?: ""
+            keyAlias project.properties["RELEASE_KEY_ALIAS"] ?: ""
+            keyPassword project.properties["RELEASE_KEY_PASSWORD"] ?: ""
         }
     }
 
     buildTypes {
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            zipAlignEnabled true
+            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
             signingConfig signingConfigs.release
         }
         debug {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            zipAlignEnabled true
+            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
             signingConfig signingConfigs.debug
         }
     }
@@ -134,18 +50,18 @@ android {
 
     sourceSets {
         main {
-            manifest.srcFile 'AndroidManifest.xml'
-            java.srcDirs = ['src']
-            resources.srcDirs = ['src']
-            aidl.srcDirs = ['src']
-            renderscript.srcDirs = ['src']
-            res.srcDirs = ['res']
-            assets.srcDirs = ['assets']
+            manifest.srcFile "AndroidManifest.xml"
+            java.srcDirs = ["src"]
+            resources.srcDirs = ["src"]
+            aidl.srcDirs = ["src"]
+            renderscript.srcDirs = ["src"]
+            res.srcDirs = ["res"]
+            assets.srcDirs = ["assets"]
         }
 
         // Move the tests to tests/java, tests/res, etc...
-        test.setRoot('tests/unit')
-        androidTest.setRoot('tests/android')
+        test.setRoot("tests/unit")
+        androidTest.setRoot("tests/android")
 
         // Move the build types to build-types/<type>
         // For instance, build-types/debug/java, build-types/debug/AndroidManifest.xml, ...
@@ -153,8 +69,8 @@ android {
         // conflict with src/ being used by the main source set.
         // Adding new build types or product flavors should be accompanied
         // by a similar customization.
-        debug.setRoot('build-types/debug')
-        release.setRoot('build-types/release')
+        debug.setRoot("build-types/debug")
+        release.setRoot("build-types/release")
     }
 
     testOptions {
@@ -164,30 +80,113 @@ android {
     }
 
     packagingOptions {
-        exclude 'META-INF/services/javax.annotation.processing.Processor'
-        exclude 'META-INF/rxjava.properties'
-    }
-
-    defaultConfig {
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        minSdkVersion rootProject.ext.minSdkVersion
-        targetSdkVersion rootProject.ext.targetSdkVersion
-        multiDexEnabled true
+        exclude "META-INF/services/javax.annotation.processing.Processor"
+        exclude "META-INF/rxjava.properties"
     }
 }
 
-// custom licenseFormat-tasks to access the directories, which are not part of the standard maven directory pattern
-task licenseFormatSrc(type: com.hierynomus.gradle.license.tasks.LicenseFormat) {
-    source = fileTree(dir: "src").include("**/*.java", '**/*.xml', '**/*.html').exclude('**/MoreObjects.java', '**/Preconditions.java')
-}
-licenseFormat.dependsOn licenseFormatSrc
+dependencies {
+    // Android dependencies.
 
-task licenseFormatTests(type: com.hierynomus.gradle.license.tasks.LicenseFormat) {
-    source = fileTree(dir: "tests").include("**/*.java", '**/*.xml', '**/*.html').exclude('**/MoreObjects.java', '**/Preconditions.java')
-}
-licenseFormat.dependsOn licenseFormatTests
+    implementation libs.androidx.appcompat
+    implementation libs.androidx.legacy.support.v4
+    implementation libs.androidx.core
+    implementation libs.material
+    implementation libs.androidx.cardview
+    implementation libs.androidx.recyclerview
+    implementation libs.androidx.constraintlayout
 
-task licenseFormatRes(type: com.hierynomus.gradle.license.tasks.LicenseFormat) {
-    source = fileTree(dir: "res").include("**/*.java", '**/*.xml', '**/*.html').exclude('**/MoreObjects.java', '**/Preconditions.java')
+    implementation libs.androidx.preference
+    implementation libs.androidx.room.runtime
+    implementation libs.androidx.room.rxjava2
+    annotationProcessor libs.room.compiler
+
+    implementation libs.androidx.lifecycle.compiler
+    implementation libs.androidx.lifecycle.extensions
+    implementation libs.androidx.lifecycle.runtime
+
+    // Dependency injection, view injection, event bus etc.
+
+    implementation libs.dagger
+    annotationProcessor libs.dagger.compiler
+
+    implementation libs.butterknife
+    annotationProcessor libs.butterknife.compiler
+
+    implementation libs.otto
+
+    // Google dependencies.
+
+    implementation libs.gson
+    implementation libs.play.services.location
+    implementation libs.jsr305
+    implementation libs.core
+
+    // RxJava dependencies.
+
+    implementation libs.rxjava
+    implementation libs.rxjava2.rxandroid
+    implementation libs.rx.preferences
+
+    // RxBinding dependencies.
+
+    implementation libs.rxbinding.core
+    implementation libs.rxbinding.appcompat
+
+    // Third party libraries.
+
+    implementation libs.acra.core
+    implementation libs.hellocharts.library
+    implementation libs.fabprogresscircle
+    implementation libs.android.segmented
+    implementation libs.material.dialogs.core
+    implementation libs.transitionseverywhere
+    implementation libs.circleimageview
+    implementation libs.easypermissions
+
+    // MapBox SDK.
+
+    implementation libs.mapbox.android.sdk
+
+    // Testing.
+
+    testImplementation libs.junit
+    testImplementation libs.mockito.core
+    testImplementation(libs.powermock.api.mockito) {
+        exclude module: "hamcrest-core"
+        exclude module: "objenesis"
+    }
+    testImplementation(libs.powermock.module.junit4) {
+        exclude module: "hamcrest-core"
+        exclude module: "objenesis"
+    }
+    androidTestImplementation libs.junit
+    androidTestImplementation(libs.androidx.runner) {
+        exclude module: "support-annotations"
+    }
+
+    androidTestImplementation libs.core.testing
+    androidTestImplementation(libs.androidx.rules) {
+        exclude module: "support-annotations"
+    }
+
+    // Modules.
+
+    api project(path: ":org.envirocar.core")
+    api project(path: ":org.envirocar.remote")
+    api project(path: ":org.envirocar.obd")
+    api project(path: ":org.envirocar.storage")
+    api project(path: ":org.envirocar.algorithm")
+    implementation libs.envirocar.aidl
 }
-licenseFormat.dependsOn licenseFormatRes
+
+configurations.configureEach {
+    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+        def requested = details.requested
+        if (requested.group == "androidx") {
+            if (!requested.name.startsWith("multidex")) {
+                details.useVersion "${targetSdk}.+"
+            }
+        }
+    }
+}

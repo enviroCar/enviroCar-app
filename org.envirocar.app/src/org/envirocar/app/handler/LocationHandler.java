@@ -28,6 +28,7 @@ import android.location.Location;
 import android.location.LocationManager;
 
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.squareup.otto.Bus;
 import com.squareup.otto.Produce;
@@ -83,7 +84,7 @@ public class LocationHandler {
         IntentFilter filter = new IntentFilter();
         filter.addAction(LocationManager.PROVIDERS_CHANGED_ACTION);
         BroadcastReceiver mGPSStateReceiver = new GpsStateReceiver(isGPSEnabled());
-        context.registerReceiver(mGPSStateReceiver, filter);
+        ContextCompat.registerReceiver(context, mGPSStateReceiver, filter, Context.RECEIVER_EXPORTED);
     }
 
     /**

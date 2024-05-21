@@ -32,7 +32,6 @@ import android.widget.AutoCompleteTextView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListAdapter;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -132,8 +131,13 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
         // }
 
         // fuel types dropdown
-        List<String> fuelTypes = Arrays.asList(getContext().getString(R.string.fuel_type_gasoline), getContext().getString(R.string.fuel_type_diesel),
-                getContext().getString(R.string.fuel_type_electric), getContext().getString(R.string.fuel_type_gas), getContext().getString(R.string.fuel_type_hybrid));
+        List<String> fuelTypes = Arrays.asList(
+                getContext().getString(org.envirocar.core.R.string.fuel_type_gasoline),
+                getContext().getString(org.envirocar.core.R.string.fuel_type_diesel),
+                getContext().getString(org.envirocar.core.R.string.fuel_type_electric),
+                getContext().getString(org.envirocar.core.R.string.fuel_type_gas),
+                getContext().getString(org.envirocar.core.R.string.fuel_type_hybrid)
+        );
 
         ArrayAdapter<String> fuelTypesAdapter = new ArrayAdapter<>(
             getContext(),
@@ -157,7 +161,7 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
             getContext().getString(R.string.car_selection_emission_na),
             getContext().getString(R.string.car_selection_emission_euro1),
             getContext().getString(R.string.car_selection_emission_euro2),
-            getContext().getString(R.string.car_selection_emission_euro3),           
+            getContext().getString(R.string.car_selection_emission_euro3),
             getContext().getString(R.string.car_selection_emission_euro4),
             getContext().getString(R.string.car_selection_emission_euro5a),
             getContext().getString(R.string.car_selection_emission_euro5b),
@@ -202,7 +206,7 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
     @OnTextChanged(value = R.id.fragment_attributes_model_input, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
     protected void onModelChanged() {
         modelEditText.setError(null);
-        
+
         if (databaseSearchEnabled) {
             yearEditText.setText("");
         }
@@ -269,7 +273,7 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
                 ((CarSelectionActivity) getActivity()).registerCar(vehicle);
             }
         }
-        
+
     }
 
 
@@ -328,7 +332,7 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
             }
         }
 
-        
+
 
         if (weight.length() == 0) {
             weight = null;
@@ -345,7 +349,7 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
         vehicle.setManufacturer(manufacturer);
         vehicle.setCommerical_name(model);
         vehicle.setAllotment_date("01.01." + year);
-        
+
         vehicle.setEngine_capacity(displacement);
         vehicle.setPower_source_id(getFuelTypeId(fuelType));
 
@@ -361,15 +365,15 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
 
     private String getFuelTypeId(String id) {
         String fuel = null;
-        if (id.equalsIgnoreCase(getContext().getString(R.string.fuel_type_gasoline)))
+        if (id.equalsIgnoreCase(getContext().getString(org.envirocar.core.R.string.fuel_type_gasoline)))
             fuel = "01";
-        else if (id.equalsIgnoreCase(getContext().getString(R.string.fuel_type_diesel)))
+        else if (id.equalsIgnoreCase(getContext().getString(org.envirocar.core.R.string.fuel_type_diesel)))
             fuel = "02";
-        else if (id.equalsIgnoreCase(getContext().getString(R.string.fuel_type_electric)))
+        else if (id.equalsIgnoreCase(getContext().getString(org.envirocar.core.R.string.fuel_type_electric)))
             fuel = "04";
-        else if (id.equalsIgnoreCase(getContext().getString(R.string.fuel_type_gas)))
+        else if (id.equalsIgnoreCase(getContext().getString(org.envirocar.core.R.string.fuel_type_gas)))
             fuel = "05";
-        else if (id.equalsIgnoreCase(getContext().getString(R.string.fuel_type_hybrid)))
+        else if (id.equalsIgnoreCase(getContext().getString(org.envirocar.core.R.string.fuel_type_hybrid)))
             fuel = "99";
 
         return fuel;
@@ -378,10 +382,10 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
     @NonNull
     protected String getEnglishString(int res) {
         Configuration configuration = getEnglishConfiguration();
-    
+
         return getContext().createConfigurationContext(configuration).getResources().getString(res);
     }
-    
+
     @NonNull
     private Configuration getEnglishConfiguration() {
         Configuration configuration = new Configuration(getContext().getResources().getConfiguration());

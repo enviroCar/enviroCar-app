@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2021 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -29,12 +29,15 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.util.Pair;
 
+import androidx.core.content.ContextCompat;
+
 import com.google.common.base.Preconditions;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Produce;
 
 import org.envirocar.app.recording.RecordingService;
 import org.envirocar.app.rxutils.RxBroadcastReceiver;
+import org.envirocar.app.views.others.TroubleshootingFragment;
 import org.envirocar.core.events.bluetooth.BluetoothDeviceDiscoveredEvent;
 import org.envirocar.core.events.bluetooth.BluetoothDeviceSelectedEvent;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
@@ -145,7 +148,9 @@ public class BluetoothHandler {
 
         // Register this handler class for Bluetooth State Changed broadcasts.
         IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
-        this.context.registerReceiver(mBluetoothStateChangedReceiver, filter);
+        ContextCompat.registerReceiver(
+                this.context, bluetoothPairingReceiver, filter, ContextCompat.RECEIVER_EXPORTED
+        );
     }
 
     @Produce
@@ -407,7 +412,7 @@ public class BluetoothHandler {
         filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
 
         // Register a receiver.
-        context.registerReceiver(new BroadcastReceiver() {
+        ContextCompat.registerReceiver(context, new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 String action = intent.getAction();
@@ -441,7 +446,7 @@ public class BluetoothHandler {
                     // Nothing to do yet
                 }
             }
-        }, filter);
+        }, filter, ContextCompat.RECEIVER_EXPORTED);
 
         mBluetoothAdapter.startDiscovery();
     }
@@ -518,7 +523,7 @@ public class BluetoothHandler {
      */
     public void pairDevice(final BluetoothDevice device,
                            final BluetoothDevicePairingCallback callback) {
-        if (bluetoothPairingReceiver == null){
+        if (bluetoothPairingReceiver == null) {
             bluetoothPairingReceiver = new BroadcastReceiver() {
                 @Override
                 public void onReceive(Context context, Intent intent) {
@@ -549,7 +554,7 @@ public class BluetoothHandler {
             };
             // Register a new BroadcastReceiver for BOND_STATE_CHANGED actions.
             IntentFilter intent = new IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
-            context.registerReceiver(bluetoothPairingReceiver, intent);
+            ContextCompat.registerReceiver(context, bluetoothPairingReceiver, intent, ContextCompat.RECEIVER_EXPORTED);
         }
 
         // Using reflection to invoke "createBond" method in order to pair with a given device.
@@ -585,7 +590,7 @@ public class BluetoothHandler {
 
         // Register a new BroadcastReceiver for BOND_STATE_CHANGED actions.
         IntentFilter intent = new IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
-        context.registerReceiver(new BroadcastReceiver() {
+        ContextCompat.registerReceiver(context, new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 String action = intent.getAction();
@@ -610,7 +615,7 @@ public class BluetoothHandler {
                     }
                 }
             }
-        }, intent);
+        }, intent, ContextCompat.RECEIVER_EXPORTED);
 
         // Using reflection to invoke "removeBond" method in order to remove the pairing with
         // a given device. This method is public in API lvl 18.

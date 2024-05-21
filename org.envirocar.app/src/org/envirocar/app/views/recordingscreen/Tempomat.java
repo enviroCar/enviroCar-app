@@ -308,7 +308,7 @@ public final class Tempomat extends FrameLayout {
         mFacePaint = new Paint();
         mFacePaint.setFilterBitmap(true);
         mFacePaint.setStyle(Paint.Style.FILL);
-        mFacePaint.setColor(getResources().getColor(R.color.material_blue_grey_950));
+        mFacePaint.setColor(getResources().getColor(androidx.appcompat.R.color.material_blue_grey_950));
 
         mBorderShadowPaint = new Paint();
         mBorderShadowPaint.setShader(

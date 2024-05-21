@@ -1,27 +1,29 @@
-apply plugin: 'com.android.application'
-
-dependencies {
-    implementation fileTree(dir: 'libs', include: '*.jar')
+plugins {
+    alias libs.plugins.android.application
 }
 
 android {
-    compileSdkVersion rootProject.ext.compileSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
-    ndkVersion rootProject.ext.ndkVersion
+    namespace "org.envirocar.obd"
+
+    defaultConfig {
+        minSdk libs.versions.minSdk.get().toInteger()
+        compileSdk libs.versions.compileSdk.get().toInteger()
+        targetSdk libs.versions.targetSdk.get().toInteger()
+    }
 
     sourceSets {
         main {
-            manifest.srcFile 'AndroidManifest.xml'
-            java.srcDirs = ['src']
-            resources.srcDirs = ['src']
-            aidl.srcDirs = ['src']
-            renderscript.srcDirs = ['src']
-            res.srcDirs = ['res']
-            assets.srcDirs = ['assets']
+            manifest.srcFile "AndroidManifest.xml"
+            java.srcDirs = ["src"]
+            resources.srcDirs = ["src"]
+            aidl.srcDirs = ["src"]
+            renderscript.srcDirs = ["src"]
+            res.srcDirs = ["res"]
+            assets.srcDirs = ["assets"]
         }
 
         // Move the tests to tests/java, tests/res, etc...
-        androidTest.setRoot('tests')
+        androidTest.setRoot("tests")
 
         // Move the build types to build-types/<type>
         // For instance, build-types/debug/java, build-types/debug/AndroidManifest.xml, ...
@@ -29,23 +31,11 @@ android {
         // conflict with src/ being used by the main source set.
         // Adding new build types or product flavors should be accompanied
         // by a similar customization.
-        debug.setRoot('build-types/debug')
-        release.setRoot('build-types/release')
-    }
-
-    defaultConfig {
-        minSdkVersion rootProject.ext.minSdkVersion
-        targetSdkVersion rootProject.ext.targetSdkVersion
+        debug.setRoot("build-types/debug")
+        release.setRoot("build-types/release")
     }
 }
 
-// custom licenseFormat-tasks to access the directories, which are not part of the standard maven directory pattern
-task licenseFormatSrc(type: com.hierynomus.gradle.license.tasks.LicenseFormat) {
-    source = fileTree(dir: "src").include("**/*.java", '**/*.xml', '**/*.html').exclude('**/MoreObjects.java', '**/Preconditions.java')
+dependencies {
+    implementation fileTree(dir: "libs", include: "*.jar")
 }
-licenseFormat.dependsOn licenseFormatSrc
-
-task licenseFormatRes(type: com.hierynomus.gradle.license.tasks.LicenseFormat) {
-    source = fileTree(dir: "res").include("**/*.java", '**/*.xml', '**/*.html').exclude('**/MoreObjects.java', '**/Preconditions.java')
-}
-licenseFormat.dependsOn licenseFormatRes
