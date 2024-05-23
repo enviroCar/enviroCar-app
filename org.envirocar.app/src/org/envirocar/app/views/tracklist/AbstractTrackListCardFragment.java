@@ -18,7 +18,6 @@
  */
 package org.envirocar.app.views.tracklist;
 
-import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -33,7 +32,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -44,20 +42,21 @@ import com.google.android.material.snackbar.Snackbar;
 
 import org.envirocar.app.BuildConfig;
 import org.envirocar.app.R;
+import org.envirocar.app.databinding.FragmentTracklistBinding;
 import org.envirocar.app.handler.DAOProvider;
 import org.envirocar.app.handler.TrackDAOHandler;
 import org.envirocar.app.handler.TrackUploadHandler;
-import org.envirocar.app.handler.preferences.UserPreferenceHandler;
 import org.envirocar.app.handler.agreement.AgreementManager;
+import org.envirocar.app.handler.preferences.UserPreferenceHandler;
 import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.app.views.utils.ECAnimationUtils;
+import org.envirocar.core.EnviroCarDB;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.exception.NotConnectedException;
 import org.envirocar.core.exception.UnauthorizedException;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.util.FileWithMetadata;
 import org.envirocar.remote.serde.TrackSerde;
-import org.envirocar.core.EnviroCarDB;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -66,8 +65,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import io.reactivex.Observable;
 import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -79,6 +76,8 @@ import io.reactivex.schedulers.Schedulers;
  */
 public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapter> extends BaseInjectorFragment {
     private static final Logger LOG = Logger.getLogger(AbstractTrackListCardFragment.class);
+
+    private FragmentTracklistBinding binding;
 
     @Inject
     protected UserPreferenceHandler mUserManager;
@@ -93,24 +92,15 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
     @Inject
     protected TrackUploadHandler mTrackUploadHandler;
 
-    @BindView(R.id.fragment_tracklist_info)
     protected View infoView;
-    @BindView(R.id.fragment_tracklist_info_img)
     protected ImageView infoImg;
-    @BindView(R.id.fragment_tracklist_info_text)
     protected TextView infoText;
-    @BindView(R.id.fragment_tracklist_info_subtext)
     protected TextView infoSubtext;
 
-    @BindView(R.id.fragment_tracklist_progress_view)
     protected View mProgressView;
-    @BindView(R.id.fragment_tracklist_progress_text)
     protected TextView mProgressText;
-    @BindView(R.id.fragment_tracklist_progress_progressBar)
     protected ProgressBar mProgressBar;
-    @BindView(R.id.fragment_tracklist_recycler_view)
     protected RecyclerView mRecyclerView;
-    @BindView(R.id.fragment_tracklist_fab)
     protected FloatingActionButton mFAB;
 
     protected E mRecyclerViewAdapter;
@@ -134,9 +124,18 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
             savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
 
-        // Inflate the view and inject the annotated view.
-        View view = inflater.inflate(R.layout.fragment_tracklist, container, false);
-        ButterKnife.bind(this, view);
+        binding = FragmentTracklistBinding.inflate(inflater, container, false);
+        final View view = binding.getRoot();
+
+        infoView = binding.fragmentTracklistInfo.getRoot();
+        infoImg = binding.fragmentTracklistInfo.fragmentTracklistInfoImg;
+        infoText = binding.fragmentTracklistInfo.fragmentTracklistInfoText;
+        infoSubtext = binding.fragmentTracklistInfo.fragmentTracklistInfoSubtext;
+        mProgressView = binding.fragmentTracklistProgressView;
+        mProgressText = binding.fragmentTracklistProgressText;
+        mProgressBar = binding.fragmentTracklistProgressProgressBar;
+        mRecyclerView = binding.fragmentTracklistRecyclerView;
+        mFAB = binding.fragmentTracklistFab;
 
         // Initiate the recyclerview
 //        mRecyclerView.setHasFixedSize(true);
@@ -154,6 +153,12 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
         }
 
         return view;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
     }
 
     /**

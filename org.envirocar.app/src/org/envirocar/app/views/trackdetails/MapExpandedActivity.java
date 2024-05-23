@@ -21,7 +21,6 @@ package org.envirocar.app.views.trackdetails;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -50,6 +49,7 @@ import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
 import org.envirocar.app.R;
+import org.envirocar.app.databinding.ActivityMapExpandedBinding;
 import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.core.entity.Measurement;
@@ -63,10 +63,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
-import butterknife.OnTouch;
 import io.reactivex.schedulers.Schedulers;
 
 import static android.view.View.GONE;
@@ -78,30 +74,21 @@ public class MapExpandedActivity extends BaseInjectorActivity {
     private static final String EXTRA_TRACKID = "org.envirocar.app.extraTrackID";
     private static final String EXTRA_TITLE = "org.envirocar.app.extraTitle";
 
+    private ActivityMapExpandedBinding binding;
+
     @Inject
     protected EnviroCarDB enviroCarDB;
 
-    @BindView(R.id.activity_map_follow_fab)
     protected FloatingActionButton mCentreFab;
-    @BindView(R.id.activity_map_visualise_fab)
     protected FloatingActionButton mVisualiseFab;
-    @BindView(R.id.activity_track_details_expanded_map_cancel)
     protected ImageView mMapViewExpandedCancel;
-    @BindView(R.id.activity_track_details_expanded_map)
     protected MapView mMapViewExpanded;
-    @BindView(R.id.activity_track_details_expanded_map_container)
     protected ConstraintLayout mMapViewExpandedContainer;
-    @BindView(R.id.legendCard)
     protected CardView legendCard;
-    @BindView(R.id.legend)
     protected ImageView legend;
-    @BindView(R.id.legend_start)
     protected TextView legendStart;
-    @BindView(R.id.legend_mid)
     protected TextView legendMid;
-    @BindView(R.id.legend_end)
     protected TextView legendEnd;
-    @BindView(R.id.legend_unit)
     protected TextView legendName;
 
     protected MapboxMap mapboxMapExpanded;
@@ -126,9 +113,27 @@ public class MapExpandedActivity extends BaseInjectorActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_map_expanded);
-        // Inject all annotated views.
-        ButterKnife.bind(this);
+
+        binding = ActivityMapExpandedBinding.inflate(getLayoutInflater());
+        final View view = binding.getRoot();
+        setContentView(view);
+
+        mCentreFab = binding.activityMapFollowFab;
+        mVisualiseFab = binding.activityMapVisualiseFab;
+        mMapViewExpandedCancel = binding.activityTrackDetailsExpandedMapCancel;
+        mMapViewExpanded = binding.activityTrackDetailsExpandedMap;
+        mMapViewExpandedContainer = binding.activityTrackDetailsExpandedMapContainer;
+        legendCard = binding.legendCard;
+        legend = binding.legend;
+        legendStart = binding.legendStart;
+        legendMid = binding.legendMid;
+        legendEnd = binding.legendEnd;
+        legendName = binding.legendUnit;
+
+        mMapViewExpanded.setOnTouchListener((v, event) -> onTouchMapView());
+        mCentreFab.setOnClickListener(v -> onClickFollowFab());
+        mVisualiseFab.setOnClickListener(v -> onClickVisualiseFab());
+
         mMapViewExpanded.onCreate(savedInstanceState);
 
         // Get the track to show.
@@ -154,7 +159,6 @@ public class MapExpandedActivity extends BaseInjectorActivity {
         mMapViewExpandedCancel.setOnClickListener(v -> finish());
     }
 
-    @OnTouch(R.id.activity_track_details_expanded_map)
     protected boolean onTouchMapView() {
         if (mIsCentredOnTrack) {
             mIsCentredOnTrack = false;
@@ -164,7 +168,6 @@ public class MapExpandedActivity extends BaseInjectorActivity {
         return false;
     }
 
-    @OnClick(R.id.activity_map_follow_fab)
     protected void onClickFollowFab() {
         final LatLngBounds viewBbox = trackMapOverlay.getViewBoundingBox();
         if (!mIsCentredOnTrack) {
@@ -175,7 +178,6 @@ public class MapExpandedActivity extends BaseInjectorActivity {
         }
     }
 
-    @OnClick(R.id.activity_map_visualise_fab)
     protected void onClickVisualiseFab() {
         LOG.info("onClickVisualiseFab");
         AlertDialog.Builder b = new AlertDialog.Builder(this);

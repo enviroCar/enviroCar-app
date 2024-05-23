@@ -32,12 +32,11 @@ import androidx.viewpager.widget.ViewPager;
 import org.envirocar.app.BaseApplication;
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
+import org.envirocar.app.databinding.FragmentTracklistLayoutBinding;
 import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.app.injection.modules.MainActivityModule;
 import org.envirocar.core.logging.Logger;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import info.hoang8f.android.segmented.SegmentedGroup;
 
 /**
@@ -46,9 +45,9 @@ import info.hoang8f.android.segmented.SegmentedGroup;
 public class TrackListPagerFragment extends BaseInjectorFragment {
     private static final Logger LOG = Logger.getLogger(TrackListPagerFragment.class);
 
-    @BindView(R.id.trackListSegmentedGroup)
+    private FragmentTracklistLayoutBinding binding;
+
     protected SegmentedGroup trackListSegmentedGroup;
-    @BindView(R.id.fragment_tracklist_layout_viewpager)
     protected ViewPager mViewPager;
 
     private TrackListPagerAdapter trackListPageAdapter;
@@ -65,8 +64,11 @@ public class TrackListPagerFragment extends BaseInjectorFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         LOG.info("onCreateView()");
-        View content = inflater.inflate(R.layout.fragment_tracklist_layout, container, false);
-        ButterKnife.bind(this, content);
+        binding = FragmentTracklistLayoutBinding.inflate(inflater, container, false);
+        View content = binding.getRoot();
+
+        trackListSegmentedGroup = binding.trackListSegmentedGroup;
+        mViewPager = binding.fragmentTracklistLayoutViewpager;
 
         trackListPageAdapter = new TrackListPagerAdapter(getChildFragmentManager());
         mViewPager.setAdapter(trackListPageAdapter);
@@ -95,15 +97,10 @@ public class TrackListPagerFragment extends BaseInjectorFragment {
         trackListSegmentedGroup.check(R.id.localSegmentedButton);
 
         trackListSegmentedGroup.setOnCheckedChangeListener((radioGroup, i) -> {
-            switch (i) {
-                case R.id.localSegmentedButton:
-                    mViewPager.setCurrentItem(0);
-                    break;
-                case R.id.uploadedSegmentedButton:
-                    mViewPager.setCurrentItem(1);
-                    break;
-                default:
-                    break;
+            if (i == R.id.localSegmentedButton) {
+                mViewPager.setCurrentItem(0);
+            } else if (i == R.id.uploadedSegmentedButton) {
+                mViewPager.setCurrentItem(1);
             }
         });
 

@@ -22,10 +22,8 @@ import android.app.AlertDialog;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.res.Resources;
 import android.preference.DialogPreference;
 import android.util.AttributeSet;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -39,9 +37,9 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
+import org.envirocar.app.BaseApplication;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.BluetoothHandler;
-import org.envirocar.app.BaseApplication;
 import org.envirocar.app.views.preferences.bluetooth.BluetoothDeviceListAdapter;
 import org.envirocar.core.events.bluetooth.BluetoothPairingChangedEvent;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
@@ -51,8 +49,6 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.DisposableObserver;
@@ -65,21 +61,15 @@ public class BluetoothPairingPreference extends DialogPreference {
     private static final Logger LOGGER = Logger.getLogger(BluetoothPairingPreference.class);
 
     // Views for the already paired devices.
-    @BindView(R.id.bluetooth_pairing_preference_paired_devices_text)
     public TextView mPairedDevicesTextView;
-    @BindView(R.id.bluetooth_pairing_preference_paired_devices_list)
     public ListView mPairedDevicesListView;
 
     // Views for the newly discovered devices.
-    @BindView(R.id.bluetooth_pairing_preference_available_devices_text)
     public TextView mNewDevicesTextView;
-    @BindView(R.id.bluetooth_pairing_preference_available_devices_list)
     public ListView mNewDevicesListView;
 
     // No device found.
-    @BindView(R.id.bluetooth_pairing_preference_available_devices_info)
     public TextView mNewDevicesInfoTextView;
-    @BindView(R.id.bluetooth_pairing_preference_search_devices_progressbar)
     public ProgressBar mProgressBar;
 
     // Injected variables.
@@ -89,7 +79,6 @@ public class BluetoothPairingPreference extends DialogPreference {
     protected BluetoothHandler mBluetoothHandler;
 
     // Main parent view for the content.
-    @BindView(R.id.bluetooth_pairing_preference_content)
     protected LinearLayout mContentView;
 
     // ArrayAdapter for the two different list views.
@@ -121,8 +110,13 @@ public class BluetoothPairingPreference extends DialogPreference {
     protected void onBindDialogView(final View view) {
         super.onBindDialogView(view);
 
-        // Inject all views.
-        ButterKnife.bind(this, view);
+        mPairedDevicesTextView = view.findViewById(R.id.bluetooth_pairing_preference_paired_devices_text);
+        mPairedDevicesListView = view.findViewById(R.id.bluetooth_pairing_preference_paired_devices_list);
+        mNewDevicesTextView = view.findViewById(R.id.bluetooth_pairing_preference_available_devices_text);
+        mNewDevicesListView = view.findViewById(R.id.bluetooth_pairing_preference_available_devices_list);
+        mNewDevicesInfoTextView = view.findViewById(R.id.bluetooth_pairing_preference_available_devices_info);
+        mProgressBar = view.findViewById(R.id.bluetooth_pairing_preference_search_devices_progressbar);
+        mContentView = view.findViewById(R.id.bluetooth_pairing_preference_content);
 
         // Initialize the array adapter for both list views
         mNewDevicesArrayAdapter = new BluetoothDeviceListAdapter(getContext(),
@@ -142,12 +136,9 @@ public class BluetoothPairingPreference extends DialogPreference {
         toolbar.setTitleTextColor(getContext().getResources().getColor(R.color
                 .white_cario));
         toolbar.setOnMenuItemClickListener(item -> {
-            switch (item.getItemId()) {
-                case R.id.menu_action_search_bluetooth_devices:
-                    startBluetoothDiscovery();
-                    return true;
-                default:
-                    break;
+            if (item.getItemId() == R.id.menu_action_search_bluetooth_devices) {
+                startBluetoothDiscovery();
+                return true;
             }
             return false;
         });

@@ -32,9 +32,6 @@ import org.envirocar.app.R;
 import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.core.logging.Logger;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-
 /**
  * @author dewall
  */
@@ -77,9 +74,7 @@ public class SamplingRatePreference extends DialogPreference implements TimePick
             return fragment;
         }
 
-        @BindView(R.id.preference_sampling_rate_dialog_text)
         protected TextView textView;
-        @BindView(R.id.preference_sampling_rate_dialog_picker)
         protected NumberPicker numberPicker;
 
 
@@ -87,8 +82,7 @@ public class SamplingRatePreference extends DialogPreference implements TimePick
         protected void onBindDialogView(View view) {
             super.onBindDialogView(view);
 
-            // inject views
-            ButterKnife.bind(this, view);
+
 
             // set min/max values
             this.numberPicker.setMinValue(MIN_VALUE);

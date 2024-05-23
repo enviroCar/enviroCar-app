@@ -39,8 +39,6 @@ import androidx.core.widget.NestedScrollView;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.BaseTransientBottomBar;
-import com.google.android.material.snackbar.Snackbar;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
@@ -54,6 +52,7 @@ import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
+import org.envirocar.app.databinding.ActivityTrackDetailsLayoutBinding;
 import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.core.EnviroCarDB;
@@ -78,8 +77,6 @@ import java.util.TimeZone;
 
 import javax.inject.Inject;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import io.reactivex.schedulers.Schedulers;
 
 
@@ -107,58 +104,35 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
         UTC_DATE_FORMATTER.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
 
+    private ActivityTrackDetailsLayoutBinding binding;
+
     @Inject
     protected EnviroCarDB mEnvirocarDB;
 
-    @BindView(R.id.activity_track_details_fab)
     protected FloatingActionButton mFAB;
-    @BindView(R.id.activity_track_details_header_map)
     protected MapView mMapView;
-    @BindView(R.id.activity_track_details_header_toolbar)
     protected Toolbar mToolbar;
-    @BindView(R.id.activity_track_details_attr_description_value)
     protected TextView mDescriptionText;
-    @BindView(R.id.track_details_attributes_header_duration)
     protected TextView mDurationText;
-    @BindView(R.id.track_details_attributes_header_distance)
     protected TextView mDistanceText;
-    @BindView(R.id.activity_track_details_attr_begin_value)
     protected TextView mBeginText;
-    @BindView(R.id.activity_track_details_attr_end_value)
     protected TextView mEndText;
-    @BindView(R.id.activity_track_details_attr_car_value)
     protected TextView mCarText;
-    @BindView(R.id.activity_track_details_attr_emission_text)
     protected TextView mEmissionKey;
-    @BindView(R.id.activity_track_details_attr_emission_value)
     protected TextView mEmissionText;
-    @BindView(R.id.activity_track_details_attr_consumption_text)
     protected TextView mConsumptionKey;
-    @BindView(R.id.activity_track_details_attr_consumption_value)
     protected TextView mConsumptionText;
-    @BindView(R.id.activity_track_details_appbar_layout)
     protected AppBarLayout mAppBarLayout;
-    @BindView(R.id.activity_track_details_scrollview)
     protected NestedScrollView mNestedScrollView;
-    @BindView(R.id.activity_track_details_header_map_container)
     protected FrameLayout mMapViewContainer;
-    @BindView(R.id.consumption_container)
     protected RelativeLayout mConsumptionContainer;
-    @BindView(R.id.co2_container)
     protected RelativeLayout mCo2Container;
-    @BindView(R.id.descriptionTv)
     protected TextView descriptionTv;
-    @BindView(R.id.activity_track_details_speed_container)
     protected RelativeLayout speedLayout;
-    @BindView(R.id.activity_track_details_speed_value)
     protected TextView speedText;
-    @BindView(R.id.activity_track_details_stops_container)
     protected RelativeLayout stopsLayout;
-    @BindView(R.id.activity_track_details_stops_value)
     protected TextView stopsValue;
-    @BindView(R.id.activity_track_details_stoptime_container)
     protected RelativeLayout stoptimeLayout;
-    @BindView(R.id.activity_track_details_stoptime_value)
     protected TextView stoptimeValue;
 
     private Track track;
@@ -175,10 +149,37 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         initActivityTransition();
-        setContentView(R.layout.activity_track_details_layout);
 
-        // Inject all annotated views.
-        ButterKnife.bind(this);
+        binding = ActivityTrackDetailsLayoutBinding.inflate(getLayoutInflater());
+        final View view = binding.getRoot();
+        setContentView(view);
+
+        mFAB = binding.activityTrackDetailsFab;
+        mMapView = binding.activityTrackDetailsHeaderMap;
+        mToolbar = binding.activityTrackDetailsHeaderToolbar;
+        mDescriptionText = binding.activityTrackDetailsAttrDescriptionValue;
+        mDurationText = binding.activityTrackDetailsAttributesHeader.trackDetailsAttributesHeaderDuration;
+        mDistanceText = binding.activityTrackDetailsAttributesHeader.trackDetailsAttributesHeaderDistance;
+        mBeginText = binding.activityTrackDetailsAttributes.activityTrackDetailsAttrBeginValue;
+        mEndText = binding.activityTrackDetailsAttributes.activityTrackDetailsAttrEndValue;
+        mCarText = binding.activityTrackDetailsAttributes.activityTrackDetailsAttrCarValue;
+        mEmissionKey = binding.activityTrackDetailsAttributes.activityTrackDetailsAttrEmissionText;
+        mEmissionText = binding.activityTrackDetailsAttributes.activityTrackDetailsAttrEmissionValue;
+        mConsumptionKey = binding.activityTrackDetailsAttributes.activityTrackDetailsAttrConsumptionText;
+        mConsumptionText = binding.activityTrackDetailsAttributes.activityTrackDetailsAttrConsumptionValue;
+        mAppBarLayout = binding.activityTrackDetailsAppbarLayout;
+        mNestedScrollView = binding.activityTrackDetailsScrollview;
+        mMapViewContainer = binding.activityTrackDetailsHeaderMapContainer;
+        mConsumptionContainer = binding.activityTrackDetailsAttributes.consumptionContainer;
+        mCo2Container = binding.activityTrackDetailsAttributes.co2Container;
+        descriptionTv = binding.activityTrackDetailsAttributes.descriptionTv;
+        speedLayout = binding.activityTrackDetailsAttributes.activityTrackDetailsSpeedContainer;
+        speedText = binding.activityTrackDetailsAttributes.activityTrackDetailsSpeedValue;
+        stopsLayout = binding.activityTrackDetailsAttributes.activityTrackDetailsStopsContainer;
+        stopsValue = binding.activityTrackDetailsAttributes.activityTrackDetailsStopsValue;
+        stoptimeLayout = binding.activityTrackDetailsAttributes.activityTrackDetailsStoptimeContainer;
+        stoptimeValue = binding.activityTrackDetailsAttributes.activityTrackDetailsStoptimeValue;
+
         mMapView.onCreate(savedInstanceState);
         supportPostponeEnterTransition();
 

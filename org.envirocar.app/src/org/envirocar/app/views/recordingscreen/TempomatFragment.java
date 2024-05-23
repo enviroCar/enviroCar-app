@@ -19,24 +19,22 @@
 package org.envirocar.app.views.recordingscreen;
 
 import android.os.Bundle;
-import androidx.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.Nullable;
+
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.BaseApplicationComponent;
-import org.envirocar.app.injection.components.MainActivityComponent;
-import org.envirocar.app.injection.modules.MainActivityModule;
-import org.envirocar.app.R;
+import org.envirocar.app.databinding.FragmentTempomatViewBinding;
 import org.envirocar.app.events.GPSSpeedChangeEvent;
 import org.envirocar.app.injection.BaseInjectorFragment;
+import org.envirocar.app.injection.components.MainActivityComponent;
+import org.envirocar.app.injection.modules.MainActivityModule;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.obd.events.SpeedUpdateEvent;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
 
 /**
  * @author dewall
@@ -44,7 +42,8 @@ import butterknife.ButterKnife;
 public class TempomatFragment extends BaseInjectorFragment {
     private static final Logger LOG = Logger.getLogger(TempomatFragment.class);
 
-    @BindView(R.id.fragment_dashboard_tempomat_view)
+    private FragmentTempomatViewBinding binding;
+
     protected Tempomat mTempomatView;
 
     @Nullable
@@ -53,14 +52,19 @@ public class TempomatFragment extends BaseInjectorFragment {
             savedInstanceState) {
         LOG.info("onCreateView()");
 
-        // First inflate the general dashboard view.
-        View contentView = inflater.inflate(R.layout.fragment_tempomat_view, container, false);
+        binding = FragmentTempomatViewBinding.inflate(inflater, container, false);
+        final View view = binding.getRoot();
 
-        // Inject all dashboard-related views.
-        ButterKnife.bind(this, contentView);
+        mTempomatView = binding.fragmentDashboardTempomatView;
 
         // return the inflated content view.
-        return contentView;
+        return view;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
     }
 
     @Override
