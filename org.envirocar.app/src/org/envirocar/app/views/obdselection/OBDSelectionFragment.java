@@ -125,6 +125,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
         mProgressBar = binding.activityObdSelectionLayoutSearchDevicesProgressbar;
         mRescanImageView = binding.activityObdSelectionLayoutRescanBluetooth;
         mPairedDevicesInfoTextView = binding.activityObdSelectionLayoutPairedDevicesInfo;
+        mNewDevicesInfoTextView = binding.activityObdSelectionLayoutAvailableDevicesInfo;
 
         mRescanImageView.setOnClickListener(v -> rediscover());
 
