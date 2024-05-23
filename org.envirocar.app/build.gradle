@@ -19,6 +19,7 @@ android {
 
     buildFeatures {
         buildConfig true
+        viewBinding true
     }
 
     signingConfigs {
@@ -109,9 +110,6 @@ dependencies {
 
     implementation libs.dagger
     annotationProcessor libs.dagger.compiler
-
-    implementation libs.butterknife
-    annotationProcessor libs.butterknife.compiler
 
     implementation libs.otto
 
