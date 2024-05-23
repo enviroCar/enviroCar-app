@@ -112,6 +112,7 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
                     parent,
                     false
             );
+            convertView = binding.getRoot();
             holder = new CarViewHolder(binding);
             convertView.setTag(holder);
         } else {
