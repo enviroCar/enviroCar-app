@@ -24,9 +24,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.os.Build;
-import android.preference.PreferenceManager;
 
 import com.mapbox.mapboxsdk.Mapbox;
 
@@ -50,7 +48,6 @@ import org.envirocar.remote.service.FuelingService;
 import org.envirocar.remote.service.TermsOfUseService;
 import org.envirocar.remote.service.TrackService;
 import org.envirocar.remote.service.UserService;
-import org.envirocar.storage.EnviroCarVehicleDB;
 
 import javax.inject.Inject;
 

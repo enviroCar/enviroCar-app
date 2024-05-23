@@ -147,6 +147,8 @@ public class BaseMainActivity extends BaseInjectorActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityBaseMainBottomBarBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+
         navigationBottomBar = binding.navigation;
         viewPager = binding.fragmentContainer;
 
