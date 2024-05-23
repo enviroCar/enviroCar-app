@@ -126,12 +126,11 @@ import static android.app.Activity.RESULT_OK;
  * @author dewall
  */
 public class DashboardFragment extends BaseInjectorFragment {
-
-    private FragmentDashboardViewNewBinding binding;
-
     private static final Logger LOG = Logger.getLogger(DashboardFragment.class);
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1203;
+
+    private FragmentDashboardViewNewBinding binding;
 
     // View Injections
     protected Toolbar toolbar;

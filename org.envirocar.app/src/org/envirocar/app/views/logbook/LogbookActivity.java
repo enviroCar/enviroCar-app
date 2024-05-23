@@ -105,7 +105,7 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
         super.onCreate(savedInstanceState);
 
         binding = ActivityLogbookBinding.inflate(getLayoutInflater());
-        View view = binding.getRoot();
+        final View view = binding.getRoot();
         setContentView(view);
 
         toolbar = binding.activityLogbookToolbar;

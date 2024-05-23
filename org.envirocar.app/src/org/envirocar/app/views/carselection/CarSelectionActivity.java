@@ -65,11 +65,11 @@ import io.reactivex.schedulers.Schedulers;
  * @author dewall
  */
 public class CarSelectionActivity extends BaseInjectorActivity implements CarSelectionUiListener, CarSelectionCreation {
-    private ActivityCarSelectionLayoutBinding binding;
-
     private static final Logger LOG = Logger.getLogger(CarSelectionActivity.class);
 
     private static final int DURATION_SHEET_ANIMATION = 350;
+
+    private ActivityCarSelectionLayoutBinding binding;
 
     protected Toolbar mToolbar;
     protected Toolbar mExpToolbar;

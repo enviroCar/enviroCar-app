@@ -44,7 +44,7 @@ public class LogbookCarSpinnerAdapter extends ArrayAdapter<Car> {
      * Constructor.
      *
      * @param context the context of the current scope.
-     * @param objects
+     * @param objects the list of cars.
      */
     public LogbookCarSpinnerAdapter(Context context, List<Car> objects) {
         super(context, R.layout.activity_logbook_car_spinner_entry, R.id

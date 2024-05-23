@@ -55,9 +55,9 @@ import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 
 public class CarSelectionAddCarFragment extends BaseInjectorFragment {
-    private ActivityCarSelectionNewcarFragmentBinding binding;
-
     private static final Logger LOG = Logger.getLogger(CarSelectionAddCarFragment.class);
+
+    private ActivityCarSelectionNewcarFragmentBinding binding;
 
     protected Toolbar toolbar;
     protected View toolbarExp;
@@ -126,6 +126,12 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
         });
 
         return view;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
     }
 
     @Override

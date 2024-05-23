@@ -83,7 +83,7 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
     protected AutoCompleteTextView emissionClassSelection;
     protected TextView searchButton;
 
-    private TextWatcher manufactureEditTextWatcher = new TextWatcher() {
+    private final TextWatcher manufactureEditTextWatcher = new TextWatcher() {
         @Override
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
         @Override
@@ -94,7 +94,7 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
         }
     };
 
-    private TextWatcher modelEditTextWatcher = new TextWatcher() {
+    private final TextWatcher modelEditTextWatcher = new TextWatcher() {
         @Override
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
         @Override
@@ -105,7 +105,7 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
         }
     };
 
-    private TextWatcher yearEditTextWatcher = new TextWatcher() {
+    private final TextWatcher yearEditTextWatcher = new TextWatcher() {
         @Override
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
         @Override
