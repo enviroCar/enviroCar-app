@@ -22,11 +22,10 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.View;
 
 import org.envirocar.app.R;
-
-import butterknife.ButterKnife;
-import butterknife.BindView;
+import org.envirocar.app.databinding.ActivityHelpLayoutGeneralBinding;
 
 /**
  * TODO JavaDoc
@@ -35,17 +34,19 @@ import butterknife.BindView;
  */
 public class HelpActivity extends AppCompatActivity {
 
-    @BindView(R.id.activity_help_layout_general_toolbar)
+    private ActivityHelpLayoutGeneralBinding binding;
+
     protected Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_help_layout_general);
+        binding = ActivityHelpLayoutGeneralBinding.inflate(getLayoutInflater());
+        final View view = binding.getRoot();
+        setContentView(view);
 
-        // Inject views
-        ButterKnife.bind(this);
+        toolbar = binding.activityHelpLayoutGeneralToolbar;
 
         // Set Actionbar
         setSupportActionBar(toolbar);

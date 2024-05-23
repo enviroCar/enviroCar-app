@@ -25,14 +25,11 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import org.envirocar.app.R;
+import org.envirocar.app.databinding.ActivityAccountStatisticListEntryBinding;
 import org.envirocar.core.entity.Phenomenon;
 
 import java.text.DecimalFormat;
 import java.util.List;
-
-import butterknife.ButterKnife;
-import butterknife.BindView;
 
 /**
  * @author dewall
@@ -59,16 +56,10 @@ public class UserStatisticsAdapter extends ArrayAdapter<Phenomenon> {
 
         ViewHolder viewHolder = null;
         if (convertView == null) {
-            LayoutInflater inflater = (LayoutInflater) getContext()
-                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            convertView = inflater.inflate(
-                    R.layout.activity_account_statistic_list_entry, parent, false);
-
-            // Create a new viewholder and inject the sub-views of the newly inflated convertView.
-            viewHolder = new ViewHolder();
-            ButterKnife.bind(viewHolder, convertView);
-
-            // Set the viewHolder as tag on the convertView.
+            final LayoutInflater inflater = LayoutInflater.from(getContext());
+            final ActivityAccountStatisticListEntryBinding binding = ActivityAccountStatisticListEntryBinding.inflate(inflater, parent, false);
+            convertView = binding.getRoot();
+            viewHolder = new ViewHolder(binding);
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
@@ -86,13 +77,16 @@ public class UserStatisticsAdapter extends ArrayAdapter<Phenomenon> {
     }
 
     static final class ViewHolder {
-        @BindView(R.id.activity_account_statistics_list_entry_phenomenon)
         TextView mPhenomenonTextView;
-        @BindView(R.id.activity_account_statistics_list_entry_avg_value)
         TextView mAvgValue;
-        @BindView(R.id.activity_account_statistics_list_entry_max_value)
         TextView mMaxValue;
-        @BindView(R.id.activity_account_statistics_list_entry_min_value)
         TextView mMinValue;
+
+        ViewHolder(ActivityAccountStatisticListEntryBinding binding) {
+            mPhenomenonTextView = binding.activityAccountStatisticsListEntryPhenomenon;
+            mAvgValue = binding.activityAccountStatisticsListEntryAvgValue;
+            mMaxValue = binding.activityAccountStatisticsListEntryMaxValue;
+            mMinValue = binding.activityAccountStatisticsListEntryMinValue;
+        }
     }
 }

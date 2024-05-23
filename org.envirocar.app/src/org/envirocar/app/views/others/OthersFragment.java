@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2021 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -41,6 +41,7 @@ import com.google.android.material.snackbar.Snackbar;
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.BuildConfig;
 import org.envirocar.app.R;
+import org.envirocar.app.databinding.FragmentOthersBinding;
 import org.envirocar.app.handler.TrackDAOHandler;
 import org.envirocar.app.handler.preferences.UserPreferenceHandler;
 import org.envirocar.app.injection.BaseInjectorFragment;
@@ -56,9 +57,6 @@ import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
 import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.observers.DisposableCompletableObserver;
@@ -70,14 +68,14 @@ import io.reactivex.schedulers.Schedulers;
 public class OthersFragment extends BaseInjectorFragment {
     private static final Logger LOGGER = Logger.getLogger(OthersFragment.class);
 
+    private FragmentOthersBinding binding;
+
     @Inject
     protected UserPreferenceHandler mUserManager;
     @Inject
     protected TrackDAOHandler mTrackDAOHandler;
 
-    @BindView(R.id.othersLogOut)
     protected LinearLayout othersLogOut;
-    @BindView(R.id.othersLogOutDivider)
     protected View othersLogOutDivider;
 
     private Scheduler.Worker mMainThreadWorker = AndroidSchedulers.mainThread().createWorker();
@@ -88,9 +86,20 @@ public class OthersFragment extends BaseInjectorFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_others, container, false);
+        binding = FragmentOthersBinding.inflate(inflater, container, false);
+        final View view = binding.getRoot();
 
-        ButterKnife.bind(this, view);
+        othersLogOut = binding.othersLogOut;
+        othersLogOutDivider = binding.othersLogOutDivider;
+
+        binding.othersLogBook.setOnClickListener(v -> onLogBookClicked());
+        binding.othersSettings.setOnClickListener(v -> onSettingsClicked());
+        binding.othersHelp.setOnClickListener(v -> onHelpClicked());
+        binding.othersTou.setOnClickListener(v -> onTouClicked());
+        binding.othersReportIssue.setOnClickListener(v -> onReportIssueClicked());
+        binding.othersRateUs.setOnClickListener(v -> onRateUsClicked());
+        binding.othersLogOut.setOnClickListener(v -> onLogOutClicked());
+        binding.othersCloseEnviroCar.setOnClickListener(v -> onCloseEnviroCarClicked());
 
         if (mUserManager.isLoggedIn()) {
             othersLogOut.setVisibility(View.VISIBLE);
@@ -103,6 +112,11 @@ public class OthersFragment extends BaseInjectorFragment {
         return view;
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
+    }
 
     @Override
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
@@ -110,42 +124,36 @@ public class OthersFragment extends BaseInjectorFragment {
     }
 
 
-    @OnClick(R.id.othersLogBook)
     protected void onLogBookClicked() {
         Intent intent = new Intent(getActivity(), LogbookActivity.class);
         startActivity(intent);
     }
 
-    @OnClick(R.id.othersSettings)
     protected void onSettingsClicked() {
         Intent intent = new Intent(getActivity(), SettingsActivity.class);
         startActivity(intent);
     }
 
-    @OnClick(R.id.othersHelp)
     protected void onHelpClicked() {
         Intent intent = new Intent(getActivity(), HelpActivity.class);
         startActivity(intent);
     }
 
-    @OnClick(R.id.othersTou)
     protected void onTouClicked() {
         Intent intent = new Intent(getActivity(), TermsOfUseActivity.class);
         startActivity(intent);
     }
 
-    @OnClick(R.id.othersReportIssue)
     protected void onReportIssueClicked() {
 //        if (checkPermissions()) {
-            //access granted
-            Intent intent = new Intent(getActivity(), SendLogFileActivity.class);
-            startActivity(intent);
+        //access granted
+        Intent intent = new Intent(getActivity(), SendLogFileActivity.class);
+        startActivity(intent);
 //        } else {
 //            requestPermissions();
 //        }
     }
 
-    @OnClick(R.id.othersRateUs)
     protected void onRateUsClicked() {
         final String appPackageName = "org.envirocar.app"; // getPackageName() from Context or Activity object
         try {
@@ -155,7 +163,6 @@ public class OthersFragment extends BaseInjectorFragment {
         }
     }
 
-    @OnClick(R.id.othersLogOut)
     protected void onLogOutClicked() {
         // show dialog
         new MaterialAlertDialogBuilder(getActivity(), R.style.MaterialDialog)
@@ -164,11 +171,10 @@ public class OthersFragment extends BaseInjectorFragment {
                 .setIcon(R.drawable.ic_logout_white_24dp)
                 .setPositiveButton(R.string.menu_logout_envirocar_positive,
                         (dialog, which) -> mUserManager.logOut().subscribe(logOut()))
-                .setNegativeButton(R.string.menu_logout_envirocar_negative,null)
+                .setNegativeButton(R.string.menu_logout_envirocar_negative, null)
                 .show();
     }
 
-    @OnClick(R.id.othersCloseEnviroCar)
     protected void onCloseEnviroCarClicked() {
         // show closing dialog
         new MaterialAlertDialogBuilder(getActivity(), R.style.MaterialDialog)
@@ -177,7 +183,7 @@ public class OthersFragment extends BaseInjectorFragment {
                 .setIcon(R.drawable.ic_others_close_24)
                 .setPositiveButton(R.string.menu_close_envirocar_positive,
                         (dialog, which) -> shutdownEnviroCar())
-                .setNegativeButton(R.string.menu_logout_envirocar_negative,null)
+                .setNegativeButton(R.string.menu_logout_envirocar_negative, null)
                 .show();
     }
 
@@ -204,7 +210,7 @@ public class OthersFragment extends BaseInjectorFragment {
                     .setTitle(R.string.request_storage_permission_title)
                     .setMessage(R.string.permission_rationale_file)
                     .setIcon(R.drawable.others_settings)
-                    .setPositiveButton(R.string.ok,(dialog, which) -> {
+                    .setPositiveButton(R.string.ok, (dialog, which) -> {
                         // Request permission
                         ActivityCompat.requestPermissions(getActivity(),
                                 new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
@@ -276,9 +282,9 @@ public class OthersFragment extends BaseInjectorFragment {
     private void showSnackbar(final int mainTextStringId, final int actionStringId,
                               View.OnClickListener listener) {
         Snackbar.make(
-                getActivity().findViewById(R.id.navigation),
-                getString(mainTextStringId),
-                Snackbar.LENGTH_INDEFINITE)
+                        getActivity().findViewById(R.id.navigation),
+                        getString(mainTextStringId),
+                        Snackbar.LENGTH_INDEFINITE)
                 .setAction(getString(actionStringId), listener).show();
     }
 
@@ -295,20 +301,22 @@ public class OthersFragment extends BaseInjectorFragment {
 
     private DisposableCompletableObserver logOut() {
         return new DisposableCompletableObserver() {
-            User tempUser=null;
-            MaterialDialog dialog=null;
+            User tempUser = null;
+            MaterialDialog dialog = null;
+
             @Override
             public void onStart() {
 
                 this.tempUser = mUserManager.getUser();
 
-                this.dialog=new MaterialDialog.Builder(getContext())
+                this.dialog = new MaterialDialog.Builder(getContext())
                         .title(R.string.activity_login_logout_progress_dialog_title)
                         .content(R.string.activity_login_logout_progress_dialog_content)
                         .progress(true, 0)
                         .cancelable(false)
                         .show();
             }
+
             @Override
             public void onComplete() {
                 Snackbar.make(getActivity().findViewById(R.id.navigation),

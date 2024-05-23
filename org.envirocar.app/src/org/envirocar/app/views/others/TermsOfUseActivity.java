@@ -1,55 +1,53 @@
 /**
  * Copyright (C) 2013 - 2021 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
 package org.envirocar.app.views.others;
 
 import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import android.view.MenuItem;
-import android.widget.TextView;
 import android.text.Html;
 import android.text.Spanned;
+import android.view.View;
+import android.view.MenuItem;
+import android.widget.TextView;
 
-import com.google.android.material.snackbar.BaseTransientBottomBar;
+import androidx.appcompat.widget.Toolbar;
+
 import com.google.android.material.snackbar.Snackbar;
+
+import org.envirocar.app.BaseApplicationComponent;
+import org.envirocar.app.R;
+import org.envirocar.app.databinding.ActivityTouLayoutBinding;
+import org.envirocar.app.handler.agreement.AgreementManager;
+import org.envirocar.app.handler.preferences.UserPreferenceHandler;
+import org.envirocar.app.injection.BaseInjectorActivity;
+import org.envirocar.core.InternetAccessProvider;
+import org.envirocar.core.entity.TermsOfUse;
+import org.envirocar.core.entity.User;
+import org.envirocar.core.interactor.GetLatestTermsOfUse;
+import org.envirocar.core.logging.Logger;
+import org.envirocar.core.utils.rx.Optional;
+
+import java.util.function.Consumer;
+
+import javax.inject.Inject;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
-
-import org.envirocar.app.R;
-import org.envirocar.app.handler.agreement.AgreementManager;
-import org.envirocar.app.injection.BaseInjectorActivity;
-import org.envirocar.core.InternetAccessProvider;
-import org.envirocar.core.utils.rx.Optional;
-import org.envirocar.core.entity.TermsOfUse;
-import org.envirocar.core.entity.User;
-import org.envirocar.core.logging.Logger;
-import org.envirocar.core.interactor.GetLatestTermsOfUse;
-import org.envirocar.app.BaseApplicationComponent;
-import org.envirocar.core.utils.rx.Optional;
-import org.envirocar.app.handler.preferences.UserPreferenceHandler;
-
-import butterknife.ButterKnife;
-import butterknife.BindView;
-
-import java.util.function.Consumer;
-import javax.inject.Inject;
 
 /**
  * TODO JavaDoc
@@ -60,10 +58,9 @@ public class TermsOfUseActivity extends BaseInjectorActivity {
 
     private static final Logger LOG = Logger.getLogger(TermsOfUseActivity.class);
 
-    @BindView(R.id.tou_text_view)
-    protected TextView touTextView;
+    private ActivityTouLayoutBinding binding;
 
-    @BindView(R.id.activity_tou_layout_toolbar)
+    protected TextView touTextView;
     protected Toolbar toolbar;
 
     @Inject
@@ -88,10 +85,12 @@ public class TermsOfUseActivity extends BaseInjectorActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_tou_layout);
+        binding = ActivityTouLayoutBinding.inflate(getLayoutInflater());
+        final View view = binding.getRoot();
+        setContentView(view);
 
-        // Inject views
-        ButterKnife.bind(this);
+        touTextView = binding.touTextView;
+        toolbar = binding.activityTouLayoutToolbar;
 
         // Set Actionbar
         setSupportActionBar(toolbar);
@@ -108,22 +107,22 @@ public class TermsOfUseActivity extends BaseInjectorActivity {
         textView.setText(htmlAsSpanned);
 
         getLatestTermsOfUse.asObservable()
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(termsOfUse -> {
-                LOG.info("Terms Of Use loaded: " + termsOfUse);
-                if (!termsOfUse.isEmpty()) {
-                    Spanned htmlContent = Html.fromHtml(termsOfUse.getOptional().getContents());
-                    textView.setText(htmlContent);
-                }
-            }, e -> {
-                LOG.error("Error during TermsOfUse retrieving", e);
-                Snackbar.make(touTextView,  R.string.terms_of_use_no_internet, Snackbar.LENGTH_LONG).show();
-            });
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(termsOfUse -> {
+                    LOG.info("Terms Of Use loaded: " + termsOfUse);
+                    if (!termsOfUse.isEmpty()) {
+                        Spanned htmlContent = Html.fromHtml(termsOfUse.getOptional().getContents());
+                        textView.setText(htmlContent);
+                    }
+                }, e -> {
+                    LOG.error("Error during TermsOfUse retrieving", e);
+                    Snackbar.make(touTextView, R.string.terms_of_use_no_internet, Snackbar.LENGTH_LONG).show();
+                });
 
         // check if the user accepted the latest terms
         LOG.info("Checking TermsOfUse");
-        if(mInternetAccessProvider.isConnected()) {
+        if (mInternetAccessProvider.isConnected()) {
             mAgreementManager.verifyTermsOfUse(null, true)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
@@ -154,9 +153,8 @@ public class TermsOfUseActivity extends BaseInjectorActivity {
                     }
                 }
             });
-        }
-        else {
-            Snackbar.make(touTextView,  R.string.terms_of_use_no_login, Snackbar.LENGTH_LONG).show();
+        } else {
+            Snackbar.make(touTextView, R.string.terms_of_use_no_login, Snackbar.LENGTH_LONG).show();
         }
     }
 
@@ -164,9 +162,9 @@ public class TermsOfUseActivity extends BaseInjectorActivity {
         TermsOfUse tous;
         try {
             tous = mAgreementManager.verifyTermsOfUse(this, true)
-                .subscribeOn(Schedulers.io())
-                .doOnError(LOG::error)
-                .blockingFirst();
+                    .subscribeOn(Schedulers.io())
+                    .doOnError(LOG::error)
+                    .blockingFirst();
         } catch (Exception e) {
             LOG.warn(e.getMessage(), e);
             tous = null;
