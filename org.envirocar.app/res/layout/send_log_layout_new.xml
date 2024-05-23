@@ -25,7 +25,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <include layout="@layout/envirocar_toolbar" />
+    <include android:id="@+id/envirocar_toolbar" layout="@layout/envirocar_toolbar" />
 
     <ScrollView
         android:layout_width="match_parent"
