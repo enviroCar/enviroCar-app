@@ -39,6 +39,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
@@ -47,6 +48,7 @@ import com.jakewharton.rxbinding3.widget.RxTextView;
 
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
+import org.envirocar.app.databinding.ActivitySignupBinding;
 import org.envirocar.app.handler.DAOProvider;
 import org.envirocar.app.handler.agreement.AgreementManager;
 import org.envirocar.app.handler.preferences.UserPreferenceHandler;
@@ -66,9 +68,6 @@ import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
 import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -93,6 +92,8 @@ public class SignupActivity extends BaseInjectorActivity {
         context.startActivity(intent);
     }
 
+    private ActivitySignupBinding binding;
+
     // Inject Dependencies
     @Inject
     protected UserPreferenceHandler userHandler;
@@ -102,21 +103,13 @@ public class SignupActivity extends BaseInjectorActivity {
     protected AgreementManager agreementManager;
 
     // Injected Views
-    @BindView(R.id.activity_signup_username_input)
     protected EditText usernameEditText;
-    @BindView(R.id.activity_signup_email_input)
     protected EditText emailEditText;
-    @BindView(R.id.activity_signup_password_1)
     protected EditText password1EditText;
-    @BindView(R.id.activity_signup_password_2)
     protected EditText password2EditText;
-    @BindView(R.id.activity_signup_tou_checkbox)
     protected CheckBox touCheckbox;
-    @BindView(R.id.activity_signup_tou_text)
     protected TextView touText;
-    @BindView(R.id.activity_signup_ps_checkbox)
     protected CheckBox psCheckbox;
-    @BindView(R.id.activity_signup_ps_text)
     protected TextView psText;
 
     private final Scheduler.Worker mainThreadWorker = AndroidSchedulers.mainThread().createWorker();
@@ -133,17 +126,35 @@ public class SignupActivity extends BaseInjectorActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_signup);
+
+        binding = ActivitySignupBinding.inflate(getLayoutInflater());
+        final View view = binding.getRoot();
+        setContentView(view);
+
+        usernameEditText = binding.activitySignupUsernameInput;
+        emailEditText = binding.activitySignupEmailInput;
+        password1EditText = binding.activitySignupPassword1;
+        password2EditText = binding.activitySignupPassword2;
+        touCheckbox = binding.activitySignupTouCheckbox;
+        touText = binding.activitySignupTouText;
+        psCheckbox = binding.activitySignupPsCheckbox;
+        psText = binding.activitySignupPsText;
+
+        binding.imageView.setOnClickListener(v -> closeKeyboard());
+        binding.activitySignupLoginButton.setOnClickListener(v -> onSwitchToRegister());
+        binding.activitySignupRegisterButton.setOnClickListener(v -> onRegisterAccountButtonClicked());
+
         getWindow().setNavigationBarColor(getResources().getColor(R.color.cario_color_primary_dark));
 
-        // inject the views
-        ButterKnife.bind(this);
+        errorPassword = ContextCompat.getDrawable(this, R.drawable.ic_error_red_24dp);
+        if (errorPassword != null) {
+            errorPassword.setBounds(-70,0,0, errorPassword.getIntrinsicHeight());
+        }
 
-        errorPassword = getResources().getDrawable(R.drawable.ic_error_red_24dp);
-        errorPassword.setBounds(-70,0,0, errorPassword.getIntrinsicHeight());
-
-        errorUsername = getResources().getDrawable(R.drawable.ic_error_red_24dp);
-        errorUsername.setBounds(0, 0, errorUsername.getIntrinsicWidth(), errorUsername.getIntrinsicHeight());
+        errorUsername = ContextCompat.getDrawable(this, R.drawable.ic_error_red_24dp);
+        if (errorUsername != null) {
+            errorUsername.setBounds(0, 0, errorUsername.getIntrinsicWidth(), errorUsername.getIntrinsicHeight());
+        }
 
         // make terms of use and privacy statement clickable
         this.makeClickableTextLinks();
@@ -158,7 +169,6 @@ public class SignupActivity extends BaseInjectorActivity {
         }
     }
 
-    @OnClick(R.id.imageView)
     protected void closeKeyboard(){
         View view = this.getCurrentFocus();
         if (view != null) {
@@ -167,13 +177,11 @@ public class SignupActivity extends BaseInjectorActivity {
         }
     }
 
-    @OnClick(R.id.activity_signup_login_button)
     protected void onSwitchToRegister() {
         Intent intent = new Intent(this, SigninActivity.class);
         startActivity(intent);
     }
 
-    @OnClick(R.id.activity_signup_register_button)
     protected void onRegisterAccountButtonClicked() {
 
         // We do not want to have dublicate registration processes.
