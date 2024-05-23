@@ -19,17 +19,20 @@
 package org.envirocar.app.views.obdselection;
 
 import android.os.Bundle;
-import com.google.android.material.snackbar.Snackbar;
-import androidx.fragment.app.Fragment;
-import androidx.appcompat.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
+
+import com.google.android.material.snackbar.Snackbar;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
+import org.envirocar.app.databinding.ActivityObdSelectionLayoutBinding;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
@@ -40,8 +43,6 @@ import java.lang.reflect.Method;
 
 import javax.inject.Inject;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
 
 /**
  * @dewall
@@ -50,14 +51,13 @@ public class OBDSelectionActivity extends BaseInjectorActivity implements
         OBDSelectionFragment.ShowSnackbarListener {
     private static final Logger LOGGER = Logger.getLogger(OBDSelectionActivity.class);
 
+    private ActivityObdSelectionLayoutBinding binding;
+
     @Inject
     protected BluetoothHandler mBluetoothHandler;
 
-    @BindView(R.id.activity_obd_selection_layout_toolbar)
     protected Toolbar mToolbar;
-    @BindView(R.id.activity_obd_selection_layout_enablebt_switch)
     protected Switch mSwitch;
-    @BindView(R.id.activity_obd_selection_layout_enablebt_text)
     protected TextView mEnableBTText;
 
     protected Fragment mOBDSelectionFragment;
@@ -72,11 +72,13 @@ public class OBDSelectionActivity extends BaseInjectorActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Set the content view of this activity.
-        setContentView(R.layout.activity_obd_selection_layout);
+        binding = ActivityObdSelectionLayoutBinding.inflate(getLayoutInflater());
+        final View view = binding.getRoot();
+        setContentView(view);
 
-        // Inject all annotated views.
-        ButterKnife.bind(this);
+        mToolbar = binding.activityObdSelectionLayoutToolbar;
+        mSwitch = binding.activityObdSelectionLayoutEnablebtSwitch;
+        mEnableBTText = binding.activityObdSelectionLayoutEnablebtText;
 
         // Set the toolbar as default actionbar.
         setSupportActionBar(mToolbar);
