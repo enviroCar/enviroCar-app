@@ -130,7 +130,7 @@ public class OBDDeviceListAdapter extends ArrayAdapter<BluetoothDevice> {
             holder = (ViewHolder) convertView.getTag();
         }
 
-        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED) {
             holder.mTextView.setText(device.getName());
         }
         holder.mRadioButton.setChecked(false);

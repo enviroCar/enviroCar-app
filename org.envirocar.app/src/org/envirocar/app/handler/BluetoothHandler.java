@@ -18,11 +18,12 @@
  */
 package org.envirocar.app.handler;
 
-import android.annotation.SuppressLint;
+import static android.content.Context.BLUETOOTH_SERVICE;
+
 import android.app.Activity;
-import android.app.ActivityManager;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -35,19 +36,15 @@ import com.google.common.base.Preconditions;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Produce;
 
-import org.envirocar.app.recording.RecordingService;
 import org.envirocar.app.rxutils.RxBroadcastReceiver;
-import org.envirocar.app.views.others.TroubleshootingFragment;
 import org.envirocar.core.events.bluetooth.BluetoothDeviceDiscoveredEvent;
 import org.envirocar.core.events.bluetooth.BluetoothDeviceSelectedEvent;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.core.utils.ServiceUtils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -141,7 +138,8 @@ public class BluetoothHandler {
         this.bus = bus;
 
         // Get the default bluetooth adapter.
-        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        BluetoothManager bluetoothManager = (BluetoothManager) context.getSystemService(BLUETOOTH_SERVICE);
+        mBluetoothAdapter = bluetoothManager.getAdapter();
 
         // Register ourselves on the eventbus.
         this.bus.register(this);
@@ -149,7 +147,7 @@ public class BluetoothHandler {
         // Register this handler class for Bluetooth State Changed broadcasts.
         IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
         ContextCompat.registerReceiver(
-                this.context, bluetoothPairingReceiver, filter, ContextCompat.RECEIVER_EXPORTED
+                this.context, mBluetoothStateChangedReceiver, filter, ContextCompat.RECEIVER_EXPORTED
         );
     }
 
