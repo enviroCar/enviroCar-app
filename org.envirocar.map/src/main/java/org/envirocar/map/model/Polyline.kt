@@ -17,10 +17,10 @@ sealed interface Polyline {
         /** Sets the width of the polyline. */
         fun withWidth(value: Float) = apply { width = value }
 
-        /** Sets the color of the polyline. */
+        /** Sets the color of the polyline, for displaying a single color polyline. */
         fun withColor(value: Color) = apply { color = value }
 
-        /** Sets the list of colors of the polyline. */
+        /** Sets the list of colors of the polyline, for displaying a gradient polyline. */
         fun withColors(value: List<Color>) = apply { colors = value }
 
         /** Builds the polyline. */

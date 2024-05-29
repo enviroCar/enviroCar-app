@@ -49,7 +49,7 @@ sealed interface Marker {
         internal data class MarkerImpl(
             val id: Int,
             val point: Point,
-            val title: String? = null,
+            val title: String?,
             @DrawableRes val drawable: Int?,
         ) : Marker
 

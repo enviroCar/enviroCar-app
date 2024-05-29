@@ -7,10 +7,10 @@ import android.view.View
  * -------------
  * [MapProvider] allows to initialize a [MapView] with a specific provider.
  * Currently available providers are:
- * * [MapboxMapProvider]
- * * [MapLibreMapProvider]
- * * [OsmDroidMapProvider]
- * * [GoogleMapProvider]
+ * * `MapboxMapProvider`
+ * * `MapLibreMapProvider`
+ * * `OsmDroidMapProvider`
+ * * `GoogleMapProvider`
  */
 interface MapProvider<out T : View> {
 
