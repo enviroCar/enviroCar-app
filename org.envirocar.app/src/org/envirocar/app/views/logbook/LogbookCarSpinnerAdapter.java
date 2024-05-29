@@ -61,6 +61,7 @@ public class LogbookCarSpinnerAdapter extends ArrayAdapter<Car> {
         if (convertView == null) {
             final LayoutInflater inflater = LayoutInflater.from(getContext());
             final ActivityLogbookCarSpinnerEntryBinding binding = ActivityLogbookCarSpinnerEntryBinding.inflate(inflater, parent, false);
+            convertView = binding.getRoot();
             holder = new CarSpinnerEntryHolder(binding);
             convertView.setTag(holder);
         } else {
