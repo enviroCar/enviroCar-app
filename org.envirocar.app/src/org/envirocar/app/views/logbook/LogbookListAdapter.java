@@ -65,14 +65,11 @@ public class LogbookListAdapter extends ArrayAdapter<Fueling> {
 
         final Fueling fueling = fuelings.get(position);
 
-        // Then inflate a new view for the car and create a holder
-        LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context
-                .LAYOUT_INFLATER_SERVICE);
-
         FuelingViewHolder holder = null;
         if (convertView == null) {
-            convertView = inflater.inflate(R.layout.activity_logbook_listentry, parent, false);
-            ActivityLogbookListentryBinding binding = ActivityLogbookListentryBinding.bind(convertView);
+            final LayoutInflater inflater = LayoutInflater.from(getContext());
+            final ActivityLogbookListentryBinding binding = ActivityLogbookListentryBinding.inflate(inflater, parent, false);
+            convertView = binding.getRoot();
             holder = new FuelingViewHolder(binding);
             convertView.setTag(holder);
         } else {
