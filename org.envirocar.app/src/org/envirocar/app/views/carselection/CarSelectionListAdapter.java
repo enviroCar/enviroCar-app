@@ -34,14 +34,12 @@ import android.widget.TextView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import org.envirocar.app.R;
+import org.envirocar.app.databinding.ActivityCarSelectionLayoutCarlistEntryBinding;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.utils.CarUtils;
 
 import java.util.List;
-
-import butterknife.ButterKnife;
-import butterknife.BindView;
 
 /**
  * @author dewall
@@ -109,9 +107,13 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
 
         CarViewHolder holder = null;
         if (convertView == null) {
-            convertView = inflater.inflate(R.layout
-                    .activity_car_selection_layout_carlist_entry, parent, false);
-            holder = new CarViewHolder(convertView);
+            final ActivityCarSelectionLayoutCarlistEntryBinding binding = ActivityCarSelectionLayoutCarlistEntryBinding.inflate(
+                    inflater,
+                    parent,
+                    false
+            );
+            convertView = binding.getRoot();
+            holder = new CarViewHolder(binding);
             convertView.setTag(holder);
         } else {
             holder = (CarViewHolder) convertView.getTag();
@@ -234,25 +236,24 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
 
         protected final View mCoreView;
 
-        @BindView(R.id.activity_car_selection_layout_carlist_entry_icon)
         protected ImageView iconView;
-        @BindView(R.id.activity_car_selection_layout_carlist_entry_firstline)
         protected TextView firstLine;
-        @BindView(R.id.activity_car_selection_layout_carlist_entry_secondline)
         protected TextView secondLine;
-        @BindView(R.id.activity_car_selection_layout_carlist_entry_radio)
         protected RadioButton mRadioButton;
-        @BindView(R.id.activity_car_selection_layout_carlist_delete_icon)
         protected ImageButton mDeleteButton;
 
         /**
          * Constructor.
          *
-         * @param view
+         * @param binding the binding of the view.
          */
-        CarViewHolder(View view) {
-            this.mCoreView = view;
-            ButterKnife.bind(this, view);
+        CarViewHolder(ActivityCarSelectionLayoutCarlistEntryBinding binding) {
+            mCoreView = binding.getRoot();
+            iconView = binding.activityCarSelectionLayoutCarlistEntryIcon;
+            firstLine = binding.activityCarSelectionLayoutCarlistEntryFirstline;
+            secondLine = binding.activityCarSelectionLayoutCarlistEntrySecondline;
+            mRadioButton = binding.activityCarSelectionLayoutCarlistEntryRadio;
+            mDeleteButton = binding.activityCarSelectionLayoutCarlistDeleteIcon;
         }
     }
 }

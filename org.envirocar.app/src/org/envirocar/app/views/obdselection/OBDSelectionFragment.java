@@ -34,6 +34,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresPermission;
 import androidx.appcompat.app.AlertDialog;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -41,6 +42,7 @@ import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
+import org.envirocar.app.databinding.ActivityObdSelectionFragmentBinding;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.app.views.utils.DialogUtils;
@@ -49,15 +51,11 @@ import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.core.logging.Logger;
 import org.jetbrains.annotations.NotNull;
 
-import java.lang.IllegalStateException;
 import java.util.List;
 import java.util.Set;
 
 import javax.inject.Inject;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.DisposableObserver;
@@ -74,6 +72,8 @@ import pub.devrel.easypermissions.PermissionRequest;
 public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPermissions.PermissionCallbacks {
     private static final Logger LOGGER = Logger.getLogger(OBDSelectionFragment.class);
 
+    private ActivityObdSelectionFragmentBinding binding;
+
     @Override
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
         baseApplicationComponent.inject(this);
@@ -89,22 +89,14 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
     @Inject
     protected BluetoothHandler mBluetoothHandler;
 
-    @BindView(R.id.activity_obd_selection_layout_content)
     protected View mContentView;
-    @BindView(R.id.activity_obd_selection_layout_paired_devices_text)
     protected TextView mPairedDevicesTextView;
-    @BindView(R.id.activity_obd_selection_layout_paired_devices_list)
     protected ListView mPairedDevicesListView;
-    @BindView(R.id.activity_obd_selection_layout_available_devices_list)
     protected ListView mNewDevicesListView;
-    @BindView(R.id.activity_obd_selection_layout_search_devices_progressbar)
     protected ProgressBar mProgressBar;
-    @BindView(R.id.activity_obd_selection_layout_rescan_bluetooth)
     protected ImageView mRescanImageView;
 
-    @BindView(R.id.activity_obd_selection_layout_paired_devices_info)
     protected TextView mPairedDevicesInfoTextView;
-    @BindView(R.id.activity_obd_selection_layout_available_devices_info)
     protected TextView mNewDevicesInfoTextView;
 
     // ArrayAdapter for the two different list views.
@@ -122,12 +114,20 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle
             savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        // infalte the content view of this activity.
-        View contentView = inflater.inflate(R.layout.activity_obd_selection_fragment,
-                container, false);
 
-        // Inject all annotated views.
-        ButterKnife.bind(this, contentView);
+        binding = ActivityObdSelectionFragmentBinding.inflate(inflater, container, false);
+        final View view = binding.getRoot();
+
+        mContentView = binding.activityObdSelectionLayoutContent;
+        mPairedDevicesTextView = binding.activityObdSelectionLayoutPairedDevicesText;
+        mPairedDevicesListView = binding.activityObdSelectionLayoutPairedDevicesList;
+        mNewDevicesListView = binding.activityObdSelectionLayoutAvailableDevicesList;
+        mProgressBar = binding.activityObdSelectionLayoutSearchDevicesProgressbar;
+        mRescanImageView = binding.activityObdSelectionLayoutRescanBluetooth;
+        mPairedDevicesInfoTextView = binding.activityObdSelectionLayoutPairedDevicesInfo;
+        mNewDevicesInfoTextView = binding.activityObdSelectionLayoutAvailableDevicesInfo;
+
+        mRescanImageView.setOnClickListener(v -> rediscover());
 
         // Setup the listviews, its adapters, and its onClick listener.
         setupListViews();
@@ -136,7 +136,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
         //        setDynamicListHeight(mNewDevicesListView);
         //        setDynamicListHeight(mPairedDevicesListView);
 
-        return contentView;
+        return view;
     }
 
     @Override
@@ -147,11 +147,12 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
 
     @Override
     public void onDestroy() {
+        super.onDestroy();
+        binding = null;
         if (mBTDiscoverySubscription != null && !mBTDiscoverySubscription.isDisposed()) {
             mBTDiscoverySubscription.dispose();
         }
         mNewDevicesListView.setOnItemClickListener(null);
-        super.onDestroy();
     }
 
     @Subscribe
@@ -162,7 +163,6 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
         });
     }
 
-    @OnClick(R.id.activity_obd_selection_layout_rescan_bluetooth)
     protected void rediscover() {
         mBluetoothHandler.stopBluetoothDeviceDiscovery();
         checkAndRequestPermissions();
@@ -239,11 +239,11 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
         // if location permissions are granted, start Bluetooth discovery.
         if (requestCode == BLUETOOTH_PERMISSIONS) {
             startBluetoothDiscovery();
-            
+
             // Check the GPS and Location permissions
             // before Starting the discovery of bluetooth devices.
             updateContentView();
-            
+
             showSnackbar(getString(R.string.location_permission_granted));
         }
     }
@@ -265,6 +265,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
     /**
      * Initiates the discovery of other Bluetooth devices.
      */
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     private void startBluetoothDiscovery(){
         // If bluetooth is not enabled, skip the discovery and show a toast.
         if (!mBluetoothHandler.isBluetoothEnabled()) {
@@ -331,6 +332,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
                     }
 
                     @Override
+                    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
                     public void onNext(BluetoothDevice device) {
                         LOGGER.info(String.format(
                                 "Bluetooth device detected: [name=%s, address=%s]",
@@ -347,6 +349,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
                 });
     }
 
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     private void setupListViews() {
         BluetoothDevice selectedBTDevice = mBluetoothHandler.getSelectedBluetoothDevice();
 
@@ -382,7 +385,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment implements EasyPe
             final BluetoothDevice device = mNewDevicesArrayAdapter.getItem(position);
 
             // Create the Dialog
-            new MaterialAlertDialogBuilder(getActivity(), R.style.MaterialDialog)
+            new MaterialAlertDialogBuilder(requireActivity(), R.style.MaterialDialog)
                     .setTitle(R.string.bluetooth_pairing_preference_toolbar_title)
                     .setMessage(String.format(getString(
                             R.string.obd_selection_dialog_pairing_content_template), device.getName()))

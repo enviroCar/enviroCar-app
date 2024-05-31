@@ -22,7 +22,6 @@ package org.envirocar.app.views.carselection;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,10 +37,10 @@ import androidx.viewpager.widget.ViewPager;
 
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
+import org.envirocar.app.databinding.ActivityCarSelectionNewcarFragmentBinding;
 import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.app.views.utils.ECAnimationUtils;
 import org.envirocar.core.entity.Manufacturers;
-import org.envirocar.core.entity.Vehicles;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.storage.EnviroCarVehicleDB;
 
@@ -49,30 +48,21 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
 import info.hoang8f.android.segmented.SegmentedGroup;
 import io.reactivex.Observable;
-import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.observers.DisposableObserver;
-import io.reactivex.observers.DisposableSingleObserver;
 import io.reactivex.schedulers.Schedulers;
 
 public class CarSelectionAddCarFragment extends BaseInjectorFragment {
     private static final Logger LOG = Logger.getLogger(CarSelectionAddCarFragment.class);
 
+    private ActivityCarSelectionNewcarFragmentBinding binding;
 
-    @BindView(R.id.envirocar_toolbar)
     protected Toolbar toolbar;
-    @BindView(R.id.activity_car_selection_newcar_toolbar_exp)
     protected View toolbarExp;
-    @BindView(R.id.activity_car_selection_top)
     protected View topView;
-    @BindView(R.id.carSelectionSegmentedGroup)
     protected SegmentedGroup segmentedGroup;
-    @BindView(R.id.activity_car_selection_newcar_content_view)
     protected ViewPager mViewPager;
 
     @Inject
@@ -86,9 +76,14 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle
             savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
+        binding = ActivityCarSelectionNewcarFragmentBinding.inflate(inflater, container, false);
+        final View view = binding.getRoot();
 
-        View view = inflater.inflate(R.layout.activity_car_selection_newcar_fragment, container, false);
-        ButterKnife.bind(this, view);
+        toolbar = binding.envirocarToolbar.envirocarToolbar;
+        toolbarExp = binding.activityCarSelectionNewcarToolbarExp;
+        topView = binding.activityCarSelectionTop;
+        segmentedGroup = binding.carSelectionSegmentedGroup;
+        mViewPager = binding.activityCarSelectionNewcarContentView;
 
         toolbar.setNavigationIcon(R.drawable.ic_close_white_24dp);
         toolbar.setNavigationOnClickListener(v -> {
@@ -122,20 +117,21 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
         segmentedGroup.check(R.id.attributesSegmentedButton);
 
         segmentedGroup.setOnCheckedChangeListener((radioGroup, i) -> {
-            switch (i) {
-                case R.id.attributesSegmentedButton:
-                    mViewPager.setCurrentItem(0);
-                    break;
-                case R.id.HsnTsnSegmentedButton:
-                    mViewPager.setCurrentItem(1);
-                    break;
-                default:
-                    break;
+            if (i == R.id.attributesSegmentedButton) {
+                mViewPager.setCurrentItem(0);
 
+            } else if (i == R.id.HsnTsnSegmentedButton) {
+                mViewPager.setCurrentItem(1);
             }
         });
 
         return view;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
     }
 
     @Override

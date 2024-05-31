@@ -5,7 +5,6 @@ agp = "8.4.0"
 androidSegmented = "1.0.6"
 androidxCore = "1.13.1"
 appcompat = "1.6.1"
-butterknife = "10.2.3"
 cardview = "1.0.0"
 circleimageview = "3.1.0"
 commonsCompress = "1.21"
@@ -71,8 +70,6 @@ androidx-rules = { module = "androidx.test:rules", version.ref = "rules" }
 androidx-runner = { module = "androidx.test:runner", version.ref = "runner" }
 androidx-sqlite = { module = "androidx.sqlite:sqlite", version.ref = "sqlite" }
 androidx-sqlite-framework = { module = "androidx.sqlite:sqlite-framework", version.ref = "sqlite" }
-butterknife = { module = "com.jakewharton:butterknife", version.ref = "butterknife" }
-butterknife-compiler = { module = "com.jakewharton:butterknife-compiler", version.ref = "butterknife" }
 circleimageview = { module = "de.hdodenhof:circleimageview", version.ref = "circleimageview" }
 commons-compress = { module = "org.apache.commons:commons-compress", version.ref = "commonsCompress" }
 core = { module = "com.google.android.play:core", version.ref = "playCore" }

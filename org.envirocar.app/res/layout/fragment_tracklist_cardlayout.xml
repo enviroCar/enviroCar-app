@@ -58,7 +58,9 @@
                     android:textSize="18sp"/>
             </androidx.appcompat.widget.Toolbar>
 
-            <include layout="@layout/fragment_tracklist_cardlayout_content" />
+            <include
+                android:id="@+id/fragment_tracklist_cardlayout_content"
+                layout="@layout/fragment_tracklist_cardlayout_content" />
 
         </LinearLayout>
     </androidx.cardview.widget.CardView>

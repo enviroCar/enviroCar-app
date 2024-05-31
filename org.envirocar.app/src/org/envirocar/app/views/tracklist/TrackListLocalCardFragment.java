@@ -21,7 +21,9 @@ package org.envirocar.app.views.tracklist;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -56,7 +58,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import butterknife.OnClick;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.DisposableObserver;
@@ -120,7 +121,6 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
         mRecyclerViewAdapter.onDestroy();
     }
 
-    @OnClick(R.id.fragment_tracklist_fab)
     protected void onUploadTracksFABClicked() {
         new MaterialAlertDialogBuilder(getContext(), R.style.MaterialDialog)
                 .setTitle(R.string.track_list_upload_all_tracks_title)
@@ -223,6 +223,14 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
                 showNoTracksInfo();
             }
         });
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        final View view = super.onCreateView(inflater, container, savedInstanceState);
+        mFAB.setOnClickListener(v -> onUploadTracksFABClicked());
+        return view;
     }
 
     @Override

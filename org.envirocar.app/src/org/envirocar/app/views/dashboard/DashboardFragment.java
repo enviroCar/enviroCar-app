@@ -18,13 +18,14 @@
  */
 package org.envirocar.app.views.dashboard;
 
+import static android.app.Activity.RESULT_OK;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
-import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.net.Uri;
@@ -60,7 +61,6 @@ import androidx.core.app.ActivityCompat;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.play.core.appupdate.AppUpdateInfo;
@@ -74,9 +74,10 @@ import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
-import org.envirocar.app.handler.agreement.AgreementManager;
+import org.envirocar.app.databinding.FragmentDashboardViewNewBinding;
 import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.app.handler.BluetoothHandler;
+import org.envirocar.app.handler.agreement.AgreementManager;
 import org.envirocar.app.handler.preferences.UserPreferenceHandler;
 import org.envirocar.app.handler.userstatistics.UserStatisticsUpdateEvent;
 import org.envirocar.app.injection.BaseInjectorFragment;
@@ -88,12 +89,11 @@ import org.envirocar.app.recording.events.RecordingStateEvent;
 import org.envirocar.app.views.carselection.CarSelectionActivity;
 import org.envirocar.app.views.login.SigninActivity;
 import org.envirocar.app.views.obdselection.OBDSelectionActivity;
+import org.envirocar.app.views.others.TermsOfUseActivity;
 import org.envirocar.app.views.recordingscreen.RecordingScreenActivity;
 import org.envirocar.app.views.utils.DialogUtils;
 import org.envirocar.app.views.utils.SizeSyncTextView;
-import org.envirocar.app.views.others.TermsOfUseActivity;
 import org.envirocar.core.ContextInternetAccessProvider;
-import org.envirocar.core.entity.TermsOfUse;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.events.NewCarTypeSelectedEvent;
 import org.envirocar.core.events.NewUserSettingsEvent;
@@ -101,7 +101,6 @@ import org.envirocar.core.events.bluetooth.BluetoothDeviceSelectedEvent;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.core.events.gps.GpsStateChangedEvent;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.core.utils.rx.Optional;
 import org.envirocar.core.utils.PermissionUtils;
 import org.envirocar.core.utils.ServiceUtils;
 import org.envirocar.obd.events.TrackRecordingServiceStateChangedEvent;
@@ -111,22 +110,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 
 import javax.inject.Inject;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnCheckedChanged;
-import butterknife.OnClick;
 import info.hoang8f.android.segmented.SegmentedGroup;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.observers.DisposableCompletableObserver;
 import io.reactivex.schedulers.Schedulers;
-
-import static android.app.Activity.RESULT_OK;
 
 /**
  * @author dewall
@@ -136,79 +128,48 @@ public class DashboardFragment extends BaseInjectorFragment {
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1203;
 
+    private FragmentDashboardViewNewBinding binding;
+
     // View Injections
-    @BindView(R.id.fragment_dashboard_toolbar)
     protected Toolbar toolbar;
-    @BindView(R.id.fragment_dashboard_username)
     protected TextView textView;
-    @BindView(R.id.fragment_dashboard_logged_in_layout)
     protected View loggedInLayout;
 
-    @BindView(R.id.fragment_dashboard_user_tracks_layout)
     protected View userTracksLayout;
-    @BindView(R.id.fragment_dashboard_user_tracks_textview)
     protected TextView userTracksTextView;
-    @BindView(R.id.fragment_dashboard_user_distance_layout)
     protected View userDistanceLayout;
-    @BindView(R.id.fragment_dashboard_user_distance_textview)
     protected TextView userDistanceTextView;
-    @BindView(R.id.fragment_dashboard_user_duration_layout)
     protected View userDurationLayout;
-    @BindView(R.id.fragment_dashboard_user_duration_textview)
     protected TextView userDurationTextView;
-    @BindView(R.id.fragment_dashboard_user_statistics_progress)
     protected ProgressBar userStatProgressBar;
 
-    @BindView(R.id.fragment_dashboard_indicator_view)
     protected ViewGroup indicatorView;
-    @BindView(R.id.fragment_dashboard_indicator_bluetooth_layout)
     protected View bluetoothIndicatorLayout;
-    @BindView(R.id.fragment_dashboard_indicator_bluetooth)
     protected ImageView bluetoothIndicator;
-    @BindView(R.id.fragment_dashboard_indicator_obd_layout)
     protected View obdIndicatorLayout;
-    @BindView(R.id.fragment_dashboard_indicator_obd)
     protected ImageView obdIndicator;
-    @BindView(R.id.fragment_dashboard_indicator_gps)
     protected ImageView gpsIndicator;
-    @BindView(R.id.fragment_dashboard_indicator_car)
     protected ImageView carIndicator;
 
-    @BindView(R.id.fragment_dashboard_indicator_bluetooth_text)
     protected SizeSyncTextView bluetoothIndicatorText;
-    @BindView(R.id.fragment_dashboard_indicator_obd_text)
     protected SizeSyncTextView obdIndicatorText;
-    @BindView(R.id.fragment_dashboard_indicator_gps_text)
     protected SizeSyncTextView gpsIndicatorText;
-    @BindView(R.id.fragment_dashboard_indicator_car_text)
     protected SizeSyncTextView carIndicatorText;
 
-    @BindView(R.id.fragment_dashboard_mode_selector)
     protected SegmentedGroup modeSegmentedGroup;
-    @BindView(R.id.fragment_dashboard_obd_mode_button)
     protected RadioButton obdModeRadioButton;
-    @BindView(R.id.fragment_dashboard_gps_mode_button)
     protected RadioButton gpsModeRadioButton;
 
-    @BindView(R.id.fragment_dashboard_obdselection_layout)
     protected ViewGroup bluetoothSelectionView;
-    @BindView(R.id.fragment_dashboard_obdselection_text_primary)
     protected TextView bluetoothSelectionTextPrimary;
-    @BindView(R.id.fragment_dashboard_obdselection_text_secondary)
     protected TextView bluetoothSelectionTextSecondary;
-    @BindView(R.id.fragment_dashboard_carselection_text_primary)
     protected TextView carSelectionTextPrimary;
-    @BindView(R.id.fragment_dashboard_carselection_text_secondary)
     protected TextView carSelectionTextSecondary;
 
-    @BindView(R.id.fragment_dashboard_banner)
     protected FrameLayout bannerLayout;
-    @BindView(R.id.fragment_dashboard_main_layout)
     protected ConstraintLayout mainLayout;
 
-    @BindView(R.id.fragment_dashboard_start_track_button)
     protected View startTrackButton;
-    @BindView(R.id.fragment_dashboard_start_track_button_text)
     protected TextView startTrackButtonText;
 
     // injected variables
@@ -248,11 +209,68 @@ public class DashboardFragment extends BaseInjectorFragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        // Inflate view first
-        View contentView = inflater.inflate(R.layout.fragment_dashboard_view_new, container, false);
+        binding = FragmentDashboardViewNewBinding.inflate(inflater, container, false);
+        final View contentView = binding.getRoot();
+        toolbar = binding.fragmentDashboardToolbar;
+        textView = binding.fragmentDashboardUsername;
+        loggedInLayout = binding.fragmentDashboardLoggedInLayout;
+        userTracksLayout = binding.fragmentDashboardUserTracksLayout;
+        userTracksTextView = binding.fragmentDashboardUserTracksTextview;
+        userDistanceLayout = binding.fragmentDashboardUserDistanceLayout;
+        userDistanceTextView = binding.fragmentDashboardUserDistanceTextview;
+        userDurationLayout = binding.fragmentDashboardUserDurationLayout;
+        userDurationTextView = binding.fragmentDashboardUserDurationTextview;
+        userStatProgressBar = binding.fragmentDashboardUserStatisticsProgress;
+        indicatorView = binding.fragmentDashboardIndicatorView;
+        bluetoothIndicatorLayout = binding.fragmentDashboardIndicatorBluetoothLayout;
+        bluetoothIndicator = binding.fragmentDashboardIndicatorBluetooth;
+        obdIndicatorLayout = binding.fragmentDashboardIndicatorObdLayout;
+        obdIndicator = binding.fragmentDashboardIndicatorObd;
+        gpsIndicator = binding.fragmentDashboardIndicatorGps;
+        carIndicator = binding.fragmentDashboardIndicatorCar;
+        bluetoothIndicatorText = binding.fragmentDashboardIndicatorBluetoothText;
+        obdIndicatorText = binding.fragmentDashboardIndicatorObdText;
+        gpsIndicatorText = binding.fragmentDashboardIndicatorGpsText;
+        carIndicatorText = binding.fragmentDashboardIndicatorCarText;
+        modeSegmentedGroup = binding.fragmentDashboardModeSelector;
+        obdModeRadioButton = binding.fragmentDashboardObdModeButton;
+        gpsModeRadioButton = binding.fragmentDashboardGpsModeButton;
+        bluetoothSelectionView = binding.fragmentDashboardObdselectionLayout;
+        bluetoothSelectionTextPrimary = binding.fragmentDashboardObdselectionTextPrimary;
+        bluetoothSelectionTextSecondary = binding.fragmentDashboardObdselectionTextSecondary;
+        carSelectionTextPrimary = binding.fragmentDashboardCarselectionTextPrimary;
+        carSelectionTextSecondary = binding.fragmentDashboardCarselectionTextSecondary;
+        bannerLayout = binding.fragmentDashboardBanner;
+        mainLayout = binding.fragmentDashboardMainLayout;
+        startTrackButton = binding.fragmentDashboardStartTrackButton;
+        startTrackButtonText = binding.fragmentDashboardStartTrackButtonText;
 
-        // Bind views
-        ButterKnife.bind(this, contentView);
+        obdModeRadioButton.setOnCheckedChangeListener(this::onModeChangedClicked);
+        gpsModeRadioButton.setOnCheckedChangeListener(this::onModeChangedClicked);
+        binding.fragmentDashboardCarselectionLayout.setOnClickListener(v -> {
+            onCarSelectionClicked();
+        });
+        binding.fragmentDashboardObdselectionLayout.setOnClickListener(v -> {
+            onBluetoothSelectionClicked();
+        });
+        binding.fragmentDashboardStartTrackButton.setOnClickListener(v -> {
+            onStartTrackButtonClicked();
+        });
+        binding.fragmentDashboardIndicatorCar.setOnClickListener(v -> {
+            onCarIndicatorClicked();
+        });
+        binding.fragmentDashboardIndicatorObd.setOnClickListener(v -> {
+            onObdIndicatorClicked();
+        });
+        binding.fragmentDashboardIndicatorBluetooth.setOnClickListener(v -> {
+            onBluetoothIndicatorClicked();
+        });
+        binding.fragmentDashboardIndicatorGps.setOnClickListener(v -> {
+            onGPSIndicatorClicked();
+        });
+        binding.userStatisticsCardView.setOnClickListener(v -> {
+            onUserStatsClicked();
+        });
 
         // inflate menus and init toolbar clicks
         toolbar.inflateMenu(R.menu.menu_dashboard_logged_out);
@@ -275,6 +293,12 @@ public class DashboardFragment extends BaseInjectorFragment {
                 .blockingFirst();
 
         return contentView;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
     }
 
     @Override
@@ -343,7 +367,7 @@ public class DashboardFragment extends BaseInjectorFragment {
         }
     }
 
-    
+
 
     private DisposableCompletableObserver onLogoutSubscriber() {
         return new DisposableCompletableObserver() {
@@ -380,7 +404,6 @@ public class DashboardFragment extends BaseInjectorFragment {
         };
     }
 
-    @OnCheckedChanged({R.id.fragment_dashboard_obd_mode_button, R.id.fragment_dashboard_gps_mode_button})
     public void onModeChangedClicked(CompoundButton button, boolean checked) {
         if (!checked)
             return;
@@ -401,17 +424,14 @@ public class DashboardFragment extends BaseInjectorFragment {
         ApplicationSettings.setSelectedRecordingType(getContext(), selectedRT);
         // update button
         Boolean setEnabled = false;
-        switch (button.getId()) {
-            case R.id.fragment_dashboard_gps_mode_button:
-                setEnabled = (this.carIndicator.isActivated()
-                        && this.gpsIndicator.isActivated());
-                break;
-            case R.id.fragment_dashboard_obd_mode_button:
-                setEnabled = (this.bluetoothIndicator.isActivated()
-                        && this.gpsIndicator.isActivated()
-                        && this.obdIndicator.isActivated()
-                        && this.carIndicator.isActivated());
-                break;
+        if (button.getId() == R.id.fragment_dashboard_gps_mode_button) {
+            setEnabled = (this.carIndicator.isActivated()
+                    && this.gpsIndicator.isActivated());
+        } else if (button.getId() == R.id.fragment_dashboard_obd_mode_button) {
+            setEnabled = (this.bluetoothIndicator.isActivated()
+                    && this.gpsIndicator.isActivated()
+                    && this.obdIndicator.isActivated()
+                    && this.carIndicator.isActivated());
         }
         this.startTrackButtonText.setText(R.string.dashboard_start_track);
         this.startTrackButton.setEnabled(setEnabled);
@@ -448,21 +468,18 @@ public class DashboardFragment extends BaseInjectorFragment {
     }
 
     // OnClick Handler
-    @OnClick(R.id.fragment_dashboard_carselection_layout)
     protected void onCarSelectionClicked() {
         LOG.info("Clicked on Carselection.");
         Intent intent = new Intent(getActivity(), CarSelectionActivity.class);
         getActivity().startActivity(intent);
     }
 
-    @OnClick(R.id.fragment_dashboard_obdselection_layout)
     protected void onBluetoothSelectionClicked() {
         LOG.info("Clicked on Bluetoothselection.");
         Intent intent = new Intent(getActivity(), OBDSelectionActivity.class);
         getActivity().startActivity(intent);
     }
 
-    @OnClick(R.id.fragment_dashboard_start_track_button)
     protected void onStartTrackButtonClicked() {
         LOG.info("Clicked on Start Track Button");
 
@@ -475,8 +492,8 @@ public class DashboardFragment extends BaseInjectorFragment {
             String[] perms;
             if (android.os.Build.VERSION.SDK_INT >= 31) {
                 perms = new String[]{
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
                 };
             }
             else {
@@ -487,9 +504,9 @@ public class DashboardFragment extends BaseInjectorFragment {
             ActivityCompat.requestPermissions(getActivity(), perms,
                     LOCATION_PERMISSION_REQUEST_CODE);
         } else if (user == null && ApplicationSettings.isTrackchunkUploadEnabled(getContext())) {
-                // cannot start, we need a user
-                LOG.info("cannot start, login is required for chunk upload feature");
-                Snackbar.make(getView(),
+            // cannot start, we need a user
+            LOG.info("cannot start, login is required for chunk upload feature");
+            Snackbar.make(getView(),
                     getString(R.string.dashboard_track_chunks_enabled_login),
                     Snackbar.LENGTH_LONG).show();
         } else if (user != null) {
@@ -498,34 +515,34 @@ public class DashboardFragment extends BaseInjectorFragment {
                 LOG.info("chunk upload is enabled, checking TermsOfUse");
                 if (! (new ContextInternetAccessProvider(getContext()).isConnected())) {
                     Snackbar.make(getView(),
-                        getString(R.string.error_not_connected_to_network),
-                        Snackbar.LENGTH_LONG).show();
+                            getString(R.string.error_not_connected_to_network),
+                            Snackbar.LENGTH_LONG).show();
                     return;
                 }
                 mAgreementManager.verifyTermsOfUse(null, true)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(termsOfUse -> {
-                        if (termsOfUse != null) {
-                            startRecording();
-                        } else {
-                            LOG.warn("No TermsOfUse received from verification");
-                        }
-                    }, e -> {
-                        LOG.warn("Error during TermsOfUse verification", e);
-                        // inform the user about ToU acceptance
-                        Snackbar sb = Snackbar.make(getView(), String.format(getString(R.string.dashboard_accept_tou), getString(R.string.title_others)), Snackbar.LENGTH_INDEFINITE).setAction("OK", new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                LOG.info("ToU Snackbar closed");
-                                Intent intent = new Intent(getActivity(), TermsOfUseActivity.class);
-                                getActivity().startActivity(intent);
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(termsOfUse -> {
+                            if (termsOfUse != null) {
+                                startRecording();
+                            } else {
+                                LOG.warn("No TermsOfUse received from verification");
                             }
+                        }, e -> {
+                            LOG.warn("Error during TermsOfUse verification", e);
+                            // inform the user about ToU acceptance
+                            Snackbar sb = Snackbar.make(getView(), String.format(getString(R.string.dashboard_accept_tou), getString(R.string.title_others)), Snackbar.LENGTH_INDEFINITE).setAction("OK", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    LOG.info("ToU Snackbar closed");
+                                    Intent intent = new Intent(getActivity(), TermsOfUseActivity.class);
+                                    getActivity().startActivity(intent);
+                                }
+                            });
+                            Snackbar.SnackbarLayout layout = (Snackbar.SnackbarLayout) sb.getView();
+                            layout.setMinimumHeight(100);
+                            sb.show();
                         });
-                        Snackbar.SnackbarLayout layout = (Snackbar.SnackbarLayout) sb.getView();
-                        layout.setMinimumHeight(100);
-                        sb.show();
-                    });
             } else {
                 // we can check the ToUs later before upload
                 LOG.info("A user is logged in, chunk upload is disabled");
@@ -540,85 +557,75 @@ public class DashboardFragment extends BaseInjectorFragment {
 
     private void startRecording() {
         LOG.info("All conditions met, starting track recording");
-        switch (this.modeSegmentedGroup.getCheckedRadioButtonId()) {
-            case R.id.fragment_dashboard_obd_mode_button:
-                if (this.gpsIndicator.isActivated()
-                        && this.carIndicator.isActivated()
-                        && this.bluetoothIndicator.isActivated()
-                        && this.obdIndicator.isActivated()) {
-                    BluetoothDevice device = bluetoothHandler.getSelectedBluetoothDevice();
+        if (this.modeSegmentedGroup.getCheckedRadioButtonId() == R.id.fragment_dashboard_obd_mode_button) {
+            if (this.gpsIndicator.isActivated()
+                    && this.carIndicator.isActivated()
+                    && this.bluetoothIndicator.isActivated()
+                    && this.obdIndicator.isActivated()) {
+                BluetoothDevice device = bluetoothHandler.getSelectedBluetoothDevice();
 
-                    Intent obdRecordingIntent = new Intent(getActivity(), RecordingService.class);
+                Intent obdRecordingIntent = new Intent(getActivity(), RecordingService.class);
 
-                    this.connectingDialog = DialogUtils.createProgressBarDialogBuilder(getContext(),
-                            R.string.dashboard_connecting,
-                            R.drawable.ic_bluetooth_white_24dp,
-                            String.format(getString(R.string.dashboard_connecting_find_template), device.getName()))
-                            .setNegativeButton(R.string.cancel, (dialog, which) -> {
-                                ServiceUtils.stopService(getActivity(), obdRecordingIntent);
-                            })
-                            .show();
-
-                    // If the device is not found to start the track, dismiss the Dialog in 30 sec
-                    deviceDiscoveryTimer = new CountDownTimer(60000, 1000) {
-                        @Override
-                        public void onTick(long millisUntilFinished) {
-                        }
-
-                        @Override
-                        public void onFinish() {
-                            LOG.warn("Device discovery timeout. Stop recording.");
-                            connectingDialog.dismiss();
+                this.connectingDialog = DialogUtils.createProgressBarDialogBuilder(getContext(),
+                                R.string.dashboard_connecting,
+                                R.drawable.ic_bluetooth_white_24dp,
+                                String.format(getString(R.string.dashboard_connecting_find_template), device.getName()))
+                        .setNegativeButton(R.string.cancel, (dialog, which) -> {
                             ServiceUtils.stopService(getActivity(), obdRecordingIntent);
-                            Snackbar.make(getView(),
-                                    String.format(getString(R.string.dashboard_connecting_not_found_template),
-                                            device.getName()), Snackbar.LENGTH_LONG).show();
-                        }
-                    }.start();
+                        })
+                        .show();
 
-                    ServiceUtils.startService(getActivity(), obdRecordingIntent);
-                }
-                break;
-            case R.id.fragment_dashboard_gps_mode_button:
-                Intent gpsOnlyIntent = new Intent(getActivity(), RecordingService.class);
-                ServiceUtils.startService(getActivity(), gpsOnlyIntent);
-                break;
-            default:
-                break;
+                // If the device is not found to start the track, dismiss the Dialog in 30 sec
+                deviceDiscoveryTimer = new CountDownTimer(60000, 1000) {
+                    @Override
+                    public void onTick(long millisUntilFinished) {
+                    }
+
+                    @Override
+                    public void onFinish() {
+                        LOG.warn("Device discovery timeout. Stop recording.");
+                        connectingDialog.dismiss();
+                        ServiceUtils.stopService(getActivity(), obdRecordingIntent);
+                        Snackbar.make(getView(),
+                                String.format(getString(R.string.dashboard_connecting_not_found_template),
+                                        device.getName()), Snackbar.LENGTH_LONG).show();
+                    }
+                }.start();
+
+                ServiceUtils.startService(getActivity(), obdRecordingIntent);
+            }
+        } else if (this.modeSegmentedGroup.getCheckedRadioButtonId() == R.id.fragment_dashboard_gps_mode_button) {
+            Intent gpsOnlyIntent = new Intent(getActivity(), RecordingService.class);
+            ServiceUtils.startService(getActivity(), gpsOnlyIntent);
         }
     }
 
-   
 
-    @OnClick(R.id.fragment_dashboard_indicator_car)
+
     protected void onCarIndicatorClicked() {
         LOG.info("Car Indicator clicked");
         Intent intent = new Intent(getActivity(), CarSelectionActivity.class);
         getActivity().startActivity(intent);
     }
 
-    @OnClick(R.id.fragment_dashboard_indicator_obd)
     protected void onObdIndicatorClicked() {
         LOG.info("OBD indicator clicked");
         Intent intent = new Intent(getActivity(), OBDSelectionActivity.class);
         getActivity().startActivity(intent);
     }
 
-    @OnClick(R.id.fragment_dashboard_indicator_bluetooth)
     protected void onBluetoothIndicatorClicked() {
         LOG.info("Bluetooth indicator clicked");
         Intent intent = new Intent(getActivity(), OBDSelectionActivity.class);
         getActivity().startActivity(intent);
     }
 
-    @OnClick(R.id.fragment_dashboard_indicator_gps)
     protected void onGPSIndicatorClicked() {
         LOG.info("GPS indicator clicked");
         Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
         getActivity().startActivity(intent);
     }
 
-    @OnClick(R.id.user_statistics_card_view)
     protected void onUserStatsClicked() {
         BottomNavigationView bottomView = getActivity().findViewById(R.id.navigation);
         bottomView.setSelectedItemId(R.id.navigation_my_tracks);
@@ -856,17 +863,14 @@ public class DashboardFragment extends BaseInjectorFragment {
                 this.startTrackButton.setEnabled(true);
                 break;
             case RECORDING_STOPPED:
-                switch (this.modeSegmentedGroup.getCheckedRadioButtonId()) {
-                    case R.id.fragment_dashboard_gps_mode_button:
-                        setEnabled = (this.carIndicator.isActivated()
-                                && this.gpsIndicator.isActivated());
-                        break;
-                    case R.id.fragment_dashboard_obd_mode_button:
-                        setEnabled = (this.bluetoothIndicator.isActivated()
-                                && this.gpsIndicator.isActivated()
-                                && this.obdIndicator.isActivated()
-                                && this.carIndicator.isActivated());
-                        break;
+                if (this.modeSegmentedGroup.getCheckedRadioButtonId() == R.id.fragment_dashboard_gps_mode_button) {
+                    setEnabled = (this.carIndicator.isActivated()
+                            && this.gpsIndicator.isActivated());
+                } else if (this.modeSegmentedGroup.getCheckedRadioButtonId() == R.id.fragment_dashboard_obd_mode_button) {
+                    setEnabled = (this.bluetoothIndicator.isActivated()
+                            && this.gpsIndicator.isActivated()
+                            && this.obdIndicator.isActivated()
+                            && this.carIndicator.isActivated());
                 }
                 this.startTrackButtonText.setText(R.string.dashboard_start_track);
                 this.startTrackButton.setEnabled(setEnabled);
@@ -879,18 +883,15 @@ public class DashboardFragment extends BaseInjectorFragment {
             case RECORDING_INIT:
                 break;
             case RECORDING_RUNNING:
-                switch (this.modeSegmentedGroup.getCheckedRadioButtonId()) {
-                    case R.id.fragment_dashboard_gps_mode_button:
+                if (this.modeSegmentedGroup.getCheckedRadioButtonId() == R.id.fragment_dashboard_gps_mode_button) {
+                    RecordingScreenActivity.navigate(getContext());
+                } else if (this.modeSegmentedGroup.getCheckedRadioButtonId() == R.id.fragment_dashboard_obd_mode_button) {
+                    if (this.connectingDialog != null) {
+                        this.connectingDialog.dismiss();
+                        deviceDiscoveryTimer.cancel();
+                        this.connectingDialog = null;
                         RecordingScreenActivity.navigate(getContext());
-                        break;
-                    case R.id.fragment_dashboard_obd_mode_button:
-                        if (this.connectingDialog != null) {
-                            this.connectingDialog.dismiss();
-                            deviceDiscoveryTimer.cancel();
-                            this.connectingDialog = null;
-                            RecordingScreenActivity.navigate(getContext());
-                        }
-                        break;
+                    }
                 }
                 break;
             case RECORDING_STOPPED:

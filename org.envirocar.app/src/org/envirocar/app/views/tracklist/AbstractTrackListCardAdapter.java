@@ -38,6 +38,8 @@ import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
 
 import org.envirocar.app.R;
+import org.envirocar.app.databinding.FragmentTracklistCardlayoutBinding;
+import org.envirocar.app.databinding.FragmentTracklistCardlayoutRemoteBinding;
 import org.envirocar.app.views.trackdetails.TrackMapLayer;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.logging.Logger;
@@ -50,8 +52,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
@@ -125,11 +125,11 @@ public abstract class AbstractTrackListCardAdapter<E extends
 
 
     protected void bindLocalTrackViewHolder(TrackCardViewHolder holder, Track track) {
-        holder.mDistance.setText("...");
-        holder.mDuration.setText("...");
+        holder.getDistance().setText("...");
+        holder.getDuration().setText("...");
         LOG.info("bindLocalTrackViewHolder()");
         // First, load the track from the dataset
-        holder.mTitleTextView.setText(track.getName());
+        holder.getTitleTextView().setText(track.getName());
 
         // Initialize the mapView.
         initMapView(holder, track);
@@ -142,20 +142,20 @@ public abstract class AbstractTrackListCardAdapter<E extends
                 try {
                     String date = UTC_DATE_FORMATTER.format(new Date(
                             track.getDuration()));
-                    mMainThreadWorker.schedule(() -> holder.mDuration.setText(date));
+                    mMainThreadWorker.schedule(() -> holder.getDuration().setText(date));
 
                     // Set the tracklength parameter.
 
                     double distanceOfTrack = track.getLength();
                     String tracklength = String.format("%s km", DECIMAL_FORMATTER_TWO.format(
                             distanceOfTrack));
-                    mMainThreadWorker.schedule(() -> holder.mDistance.setText(tracklength));
+                    mMainThreadWorker.schedule(() -> holder.getDistance().setText(tracklength));
 
                 } catch (Exception e) {
                     LOG.warn(e.getMessage(), e);
                     mMainThreadWorker.schedule(() -> {
-                        holder.mDistance.setText("0 km");
-                        holder.mDuration.setText("0:00");
+                        holder.getDistance().setText("0 km");
+                        holder.getDuration().setText("0:00");
                     });
                 }
 
@@ -164,47 +164,43 @@ public abstract class AbstractTrackListCardAdapter<E extends
         }.execute();
 
         // if the menu is not already inflated, then..
-        if (!holder.mToolbar.getMenu().hasVisibleItems()) {
+        if (!holder.getToolbar().getMenu().hasVisibleItems()) {
             // Inflate the menu and set an appropriate OnMenuItemClickListener.
-            holder.mToolbar.inflateMenu(R.menu.menu_tracklist_cardlayout);
+            holder.getToolbar().inflateMenu(R.menu.menu_tracklist_cardlayout);
             if (track.isRemoteTrack()) {
-                holder.mToolbar.getMenu().removeItem(R.id.menu_tracklist_cardlayout_item_upload);
+                holder.getToolbar().getMenu().removeItem(R.id.menu_tracklist_cardlayout_item_upload);
             }
         }
 
-        holder.mToolbar.setOnMenuItemClickListener(item -> {
+        holder.getToolbar().setOnMenuItemClickListener(item -> {
             LOG.info("Item clicked for track " + track.getTrackID());
 
-            switch (item.getItemId()) {
-                case R.id.menu_tracklist_cardlayout_item_details:
-                    mTrackInteractionCallback.onTrackDetailsClicked(track, holder.mMapView);
-                    break;
-                case R.id.menu_tracklist_cardlayout_item_delete:
-                    mTrackInteractionCallback.onDeleteTrackClicked(track);
-                    break;
-                case R.id.menu_tracklist_cardlayout_item_share:
-                    mTrackInteractionCallback.onShareTrackClicked(track);
-                    break;
-                case R.id.menu_tracklist_cardlayout_item_upload:
-                    mTrackInteractionCallback.onUploadTrackClicked(track);
-                    break;
+            if (item.getItemId() == R.id.menu_tracklist_cardlayout_item_details) {
+                mTrackInteractionCallback.onTrackDetailsClicked(track, holder.getMapView());
+            } else if (item.getItemId() == R.id.menu_tracklist_cardlayout_item_delete) {
+                mTrackInteractionCallback.onDeleteTrackClicked(track);
+            } else if (item.getItemId() == R.id.menu_tracklist_cardlayout_item_share) {
+                mTrackInteractionCallback.onShareTrackClicked(track);
+            } else if (item.getItemId() == R.id.menu_tracklist_cardlayout_item_upload) {
+                mTrackInteractionCallback.onUploadTrackClicked(track);
             }
+
             return false;
         });
 
         // Initialize the OnClickListener for the invisible button that is overlaid
         // over the map view.
-        holder.mInvisMapButton.setOnClickListener(v -> {
+        holder.getInvisMapButton().setOnClickListener(v -> {
             LOG.info("Clicked on the map. Navigate to the details activity");
-            mTrackInteractionCallback.onTrackDetailsClicked(track, holder.mMapView);
+            mTrackInteractionCallback.onTrackDetailsClicked(track, holder.getMapView());
         });
 
-        holder.cardViewLayout.setOnLongClickListener(view -> {
+        holder.getCardViewLayout().setOnLongClickListener(view -> {
             mTrackInteractionCallback.onLongPressedTrack(track);
             return true;
         });
 
-        holder.mInvisMapButton.setOnLongClickListener(view -> {
+        holder.getInvisMapButton().setOnLongClickListener(view -> {
             mTrackInteractionCallback.onLongPressedTrack(track);
             return true;
         });
@@ -219,8 +215,8 @@ public abstract class AbstractTrackListCardAdapter<E extends
         LOG.info("initMapView()");
         TrackMapLayer trackMapOverlay = new TrackMapLayer(track);
         final LatLngBounds viewBbox = trackMapOverlay.getViewBoundingBox();
-        holder.mMapView.addOnDidFailLoadingMapListener(holder.failLoadingMapListener);
-        holder.mMapView.getMapAsync(new OnMapReadyCallback() {
+        holder.getMapView().addOnDidFailLoadingMapListener(holder.failLoadingMapListener);
+        holder.getMapView().getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(@NonNull MapboxMap tep) {
                 LOG.info("onMapReady()");
@@ -243,15 +239,15 @@ public abstract class AbstractTrackListCardAdapter<E extends
     @Override
     public void onViewAttachedToWindow(@NonNull E holder) {
         super.onViewAttachedToWindow(holder);
-        holder.mMapView.onStart();
-        holder.mMapView.onResume();
+        holder.getMapView().onStart();
+        holder.getMapView().onResume();
     }
 
     @Override
     public void onViewDetachedFromWindow(@NonNull E holder) {
         super.onViewDetachedFromWindow(holder);
-        holder.mMapView.onPause();
-        holder.mMapView.onStop();
+        holder.getMapView().onPause();
+        holder.getMapView().onStop();
     }
 
 //    private void initRouteCoordinates(Track track) {
@@ -295,38 +291,20 @@ public abstract class AbstractTrackListCardAdapter<E extends
     /**
      *
      */
-    static class TrackCardViewHolder extends RecyclerView.ViewHolder {
-
-        protected final View mItemView;
-
-        @BindView(R.id.fragment_tracklist_cardlayout_toolbar)
-        protected Toolbar mToolbar;
-        @BindView(R.id.fragment_tracklist_cardlayout_toolbar_title)
-        protected TextView mTitleTextView;
-        @BindView(R.id.fragment_tracklist_cardlayout_content)
-        protected View mContentView;
-        @BindView(R.id.track_details_attributes_header_distance)
-        protected TextView mDistance;
-        @BindView(R.id.track_details_attributes_header_duration)
-        protected TextView mDuration;
-        @BindView(R.id.fragment_tracklist_cardlayout_map)
-        protected MapView mMapView;
-        @BindView(R.id.fragment_tracklist_cardlayout_invis_mapbutton)
-        protected ImageButton mInvisMapButton;
-        @BindView(R.id.fragment_layout_card_view)
-        protected LinearLayout cardViewLayout;
-
+    static abstract class TrackCardViewHolder extends RecyclerView.ViewHolder {
         protected MapView.OnDidFailLoadingMapListener failLoadingMapListener;
 
-        /**
-         * Constructor.
-         *
-         * @param itemView the card view of the
-         */
+        abstract Toolbar getToolbar();
+        abstract TextView getTitleTextView();
+        abstract View getContentView();
+        abstract TextView getDistance();
+        abstract TextView getDuration();
+        abstract MapView getMapView();
+        abstract ImageButton getInvisMapButton();
+        abstract LinearLayout getCardViewLayout();
+
         public TrackCardViewHolder(View itemView) {
             super(itemView);
-            this.mItemView = itemView;
-            ButterKnife.bind(this, itemView);
             failLoadingMapListener = new MapView.OnDidFailLoadingMapListener() {
                 @Override
                 public void onDidFailLoadingMap(String errorMessage) {
@@ -340,14 +318,51 @@ public abstract class AbstractTrackListCardAdapter<E extends
      * Default view holder for standard local and not uploaded tracks.
      */
     static class LocalTrackCardViewHolder extends TrackCardViewHolder {
+        FragmentTracklistCardlayoutBinding binding;
 
-        /**
-         * Constructor.
-         *
-         * @param itemView
-         */
-        public LocalTrackCardViewHolder(View itemView) {
-            super(itemView);
+        @Override
+        Toolbar getToolbar() {
+            return binding.fragmentTracklistCardlayoutToolbar;
+        }
+
+        @Override
+        TextView getTitleTextView() {
+            return binding.fragmentTracklistCardlayoutToolbarTitle;
+        }
+
+        @Override
+        View getContentView() {
+            return binding.fragmentTracklistCardlayoutContent.fragmentTracklistCardlayoutContent;
+        }
+
+        @Override
+        TextView getDistance() {
+            return binding.fragmentTracklistCardlayoutContent.trackDetailsAttributesHeaderDistance;
+        }
+
+        @Override
+        TextView getDuration() {
+            return binding.fragmentTracklistCardlayoutContent.trackDetailsAttributesHeaderDuration;
+        }
+
+        @Override
+        MapView getMapView() {
+            return binding.fragmentTracklistCardlayoutContent.fragmentTracklistCardlayoutMap;
+        }
+
+        @Override
+        ImageButton getInvisMapButton() {
+            return binding.fragmentTracklistCardlayoutContent.fragmentTracklistCardlayoutInvisMapbutton;
+        }
+
+        @Override
+        LinearLayout getCardViewLayout() {
+            return binding.fragmentLayoutCardView;
+        }
+
+        public LocalTrackCardViewHolder(FragmentTracklistCardlayoutBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
         }
     }
 
@@ -356,21 +371,63 @@ public abstract class AbstractTrackListCardAdapter<E extends
      * of a remote track list. (i.e. users/{getUserStatistic}/tracks)
      */
     static class RemoteTrackCardViewHolder extends TrackCardViewHolder {
+        FragmentTracklistCardlayoutRemoteBinding binding;
 
-        @BindView(R.id.fragment_tracklist_cardlayout_remote_progresscircle)
-        protected FABProgressCircle mProgressCircle;
-        @BindView(R.id.fragment_tracklist_cardlayout_remote_downloadfab)
-        protected FloatingActionButton mDownloadButton;
-        @BindView(R.id.fragment_tracklist_cardlayout_downloading_notification)
-        protected TextView mDownloadNotification;
+        @Override
+        Toolbar getToolbar() {
+            return binding.fragmentTracklistCardlayoutToolbar;
+        }
 
-        /**
-         * Constructor.
-         *
-         * @param itemView the card view of the
-         */
-        public RemoteTrackCardViewHolder(View itemView) {
-            super(itemView);
+        @Override
+        TextView getTitleTextView() {
+            return binding.fragmentTracklistCardlayoutToolbarTitle;
+        }
+
+        @Override
+        View getContentView() {
+            return binding.fragmentTracklistCardlayoutContent.fragmentTracklistCardlayoutContent;
+        }
+
+        @Override
+        TextView getDistance() {
+            return binding.fragmentTracklistCardlayoutContent.trackDetailsAttributesHeaderDistance;
+        }
+
+        @Override
+        TextView getDuration() {
+            return binding.fragmentTracklistCardlayoutContent.trackDetailsAttributesHeaderDuration;
+        }
+
+        @Override
+        MapView getMapView() {
+            return binding.fragmentTracklistCardlayoutContent.fragmentTracklistCardlayoutMap;
+        }
+
+        @Override
+        ImageButton getInvisMapButton() {
+            return binding.fragmentTracklistCardlayoutContent.fragmentTracklistCardlayoutInvisMapbutton;
+        }
+
+        @Override
+        LinearLayout getCardViewLayout() {
+            return binding.fragmentLayoutCardView;
+        }
+
+        FABProgressCircle getProgressCircle() {
+            return binding.fragmentTracklistCardlayoutRemoteProgresscircle;
+        }
+
+        FloatingActionButton getDownloadButton() {
+            return binding.fragmentTracklistCardlayoutRemoteDownloadfab;
+        }
+
+        TextView getDownloadNotification() {
+            return binding.fragmentTracklistCardlayoutDownloadingNotification;
+        }
+
+        public RemoteTrackCardViewHolder(FragmentTracklistCardlayoutRemoteBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
         }
     }
 }

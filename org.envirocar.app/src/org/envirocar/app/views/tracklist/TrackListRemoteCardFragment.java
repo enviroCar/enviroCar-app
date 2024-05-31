@@ -196,9 +196,9 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<T
                 (AbstractTrackListCardAdapter.RemoteTrackCardViewHolder) viewHolder;
 
         // Show the downloading text notification.
-        ECAnimationUtils.animateShowView(getActivity(), holder.mDownloadNotification,
+        ECAnimationUtils.animateShowView(getActivity(), holder.getDownloadNotification(),
                 R.anim.fade_in);
-        holder.mProgressCircle.show();
+        holder.getProgressCircle().show();
         track.setDownloadState(Track.DownloadState.DOWNLOADING);
 
         mTrackDAOHandler.fetchRemoteTrackObservable(track)
@@ -208,17 +208,17 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<T
 
                     @Override
                     public void onComplete() {
-                        holder.mProgressCircle.beginFinalAnimation();
-                        holder.mProgressCircle.attachListener(() -> {
+                        holder.getProgressCircle().beginFinalAnimation();
+                        holder.getProgressCircle().attachListener(() -> {
                             // When the visualization is finished, then Init the
                             // content view including its mapview and track details.
                             mRecyclerViewAdapter.bindLocalTrackViewHolder(holder, track);
 
                             // and hide the download button
                             ECAnimationUtils.animateHideView(getActivity(), R.anim.fade_out,
-                                    holder.mProgressCircle, holder.mDownloadButton, holder
-                                            .mDownloadNotification);
-                            ECAnimationUtils.animateShowView(getActivity(), holder.mContentView, R
+                                    holder.getProgressCircle(), holder.getDownloadButton(), holder
+                                            .getDownloadNotification());
+                            ECAnimationUtils.animateShowView(getActivity(), holder.getContentView(), R
                                     .anim.fade_in);
                         });
                     }
@@ -227,9 +227,9 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<T
                     public void onError(Throwable e) {
                         LOG.error("Not connected exception", e);
                         showSnackbar(R.string.track_list_communication_error);
-                        holder.mProgressCircle.hide();
+                        holder.getProgressCircle().hide();
                         track.setDownloadState(Track.DownloadState.DOWNLOADING);
-                        holder.mDownloadNotification.setText(
+                        holder.getDownloadNotification().setText(
                                 R.string.track_list_error_while_downloading);
                     }
 

@@ -109,7 +109,9 @@
                         android:text="yea"
                         android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
-                    <include layout="@layout/activity_track_details_attributes_header" />
+                    <include
+                        android:id="@+id/activity_track_details_attributes_header"
+                        layout="@layout/activity_track_details_attributes_header" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -118,7 +120,9 @@
                         android:alpha="0.34"
                         android:background="@color/background_material_dark" />
 
-                    <include layout="@layout/activity_track_details_attributes" />
+                    <include
+                        android:id="@+id/activity_track_details_attributes"
+                        layout="@layout/activity_track_details_attributes" />
 
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
@@ -127,12 +131,12 @@
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/activity_track_details_fab"
+        style="@style/Widget.enviroCar.Fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         android:elevation="8dp"
         android:src="@drawable/ic_timeline_white_24dp"
-        style="@style/Widget.enviroCar.Fab"
         app:layout_anchor="@id/activity_track_details_appbar_layout"
         app:layout_anchorGravity="bottom|right|end" />
 

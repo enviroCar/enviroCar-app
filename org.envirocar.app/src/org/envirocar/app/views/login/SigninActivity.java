@@ -25,44 +25,39 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityOptionsCompat;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
+import org.envirocar.app.databinding.ActivitySigninBinding;
 import org.envirocar.app.exception.LoginException;
 import org.envirocar.app.handler.DAOProvider;
 import org.envirocar.app.handler.agreement.AgreementManager;
 import org.envirocar.app.handler.preferences.UserPreferenceHandler;
 import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.app.views.BaseMainActivity;
-import org.envirocar.app.views.obdselection.OBDSelectionActivity;
 import org.envirocar.app.views.utils.DialogUtils;
-import org.envirocar.core.utils.rx.Optional;
-import org.envirocar.core.logging.Logger;
 import org.envirocar.core.entity.TermsOfUse;
-import org.envirocar.core.entity.User;
-import org.envirocar.core.entity.UserImpl;
+import org.envirocar.core.logging.Logger;
+import org.envirocar.core.utils.rx.Optional;
 
-import javax.inject.Inject;
 import java.util.function.Consumer;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
-import butterknife.OnEditorAction;
+import javax.inject.Inject;
+
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.Observable;
 import io.reactivex.observers.DisposableCompletableObserver;
-import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 
 
@@ -73,6 +68,8 @@ import io.reactivex.schedulers.Schedulers;
  */
 public class SigninActivity extends BaseInjectorActivity {
     private static final Logger LOG = Logger.getLogger(SigninActivity.class);
+
+    private ActivitySigninBinding binding;
 
     public static void startActivity(Context context) {
         Intent intent = new Intent(context, SigninActivity.class);
@@ -89,11 +86,8 @@ public class SigninActivity extends BaseInjectorActivity {
     protected AgreementManager agreementManager;
 
     // Injected Views
-    @BindView(R.id.activity_signin_username_input)
     protected EditText usernameEditText;
-    @BindView(R.id.activity_login_password_input)
     protected EditText passwordEditText;
-    @BindView(R.id.activity_login_logo)
     protected ImageView logoImageView;
 
     private Disposable loginSubscription;
@@ -108,17 +102,36 @@ public class SigninActivity extends BaseInjectorActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_signin);
+
+        binding = ActivitySigninBinding.inflate(getLayoutInflater());
+        final View view = binding.getRoot();
+        setContentView(view);
+
+        usernameEditText = binding.activitySigninUsernameInput;
+        passwordEditText = binding.activityLoginPasswordInput;
+        logoImageView = binding.activityLoginLogo;
+
+        binding.signinBackground.setOnClickListener(v -> closeKeyboard());
+        binding.activitySigninRegisterButton.setOnClickListener(v -> onSwitchToRegisterClicked());
+        binding.activitySigninLoginButton.setOnClickListener(v -> onLoginClicked());
+        binding.activityLoginPasswordInput.setOnEditorActionListener((v, action, event) -> {
+            if (action == EditorInfo.IME_ACTION_DONE) {
+                implicitSubmit();
+            }
+            return true;
+        });
+
         getWindow().setNavigationBarColor(getResources().getColor(R.color.cario_color_primary_dark));
 
-        // inject the views
-        ButterKnife.bind(this);
+        errorPassword = ContextCompat.getDrawable(this, R.drawable.ic_error_red_24dp);
+        if (errorPassword != null) {
+            errorPassword.setBounds(-70,0,0, errorPassword.getIntrinsicHeight());
+        }
 
-        errorPassword = getResources().getDrawable(R.drawable.ic_error_red_24dp);
-        errorPassword.setBounds(-70,0,0, errorPassword.getIntrinsicHeight());
-
-        errorUsername = getResources().getDrawable(R.drawable.ic_error_red_24dp);
-        errorUsername.setBounds(0, 0, errorUsername.getIntrinsicWidth(), errorUsername.getIntrinsicHeight());
+        errorUsername = ContextCompat.getDrawable(this, R.drawable.ic_error_red_24dp);
+        if (errorUsername != null) {
+            errorUsername.setBounds(0, 0, errorUsername.getIntrinsicWidth(), errorUsername.getIntrinsicHeight());
+        }
 
     }
 
@@ -131,7 +144,6 @@ public class SigninActivity extends BaseInjectorActivity {
         }
     }
 
-    @OnClick(R.id.signin_background)
     protected void closeKeyboard(){
         View view = this.getCurrentFocus();
         if (view != null) {
@@ -140,7 +152,6 @@ public class SigninActivity extends BaseInjectorActivity {
         }
     }
 
-    @OnClick(R.id.activity_signin_register_button)
     protected void onSwitchToRegisterClicked() {
         ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
                 this, logoImageView, "imageMain");
@@ -149,7 +160,6 @@ public class SigninActivity extends BaseInjectorActivity {
         SignupActivity.startActivity(this);
     }
 
-    @OnEditorAction(R.id.activity_login_password_input)
     protected boolean implicitSubmit() {
         View logInSubmit;
         logInSubmit = findViewById(R.id.activity_signin_login_button);
@@ -157,7 +167,6 @@ public class SigninActivity extends BaseInjectorActivity {
         return true;
     }
 
-    @OnClick(R.id.activity_signin_login_button)
     protected void onLoginClicked() {
         LOG.info("Clicked on the login button");
         View focusView = null;

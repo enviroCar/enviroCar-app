@@ -41,6 +41,7 @@ import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
+import org.envirocar.app.databinding.ActivityBaseMainBottomBarBinding;
 import org.envirocar.app.events.TrackchunkEndUploadedEvent;
 import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.app.handler.BluetoothHandler;
@@ -66,8 +67,6 @@ import java.util.Stack;
 
 import javax.inject.Inject;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
@@ -80,6 +79,8 @@ public class BaseMainActivity extends BaseInjectorActivity {
     private static final Logger LOGGER = Logger.getLogger(BaseMainActivity.class);
 
     private static final String TROUBLESHOOTING_TAG = "TROUBLESHOOTING";
+
+    private ActivityBaseMainBottomBarBinding binding;
 
     private FragmentStatePagerAdapter fragmentStatePagerAdapter;
     private MenuItem prevMenuItem;
@@ -114,10 +115,8 @@ public class BaseMainActivity extends BaseInjectorActivity {
     @Inject
     protected ValidateAcceptedTerms validateTermsOfUse;
 
-    @BindView(R.id.navigation)
     protected BottomNavigationView navigationBottomBar;
 
-    @BindView(R.id.fragmentContainer)
     protected ViewPager viewPager;
 
     private CompositeDisposable subscriptions = new CompositeDisposable();
@@ -127,19 +126,13 @@ public class BaseMainActivity extends BaseInjectorActivity {
     private Scheduler.Worker mMainThreadWorker = AndroidSchedulers.mainThread().createWorker();
 
 
-    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
-            = item -> {
-        switch (item.getItemId()) {
-            case R.id.navigation_dashboard:
-                viewPager.setCurrentItem(0);
-                return true;
-            case R.id.navigation_my_tracks:
-                viewPager.setCurrentItem(1);
-                return true;
-            case R.id.navigation_others:
-                viewPager.setCurrentItem(2);
-                return true;
-        }
+    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener = item -> {
+        if (item.getItemId() == R.id.navigation_dashboard)
+            viewPager.setCurrentItem(0);
+        else if (item.getItemId() == R.id.navigation_my_tracks)
+            viewPager.setCurrentItem(1);
+        else if (item.getItemId() == R.id.navigation_others)
+            viewPager.setCurrentItem(2);
         return false;
     };
 
@@ -152,10 +145,12 @@ public class BaseMainActivity extends BaseInjectorActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-//        LOGGER.info("BaseMainActivity : onCreate");
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_base_main_bottom_bar);
-        ButterKnife.bind(this);
+        binding = ActivityBaseMainBottomBarBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+
+        navigationBottomBar = binding.navigation;
+        viewPager = binding.fragmentContainer;
 
         navigationBottomBar.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         navigationBottomBar.setSelectedItemId(R.id.navigation_dashboard);

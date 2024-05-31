@@ -31,28 +31,25 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 import org.envirocar.app.R;
+import org.envirocar.app.databinding.FragmentCarListBinding;
 import org.envirocar.core.entity.Vehicles;
 
 import java.util.List;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
-
 public class CarListFragment extends BottomSheetDialogFragment {
+    private FragmentCarListBinding binding;
 
-    @BindView(R.id.fragment_car_list_view)
     RecyclerView recyclerView;
-   List<Vehicles> vehiclesList;
-
-
+    List<Vehicles> vehiclesList;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        binding = FragmentCarListBinding.inflate(inflater, container, false);
 
-        View view = inflater.inflate(R.layout.fragment_car_list, container, false);
-        ButterKnife.bind(this, view);
+        recyclerView = binding.fragmentCarListView;
+        binding.fragmentCarListLayoutCancel.setOnClickListener(v -> cancelSheet());
+
         CarSelectionAttributeListAdapter carListAdapter = new CarSelectionAttributeListAdapter(getContext(), vehiclesList,
                 new OnCarInteractionCallback() {
 
@@ -69,7 +66,13 @@ public class CarListFragment extends BottomSheetDialogFragment {
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(carListAdapter);
-        return view;
+        return binding.getRoot();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
     }
 
     CarListFragment(List<Vehicles> vehiclesList) {
@@ -81,7 +84,6 @@ public class CarListFragment extends BottomSheetDialogFragment {
         super.onDestroy();
     }
 
-    @OnClick(R.id.fragment_car_list_layout_cancel)
     void cancelSheet() {
         dismiss();
     }

@@ -26,7 +26,7 @@
     android:background="@color/white"
     android:orientation="vertical">
 
-    <include layout="@layout/envirocar_toolbar" />
+    <include android:id="@+id/envirocar_toolbar" layout="@layout/envirocar_toolbar" />
 
     <RelativeLayout
         android:id="@+id/activity_car_selection_top"
