@@ -7,8 +7,18 @@ import androidx.annotation.DrawableRes
  * ---------
  * [Marker] may be used to indicate a specific location on the map.
  * Utilize the [Marker.Builder] to create a new instance.
+ *
+ * @property id       The unique identifier.
+ * @property point    The geographical point.
+ * @property title    The title of the marker.
+ * @property drawable The drawable of the marker.
  */
-sealed interface Marker {
+class Marker private constructor(
+    val id: Int,
+    val point: Point,
+    val title: String?,
+    @DrawableRes val drawable: Int?
+) {
     class Builder(private val point: Point) {
         private var title: String? = null
 
@@ -23,7 +33,7 @@ sealed interface Marker {
 
         /** Builds the marker. */
         fun build(): Marker {
-            return MarkerImpl(
+            return Marker(
                 count++,
                 point,
                 title,
@@ -35,23 +45,5 @@ sealed interface Marker {
     companion object {
         @Volatile
         private var count = 0
-
-        /**
-         * [MarkerImpl]
-         * ------------
-         * [MarkerImpl] is the implementation of the [Marker] interface.
-         *
-         * @property id       The unique identifier.
-         * @property point    The geographical point.
-         * @property title    The title of the marker.
-         * @property drawable The drawable of the marker.
-         */
-        internal data class MarkerImpl(
-            val id: Int,
-            val point: Point,
-            val title: String?,
-            @DrawableRes val drawable: Int?,
-        ) : Marker
-
     }
 }

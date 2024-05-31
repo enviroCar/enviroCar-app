@@ -7,10 +7,21 @@ import android.graphics.Color
  * ----------
  * [Polyline] represents a line on the map.
  * Utilize [Polyline.Builder] to create a new [Polyline].
+ *
+ * @property id     The unique identifier.
+ * @property points The list of geographical points that make up the polyline.
+ * @property color  The color for displaying a single color polyline.
+ * @property colors The list of colors for displaying a gradient polyline.
  */
-sealed interface Polyline {
+class Polyline private constructor(
+    val id: Int,
+    val points: List<Point>,
+    val width: Float?,
+    val color: Color?,
+    val colors: List<Color>?
+) {
     class Builder(private val points: List<Point>) {
-        private var width: Float = 2.0F
+        private var width: Float? = null
         private var color: Color? = null
         private var colors: List<Color>? = null
 
@@ -37,7 +48,7 @@ sealed interface Polyline {
             assert(colors?.size == points.size) {
                 "Polyline must have same number of colors as points for a gradient."
             }
-            return PolylineImpl(
+            return Polyline(
                 count++,
                 points,
                 width,
@@ -50,24 +61,5 @@ sealed interface Polyline {
     companion object {
         @Volatile
         private var count = 0
-
-        /**
-         * [PolylineImpl]
-         * --------------
-         * [PolylineImpl] is the implementation of the [Polyline] interface.
-         *
-         * @property id     The unique identifier.
-         * @property points The list of geographical points that make up the polyline.
-         * @property color  The color for displaying a single color polyline.
-         * @property colors The list of colors for displaying a gradient polyline.
-         */
-        internal data class PolylineImpl(
-            val id: Int,
-            val points: List<Point>,
-            val width: Float,
-            val color: Color?,
-            val colors: List<Color>?
-        ) : Polyline
-
     }
 }

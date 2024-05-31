@@ -56,4 +56,5 @@ object CameraUpdateFactory {
     fun newCameraUpdateZoom(zoom: Float): CameraUpdate {
         return CameraUpdate.Companion.CameraUpdateZoom(zoom)
     }
+
 }
