@@ -278,11 +278,10 @@ public class OBDSimulator extends Activity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.discoverable:
-                // Ensure this device is discoverable by others
-                ensureDiscoverable();
-                return true;
+        if (item.getItemId() == R.id.discoverable) {
+            // Ensure this device is discoverable by others
+            ensureDiscoverable();
+            return true;
         }
         return false;
     }
