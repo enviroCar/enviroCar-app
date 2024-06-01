@@ -12,7 +12,7 @@ pluginManagement {
             }
             credentials {
                 username = "mapbox"
-                password = rootProject.properties["MAPBOX_DOWNLOADS_TOKEN"] ?: ""
+                password = providers.gradleProperty("MAPBOX_DOWNLOADS_TOKEN").get()
             }
         }
     }
@@ -31,11 +31,8 @@ dependencyResolutionManagement {
                 basic(BasicAuthentication)
             }
             credentials {
-                // Do not change the username below.
-                // This should always be `mapbox` (not your username).
                 username = "mapbox"
-                // Use the secret token you stored in gradle.properties as the password
-                password = rootProject.properties["MAPBOX_DOWNLOADS_TOKEN"] ?: ""
+                password = providers.gradleProperty("MAPBOX_DOWNLOADS_TOKEN").get()
             }
         }
     }
