@@ -32,6 +32,7 @@ object CameraUpdateFactory {
 
     /**
      * Creates a [CameraUpdate] to transform the camera so that the bearing is set to the specified value.
+     * Minimum bearing value is 0 and maximum bearing value is 360.
      *
      * @param bearing The bearing of the camera.
      */
@@ -41,6 +42,7 @@ object CameraUpdateFactory {
 
     /**
      * Creates a [CameraUpdate] to transform the camera so that the tilt is set to the specified value.
+     * Minimum tilt value is 0 and maximum tilt value is 60.
      *
      * @param tilt The tilt of the camera.
      */
@@ -50,6 +52,7 @@ object CameraUpdateFactory {
 
     /**
      * Creates a [CameraUpdate] to transform the camera so that the zoom is set to the specified value.
+     * Minimum zoom value is 0 and maximum zoom value is 22.
      *
      * @param zoom The zoom level of the camera.
      */
