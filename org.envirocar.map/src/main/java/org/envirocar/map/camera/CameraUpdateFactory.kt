@@ -26,7 +26,7 @@ object CameraUpdateFactory {
      * @param points The geographical points specifying the bounds.
      * @param padding The padding in pixels.
      */
-    fun newCameraUpdateBasedOnBounds(points: List<Point>, padding: Int): CameraUpdate {
+    fun newCameraUpdateBasedOnBounds(points: List<Point>, padding: Float): CameraUpdate {
         return CameraUpdate.Companion.CameraUpdateBasedOnBounds(points, padding)
     }
 

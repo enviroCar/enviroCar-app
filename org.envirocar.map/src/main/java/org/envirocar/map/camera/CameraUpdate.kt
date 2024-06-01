@@ -34,7 +34,7 @@ sealed interface CameraUpdate {
          */
         internal data class CameraUpdateBasedOnBounds(
             val points: List<Point>,
-            val padding: Int
+            val padding: Float
         ) : CameraUpdate
 
         /**
