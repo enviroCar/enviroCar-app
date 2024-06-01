@@ -1,11 +1,20 @@
 package org.envirocar.map.provider.mapbox
 
+import androidx.appcompat.content.res.AppCompatResources
+import androidx.core.graphics.drawable.toBitmap
 import com.mapbox.geojson.Point
 import com.mapbox.maps.CameraBoundsOptions
 import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.EdgeInsets
 import com.mapbox.maps.MapView
+import com.mapbox.maps.plugin.annotation.annotations
+import com.mapbox.maps.plugin.annotation.generated.PointAnnotation
+import com.mapbox.maps.plugin.annotation.generated.PointAnnotationOptions
+import com.mapbox.maps.plugin.annotation.generated.PolylineAnnotation
+import com.mapbox.maps.plugin.annotation.generated.createPointAnnotationManager
+import com.mapbox.maps.plugin.annotation.generated.createPolylineAnnotationManager
 import org.envirocar.map.MapController
+import org.envirocar.map.R
 import org.envirocar.map.camera.CameraUpdate
 import org.envirocar.map.model.Marker
 import org.envirocar.map.model.Polyline
@@ -16,6 +25,12 @@ import org.envirocar.map.model.Polyline
  * [Mapbox](https://www.mapbox.com) based implementation for [MapController].
  */
 class MapboxMapController(private val viewInstance: MapView) : MapController() {
+    // https://docs.mapbox.com/android/maps/guides/annotations/annotations/
+    private val pointAnnotationManager = viewInstance.annotations.createPointAnnotationManager()
+    private val polylineAnnotationManager = viewInstance.annotations.createPolylineAnnotationManager()
+
+    private val markers = mutableMapOf<Int, PointAnnotation>()
+    private val polylines = mutableMapOf<Int, PolylineAnnotation>()
 
     override fun setMinZoom(minZoom: Float) {
         super.setMinZoom(minZoom)
@@ -42,8 +57,10 @@ class MapboxMapController(private val viewInstance: MapView) : MapController() {
                 is CameraUpdate.Companion.CameraUpdateBasedOnBounds -> {
                     viewInstance.mapboxMap.cameraForCoordinates(
                         points.map { Point.fromLngLat(it.longitude, it.latitude) },
-                        CameraOptions.Builder().build(),
-                        padding.toDouble().let { EdgeInsets(it, it, it, it) },
+                        CameraOptions.Builder()
+                            .padding(padding.toDouble().let { EdgeInsets(it, it, it, it) })
+                            .build(),
+                        null,
                         null,
                         null
                     ) {
@@ -68,7 +85,7 @@ class MapboxMapController(private val viewInstance: MapView) : MapController() {
                 }
 
                 is CameraUpdate.Companion.CameraUpdateTilt -> {
-                    // NOTE: Mapbox SDK refers to tilt as pitch.
+                    // Mapbox SDK refers to tilt as pitch.
                     viewInstance.mapboxMap.setCamera(
                         CameraOptions.Builder()
                             .pitch(tilt.toMapboxTilt())
@@ -88,19 +105,44 @@ class MapboxMapController(private val viewInstance: MapView) : MapController() {
     }
 
     override fun addMarker(marker: Marker) {
-        TODO("Not yet implemented")
+        if (markers.contains(marker.id)) {
+            error("Marker with ID ${marker.id} already exists.")
+        }
+        var options = PointAnnotationOptions()
+        marker.point.also {
+            options = options.withPoint(Point.fromLngLat(it.longitude, it.latitude))
+        }
+        marker.title?.also {
+            options = options.withTextField(it)
+        }
+        // Mapbox does not include a default marker icon.
+        (marker.drawable ?: R.drawable.marker_icon_default).also {
+            options = options.withIconImage(
+                AppCompatResources.getDrawable(viewInstance.context, it)!!.toBitmap()
+            )
+        }
+        markers[marker.id] = pointAnnotationManager.create(options)
     }
 
     override fun addPolyline(polyline: Polyline) {
-        TODO("Not yet implemented")
+        if (polylines.contains(polyline.id)) {
+            error("Polyline with ID ${polyline.id} already exists.")
+        }
+        // TODO: Missing implementation.
     }
 
     override fun removeMarker(marker: Marker) {
-        TODO("Not yet implemented")
+        if (!markers.contains(marker.id)) {
+            error("Marker with ID ${marker.id} does not exist.")
+        }
+        markers.remove(marker.id)?.also { pointAnnotationManager.delete(it) }
     }
 
     override fun removePolyline(polyline: Polyline) {
-        TODO("Not yet implemented")
+        if (!polylines.contains(polyline.id)) {
+            error("Polyline with ID ${polyline.id} does not exist.")
+        }
+        // TODO: Missing implementation.
     }
 
     private fun Float.toMapboxBearing() = this
