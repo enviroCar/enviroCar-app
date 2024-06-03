@@ -21,7 +21,6 @@ class Marker private constructor(
 ) {
     class Builder(private val point: Point) {
         private var title: String? = null
-
         @DrawableRes
         private var drawable: Int? = null
 
