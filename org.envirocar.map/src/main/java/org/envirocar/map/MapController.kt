@@ -18,8 +18,8 @@ import org.envirocar.map.model.Polyline
  * ```
  * override fun onCreate(savedInstanceState: Bundle?) {
  *     super.onCreate(savedInstanceState)
- *     val mapView: MapView = findViewById(R.id.mapView)
- *     val mapController: MapController = mapView.getController(...)
+ *     val view: MapView = findViewById(R.id.mapView)
+ *     val controller: MapController = mapView.getController(...)
  *     /* Interact with the [MapView] using the [MapController]. */
  * }
  * ```
