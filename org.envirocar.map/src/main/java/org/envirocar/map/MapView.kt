@@ -2,6 +2,7 @@ package org.envirocar.map
 
 import android.content.Context
 import android.util.AttributeSet
+import android.view.View
 import android.widget.FrameLayout
 import org.envirocar.map.camera.CameraUpdateFactory
 import org.envirocar.map.model.Point
@@ -31,6 +32,7 @@ class MapView : FrameLayout {
             instance = mapProvider
             addView(
                 instance.getView(context).apply {
+                    visibility = View.INVISIBLE
                     layoutParams = LayoutParams(
                         LayoutParams.MATCH_PARENT,
                         LayoutParams.MATCH_PARENT

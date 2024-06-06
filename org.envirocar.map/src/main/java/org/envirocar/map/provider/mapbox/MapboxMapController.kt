@@ -1,5 +1,6 @@
 package org.envirocar.map.provider.mapbox
 
+import android.view.View
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.graphics.drawable.toBitmap
 import com.mapbox.geojson.Feature
@@ -19,10 +20,10 @@ import com.mapbox.maps.plugin.annotation.annotations
 import com.mapbox.maps.plugin.annotation.generated.PointAnnotation
 import com.mapbox.maps.plugin.annotation.generated.PointAnnotationOptions
 import com.mapbox.maps.plugin.annotation.generated.createPointAnnotationManager
-import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import com.mapbox.maps.plugin.attribution.attribution
+import com.mapbox.maps.plugin.compass.compass
+import com.mapbox.maps.plugin.logo.logo
+import com.mapbox.maps.plugin.scalebar.scalebar
 import org.envirocar.map.MapController
 import org.envirocar.map.R
 import org.envirocar.map.camera.CameraUpdate
@@ -35,28 +36,35 @@ import org.envirocar.map.model.Polyline
  * ---------------------
  * [Mapbox](https://www.mapbox.com) based implementation for [MapController].
  */
-class MapboxMapController(private val viewInstance: MapView) : MapController() {
-    // https://docs.mapbox.com/android/maps/guides/annotations/annotations/
-    // https://docs.mapbox.com/android/maps/examples/line-gradient/
-    // NOTE: PolylineAnnotationManager API is not sufficient to create polylines with gradients.
-    private val pointAnnotationManager = viewInstance.annotations.createPointAnnotationManager()
-
-    private val scope = CoroutineScope(Dispatchers.Main)
+internal class MapboxMapController(private val viewInstance: MapView) : MapController() {
     private val markers = mutableMapOf<Int, PointAnnotation>()
     private val polylines = mutableSetOf<Int>()
-    private val styleLoadedCompletableDeferred: CompletableDeferred<Unit> = CompletableDeferred()
+
+    // https://docs.mapbox.com/android/maps/guides/annotations/annotations/
+    // https://docs.mapbox.com/android/maps/examples/line-gradient/
+    // PolylineAnnotationManager API is not sufficient to create polylines with gradients.
+    private val pointAnnotationManager = viewInstance.annotations.createPointAnnotationManager()
 
     init {
+        // Disable attribution, compass, logo & scalebar.
+        viewInstance.attribution.enabled = false
+        viewInstance.compass.enabled = false
+        viewInstance.logo.enabled = false
+        viewInstance.scalebar.enabled = false
+
+        // Once the map style is loaded, make the view visible & mark this instance as ready.
         if (viewInstance.mapboxMap.style != null) {
-            styleLoadedCompletableDeferred.complete(Unit)
+            viewInstance.visibility = View.VISIBLE
+            readyCompletableDeferred.complete(Unit)
         } else {
             viewInstance.mapboxMap.subscribeStyleLoaded {
-                styleLoadedCompletableDeferred.complete(Unit)
+                viewInstance.visibility = View.VISIBLE
+                readyCompletableDeferred.complete(Unit)
             }
         }
     }
 
-    override fun setMinZoom(minZoom: Float) {
+    override fun setMinZoom(minZoom: Float) = runWhenReady {
         super.setMinZoom(minZoom)
         viewInstance.mapboxMap.setBounds(
             CameraBoundsOptions.Builder()
@@ -65,7 +73,7 @@ class MapboxMapController(private val viewInstance: MapView) : MapController() {
         )
     }
 
-    override fun setMaxZoom(maxZoom: Float) {
+    override fun setMaxZoom(maxZoom: Float) = runWhenReady {
         super.setMaxZoom(maxZoom)
         viewInstance.mapboxMap.setBounds(
             CameraBoundsOptions.Builder()
@@ -74,7 +82,7 @@ class MapboxMapController(private val viewInstance: MapView) : MapController() {
         )
     }
 
-    override fun notifyCameraUpdate(cameraUpdate: CameraUpdate) {
+    override fun notifyCameraUpdate(cameraUpdate: CameraUpdate) = runWhenReady {
         super.notifyCameraUpdate(cameraUpdate)
         with(cameraUpdate) {
             when (this) {
@@ -128,7 +136,7 @@ class MapboxMapController(private val viewInstance: MapView) : MapController() {
         }
     }
 
-    override fun addMarker(marker: Marker) {
+    override fun addMarker(marker: Marker) = runWhenReady {
         if (markers.contains(marker.id)) {
             error("Marker with ID ${marker.id} already exists.")
         }
@@ -148,74 +156,60 @@ class MapboxMapController(private val viewInstance: MapView) : MapController() {
         markers[marker.id] = pointAnnotationManager.create(options)
     }
 
-    override fun addPolyline(polyline: Polyline) {
+    override fun addPolyline(polyline: Polyline) = runWhenReady {
         if (polylines.contains(polyline.id)) {
             error("Polyline with ID ${polyline.id} already exists.")
         }
-        scope.launch {
-            styleLoadedCompletableDeferred.await()
-
-            assert(viewInstance.mapboxMap.style != null) {
-                "Mapbox style is not initialized."
+        polylines.add(polyline.id)
+        viewInstance.mapboxMap.style?.addSource(
+            geoJsonSource(MAPBOX_POLYLINE_SOURCE_ID + polyline.id) {
+                feature(Feature.fromGeometry(LineString.fromLngLats(polyline.points.map { it.toMapboxPoint() })))
+                lineMetrics(true)
             }
-            polylines.add(polyline.id)
-            viewInstance.mapboxMap.style?.addSource(
-                geoJsonSource(MAPBOX_POLYLINE_SOURCE_ID + polyline.id) {
-                    feature(Feature.fromGeometry(LineString.fromLngLats(polyline.points.map { it.toMapboxPoint() })))
-                    lineMetrics(true)
-                }
-            )
-            viewInstance.mapboxMap.style?.addLayer(
-                lineLayer(
-                    MAPBOX_POLYLINE_LAYER_ID + polyline.id,
-                    MAPBOX_POLYLINE_SOURCE_ID + polyline.id
-                ) {
-                    lineCap(LineCap.ROUND)
-                    lineJoin(LineJoin.ROUND)
-                    lineWidth(polyline.width.toDouble())
-                    lineColor(polyline.color)
-                    lineBorderWidth(polyline.borderWidth.toDouble())
-                    lineBorderColor(polyline.borderColor)
-                    polyline.colors?.also {
-                        lineGradient(
-                            interpolate {
-                                linear()
-                                lineProgress()
-                                for (i in polyline.points.indices) {
-                                    stop {
-                                        literal((i + 1).toDouble() / polyline.points.size.toDouble())
-                                        color(it[i])
-                                    }
+        )
+        viewInstance.mapboxMap.style?.addLayer(
+            lineLayer(
+                MAPBOX_POLYLINE_LAYER_ID + polyline.id,
+                MAPBOX_POLYLINE_SOURCE_ID + polyline.id
+            ) {
+                lineCap(LineCap.ROUND)
+                lineJoin(LineJoin.ROUND)
+                lineWidth(polyline.width.toDouble())
+                lineColor(polyline.color)
+                lineBorderWidth(polyline.borderWidth.toDouble())
+                lineBorderColor(polyline.borderColor)
+                polyline.colors?.also {
+                    lineGradient(
+                        interpolate {
+                            linear()
+                            lineProgress()
+                            for (i in polyline.points.indices) {
+                                stop {
+                                    literal((i + 1).toDouble() / polyline.points.size.toDouble())
+                                    color(it[i])
                                 }
                             }
-                        )
-                    }
+                        }
+                    )
                 }
-            )
-        }
+            }
+        )
     }
 
-    override fun removeMarker(marker: Marker) {
+    override fun removeMarker(marker: Marker) = runWhenReady {
         if (!markers.contains(marker.id)) {
             error("Marker with ID ${marker.id} does not exist.")
         }
         markers.remove(marker.id)?.also { pointAnnotationManager.delete(it) }
     }
 
-    override fun removePolyline(polyline: Polyline) {
+    override fun removePolyline(polyline: Polyline) = runWhenReady {
         if (!polylines.contains(polyline.id)) {
             error("Polyline with ID ${polyline.id} does not exist.")
         }
-        scope.launch {
-            styleLoadedCompletableDeferred.await()
-
-            assert(viewInstance.mapboxMap.style != null) {
-                "Mapbox style is not initialized."
-            }
-            polylines.remove(polyline.id)
-            viewInstance.mapboxMap.style?.removeStyleSource(MAPBOX_POLYLINE_SOURCE_ID + polyline.id)
-            viewInstance.mapboxMap.style?.removeStyleLayer(MAPBOX_POLYLINE_LAYER_ID + polyline.id)
-        }
+        polylines.remove(polyline.id)
+        viewInstance.mapboxMap.style?.removeStyleSource(MAPBOX_POLYLINE_SOURCE_ID + polyline.id)
+        viewInstance.mapboxMap.style?.removeStyleLayer(MAPBOX_POLYLINE_LAYER_ID + polyline.id)
     }
 
     private fun Point.toMapboxPoint() = com.mapbox.geojson.Point.fromLngLat(longitude, latitude)
