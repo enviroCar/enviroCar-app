@@ -16,6 +16,8 @@ import com.mapbox.maps.extension.style.layers.properties.generated.LineCap
 import com.mapbox.maps.extension.style.layers.properties.generated.LineJoin
 import com.mapbox.maps.extension.style.sources.addSource
 import com.mapbox.maps.extension.style.sources.generated.geoJsonSource
+import com.mapbox.maps.plugin.animation.MapAnimationOptions
+import com.mapbox.maps.plugin.animation.easeTo
 import com.mapbox.maps.plugin.annotation.annotations
 import com.mapbox.maps.plugin.annotation.generated.PointAnnotation
 import com.mapbox.maps.plugin.annotation.generated.PointAnnotationOptions
@@ -27,6 +29,7 @@ import com.mapbox.maps.plugin.scalebar.scalebar
 import org.envirocar.map.MapController
 import org.envirocar.map.R
 import org.envirocar.map.camera.CameraUpdate
+import org.envirocar.map.model.Animation
 import org.envirocar.map.model.Marker
 import org.envirocar.map.model.Point
 import org.envirocar.map.model.Polyline
@@ -82,8 +85,22 @@ internal class MapboxMapController(private val viewInstance: MapView) : MapContr
         )
     }
 
-    override fun notifyCameraUpdate(cameraUpdate: CameraUpdate) = runWhenReady {
-        super.notifyCameraUpdate(cameraUpdate)
+    override fun notifyCameraUpdate(cameraUpdate: CameraUpdate, animation: Animation?) = runWhenReady {
+        super.notifyCameraUpdate(cameraUpdate, animation)
+
+        fun setOrEaseCamera(cameraOptions: CameraOptions) {
+            if (animation == null) {
+                viewInstance.mapboxMap.setCamera(cameraOptions)
+            } else {
+                viewInstance.mapboxMap.easeTo(
+                    cameraOptions,
+                    MapAnimationOptions.Builder()
+                        .duration(animation.duration)
+                        .build()
+                )
+            }
+        }
+
         with(cameraUpdate) {
             when (this) {
                 is CameraUpdate.Companion.CameraUpdateBasedOnBounds -> {
@@ -96,12 +113,12 @@ internal class MapboxMapController(private val viewInstance: MapView) : MapContr
                         null,
                         null
                     ) {
-                        viewInstance.mapboxMap.setCamera(it)
+                        setOrEaseCamera(it)
                     }
                 }
 
                 is CameraUpdate.Companion.CameraUpdateBasedOnPoint -> {
-                    viewInstance.mapboxMap.setCamera(
+                    setOrEaseCamera(
                         CameraOptions.Builder()
                             .center(point.toMapboxPoint())
                             .build()
@@ -109,7 +126,7 @@ internal class MapboxMapController(private val viewInstance: MapView) : MapContr
                 }
 
                 is CameraUpdate.Companion.CameraUpdateBearing -> {
-                    viewInstance.mapboxMap.setCamera(
+                    setOrEaseCamera(
                         CameraOptions.Builder()
                             .bearing(bearing.toMapboxBearing())
                             .build()
@@ -118,7 +135,7 @@ internal class MapboxMapController(private val viewInstance: MapView) : MapContr
 
                 is CameraUpdate.Companion.CameraUpdateTilt -> {
                     // Mapbox SDK refers to tilt as pitch.
-                    viewInstance.mapboxMap.setCamera(
+                    setOrEaseCamera(
                         CameraOptions.Builder()
                             .pitch(tilt.toMapboxTilt())
                             .build()
@@ -126,7 +143,7 @@ internal class MapboxMapController(private val viewInstance: MapView) : MapContr
                 }
 
                 is CameraUpdate.Companion.CameraUpdateZoom -> {
-                    viewInstance.mapboxMap.setCamera(
+                    setOrEaseCamera(
                         CameraOptions.Builder()
                             .zoom(zoom.toMapboxZoom())
                             .build()

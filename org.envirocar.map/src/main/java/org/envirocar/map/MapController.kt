@@ -7,6 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.envirocar.map.camera.CameraUpdate
+import org.envirocar.map.model.Animation
 import org.envirocar.map.model.Marker
 import org.envirocar.map.model.Polyline
 
@@ -55,7 +56,7 @@ abstract class MapController {
 
     /** Notifies the [MapView] about a [CameraUpdate]. */
     @CallSuper
-    open fun notifyCameraUpdate(cameraUpdate: CameraUpdate) {
+    open fun notifyCameraUpdate(cameraUpdate: CameraUpdate, animation: Animation? = null) {
         with(cameraUpdate) {
             when (this) {
                 is CameraUpdate.Companion.CameraUpdateBearing -> {
