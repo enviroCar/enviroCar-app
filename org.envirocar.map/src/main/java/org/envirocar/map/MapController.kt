@@ -7,8 +7,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.envirocar.map.camera.CameraUpdate
+import org.envirocar.map.camera.CameraUpdateFactory
 import org.envirocar.map.model.Animation
 import org.envirocar.map.model.Marker
+import org.envirocar.map.model.Point
 import org.envirocar.map.model.Polyline
 
 /**
@@ -27,7 +29,10 @@ import org.envirocar.map.model.Polyline
  *
  * @see MapView
  * @see CameraUpdate
+ * @see CameraUpdateFactory
+ * @see Animation
  * @see Marker
+ * @see Point
  * @see Polyline
  */
 abstract class MapController {
