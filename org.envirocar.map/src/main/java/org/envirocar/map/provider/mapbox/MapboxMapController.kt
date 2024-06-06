@@ -10,7 +10,7 @@ import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.EdgeInsets
 import com.mapbox.maps.MapView
 import com.mapbox.maps.extension.style.expressions.dsl.generated.interpolate
-import com.mapbox.maps.extension.style.layers.addLayer
+import com.mapbox.maps.extension.style.layers.addLayerBelow
 import com.mapbox.maps.extension.style.layers.generated.lineLayer
 import com.mapbox.maps.extension.style.layers.properties.generated.LineCap
 import com.mapbox.maps.extension.style.layers.properties.generated.LineJoin
@@ -18,6 +18,7 @@ import com.mapbox.maps.extension.style.sources.addSource
 import com.mapbox.maps.extension.style.sources.generated.geoJsonSource
 import com.mapbox.maps.plugin.animation.MapAnimationOptions
 import com.mapbox.maps.plugin.animation.easeTo
+import com.mapbox.maps.plugin.annotation.AnnotationConfig
 import com.mapbox.maps.plugin.annotation.annotations
 import com.mapbox.maps.plugin.annotation.generated.PointAnnotation
 import com.mapbox.maps.plugin.annotation.generated.PointAnnotationOptions
@@ -46,7 +47,9 @@ internal class MapboxMapController(private val viewInstance: MapView) : MapContr
     // https://docs.mapbox.com/android/maps/guides/annotations/annotations/
     // https://docs.mapbox.com/android/maps/examples/line-gradient/
     // PolylineAnnotationManager API is not sufficient to create polylines with gradients.
-    private val pointAnnotationManager = viewInstance.annotations.createPointAnnotationManager()
+    private val pointAnnotationManager = viewInstance.annotations.createPointAnnotationManager(
+        AnnotationConfig(layerId = MAPBOX_MARKER_LAYER_ID)
+    )
 
     init {
         // Disable attribution, compass, logo & scalebar.
@@ -184,7 +187,7 @@ internal class MapboxMapController(private val viewInstance: MapView) : MapContr
                 lineMetrics(true)
             }
         )
-        viewInstance.mapboxMap.style?.addLayer(
+        viewInstance.mapboxMap.style?.addLayerBelow(
             lineLayer(
                 MAPBOX_POLYLINE_LAYER_ID + polyline.id,
                 MAPBOX_POLYLINE_SOURCE_ID + polyline.id
@@ -209,7 +212,8 @@ internal class MapboxMapController(private val viewInstance: MapView) : MapContr
                         }
                     )
                 }
-            }
+            },
+            MAPBOX_MARKER_LAYER_ID
         )
     }
 
@@ -255,6 +259,7 @@ internal class MapboxMapController(private val viewInstance: MapView) : MapContr
         internal const val MAPBOX_CAMERA_ZOOM_MIN = 0.0F
         internal const val MAPBOX_CAMERA_ZOOM_MAX = 22.0F
 
+        internal const val MAPBOX_MARKER_LAYER_ID = "marker-layer"
         internal const val MAPBOX_POLYLINE_LAYER_ID = "polyline-layer-"
         internal const val MAPBOX_POLYLINE_SOURCE_ID = "polyline-source-"
     }
