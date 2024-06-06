@@ -1,6 +1,11 @@
 package org.envirocar.map
 
 import androidx.annotation.CallSuper
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import org.envirocar.map.camera.CameraUpdate
 import org.envirocar.map.model.Marker
 import org.envirocar.map.model.Polyline
@@ -25,6 +30,13 @@ import org.envirocar.map.model.Polyline
  * @see Polyline
  */
 abstract class MapController {
+    private var jobLock = Any()
+    private var queueLock = Any()
+    private var job: Job? = null
+    private val queue = mutableListOf<() -> Unit>()
+    private val scope = CoroutineScope(Dispatchers.Main)
+    internal val readyCompletableDeferred: CompletableDeferred<Unit> = CompletableDeferred()
+
     /** Sets the minimum zoom level. */
     @CallSuper
     open fun setMinZoom(minZoom: Float) {
@@ -82,6 +94,25 @@ abstract class MapController {
 
     /** Removes a [Polyline] from the [MapView]. */
     abstract fun removePolyline(polyline: Polyline)
+
+    /**
+     * Executes the specified [block] once [readyCompletableDeferred] is completed.
+     * The order of execution for subsequent calls is preserved.
+     */
+    internal fun runWhenReady(block: () -> Unit) {
+        synchronized(jobLock) {
+            synchronized(queueLock) { queue.add(block) }
+            if (job == null) {
+                job = scope.launch {
+                    readyCompletableDeferred.await()
+                    while (synchronized(queueLock) { queue.isNotEmpty() }) {
+                        synchronized(queueLock) { queue.removeFirst().invoke() }
+                    }
+                    synchronized(jobLock) { job = null }
+                }
+            }
+        }
+    }
 
     companion object {
         internal const val CAMERA_BEARING_MIN = 0.0F
