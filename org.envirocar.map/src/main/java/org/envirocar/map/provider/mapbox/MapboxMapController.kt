@@ -161,14 +161,14 @@ internal class MapboxMapController(private val viewInstance: MapView) : MapContr
             error("Marker with ID ${marker.id} already exists.")
         }
         var options = PointAnnotationOptions()
-        marker.point.also {
+        marker.point.let {
             options = options.withPoint(it.toMapboxPoint())
         }
-        marker.title?.also {
+        marker.title?.let {
             options = options.withTextField(it)
         }
         // Mapbox does not include a default marker icon.
-        (marker.drawable ?: R.drawable.marker_icon_default).also {
+        (marker.drawable ?: R.drawable.marker_icon_default).let {
             options = options.withIconImage(
                 AppCompatResources.getDrawable(viewInstance.context, it)!!.toBitmap()
             )
@@ -198,7 +198,7 @@ internal class MapboxMapController(private val viewInstance: MapView) : MapContr
                 lineColor(polyline.color)
                 lineBorderWidth(polyline.borderWidth.toDouble())
                 lineBorderColor(polyline.borderColor)
-                polyline.colors?.also {
+                polyline.colors?.let {
                     lineGradient(
                         interpolate {
                             linear()
