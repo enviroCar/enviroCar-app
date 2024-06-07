@@ -9,3 +9,4 @@ local.properties
 gradle-release.properties
 lcs-keystore
 */.settings/
+**/.DS_Store

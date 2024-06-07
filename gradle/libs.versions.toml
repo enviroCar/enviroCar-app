@@ -13,11 +13,14 @@ coreTesting = "1.1.1"
 dagger = "2.51.1"
 easypermissions = "3.0.0"
 envirocarAidl = "d67cfa49f3"
+espressoCore = "3.5.1"
 fabprogresscircle = "1.01"
 gson = "2.10.1"
 hellochartsLibrary = "1.5.8"
 jsr305 = "3.0.2"
 junit = "4.13.2"
+junitVersion = "1.1.5"
+kotlin = "1.9.0"
 legacySupportV4 = "1.0.0"
 licensePlugin = "0.16.1"
 lifecycleCompiler = "2.7.0"
@@ -58,6 +61,8 @@ androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "a
 androidx-cardview = { module = "androidx.cardview:cardview", version.ref = "cardview" }
 androidx-constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version.ref = "constraintlayout" }
 androidx-core = { module = "androidx.core:core", version.ref = "androidxCore" }
+androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-legacy-support-v4 = { module = "androidx.legacy:legacy-support-v4", version.ref = "legacySupportV4" }
 androidx-lifecycle-compiler = { module = "androidx.lifecycle:lifecycle-runtime", version.ref = "lifecycleCompiler" }
 androidx-lifecycle-extensions = { module = "androidx.lifecycle:lifecycle-extensions", version.ref = "lifecycleExtensions" }
@@ -107,4 +112,5 @@ transitionseverywhere = { module = "com.andkulikov:transitionseverywhere", versi
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
+jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 license-plugin = { id = "com.github.hierynomus.license", version.ref = "licensePlugin" }
