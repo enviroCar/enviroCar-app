@@ -186,7 +186,10 @@ abstract class AbstractTrackListCardAdapter<E : AbstractTrackListCardAdapter.Tra
             .run {
                 val factory = TrackMapFactory(track)
                 factory.cameraUpdateBasedOnBounds?.let { notifyCameraUpdate(it) }
-                factory.polyline?.let { addPolyline(it) }
+                factory.polyline?.let {
+                    clearPolylines()
+                    addPolyline(it)
+                }
             }
     }
 
