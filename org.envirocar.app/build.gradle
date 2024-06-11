@@ -1,5 +1,6 @@
 plugins {
-    alias libs.plugins.android.application
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.jetbrains.kotlin.android)
 }
 
 android {
@@ -144,9 +145,8 @@ dependencies {
     implementation libs.circleimageview
     implementation libs.easypermissions
 
-    // MapBox SDK.
-
-    implementation libs.mapbox.android.sdk
+    // TODO(alexmercerind): Remove after migration to org.envirocar.map.
+    implementation(libs.mapbox.android.sdk)
 
     // Testing.
 
@@ -172,11 +172,12 @@ dependencies {
 
     // Modules.
 
-    api project(path: ":org.envirocar.core")
-    api project(path: ":org.envirocar.remote")
-    api project(path: ":org.envirocar.obd")
-    api project(path: ":org.envirocar.storage")
     api project(path: ":org.envirocar.algorithm")
+    api project(path: ":org.envirocar.core")
+    api project(path: ":org.envirocar.map")
+    api project(path: ":org.envirocar.obd")
+    api project(path: ":org.envirocar.remote")
+    api project(path: ":org.envirocar.storage")
     implementation libs.envirocar.aidl
 }
 
@@ -189,4 +190,6 @@ configurations.configureEach {
             }
         }
     }
+    // TODO(alexmercerind): Remove after migration to org.envirocar.map.
+    exclude module: "mapbox-android-core"
 }
