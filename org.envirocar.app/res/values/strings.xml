@@ -185,7 +185,9 @@
     <!-- ###################### -->
     <!--    Extended MapView    -->
     <!-- ###################### -->
-    <string name="mapview_extended_select_phenomena">Attribut Selection</string>
+    <string name="mapview_extended_select_phenomena">Attribute Selection</string>
+
+    <string name="track_upload_active">Track upload active</string>
 
     <!-- ################# -->
     <!-- Campaign Profiles -->
@@ -197,11 +199,4 @@
         <item>@string/item_campaign_profile_default</item>
         <item>@string/item_campaign_profile_dvfo</item>
     </string-array>
-    
-    <!-- ###################### -->
-    <!--   Public Mapbox key    -->
-    <!-- ###################### -->
-    <string name="mapbox_access_token" tools:ignore="MissingTranslation">public_access_token</string>
-    <string name="track_upload_active">Track wird hochgeladen</string>
-
 </resources>
