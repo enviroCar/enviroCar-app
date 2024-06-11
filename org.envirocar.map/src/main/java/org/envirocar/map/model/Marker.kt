@@ -42,6 +42,10 @@ class Marker private constructor(
     }
 
     companion object {
+
+        /** Creates a [Marker] with default style. */
+        fun create(point: Point) = Builder(point).build()
+
         @Volatile
         private var count = 0
     }

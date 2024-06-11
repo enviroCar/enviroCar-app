@@ -67,6 +67,10 @@ class Polyline private constructor(
     }
 
     companion object {
+
+        /** Creates a [Polyline] with default style. */
+        fun default(points: List<Point>) = Builder(points).build()
+
         @Volatile
         private var count = 0
 
