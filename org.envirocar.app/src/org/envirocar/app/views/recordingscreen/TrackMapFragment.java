@@ -32,9 +32,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.mapbox.android.core.location.LocationEngineRequest;
-import com.mapbox.android.core.permissions.PermissionsListener;
-import com.mapbox.android.core.permissions.PermissionsManager;
+//import com.mapbox.android.core.location.LocationEngineRequest;
+//import com.mapbox.android.core.permissions.PermissionsListener;
+//import com.mapbox.android.core.permissions.PermissionsManager;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.geojson.LineString;
@@ -73,12 +73,12 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 /**
  * @author dewall
  */
-public class TrackMapFragment extends BaseInjectorFragment implements PermissionsListener {
+public class TrackMapFragment extends BaseInjectorFragment /* implements PermissionsListener */ {
     private static final Logger LOG = Logger.getLogger(TrackMapFragment.class);
 
     private FragmentTrackMapBinding binding;
 
-    private PermissionsManager permissionsManager;
+    // private PermissionsManager permissionsManager;
     private MapboxMap mapboxMap;
     private Style mapStyle;
     private LocationComponent locationComponent;
@@ -296,59 +296,59 @@ public class TrackMapFragment extends BaseInjectorFragment implements Permission
     @SuppressWarnings( {"MissingPermission"})
     private void enableLocationComponent(@NonNull Style loadedMapStyle) {
         // Check if permissions are enabled and if not request
-        if (PermissionsManager.areLocationPermissionsGranted(getContext())) {
-
-            // Get an instance of the component
-            locationComponent = mapboxMap.getLocationComponent();
-
-            // Activate with options
-            locationComponent.activateLocationComponent(
-                    LocationComponentActivationOptions
-                            .builder(getContext(), loadedMapStyle)
-                            .useDefaultLocationEngine(true)
-                            .locationEngineRequest(new LocationEngineRequest.Builder(750)
-                                    .setFastestInterval(750)
-                                    .setPriority(LocationEngineRequest.PRIORITY_HIGH_ACCURACY)
-                                    .build())
-                            .build());
-
-            // Enable to make component visible
-            locationComponent.setLocationComponentEnabled(true);
-
-            // Set the component's camera mode
-            locationComponent.setCameraMode(CameraMode.TRACKING);
-
-            // Set the component's render mode
-            locationComponent.setRenderMode(RenderMode.COMPASS);
-        } else {
-            permissionsManager = new PermissionsManager(this);
-            permissionsManager.requestLocationPermissions(getActivity());
-        }
+//        if (PermissionsManager.areLocationPermissionsGranted(getContext())) {
+//
+//            // Get an instance of the component
+//            locationComponent = mapboxMap.getLocationComponent();
+//
+//            // Activate with options
+//            locationComponent.activateLocationComponent(
+//                    LocationComponentActivationOptions
+//                            .builder(getContext(), loadedMapStyle)
+//                            .useDefaultLocationEngine(true)
+//                            .locationEngineRequest(new LocationEngineRequest.Builder(750)
+//                                    .setFastestInterval(750)
+//                                    .setPriority(LocationEngineRequest.PRIORITY_HIGH_ACCURACY)
+//                                    .build())
+//                            .build());
+//
+//            // Enable to make component visible
+//            locationComponent.setLocationComponentEnabled(true);
+//
+//            // Set the component's camera mode
+//            locationComponent.setCameraMode(CameraMode.TRACKING);
+//
+//            // Set the component's render mode
+//            locationComponent.setRenderMode(RenderMode.COMPASS);
+//        } else {
+//            permissionsManager = new PermissionsManager(this);
+//            permissionsManager.requestLocationPermissions(getActivity());
+//        }
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        permissionsManager.onRequestPermissionsResult(requestCode, permissions, grantResults);
+//        permissionsManager.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
-    @Override
-    public void onExplanationNeeded(List<String> permissionsToExplain) {
-        Toast.makeText(getContext(), getContext().getString(R.string.notification_location_access), Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void onPermissionResult(boolean granted) {
-        if (granted) {
-            mapboxMap.getStyle(new Style.OnStyleLoaded() {
-                @Override
-                public void onStyleLoaded(@NonNull Style style) {
-                    enableLocationComponent(style);
-                }
-            });
-        } else {
-            Toast.makeText(getContext(), getContext().getString(R.string.notification_location_access_not_granted), Toast.LENGTH_LONG).show();
-        }
-    }
+//    @Override
+//    public void onExplanationNeeded(List<String> permissionsToExplain) {
+//        Toast.makeText(getContext(), getContext().getString(R.string.notification_location_access), Toast.LENGTH_SHORT).show();
+//    }
+//
+//    @Override
+//    public void onPermissionResult(boolean granted) {
+//        if (granted) {
+//            mapboxMap.getStyle(new Style.OnStyleLoaded() {
+//                @Override
+//                public void onStyleLoaded(@NonNull Style style) {
+//                    enableLocationComponent(style);
+//                }
+//            });
+//        } else {
+//            Toast.makeText(getContext(), getContext().getString(R.string.notification_location_access_not_granted), Toast.LENGTH_LONG).show();
+//        }
+//    }
 
     @Override
     @SuppressWarnings( {"MissingPermission"})
