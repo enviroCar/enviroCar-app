@@ -25,7 +25,7 @@ abstract class AbstractTrackListCardAdapter<E : AbstractTrackListCardAdapter.Tra
     private val tracks: MutableList<Track>,
     private val callback: OnTrackInteractionCallback
 ) : RecyclerView.Adapter<E>() {
-    private val mapControllers = mutableMapOf<Track, MapController>()
+    private val mapControllers = mutableMapOf<String, MapController>()
 
     sealed class TrackCardViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         abstract val toolbar: Toolbar
@@ -68,23 +68,24 @@ abstract class AbstractTrackListCardAdapter<E : AbstractTrackListCardAdapter.Tra
 
     fun addTrack(track: Track) {
         tracks.add(track)
+        // [MapController] will be created when the view is bound.
         notifyItemInserted(tracks.indexOf(track))
     }
 
     fun removeTrack(track: Track) {
         val index = tracks.indexOf(track)
         tracks.remove(track)
+        mapControllers.remove(track.id)
         notifyItemRemoved(index)
     }
 
     fun clearTracks() {
         tracks.clear()
+        mapControllers.clear()
         notifyItemRangeRemoved(0, itemCount)
     }
 
     override fun getItemCount() = tracks.size
-
-    override fun getItemId(position: Int) = tracks[position].trackID.id
 
     override fun onBindViewHolder(holder: E, position: Int) {
         LOG.info("onBindViewHolder()")
@@ -181,12 +182,18 @@ abstract class AbstractTrackListCardAdapter<E : AbstractTrackListCardAdapter.Tra
         LOG.info("setupMapView()")
         // TODO(alexmercerind): Retrieve currently selected provider from a common repository.
         mapControllers
-            .getOrPut(track) { view.getController(MapboxMapProvider()) }
+            .getOrPut(track.id) { view.getController(MapboxMapProvider()) }
             .run {
                 val factory = TrackMapFactory(track)
                 factory.cameraUpdateBasedOnBounds?.let { notifyCameraUpdate(it) }
                 factory.polyline?.let { addPolyline(it) }
             }
+    }
+
+    val Track.id : String get() = when {
+        isLocalTrack -> trackID.id.toString()
+        isRemoteTrack -> remoteID.toString()
+        else -> error("Unknown track type.")
     }
 
     companion object {
