@@ -9,8 +9,10 @@ import androidx.recyclerview.widget.RecyclerView
 import org.envirocar.app.R
 import org.envirocar.app.databinding.FragmentTracklistCardlayoutLocalBinding
 import org.envirocar.app.databinding.FragmentTracklistCardlayoutRemoteBinding
+import org.envirocar.app.views.trackdetails.TrackMapFactory
 import org.envirocar.core.entity.Track
 import org.envirocar.core.logging.Logger
+import org.envirocar.map.MapController
 import org.envirocar.map.MapView
 import org.envirocar.map.provider.mapbox.MapboxMapProvider
 import java.text.DecimalFormat
@@ -23,6 +25,7 @@ abstract class AbstractTrackListCardAdapter<E : AbstractTrackListCardAdapter.Tra
     private val tracks: MutableList<Track>,
     private val callback: OnTrackInteractionCallback
 ) : RecyclerView.Adapter<E>() {
+    private val mapControllers = mutableMapOf<Track, MapController>()
 
     sealed class TrackCardViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         abstract val toolbar: Toolbar
@@ -176,8 +179,14 @@ abstract class AbstractTrackListCardAdapter<E : AbstractTrackListCardAdapter.Tra
 
     private fun setupMapView(view: MapView, track: Track) {
         LOG.info("setupMapView()")
-        // TODO(alexmercerind): Missing implementation.
-        runCatching { view.getController(MapboxMapProvider()) }
+        // TODO(alexmercerind): Retrieve currently selected provider from a common repository.
+        mapControllers
+            .getOrPut(track) { view.getController(MapboxMapProvider()) }
+            .run {
+                val factory = TrackMapFactory(track)
+                factory.cameraUpdateBasedOnBounds?.let { notifyCameraUpdate(it) }
+                factory.polyline?.let { addPolyline(it) }
+            }
     }
 
     companion object {
