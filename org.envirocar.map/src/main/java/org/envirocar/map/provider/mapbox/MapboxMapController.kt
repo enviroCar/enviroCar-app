@@ -3,12 +3,14 @@ package org.envirocar.map.provider.mapbox
 import android.view.View
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.graphics.drawable.toBitmap
+import com.google.gson.JsonPrimitive
 import com.mapbox.geojson.Feature
 import com.mapbox.geojson.LineString
 import com.mapbox.maps.CameraBoundsOptions
 import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.EdgeInsets
 import com.mapbox.maps.MapView
+import com.mapbox.maps.coroutine.cameraChangedEvents
 import com.mapbox.maps.extension.style.expressions.dsl.generated.interpolate
 import com.mapbox.maps.extension.style.layers.addLayerBelow
 import com.mapbox.maps.extension.style.layers.generated.lineLayer
@@ -22,17 +24,24 @@ import com.mapbox.maps.plugin.annotation.AnnotationConfig
 import com.mapbox.maps.plugin.annotation.annotations
 import com.mapbox.maps.plugin.annotation.generated.PointAnnotation
 import com.mapbox.maps.plugin.annotation.generated.PointAnnotationOptions
+import com.mapbox.maps.plugin.annotation.generated.PolygonAnnotation
+import com.mapbox.maps.plugin.annotation.generated.PolygonAnnotationOptions
 import com.mapbox.maps.plugin.annotation.generated.createPointAnnotationManager
+import com.mapbox.maps.plugin.annotation.generated.createPolygonAnnotationManager
 import com.mapbox.maps.plugin.attribution.attribution
 import com.mapbox.maps.plugin.compass.compass
 import com.mapbox.maps.plugin.logo.logo
 import com.mapbox.maps.plugin.scalebar.scalebar
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import org.envirocar.map.MapController
 import org.envirocar.map.R
 import org.envirocar.map.camera.CameraUpdate
+import org.envirocar.map.camera.MutableCameraState
 import org.envirocar.map.model.Animation
 import org.envirocar.map.model.Marker
 import org.envirocar.map.model.Point
+import org.envirocar.map.model.Polygon
 import org.envirocar.map.model.Polyline
 
 /**
@@ -41,14 +50,24 @@ import org.envirocar.map.model.Polyline
  * [Mapbox](https://www.mapbox.com) based implementation for [MapController].
  */
 internal class MapboxMapController(private val viewInstance: MapView) : MapController() {
+    override val camera = MutableCameraState()
     private val markers = mutableMapOf<Long, PointAnnotation>()
+    private val polygons = mutableMapOf<Long, PolygonAnnotation>()
     private val polylines = mutableSetOf<Long>()
 
     // https://docs.mapbox.com/android/maps/guides/annotations/annotations/
     // https://docs.mapbox.com/android/maps/examples/line-gradient/
     // PolylineAnnotationManager API is not sufficient to create polylines with gradients.
     private val pointAnnotationManager = viewInstance.annotations.createPointAnnotationManager(
-        AnnotationConfig(layerId = MAPBOX_MARKER_LAYER_ID)
+        AnnotationConfig(
+            layerId = MAPBOX_MARKER_LAYER_ID,
+        )
+    )
+    private val polygonAnnotationManager = viewInstance.annotations.createPolygonAnnotationManager(
+        AnnotationConfig(
+            layerId = MAPBOX_POLYGON_LAYER_ID,
+            belowLayerId = MAPBOX_MARKER_LAYER_ID
+        )
     )
 
     init {
@@ -68,6 +87,16 @@ internal class MapboxMapController(private val viewInstance: MapView) : MapContr
                 readyCompletableDeferred.complete(Unit)
             }
         }
+
+        // Forward the camera events from Mapbox to CameraState in MapController.
+        viewInstance.mapboxMap.cameraChangedEvents
+            .onEach {
+                camera.position.emit(it.cameraState.center.toPoint())
+                camera.bearing.emit(it.cameraState.bearing.toFloat())
+                camera.tilt.emit(it.cameraState.pitch.toFloat())
+                camera.zoom.emit(it.cameraState.zoom.toFloat())
+            }
+            .launchIn(scope)
     }
 
     override fun setMinZoom(minZoom: Float) = runWhenReady {
@@ -173,6 +202,12 @@ internal class MapboxMapController(private val viewInstance: MapView) : MapContr
                 AppCompatResources.getDrawable(viewInstance.context, it)!!.toBitmap()
             )
         }
+        marker.scale.let {
+            options = options.withIconSize(it.toDouble())
+        }
+        marker.rotation.let {
+            options = options.withIconRotate(it.toDouble())
+        }
         markers[marker.id] = pointAnnotationManager.create(options)
     }
 
@@ -217,6 +252,25 @@ internal class MapboxMapController(private val viewInstance: MapView) : MapContr
         )
     }
 
+    override fun addPolygon(polygon: Polygon) = runWhenReady {
+        if (polygons.contains(polygon.id)) {
+            error("Polygon with ID ${polygon.id} already exists.")
+        }
+        var options = PolygonAnnotationOptions()
+            .withData(JsonPrimitive("polygon-${polygon.id}"))
+        polygon.points.let {
+            options = options.withPoints(
+                listOf(
+                     it.map { point -> point.toMapboxPoint() }
+                )
+            )
+        }
+        polygon.color.let {
+            options = options.withFillColor(it)
+        }
+        polygons[polygon.id] = polygonAnnotationManager.create(options)
+    }
+
     override fun removeMarker(marker: Marker) = runWhenReady {
         if (!markers.contains(marker.id)) {
             error("Marker with ID ${marker.id} does not exist.")
@@ -233,12 +287,19 @@ internal class MapboxMapController(private val viewInstance: MapView) : MapContr
         viewInstance.mapboxMap.style?.removeStyleLayer(MAPBOX_POLYLINE_LAYER_ID + polyline.id)
     }
 
-    override fun clearMarkers() {
+    override fun removePolygon(polygon: Polygon) = runWhenReady {
+        if (!polygons.contains(polygon.id)) {
+            error("Polygon with ID ${polygon.id} does not exist.")
+        }
+        polygons.remove(polygon.id)?.also { polygonAnnotationManager.delete(it) }
+    }
+
+    override fun clearMarkers() = runWhenReady {
         markers.values.forEach { pointAnnotationManager.delete(it) }
         markers.clear()
     }
 
-    override fun clearPolylines() {
+    override fun clearPolylines() = runWhenReady {
         polylines.forEach {
             viewInstance.mapboxMap.style?.removeStyleSource(MAPBOX_POLYLINE_SOURCE_ID + it)
             viewInstance.mapboxMap.style?.removeStyleLayer(MAPBOX_POLYLINE_LAYER_ID + it)
@@ -246,7 +307,14 @@ internal class MapboxMapController(private val viewInstance: MapView) : MapContr
         polylines.clear()
     }
 
+    override fun clearPolygons() = runWhenReady {
+        polygons.values.forEach { polygonAnnotationManager.delete(it) }
+        polygons.clear()
+    }
+
     private fun Point.toMapboxPoint() = com.mapbox.geojson.Point.fromLngLat(longitude, latitude)
+
+    private fun com.mapbox.geojson.Point.toPoint() = Point(longitude(), latitude())
 
     private fun Float.toMapboxBearing() = this
         .times(MAPBOX_CAMERA_BEARING_MAX - MAPBOX_CAMERA_BEARING_MIN)
@@ -273,6 +341,7 @@ internal class MapboxMapController(private val viewInstance: MapView) : MapContr
         internal const val MAPBOX_CAMERA_ZOOM_MAX = 22.0F
 
         internal const val MAPBOX_MARKER_LAYER_ID = "marker-layer"
+        internal const val MAPBOX_POLYGON_LAYER_ID = "polygon-layer"
         internal const val MAPBOX_POLYLINE_LAYER_ID = "polyline-layer-"
         internal const val MAPBOX_POLYLINE_SOURCE_ID = "polyline-source-"
     }
