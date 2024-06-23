@@ -5,15 +5,17 @@ import androidx.annotation.ColorInt
 /**
  * [Polyline]
  * ----------
- * [Polyline] represents a line on the map.
+ * [Polyline] may be used to draw a polyline on the map.
  * Utilize [Polyline.Builder] to create a new [Polyline].
  *
- * @property id     The unique identifier.
- * @property points The list of geographical points that make up the polyline.
- * @property color  The color for displaying a single color polyline.
- * @property colors The list of colors for displaying a gradient polyline.
+ * @property id          The unique identifier.
+ * @property points      The list of geographical points that make up the polyline.
+ * @property color       The color for displaying a single color polyline.
+ * @property borderWidth The border width of the polyline.
+ * @property borderColor The border color of the polyline.
+ * @property colors      The list of colors for displaying a gradient polyline.
  */
-class Polyline private constructor(
+open class Polyline internal constructor(
     val id: Long,
     val points: List<Point>,
     val width: Float,

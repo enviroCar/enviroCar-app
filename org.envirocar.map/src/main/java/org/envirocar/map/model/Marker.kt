@@ -12,17 +12,23 @@ import androidx.annotation.DrawableRes
  * @property point    The geographical point.
  * @property title    The title of the marker.
  * @property drawable The drawable of the marker.
+ * @property scale    The scale of the marker.
+ * @property rotation The rotation of the marker.
  */
-class Marker private constructor(
+open class Marker internal constructor(
     val id: Long,
     val point: Point,
     val title: String?,
-    @DrawableRes val drawable: Int?
+    @DrawableRes val drawable: Int?,
+    val scale: Float,
+    val rotation: Float
 ) {
     class Builder(private val point: Point) {
         private var title: String? = null
         @DrawableRes
         private var drawable: Int? = null
+        private var scale: Float = 1.0F
+        private var rotation: Float = 0.0F
 
         /** Sets the title of the marker. */
         fun withTitle(value: String) = apply { title = value }
@@ -30,13 +36,21 @@ class Marker private constructor(
         /** Sets the drawable of the marker. */
         fun withDrawable(@DrawableRes value: Int) = apply { drawable = value }
 
+        /** Sets the scale of the marker. */
+        fun withScale(value: Float) = apply { scale = value }
+
+        /** Sets the rotation of the marker. */
+        fun withRotation(value: Float) = apply { rotation = value }
+
         /** Builds the marker. */
         fun build(): Marker {
             return Marker(
                 count++,
                 point,
                 title,
-                drawable
+                drawable,
+                scale,
+                rotation
             )
         }
     }
