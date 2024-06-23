@@ -14,6 +14,7 @@ object CameraUpdateFactory {
      *
      * @param point The geographical point.
      */
+    @JvmStatic
     fun newCameraUpdateBasedOnPoint(point: Point): CameraUpdate {
         return CameraUpdate.Companion.CameraUpdateBasedOnPoint(point)
     }
@@ -26,6 +27,7 @@ object CameraUpdateFactory {
      * @param points The geographical points specifying the bounds.
      * @param padding The padding in pixels.
      */
+    @JvmStatic
     fun newCameraUpdateBasedOnBounds(points: List<Point>, padding: Float): CameraUpdate {
         return CameraUpdate.Companion.CameraUpdateBasedOnBounds(points, padding)
     }
@@ -36,6 +38,7 @@ object CameraUpdateFactory {
      *
      * @param bearing The bearing of the camera.
      */
+    @JvmStatic
     fun newCameraUpdateBearing(bearing: Float): CameraUpdate {
         return CameraUpdate.Companion.CameraUpdateBearing(bearing)
     }
@@ -46,6 +49,7 @@ object CameraUpdateFactory {
      *
      * @param tilt The tilt of the camera.
      */
+    @JvmStatic
     fun newCameraUpdateTilt(tilt: Float): CameraUpdate {
         return CameraUpdate.Companion.CameraUpdateTilt(tilt)
     }
@@ -56,6 +60,7 @@ object CameraUpdateFactory {
      *
      * @param zoom The zoom level of the camera.
      */
+    @JvmStatic
     fun newCameraUpdateZoom(zoom: Float): CameraUpdate {
         return CameraUpdate.Companion.CameraUpdateZoom(zoom)
     }

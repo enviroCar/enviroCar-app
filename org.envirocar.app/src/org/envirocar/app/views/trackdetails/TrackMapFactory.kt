@@ -18,11 +18,11 @@ class TrackMapFactory(track: Track) {
         else -> track.measurements
     }
 
-    private val bounds = measurements?.let {
-        val latitudeMin = measurements.minOf { it.latitude }
-        val latitudeMax = measurements.maxOf { it.latitude }
-        val longitudeMin = measurements.minOf { it.longitude }
-        val longitudeMax = measurements.maxOf { it.longitude }
+    private val bounds = measurements?.run {
+        val latitudeMin = minOf { it.latitude }
+        val latitudeMax = maxOf { it.latitude }
+        val longitudeMin = minOf { it.longitude }
+        val longitudeMax = maxOf { it.longitude }
         val latitudeRatio = max((latitudeMax - latitudeMin) / 10.0, 0.01)
         val longitudeRatio = max((longitudeMax - longitudeMin) / 10.0, 0.01)
         listOf(
@@ -52,11 +52,25 @@ class TrackMapFactory(track: Track) {
             .build()
     }
 
+    val minZoom get() = 1.0F
+
+    val maxZoom get() = 18.0F
+
+    fun getGradientMinValue(key: Measurement.PropertyKey) = measurements?.run {
+        val values = map { if (it.hasProperty(key)) it.getProperty(key).toFloat() else 0.0F }
+        if (key == Measurement.PropertyKey.SPEED) 0.0F else values.min()
+    }
+
+    fun getGradientMaxValue(key: Measurement.PropertyKey) = measurements?.run {
+        val values = map { if (it.hasProperty(key)) it.getProperty(key).toFloat() else 0.0F }
+        values.max()
+    }
+
     fun getGradientPolyline(key: Measurement.PropertyKey) = measurements?.run {
         when {
             size > 2 -> {
-                val values = measurements.map { if (it.hasProperty(key)) it.getProperty(key).toFloat() else 0.0F }
-                val min = if (key == Measurement.PropertyKey.SPEED) 0.0 else values.min()
+                val values = map { if (it.hasProperty(key)) it.getProperty(key).toFloat() else 0.0F }
+                val min = if (key == Measurement.PropertyKey.SPEED) 0.0F else values.min()
                 val max = values.max()
                 val evaluator = ArgbEvaluator()
                 val colors = values.map { evaluator.evaluate(it / max, POLYLINE_COLORS_MIN, POLYLINE_COLORS_MAX) as Int }
