@@ -54,6 +54,7 @@ class LocationIndicator(
         if (enabled) {
             error("LocationIndicator is already enabled.")
         }
+        enabled = true
         locationManager = context.getSystemService(LocationManager::class.java)
         locationManager?.requestLocationUpdates(
             LocationManager.GPS_PROVIDER,
@@ -62,6 +63,7 @@ class LocationIndicator(
             this@LocationIndicator
         )
         location = locationManager?.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+        notifyUpdate()
     }
 
     /**
@@ -71,6 +73,7 @@ class LocationIndicator(
         if (!enabled) {
             error("LocationIndicator is already disabled.")
         }
+        enabled = false
         locationManager?.removeUpdates(this)
         location = null
         locationManager = null
@@ -92,9 +95,24 @@ class LocationIndicator(
                 clearMarkers()
                 clearPolygons()
 
-                markers.add(LocationPointMarker(it.toPoint()))
-                if (it.hasBearing()) markers.add(LocationBearingMarker(it.toPoint(), it.bearing))
-                if (it.hasAccuracy()) polygons.add(LocationAccuracyPolygon(it.toPoint(), it.accuracy))
+                markers.add(LocationPointMarker(it.toPoint(), context))
+                if (it.hasBearing()) {
+                    markers.add(
+                        LocationBearingMarker(
+                            it.toPoint(),
+                            it.bearing - controller.camera.bearing.value,
+                            context
+                        )
+                    )
+                }
+                if (it.hasAccuracy()) {
+                    polygons.add(
+                        LocationAccuracyPolygon(
+                            it.toPoint(),
+                            it.accuracy
+                        )
+                    )
+                }
 
                 markers.forEach { marker -> controller.addMarker(marker) }
                 polygons.forEach { polygon -> controller.addPolygon(polygon) }

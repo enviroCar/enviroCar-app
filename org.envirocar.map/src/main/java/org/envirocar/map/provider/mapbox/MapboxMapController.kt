@@ -35,7 +35,6 @@ import com.mapbox.maps.plugin.scalebar.scalebar
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import org.envirocar.map.MapController
-import org.envirocar.map.R
 import org.envirocar.map.camera.CameraUpdate
 import org.envirocar.map.camera.MutableCameraState
 import org.envirocar.map.model.Animation
@@ -196,11 +195,13 @@ internal class MapboxMapController(private val viewInstance: MapView) : MapContr
         marker.title?.let {
             options = options.withTextField(it)
         }
-        // Mapbox does not include a default marker icon.
-        (marker.drawable ?: R.drawable.marker_icon_default).let {
+        marker.drawable?.let {
             options = options.withIconImage(
                 AppCompatResources.getDrawable(viewInstance.context, it)!!.toBitmap()
             )
+        }
+        marker.bitmap?.let {
+            options = options.withIconImage(it)
         }
         marker.scale.let {
             options = options.withIconSize(it.toDouble())

@@ -16,5 +16,5 @@ sealed class LocationIndicatorCameraMode {
     /**
      * Camera updates to the current location.
      */
-    data class Follow(val animation: Animation) : LocationIndicatorCameraMode()
+    data class Follow(val animation: Animation = Animation.Builder().build()) : LocationIndicatorCameraMode()
 }
