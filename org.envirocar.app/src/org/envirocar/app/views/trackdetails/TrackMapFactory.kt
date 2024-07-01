@@ -10,9 +10,9 @@ import org.envirocar.map.model.Point
 import org.envirocar.map.model.Polyline
 import kotlin.math.max
 
-class TrackMapFactory(track: Track) {
+class TrackMapFactory(private val track: Track) {
 
-    private val measurements = when {
+    private val measurements get() = when {
         track.measurements == null -> null
         track.measurements.isEmpty() -> null
         else -> track.measurements
@@ -31,21 +31,21 @@ class TrackMapFactory(track: Track) {
         )
     }
 
-    val cameraUpdateBasedOnBounds = bounds?.run { CameraUpdateFactory.newCameraUpdateBasedOnBounds(bounds, 50.0F) }
+    val cameraUpdateBasedOnBounds get() = bounds?.let { CameraUpdateFactory.newCameraUpdateBasedOnBounds(it, 50.0F) }
 
-    val startMarker = measurements?.run {
+    val startMarker get() = measurements?.run {
         Marker.Builder(Point(first().latitude, first().longitude))
             .withDrawable(R.drawable.start_marker)
             .build()
     }
 
-    val stopMarker = measurements?.run {
+    val stopMarker get() = measurements?.run {
         Marker.Builder(Point(last().latitude, last().longitude))
             .withDrawable(R.drawable.stop_marker)
             .build()
     }
 
-    val polyline = measurements?.run {
+    val polyline get() = measurements?.run {
         Polyline.Builder(map { Point(it.latitude, it.longitude) })
             .withWidth(POLYLINE_WIDTH)
             .withColor(POLYLINE_COLOR)

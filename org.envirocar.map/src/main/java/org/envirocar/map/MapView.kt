@@ -19,6 +19,7 @@ class MapView : FrameLayout {
     constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
     constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) : super(context, attrs, defStyleAttr, defStyleRes)
 
+    private val lock = Any()
     private lateinit var instance: MapProvider
 
     /**
@@ -27,7 +28,7 @@ class MapView : FrameLayout {
      * @param mapProvider The [MapProvider] to use for the [MapView] instance.
      * @return The [MapController] associated with the [MapView] instance.
      */
-    fun getController(mapProvider: MapProvider): MapController {
+    fun getController(mapProvider: MapProvider): MapController = synchronized(lock) {
         if (!::instance.isInitialized) {
             instance = mapProvider
             addView(
@@ -39,7 +40,6 @@ class MapView : FrameLayout {
                     )
                 }
             )
-
             // Restore default camera state independent of the provider.
             with(instance.getController()) {
                 listOf(
@@ -51,9 +51,6 @@ class MapView : FrameLayout {
                     notifyCameraUpdate(it)
                 }
             }
-
-        } else if (instance != mapProvider) {
-            error("MapView is already initialized with a different MapProvider.")
         }
         return instance.getController()
     }
