@@ -25,6 +25,10 @@ class Animation private constructor(
         }
 
         companion object {
+
+            /** Creates an [Animation] with default style. */
+            fun default() = Builder().build()
+
             private const val DEFAULT_DURATION = 1000L
         }
     }

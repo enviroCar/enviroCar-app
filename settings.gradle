@@ -40,11 +40,11 @@ dependencyResolutionManagement {
 
 rootProject.name = "enviroCar"
 
+include ":org.envirocar.algorithm"
 include ":org.envirocar.app"
 include ":org.envirocar.core"
 include ":org.envirocar.map"
 include ":org.envirocar.obd"
 include ":org.envirocar.remote"
 include ":org.envirocar.storage"
-include ":org.envirocar.algorithm"
 include ":android-obd-simulator"

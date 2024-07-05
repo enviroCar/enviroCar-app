@@ -26,8 +26,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
 
-import com.mapbox.mapboxsdk.Mapbox;
-
 import org.acra.ACRA;
 import org.acra.BuildConfig;
 import org.acra.annotation.AcraCore;
@@ -93,8 +91,6 @@ public class BaseApplication extends Application {
         super.onCreate();
         // hack
         Logger.addFileHandlerLocation(getFilesDir().getAbsolutePath());
-
-        Mapbox.getInstance(this, "");
 
         baseApplicationComponent =
                 DaggerBaseApplicationComponent

@@ -14,7 +14,7 @@ import androidx.annotation.DrawableRes
  * @property drawable The drawable of the marker.
  */
 class Marker private constructor(
-    val id: Int,
+    val id: Long,
     val point: Point,
     val title: String?,
     @DrawableRes val drawable: Int?
@@ -42,7 +42,11 @@ class Marker private constructor(
     }
 
     companion object {
+
+        /** Creates a [Marker] with default style. */
+        fun default(point: Point) = Builder(point).build()
+
         @Volatile
-        private var count = 0
+        private var count = 0L
     }
 }

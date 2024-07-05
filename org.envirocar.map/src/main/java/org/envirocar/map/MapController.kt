@@ -101,6 +101,12 @@ abstract class MapController {
     /** Removes a [Polyline] from the [MapView]. */
     abstract fun removePolyline(polyline: Polyline)
 
+    /** Removes all [Marker]s from the [MapView]. */
+    abstract fun clearMarkers()
+
+    /** Removes all [Polyline]s from the [MapView]. */
+    abstract fun clearPolylines()
+
     /**
      * Executes the specified [block] once [readyCompletableDeferred] is completed.
      * The order of execution for subsequent calls is preserved.

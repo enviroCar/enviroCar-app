@@ -14,7 +14,7 @@ import androidx.annotation.ColorInt
  * @property colors The list of colors for displaying a gradient polyline.
  */
 class Polyline private constructor(
-    val id: Int,
+    val id: Long,
     val points: List<Point>,
     val width: Float,
     @ColorInt val color: Int,
@@ -67,8 +67,12 @@ class Polyline private constructor(
     }
 
     companion object {
+
+        /** Creates a [Polyline] with default style. */
+        fun default(points: List<Point>) = Builder(points).build()
+
         @Volatile
-        private var count = 0
+        private var count = 0L
 
         private const val DEFAULT_WIDTH = 2.0F
         private const val DEFAULT_COLOR = 0xFF000000.toInt()

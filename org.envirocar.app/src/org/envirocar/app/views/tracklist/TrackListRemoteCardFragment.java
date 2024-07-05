@@ -84,19 +84,6 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<T
     }
 
     @Override
-    public void onLowMemory() {
-        super.onLowMemory();
-        mRecyclerViewAdapter.onLowMemory();
-
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        mRecyclerViewAdapter.onDestroy();
-    }
-
-    @Override
     public void onDestroyView() {
         LOG.info("onDestroyView()");
         super.onDestroyView();
@@ -173,8 +160,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<T
     public void onReceiveNewUserSettingsEvent(NewUserSettingsEvent event) {
         if (!event.mIsLoggedIn) {
             mMainThreadWorker.schedule(() -> {
-                mRecyclerViewAdapter.mTrackDataset.clear();
-                mRecyclerViewAdapter.notifyDataSetChanged();
+                mRecyclerViewAdapter.clearTracks();
                 tracksLoaded = false;
             });
         }
@@ -184,8 +170,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<T
     public void onReceiveTrackchunkEndUploadedEvent(TrackchunkEndUploadedEvent event) {
         LOG.info("Received TrackchunkEndUploadedEvent");
         mMainThreadWorker.schedule(() -> {
-            mRecyclerViewAdapter.mTrackDataset.clear();
-            mRecyclerViewAdapter.notifyDataSetChanged();
+            mRecyclerViewAdapter.clearTracks();
             tracksLoaded = false;
         });
     }
@@ -196,8 +181,11 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<T
                 (AbstractTrackListCardAdapter.RemoteTrackCardViewHolder) viewHolder;
 
         // Show the downloading text notification.
-        ECAnimationUtils.animateShowView(getActivity(), holder.getDownloadNotification(),
-                R.anim.fade_in);
+        ECAnimationUtils.animateShowView(
+                getActivity(),
+                holder.getDownloadingNotification(),
+                R.anim.fade_in
+        );
         holder.getProgressCircle().show();
         track.setDownloadState(Track.DownloadState.DOWNLOADING);
 
@@ -212,14 +200,21 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<T
                         holder.getProgressCircle().attachListener(() -> {
                             // When the visualization is finished, then Init the
                             // content view including its mapview and track details.
-                            mRecyclerViewAdapter.bindLocalTrackViewHolder(holder, track);
+                            mRecyclerViewAdapter.bindTrackCardViewHolder(holder, track);
 
                             // and hide the download button
-                            ECAnimationUtils.animateHideView(getActivity(), R.anim.fade_out,
-                                    holder.getProgressCircle(), holder.getDownloadButton(), holder
-                                            .getDownloadNotification());
-                            ECAnimationUtils.animateShowView(getActivity(), holder.getContentView(), R
-                                    .anim.fade_in);
+                            ECAnimationUtils.animateHideView(
+                                    getActivity(),
+                                    R.anim.fade_out,
+                                    holder.getProgressCircle(),
+                                    holder.getDownloadFab(),
+                                    holder.getDownloadingNotification()
+                            );
+                            ECAnimationUtils.animateShowView(
+                                    getActivity(),
+                                    holder.getContentView(),
+                                    R.anim.fade_in
+                            );
                         });
                     }
 
@@ -229,8 +224,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<T
                         showSnackbar(R.string.track_list_communication_error);
                         holder.getProgressCircle().hide();
                         track.setDownloadState(Track.DownloadState.DOWNLOADING);
-                        holder.getDownloadNotification().setText(
-                                R.string.track_list_error_while_downloading);
+                        holder.getDownloadingNotification().setText(R.string.track_list_error_while_downloading);
                     }
 
                     @Override
@@ -427,8 +421,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<T
                     R.string.track_list_bg_not_logged_in_sub);
             mProgressView.setVisibility(View.INVISIBLE);
             mRecyclerView.setVisibility(View.GONE);
-            mRecyclerViewAdapter.mTrackDataset.clear();
-            mRecyclerViewAdapter.notifyDataSetChanged();
+            mRecyclerViewAdapter.clearTracks();
         } else {
             mRecyclerView.setVisibility(View.VISIBLE);
 
