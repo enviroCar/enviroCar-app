@@ -1,4 +1,4 @@
-package org.envirocar.map.location
+package org.envirocar.map.location.annotation
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -9,13 +9,12 @@ import org.envirocar.map.model.Marker
 import org.envirocar.map.model.Point
 
 /**
- *  [LocationBearingMarker]
+ *  [LocationPointMarker]
  *  -------------------------
- *  The [Marker] used to display the current location's bearing.
+ *  The [Marker] used to display the current location.
  */
-internal class LocationBearingMarker(
+internal class LocationPointMarker(
     point: Point,
-    bearing: Float,
     context: Context
 ) : Marker(
     ID,
@@ -23,11 +22,11 @@ internal class LocationBearingMarker(
     TITLE,
     DRAWABLE,
     bitmap ?: synchronized(lock) {
-         bitmap ?: AppCompatResources.getDrawable(context, R.drawable.location_bearing)!!.toBitmap()
-             .also { bitmap = it }
+        bitmap ?: AppCompatResources.getDrawable(context, R.drawable.location_point)!!.toBitmap()
+            .also { bitmap = it }
     },
     SCALE,
-    bearing
+    ROTATION
 ) {
 
     companion object {
@@ -36,9 +35,10 @@ internal class LocationBearingMarker(
         @Volatile
         private var bitmap: Bitmap? = null
 
-        private const val ID = -0xBL
+        private const val ID = -0xCL
         private val TITLE = null
         private val DRAWABLE = null
-        private const val SCALE = 0.2F
+        private const val SCALE = 0.18F
+        private const val ROTATION = 0.0F
     }
 }

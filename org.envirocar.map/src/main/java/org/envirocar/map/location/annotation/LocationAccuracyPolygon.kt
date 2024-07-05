@@ -1,4 +1,4 @@
-package org.envirocar.map.location
+package org.envirocar.map.location.annotation
 
 import androidx.annotation.ColorInt
 import org.envirocar.map.model.Point
