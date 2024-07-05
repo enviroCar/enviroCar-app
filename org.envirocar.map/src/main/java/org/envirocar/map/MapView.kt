@@ -2,10 +2,13 @@ package org.envirocar.map
 
 import android.content.Context
 import android.util.AttributeSet
+import android.view.KeyEvent
+import android.view.MotionEvent
 import android.view.View
 import android.widget.FrameLayout
 import org.envirocar.map.camera.CameraUpdateFactory
 import org.envirocar.map.model.Point
+
 
 /**
  * [MapView]
@@ -21,6 +24,18 @@ class MapView : FrameLayout {
 
     private val lock = Any()
     private lateinit var instance: MapProvider
+    private lateinit var listener: OnTouchListener
+
+    override fun dispatchTouchEvent(event: MotionEvent): Boolean {
+        if (event.action == MotionEvent.ACTION_UP) {
+            if (listener != null) listener.onTouch(this, event)
+        }
+        return super.dispatchTouchEvent(event)
+    }
+
+    override fun setOnTouchListener(listener: OnTouchListener?) {
+        this.listener = listener!!
+    }
 
     /**
      * Initializes the instance with the specified [MapProvider].
