@@ -2,6 +2,7 @@ package org.envirocar.map.location
 
 import android.content.Context
 import android.location.Location
+import androidx.annotation.CallSuper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -31,18 +32,20 @@ open class BaseLocationIndicator(
     private val context: Context,
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.Main)
 ) {
+    internal var location: Location? = null
+
     private val markers = mutableListOf<Marker>()
     private val polygons = mutableListOf<Polygon>()
 
-    private var lock = Any()
+    private val lock = Any()
     private var enabled = false
-    private var location: Location? = null
     private var locationIndicatorCameraMode: LocationIndicatorCameraMode = LocationIndicatorCameraMode.None
     private var followCameraDebounceJob: Job? = null
 
     /**
      * Enables the location indicator.
      */
+    @CallSuper
     open fun enable() {
         if (enabled) {
             error("LocationIndicator is already enabled.")
@@ -54,6 +57,7 @@ open class BaseLocationIndicator(
     /**
      * Disables the location indicator.
      */
+    @CallSuper
     open fun disable() {
         if (!enabled) {
             error("LocationIndicator is already disabled.")
@@ -75,26 +79,28 @@ open class BaseLocationIndicator(
     /**
      * Notifies about the current user location to update the [MapView].
      */
-    fun notifyLocation(location: Location) = synchronized(lock) {
+    fun notifyLocation(value: Location) = synchronized(lock) {
+        location = value
         if (enabled) {
+
             clearMarkers()
             clearPolygons()
 
-            markers.add(LocationPointMarker(location.toPoint(), context))
-            if (location.hasBearing()) {
+            markers.add(LocationPointMarker(value.toPoint(), context))
+            if (value.hasBearing()) {
                 markers.add(
                     LocationBearingMarker(
-                        location.toPoint(),
-                        location.bearing - controller.camera.bearing.value,
+                        value.toPoint(),
+                        value.bearing - controller.camera.bearing.value,
                         context
                     )
                 )
             }
-            if (location.hasAccuracy()) {
+            if (value.hasAccuracy()) {
                 polygons.add(
                     LocationAccuracyPolygon(
-                        location.toPoint(),
-                        location.accuracy
+                        value.toPoint(),
+                        value.accuracy
                     )
                 )
             }
@@ -102,21 +108,32 @@ open class BaseLocationIndicator(
             markers.forEach { marker -> controller.addMarker(marker) }
             polygons.forEach { polygon -> controller.addPolygon(polygon) }
 
-            followCameraIfRequired(location)
+            followCameraIfRequired(value)
         }
     }
 
     private fun followCameraIfRequired(location: Location) {
         locationIndicatorCameraMode.let { value ->
             if (value is LocationIndicatorCameraMode.Follow) {
-                followCameraDebounceJob?.cancel()
-                followCameraDebounceJob = scope.launch {
-                    delay(FOLLOW_CAMERA_DEBOUNCE_DELAY)
-                    val point = location.toPoint()
-                    controller.notifyCameraUpdate(
-                        CameraUpdateFactory.newCameraUpdateBasedOnPoint(point),
-                        animation = value.animation
-                    )
+                if (followCameraDebounceJob?.isActive != true) {
+                    followCameraDebounceJob = scope.launch {
+                        val cameraUpdate = if (location.hasBearing()) {
+                            CameraUpdateFactory.newCameraUpdateBasedOnPointAndBearing(
+                                location.toPoint(),
+                                location.bearing,
+                            )
+                        } else {
+                            CameraUpdateFactory.newCameraUpdateBasedOnPoint(
+                                location.toPoint()
+                            )
+                        }
+
+                        controller.notifyCameraUpdate(
+                            cameraUpdate,
+                            animation = value.animation
+                        )
+                        delay(value.animation.duration)
+                    }
                 }
             }
         }
@@ -140,7 +157,4 @@ open class BaseLocationIndicator(
 
     private fun Location.toPoint() = Point(latitude, longitude)
 
-    companion object {
-        private const val FOLLOW_CAMERA_DEBOUNCE_DELAY = 200L
-    }
 }
