@@ -38,6 +38,20 @@ sealed interface CameraUpdate {
         ) : CameraUpdate
 
         /**
+         * [CameraUpdateBasedOnPointAndBearing]
+         * --------------------------
+         * Camera update to transform the camera so that the point is centered on screen & the
+         * bearing is set to the specified value.
+         *
+         * @param point The geographical point.
+         * @param bearing The bearing of the camera.
+         */
+        internal data class CameraUpdateBasedOnPointAndBearing(
+            val point: Point,
+            val bearing: Float
+        ) : CameraUpdate
+
+        /**
          * [CameraUpdateBearing]
          * ---------------------
          * Camera update to transform the camera so that the bearing is set to the specified value.

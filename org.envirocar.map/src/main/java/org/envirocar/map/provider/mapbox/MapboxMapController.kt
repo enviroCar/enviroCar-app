@@ -156,6 +156,15 @@ internal class MapboxMapController(private val viewInstance: MapView) : MapContr
                     )
                 }
 
+                is CameraUpdate.Companion.CameraUpdateBasedOnPointAndBearing -> {
+                    setOrEaseCamera(
+                        CameraOptions.Builder()
+                            .center(point.toMapboxPoint())
+                            .bearing(bearing.toMapboxBearing())
+                            .build()
+                    )
+                }
+
                 is CameraUpdate.Companion.CameraUpdateBearing -> {
                     setOrEaseCamera(
                         CameraOptions.Builder()
