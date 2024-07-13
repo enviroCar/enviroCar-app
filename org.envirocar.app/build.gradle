@@ -145,9 +145,6 @@ dependencies {
     implementation libs.circleimageview
     implementation libs.easypermissions
 
-    // TODO(alexmercerind): Remove after migration to org.envirocar.map.
-    implementation(libs.mapbox.android.sdk)
-
     // Testing.
 
     testImplementation libs.junit
@@ -190,6 +187,4 @@ configurations.configureEach {
             }
         }
     }
-    // TODO(alexmercerind): Remove after migration to org.envirocar.map.
-    exclude module: "mapbox-android-core"
 }
