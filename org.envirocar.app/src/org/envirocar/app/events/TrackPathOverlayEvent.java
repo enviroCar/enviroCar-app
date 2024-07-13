@@ -18,26 +18,23 @@
  */
 package org.envirocar.app.events;
 
-import org.envirocar.app.views.trackdetails.MapLayer;
+import org.envirocar.map.model.Point;
+
+import java.util.List;
 
 /**
  * @author dewall
  */
 public class TrackPathOverlayEvent {
 
-    public final MapLayer mTrackOverlay;
+    public final List<Point> points;
 
     /**
      * Constructor.
      *
-     * @param mTrackOverlay
+     * @param points The list of points recorded as part of the track.
      */
-    public TrackPathOverlayEvent(MapLayer mTrackOverlay) {
-        this.mTrackOverlay = mTrackOverlay;
-    }
-
-    @Override
-    public String toString() {
-        return super.toString();
+    public TrackPathOverlayEvent(List<Point> points) {
+        this.points = points;
     }
 }

@@ -18,8 +18,6 @@
  */
 package org.envirocar.app.views.logbook;
 
-import static com.mapbox.mapboxsdk.Mapbox.getApplicationContext;
-
 import android.app.Activity;
 import android.os.Bundle;
 import android.text.InputFilter;
@@ -217,7 +215,7 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
         addFuelingTotalCostText.setError(null);
         addFuelingVolumeText.setError(null);
 
-        if (!new ContextInternetAccessProvider(getApplicationContext()).isConnected()){
+        if (!new ContextInternetAccessProvider(requireActivity().getApplicationContext()).isConnected()){
             closeThisFragment();
             showSnackbarInfo(R.string.error_not_connected_to_network);
         }
