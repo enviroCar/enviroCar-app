@@ -31,9 +31,8 @@ import org.envirocar.map.MapView
  */
 class LocationIndicator(
     private val controller: MapController,
-    private val context: Context,
-    private val scope: CoroutineScope = CoroutineScope(Dispatchers.Main)
-) : BaseLocationIndicator(controller, context, scope), LocationListener, SensorEventListener {
+    private val context: Context
+) : BaseLocationIndicator(controller, context), LocationListener, SensorEventListener {
     private val lock = Any()
 
     private var locationManager: LocationManager? = null

@@ -29,8 +29,7 @@ import org.envirocar.map.model.Polygon
  */
 open class BaseLocationIndicator(
     private val controller: MapController,
-    private val context: Context,
-    private val scope: CoroutineScope = CoroutineScope(Dispatchers.Main)
+    private val context: Context
 ) {
     internal var location: Location? = null
 
@@ -38,6 +37,8 @@ open class BaseLocationIndicator(
     private val polygons = mutableListOf<Polygon>()
 
     private val lock = Any()
+    private val scope = CoroutineScope(Dispatchers.Main)
+
     private var enabled = false
     private var locationIndicatorCameraMode: LocationIndicatorCameraMode = LocationIndicatorCameraMode.None
     private var followCameraDebounceJob: Job? = null
