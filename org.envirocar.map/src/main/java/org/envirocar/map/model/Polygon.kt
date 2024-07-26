@@ -8,21 +8,27 @@ import androidx.annotation.ColorInt
  * [Polygon] may be used to draw a polygon on the map.
  * Utilize [Polygon.Builder] to create a new [Polygon].
  *
- * @property id     The unique identifier.
- * @property points The list of geographical points that make up the polygon.
- * @property color  The fill color for the polygon.
+ * @property id      The unique identifier.
+ * @property points  The list of geographical points that make up the polygon.
+ * @property color   The fill color for the polygon.
+ * @property opacity The opacity of the polygon.
  */
 open class Polygon internal constructor(
     val id: Long,
     val points: List<Point>,
-    @ColorInt val color: Int
+    @ColorInt val color: Int,
+    val opacity: Float
 ) {
     class Builder(private val points: List<Point>) {
         @ColorInt
         private var color: Int = DEFAULT_COLOR
+        private var opacity: Float = DEFAULT_OPACITY
 
         /** Sets the fill color for the polygon. */
         fun withColor(@ColorInt value: Int) = apply { color = value }
+
+        /** Sets the fill opacity for the polygon. */
+        fun withOpacity(value: Float) = apply { opacity = value }
 
         /** Builds the polygon. */
         fun build(): Polygon {
@@ -32,7 +38,8 @@ open class Polygon internal constructor(
             return Polygon(
                 count++,
                 points,
-                color
+                color,
+                opacity
             )
         }
     }
@@ -46,5 +53,6 @@ open class Polygon internal constructor(
         private var count = 0L
 
         private const val DEFAULT_COLOR = 0xFF000000.toInt()
+        private const val DEFAULT_OPACITY = 1.0F
     }
 }
