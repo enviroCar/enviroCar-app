@@ -39,4 +39,8 @@ dependencies {
 
     // Provider: Mapbox
     implementation(libs.mapbox.maps.android)
+
+    // Provider: MapLibre
+    implementation(libs.maplibre.gl.android.sdk)
+    implementation(libs.maplibre.gl.android.plugin.annotation.v9)
 }
