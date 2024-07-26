@@ -48,6 +48,6 @@ class MapboxMapProvider(
     }
 
     companion object {
-        private const val DEFAULT_STYLE = "mapbox://styles/mapbox/streets-v12"
+        const val DEFAULT_STYLE = "mapbox://styles/mapbox/streets-v12"
     }
 }
