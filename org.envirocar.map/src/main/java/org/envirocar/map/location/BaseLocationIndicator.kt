@@ -87,7 +87,6 @@ open class BaseLocationIndicator(
             clearMarkers()
             clearPolygons()
 
-            markers.add(LocationPointMarker(value.toPoint(), context))
             if (value.hasBearing()) {
                 markers.add(
                     LocationBearingMarker(
@@ -96,6 +95,8 @@ open class BaseLocationIndicator(
                         context
                     )
                 )
+            } else {
+                markers.add(LocationPointMarker(value.toPoint(), context))
             }
             if (value.hasAccuracy()) {
                 polygons.add(
