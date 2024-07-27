@@ -1,4 +1,6 @@
-.idea/
+**/.idea/**
+!.idea/.name
+!.idea/icon.svg
 build/
 */build/
 .gradle/
