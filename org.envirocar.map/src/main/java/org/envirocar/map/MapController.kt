@@ -5,12 +5,15 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import org.envirocar.map.camera.CameraState
 import org.envirocar.map.camera.CameraUpdate
 import org.envirocar.map.camera.CameraUpdateFactory
 import org.envirocar.map.model.Animation
 import org.envirocar.map.model.Marker
 import org.envirocar.map.model.Point
+import org.envirocar.map.model.Polygon
 import org.envirocar.map.model.Polyline
 
 /**
@@ -33,6 +36,7 @@ import org.envirocar.map.model.Polyline
  * @see Animation
  * @see Marker
  * @see Point
+ * @see Polygon
  * @see Polyline
  */
 abstract class MapController {
@@ -40,8 +44,11 @@ abstract class MapController {
     private var queueLock = Any()
     private var job: Job? = null
     private val queue = mutableListOf<() -> Unit>()
-    private val scope = CoroutineScope(Dispatchers.Main)
+    internal val scope = CoroutineScope(Dispatchers.Main)
     internal val readyCompletableDeferred: CompletableDeferred<Unit> = CompletableDeferred()
+
+    /** [CameraState] provides access to various camera attributes as [StateFlow]. */
+    abstract val camera: CameraState
 
     /** Sets the minimum zoom level. */
     @CallSuper
@@ -95,17 +102,26 @@ abstract class MapController {
     /** Adds a [Polyline] to the [MapView]. */
     abstract fun addPolyline(polyline: Polyline)
 
+    /** Adds a [Polygon] from the [MapView]. */
+    abstract fun addPolygon(polygon: Polygon)
+
     /** Removes a [Marker] from the [MapView]. */
     abstract fun removeMarker(marker: Marker)
 
     /** Removes a [Polyline] from the [MapView]. */
     abstract fun removePolyline(polyline: Polyline)
 
+    /** Removes a [Polygon] from the [MapView]. */
+    abstract fun removePolygon(polygon: Polygon)
+
     /** Removes all [Marker]s from the [MapView]. */
     abstract fun clearMarkers()
 
     /** Removes all [Polyline]s from the [MapView]. */
     abstract fun clearPolylines()
+
+    /** Removes all [Polygon]s from the [MapView]. */
+    abstract fun clearPolygons()
 
     /**
      * Executes the specified [block] once [readyCompletableDeferred] is completed.

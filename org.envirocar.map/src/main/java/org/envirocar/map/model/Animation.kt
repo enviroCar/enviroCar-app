@@ -8,7 +8,7 @@ package org.envirocar.map.model
  *
  * @property duration The duration of the animation (in milliseconds).
  */
-class Animation private constructor(
+open class Animation internal constructor(
     val duration: Long
 ) {
     class Builder {

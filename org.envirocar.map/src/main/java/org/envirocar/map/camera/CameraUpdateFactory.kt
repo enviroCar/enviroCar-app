@@ -33,6 +33,18 @@ object CameraUpdateFactory {
     }
 
     /**
+     * Creates a [CameraUpdate] to transform the camera so that the point is centered on screen & the
+     * bearing is set to the specified value.
+     *
+     * @param point The geographical point.
+     * @param bearing The bearing of the camera.
+     */
+    @JvmStatic
+    fun newCameraUpdateBasedOnPointAndBearing(point: Point, bearing: Float): CameraUpdate {
+        return CameraUpdate.Companion.CameraUpdateBasedOnPointAndBearing(point, bearing)
+    }
+
+    /**
      * Creates a [CameraUpdate] to transform the camera so that the bearing is set to the specified value.
      * Minimum bearing value is 0 and maximum bearing value is 360.
      *

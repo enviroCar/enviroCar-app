@@ -8,7 +8,7 @@ android {
     compileSdk = 34
 
     defaultConfig {
-        minSdk = 21
+        minSdk = 23
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
@@ -38,5 +38,5 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
 
     // Provider: Mapbox
-    implementation("com.mapbox.maps:android:11.4.0")
+    implementation(libs.mapbox.maps.android)
 }

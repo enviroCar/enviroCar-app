@@ -26,7 +26,7 @@ licensePlugin = "0.16.1"
 lifecycleCompiler = "2.7.0"
 lifecycleExtensions = "2.2.0"
 lifecycleRuntime = "2.7.0"
-mapboxAndroidSdk = "9.2.1"
+mapboxMapsAndroid = "11.4.0"
 material = "1.12.0"
 mockitoCore = "5.7.0"
 opencsv = "4.6"
@@ -88,7 +88,7 @@ gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 hellocharts-library = { module = "com.github.lecho:hellocharts-library", version.ref = "hellochartsLibrary" }
 jsr305 = { module = "com.google.code.findbugs:jsr305", version.ref = "jsr305" }
 junit = { module = "junit:junit", version.ref = "junit" }
-mapbox-android-sdk = { module = "com.mapbox.mapboxsdk:mapbox-android-sdk", version.ref = "mapboxAndroidSdk" }
+mapbox-maps-android = { module = "com.mapbox.maps:android", version.ref = "mapboxMapsAndroid" }
 material = { module = "com.google.android.material:material", version.ref = "material" }
 material-dialogs-core = { module = "com.afollestad.material-dialogs:core", version.ref = "afollestadCore" }
 mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockitoCore" }

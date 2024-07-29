@@ -122,7 +122,6 @@ public class MapExpandedActivity extends BaseInjectorActivity {
         legendEnd = binding.legendEnd;
         legendName = binding.legendUnit;
 
-        // TODO(alexmercerind): Switch to camera API in feature/location-indicator.
         mMapViewExpanded.setOnTouchListener((v, event) -> onTouchMapView());
         mCentreFab.setOnClickListener(v -> onClickFollowFab());
         mVisualiseFab.setOnClickListener(v -> onClickVisualiseFab());
