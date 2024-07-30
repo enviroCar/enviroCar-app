@@ -10,8 +10,6 @@ import android.view.View
  * Currently available providers are:
  * * `MapboxMapProvider`
  * * `MapLibreMapProvider`
- * * `OsmDroidMapProvider`
- * * `GoogleMapProvider`
  *
  * Each provider may require additional setup during compilation.
  * Please refer to the module's documentation for more information.

@@ -278,6 +278,9 @@ internal class MapboxMapController(private val viewInstance: MapView) : MapContr
         polygon.color.let {
             options = options.withFillColor(it)
         }
+        polygon.opacity.let {
+            options = options.withFillOpacity(it.toDouble())
+        }
         polygons[polygon.id] = polygonAnnotationManager.create(options)
     }
 

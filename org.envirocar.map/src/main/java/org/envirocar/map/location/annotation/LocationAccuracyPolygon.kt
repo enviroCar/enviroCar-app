@@ -15,7 +15,7 @@ import kotlin.math.sin
  *  The [Polygon] used to display the current location accuracy in form of a circle.
  */
 internal class LocationAccuracyPolygon(point: Point, radius: Float) :
-    Polygon(ID, calculatePolygonPoints(point, radius), COLOR) {
+    Polygon(ID, calculatePolygonPoints(point, radius), COLOR, OPACITY) {
 
     companion object {
         private fun calculatePolygonPoints(point: Point, radius: Float): List<Point> {
@@ -47,6 +47,7 @@ internal class LocationAccuracyPolygon(point: Point, radius: Float) :
         private const val ID = -0xAL
 
         @ColorInt
-        private const val COLOR = 0x144384F4
+        private const val COLOR = 0xFF4384F4.toInt()
+        private const val OPACITY = 0.20F
     }
 }
