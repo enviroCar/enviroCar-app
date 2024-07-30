@@ -5,6 +5,7 @@ import org.envirocar.map.MapController
 import org.envirocar.map.MapProvider
 import org.maplibre.android.MapLibre
 import org.maplibre.android.maps.MapView
+import org.maplibre.android.maps.Style
 
 /**
  * [MapLibreMapProvider]
@@ -22,7 +23,7 @@ import org.maplibre.android.maps.MapView
  * * `file://`
  */
 class MapLibreMapProvider(
-    private val style: String
+    private val style: String = DEFAULT_STYLE
 ) : MapProvider {
     private lateinit var viewInstance: MapView
     private lateinit var controllerInstance: MapLibreMapController
@@ -36,7 +37,7 @@ class MapLibreMapProvider(
         if (!::viewInstance.isInitialized) {
             viewInstance = MapView(context).apply {
                 getMapAsync {
-                    it.setStyle(style)
+                    it.setStyle(Style.Builder().fromUri(style))
                 }
             }
         }
@@ -54,6 +55,8 @@ class MapLibreMapProvider(
     }
 
     companion object {
+        const val DEFAULT_STYLE = "asset://maplibre_default_style.json"
+
         @Volatile
         private var initailized = false
     }
