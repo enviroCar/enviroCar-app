@@ -42,6 +42,7 @@ import org.envirocar.app.events.TrackPathOverlayEvent;
 import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.app.injection.components.MainActivityComponent;
 import org.envirocar.app.injection.modules.MainActivityModule;
+import org.envirocar.app.views.utils.MapProviderRepository;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.map.MapController;
 import org.envirocar.map.MapView;
@@ -49,7 +50,6 @@ import org.envirocar.map.camera.CameraUpdateFactory;
 import org.envirocar.map.location.LocationIndicator;
 import org.envirocar.map.location.LocationIndicatorCameraMode;
 import org.envirocar.map.model.Polyline;
-import org.envirocar.map.provider.mapbox.MapboxMapProvider;
 
 import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -88,8 +88,7 @@ public class TrackMapFragment extends BaseInjectorFragment {
         mMapView.setOnTouchListener((v, event) -> onTouchMapView());
         mFollowFab.setOnClickListener(v -> onClickFollowFab());
 
-        // TODO(alexmercerind): Retrieve currently selected provider from a common repository.
-        mMapController = mMapView.getController(new MapboxMapProvider());
+        mMapController = mMapView.getController(new MapProviderRepository(requireContext()).getValue());
         mMapController.setMinZoom(16.0F);
         mMapController.notifyCameraUpdate(CameraUpdateFactory.newCameraUpdateZoom(16.0F), null);
 

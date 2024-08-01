@@ -10,11 +10,11 @@ import org.envirocar.app.R
 import org.envirocar.app.databinding.FragmentTracklistCardlayoutLocalBinding
 import org.envirocar.app.databinding.FragmentTracklistCardlayoutRemoteBinding
 import org.envirocar.app.views.trackdetails.TrackMapFactory
+import org.envirocar.app.views.utils.MapProviderRepository
 import org.envirocar.core.entity.Track
 import org.envirocar.core.logging.Logger
 import org.envirocar.map.MapController
 import org.envirocar.map.MapView
-import org.envirocar.map.provider.mapbox.MapboxMapProvider
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -180,9 +180,8 @@ abstract class AbstractTrackListCardAdapter<E : AbstractTrackListCardAdapter.Tra
 
     private fun setupMapView(view: MapView, track: Track) {
         LOG.info("setupMapView()")
-        // TODO(alexmercerind): Retrieve currently selected provider from a common repository.
         mapControllers
-            .getOrPut(track.id) { view.getController(MapboxMapProvider()) }
+            .getOrPut(track.id) { view.getController(MapProviderRepository(view.context).value) }
             .run {
                 val factory = TrackMapFactory(track)
                 factory.cameraUpdateBasedOnBounds?.let { notifyCameraUpdate(it) }

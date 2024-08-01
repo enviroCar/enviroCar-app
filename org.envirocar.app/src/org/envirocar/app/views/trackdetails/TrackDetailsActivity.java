@@ -43,6 +43,7 @@ import org.envirocar.app.R;
 import org.envirocar.app.databinding.ActivityTrackDetailsLayoutBinding;
 import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.app.injection.BaseInjectorActivity;
+import org.envirocar.app.views.utils.MapProviderRepository;
 import org.envirocar.core.EnviroCarDB;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Measurement;
@@ -55,7 +56,6 @@ import org.envirocar.core.trackprocessing.statistics.TrackStatisticsProvider;
 import org.envirocar.core.utils.CarUtils;
 import org.envirocar.map.MapController;
 import org.envirocar.map.MapView;
-import org.envirocar.map.provider.mapbox.MapboxMapProvider;
 
 import java.text.DateFormat;
 import java.text.DecimalFormat;
@@ -249,7 +249,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
         if (mMapController != null) {
             return;
         }
-        mMapController = mMapView.getController(new MapboxMapProvider());
+        mMapController = mMapView.getController(new MapProviderRepository(this).getValue());
 
         final TrackMapFactory factory = new TrackMapFactory(track);
 
