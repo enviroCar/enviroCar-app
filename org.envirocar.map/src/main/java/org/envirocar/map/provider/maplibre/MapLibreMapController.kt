@@ -1,5 +1,6 @@
 package org.envirocar.map.provider.maplibre
 
+import android.graphics.Color
 import android.view.View
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.graphics.drawable.toBitmap
@@ -35,8 +36,10 @@ import org.maplibre.android.style.layers.PropertyFactory.lineColor
 import org.maplibre.android.style.layers.PropertyFactory.lineGradient
 import org.maplibre.android.style.layers.PropertyFactory.lineJoin
 import org.maplibre.android.style.layers.PropertyFactory.lineWidth
+import org.maplibre.android.style.sources.GeoJsonOptions
 import org.maplibre.android.style.sources.GeoJsonSource
 import org.maplibre.geojson.Feature
+import org.maplibre.geojson.FeatureCollection
 import org.maplibre.geojson.LineString
 
 /**
@@ -222,11 +225,14 @@ internal class MapLibreMapController(private val viewInstance: MapView) : MapCon
         style.addSource(
             GeoJsonSource(
                 MAPLIBRE_POLYLINE_SOURCE_ID + polyline.id,
-                Feature.fromGeometry(
-                    LineString.fromLngLats(
-                        polyline.points.map { it.toMapLibrePoint() }
+                FeatureCollection.fromFeatures(
+                    listOf(
+                        Feature.fromGeometry(
+                            LineString.fromLngLats(polyline.points.map { it.toMapLibrePoint() })
+                        )
                     )
-                )
+                ),
+                GeoJsonOptions().withLineMetrics(true)
             )
         )
         var layer = LineLayer(
@@ -251,7 +257,11 @@ internal class MapLibreMapController(private val viewInstance: MapView) : MapCon
                         *polyline.colors.mapIndexed { index, color ->
                             Expression.stop(
                                 (index + 1).toDouble() / polyline.points.size.toDouble(),
-                                color
+                                Expression.rgb(
+                                    Color.red(color).toFloat(),
+                                    Color.green(color).toFloat(),
+                                    Color.blue(color).toFloat()
+                                )
                             )
                         }.toTypedArray()
                     )
