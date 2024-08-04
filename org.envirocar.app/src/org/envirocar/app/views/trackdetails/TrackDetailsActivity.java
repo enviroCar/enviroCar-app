@@ -249,7 +249,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
         if (mMapController != null) {
             return;
         }
-        mMapController = mMapView.getController(new MapProviderRepository(this).getValue());
+        mMapController = mMapView.getController(new MapProviderRepository(getApplication()).getValue());
 
         final TrackMapFactory factory = new TrackMapFactory(track);
 

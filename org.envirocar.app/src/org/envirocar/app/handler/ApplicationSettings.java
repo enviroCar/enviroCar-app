@@ -28,8 +28,11 @@ import androidx.preference.PreferenceManager;
 import com.f2prateek.rx.preferences2.RxSharedPreferences;
 import com.google.common.base.Preconditions;
 
+import org.envirocar.app.BuildConfig;
 import org.envirocar.app.R;
 import org.envirocar.app.recording.RecordingType;
+import org.envirocar.map.provider.mapbox.MapboxMapProvider;
+import org.envirocar.map.provider.maplibre.MapLibreMapProvider;
 
 import io.reactivex.Observable;
 
@@ -53,6 +56,9 @@ public class ApplicationSettings {
     public static final int DEFAULT_GPS_CONNECTION_DURATION = 120;
     public static final boolean DEFAULT_DEBUG_LOGGING = false;
     public static final int DEFAULT_SAMPLING_RATE = 5;
+    public static final String DEFAULT_MAP_PROVIDER = MapLibreMapProvider.class.getName();
+    public static final String DEFAULT_MAPLIBRE_STYLE = "https://api.maptiler.com/maps/basic/style.json?key=" + BuildConfig.MAPTILER_API_KEY;
+    public static final String DEFAULT_MAPBOX_STYLE = MapboxMapProvider.DEFAULT_STYLE;
     public static final String DEFAULT_CAMPAIGN_PROFILE = "DEFAULT_COMANND_PROFILE";
     public static final boolean DEFAULT_TRACK_CHUNK_UPLOAD= false;
 
@@ -154,6 +160,39 @@ public class ApplicationSettings {
         getSharedPreferences(context)
                 .edit()
                 .putInt(s(context, R.string.prefkey_samplingrate), samplingRate)
+                .apply();
+    }
+
+    public static String getMapProvider(Context context) {
+        return getSharedPreferences(context).getString(s(context, R.string.prefkey_map_view_map_provider), DEFAULT_MAP_PROVIDER);
+    }
+
+    public static void setMapProvider(Context context, String mapProvider) {
+        getSharedPreferences(context)
+                .edit()
+                .putString(s(context, R.string.prefkey_map_view_map_provider), mapProvider)
+                .apply();
+    }
+
+    public static String getMapLibreStyle(Context context) {
+        return getSharedPreferences(context).getString(s(context, R.string.prefkey_map_view_maplibre_style), DEFAULT_MAPLIBRE_STYLE);
+    }
+
+    public static void setMapLibreStyle(Context context, String maplibreStyle) {
+        getSharedPreferences(context)
+                .edit()
+                .putString(s(context, R.string.prefkey_map_view_maplibre_style), maplibreStyle)
+                .apply();
+    }
+
+    public static String getMapboxStyle(Context context) {
+        return getSharedPreferences(context).getString(s(context, R.string.prefkey_map_view_mapbox_style), DEFAULT_MAPBOX_STYLE);
+    }
+
+    public static void setMapboxStyle(Context context, String mapboxStyle) {
+        getSharedPreferences(context)
+                .edit()
+                .putString(s(context, R.string.prefkey_map_view_mapbox_style), mapboxStyle)
                 .apply();
     }
 

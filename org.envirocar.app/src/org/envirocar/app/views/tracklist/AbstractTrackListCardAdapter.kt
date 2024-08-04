@@ -1,5 +1,6 @@
 package org.envirocar.app.views.tracklist
 
+import android.app.Application
 import android.view.View
 import android.widget.ImageButton
 import android.widget.LinearLayout
@@ -181,7 +182,7 @@ abstract class AbstractTrackListCardAdapter<E : AbstractTrackListCardAdapter.Tra
     private fun setupMapView(view: MapView, track: Track) {
         LOG.info("setupMapView()")
         mapControllers
-            .getOrPut(track.id) { view.getController(MapProviderRepository(view.context).value) }
+            .getOrPut(track.id) { view.getController(MapProviderRepository(view.context.applicationContext as Application).value) }
             .run {
                 val factory = TrackMapFactory(track)
                 factory.cameraUpdateBasedOnBounds?.let { notifyCameraUpdate(it) }

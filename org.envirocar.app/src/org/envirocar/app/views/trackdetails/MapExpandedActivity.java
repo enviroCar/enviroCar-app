@@ -242,7 +242,7 @@ public class MapExpandedActivity extends BaseInjectorActivity {
         if (mMapController != null) {
             return;
         }
-        mMapController = mMapViewExpanded.getController(new MapProviderRepository(this).getValue());
+        mMapController = mMapViewExpanded.getController(new MapProviderRepository(getApplication()).getValue());
 
         final TrackMapFactory factory = new TrackMapFactory(track);
 

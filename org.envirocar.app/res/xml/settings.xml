@@ -57,6 +57,12 @@
             android:summary="@string/sampling_rate_summary"
             android:title="@string/sampling_rate_title"
             app:iconSpaceReserved="false" />
+        <org.envirocar.app.views.settings.custom.MapViewPreference
+            android:key="@string/prefkey_map_view"
+            android:maxLength="8"
+            android:summary="@string/map_view_summary"
+            android:title="@string/map_view_title"
+            app:iconSpaceReserved="false" />
     </PreferenceCategory>
 
     <PreferenceCategory

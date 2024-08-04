@@ -88,7 +88,7 @@ public class TrackMapFragment extends BaseInjectorFragment {
         mMapView.setOnTouchListener((v, event) -> onTouchMapView());
         mFollowFab.setOnClickListener(v -> onClickFollowFab());
 
-        mMapController = mMapView.getController(new MapProviderRepository(requireContext()).getValue());
+        mMapController = mMapView.getController(new MapProviderRepository(requireActivity().getApplication()).getValue());
         mMapController.setMinZoom(16.0F);
         mMapController.notifyCameraUpdate(CameraUpdateFactory.newCameraUpdateZoom(16.0F), null);
 
