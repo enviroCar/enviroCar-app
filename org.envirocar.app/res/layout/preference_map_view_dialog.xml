@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/mapProviderTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="20dp"
+            android:paddingVertical="8dp"
+            android:text="@string/map_view_provider"
+            android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+            android:textColor="?attr/colorPrimary"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- MapLibre -->
+
+        <LinearLayout
+            android:id="@+id/mapLibreTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackground"
+            android:paddingHorizontal="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/mapProviderTextView">
+
+            <RadioButton
+                android:id="@+id/mapLibreRadioButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="MapLibre"
+                android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+                tools:ignore="HardcodedText" />
+
+            <ImageView
+                android:id="@+id/mapLibreExpandImageView"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:importantForAccessibility="no"
+                android:src="@drawable/baseline_expand_more_24"
+                app:tint="@color/material_on_surface_disabled" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/mapLibreLinearLayout"
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:orientation="vertical"
+            android:paddingStart="44dp"
+            app:layout_constraintTop_toBottomOf="@id/mapLibreTextView"
+            tools:ignore="RtlSymmetry">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="20dp"
+                android:paddingVertical="8dp"
+                android:text="@string/map_view_style"
+                android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
+
+            <ListView
+                android:id="@+id/mapLibreListView"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                tools:ignore="NestedScrolling" />
+        </LinearLayout>
+
+        <com.google.android.material.divider.MaterialDivider
+            android:id="@+id/materialDivider0"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/mapLibreLinearLayout" />
+
+        <!-- Mapbox -->
+
+        <LinearLayout
+            android:id="@+id/mapboxTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackground"
+            android:paddingHorizontal="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/materialDivider0">
+
+            <RadioButton
+                android:id="@+id/mapboxRadioButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Mapbox"
+                android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+                tools:ignore="HardcodedText" />
+
+            <ImageView
+                android:id="@+id/mapboxExpandImageView"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:importantForAccessibility="no"
+                android:src="@drawable/baseline_expand_more_24"
+                app:tint="@color/material_on_surface_disabled" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/mapboxLinearLayout"
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:orientation="vertical"
+            android:paddingStart="44dp"
+            app:layout_constraintTop_toBottomOf="@id/mapboxTextView"
+            tools:ignore="RtlSymmetry">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="20dp"
+                android:paddingVertical="8dp"
+                android:text="@string/map_view_style"
+                android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
+
+            <ListView
+                android:id="@+id/mapboxListView"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                tools:ignore="NestedScrolling" />
+        </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>
