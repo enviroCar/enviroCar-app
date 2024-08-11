@@ -190,8 +190,8 @@ public class MapViewPreference extends DialogPreference {
             }
             mapProvider = value;
 
-            final float mapLibreLinearLayoutMaxHeight = (48.0f + mapLibreStyles.size() * 56.0f) * getResources().getDisplayMetrics().density;
-            final float mapboxLinearLayoutMaxHeight = (48.0f + mapboxStyles.size() * 56.0f) * getResources().getDisplayMetrics().density;
+            final float mapLibreLinearLayoutMaxHeight = (36.0f + mapLibreStyles.size() * 48.0f) * getResources().getDisplayMetrics().density;
+            final float mapboxLinearLayoutMaxHeight = (36.0f + mapboxStyles.size() * 48.0f) * getResources().getDisplayMetrics().density;
 
             binding.mapLibreListView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, (int) mapLibreLinearLayoutMaxHeight));
             binding.mapboxListView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, (int) mapboxLinearLayoutMaxHeight));
