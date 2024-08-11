@@ -2,7 +2,7 @@
 
 The map module is used to visualize the track data & statistics, recorded by the enviroCar Android application on a map. The map module provides support for multiple map providers & libraries, which may be enabled or disabled during compilation.
 
-The module aims provides two important advantages:
+The module has two important qualities:
 
 - **Extensibility**: Multiple map providers will be supported & more can be easily added in the future.
 - **Independence**: The map module may be utilized in other projects as well.
@@ -140,4 +140,8 @@ controller.notifyCameraUpdate(
 )
 ```
 
-In essence, create a map view, initialize it with a map provider to access the map controller for manipulating the map e.g. creating a marker, polyline or polygon etc.
+In essence, create a map view & initialize it with a map provider to access the map controller for manipulating the map e.g.
+1. Creating a marker, polyline or polygon etc.
+2. Manipulating the camera e.g. zoom, tilt or bearing etc.
+3. Displaying user location.
+
