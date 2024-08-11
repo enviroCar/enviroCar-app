@@ -42,7 +42,12 @@ for existing projects.
 
 The software includes a [map module](./org.envirocar.map), which is used to visualize the track data & statistics on a map. It may require additional configuration as part of the development process. Please refer to the [respective documentation](./org.envirocar.map/README.md) for more information.
 
-The map module provides support for multiple map providers & libraries, which may be enabled or disabled during compilation.
+The map module provides support for multiple map providers & libraries. These may be enabled or disabled during compilation.
+
+
+The application also allows to switch between the map providers & styles during runtime as well.
+
+[MapTiler](https://www.maptiler.com/) API key needs to be specified as `MAPTILER_API_KEY` in the [`gradle.properties` file](./gradle.properties) before compilation. MapTiler (a tile provider) is configured to work with Mapbox map provider & MapLibre map provider.
 
 ## License
 
