@@ -41,13 +41,15 @@ import org.envirocar.app.databinding.PreferenceMapStyleListItemBinding;
 import org.envirocar.app.databinding.PreferenceMapViewDialogBinding;
 import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.app.views.settings.SettingsActivity;
-import org.envirocar.map.provider.mapbox.MapboxMapProvider;
-import org.envirocar.map.provider.maplibre.MapLibreMapProvider;
+import org.envirocar.app.views.utils.MapProviderRepository;
+import org.envirocar.core.logging.Logger;
 
 import java.util.Map;
 import java.util.Objects;
 
 public class MapViewPreference extends DialogPreference {
+
+    private static final Logger LOG = Logger.getLogger(MapViewPreference.class);
 
     public interface MapViewPreferenceNotifier {
         void notifyMapViewSettingsChanged();
@@ -67,15 +69,40 @@ public class MapViewPreference extends DialogPreference {
     }
 
     public static class Dialog extends PreferenceDialogFragmentCompat {
-        static final Map<String, String> mapLibreStyles = Map.of(
-                "OpenStreetMap", MapLibreMapProvider.DEFAULT_STYLE,
-                "MapTiler (Basic)", "https://api.maptiler.com/maps/basic/style.json?key=" + BuildConfig.MAPTILER_API_KEY
-        );
+        private static boolean mapLibreEnabled = true;
+        private static boolean mapboxEnabled = true;
 
-        static final Map<String, String> mapboxStyles = Map.of(
-                "Mapbox (Streets)", MapboxMapProvider.DEFAULT_STYLE,
-                "MapTiler (Basic)", "https://api.maptiler.com/maps/basic/style.json?key=" + BuildConfig.MAPTILER_API_KEY
-        );
+        private static Map<String, String> getMapLibreStyles() {
+            return Map.of(
+                    "OpenStreetMap", getMapLibreDefaultStyle(),
+                    "MapTiler (Basic)", "https://api.maptiler.com/maps/basic/style.json?key=" + BuildConfig.MAPTILER_API_KEY
+            );
+        }
+
+        private static Map<String, String> getMapboxStyles() {
+            return Map.of(
+                    "Mapbox (Streets)", getMapboxDefaultStyle(),
+                    "MapTiler (Basic)", "https://api.maptiler.com/maps/basic/style.json?key=" + BuildConfig.MAPTILER_API_KEY
+            );
+        }
+
+        private static String getMapLibreDefaultStyle() {
+            try {
+                return Objects.requireNonNull(Class.forName("org.envirocar.map.provider.maplibre.MapLibreMapProvider").getField("DEFAULT_STYLE").get(null)).toString();
+            } catch (IllegalAccessException | NoSuchFieldException | ClassNotFoundException e) {
+                mapLibreEnabled = false;
+                return "";
+            }
+        }
+
+        private static String getMapboxDefaultStyle() {
+            try {
+                return Objects.requireNonNull(Class.forName("org.envirocar.map.provider.mapbox.MapboxMapProvider").getField("DEFAULT_STYLE").get(null)).toString();
+            } catch (IllegalAccessException | NoSuchFieldException | ClassNotFoundException e) {
+                mapboxEnabled = false;
+                return "";
+            }
+        }
 
         PreferenceMapViewDialogBinding binding;
 
@@ -101,34 +128,43 @@ public class MapViewPreference extends DialogPreference {
             updateMapLibreStyle(ApplicationSettings.getMapLibreStyle(view.getContext()));
             updateMapboxStyle(ApplicationSettings.getMapboxStyle(view.getContext()));
 
+            if (!mapLibreEnabled) {
+                binding.mapLibreTextView.setVisibility(View.GONE);
+                binding.mapLibreLinearLayout.setVisibility(View.GONE);
+            }
+            if (!mapboxEnabled) {
+                binding.mapboxTextView.setVisibility(View.GONE);
+                binding.mapboxLinearLayout.setVisibility(View.GONE);
+            }
+
             binding.mapLibreTextView.setOnClickListener(v -> {
-                updateMapProvider(MapLibreMapProvider.class.getName());
+                updateMapProvider(MapProviderRepository.PROVIDER_MAPLIBRE);
             });
             binding.mapLibreRadioButton.setOnCheckedChangeListener((v, isChecked) -> {
                 if (isChecked) {
-                    updateMapProvider(MapLibreMapProvider.class.getName());
+                    updateMapProvider(MapProviderRepository.PROVIDER_MAPLIBRE);
                 }
             });
             final ArrayAdapter<String> mapLibreListViewAdapter = new ArrayAdapter<String>(
                     view.getContext(),
                     R.layout.preference_map_style_list_item,
                     R.id.styleTextView,
-                    mapLibreStyles.keySet().toArray(new String[0])
+                    getMapLibreStyles().keySet().toArray(new String[0])
             ) {
                 @NonNull
                 @Override
                 public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
                     final View view = super.getView(position, convertView, parent);
                     final PreferenceMapStyleListItemBinding binding = PreferenceMapStyleListItemBinding.bind(view);
-                    binding.styleRadioButton.setChecked(Objects.equals(mapLibreStyles.get(getItem(position)), mapLibreStyle));
+                    binding.styleRadioButton.setChecked(Objects.equals(getMapLibreStyles().get(getItem(position)), mapLibreStyle));
                     binding.styleRadioButton.setOnCheckedChangeListener((v, isChecked) -> {
                         if (isChecked) {
-                            updateMapLibreStyle(mapLibreStyles.get(getItem(position)));
+                            updateMapLibreStyle(getMapLibreStyles().get(getItem(position)));
                         }
                         notifyDataSetChanged();
                     });
                     view.setOnClickListener(v -> {
-                        updateMapLibreStyle(mapLibreStyles.get(getItem(position)));
+                        updateMapLibreStyle(getMapLibreStyles().get(getItem(position)));
                         notifyDataSetChanged();
                     });
                     return view;
@@ -138,33 +174,33 @@ public class MapViewPreference extends DialogPreference {
             binding.mapLibreListView.setAdapter(mapLibreListViewAdapter);
 
             binding.mapboxTextView.setOnClickListener(v -> {
-                updateMapProvider(MapboxMapProvider.class.getName());
+                updateMapProvider(MapProviderRepository.PROVIDER_MAPBOX);
             });
             binding.mapboxRadioButton.setOnCheckedChangeListener((v, isChecked) -> {
                 if (isChecked) {
-                    updateMapProvider(MapboxMapProvider.class.getName());
+                    updateMapProvider(MapProviderRepository.PROVIDER_MAPBOX);
                 }
             });
             final ArrayAdapter<String> mapboxListViewAdapter = new ArrayAdapter<String>(
                     view.getContext(),
                     R.layout.preference_map_style_list_item,
                     R.id.styleTextView,
-                    mapboxStyles.keySet().toArray(new String[0])
+                    getMapboxStyles().keySet().toArray(new String[0])
             ) {
                 @NonNull
                 @Override
                 public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
                     final View view = super.getView(position, convertView, parent);
                     final PreferenceMapStyleListItemBinding binding = PreferenceMapStyleListItemBinding.bind(view);
-                    binding.styleRadioButton.setChecked(Objects.equals(mapboxStyles.get(getItem(position)), mapboxStyle));
+                    binding.styleRadioButton.setChecked(Objects.equals(getMapboxStyles().get(getItem(position)), mapboxStyle));
                     binding.styleRadioButton.setOnCheckedChangeListener((v, isChecked) -> {
                         if (isChecked) {
-                            updateMapboxStyle(mapboxStyles.get(getItem(position)));
+                            updateMapboxStyle(getMapboxStyles().get(getItem(position)));
                         }
                         notifyDataSetChanged();
                     });
                     view.setOnClickListener(v -> {
-                        updateMapboxStyle(mapboxStyles.get(getItem(position)));
+                        updateMapboxStyle(getMapboxStyles().get(getItem(position)));
                         notifyDataSetChanged();
                     });
                     return view;
@@ -190,15 +226,15 @@ public class MapViewPreference extends DialogPreference {
             }
             mapProvider = value;
 
-            final float mapLibreLinearLayoutMaxHeight = (36.0f + mapLibreStyles.size() * 48.0f) * getResources().getDisplayMetrics().density;
-            final float mapboxLinearLayoutMaxHeight = (36.0f + mapboxStyles.size() * 48.0f) * getResources().getDisplayMetrics().density;
+            final float mapLibreLinearLayoutMaxHeight = (36.0f + getMapLibreStyles().size() * 48.0f) * getResources().getDisplayMetrics().density;
+            final float mapboxLinearLayoutMaxHeight = (36.0f + getMapboxStyles().size() * 48.0f) * getResources().getDisplayMetrics().density;
 
             binding.mapLibreListView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, (int) mapLibreLinearLayoutMaxHeight));
             binding.mapboxListView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, (int) mapboxLinearLayoutMaxHeight));
 
             final ValueAnimator animator = ValueAnimator.ofFloat(0.0f, 1.0f);
 
-            if (mapProvider.equals(MapLibreMapProvider.class.getName())) {
+            if (mapProvider.contains(MapProviderRepository.PROVIDER_MAPLIBRE)) {
                 if (!isUpdateMapProviderCalled) {
                     final ViewGroup.LayoutParams mapLibreLayoutParams = binding.mapLibreLinearLayout.getLayoutParams();
                     mapLibreLayoutParams.height = (int) mapLibreLinearLayoutMaxHeight;
@@ -221,7 +257,7 @@ public class MapViewPreference extends DialogPreference {
                 binding.mapboxRadioButton.setChecked(false);
                 binding.mapLibreExpandImageView.setImageDrawable(AppCompatResources.getDrawable(requireContext(), R.drawable.baseline_expand_less_24));
                 binding.mapboxExpandImageView.setImageDrawable(AppCompatResources.getDrawable(requireContext(), R.drawable.baseline_expand_more_24));
-            } else if (mapProvider.equals(MapboxMapProvider.class.getName())) {
+            } else if (mapProvider.contains(MapProviderRepository.PROVIDER_MAPBOX)) {
                 if (!isUpdateMapProviderCalled) {
                     final ViewGroup.LayoutParams mapLibreLayoutParams = binding.mapLibreLinearLayout.getLayoutParams();
                     mapLibreLayoutParams.height = 2;
@@ -245,7 +281,7 @@ public class MapViewPreference extends DialogPreference {
                 binding.mapLibreExpandImageView.setImageDrawable(AppCompatResources.getDrawable(requireContext(), R.drawable.baseline_expand_more_24));
                 binding.mapboxExpandImageView.setImageDrawable(AppCompatResources.getDrawable(requireContext(), R.drawable.baseline_expand_less_24));
             } else {
-                throw new IllegalStateException("Unknown Class<T: MapProvider>: " + mapProvider);
+                LOG.info("Unknown map provider: " + mapProvider);
             }
 
             if (isUpdateMapProviderCalled) {

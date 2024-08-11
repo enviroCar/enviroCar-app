@@ -31,8 +31,9 @@ import com.google.common.base.Preconditions;
 import org.envirocar.app.BuildConfig;
 import org.envirocar.app.R;
 import org.envirocar.app.recording.RecordingType;
-import org.envirocar.map.provider.mapbox.MapboxMapProvider;
-import org.envirocar.map.provider.maplibre.MapLibreMapProvider;
+import org.envirocar.app.views.utils.MapProviderRepository;
+
+import java.util.Objects;
 
 import io.reactivex.Observable;
 
@@ -56,11 +57,20 @@ public class ApplicationSettings {
     public static final int DEFAULT_GPS_CONNECTION_DURATION = 120;
     public static final boolean DEFAULT_DEBUG_LOGGING = false;
     public static final int DEFAULT_SAMPLING_RATE = 5;
-    public static final String DEFAULT_MAP_PROVIDER = MapLibreMapProvider.class.getName();
+    public static final String DEFAULT_MAP_PROVIDER = MapProviderRepository.PROVIDER_MAPLIBRE;
     public static final String DEFAULT_MAPLIBRE_STYLE = "https://api.maptiler.com/maps/basic/style.json?key=" + BuildConfig.MAPTILER_API_KEY;
-    public static final String DEFAULT_MAPBOX_STYLE = MapboxMapProvider.DEFAULT_STYLE;
+    public static String DEFAULT_MAPBOX_STYLE;
+
+    static {
+        try {
+            DEFAULT_MAPBOX_STYLE = Objects.requireNonNull(Class.forName("org.envirocar.map.provider.mapbox.MapboxMapProvider").getField("DEFAULT_STYLE").get(null)).toString();
+        } catch (IllegalAccessException | NoSuchFieldException | ClassNotFoundException e) {
+            DEFAULT_MAPBOX_STYLE = "";
+        }
+    }
+
     public static final String DEFAULT_CAMPAIGN_PROFILE = "DEFAULT_COMANND_PROFILE";
-    public static final boolean DEFAULT_TRACK_CHUNK_UPLOAD= false;
+    public static final boolean DEFAULT_TRACK_CHUNK_UPLOAD = false;
 
 //    // General Settings
 //    public static final String PREF_AUTOMATIC_UPLOAD_OF_TRACKS = "pref_automatic_upload_tracks";
@@ -82,7 +92,7 @@ public class ApplicationSettings {
 //    public static final String PREF_GPS_BASED_TRACKING = "pref_gps_based_tracking";
 
     // General Settings settings
-    public static Observable<Boolean> getAutomaticUploadObservable(Context context){
+    public static Observable<Boolean> getAutomaticUploadObservable(Context context) {
         return getRxSharedPreferences(context)
                 .getBoolean(s(context, R.string.prefkey_automatic_upload), DEFAULT_AUTOMATIC_UPLOAD)
                 .asObservable();
@@ -302,7 +312,7 @@ public class ApplicationSettings {
         return PreferenceManager.getDefaultSharedPreferences(context);
     }
 
-    public static Observable<String> getCampaignProfileObservable(Context context){
+    public static Observable<String> getCampaignProfileObservable(Context context) {
         return getRxSharedPreferences(context)
                 .getString(s(context, R.string.prefkey_campaign_profile), DEFAULT_CAMPAIGN_PROFILE)
                 .asObservable();
@@ -312,7 +322,7 @@ public class ApplicationSettings {
         return getSharedPreferences(context).getString(s(context, R.string.prefkey_campaign_profile), DEFAULT_CAMPAIGN_PROFILE);
     }
 
-    private static final String s(Context context, int id){
+    private static final String s(Context context, int id) {
         return context.getString(id);
     }
 
