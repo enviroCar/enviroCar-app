@@ -4,11 +4,15 @@ import android.graphics.Color
 import android.view.View
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.graphics.drawable.toBitmap
+import com.mapbox.maps.plugin.attribution.attribution
+import com.mapbox.maps.plugin.logo.logo
 import kotlinx.coroutines.flow.update
 import org.envirocar.map.MapController
 import org.envirocar.map.camera.CameraUpdate
 import org.envirocar.map.camera.MutableCameraState
 import org.envirocar.map.model.Animation
+import org.envirocar.map.model.AttributionSettings
+import org.envirocar.map.model.LogoSettings
 import org.envirocar.map.model.Marker
 import org.envirocar.map.model.Point
 import org.envirocar.map.model.Polygon
@@ -47,7 +51,11 @@ import org.maplibre.geojson.LineString
  * -----------------------
  * [MapLibre](https://www.maplibre.org) based implementation for [MapController].
  */
-internal class MapLibreMapController(private val viewInstance: MapView) : MapController() {
+internal class MapLibreMapController(
+    private val viewInstance: MapView,
+    attribution: AttributionSettings,
+    logo: LogoSettings
+) : MapController() {
     override val camera = MutableCameraState()
     private val markers = mutableMapOf<Long, Symbol>()
     private val polygons = mutableMapOf<Long, Fill>()
@@ -65,10 +73,27 @@ internal class MapLibreMapController(private val viewInstance: MapView) : MapCon
         viewInstance.getMapAsync { mapLibreMap ->
             this.mapLibreMap = mapLibreMap
 
-            // Disable attribution, compass & logo.
-            mapLibreMap.uiSettings.isAttributionEnabled = false
+            mapLibreMap.uiSettings.isAttributionEnabled = attribution.enabled
+            mapLibreMap.uiSettings.attributionGravity = attribution.gravity
+            attribution.let {
+                mapLibreMap.uiSettings.setAttributionMargins(
+                    it.margin[0].toInt(),
+                    it.margin[1].toInt(),
+                    it.margin[2].toInt(),
+                    it.margin[3].toInt()
+                )
+            }
+            mapLibreMap.uiSettings.isLogoEnabled = logo.enabled
+            mapLibreMap.uiSettings.logoGravity = logo.gravity
+            logo.let {
+                mapLibreMap.uiSettings.setLogoMargins(
+                    it.margin[0].toInt(),
+                    it.margin[1].toInt(),
+                    it.margin[2].toInt(),
+                    it.margin[3].toInt()
+                )
+            }
             mapLibreMap.uiSettings.isCompassEnabled = false
-            mapLibreMap.uiSettings.isLogoEnabled = false
 
             // Once the map style is loaded, make the view visible & mark this instance as ready.
             if (mapLibreMap.style != null) {

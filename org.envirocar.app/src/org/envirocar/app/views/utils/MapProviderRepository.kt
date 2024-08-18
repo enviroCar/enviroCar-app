@@ -3,6 +3,8 @@ package org.envirocar.app.views.utils
 import android.app.Application
 import org.envirocar.app.handler.ApplicationSettings
 import org.envirocar.map.MapProvider
+import org.envirocar.map.model.AttributionSettings
+import org.envirocar.map.model.LogoSettings
 
 class MapProviderRepository(private val applicationContext: Application) {
 
@@ -10,15 +12,32 @@ class MapProviderRepository(private val applicationContext: Application) {
         get() = ApplicationSettings.getMapProvider(applicationContext).let {
             when {
                 it.contains(PROVIDER_MAPLIBRE) -> Class.forName("org.envirocar.map.provider.maplibre.MapLibreMapProvider")
-                    .getConstructor(String::class.java)
-                    .newInstance(ApplicationSettings.getMapLibreStyle(applicationContext)) as MapProvider
+                    .getConstructor(
+                        String::class.java,
+                        AttributionSettings::class.java,
+                        LogoSettings::class.java
+                    )
+                    .newInstance(
+                        ApplicationSettings.getMapLibreStyle(applicationContext),
+                        AttributionSettings.default(),
+                        LogoSettings.default()
+                    ) as MapProvider
+
                 it.contains(PROVIDER_MAPBOX) -> Class.forName("org.envirocar.map.provider.mapbox.MapboxMapProvider")
-                    .getConstructor(String::class.java)
-                    .newInstance(ApplicationSettings.getMapboxStyle(applicationContext)) as MapProvider
+                    .getConstructor(
+                        String::class.java,
+                        AttributionSettings::class.java,
+                        LogoSettings::class.java
+                    )
+                    .newInstance(
+                        ApplicationSettings.getMapboxStyle(applicationContext),
+                        AttributionSettings.default(),
+                        LogoSettings.default()
+                    ) as MapProvider
+
                 else -> error("Unknown Class<T: MapProvider>: $it")
             }
         }
-
 
 
     companion object {

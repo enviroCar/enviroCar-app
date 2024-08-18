@@ -4,6 +4,8 @@ import android.content.Context
 import com.mapbox.maps.MapView
 import org.envirocar.map.MapController
 import org.envirocar.map.MapProvider
+import org.envirocar.map.model.AttributionSettings
+import org.envirocar.map.model.LogoSettings
 
 /**
  * [MapboxMapProvider]
@@ -20,10 +22,15 @@ import org.envirocar.map.MapProvider
  * * `https://`
  * * `asset://`
  * * `file://`
- * The default style is `mapbox://styles/mapbox/streets-v12`.
+ * @param attribution
+ * The attribution settings for the map.
+ * @param logo
+ * The logo settings for the map.
  */
 class MapboxMapProvider(
-    private val style: String = DEFAULT_STYLE
+    private val style: String = DEFAULT_STYLE,
+    private val attribution: AttributionSettings = DEFAULT_ATTRIBUTION,
+    private val logo: LogoSettings = DEFAULT_LOGO
 ) : MapProvider {
     private lateinit var viewInstance: MapView
     private lateinit var controllerInstance: MapboxMapController
@@ -42,12 +49,18 @@ class MapboxMapProvider(
             error("MapboxMapProvider is not initialized.")
         }
         if (!::controllerInstance.isInitialized) {
-            controllerInstance = MapboxMapController(viewInstance)
+            controllerInstance = MapboxMapController(
+                viewInstance,
+                attribution,
+                logo
+            )
         }
         return controllerInstance
     }
 
     companion object {
         const val DEFAULT_STYLE = "mapbox://styles/mapbox/streets-v12"
+        val DEFAULT_ATTRIBUTION = AttributionSettings.default()
+        val DEFAULT_LOGO = LogoSettings.default()
     }
 }
