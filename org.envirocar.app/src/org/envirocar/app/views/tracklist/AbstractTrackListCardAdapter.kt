@@ -16,6 +16,8 @@ import org.envirocar.core.entity.Track
 import org.envirocar.core.logging.Logger
 import org.envirocar.map.MapController
 import org.envirocar.map.MapView
+import org.envirocar.map.model.AttributionSettings
+import org.envirocar.map.model.LogoSettings
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -182,7 +184,17 @@ abstract class AbstractTrackListCardAdapter<E : AbstractTrackListCardAdapter.Tra
     private fun setupMapView(view: MapView, track: Track) {
         LOG.info("setupMapView()")
         mapControllers
-            .getOrPut(track.id) { view.getController(MapProviderRepository(view.context.applicationContext as Application).value) }
+        mapControllers
+            .getOrPut(track.id) {
+                view.getController(
+                    MapProviderRepository(
+                        view.context.applicationContext as Application,
+                        // Only display logo inside the [RecyclerView] since click event won't be handled.
+                        AttributionSettings.Builder().withEnabled(false).build(),
+                        LogoSettings.default()
+                    ).value
+                )
+            }
             .run {
                 val factory = TrackMapFactory(track)
                 factory.cameraUpdateBasedOnBounds?.let { notifyCameraUpdate(it) }

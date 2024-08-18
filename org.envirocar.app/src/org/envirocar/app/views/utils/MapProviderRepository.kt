@@ -8,6 +8,19 @@ import org.envirocar.map.model.LogoSettings
 
 class MapProviderRepository(private val applicationContext: Application) {
 
+    private var attribution: AttributionSettings = AttributionSettings.default()
+    private var logo: LogoSettings = LogoSettings.default()
+
+    // NOTE: The named arguments in default constructor cannot be used as an alternative due to issues with Java interoperability.
+    constructor(
+        applicationContext: Application,
+        attribution: AttributionSettings = AttributionSettings.default(),
+        logo: LogoSettings = LogoSettings.default()
+    ) : this(applicationContext) {
+        this.attribution = attribution
+        this.logo = logo
+    }
+
     val value: MapProvider
         get() = ApplicationSettings.getMapProvider(applicationContext).let {
             when {
@@ -19,8 +32,8 @@ class MapProviderRepository(private val applicationContext: Application) {
                     )
                     .newInstance(
                         ApplicationSettings.getMapLibreStyle(applicationContext),
-                        AttributionSettings.default(),
-                        LogoSettings.default()
+                        attribution,
+                        logo
                     ) as MapProvider
 
                 it.contains(PROVIDER_MAPBOX) -> Class.forName("org.envirocar.map.provider.mapbox.MapboxMapProvider")
@@ -31,8 +44,8 @@ class MapProviderRepository(private val applicationContext: Application) {
                     )
                     .newInstance(
                         ApplicationSettings.getMapboxStyle(applicationContext),
-                        AttributionSettings.default(),
-                        LogoSettings.default()
+                        attribution,
+                        logo
                     ) as MapProvider
 
                 else -> error("Unknown Class<T: MapProvider>: $it")

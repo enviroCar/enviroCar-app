@@ -47,6 +47,8 @@ import org.envirocar.core.EnviroCarDB;
 import org.envirocar.map.MapController;
 import org.envirocar.map.MapView;
 import org.envirocar.map.model.Animation;
+import org.envirocar.map.model.AttributionSettings;
+import org.envirocar.map.model.LogoSettings;
 import org.envirocar.map.model.Polyline;
 
 import java.text.DecimalFormat;
@@ -242,8 +244,20 @@ public class MapExpandedActivity extends BaseInjectorActivity {
         if (mMapController != null) {
             return;
         }
-        mMapController = mMapViewExpanded.getController(new MapProviderRepository(getApplication()).getValue());
-
+        mMapController = mMapViewExpanded.getController(
+                new MapProviderRepository(
+                        getApplication(),
+                        // Display attribution in top right of the screen.
+                        new AttributionSettings.Builder()
+                                .withGravity(Gravity.TOP | Gravity.END)
+                                .withMargin(new float[]{12.0F, 12.0F, 12.0F, 12.0F})
+                                .build(),
+                        new LogoSettings.Builder()
+                                .withGravity(Gravity.TOP | Gravity.END)
+                                .withMargin(new float[]{12.0F, 12.0F, 84.0F, 12.0F})
+                                .build()
+                ).getValue()
+        );
         final TrackMapFactory factory = new TrackMapFactory(track);
 
         mMapController.setMinZoom(factory.getMinZoom());
