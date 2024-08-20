@@ -108,7 +108,7 @@
         <item>DVFO Campaign</item>
     </string-array>
 
-    <string name="map_view_title">Map View Customization</string>
+    <string name="map_view_title">Map Style</string>
     <string name="map_view_summary">Customize the look of map views throughout the application by changing the map provider &amp; associated style.</string>
     <string name="map_view_provider">Map Provider:</string>
     <string name="map_view_style">Style:</string>
