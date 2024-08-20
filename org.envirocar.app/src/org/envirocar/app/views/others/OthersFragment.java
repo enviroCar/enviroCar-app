@@ -30,7 +30,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
@@ -81,7 +84,24 @@ public class OthersFragment extends BaseInjectorFragment {
     private Scheduler.Worker mMainThreadWorker = AndroidSchedulers.mainThread().createWorker();
     private final Scheduler.Worker mBackgroundWorker = Schedulers.newThread().createWorker();
 
+    private ActivityResultLauncher<Intent> settingsLauncher;
+
     private int REQUEST_PERMISSIONS_REQUEST_CODE = 101;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        settingsLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    // Re-create the activity if the map view settings have been changed, to reflect the changes.
+                    final Intent data = result.getData();
+                    if (data != null && data.getBooleanExtra(SettingsActivity.MAP_VIEW_SETTINGS_CHANGED, false)) {
+                        requireActivity().recreate();
+                    }
+                }
+        );
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -130,8 +150,7 @@ public class OthersFragment extends BaseInjectorFragment {
     }
 
     protected void onSettingsClicked() {
-        Intent intent = new Intent(getActivity(), SettingsActivity.class);
-        startActivity(intent);
+        settingsLauncher.launch(new Intent(getActivity(), SettingsActivity.class));
     }
 
     protected void onHelpClicked() {

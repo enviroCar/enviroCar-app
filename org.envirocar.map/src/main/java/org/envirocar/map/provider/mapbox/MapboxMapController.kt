@@ -38,6 +38,8 @@ import org.envirocar.map.MapController
 import org.envirocar.map.camera.CameraUpdate
 import org.envirocar.map.camera.MutableCameraState
 import org.envirocar.map.model.Animation
+import org.envirocar.map.model.AttributionSettings
+import org.envirocar.map.model.LogoSettings
 import org.envirocar.map.model.Marker
 import org.envirocar.map.model.Point
 import org.envirocar.map.model.Polygon
@@ -48,7 +50,12 @@ import org.envirocar.map.model.Polyline
  * ---------------------
  * [Mapbox](https://www.mapbox.com) based implementation for [MapController].
  */
-internal class MapboxMapController(private val viewInstance: MapView) : MapController() {
+internal class MapboxMapController(
+    private val viewInstance: MapView,
+    private val attribution: AttributionSettings,
+    private val logo: LogoSettings
+
+) : MapController() {
     override val camera = MutableCameraState()
     private val markers = mutableMapOf<Long, PointAnnotation>()
     private val polygons = mutableMapOf<Long, PolygonAnnotation>()
@@ -70,10 +77,23 @@ internal class MapboxMapController(private val viewInstance: MapView) : MapContr
     )
 
     init {
-        // Disable attribution, compass, logo & scalebar.
-        viewInstance.attribution.enabled = false
+        viewInstance.attribution.enabled = attribution.enabled
+        viewInstance.attribution.position = attribution.gravity
+        attribution.margin.let {
+            viewInstance.attribution.marginLeft = it[0]
+            viewInstance.attribution.marginTop = it[1]
+            viewInstance.attribution.marginRight = it[2]
+            viewInstance.attribution.marginBottom = it[3]
+        }
+        viewInstance.logo.enabled = logo.enabled
+        viewInstance.logo.position = logo.gravity
+        logo.margin.let {
+            viewInstance.logo.marginLeft = it[0]
+            viewInstance.logo.marginTop = it[1]
+            viewInstance.logo.marginRight = it[2]
+            viewInstance.logo.marginBottom = it[3]
+        }
         viewInstance.compass.enabled = false
-        viewInstance.logo.enabled = false
         viewInstance.scalebar.enabled = false
 
         // Once the map style is loaded, make the view visible & mark this instance as ready.

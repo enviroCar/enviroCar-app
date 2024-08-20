@@ -1,5 +1,6 @@
 package org.envirocar.app.views.tracklist
 
+import android.app.Application
 import android.view.View
 import android.widget.ImageButton
 import android.widget.LinearLayout
@@ -10,11 +11,13 @@ import org.envirocar.app.R
 import org.envirocar.app.databinding.FragmentTracklistCardlayoutLocalBinding
 import org.envirocar.app.databinding.FragmentTracklistCardlayoutRemoteBinding
 import org.envirocar.app.views.trackdetails.TrackMapFactory
+import org.envirocar.app.views.utils.MapProviderRepository
 import org.envirocar.core.entity.Track
 import org.envirocar.core.logging.Logger
 import org.envirocar.map.MapController
 import org.envirocar.map.MapView
-import org.envirocar.map.provider.mapbox.MapboxMapProvider
+import org.envirocar.map.model.AttributionSettings
+import org.envirocar.map.model.LogoSettings
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -180,9 +183,18 @@ abstract class AbstractTrackListCardAdapter<E : AbstractTrackListCardAdapter.Tra
 
     private fun setupMapView(view: MapView, track: Track) {
         LOG.info("setupMapView()")
-        // TODO(alexmercerind): Retrieve currently selected provider from a common repository.
         mapControllers
-            .getOrPut(track.id) { view.getController(MapboxMapProvider()) }
+        mapControllers
+            .getOrPut(track.id) {
+                view.getController(
+                    MapProviderRepository(
+                        view.context.applicationContext as Application,
+                        // Only display logo inside the [RecyclerView] since click event won't be handled.
+                        AttributionSettings.Builder().withEnabled(false).build(),
+                        LogoSettings.default()
+                    ).value
+                )
+            }
             .run {
                 val factory = TrackMapFactory(track)
                 factory.cameraUpdateBasedOnBounds?.let { notifyCameraUpdate(it) }

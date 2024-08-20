@@ -16,6 +16,8 @@ android {
 
         multiDexEnabled true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField "String", "MAPTILER_API_KEY", "\"${project.properties["MAPTILER_API_KEY"]}\""
     }
 
     buildFeatures {

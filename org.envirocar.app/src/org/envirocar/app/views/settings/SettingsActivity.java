@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2021 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -21,6 +21,7 @@ package org.envirocar.app.views.settings;
 import android.os.Bundle;
 import android.view.View;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -35,18 +36,42 @@ import org.envirocar.app.recording.RecordingType;
 import org.envirocar.app.views.settings.custom.AutoConnectIntervalPreference;
 import org.envirocar.app.views.settings.custom.GPSConnectionDurationPreference;
 import org.envirocar.app.views.settings.custom.GPSTrimDurationPreference;
+import org.envirocar.app.views.settings.custom.MapViewPreference;
 import org.envirocar.app.views.settings.custom.SamplingRatePreference;
 import org.envirocar.app.views.settings.custom.TimePickerPreferenceDialog;
 
 /**
  * @author dewall
  */
-public class SettingsActivity extends AppCompatActivity {
+public class SettingsActivity extends AppCompatActivity implements MapViewPreference.MapViewPreferenceNotifier {
+
+    public static final String MAP_VIEW_SETTINGS_CHANGED = "MAP_VIEW_SETTINGS_CHANGED";
+
+    private boolean mapViewSettingsChanged = false;
+
+    @Override
+    public void notifyMapViewSettingsChanged() {
+        mapViewSettingsChanged = true;
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
+
+        getOnBackPressedDispatcher().addCallback(
+                this,
+                new OnBackPressedCallback(true) {
+                    @Override
+                    public void handleOnBackPressed() {
+                        if (mapViewSettingsChanged) {
+                            getIntent().putExtra(MAP_VIEW_SETTINGS_CHANGED, true);
+                            setResult(RESULT_OK, getIntent());
+                        }
+                        finish();
+                    }
+                }
+        );
 
         // add the settingsfragment
         getSupportFragmentManager()
@@ -79,7 +104,6 @@ public class SettingsActivity extends AppCompatActivity {
             this.gpsTrimDuration = findPreference(getString(R.string.prefkey_track_trim_duration));
             this.gpsAutoRecording = findPreference(getString(R.string.prefkey_gps_mode_ar));
 
-
             // set initial state
             this.searchInterval.setVisible(((CheckBoxPreference) automaticRecording).isChecked());
             this.gpsTrimDuration.setVisible(((CheckBoxPreference) enableGPSMode).isChecked());
@@ -107,6 +131,8 @@ public class SettingsActivity extends AppCompatActivity {
                 fragment = TimePickerPreferenceDialog.newInstance(preference.getKey());
             } else if (preference instanceof SamplingRatePreference) {
                 fragment = SamplingRatePreference.Dialog.newInstance(preference.getKey());
+            } else if (preference instanceof MapViewPreference) {
+                fragment = MapViewPreference.Dialog.newInstance(preference.getKey());
             } else if (preference instanceof GPSTrimDurationPreference) {
                 fragment = TimePickerPreferenceDialog.newInstance(preference.getKey());
             } else if (preference instanceof GPSConnectionDurationPreference) {

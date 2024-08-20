@@ -3,8 +3,11 @@ package org.envirocar.map.provider.maplibre
 import android.content.Context
 import org.envirocar.map.MapController
 import org.envirocar.map.MapProvider
+import org.envirocar.map.model.AttributionSettings
+import org.envirocar.map.model.LogoSettings
 import org.maplibre.android.MapLibre
 import org.maplibre.android.maps.MapView
+import org.maplibre.android.maps.Style
 
 /**
  * [MapLibreMapProvider]
@@ -20,9 +23,15 @@ import org.maplibre.android.maps.MapView
  * * `https://`
  * * `asset://`
  * * `file://`
+ * @param attribution
+ * The attribution settings for the map.
+ * @param logo
+ * The logo settings for the map.
  */
 class MapLibreMapProvider(
-    private val style: String
+    private val style: String = DEFAULT_STYLE,
+    private val attribution: AttributionSettings = DEFAULT_ATTRIBUTION,
+    private val logo: LogoSettings = DEFAULT_LOGO
 ) : MapProvider {
     private lateinit var viewInstance: MapView
     private lateinit var controllerInstance: MapLibreMapController
@@ -36,7 +45,7 @@ class MapLibreMapProvider(
         if (!::viewInstance.isInitialized) {
             viewInstance = MapView(context).apply {
                 getMapAsync {
-                    it.setStyle(style)
+                    it.setStyle(Style.Builder().fromUri(style))
                 }
             }
         }
@@ -48,12 +57,20 @@ class MapLibreMapProvider(
             error("MapLibreMapProvider is not initialized.")
         }
         if (!::controllerInstance.isInitialized) {
-            controllerInstance = MapLibreMapController(viewInstance)
+            controllerInstance = MapLibreMapController(
+                viewInstance,
+                attribution,
+                logo
+            )
         }
         return controllerInstance
     }
 
     companion object {
+        const val DEFAULT_STYLE = "asset://maplibre_default_style.json"
+        val DEFAULT_ATTRIBUTION = AttributionSettings.default()
+        val DEFAULT_LOGO = LogoSettings.default()
+
         @Volatile
         private var initailized = false
     }

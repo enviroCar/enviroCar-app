@@ -147,6 +147,10 @@
     <string name="prefkey_search_interval" tools:ignore="MissingTranslation">pref_search_interval</string>
     <string name="prefkey_automatic_recording" tools:ignore="MissingTranslation">pref_automatic_recording</string>
     <string name="prefkey_samplingrate" tools:ignore="MissingTranslation">pref_samplingrate</string>
+    <string name="prefkey_map_view" tools:ignore="MissingTranslation">prefkey_map_view</string>
+    <string name="prefkey_map_view_map_provider" tools:ignore="MissingTranslation">prefkey_map_view_provider</string>
+    <string name="prefkey_map_view_maplibre_style" tools:ignore="MissingTranslation">prefkey_map_view_maplibre_style</string>
+    <string name="prefkey_map_view_mapbox_style" tools:ignore="MissingTranslation">prefkey_map_view_mapbox_style</string>
     <string name="prefkey_gps_connection" tools:ignore="MissingTranslation">pref_gps_connection</string>
 
     <string name="prefkey_privacy" tools:ignore="MissingTranslation">pref_privacy</string>

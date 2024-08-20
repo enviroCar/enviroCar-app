@@ -24,6 +24,7 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.transition.Slide;
+import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
@@ -43,6 +44,7 @@ import org.envirocar.app.R;
 import org.envirocar.app.databinding.ActivityTrackDetailsLayoutBinding;
 import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.app.injection.BaseInjectorActivity;
+import org.envirocar.app.views.utils.MapProviderRepository;
 import org.envirocar.core.EnviroCarDB;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Measurement;
@@ -55,7 +57,8 @@ import org.envirocar.core.trackprocessing.statistics.TrackStatisticsProvider;
 import org.envirocar.core.utils.CarUtils;
 import org.envirocar.map.MapController;
 import org.envirocar.map.MapView;
-import org.envirocar.map.provider.mapbox.MapboxMapProvider;
+import org.envirocar.map.model.AttributionSettings;
+import org.envirocar.map.model.LogoSettings;
 
 import java.text.DateFormat;
 import java.text.DecimalFormat;
@@ -249,8 +252,20 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
         if (mMapController != null) {
             return;
         }
-        mMapController = mMapView.getController(new MapboxMapProvider());
-
+        mMapController = mMapView.getController(
+                new MapProviderRepository(
+                        getApplication(),
+                        // Only display logo in the top right of the screen.
+                        // The click event is not sent to the background of [CollapsingToolbarLayout].
+                        new AttributionSettings.Builder()
+                                .withEnabled(false)
+                                .build(),
+                        new LogoSettings.Builder()
+                                .withGravity(Gravity.TOP | Gravity.END)
+                                .withMargin(new float[]{12.0F, 12.0F, 12.0F, 12.0F})
+                                .build()
+                ).getValue()
+        );
         final TrackMapFactory factory = new TrackMapFactory(track);
 
         mMapController.setMinZoom(factory.getMinZoom());

@@ -39,6 +39,7 @@ import org.envirocar.app.R;
 import org.envirocar.app.databinding.ActivityMapExpandedBinding;
 import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.app.BaseApplicationComponent;
+import org.envirocar.app.views.utils.MapProviderRepository;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.logging.Logger;
@@ -46,8 +47,9 @@ import org.envirocar.core.EnviroCarDB;
 import org.envirocar.map.MapController;
 import org.envirocar.map.MapView;
 import org.envirocar.map.model.Animation;
+import org.envirocar.map.model.AttributionSettings;
+import org.envirocar.map.model.LogoSettings;
 import org.envirocar.map.model.Polyline;
-import org.envirocar.map.provider.mapbox.MapboxMapProvider;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -239,12 +241,23 @@ public class MapExpandedActivity extends BaseInjectorActivity {
     }
 
     private void initMapView() {
-        // TODO(alexmercerind): Retrieve currently selected provider from a common repository.
         if (mMapController != null) {
             return;
         }
-        mMapController = mMapViewExpanded.getController(new MapboxMapProvider());
-
+        mMapController = mMapViewExpanded.getController(
+                new MapProviderRepository(
+                        getApplication(),
+                        // Display attribution in top right of the screen.
+                        new AttributionSettings.Builder()
+                                .withGravity(Gravity.TOP | Gravity.END)
+                                .withMargin(new float[]{12.0F, 12.0F, 12.0F, 12.0F})
+                                .build(),
+                        new LogoSettings.Builder()
+                                .withGravity(Gravity.TOP | Gravity.END)
+                                .withMargin(new float[]{12.0F, 12.0F, 84.0F, 12.0F})
+                                .build()
+                ).getValue()
+        );
         final TrackMapFactory factory = new TrackMapFactory(track);
 
         mMapController.setMinZoom(factory.getMinZoom());
