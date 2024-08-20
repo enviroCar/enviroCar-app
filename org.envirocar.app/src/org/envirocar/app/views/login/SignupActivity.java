@@ -21,6 +21,7 @@ package org.envirocar.app.views.login;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.Selection;
 import android.text.Spannable;
@@ -63,6 +64,7 @@ import org.envirocar.core.logging.Logger;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
@@ -315,12 +317,12 @@ public class SignupActivity extends BaseInjectorActivity {
     private void makeClickableTextLinks() {
         List<Pair<String, View.OnClickListener>> clickableStrings = Arrays.asList(
                 new Pair<>(getString(R.string.terms_and_conditions), v -> {
-                    LOG.info("Terms and Conditions clicked. Showing dialog");
-                    showTermsOfUseDialog();
+                    LOG.info("Redirecting to Terms and Conditions webpage ");
+                    showTermsOfUseBrowser();
                 }),
                 new Pair<>(getString(R.string.privacy_statement), v -> {
-                    LOG.info("Privacy Policy clicked. Showing dialog");
-                    showPrivacyStatementDialog();
+                    LOG.info("Redirecting to Privacy Policy webpage");
+                    showPrivacyStatementBrowser();
                 })
         );
 
@@ -352,16 +354,49 @@ public class SignupActivity extends BaseInjectorActivity {
         }
     }
 
-    private void showTermsOfUseDialog() {
-        LOG.info("Show Terms of Use Dialog");
-        agreementManager.showLatestTermsOfUseDialogObservable(this)
-                .subscribe(tou -> LOG.info("Closed Dialog"));
-    }
+    private void showTermsOfUseBrowser() {
+        if (Locale.getDefault().getLanguage() == "en") {
+            String TOUwebpage = "https://envirocar.org/TermsOfUse.html?lng=en"; //TOU-->TermsOfUse
+            Intent TOUintent = new Intent(Intent.ACTION_VIEW);
 
-    private void showPrivacyStatementDialog() {
-        LOG.info("Show Privacy Statement dialog");
-        agreementManager.showLatestPrivacyStatementDialogObservable(this)
-                .subscribe(ps -> LOG.info("Closed Dialog"));
+            LOG.info("Redirected to the Terms and Conditions webpage (English)");
+            //To handle ActivityNotFoundException ,there may be zero activities to handle the Intent.
+            if (TOUintent.resolveActivity(getPackageManager()) != null) {
+                TOUintent.setData(Uri.parse(TOUwebpage));
+                startActivity(TOUintent);
+            }
+        } else{
+            String TOUwebpage = "https://envirocar.org/TermsOfUse.html?lng=de"; //TOU-->TermsOfUse
+            Intent TOUintent = new Intent(Intent.ACTION_VIEW);
+
+            LOG.info("Redirected to the Terms and Conditions webpage (German)");
+            //To handle ActivityNotFoundException ,there may be zero activities to handle the Intent.
+            if (TOUintent.resolveActivity(getPackageManager()) != null) {
+                TOUintent.setData(Uri.parse(TOUwebpage));
+                startActivity(TOUintent);
+            }
+        }
+
+    }
+    private void showPrivacyStatementBrowser() {
+        if (Locale.getDefault().getLanguage() == "en") {
+            String condWebpage = "https://envirocar.org/conditions.html?lng=en"; //Cond-->Condition
+            Intent condintent = new Intent(Intent.ACTION_VIEW);
+            LOG.info("Redirected to Privacy Policy webpage(English)");
+            if (condintent.resolveActivity(getPackageManager()) != null) {
+                condintent.setData(Uri.parse(condWebpage));
+                startActivity(condintent);
+            }
+        }
+        else{
+            String condWebpage = "https://envirocar.org/conditions.html?lng=de"; //Cond-->Condition
+            Intent condintent = new Intent(Intent.ACTION_VIEW);
+            LOG.info("Redirected to Privacy Policy webpage(German)");
+            if (condintent.resolveActivity(getPackageManager()) != null) {
+                condintent.setData(Uri.parse(condWebpage));
+                startActivity(condintent);
+            }
+        }
     }
 
     /**
