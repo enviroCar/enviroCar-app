@@ -10,11 +10,11 @@ This is the app for the enviroCar platform. (www.envirocar.org)
 
 enviroCar Mobile is an Android application for smartphones that can be used to collect Extended Floating Car Data (XFCD). The app communicates with an OBD2 Bluetooth adapter while the user drives. This enables read access to data from the vehicle’s engine control. The data is recorded along with the smartphone’s GPS position data.The driver can view statistics about his drives and publish his data as open data. The latter happens by uploading tracks to the enviroCar server, where the data is available under the ODbL license for further analysis and use. The data can also be viewed and analyzed via the enviroCar website. enviroCar Mobile is one of the enviroCar Citizen Science Platform’s components (www.envirocar.org).
 
-
 **Key Technologies**
 
 -	Android
 -	Java
+-	Kotlin
 
 **Benefits**
 
@@ -24,9 +24,7 @@ enviroCar Mobile is an Android application for smartphones that can be used to c
 - Publishing anonymized track data as Open Data
 - Map based visualization of track data and track statistics
 
-
 ## Quick Start 
-
 
 ### Installation
 
@@ -40,23 +38,16 @@ This software uses the gradle build system and is optimized to work within Andro
 The setup of the source code should be straightforward. Just follow the Android Studio guidelines
 for existing projects.
 
-### Setting up the mapbox SDK
-The enviroCar App project uses the ``Mapbox Maven repository``. **Mapbox is a mapping and location cloud platform for developers.**
-To build the project you need the mapbox account, you can create an account for free from [here](https://account.mapbox.com/auth/signup/). 
-Once you have created an account, you will need to configure credentials 
+### Setting up the map module
 
-### Configure credentials
-1. From your account's [tokens page](https://account.mapbox.com/access-tokens/), click the **Create a token** button.
-2. Give your token a name and do check that you have checked ``Downloads:Read`` scope.
-3. Make sure you copy your token and save it somehwere as you will not be able to see the token again. 
+The software includes a [map module](./org.envirocar.map), which is used to visualize the track data & statistics on a map. It may require additional configuration as part of the development process. Please refer to the [respective documentation](./org.envirocar.map/README.md) for more information.
 
-### Configure your secret token
-1. This is a secret token, and we will use it in ``gradle.properties`` file. You should not expose the token in public, that's why add ``gradle.properties`` in ``.gitignore`` . It's also possible to store the sercret token in your local user's _gradle.properties_ file, usually stored at _«USER_HOME»/.gradle/gradle.properties_. 
-2. Now open the ``gradle.properties`` file and add this line ``MAPBOX_DOWNLOADS_TOKEN = <your-secret-token> ``. The secret token has to be pasted without any quote marks. 
-``MAPBOX_DOWNLOADS_TOKEN=sk.dutaksgjdvlsayVDSADUTLASDs@!ahsvdaslud*JVAS@%DLUTSVgdJLA&&>Hdval.sujdvadvasuydgalisy``(this is just a random string, not a real token)
-3. That't it. You are good to go!
+The map module provides support for multiple map providers & libraries. These may be enabled or disabled during compilation.
 
-If you are still facing any problem, checkout the [Mapbox guide](https://docs.mapbox.com/android/maps/guides/install/) or feel free to [create an issue](https://github.com/enviroCar/enviroCar-app/issues/new)
+
+The application also allows to switch between the map providers & styles during runtime as well.
+
+[MapTiler](https://www.maptiler.com/) API key needs to be specified as `MAPTILER_API_KEY` in the [`gradle.properties` file](./gradle.properties) before compilation. MapTiler (a tile provider) is configured to work with Mapbox map provider & MapLibre map provider.
 
 ## License
 
@@ -100,17 +91,16 @@ Check out the [Changelog](https://github.com/enviroCar/enviroCar-app/blob/master
 
 ## OBD simulator
 
-The repository also contains a simple OBD simulator (dumb, nothing fancy) that can
-be used on another Android device and mock the actual car adapter.
+The repository also contains a simple OBD simulator (dumb, nothing fancy) that can be used on another Android device and mock the actual car adapter.
 
 ## References
 
 This app is in operational use in the [CITRAM - Citizen Science for Traffic Management](https://www.citram.de/) project. Check out the [enviroCar website](https://envirocar.org/) for more information about the enviroCar project.
 
 ## How to Contribute
-For contributing to the enviroCar Android App, please, have a look at our [Contributor Guidelines](https://github.com/enviroCar/enviroCar-app/blob/master/CONTRIBUTING.md).
 
+For contributing to the enviroCar Android App, please, have a look at our [Contributor Guidelines](https://github.com/enviroCar/enviroCar-app/blob/master/CONTRIBUTING.md).
 
 ## Contributors
 
-Here is the list of [contributors to this project](https://github.com/enviroCar/enviroCar-app/blob/master/CONTRIBUTORS.md)
+Here is the list of [contributors to this project](https://github.com/enviroCar/enviroCar-app/blob/master/CONTRIBUTORS.md).
