@@ -4,8 +4,6 @@ import android.graphics.Color
 import android.view.View
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.graphics.drawable.toBitmap
-import com.mapbox.maps.plugin.attribution.attribution
-import com.mapbox.maps.plugin.logo.logo
 import kotlinx.coroutines.flow.update
 import org.envirocar.map.MapController
 import org.envirocar.map.camera.CameraUpdate
@@ -19,6 +17,7 @@ import org.envirocar.map.model.Polygon
 import org.envirocar.map.model.Polyline
 import org.maplibre.android.camera.CameraPosition
 import org.maplibre.android.camera.CameraUpdateFactory
+import org.maplibre.android.geometry.LatLng
 import org.maplibre.android.geometry.LatLngBounds
 import org.maplibre.android.maps.MapLibreMap
 import org.maplibre.android.maps.MapView
@@ -369,9 +368,9 @@ internal class MapLibreMapController(
     }
 
     private fun Point.toMapLibrePoint() = org.maplibre.geojson.Point.fromLngLat(longitude, latitude)
-    private fun Point.toMapLibreLatLng() = org.maplibre.android.geometry.LatLng(latitude, longitude)
+    private fun Point.toMapLibreLatLng() = LatLng(latitude, longitude)
 
-    private fun org.maplibre.android.geometry.LatLng.toPoint() = Point(longitude, latitude)
+    private fun LatLng.toPoint() = Point(longitude, latitude)
 
     private fun Float.toMapLibreBearing() = this
         .times(MAPLIBRE_CAMERA_BEARING_MAX - MAPLIBRE_CAMERA_BEARING_MIN)
