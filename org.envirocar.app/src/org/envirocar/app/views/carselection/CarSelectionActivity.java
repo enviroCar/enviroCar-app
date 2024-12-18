@@ -26,12 +26,13 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
@@ -77,7 +78,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
 
     protected FloatingActionButton mFab;
 
-    protected ListView mCarListView;
+    protected RecyclerView mCarRecyclerView;
 
     @Inject
     protected DAOProvider mDAOProvider;
@@ -93,7 +94,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
     protected View headerView;
 
     private CarSelectionAddCarFragment addCarFragment;
-    private CarSelectionListAdapter mCarListAdapter;
+    private CarSelectionRecyclerAdapter mCarRecyclerAdapter;
     private Disposable loadingCarsSubscription;
 
 
@@ -114,7 +115,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
         mExpToolbar = binding.activityCarSelectionLayoutExptoolbar;
         loadingView = binding.actvityCarSelectionLayoutLoading;
         mFab = binding.activityCarSelectionNewCarFab;
-        mCarListView = binding.activityCarSelectionLayoutCarlist;
+        mCarRecyclerView = binding.activityCarSelectionLayoutCarRecycler;
         infoBackground = binding.layoutGeneralInfoBackground.getRoot();
         infoBackgroundImg = binding.layoutGeneralInfoBackground.layoutGeneralInfoBackgroundImg;
         infoBackgroundFirst = binding.layoutGeneralInfoBackground.layoutGeneralInfoBackgroundFirstline;
@@ -222,14 +223,14 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
         Car selectedCar = mCarManager.getCar();
         LOG.info(String.format("setupListView() selected car: %s", selectedCar));
 
-        mCarListAdapter = new CarSelectionListAdapter(this, selectedCar, new ArrayList<>(),
-                new CarSelectionListAdapter.OnCarListActionCallback() {
+        mCarRecyclerAdapter = new CarSelectionRecyclerAdapter(this, selectedCar, new ArrayList<>(),
+                new CarSelectionRecyclerAdapter.OnCarListActionCallback() {
 
                     @Override
                     public void onSelectCar(Car car) {
                         Car selectedCar = mCarManager.getCar();
                         mCarManager.setCar(car);
-                        mCarListAdapter.notifyDataSetChanged();
+                        mCarRecyclerAdapter.notifyDataSetChanged();
 
                         // Show Snackbar.
                         if (!car.equals(selectedCar)) {
@@ -264,13 +265,15 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
                                         mSelectedButton.setChecked(false);
                                     }
                                     // then remove it from the list and show a snackbar.
-                                    mCarListAdapter.removeCarItem(car);// Nothing to do on cancel
+                                    mCarRecyclerAdapter.removeCarItem(car);// Nothing to do on cancel
                                 })
                                 .setNegativeButton(R.string.cancel,null)
                                 .show();
                     }
                 });
-        mCarListView.setAdapter(mCarListAdapter);
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
+        mCarRecyclerView.setLayoutManager(layoutManager);
+        mCarRecyclerView.setAdapter(mCarRecyclerAdapter);
     }
 
     @Override
@@ -281,63 +284,63 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
 
     private void reloadCars() {
         LOG.debug("reloadCars()");
-        mCarListAdapter.clear();
+        mCarRecyclerAdapter.clear();
         loadingCarsSubscription = mCarManager.getAllDeserializedCars()
-        .flatMap(cars -> {
-            Observable<List<Car>> carsObs = Observable.just(cars);
-            if (mUserHandler.isLoggedIn() && !mCarManager.isDownloaded()) {
-                LOG.info("Loading Cars: getUserStatistic has not downloaded its remote cars. " +
-                        "Trying to fetch these.");
-                carsObs = carsObs.concatWith(mCarManager.downloadRemoteCarsOfUser());
-            }
-            return carsObs;
-        })
-        .subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribeWith(new DisposableObserver<List<Car>>() {
-            @Override
-            public void onStart() {
-                LOG.info("onStart()");
-                loadingView.setVisibility(View.VISIBLE);
-            }
-
-            @Override
-            public void onComplete() {
-                LOG.info("onCompleted() loading of all cars");
-                loadingView.setVisibility(View.INVISIBLE);
-                mCarListAdapter.notifyDataSetChanged();
-                if (mCarListAdapter.getCount() > 0) {
-                    headerView.setVisibility(View.VISIBLE);
-                    ECAnimationUtils.animateHideView(CarSelectionActivity.this, infoBackground, R.anim.fade_out);
-                }
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                LOG.error(e.getMessage(), e);
-                loadingView.setVisibility(View.INVISIBLE);
-            }
-
-            @Override
-            public void onNext(List<Car> cars) {
-                LOG.info("onNext(List<Car> cars) " + cars.size());
-                for (Car car : cars) {
-                    if (mCarListAdapter.getPosition(car) < 0) {
-                        LOG.info("Adding car: " + car);
-                        mCarListAdapter.addCarItem(car);
+                .flatMap(cars -> {
+                    Observable<List<Car>> carsObs = Observable.just(cars);
+                    if (mUserHandler.isLoggedIn() && !mCarManager.isDownloaded()) {
+                        LOG.info("Loading Cars: getUserStatistic has not downloaded its remote cars. " +
+                                "Trying to fetch these.");
+                        carsObs = carsObs.concatWith(mCarManager.downloadRemoteCarsOfUser());
                     }
-                }
+                    return carsObs;
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new DisposableObserver<List<Car>>() {
+                    @Override
+                    public void onStart() {
+                        LOG.info("onStart()");
+                        loadingView.setVisibility(View.VISIBLE);
+                    }
 
-                // set the first one as the current car, if non is selected
-                Car selectedCar = mCarManager.getCar();
-                LOG.info(String.format("Selected car: %s", selectedCar));
-                if (selectedCar == null && cars.size() > 0) {
-                    mCarManager.setCar(cars.get(0));
-                }
-                
-            }
+                    @Override
+                    public void onComplete() {
+                        LOG.info("onCompleted() loading of all cars");
+                        loadingView.setVisibility(View.INVISIBLE);
+                        mCarRecyclerAdapter.notifyDataSetChanged();
+                        if (mCarRecyclerAdapter.getItemCount() > 0) {
+                            headerView.setVisibility(View.VISIBLE);
+                            ECAnimationUtils.animateHideView(CarSelectionActivity.this, infoBackground, R.anim.fade_out);
+                        }
+                    }
 
-        });
+                    @Override
+                    public void onError(Throwable e) {
+                        LOG.error(e.getMessage(), e);
+                        loadingView.setVisibility(View.INVISIBLE);
+                    }
+
+                    @Override
+                    public void onNext(List<Car> cars) {
+                        LOG.info("onNext(List<Car> cars) " + cars.size());
+                        for (Car car : cars) {
+                            if (mCarRecyclerAdapter.getPosition(car) < 0) {
+                                LOG.info("Adding car: " + car);
+                                mCarRecyclerAdapter.addCarItem(car);
+                            }
+                        }
+
+                        // set the first one as the current car, if non is selected
+                        Car selectedCar = mCarManager.getCar();
+                        LOG.info(String.format("Selected car: %s", selectedCar));
+                        if (selectedCar == null && cars.size() > 0) {
+                            mCarManager.setCar(cars.get(0));
+                        }
+
+                    }
+
+                });
     }
 
     /**
@@ -379,7 +382,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
         LOG.info("onCarAdded(Car)");
 
         if (mCarManager.addCar(car)) {
-            mCarListAdapter.addCarItem(car);
+            mCarRecyclerAdapter.addCarItem(car);
 
             headerView.setVisibility(View.VISIBLE);
             ECAnimationUtils.animateHideView(this, infoBackground, R.anim.fade_out);
@@ -388,7 +391,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
                     car.getManufacturer(), car.getModel()));
 
             // Check the total Cars count after adding, if only 1 car then set it.
-            int count = mCarListAdapter.getCount();
+            int count = mCarRecyclerAdapter.getItemCount();
             if(count == 1) {
                 mCarManager.setCar(car);
                 showSnackbar(String.format(getString(R.string.car_selection_car_selected_after_add),
@@ -429,7 +432,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
         if (vehicle.getEmissionClass() != null) {
             result.setEmissionClass(vehicle.getEmissionClass());
         }
-        
+
         return result;
     }
 
