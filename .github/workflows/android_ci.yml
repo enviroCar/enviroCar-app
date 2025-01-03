@@ -34,7 +34,7 @@ jobs:
         path: org.envirocar.app/build/outputs/apk/debug/org.envirocar.app-debug.apk
         
     - name: Upload EnviroCar-OBD-Simulator APK
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v4
       with:
         name: envirocar-obd-simulator
         path: android-obd-simulator/build/outputs/apk/debug/android-obd-simulator-debug.apk
