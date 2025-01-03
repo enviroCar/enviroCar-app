@@ -51,5 +51,6 @@
     <dimen name="fab_margin_download_button_top">16dp</dimen>
 
     <dimen name="dashboard_selector">57dp</dimen>
+    <dimen name="cardview_corner_radius">4dp</dimen>
 
 </resources>
