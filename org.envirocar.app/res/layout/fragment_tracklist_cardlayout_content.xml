@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
 
     Copyright (C) 2013 - 2021 the enviroCar community
 
@@ -19,33 +18,30 @@
     with the enviroCar app. If not, see http://www.gnu.org/licenses/.
 
 -->
-<LinearLayout
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/fragment_tracklist_cardlayout_content"
-    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    xmlns:mapbox="http://schemas.android.com/apk/res-auto">
+    android:orientation="vertical">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="150dp">
 
-        <com.mapbox.mapboxsdk.maps.MapView
+        <org.envirocar.map.MapView
             android:id="@+id/fragment_tracklist_cardlayout_map"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:clickable="false"
-            mapbox:mapbox_renderTextureMode="true"
             android:background="@android:color/background_light"
-            android:transitionName="transition_track_details"/>
+            android:clickable="false"
+            android:transitionName="transition_track_details" />
 
         <ImageButton
-            android:id="@+id/fragment_tracklist_cardlayout_invis_mapbutton"
+            android:id="@+id/fragment_tracklist_cardlayout_invisible_mapbutton"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@android:color/transparent"
-            android:elevation="4dp"/>
+            android:elevation="4dp" />
 
     </RelativeLayout>
 
@@ -70,14 +66,14 @@
                 android:gravity="center"
                 android:text="0:00"
                 android:textColor="@color/blue_light_cario"
-                android:textSize="24sp"/>
+                android:textSize="24sp" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:text="@string/track_list_details_duration"
-                android:textSize="10sp"/>
+                android:textSize="10sp" />
         </LinearLayout>
 
         <LinearLayout
@@ -95,14 +91,14 @@
                 android:gravity="center"
                 android:text="0:00"
                 android:textColor="@color/blue_light_cario"
-                android:textSize="24sp"/>
+                android:textSize="24sp" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:text="@string/track_list_details_distance"
-                android:textSize="10sp"/>
+                android:textSize="10sp" />
         </LinearLayout>
 
     </LinearLayout>

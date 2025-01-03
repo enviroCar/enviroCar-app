@@ -108,21 +108,8 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
         loadDataset();
     }
 
-    @Override
-    public void onLowMemory() {
-        super.onLowMemory();
-        mRecyclerViewAdapter.onLowMemory();
-
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        mRecyclerViewAdapter.onDestroy();
-    }
-
     protected void onUploadTracksFABClicked() {
-        new MaterialAlertDialogBuilder(getContext(), R.style.MaterialDialog)
+        new MaterialAlertDialogBuilder(requireContext(), R.style.MaterialDialog)
                 .setTitle(R.string.track_list_upload_all_tracks_title)
                 .setMessage(R.string.track_list_upload_all_tracks_content)
                 .setIcon(R.drawable.ic_cloud_upload_white_24dp)
@@ -218,7 +205,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
         LOG.info("Received TrackchunkEndUploadedEvent for %s", event.getTrack().getName());
 
         this.getActivity().runOnUiThread(() -> {
-            mRecyclerViewAdapter.removeItem(event.getTrack());
+            mRecyclerViewAdapter.removeTrack(event.getTrack());
             if(mTrackList.isEmpty()){
                 showNoTracksInfo();
             }
@@ -411,7 +398,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
         @Override
         public void onNext(Track track) {
             // Update the lists.
-            mRecyclerViewAdapter.removeItem(track);
+            mRecyclerViewAdapter.removeTrack(track);
 
             if (onTrackUploadedListener != null)
                 onTrackUploadedListener.onTrackUploaded(track);
@@ -546,7 +533,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
             if (result.isSuccessful()) {
                 numberOfSuccesses++;
                 // Update the lists.
-                mRecyclerViewAdapter.removeItem(result.getTrack());
+                mRecyclerViewAdapter.removeTrack(result.getTrack());
 
                 if (onTrackUploadedListener != null)
                     onTrackUploadedListener.onTrackUploaded(result.getTrack());

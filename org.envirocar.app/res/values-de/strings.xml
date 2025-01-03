@@ -149,4 +149,6 @@
     <!--    Extended MapView    -->
     <!-- ###################### -->
     <string name="mapview_extended_select_phenomena">Attributauswahl</string>
+
+    <string name="track_upload_active">Track wird hochgeladen</string>
 </resources>

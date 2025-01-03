@@ -103,6 +103,11 @@
     <string name="pref_dvfo_campaign">Ausgewähltes Messprofil</string>
     <string name="pref_dvfo_campaign_sub">Wähle ein Messprofil, das kontrolliert, welche PIDs während Deiner Fahrt erfasst werden.</string>
 
+    <!-- MapView settings-->
+    <string name="map_view_title">Karten Style</string>
+    <string name="map_view_summary">Passe das Aussehen der Karten an, indem ein alternativer Kartenanbieter sowie ein Karten Style ausgewählt wird.</string>
+    <string name="map_view_provider">Kartenanbieter:</string>
+    <string name="map_view_style">Style:</string>
 
     <string-array name="pref_campaign_profile_entries">
         <item>Standard</item>

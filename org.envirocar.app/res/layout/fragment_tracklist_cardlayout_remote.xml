@@ -70,7 +70,7 @@
                 android:layout_below="@id/fragment_tracklist_cardlayout_toolbar">
 
                 <TextView
-                    android:id="@+id/fragment_tracklist_cardlayout_downloading_notification"
+                    android:id="@+id/fragment_tracklist_cardlayout_remote_downloading_notification"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerInParent="true"
@@ -89,7 +89,7 @@
                 android:visibility="gone"/>
 
             <com.github.jorgecastilloprz.FABProgressCircle
-                android:id="@+id/fragment_tracklist_cardlayout_remote_progresscircle"
+                android:id="@+id/fragment_tracklist_cardlayout_remote_progress_circle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
@@ -98,7 +98,7 @@
                 card_view:reusable="true">
 
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:id="@+id/fragment_tracklist_cardlayout_remote_downloadfab"
+                    android:id="@+id/fragment_tracklist_cardlayout_remote_download_fab"
                     style="@style/Widget.enviroCar.Fab"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

@@ -22,8 +22,6 @@ package org.envirocar.app.injection.modules;
 import android.app.Activity;
 import android.content.Context;
 
-import com.mapbox.mapboxsdk.Mapbox;
-
 import org.envirocar.app.injection.scopes.PerActivity;
 import org.envirocar.app.views.dashboard.DashboardFragment;
 import org.envirocar.app.views.others.OthersFragment;
@@ -81,11 +79,4 @@ public class MainActivityModule {
     public OthersFragment provideOthersFragment(){
         return new OthersFragment();
     }
-
-    @Provides
-    @PerActivity
-    public Mapbox provideMapBox() {
-        return Mapbox.getInstance(mActivity, "");
-    }
-
 }

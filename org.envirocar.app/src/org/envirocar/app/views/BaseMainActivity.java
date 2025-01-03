@@ -36,7 +36,6 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.snackbar.Snackbar;
-import com.mapbox.mapboxsdk.Mapbox;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.BaseApplicationComponent;
@@ -107,8 +106,6 @@ public class BaseMainActivity extends BaseInjectorActivity {
     protected TrackListPagerFragment trackListPagerFragment;
     @Inject
     protected OthersFragment othersFragment;
-    @Inject
-    protected Mapbox mapbox;
     @Inject
     protected AgreementManager agreementManager;
 

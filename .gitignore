@@ -1,4 +1,6 @@
-.idea/
+**/.idea/**
+!.idea/.name
+!.idea/icon.svg
 build/
 */build/
 .gradle/
@@ -9,3 +11,4 @@ local.properties
 gradle-release.properties
 lcs-keystore
 */.settings/
+**/.DS_Store

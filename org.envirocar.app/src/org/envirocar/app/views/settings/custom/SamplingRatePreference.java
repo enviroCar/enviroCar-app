@@ -82,7 +82,8 @@ public class SamplingRatePreference extends DialogPreference implements TimePick
         protected void onBindDialogView(View view) {
             super.onBindDialogView(view);
 
-
+            textView = view.findViewById(R.id.preference_sampling_rate_dialog_text);
+            numberPicker = view.findViewById(R.id.preference_sampling_rate_dialog_picker);
 
             // set min/max values
             this.numberPicker.setMinValue(MIN_VALUE);

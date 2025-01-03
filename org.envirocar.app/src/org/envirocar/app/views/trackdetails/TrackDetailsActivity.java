@@ -20,11 +20,11 @@ package org.envirocar.app.views.trackdetails;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.transition.Slide;
+import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
@@ -32,29 +32,19 @@ import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.widget.NestedScrollView;
 
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.mapbox.geojson.Feature;
-import com.mapbox.geojson.Point;
-import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
-import com.mapbox.mapboxsdk.geometry.LatLngBounds;
-import com.mapbox.mapboxsdk.maps.MapView;
-import com.mapbox.mapboxsdk.maps.MapboxMap;
-import com.mapbox.mapboxsdk.maps.Style;
-import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
-import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
-import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
 import org.envirocar.app.databinding.ActivityTrackDetailsLayoutBinding;
 import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.app.injection.BaseInjectorActivity;
+import org.envirocar.app.views.utils.MapProviderRepository;
 import org.envirocar.core.EnviroCarDB;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Measurement;
@@ -65,6 +55,10 @@ import org.envirocar.core.exception.UnsupportedFuelTypeException;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.trackprocessing.statistics.TrackStatisticsProvider;
 import org.envirocar.core.utils.CarUtils;
+import org.envirocar.map.MapController;
+import org.envirocar.map.MapView;
+import org.envirocar.map.model.AttributionSettings;
+import org.envirocar.map.model.LogoSettings;
 
 import java.text.DateFormat;
 import java.text.DecimalFormat;
@@ -73,6 +67,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.TimeZone;
 
 import javax.inject.Inject;
@@ -136,9 +131,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
     protected TextView stoptimeValue;
 
     private Track track;
-    TrackMapLayer trackMapOverlay;
-    protected MapboxMap mapboxMap;
-    protected Style mapStyle;
+    private MapController mMapController;
 
     @Override
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
@@ -180,7 +173,6 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
         stoptimeLayout = binding.activityTrackDetailsAttributes.activityTrackDetailsStoptimeContainer;
         stoptimeValue = binding.activityTrackDetailsAttributes.activityTrackDetailsStoptimeValue;
 
-        mMapView.onCreate(savedInstanceState);
         supportPostponeEnterTransition();
 
         // Set the toolbar as default actionbar.
@@ -196,8 +188,6 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
                 .blockingFirst();
         this.track = track;
 
-        this.trackMapOverlay = new TrackMapLayer(track);
-
         String itemTitle = track.getName();
         CollapsingToolbarLayout collapsingToolbarLayout = findViewById(R.id.collapsing_toolbar);
         collapsingToolbarLayout.setTitle(itemTitle);
@@ -207,7 +197,6 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
         TextView title = findViewById(R.id.title);
         title.setText(itemTitle);
 
-        // Initialize the mapview and the trackpath
         initMapView();
         initViewValues(track);
 
@@ -259,62 +248,32 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
      * Initializes the MapView, its base layers and settings.
      */
     private void initMapView() {
-        final LatLngBounds viewBbox = trackMapOverlay.getViewBoundingBox();
-        mMapView.getMapAsync(tep -> {
-            tep.getUiSettings().setLogoEnabled(false);
-            tep.getUiSettings().setAttributionEnabled(false);
-            tep.setStyle(new Style.Builder().fromUrl("https://api.maptiler.com/maps/basic/style.json?key=YJCrA2NeKXX45f8pOV6c "), style -> {
-                mapStyle = style;
-                style.addSource(trackMapOverlay.getGeoJsonSource());
-                style.addLayer(trackMapOverlay.getLineLayer());
-                tep.moveCamera(CameraUpdateFactory.newLatLngBounds(viewBbox, 50));
-                setUpStartStopIcons(style);
-            });
-            mapboxMap = tep;
-            mapboxMap.setMaxZoomPreference(trackMapOverlay.getMaxZoom());
-            mapboxMap.setMinZoomPreference(trackMapOverlay.getMinZoom());
-        });
-    }
-
-    private void setUpStartStopIcons(@NonNull Style loadedMapStyle) {
-        int size = track.getMeasurements().size();
-        if (size >= 2) {
-            //Set Source with start and stop marker
-            Double lng = track.getMeasurements().get(0).getLongitude();
-            Double lat = track.getMeasurements().get(0).getLatitude();
-            GeoJsonSource geoJsonSource = new GeoJsonSource("marker-source1", Feature.fromGeometry(
-                    Point.fromLngLat(lng, lat)));
-            loadedMapStyle.addSource(geoJsonSource);
-
-            lng = track.getMeasurements().get(size - 1).getLongitude();
-            lat = track.getMeasurements().get(size - 1).getLatitude();
-            geoJsonSource = new GeoJsonSource("marker-source2", Feature.fromGeometry(
-                    Point.fromLngLat(lng, lat)));
-            loadedMapStyle.addSource(geoJsonSource);
-
-            //Set symbol layer to set the icons to be displayed at the start and stop
-            loadedMapStyle.addImage("start-marker",
-                    BitmapFactory.decodeResource(
-                            this.getResources(), R.drawable.start_marker));
-            SymbolLayer symbolLayer = new SymbolLayer("marker-layer1", "marker-source1");
-            symbolLayer.withProperties(
-                    PropertyFactory.iconImage("start-marker"),
-                    PropertyFactory.iconAllowOverlap(true),
-                    PropertyFactory.iconIgnorePlacement(true)
-            );
-            loadedMapStyle.addLayer(symbolLayer);
-
-            loadedMapStyle.addImage("stop-marker",
-                    BitmapFactory.decodeResource(
-                            this.getResources(), R.drawable.stop_marker));
-            symbolLayer = new SymbolLayer("marker-layer2", "marker-source2");
-            symbolLayer.withProperties(
-                    PropertyFactory.iconImage("stop-marker"),
-                    PropertyFactory.iconAllowOverlap(true),
-                    PropertyFactory.iconIgnorePlacement(true)
-            );
-            loadedMapStyle.addLayerAbove(symbolLayer, "marker-layer1");
+        // TODO(alexmercerind): Retrieve currently selected provider from a common repository.
+        if (mMapController != null) {
+            return;
         }
+        mMapController = mMapView.getController(
+                new MapProviderRepository(
+                        getApplication(),
+                        // Only display logo in the top right of the screen.
+                        // The click event is not sent to the background of [CollapsingToolbarLayout].
+                        new AttributionSettings.Builder()
+                                .withEnabled(false)
+                                .build(),
+                        new LogoSettings.Builder()
+                                .withGravity(Gravity.TOP | Gravity.END)
+                                .withMargin(new float[]{12.0F, 12.0F, 12.0F, 12.0F})
+                                .build()
+                ).getValue()
+        );
+        final TrackMapFactory factory = new TrackMapFactory(track);
+
+        mMapController.setMinZoom(factory.getMinZoom());
+        mMapController.setMaxZoom(factory.getMaxZoom());
+        mMapController.addPolyline(Objects.requireNonNull(factory.getPolyline()));
+        mMapController.addMarker(Objects.requireNonNull(factory.getStartMarker()));
+        mMapController.addMarker(Objects.requireNonNull(factory.getStopMarker()));
+        mMapController.notifyCameraUpdate(Objects.requireNonNull(factory.getCameraUpdateBasedOnBounds()), null);
     }
 
     private void initViewValues(Track track) {
@@ -438,56 +397,8 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-        mMapView.onStart();
-    }
-
-    @Override
     public void onResume() {
         super.onResume();
         supportStartPostponedEnterTransition();
-        mMapView.onResume();
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        mMapView.onPause();
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        mMapView.onStop();
-    }
-
-    @Override
-    public void onLowMemory() {
-        super.onLowMemory();
-        mMapView.onLowMemory();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (mapStyle != null) {
-            mapStyle.removeLayer(MapLayer.LAYER_NAME);
-            mapStyle.removeLayer("marker-layer1");
-            mapStyle.removeLayer("marker-layer2");
-        } else {
-            LOG.info("Style was null.");
-        }
-        if (mMapView != null) {
-            mMapView.onDestroy();
-        } else {
-            LOG.info("mMapView was null.");
-        }
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        mMapView.onSaveInstanceState(outState);
     }
 }

@@ -22,44 +22,39 @@ package org.envirocar.app.views.trackdetails;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.transition.ChangeBounds;
 import androidx.transition.TransitionManager;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.mapbox.geojson.Feature;
-import com.mapbox.geojson.Point;
-import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
-import com.mapbox.mapboxsdk.geometry.LatLngBounds;
-import com.mapbox.mapboxsdk.maps.MapView;
-import com.mapbox.mapboxsdk.maps.MapboxMap;
-import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
-import com.mapbox.mapboxsdk.maps.Style;
-import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
-import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
-import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
 import org.envirocar.app.R;
 import org.envirocar.app.databinding.ActivityMapExpandedBinding;
 import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.app.BaseApplicationComponent;
+import org.envirocar.app.views.utils.MapProviderRepository;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.EnviroCarDB;
+import org.envirocar.map.MapController;
+import org.envirocar.map.MapView;
+import org.envirocar.map.model.Animation;
+import org.envirocar.map.model.AttributionSettings;
+import org.envirocar.map.model.LogoSettings;
+import org.envirocar.map.model.Polyline;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import javax.inject.Inject;
 
@@ -91,10 +86,9 @@ public class MapExpandedActivity extends BaseInjectorActivity {
     protected TextView legendEnd;
     protected TextView legendName;
 
-    protected MapboxMap mapboxMapExpanded;
-    protected TrackMapLayer trackMapOverlay;
+    private Polyline mPolyline;
+    private MapController mMapController;
     private Track track;
-    private Style style;
     private List<Measurement.PropertyKey> options = new ArrayList<>();
     private List<String> spinnerStrings = new ArrayList<>();
     private boolean mIsCentredOnTrack;
@@ -134,8 +128,6 @@ public class MapExpandedActivity extends BaseInjectorActivity {
         mCentreFab.setOnClickListener(v -> onClickFollowFab());
         mVisualiseFab.setOnClickListener(v -> onClickVisualiseFab());
 
-        mMapViewExpanded.onCreate(savedInstanceState);
-
         // Get the track to show.
         int trackID = getIntent().getIntExtra(EXTRA_TRACKID, -1);
         Track.TrackId trackid = new Track.TrackId(trackID);
@@ -143,8 +135,6 @@ public class MapExpandedActivity extends BaseInjectorActivity {
                 .subscribeOn(Schedulers.io())
                 .blockingFirst();
         this.track = track;
-
-        trackMapOverlay = new TrackMapLayer(track);
 
         options = track.getSupportedProperties();
         for (Measurement.PropertyKey propertyKey : options) {
@@ -169,12 +159,16 @@ public class MapExpandedActivity extends BaseInjectorActivity {
     }
 
     protected void onClickFollowFab() {
-        final LatLngBounds viewBbox = trackMapOverlay.getViewBoundingBox();
         if (!mIsCentredOnTrack) {
             mIsCentredOnTrack = true;
             TransitionManager.beginDelayedTransition(mMapViewExpandedContainer, new androidx.transition.Slide(Gravity.RIGHT));
             mCentreFab.hide();
-            mapboxMapExpanded.easeCamera(CameraUpdateFactory.newLatLngBounds(viewBbox, 50), 2500);
+            if (mMapController != null) {
+                mMapController.notifyCameraUpdate(
+                    Objects.requireNonNull(new TrackMapFactory(track).getCameraUpdateBasedOnBounds()),
+                    new Animation.Builder().withDuration(2500).build()
+                );
+            }
         }
     }
 
@@ -185,17 +179,32 @@ public class MapExpandedActivity extends BaseInjectorActivity {
         b.setItems(spinnerStrings.toArray(new String[0]), (dialogInterface, i) -> {
             dialogInterface.dismiss();
             LOG.info("Choice: " + i);
-            makeMapChanges(i);
+            addPolyline(i);
         });
         b.show();
 
     }
 
-    private void makeMapChanges(int choice) {
-        final LatLngBounds viewBbox = trackMapOverlay.getViewBoundingBox();
-        if (mapboxMapExpanded != null) {
-            LOG.info("Choice: " + choice);
+    private void addPolyline(int choice) {
+        if (mMapController != null) {
+
+            final TrackMapFactory factory = new TrackMapFactory(track);
+
+            if (mPolyline != null) {
+                mMapController.removePolyline(mPolyline);
+            }
+
             if (!spinnerStrings.get(choice).equalsIgnoreCase("None")) {
+
+                final Measurement.PropertyKey key = options.get(choice);
+
+                // Display gradient polyline.
+
+                mPolyline = factory.getGradientPolyline(key);
+                mMapController.addPolyline(Objects.requireNonNull(mPolyline));
+
+                // Set legend values.
+
                 if (legendCard.getVisibility() != View.VISIBLE) {
                     TransitionManager.beginDelayedTransition(legendCard, new androidx.transition.Slide(Gravity.LEFT));
                     legendCard.setVisibility(View.VISIBLE);
@@ -203,170 +212,64 @@ public class MapExpandedActivity extends BaseInjectorActivity {
                     TransitionManager.beginDelayedTransition(legendCard, new ChangeBounds());
                 }
 
-                mapboxMapExpanded.getStyle(new Style.OnStyleLoaded() {
-                    @Override
-                    public void onStyleLoaded(@NonNull Style style) {
-                        //Remove current gradient layer
-                        style.removeLayer(TrackMapLayer.GRADIENT_LAYER);
-                        style.removeSource(TrackMapLayer.GRADIENT_SOURCE);
+                try {
+                    legendStart.setText(DECIMAL_FORMATTER.format(factory.getGradientMinValue(key)));
+                    legendEnd.setText(DECIMAL_FORMATTER.format(factory.getGradientMaxValue(key)));
+                    Float mid = (Objects.requireNonNull(factory.getGradientMinValue(key)) + Objects.requireNonNull(factory.getGradientMaxValue(key))) / 2;
+                    legendMid.setText(DECIMAL_FORMATTER.format(mid));
+                    legendName.setText(options.get(choice).getStringResource());
+                } catch (Exception e){
+                    LOG.error("Error while formatting legend.", e);
+                }
 
-                        //Add new gradient layer based on choice of data
-                        style.addSource(trackMapOverlay.getGradientGeoJSONSource());
-                        style.addLayerBelow(trackMapOverlay.getGradientLineLayer(options.get(choice)), "marker-layer1");
-
-                        //Set legend values
-                        try {
-                            legendStart.setText(DECIMAL_FORMATTER.format(trackMapOverlay.getGradMin()));
-                            legendEnd.setText(DECIMAL_FORMATTER.format(trackMapOverlay.getGradMax()));
-                            Float mid = (trackMapOverlay.getGradMin() + trackMapOverlay.getGradMax()) / 2;
-                            legendMid.setText(DECIMAL_FORMATTER.format(mid));
-                            legendName.setText(options.get(choice).getStringResource());
-                        } catch (Exception e){
-                            LOG.error("Error while formatting legend.", e);
-                        }
-                    }
-                });
             } else {
-                //None gradient chosen. So remove the gradient layers
+
+                // Display polyline.
+
+                mPolyline = factory.getPolyline();
+                mMapController.addPolyline(Objects.requireNonNull(mPolyline));
+
                 TransitionManager.beginDelayedTransition(legendCard, new androidx.transition.Slide(Gravity.LEFT));
                 legendCard.setVisibility(GONE);
-                mapboxMapExpanded.getStyle(new Style.OnStyleLoaded() {
-                    @Override
-                    public void onStyleLoaded(@NonNull Style style) {
-                        style.removeLayer(TrackMapLayer.GRADIENT_LAYER);
-                        style.removeSource(TrackMapLayer.GRADIENT_SOURCE);
-                    }
-                });
-            }
-            mapboxMapExpanded.easeCamera(CameraUpdateFactory.newLatLngBounds(viewBbox, 50));
-        }
-    }
 
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
+            }
+            mMapController.notifyCameraUpdate(
+                Objects.requireNonNull(factory.getCameraUpdateBasedOnBounds()),
+                null
+            );
+        }
     }
 
     private void initMapView() {
-        final LatLngBounds viewBbox = trackMapOverlay.getViewBoundingBox();
-        mMapViewExpanded.getMapAsync(new OnMapReadyCallback() {
-            @Override
-            public void onMapReady(@NonNull MapboxMap mapboxMap1) {
-                mapboxMap1.getUiSettings().setLogoEnabled(false);
-                mapboxMap1.getUiSettings().setAttributionEnabled(false);
-                mapboxMap1.setStyle(new Style.Builder().fromUrl("https://api.maptiler.com/maps/basic/style.json?key=YJCrA2NeKXX45f8pOV6c "), new Style.OnStyleLoaded() {
-                    @Override
-                    public void onStyleLoaded(@NonNull Style style) {
-                        MapExpandedActivity.this.style = style;
-                        //Set normal source and line layer
-                        style.addSource(trackMapOverlay.getGeoJsonSource());
-                        style.addLayer(trackMapOverlay.getLineLayer());
+        if (mMapController != null) {
+            return;
+        }
+        mMapController = mMapViewExpanded.getController(
+                new MapProviderRepository(
+                        getApplication(),
+                        // Display attribution in top right of the screen.
+                        new AttributionSettings.Builder()
+                                .withGravity(Gravity.TOP | Gravity.END)
+                                .withMargin(new float[]{12.0F, 12.0F, 12.0F, 12.0F})
+                                .build(),
+                        new LogoSettings.Builder()
+                                .withGravity(Gravity.TOP | Gravity.END)
+                                .withMargin(new float[]{12.0F, 12.0F, 84.0F, 12.0F})
+                                .build()
+                ).getValue()
+        );
+        final TrackMapFactory factory = new TrackMapFactory(track);
 
-                        mapboxMap1.moveCamera(CameraUpdateFactory.newLatLngBounds(viewBbox, 50));
-                        setUpStartStopIcons(style);
+        mMapController.setMinZoom(factory.getMinZoom());
+        mMapController.setMaxZoom(factory.getMaxZoom());
+        mMapController.addMarker(Objects.requireNonNull(factory.getStartMarker()));
+        mMapController.addMarker(Objects.requireNonNull(factory.getStopMarker()));
+        mMapController.notifyCameraUpdate(Objects.requireNonNull(factory.getCameraUpdateBasedOnBounds()), null);
 
-                        if (options.contains(Measurement.PropertyKey.SPEED)) {
-                            makeMapChanges(options.indexOf(Measurement.PropertyKey.SPEED));
-                        } else {
-                            makeMapChanges(options.indexOf(Measurement.PropertyKey.GPS_SPEED));
-                        }
-                    }
-                });
-                mapboxMapExpanded = mapboxMap1;
-                mapboxMapExpanded.setMaxZoomPreference(18);
-                mapboxMapExpanded.setMinZoomPreference(1);
-            }
-        });
-    }
-
-    private void setUpStartStopIcons(@NonNull Style loadedMapStyle) {
-        int size = track.getMeasurements().size();
-        if (size >= 2) {
-            //Set Source with start and stop marker
-            Double lng = track.getMeasurements().get(0).getLongitude();
-            Double lat = track.getMeasurements().get(0).getLatitude();
-            GeoJsonSource geoJsonSource = new GeoJsonSource("marker-source1", Feature.fromGeometry(
-                    Point.fromLngLat(lng, lat)));
-            loadedMapStyle.addSource(geoJsonSource);
-
-            lng = track.getMeasurements().get(size - 1).getLongitude();
-            lat = track.getMeasurements().get(size - 1).getLatitude();
-            geoJsonSource = new GeoJsonSource("marker-source2", Feature.fromGeometry(
-                    Point.fromLngLat(lng, lat)));
-            loadedMapStyle.addSource(geoJsonSource);
-
-            //Set symbol layer to set the icons to be displayed at the start and stop
-            loadedMapStyle.addImage("start-marker",
-                    BitmapFactory.decodeResource(
-                            this.getResources(), R.drawable.start_marker));
-            SymbolLayer symbolLayer = new SymbolLayer("marker-layer1", "marker-source1");
-            symbolLayer.withProperties(
-                    PropertyFactory.iconImage("start-marker"),
-                    PropertyFactory.iconAllowOverlap(true),
-                    PropertyFactory.iconIgnorePlacement(true)
-            );
-            loadedMapStyle.addLayer(symbolLayer);
-
-            loadedMapStyle.addImage("stop-marker",
-                    BitmapFactory.decodeResource(
-                            this.getResources(), R.drawable.stop_marker));
-            symbolLayer = new SymbolLayer("marker-layer2", "marker-source2");
-            symbolLayer.withProperties(
-                    PropertyFactory.iconImage("stop-marker"),
-                    PropertyFactory.iconAllowOverlap(true),
-                    PropertyFactory.iconIgnorePlacement(true)
-            );
-            loadedMapStyle.addLayerAbove(symbolLayer, "marker-layer1");
+        if (options.contains(Measurement.PropertyKey.SPEED)) {
+            addPolyline(options.indexOf(Measurement.PropertyKey.SPEED));
+        } else {
+            addPolyline(options.indexOf(Measurement.PropertyKey.GPS_SPEED));
         }
     }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        mMapViewExpanded.onStart();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        supportStartPostponedEnterTransition();
-        mMapViewExpanded.onResume();
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        mMapViewExpanded.onPause();
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        mMapViewExpanded.onStop();
-    }
-
-    @Override
-    public void onLowMemory() {
-        super.onLowMemory();
-        mMapViewExpanded.onLowMemory();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (style != null) {
-            style.removeLayer(MapLayer.LAYER_NAME);
-            style.removeLayer("marker-layer1");
-            style.removeLayer("marker-layer2");
-        }
-        if (mMapViewExpanded != null)
-            mMapViewExpanded.onDestroy();
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        mMapViewExpanded.onSaveInstanceState(outState);
-    }
-
 }

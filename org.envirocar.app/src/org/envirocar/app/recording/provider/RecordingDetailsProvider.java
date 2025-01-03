@@ -36,10 +36,12 @@ import org.envirocar.app.events.StartingTimeEvent;
 import org.envirocar.app.events.TrackPathOverlayEvent;
 import org.envirocar.app.recording.RecordingService;
 import org.envirocar.app.recording.RecordingState;
-import org.envirocar.app.views.trackdetails.MapLayer;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.events.recording.RecordingNewMeasurementEvent;
 import org.envirocar.core.logging.Logger;
+import org.envirocar.map.model.Point;
+
+import java.util.ArrayList;
 
 import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -53,7 +55,7 @@ public class RecordingDetailsProvider implements LifecycleObserver {
 
     private final Scheduler.Worker mMainThreadWorker = AndroidSchedulers.mainThread().createWorker();
 
-    private MapLayer mTrackMapOverlay = new MapLayer();
+    private final ArrayList<Point> mPoints = new ArrayList<>();
 
     private int mNumMeasurements;
     private double mDistanceValue;
@@ -125,7 +127,7 @@ public class RecordingDetailsProvider implements LifecycleObserver {
 
     @Produce
     public TrackPathOverlayEvent provideTrackPathOverlay() {
-        return new TrackPathOverlayEvent(mTrackMapOverlay);
+        return new TrackPathOverlayEvent(mPoints);
     }
 
     @Produce
@@ -148,7 +150,8 @@ public class RecordingDetailsProvider implements LifecycleObserver {
     private void updatePathOverlay(Measurement measurement) {
         mMainThreadWorker.schedule(() -> {
             LOG.info("Map being updated with new points: " + measurement.getLatitude() + measurement.getLongitude());
-            mTrackMapOverlay.addPoint(measurement.getLatitude(), measurement.getLongitude());
+            mPoints.add(new Point(measurement.getLatitude(), measurement.getLongitude()));
+            eventBus.post(new TrackPathOverlayEvent(mPoints));
         });
     }
 
@@ -204,7 +207,7 @@ public class RecordingDetailsProvider implements LifecycleObserver {
 
     public void clear() {
         mMainThreadWorker.schedule(() -> {
-            mTrackMapOverlay.clearPath();
+            mPoints.clear();
             mNumMeasurements = 0;
             mDistanceValue = 0;
             mTotalSpeed = 0;
