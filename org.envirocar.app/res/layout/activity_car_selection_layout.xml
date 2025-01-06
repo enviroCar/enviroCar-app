@@ -19,12 +19,12 @@
     with the enviroCar app. If not, see http://www.gnu.org/licenses/.
 
 -->
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-    android:id="@+id/activity_car_selection_layout_content"
+<androidx.coordinatorlayout.widget.CoordinatorLayout android:id="@+id/activity_car_selection_layout_content"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <LinearLayout
         android:orientation="vertical"
@@ -99,11 +99,11 @@
                         <!--android:visibility="invisible"/>-->
                 </LinearLayout>
 
-                <ListView
-                    android:id="@+id/activity_car_selection_layout_carlist"
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/activity_car_selection_layout_car_recycler"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:choiceMode="singleChoice"
+                    tools:listitem="@layout/activity_car_selection_layout_carlist_entry"
                     android:divider="#00000000"
                     android:padding="@dimen/spacing_medium"/>
 
