@@ -80,7 +80,7 @@ public class SignupActivity extends BaseInjectorActivity {
     private static final Logger LOG = Logger.getLogger(SignupActivity.class);
 
     private static final String EMAIL_REGEX = "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})$";
-    private static final String PASSWORD_REGEX = "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{6,}$";
+    private static final String PASSWORD_REGEX= "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,20}$";
     private static final String USERNAME_REGEX = "^[A-Za-z0-9_-]{6,}$";
     private static final int CHECK_FORM_DELAY = 750;
     private static Drawable errorPassword;
@@ -408,7 +408,7 @@ public class SignupActivity extends BaseInjectorActivity {
         if (password == null || password.isEmpty() || password.equals("")) {
             password1EditText.setError(getString(R.string.error_field_required), errorPassword);
             isValidPassword = false;
-        } else if (password.length() < 6) {
+        } else if (password.length() < 8) {
             password1EditText.setError(getString(R.string.error_invalid_password), errorPassword);
             isValidPassword = false;
         } else if (!Pattern.matches(PASSWORD_REGEX, password)) {
