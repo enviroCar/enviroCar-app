@@ -48,6 +48,7 @@ import org.envirocar.app.notifications.ServiceStateForNotification;
 import org.envirocar.app.recording.RecordingService;
 import org.envirocar.app.recording.RecordingState;
 import org.envirocar.app.recording.events.RecordingStateEvent;
+import org.envirocar.app.views.recordingscreen.RecordingScreenActivity;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.obd.events.TrackRecordingServiceStateChangedEvent;
 import org.envirocar.obd.service.BluetoothServiceState;
@@ -96,7 +97,7 @@ public class RecordingNotification implements LifecycleObserver {
         this.context = recordingService;
         this.eventBus = eventBus;
         this.notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        this.screenClass = BaseMainActivity.class;
+        this.screenClass = RecordingScreenActivity.class;
         this.channelId = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ? createChannel() : "";
     }
 
@@ -205,7 +206,7 @@ public class RecordingNotification implements LifecycleObserver {
             state = ServiceStateForNotification.CONNECTING;
         }
 
-        Intent i = new Intent(context, BaseMainActivity.class);
+        Intent i = new Intent(context, RecordingScreenActivity.class);
         PendingIntent pIntent = PendingIntent.getActivity(context, (int) System.currentTimeMillis(), i, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
 
         this.notification = new NotificationCompat.Builder(context, channelId)
