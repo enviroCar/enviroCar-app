@@ -25,6 +25,7 @@
     <string name="obd_selection_bluetooth_on">Bluetooth An</string>
     <string name="obd_selection_bluetooth_off">Bluetooth Aus</string>
     <string name="obd_selection_bluetooth_disabled">Bluetooth ist deaktiviert.</string>
+    <string name="obd_selection_bluetooth_disabled_info">Bitte aktivieren Sie Bluetooth, bevor Sie nach anderen Geräten suchen können.</string>
     <string name="obd_selection_bluetooth_disabled_snackbar">Bluetooth ist deaktiviert. Bitte aktivieren Sie Bluetooth, bevor Sie nach anderen Geräten suchen können.</string>
     <string name="obd_selection_discovery_started">Suche gestartet!</string>
     <string name="obd_selection_discovery_finished">Suche beendet!</string>
@@ -35,7 +36,7 @@
     <string name="obd_selection_no_available_devices">Keine Bluetooth-Geräte gefunden.</string>
 
     <string name="obd_selection_paired_devices">Gekoppelte Geräte</string>
-    <string name="obd_selection_avaiable_devices">Verfügbare Geräte</string>
+    <string name="obd_selection_available_devices">Verfügbare Geräte</string>
 
     <string name="obd_selection_dialog_pairing_title">Gerät koppeln</string>
     <string name="obd_selection_dialog_pairing_content_template">Möchten Sie ihr Gerät mit %s koppeln?</string>
