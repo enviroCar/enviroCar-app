@@ -1,7 +1,7 @@
 [versions]
 acraCore = "5.7.0"
 afollestadCore = "0.9.6.0"
-agp = "8.4.0"
+agp = "8.13.2"
 androidSegmented = "1.0.6"
 androidxCore = "1.13.1"
 appcompat = "1.6.1"
@@ -20,7 +20,7 @@ hellochartsLibrary = "1.5.8"
 jsr305 = "3.0.2"
 junit = "4.13.2"
 junitVersion = "1.1.5"
-kotlin = "1.9.0"
+kotlin = "2.3.0"
 legacySupportV4 = "1.0.0"
 licensePlugin = "0.16.1"
 lifecycleCompiler = "2.7.0"
@@ -53,8 +53,8 @@ sqlite = "2.4.0"
 transitionseverywhere = "2.1.0"
 
 minSdk = "24"
-compileSdk = "34"
-targetSdk = "34"
+compileSdk = "35"
+targetSdk = "35"
 
 [libraries]
 acra-core = { module = "ch.acra:acra-core", version.ref = "acraCore" }

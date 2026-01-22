@@ -39,7 +39,7 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-@Database(entities = {Manufacturers.class, Vehicles.class, PowerSource.class}, version = 2)
+@Database(entities = {Manufacturers.class, Vehicles.class, PowerSource.class}, version = 2, exportSchema = false)
 public abstract class EnviroCarVehicleDB extends RoomDatabase {
 
     //DAO car selection

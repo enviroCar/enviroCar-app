@@ -142,7 +142,7 @@ public class Logger {
         log(INFO, message, null);
     }
 
-    public void info(String messageTmp, String... args) {
+    public void info(String messageTmp, Object... args) {
         info(String.format(messageTmp, args));
     }
 

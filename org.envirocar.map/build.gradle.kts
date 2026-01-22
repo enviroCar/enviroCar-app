@@ -11,7 +11,7 @@ plugins {
 
 android {
     namespace = "org.envirocar.map"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         minSdk = 23
@@ -33,6 +33,10 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+}
+
+kotlin {
+    jvmToolchain(17)
 }
 
 dependencies {
