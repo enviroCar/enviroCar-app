@@ -73,16 +73,22 @@ public class MapViewPreference extends DialogPreference {
         private static boolean mapboxEnabled = true;
 
         private static Map<String, String> getMapLibreStyles() {
+//            return Map.of(
+//                    "OpenStreetMap", getMapLibreDefaultStyle(),
+//                    "MapTiler (Basic)", "https://api.maptiler.com/maps/basic/style.json?key=" + BuildConfig.MAPTILER_API_KEY
+//            );
             return Map.of(
-                    "OpenStreetMap", getMapLibreDefaultStyle(),
-                    "MapTiler (Basic)", "https://api.maptiler.com/maps/basic/style.json?key=" + BuildConfig.MAPTILER_API_KEY
+                    "OpenStreetMap", getMapLibreDefaultStyle()
             );
         }
 
         private static Map<String, String> getMapboxStyles() {
+//            return Map.of(
+//                    "Mapbox (Streets)", getMapboxDefaultStyle(),
+//                    "MapTiler (Basic)", "https://api.maptiler.com/maps/basic/style.json?key=" + BuildConfig.MAPTILER_API_KEY
+//            );
             return Map.of(
-                    "Mapbox (Streets)", getMapboxDefaultStyle(),
-                    "MapTiler (Basic)", "https://api.maptiler.com/maps/basic/style.json?key=" + BuildConfig.MAPTILER_API_KEY
+                    "Mapbox (Streets)", getMapboxDefaultStyle()
             );
         }
 
