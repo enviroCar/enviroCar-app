@@ -58,7 +58,8 @@ public class ApplicationSettings {
     public static final boolean DEFAULT_DEBUG_LOGGING = false;
     public static final int DEFAULT_SAMPLING_RATE = 5;
     public static final String DEFAULT_MAP_PROVIDER = MapProviderRepository.PROVIDER_MAPLIBRE;
-    public static final String DEFAULT_MAPLIBRE_STYLE = "https://api.maptiler.com/maps/basic/style.json?key=" + BuildConfig.MAPTILER_API_KEY;
+//    public static final String DEFAULT_MAPLIBRE_STYLE = "https://api.maptiler.com/maps/basic/style.json?key=" + BuildConfig.MAPTILER_API_KEY;
+    public static final String DEFAULT_MAPLIBRE_STYLE = "asset://maplibre_default_style.json";
     public static String DEFAULT_MAPBOX_STYLE;
 
     static {
