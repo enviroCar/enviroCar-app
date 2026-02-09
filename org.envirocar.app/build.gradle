@@ -7,8 +7,8 @@ android {
     namespace "org.envirocar.app"
 
     defaultConfig {
-        versionName "2.1.0"
-        versionCode 64
+        versionName "2.3.0"
+        versionCode 65
 
         minSdk libs.versions.minSdk.get().toInteger()
         compileSdk libs.versions.compileSdk.get().toInteger()
