@@ -1,7 +1,7 @@
 import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-val enableMapbox = gradleLocalProperties(rootDir, providers).getOrDefault("org.envirocar.map.enableMapbox", "true") == "true"
+val enableMapbox = gradleLocalProperties(rootDir, providers).getOrDefault("org.envirocar.map.enableMapbox", "false") == "true"
 val enableMapLibre = gradleLocalProperties(rootDir, providers).getOrDefault("org.envirocar.map.enableMapLibre", "true") == "true"
 
 plugins {
