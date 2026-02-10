@@ -134,7 +134,7 @@ abstract class MapController {
                 job = scope.launch {
                     readyCompletableDeferred.await()
                     while (synchronized(queueLock) { queue.isNotEmpty() }) {
-                        synchronized(queueLock) { queue.removeFirst().invoke() }
+                        synchronized(queueLock) { queue.removeAt(0).invoke() }
                     }
                     synchronized(jobLock) { job = null }
                 }
