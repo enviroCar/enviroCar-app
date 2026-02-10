@@ -33,7 +33,7 @@ material = "1.12.0"
 mockitoCore = "5.7.0"
 opencsv = "4.6"
 otto = "1.3.8"
-playCore = "1.10.3"
+appUpdate = "2.1.0"
 playServicesLocation = "18.0.0"
 powermockApiMockito = "1.7.4"
 powermockModuleJunit4 = "2.0.9"
@@ -79,7 +79,7 @@ androidx-sqlite = { module = "androidx.sqlite:sqlite", version.ref = "sqlite" }
 androidx-sqlite-framework = { module = "androidx.sqlite:sqlite-framework", version.ref = "sqlite" }
 circleimageview = { module = "de.hdodenhof:circleimageview", version.ref = "circleimageview" }
 commons-compress = { module = "org.apache.commons:commons-compress", version.ref = "commonsCompress" }
-core = { module = "com.google.android.play:core", version.ref = "playCore" }
+app-update = { module = "com.google.android.play:app-update", version.ref = "appUpdate" }
 core-testing = { module = "android.arch.core:core-testing", version.ref = "coreTesting" }
 dagger = { module = "com.google.dagger:dagger", version.ref = "dagger" }
 dagger-compiler = { module = "com.google.dagger:dagger-compiler", version.ref = "dagger" }

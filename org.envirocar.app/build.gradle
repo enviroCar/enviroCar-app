@@ -131,7 +131,7 @@ dependencies {
     implementation libs.gson
     implementation libs.play.services.location
     implementation libs.jsr305
-    implementation libs.core
+    implementation libs.app.update
 
     // RxJava dependencies.
 
