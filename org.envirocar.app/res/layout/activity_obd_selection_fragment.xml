@@ -79,7 +79,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/obd_selection_avaiable_devices"
+                android:text="@string/obd_selection_available_devices"
                 android:textColor="@color/blue_dark_cario"
                 android:textSize="14sp" />
 
@@ -125,13 +125,8 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_gravity="center"
-        android:layout_margin="10dp"
-        android:gravity="center"
-        android:text="@string/obd_selection_bluetooth_disabled"
-        tools:layout_editor_absoluteX="26dp" />
+    <include
+        android:id="@+id/activity_logbook_not_logged_in"
+        layout="@layout/bluetooth_disabled_info" />
 
 </LinearLayout>
