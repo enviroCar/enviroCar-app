@@ -39,6 +39,7 @@ import org.envirocar.app.views.settings.custom.GPSTrimDurationPreference;
 import org.envirocar.app.views.settings.custom.MapViewPreference;
 import org.envirocar.app.views.settings.custom.SamplingRatePreference;
 import org.envirocar.app.views.settings.custom.TimePickerPreferenceDialog;
+import org.envirocar.app.views.utils.WindowInsetsUtils;
 
 /**
  * @author dewall
@@ -78,6 +79,14 @@ public class SettingsActivity extends AppCompatActivity implements MapViewPrefer
                 .beginTransaction()
                 .replace(R.id.activity_settings_content, new SettingsFragment())
                 .commit();
+    }
+
+    @Override
+    public void onContentChanged() {
+        super.onContentChanged();
+        // The layout does not handle insets itself; offset content for the system
+        // bars so it is not drawn underneath them in edge-to-edge mode.
+        WindowInsetsUtils.applySystemBarInsetsAsPadding(this);
     }
 
     public static class SettingsFragment extends PreferenceFragmentCompat {

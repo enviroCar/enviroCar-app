@@ -63,6 +63,12 @@ public class TermsOfUseActivity extends BaseInjectorActivity {
     protected TextView touTextView;
     protected Toolbar toolbar;
 
+    // The layout handles system-bar insets itself via fitsSystemWindows.
+    @Override
+    protected boolean applyDefaultWindowInsets() {
+        return false;
+    }
+
     @Inject
     protected GetLatestTermsOfUse getLatestTermsOfUse;
 

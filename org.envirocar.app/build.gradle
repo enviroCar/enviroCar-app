@@ -187,14 +187,3 @@ dependencies {
     api project(path: ":org.envirocar.storage")
     implementation libs.envirocar.aidl
 }
-
-configurations.configureEach {
-    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
-        def requested = details.requested
-        if (requested.group == "androidx") {
-            if (!requested.name.startsWith("multidex")) {
-                details.useVersion "${targetSdk}.+"
-            }
-        }
-    }
-}

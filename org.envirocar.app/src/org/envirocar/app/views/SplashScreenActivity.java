@@ -51,6 +51,12 @@ public class SplashScreenActivity extends BaseInjectorActivity {
     EnviroCarVehicleDB enviroCarVehicleDB;
     private Disposable timerDisposable;
 
+    // Keep the splash screen full-bleed behind the system bars.
+    @Override
+    protected boolean applyDefaultWindowInsets() {
+        return false;
+    }
+
     @Override
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
         baseApplicationComponent.inject(this);

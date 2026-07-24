@@ -43,6 +43,7 @@ import org.envirocar.app.events.DistanceValueUpdateEvent;
 import org.envirocar.app.events.DrivingDetectedEvent;
 import org.envirocar.app.recording.events.RecordingErrorEvent;
 import org.envirocar.app.events.StartingTimeEvent;
+import org.envirocar.app.views.utils.WindowInsetsUtils;
 import org.envirocar.app.handler.ApplicationSettings;
 import org.envirocar.app.handler.TrackRecordingHandler;
 import org.envirocar.app.injection.BaseInjectorActivity;
@@ -114,6 +115,12 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
                 .inject(this);
     }
 
+    // The bottom bar handles the navigation-bar inset itself; the map stays full-bleed.
+    @Override
+    protected boolean applyDefaultWindowInsets() {
+        return false;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         LOG.info("Creating RecordingScreenActivity");
@@ -134,6 +141,9 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
         tempomatContainer = binding.activityRecscreenTempomatContainer;
         stopTrackRecordingButton = binding.activityRecscreenStopbutton;
         trackUploadStatus = binding.activityRecscreenTrackUploadStatus;
+
+        // Keep the map full-bleed but lift the bottom bar above the navigation bar.
+        WindowInsetsUtils.applyBottomSystemBarInsetAsPadding(trackDetailsContainer);
 
         binding.activityRecscreenSwitchbutton.setOnClickListener(v -> onSwitchViewsButtonClicked());
         binding.activityRecscreenStopbutton.setOnClickListener(v -> onStopButtonClicked());

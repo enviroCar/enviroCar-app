@@ -53,8 +53,8 @@ sqlite = "2.4.0"
 transitionseverywhere = "2.1.0"
 
 minSdk = "24"
-compileSdk = "35"
-targetSdk = "35"
+compileSdk = "36"
+targetSdk = "36"
 
 [libraries]
 acra-core = { module = "ch.acra:acra-core", version.ref = "acraCore" }

@@ -11,7 +11,7 @@ plugins {
 
 android {
     namespace = "org.envirocar.map"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 23

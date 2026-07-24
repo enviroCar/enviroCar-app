@@ -101,6 +101,12 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
 
     private ActivityTrackDetailsLayoutBinding binding;
 
+    // The layout handles system-bar insets itself via fitsSystemWindows.
+    @Override
+    protected boolean applyDefaultWindowInsets() {
+        return false;
+    }
+
     @Inject
     protected EnviroCarDB mEnvirocarDB;
 

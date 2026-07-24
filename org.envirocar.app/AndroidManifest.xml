@@ -133,7 +133,8 @@
             android:foregroundServiceType="location" />
         <service
             android:name=".services.autoconnect.AutoRecordingService"
-            android:enabled="true" />
+            android:enabled="true"
+            android:foregroundServiceType="location" />
         <service
             android:name=".services.TrackUploadService"
             android:enabled="true" />

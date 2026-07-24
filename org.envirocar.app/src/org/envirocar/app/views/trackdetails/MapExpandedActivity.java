@@ -40,6 +40,7 @@ import org.envirocar.app.databinding.ActivityMapExpandedBinding;
 import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.views.utils.MapProviderRepository;
+import org.envirocar.app.views.utils.WindowInsetsUtils;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.logging.Logger;
@@ -104,6 +105,12 @@ public class MapExpandedActivity extends BaseInjectorActivity {
         baseApplicationComponent.inject(this);
     }
 
+    // The map stays full-bleed; the overlay controls handle insets individually.
+    @Override
+    protected boolean applyDefaultWindowInsets() {
+        return false;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -123,6 +130,11 @@ public class MapExpandedActivity extends BaseInjectorActivity {
         legendMid = binding.legendMid;
         legendEnd = binding.legendEnd;
         legendName = binding.legendUnit;
+
+        // Keep the map full-bleed but inset the overlay controls off the system bars.
+        WindowInsetsUtils.applySystemBarInsetsAsMargin(mMapViewExpandedCancel);
+        WindowInsetsUtils.applySystemBarInsetsAsMargin(mCentreFab);
+        WindowInsetsUtils.applySystemBarInsetsAsMargin(mVisualiseFab);
 
         mMapViewExpanded.setOnTouchListener((v, event) -> onTouchMapView());
         mCentreFab.setOnClickListener(v -> onClickFollowFab());

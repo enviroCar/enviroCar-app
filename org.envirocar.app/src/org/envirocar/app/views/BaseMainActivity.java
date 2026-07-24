@@ -81,6 +81,12 @@ public class BaseMainActivity extends BaseInjectorActivity {
 
     private ActivityBaseMainBottomBarBinding binding;
 
+    // The layout handles system-bar insets itself via fitsSystemWindows.
+    @Override
+    protected boolean applyDefaultWindowInsets() {
+        return false;
+    }
+
     private FragmentStatePagerAdapter fragmentStatePagerAdapter;
     private MenuItem prevMenuItem;
 

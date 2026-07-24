@@ -27,6 +27,7 @@ import com.squareup.otto.Bus;
 
 import org.envirocar.app.BaseApplication;
 import org.envirocar.app.BaseApplicationComponent;
+import org.envirocar.app.views.utils.WindowInsetsUtils;
 
 import javax.inject.Inject;
 
@@ -45,6 +46,29 @@ public abstract class BaseInjectorActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         injectDependencies(BaseApplication.get(this).getBaseApplicationComponent());
+    }
+
+    @Override
+    public void onContentChanged() {
+        super.onContentChanged();
+        // Apps are displayed edge-to-edge (enforced for apps targeting API 35+, and
+        // no longer opt-out-able on API 36). Offset the content for the system bars
+        // unless the activity's layout already handles insets itself.
+        if (applyDefaultWindowInsets()) {
+            WindowInsetsUtils.applySystemBarInsetsAsPadding(this);
+        }
+    }
+
+    /**
+     * Whether the default system-bar inset padding should be applied to this
+     * activity's content view. Activities whose layouts already handle insets
+     * (e.g. a CoordinatorLayout with {@code android:fitsSystemWindows}) should
+     * override this to return {@code false} to avoid doubled padding.
+     *
+     * @return {@code true} to apply the default inset padding.
+     */
+    protected boolean applyDefaultWindowInsets() {
+        return true;
     }
 
     @Override
