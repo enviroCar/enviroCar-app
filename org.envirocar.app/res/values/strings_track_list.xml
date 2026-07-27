@@ -51,6 +51,8 @@
     <string name="track_list_loading_lremote_tracks_error">Error while loading downloaded remote tracks.</string>
     <string name="track_list_loading_remote_tracks_error">Unable to load remote tracks. Maybe you have no connection to the internet?</string>
 
+    <string name="track_list_show_track_details_error">Track is faulty and can not be opened, shared or deleted.</string>
+
     <string name="track_list_bg_error">ERROR!</string>
     <string name="track_list_bg_error_sub">Error while retrieving tracks.\nPlease retry.</string>
     <string name="track_list_bg_no_local_tracks">NO LOCAL TRACKS</string>

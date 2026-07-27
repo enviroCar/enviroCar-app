@@ -49,6 +49,8 @@
     <string name="track_list_loading_lremote_tracks_error">Fehler während des Ladens von heruntergladenen Fahrten.</string>
     <string name="track_list_loading_remote_tracks_error">Fehler beim Laden von Fahrten vom Server. Eventuell besteht keine Verbindung zum Internet?</string>
 
+    <string name="track_list_show_track_details_error">Fahrt ist fehlerhaft und kann nicht geöffnet, gelöscht oder geteilt werden.</string>
+
     <string name="track_list_bg_error">Fehler!</string>
     <string name="track_list_bg_error_sub">Fehler beim Laden der Fahrten.\nBitte versuchen Sie es erneut.</string>
     <string name="track_list_bg_no_local_tracks">KEINE LOKALE FAHRTEN</string>

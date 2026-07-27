@@ -26,6 +26,7 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.BaseApplication;
@@ -108,17 +109,25 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<T
                      */
                     @Override
                     public void onTrackDetailsClicked(Track track, View transitionView) {
-                        LOG.info(String.format("onTrackDetailsClicked(%s)", track.getTrackID()
-                                .toString()));
-                        int trackID = (int) track.getTrackID().getId();
-                        TrackDetailsActivity.navigate(getActivity(), transitionView, trackID);
+                        if (track != null && track.getTrackID() != null) {
+                            LOG.info(String.format("onTrackDetailsClicked(%s)", track.getTrackID()
+                                    .toString()));
+                            int trackID = (int) track.getTrackID().getId();
+                            TrackDetailsActivity.navigate(getActivity(), transitionView, trackID);
+                        } else {
+                            showSnackbar(R.string.track_list_show_track_details_error);
+                        }
+
                     }
 
                     @Override
                     public void onDeleteTrackClicked(Track track) {
-                        LOG.info(String.format("onDeleteTrackClicked(%s)", track.getTrackID()));
-                        // create a dialog
-                        createDeleteTrackDialog(track);
+                        if (track != null && track.getTrackID() != null) {
+                            LOG.info(String.format("onDeleteTrackClicked(%s)", track.getTrackID()));
+                            createDeleteTrackDialog(track);
+                        } else {
+                            showSnackbar(R.string.track_list_show_track_details_error);
+                        }
                     }
 
                     @Override
@@ -130,8 +139,12 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<T
 
                     @Override
                     public void onShareTrackClicked(Track track) {
-                        LOG.info(String.format("onExportTrackClicked(%s)", track.getTrackID()));
-                        shareTrack(track);
+                        if (track != null && track.getTrackID() != null) {
+                            LOG.info(String.format("onExportTrackClicked(%s)", track.getTrackID()));
+                            shareTrack(track);
+                        } else {
+                            showSnackbar(R.string.track_list_show_track_details_error);
+                        }
                     }
 
                     @Override
