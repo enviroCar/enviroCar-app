@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - 2021 the enviroCar community
+ * Copyright (C) 2013 - 2026 the enviroCar community
  *
  * This file is part of the enviroCar app.
  *
@@ -16,6 +16,7 @@
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
+
 package org.envirocar.app.views.dashboard;
 
 import static android.app.Activity.RESULT_OK;
@@ -305,6 +306,11 @@ public class DashboardFragment extends BaseInjectorFragment {
     public void onResume() {
         super.onResume();
         this.updateStatisticsVisibility(this.statisticsKnown);
+        // Recording and upload rely on foreground-service notifications, which are
+        // suppressed on Android 13+ unless POST_NOTIFICATIONS has been granted.
+        if (getActivity() != null) {
+            PermissionUtils.requestNotificationPermissionIfRequired(getActivity());
+        }
         appUpdateManager
                 .getAppUpdateInfo()
                 .addOnSuccessListener(
