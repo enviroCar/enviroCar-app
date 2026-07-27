@@ -2,17 +2,48 @@ plugins {
     alias(libs.plugins.android.application) apply false
     alias(libs.plugins.android.library) apply false
     alias(libs.plugins.jetbrains.kotlin.android) apply false
-    alias(libs.plugins.license.plugin)
+    alias(libs.plugins.spotless) apply false
 }
 
-allprojects {
-    license {
-        header rootProject.file("LICENSE_HEADER")
-        strictCheck true
-        include "**/*.java"
-        include "**/*.xml"
-        include "**/*.html"
-        exclude "**/MoreObjects.java"
-        exclude "**/Preconditions.java"
+// Build the comment-styled license headers from the single plain-text
+// LICENSE_HEADER template, so it stays the one source of truth for every
+// file type. Spotless inserts the header verbatim, so the comment markers
+// have to be added here per language.
+def licenseLines = rootProject.file("LICENSE_HEADER").readLines()
+def javaLicenseHeader = "/**\n" +
+        licenseLines.collect { line -> line.trim().isEmpty() ? " *" : " * " + line }.join("\n") +
+        "\n */\n\n"
+def xmlLicenseHeader = "<!--\n\n" +
+        licenseLines.collect { line -> line.trim().isEmpty() ? "" : "    " + line }.join("\n") +
+        "\n\n-->\n"
+
+subprojects {
+    apply plugin: "com.diffplug.spotless"
+
+    spotless {
+        // Do not fail other Gradle tasks just because formatting drifted;
+        // run `spotlessApply` explicitly to update headers.
+        enforceCheck false
+
+        java {
+            target "src/**/*.java"
+            targetExclude "**/build/**", "**/MoreObjects.java", "**/Preconditions.java"
+            licenseHeader(javaLicenseHeader)
+        }
+
+        kotlin {
+            target "src/**/*.kt"
+            targetExclude "**/build/**"
+            licenseHeader(javaLicenseHeader)
+        }
+
+        format "xml", {
+            target "src/**/*.xml"
+            targetExclude "**/build/**"
+            // Keep the <?xml ...?> prolog first; insert the header before the
+            // first real element (delimiter skips <? and <! nodes).
+            licenseHeader(xmlLicenseHeader, "(<[^?!])")
+                    .skipLinesMatching("^<\\?xml.*\\?>\\s*\$")
+        }
     }
 }
