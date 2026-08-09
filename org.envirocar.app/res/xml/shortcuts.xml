@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:enabled="true"
+        android:icon="@drawable/others_help"
+        android:shortcutId="others"
+        android:shortcutShortLabel="@string/others_help">
+
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetClass="org.envirocar.app.views.BaseMainActivity"
+            android:targetPackage="org.envirocar.app" />
+        // on back pressed return to BaseMainActivity
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetClass="org.envirocar.app.views.others.HelpActivity"
+            android:targetPackage="org.envirocar.app" />
+    </shortcut>
+
+    <shortcut
+        android:enabled="true"
+        android:icon="@drawable/shortcut_setting"
+        android:shortcutId="setting"
+        android:shortcutShortLabel="@string/others_settings">
+
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetClass="org.envirocar.app.views.BaseMainActivity"
+            android:targetPackage="org.envirocar.app" />
+        // on back pressed return to BaseMainActivity
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetClass="org.envirocar.app.views.settings.SettingsActivity"
+            android:targetPackage="org.envirocar.app" />
+    </shortcut>
+    <shortcut
+        android:enabled="true"
+        android:icon="@drawable/others_logbook"
+        android:shortcutId="Logbook"
+        android:shortcutShortLabel="@string/others_logbook">
+
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetClass="org.envirocar.app.views.BaseMainActivity"
+            android:targetPackage="org.envirocar.app" />
+        // on back pressed return to BaseMainActivity
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetClass="org.envirocar.app.views.logbook.LogbookActivity"
+            android:targetPackage="org.envirocar.app" />
+    </shortcut>
+</shortcuts>
