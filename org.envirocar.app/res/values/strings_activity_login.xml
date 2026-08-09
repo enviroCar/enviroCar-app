@@ -30,8 +30,8 @@
     <string name="register_progress_signing_in">Registering&#8230;</string>
     <string name="error_passwords_not_matching">The passwords do not match.</string>
     <string name="error_invalid_username">This username is too short.</string>
-    <string name="error_username_contain_special">Special symbol not allowed except underscore</string>
-    <string name="error_field_weak_password">Password must contain at least one uppercase letter, one lowercase letter and one digit</string>
+    <string name="error_username_contain_special">Please enter a valid username of length greater than 6 and the special symbol is not allowed except underscore</string>
+    <string name="error_field_weak_password">The Password should be of length 8–20 characters, and it must contain at least one uppercase letter, one lowercase letter, one digit, and one special character.</string>
 
     <string name="error_username_already_in_use">This username is already in use.</string>
     <string name="error_email_already_in_use">This email is already in use.</string>
